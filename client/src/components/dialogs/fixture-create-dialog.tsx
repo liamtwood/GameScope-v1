@@ -37,6 +37,7 @@ interface FixtureCreateDialogProps {
 export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
   const [open, setOpen] = useState(false);
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
+  const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
   const [selectedOpponentForLogo, setSelectedOpponentForLogo] = useState<OppositionTeam | null>(null);
 
@@ -240,24 +241,48 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   <FormItem>
                     <FormLabel>Competition</FormLabel>
                     <FormControl>
-                      <div className="flex gap-2">
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          data-testid="select-competition"
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select competition" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {competitions.map((comp) => (
-                              <SelectItem key={comp.id} value={comp.name}>
-                                {comp.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {showNewCompetitionInput ? (
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            data-testid="select-competition"
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Select competition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {competitions.map((comp) => (
+                                <SelectItem key={comp.id} value={comp.name}>
+                                  {comp.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(true)}
+                            data-testid="button-add-new-competition"
+                            title="Add new competition"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

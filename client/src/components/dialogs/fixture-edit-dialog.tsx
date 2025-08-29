@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { LogoUpload } from "@/components/logo-upload";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, CalendarIcon } from "lucide-react";
+import { Calendar, CalendarIcon, Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -40,6 +40,7 @@ interface FixtureEditDialogProps {
 
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
 
   // Fetch existing competitions and opposition teams
@@ -307,22 +308,48 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   <FormItem>
                     <FormLabel>Competition</FormLabel>
                     <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        data-testid="select-competition"
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select competition" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {competitions.map((comp) => (
-                            <SelectItem key={comp.id} value={comp.name}>
-                              {comp.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {showNewCompetitionInput ? (
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            data-testid="select-competition"
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Select competition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {competitions.map((comp) => (
+                                <SelectItem key={comp.id} value={comp.name}>
+                                  {comp.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(true)}
+                            data-testid="button-add-new-competition"
+                            title="Add new competition"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

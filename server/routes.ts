@@ -251,6 +251,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/fixtures", async (req, res) => {
     try {
       const fixtureData = insertFixtureSchema.parse(req.body);
+      
+      // Auto-create competition if it doesn't exist
+      if (fixtureData.competition) {
+        await storage.getOrCreateCompetition(fixtureData.competition);
+      }
+      
       const fixture = await storage.createFixture(fixtureData);
       res.status(201).json(fixture);
     } catch (error) {
@@ -262,6 +268,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/fixtures/:id", async (req, res) => {
     try {
       const fixtureData = insertFixtureSchema.partial().parse(req.body);
+      
+      // Auto-create competition if it doesn't exist
+      if (fixtureData.competition) {
+        await storage.getOrCreateCompetition(fixtureData.competition);
+      }
+      
       const fixture = await storage.updateFixture(req.params.id, fixtureData);
       res.json(fixture);
     } catch (error) {

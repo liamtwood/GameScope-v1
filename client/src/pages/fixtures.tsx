@@ -38,6 +38,7 @@ export default function Fixtures() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/fixtures", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
       toast({
         title: "Success",
         description: "Fixture updated successfully",
@@ -80,6 +81,7 @@ export default function Fixtures() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/fixtures", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
       toast({
         title: "Success",
         description: "Fixture created successfully",
