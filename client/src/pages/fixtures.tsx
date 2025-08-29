@@ -101,7 +101,7 @@ export default function Fixtures() {
       fixture.venue.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesFilter && matchesSearch;
-  }) || [];
+  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
   const handleViewDetails = (fixture: Fixture) => {
     toast({

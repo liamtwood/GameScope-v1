@@ -6,18 +6,21 @@ import {
   players,
   fixtures,
   oppositionTeams,
+  competitions,
   matchStats,
   users,
   type Team,
   type Player,
   type Fixture,
   type OppositionTeam,
+  type Competition,
   type MatchStats,
   type User,
   type InsertTeam,
   type InsertPlayer,
   type InsertFixture,
   type InsertOppositionTeam,
+  type InsertCompetition,
   type InsertMatchStats,
   type InsertUser,
 } from '@shared/schema';
@@ -43,6 +46,14 @@ export interface IStorage {
   createOppositionTeam(team: InsertOppositionTeam): Promise<OppositionTeam>;
   updateOppositionTeam(id: string, team: Partial<InsertOppositionTeam>): Promise<OppositionTeam>;
   deleteOppositionTeam(id: string): Promise<void>;
+  
+  // Competition operations
+  getCompetitions(): Promise<Competition[]>;
+  getCompetition(id: string): Promise<Competition | undefined>;
+  getOrCreateCompetition(name: string): Promise<Competition>;
+  createCompetition(competition: InsertCompetition): Promise<Competition>;
+  updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition>;
+  deleteCompetition(id: string): Promise<void>;
   
   // Fixture operations
   getFixtures(teamId?: string): Promise<Fixture[]>;
@@ -393,6 +404,69 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOppositionTeam(id: string): Promise<void> {
     await db.delete(oppositionTeams).where(eq(oppositionTeams.id, id));
+  }
+
+  // Competition operations
+  async getCompetitions(): Promise<Competition[]> {
+    return await db.select().from(competitions);
+  }
+
+  async getCompetition(id: string): Promise<Competition | undefined> {
+    const [competition] = await db.select().from(competitions).where(eq(competitions.id, id));
+    return competition;
+  }
+
+  async getOrCreateCompetition(name: string): Promise<Competition> {
+    // First try to find existing competition
+    const [existingCompetition] = await db.select().from(competitions).where(eq(competitions.name, name));
+    if (existingCompetition) {
+      return existingCompetition;
+    }
+
+    // Create new competition if it doesn't exist
+    const id = randomUUID();
+    const newCompetition: Competition = {
+      id,
+      name,
+      shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.insert(competitions).values(newCompetition);
+    return newCompetition;
+  }
+
+  async createCompetition(competition: InsertCompetition): Promise<Competition> {
+    const id = randomUUID();
+    const newCompetition: Competition = {
+      ...competition,
+      id,
+      shortName: competition.shortName || competition.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.insert(competitions).values(newCompetition);
+    return newCompetition;
+  }
+
+  async updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition> {
+    const updated = {
+      ...competition,
+      updatedAt: new Date(),
+    };
+    
+    await db.update(competitions).set(updated).where(eq(competitions.id, id));
+    
+    const [updatedCompetition] = await db.select().from(competitions).where(eq(competitions.id, id));
+    if (!updatedCompetition) throw new Error('Competition not found');
+    
+    return updatedCompetition;
+  }
+
+  async deleteCompetition(id: string): Promise<void> {
+    await db.delete(competitions).where(eq(competitions.id, id));
   }
 
   // Match stats operations

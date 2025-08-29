@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Fixture } from "@shared/schema";
+import { Fixture, Competition } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,7 +18,7 @@ import { format } from "date-fns";
 
 const fixtureEditSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
-  venue: z.string().min(1, "Venue is required"),
+  venue: z.string().optional(),
   date: z.date(),
   type: z.enum(["HOME", "AWAY"]),
   status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED", "NO_CONTEST"]),
@@ -37,6 +38,11 @@ interface FixtureEditDialogProps {
 
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
+
+  // Fetch existing competitions
+  const { data: competitions = [] } = useQuery<Competition[]>({
+    queryKey: ["/api/competitions"],
+  });
 
   const form = useForm<FixtureEditFormData>({
     resolver: zodResolver(fixtureEditSchema),
@@ -148,7 +154,22 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   <FormItem>
                     <FormLabel>Competition</FormLabel>
                     <FormControl>
-                      <Input {...field} data-testid="input-competition" />
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        data-testid="select-competition"
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select competition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {competitions.map((comp) => (
+                            <SelectItem key={comp.id} value={comp.name}>
+                              {comp.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

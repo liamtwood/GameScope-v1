@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertFixtureSchema } from "@shared/schema";
+import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -186,6 +186,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting opposition team:", error);
       res.status(500).json({ message: "Failed to delete opposition team" });
+    }
+  });
+
+  // Competition routes
+  app.get("/api/competitions", async (req, res) => {
+    try {
+      const competitions = await storage.getCompetitions();
+      res.json(competitions);
+    } catch (error) {
+      console.error("Error fetching competitions:", error);
+      res.status(500).json({ message: "Failed to fetch competitions" });
+    }
+  });
+
+  app.post("/api/competitions", async (req, res) => {
+    try {
+      const competitionData = insertCompetitionSchema.parse(req.body);
+      const competition = await storage.createCompetition(competitionData);
+      res.status(201).json(competition);
+    } catch (error) {
+      console.error("Error creating competition:", error);
+      res.status(400).json({ message: "Failed to create competition" });
     }
   });
 
