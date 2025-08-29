@@ -48,7 +48,7 @@ export function FixtureCard({ fixture, onViewDetails }: FixtureCardProps) {
     } else if (fixture.status === 'SCHEDULED') {
       return <Badge className="bg-blue-100 text-blue-800">UPCOMING</Badge>;
     }
-    return <Badge className={STATUS_COLORS[fixture.status]}>{fixture.status}</Badge>;
+    return <Badge className={STATUS_COLORS[fixture.status as keyof typeof STATUS_COLORS] || "bg-gray-100 text-gray-800"}>{fixture.status}</Badge>;
   };
 
   return (

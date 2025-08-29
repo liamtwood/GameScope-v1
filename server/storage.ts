@@ -115,6 +115,7 @@ export class MemStorage implements IStorage {
         awayScore: 0,
         competition: 'FCSAA League',
         hasVideo: true,
+        videoLinks: null,
       },
       {
         opponent: 'Monroe University',
@@ -127,6 +128,7 @@ export class MemStorage implements IStorage {
         competition: 'FCSAA League',
         notes: 'No contest after 62 minutes due to field conditions',
         hasVideo: false,
+        videoLinks: null,
       },
       {
         opponent: 'Montgomery College (MD)',
@@ -136,6 +138,7 @@ export class MemStorage implements IStorage {
         status: 'SCHEDULED' as const,
         competition: 'FCSAA League',
         hasVideo: false,
+        videoLinks: null,
       },
       {
         opponent: 'Webber International University JV',
@@ -145,6 +148,7 @@ export class MemStorage implements IStorage {
         status: 'SCHEDULED' as const,
         competition: 'FCSAA League',
         hasVideo: false,
+        videoLinks: null,
       }
     ];
 
@@ -189,6 +193,7 @@ export class MemStorage implements IStorage {
     const newTeam: Team = {
       ...team,
       id,
+      status: team.status || 'active',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -224,6 +229,12 @@ export class MemStorage implements IStorage {
     const newPlayer: Player = {
       ...player,
       id,
+      height: player.height || null,
+      year: player.year || null,
+      hometown: player.hometown || null,
+      goals: player.goals || null,
+      assists: player.assists || null,
+      appearances: player.appearances || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -263,6 +274,8 @@ export class MemStorage implements IStorage {
     const newFixture: Fixture = {
       ...fixture,
       id,
+      status: fixture.status || 'SCHEDULED',
+      videoLinks: fixture.videoLinks || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -297,6 +310,30 @@ export class MemStorage implements IStorage {
     const newStats: MatchStats = {
       ...stats,
       id,
+      goals: stats.goals || null,
+      isTeamStats: stats.isTeamStats || null,
+      totalTeamDistance: stats.totalTeamDistance || null,
+      possession: stats.possession || null,
+      passes: stats.passes || null,
+      passesCompleted: stats.passesCompleted || null,
+      shots: stats.shots || null,
+      shotsOnTarget: stats.shotsOnTarget || null,
+      corners: stats.corners || null,
+      offsides: stats.offsides || null,
+      fouls: stats.fouls || null,
+      yellowCards: stats.yellowCards || null,
+      redCards: stats.redCards || null,
+      saves: stats.saves || null,
+      blocks: stats.blocks || null,
+      interceptions: stats.interceptions || null,
+      tackles: stats.tackles || null,
+      clearances: stats.clearances || null,
+      crosses: stats.crosses || null,
+      crossesSuccessful: stats.crossesSuccessful || null,
+      dribbles: stats.dribbles || null,
+      dribblesSuccessful: stats.dribblesSuccessful || null,
+      passingAccuracy: stats.passingAccuracy || null,
+      passingAverageVelocity: stats.passingAverageVelocity || null,
       createdAt: new Date(),
     };
     this.matchStats.set(id, newStats);
@@ -317,6 +354,7 @@ export class MemStorage implements IStorage {
     const newUser: User = {
       ...user,
       id,
+      role: user.role || 'player',
       createdAt: new Date(),
     };
     this.users.set(id, newUser);

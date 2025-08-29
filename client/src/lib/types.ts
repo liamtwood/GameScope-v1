@@ -32,3 +32,9 @@ export interface NavigationItem {
   icon: string;
   tooltip: string;
 }
+
+export interface ColorTheme {
+  name: string;
+  light: { accent: string; light: string };
+  dark: { accent: string; light: string };
+}
