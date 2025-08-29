@@ -29,7 +29,7 @@ export default function FixtureDetails() {
 
   if (isLoading || !fixture) {
     return (
-      <MainLayout>
+      <MainLayout title="Fixture Details" subtitle="Loading fixture information...">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -68,7 +68,7 @@ export default function FixtureDetails() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout title="Fixture Details" subtitle={`${fixture.opponent} - ${format(new Date(fixture.date), "MMM d, yyyy")}`}>
       <div className="space-y-6">
         {/* Back Button */}
         <Button 
