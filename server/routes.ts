@@ -134,6 +134,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/players/:id", async (req, res) => {
+    try {
+      const playerData = req.body;
+      const player = await storage.updatePlayer(req.params.id, playerData);
+      res.json(player);
+    } catch (error) {
+      console.error("Error updating player:", error);
+      res.status(400).json({ message: "Failed to update player" });
+    }
+  });
+
   app.delete("/api/players/:id", async (req, res) => {
     try {
       await storage.deletePlayer(req.params.id);

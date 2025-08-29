@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
+import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
+import { PlayerEditDialog } from "@/components/dialogs/player-edit-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Star } from "lucide-react";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { UserPlus, Star, Edit, Eye } from "lucide-react";
 import { Player, Team } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -28,12 +30,49 @@ export default function Squad() {
     enabled: !!currentTeam?.id 
   });
 
+  const createPlayerMutation = useMutation({
+    mutationFn: async (playerData: any) => {
+      return apiRequest("/api/players", "POST", playerData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      toast({
+        title: "Player Added",
+        description: "New player has been added to the squad.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add player.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updatePlayerMutation = useMutation({
+    mutationFn: async ({ playerId, data }: { playerId: string; data: any }) => {
+      return apiRequest(`/api/players/${playerId}`, "PUT", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      toast({
+        title: "Player Updated",
+        description: "Player information has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const toggleKeyPlayerMutation = useMutation({
     mutationFn: async ({ playerId, keyPlayer }: { playerId: string; keyPlayer: boolean }) => {
-      return apiRequest(`/api/players/${playerId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ keyPlayer }),
-      });
+      return apiRequest(`/api/players/${playerId}`, "PATCH", { keyPlayer });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
@@ -79,17 +118,18 @@ export default function Squad() {
     return players.filter(player => player.keyPlayer).length;
   };
 
+  const handleCreatePlayer = (data: any) => {
+    createPlayerMutation.mutate(data);
+  };
+
+  const handleUpdatePlayer = (playerId: string, data: any) => {
+    updatePlayerMutation.mutate({ playerId, data });
+  };
+
   const handleToggleKeyPlayer = (player: Player) => {
     toggleKeyPlayerMutation.mutate({
       playerId: player.id,
       keyPlayer: !player.keyPlayer
-    });
-  };
-
-  const handleEditPlayer = (player: Player) => {
-    toast({
-      title: "Edit Player",
-      description: `Editing ${player.name}`,
     });
   };
 
@@ -107,10 +147,15 @@ export default function Squad() {
       subtitle="Manage player roster and profiles"
     >
       <div className="mb-6 flex items-center justify-between">
-        <Button data-testid="button-add-player">
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Player
-        </Button>
+        <PlayerCreateDialog 
+          teamId={currentTeam?.id || ""} 
+          onSave={handleCreatePlayer}
+        >
+          <Button data-testid="button-add-player">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Player
+          </Button>
+        </PlayerCreateDialog>
       </div>
 
       {/* Squad Overview Stats */}
@@ -209,13 +254,80 @@ export default function Squad() {
                   </TableRow>
                 ) : filteredPlayers.length > 0 ? (
                   filteredPlayers.map((player) => (
-                    <PlayerRow
+                    <TableRow 
                       key={player.id}
-                      player={player}
-                      onEdit={handleEditPlayer}
-                      onView={handleViewPlayer}
-                      onToggleKeyPlayer={handleToggleKeyPlayer}
-                    />
+                      className="hover:bg-muted/30" 
+                      data-position={getPositionCategory(player.position)}
+                      data-testid={`row-player-${player.id}`}
+                    >
+                      <TableCell>
+                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                          {player.jerseyNumber}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <div>
+                            <p className="font-semibold text-foreground">{player.name}</p>
+                            <p className="text-sm text-muted-foreground">{player.hometown}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleKeyPlayer(player)}
+                            className="h-6 w-6 p-0"
+                            data-testid={`button-key-player-${player.id}`}
+                          >
+                            <Star 
+                              className={`h-4 w-4 transition-colors ${
+                                player.keyPlayer 
+                                  ? 'text-orange-500 fill-orange-500' 
+                                  : 'text-gray-300 hover:text-orange-300'
+                              }`} 
+                            />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          getPositionCategory(player.position) === 'GK' ? 'bg-purple-100 text-purple-800' :
+                          getPositionCategory(player.position) === 'DEF' ? 'bg-blue-100 text-blue-800' :
+                          getPositionCategory(player.position) === 'MID' ? 'bg-green-100 text-green-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {player.position}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-foreground">{player.year}</TableCell>
+                      <TableCell className="text-foreground font-semibold">{player.appearances}</TableCell>
+                      <TableCell className="text-foreground font-semibold">{player.goals}</TableCell>
+                      <TableCell className="text-foreground font-semibold">{player.assists}</TableCell>
+                      <TableCell className="text-muted-foreground">{player.height}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <PlayerEditDialog
+                            player={player}
+                            onSave={handleUpdatePlayer}
+                          >
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              data-testid={`button-edit-player-${player.id}`}
+                            >
+                              <Edit className="h-4 w-4 text-blue-600" />
+                            </Button>
+                          </PlayerEditDialog>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleViewPlayer(player)}
+                            data-testid={`button-view-player-${player.id}`}
+                          >
+                            <Eye className="h-4 w-4 text-green-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   ))
                 ) : (
                   <TableRow>
