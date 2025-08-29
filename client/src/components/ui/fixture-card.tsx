@@ -29,13 +29,15 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
   const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
 
   const getResultDisplay = () => {
-    if (fixture.status === 'COMPLETED') {
+    if (fixture.status === 'COMPLETED' || fixture.status === 'NO_CONTEST') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
         const isHome = fixture.type === 'HOME';
         const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
         const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
         
-        if (ourScore > theirScore) {
+        if (fixture.status === 'NO_CONTEST') {
+          return `${ourScore}-${theirScore} NO CONTEST`;
+        } else if (ourScore > theirScore) {
           return `${ourScore}-${theirScore} WIN`;
         } else if (ourScore < theirScore) {
           return `${ourScore}-${theirScore} LOSS`;
@@ -52,13 +54,15 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
   };
 
   const getStatusColor = () => {
-    if (fixture.status === 'COMPLETED') {
+    if (fixture.status === 'COMPLETED' || fixture.status === 'NO_CONTEST') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
         const isHome = fixture.type === 'HOME';
         const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
         const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
         
-        if (ourScore > theirScore) {
+        if (fixture.status === 'NO_CONTEST') {
+          return 'bg-orange-500 text-white';
+        } else if (ourScore > theirScore) {
           return 'bg-green-500 text-white';
         } else if (ourScore < theirScore) {
           return 'bg-red-500 text-white';
@@ -66,6 +70,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
           return 'bg-yellow-500 text-white';
         }
       }
+      return fixture.status === 'NO_CONTEST' ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white';
     } else if (fixture.status === 'CANCELLED') {
       return 'bg-gray-500 text-white';
     }

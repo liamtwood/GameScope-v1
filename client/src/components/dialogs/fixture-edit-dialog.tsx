@@ -378,7 +378,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
               />
             </div>
 
-            {form.watch("status") === "COMPLETED" && (
+            {(form.watch("status") === "COMPLETED" || form.watch("status") === "NO_CONTEST") && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
