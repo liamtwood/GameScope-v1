@@ -7,6 +7,7 @@ import { FixtureCreateDialog } from "@/components/dialogs/fixture-create-dialog"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus } from "lucide-react";
 import { Fixture, Team, Competition } from "@shared/schema";
@@ -146,6 +147,24 @@ export default function Fixtures() {
     { id: 'SCHEDULED' as const, label: 'Scheduled' },
   ];
 
+  // Calculate fixture statistics
+  const getFixtureStats = () => {
+    if (!fixtures) return { total: 0, scheduled: 0, completed: 0, competitions: 0 };
+    
+    const scheduled = fixtures.filter(f => f.status === 'SCHEDULED').length;
+    const completed = fixtures.filter(f => f.status === 'COMPLETED' || f.status === 'NO_CONTEST').length;
+    const uniqueCompetitions = new Set(fixtures.map(f => f.competition).filter(Boolean)).size;
+    
+    return {
+      total: fixtures.length,
+      scheduled,
+      completed,
+      competitions: uniqueCompetitions
+    };
+  };
+
+  const stats = getFixtureStats();
+
   return (
     <MainLayout 
       title="Fixtures" 
@@ -161,6 +180,34 @@ export default function Fixtures() {
             Add Fixture
           </Button>
         </FixtureCreateDialog>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+            <p className="text-sm text-muted-foreground">Total Fixtures</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-2xl font-bold text-foreground">{stats.competitions}</p>
+            <p className="text-sm text-muted-foreground">Competitions</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-2xl font-bold text-foreground">{stats.scheduled}</p>
+            <p className="text-sm text-muted-foreground">Scheduled</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
+            <p className="text-sm text-muted-foreground">Completed</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters */}
