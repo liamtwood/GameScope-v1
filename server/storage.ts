@@ -267,6 +267,7 @@ export class DatabaseStorage implements IStorage {
       goals: player.goals || null,
       assists: player.assists || null,
       appearances: player.appearances || null,
+      keyPlayer: player.keyPlayer || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
