@@ -2,8 +2,33 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTeamSchema, insertPlayerSchema, insertFixtureSchema } from "@shared/schema";
+import multer from "multer";
+import path from "path";
+import fs from "fs/promises";
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: "temp-uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  },
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure temp upload directory exists
+  try {
+    await fs.mkdir("temp-uploads", { recursive: true });
+    await fs.mkdir("client/public/assets/team-logos", { recursive: true });
+  } catch (error) {
+    console.log("Directories already exist");
+  }
   // Team routes
   app.get("/api/teams", async (req, res) => {
     try {
@@ -218,6 +243,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching team statistics:", error);
       res.status(500).json({ message: "Failed to fetch team statistics" });
+    }
+  });
+
+  // Logo upload endpoint
+  app.post("/api/upload-logo", upload.single('logo'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const teamName = req.body.teamName || 'unknown';
+      const sanitizedName = teamName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const fileExtension = path.extname(req.file.originalname);
+      const outputFileName = `${sanitizedName}-logo${fileExtension}`;
+      const outputPath = `client/public/assets/team-logos/${outputFileName}`;
+      
+      // For now, just copy the file (background removal can be added later)
+      await fs.copyFile(req.file.path, outputPath);
+      
+      // Clean up temp file
+      await fs.unlink(req.file.path);
+      
+      const logoPath = `/assets/team-logos/${outputFileName}`;
+      
+      res.json({ 
+        message: "Logo uploaded successfully",
+        logoPath: logoPath 
+      });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      
+      // Clean up temp file if it exists
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+      
+      res.status(500).json({ message: "Failed to upload logo" });
     }
   });
 

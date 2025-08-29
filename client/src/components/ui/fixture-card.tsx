@@ -63,10 +63,19 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
     return 'bg-gray-200 text-gray-700';
   };
 
+  // Function to get opponent logo
+  const getOpponentLogo = () => {
+    const sanitizedName = fixture.opponent.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const logoPath = `/assets/team-logos/${sanitizedName}-logo.jpg`;
+    
+    // We'll use a default logic here - if logo doesn't exist, it will fallback to Polk logo
+    return logoPath;
+  };
+
   return (
     <Card data-testid={`card-fixture-${fixture.id}`} className="border rounded-lg shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between min-h-[80px]">
           {/* Team Logo/Badge */}
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
@@ -83,15 +92,29 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
               <p className="text-sm text-gray-600">
                 {format(new Date(fixture.date), 'EEEE, d MMM yyyy, h:mm a')}
               </p>
+              {/* Home/Away moved under date/time */}
+              <div className="mt-1">
+                <Badge variant="outline" className="text-xs">
+                  {fixture.type}
+                </Badge>
+              </div>
             </div>
           </div>
 
-          {/* Right side - Status and Actions */}
+          {/* Right side - Opponent Logo, Status and Actions */}
           <div className="flex items-center space-x-3">
-            {/* Home/Away Badge */}
-            <Badge variant="outline" className="text-xs">
-              {fixture.type}
-            </Badge>
+            {/* Opponent Logo */}
+            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
+              <img 
+                src={getOpponentLogo()}
+                alt={fixture.opponent}
+                className="h-8 w-8 object-contain"
+                onError={(e) => {
+                  // Fallback to Polk logo if opponent logo doesn't exist
+                  e.currentTarget.src = "/assets/logos/polk-state-logo.jpg";
+                }}
+              />
+            </div>
 
             {/* Result/Status */}
             <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>

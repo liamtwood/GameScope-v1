@@ -95,7 +95,11 @@ export const users = pgTable("users", {
 // Insert schemas
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPlayerSchema = createInsertSchema(players).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertFixtureSchema = createInsertSchema(fixtures).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertFixtureSchema = createInsertSchema(fixtures)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    date: z.string().or(z.date()).transform((val) => new Date(val))
+  });
 export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: true, createdAt: true });
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 
