@@ -90,15 +90,21 @@ export default function FixtureDetails() {
                 {/* Home Team */}
                 <div className="flex flex-col items-center space-y-3">
                   <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={homeTeamLogo} 
-                      alt={homeTeam}
-                      className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/default-team-logo.png";
-                      }}
-                    />
+                    {homeTeamLogo && homeTeamLogo !== "/default-team-logo.png" ? (
+                      <img 
+                        src={homeTeamLogo} 
+                        alt={homeTeam}
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/default-team-logo.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                        {homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <h3 className="font-semibold text-lg text-foreground">{homeTeam}</h3>
@@ -128,15 +134,21 @@ export default function FixtureDetails() {
                 {/* Away Team */}
                 <div className="flex flex-col items-center space-y-3">
                   <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={awayTeamLogo} 
-                      alt={awayTeam}
-                      className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/default-team-logo.png";
-                      }}
-                    />
+                    {awayTeamLogo && awayTeamLogo !== "/default-team-logo.png" ? (
+                      <img 
+                        src={awayTeamLogo} 
+                        alt={awayTeam}
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/default-team-logo.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                        {awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <h3 className="font-semibold text-lg text-foreground">{awayTeam}</h3>
@@ -181,25 +193,34 @@ export default function FixtureDetails() {
           <TabsContent value="details" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Match Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 className="text-lg font-semibold mb-6">Match Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Basic Information */}
                   <div className="space-y-4">
+                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Basic Information</h4>
                     <div>
-                      <h4 className="font-medium text-sm text-muted-foreground mb-1">Competition</h4>
-                      <p className="text-foreground">{fixture.competition || "Regular Season"}</p>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Opponent</h5>
+                      <p className="text-foreground">{fixture.opponent}</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-sm text-muted-foreground mb-1">Venue</h4>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Venue</h5>
                       <p className="text-foreground">{fixture.venue}</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-sm text-muted-foreground mb-1">Match Type</h4>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Competition</h5>
+                      <p className="text-foreground">{fixture.competition || "Regular Season"}</p>
+                    </div>
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Match Type</h5>
                       <p className="text-foreground">{fixture.type === "HOME" ? "Home" : fixture.type === "AWAY" ? "Away" : "Neutral"}</p>
                     </div>
                   </div>
+
+                  {/* Status and Scores */}
                   <div className="space-y-4">
+                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Status & Results</h4>
                     <div>
-                      <h4 className="font-medium text-sm text-muted-foreground mb-1">Status</h4>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Status</h5>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         fixture.status === "COMPLETED" ? "bg-green-100 text-green-800" :
                         fixture.status === "CANCELLED" ? "bg-red-100 text-red-800" :
@@ -209,10 +230,43 @@ export default function FixtureDetails() {
                         {getStatusText(fixture.status)}
                       </span>
                     </div>
+                    {(fixture.status === "COMPLETED" || fixture.status === "NO_CONTEST") && (
+                      <>
+                        <div>
+                          <h5 className="font-medium text-sm text-muted-foreground mb-1">Home Score</h5>
+                          <p className="text-foreground text-xl font-bold">{fixture.homeScore ?? 'N/A'}</p>
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-sm text-muted-foreground mb-1">Away Score</h5>
+                          <p className="text-foreground text-xl font-bold">{fixture.awayScore ?? 'N/A'}</p>
+                        </div>
+                      </>
+                    )}
+                    {fixture.hasVideo && (
+                      <div>
+                        <h5 className="font-medium text-sm text-muted-foreground mb-1">Video Available</h5>
+                        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                          Yes
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Additional Information</h4>
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Created</h5>
+                      <p className="text-foreground text-sm">{fixture.createdAt ? format(new Date(fixture.createdAt), "MMM d, yyyy") : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Last Updated</h5>
+                      <p className="text-foreground text-sm">{fixture.updatedAt ? format(new Date(fixture.updatedAt), "MMM d, yyyy") : 'N/A'}</p>
+                    </div>
                     {fixture.notes && (
                       <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Notes</h4>
-                        <p className="text-foreground">{fixture.notes}</p>
+                        <h5 className="font-medium text-sm text-muted-foreground mb-1">Notes</h5>
+                        <p className="text-foreground bg-muted/30 p-3 rounded-lg text-sm">{fixture.notes}</p>
                       </div>
                     )}
                   </div>
