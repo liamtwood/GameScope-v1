@@ -1,0 +1,215 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { MainLayout } from "@/components/layout/main-layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Play, Share, Clock, Calendar, Video as VideoIcon } from "lucide-react";
+import { Fixture, Team } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+
+type VideoFilter = 'all' | 'recent' | 'analyzed';
+
+export default function Videos() {
+  const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
+  const { toast } = useToast();
+
+  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
+  const currentTeam = teams?.[0]; // For demo, use first team
+
+  const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
+    queryKey: ["/api/fixtures", currentTeam?.id],
+    enabled: !!currentTeam?.id 
+  });
+
+  const videoFixtures = fixtures?.filter(f => f.hasVideo || f.status === 'SCHEDULED') || [];
+
+  const handleWatchVideo = (fixture: Fixture) => {
+    toast({
+      title: "Playing Video",
+      description: `Playing video for ${fixture.opponent}`,
+    });
+  };
+
+  const handleShareVideo = (fixture: Fixture) => {
+    toast({
+      title: "Sharing Video",
+      description: `Sharing video link for ${fixture.opponent}`,
+    });
+  };
+
+  const getMatchBadge = (fixture: Fixture) => {
+    if (fixture.status === 'COMPLETED') {
+      if (fixture.homeScore !== null && fixture.awayScore !== null) {
+        const isHome = fixture.type === 'HOME';
+        const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
+        const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
+        
+        if (ourScore > theirScore) {
+          return <Badge className="bg-green-100 text-green-800">WIN {ourScore}-{theirScore}</Badge>;
+        } else if (ourScore < theirScore) {
+          return <Badge className="bg-red-100 text-red-800">LOSS {ourScore}-{theirScore}</Badge>;
+        } else {
+          return <Badge className="bg-yellow-100 text-yellow-800">DRAW {ourScore}-{theirScore}</Badge>;
+        }
+      }
+    } else if (fixture.status === 'SCHEDULED') {
+      return <Badge className="bg-blue-100 text-blue-800">UPCOMING</Badge>;
+    }
+    return <Badge className="bg-gray-100 text-gray-800">{fixture.status}</Badge>;
+  };
+
+  const filterButtons = [
+    { id: 'all' as const, label: 'All Videos' },
+    { id: 'recent' as const, label: 'Recent' },
+    { id: 'analyzed' as const, label: 'Analyzed' },
+  ];
+
+  return (
+    <MainLayout 
+      title="Match Videos" 
+      subtitle="Video analysis and match recordings"
+    >
+      {/* Video Filter */}
+      <div className="mb-6 flex bg-muted rounded-lg p-1 w-fit">
+        {filterButtons.map((filter) => (
+          <Button
+            key={filter.id}
+            variant={activeFilter === filter.id ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveFilter(filter.id)}
+            className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid={`button-filter-${filter.id}`}
+          >
+            {filter.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Video Gallery */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {isLoading ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">Loading videos...</p>
+          </div>
+        ) : videoFixtures.length > 0 ? (
+          videoFixtures.map((fixture) => (
+            <Card key={fixture.id} className="overflow-hidden" data-testid={`card-video-${fixture.id}`}>
+              {/* Video Thumbnail */}
+              <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                {fixture.hasVideo ? (
+                  <div className="text-center">
+                    <VideoIcon className="w-12 h-12 text-green-600 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-green-800">Video Available</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">Video will be available after match</p>
+                  </div>
+                )}
+              </div>
+              
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  {getMatchBadge(fixture)}
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(fixture.date).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Full Match • {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    {fixture.hasVideo ? (
+                      <>
+                        <Clock className="w-3 h-3" />
+                        <span>90 min</span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-3 h-3" />
+                        <span>
+                          {fixture.status === 'SCHEDULED' 
+                            ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                            : 'Pending'
+                          }
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      size="sm" 
+                      disabled={!fixture.hasVideo}
+                      onClick={() => handleWatchVideo(fixture)}
+                      data-testid={`button-watch-${fixture.id}`}
+                    >
+                      <Play className="w-3 h-3 mr-1" />
+                      {fixture.hasVideo ? 'Watch' : 'Pending'}
+                    </Button>
+                    {fixture.hasVideo && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleShareVideo(fixture)}
+                        data-testid={`button-share-${fixture.id}`}
+                      >
+                        <Share className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">No videos available</p>
+          </div>
+        )}
+      </div>
+
+      {/* Video Analytics Summary */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-6">Video Analytics</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <VideoIcon className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {videoFixtures.filter(f => f.hasVideo).length}
+              </p>
+              <p className="text-sm text-muted-foreground">Videos Available</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <Clock className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {videoFixtures.filter(f => f.hasVideo).length * 90}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Minutes</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <Play className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {Math.floor(Math.random() * 100) + 1}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Views</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </MainLayout>
+  );
+}
