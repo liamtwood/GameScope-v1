@@ -4,6 +4,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserPlus } from "lucide-react";
@@ -63,13 +64,6 @@ export default function Squad() {
     });
   };
 
-  const filterButtons = [
-    { id: 'all' as const, label: 'All' },
-    { id: 'GK' as const, label: 'GK' },
-    { id: 'DEF' as const, label: 'Defense' },
-    { id: 'MID' as const, label: 'Midfield' },
-    { id: 'FWD' as const, label: 'Forward' },
-  ];
 
   return (
     <MainLayout 
@@ -85,20 +79,18 @@ export default function Squad() {
 
       {/* Filters */}
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex bg-muted rounded-lg p-1">
-          {filterButtons.map((filter) => (
-            <Button
-              key={filter.id}
-              variant={activeFilter === filter.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveFilter(filter.id)}
-              className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-              data-testid={`button-filter-${filter.id}`}
-            >
-              {filter.label}
-            </Button>
-          ))}
-        </div>
+        <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+          <SelectTrigger className="w-48" data-testid="select-position">
+            <SelectValue placeholder="All Positions" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Positions</SelectItem>
+            <SelectItem value="GK">Goalkeeper</SelectItem>
+            <SelectItem value="DEF">Defense</SelectItem>
+            <SelectItem value="MID">Midfield</SelectItem>
+            <SelectItem value="FWD">Forward</SelectItem>
+          </SelectContent>
+        </Select>
 
         <Input
           placeholder="Search players..."
