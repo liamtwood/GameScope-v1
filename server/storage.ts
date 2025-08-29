@@ -5,16 +5,19 @@ import {
   teams,
   players,
   fixtures,
+  oppositionTeams,
   matchStats,
   users,
   type Team,
   type Player,
   type Fixture,
+  type OppositionTeam,
   type MatchStats,
   type User,
   type InsertTeam,
   type InsertPlayer,
   type InsertFixture,
+  type InsertOppositionTeam,
   type InsertMatchStats,
   type InsertUser,
 } from '@shared/schema';
@@ -32,6 +35,14 @@ export interface IStorage {
   createPlayer(player: InsertPlayer): Promise<Player>;
   updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player>;
   deletePlayer(id: string): Promise<void>;
+  
+  // Opposition team operations
+  getOppositionTeams(): Promise<OppositionTeam[]>;
+  getOppositionTeam(id: string): Promise<OppositionTeam | undefined>;
+  getOrCreateOppositionTeam(name: string): Promise<OppositionTeam>;
+  createOppositionTeam(team: InsertOppositionTeam): Promise<OppositionTeam>;
+  updateOppositionTeam(id: string, team: Partial<InsertOppositionTeam>): Promise<OppositionTeam>;
+  deleteOppositionTeam(id: string): Promise<void>;
   
   // Fixture operations
   getFixtures(teamId?: string): Promise<Fixture[]>;
@@ -317,6 +328,71 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFixture(id: string): Promise<void> {
     await db.delete(fixtures).where(eq(fixtures.id, id));
+  }
+
+  // Opposition team operations
+  async getOppositionTeams(): Promise<OppositionTeam[]> {
+    return await db.select().from(oppositionTeams);
+  }
+
+  async getOppositionTeam(id: string): Promise<OppositionTeam | undefined> {
+    const [team] = await db.select().from(oppositionTeams).where(eq(oppositionTeams.id, id));
+    return team;
+  }
+
+  async getOrCreateOppositionTeam(name: string): Promise<OppositionTeam> {
+    // First try to find existing team
+    const [existingTeam] = await db.select().from(oppositionTeams).where(eq(oppositionTeams.name, name));
+    if (existingTeam) {
+      return existingTeam;
+    }
+
+    // Create new team if it doesn't exist
+    const id = randomUUID();
+    const newTeam: OppositionTeam = {
+      id,
+      name,
+      shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      logoPath: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.insert(oppositionTeams).values(newTeam);
+    return newTeam;
+  }
+
+  async createOppositionTeam(team: InsertOppositionTeam): Promise<OppositionTeam> {
+    const id = randomUUID();
+    const newTeam: OppositionTeam = {
+      ...team,
+      id,
+      shortName: team.shortName || team.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      logoPath: team.logoPath || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.insert(oppositionTeams).values(newTeam);
+    return newTeam;
+  }
+
+  async updateOppositionTeam(id: string, team: Partial<InsertOppositionTeam>): Promise<OppositionTeam> {
+    const updated = {
+      ...team,
+      updatedAt: new Date(),
+    };
+    
+    await db.update(oppositionTeams).set(updated).where(eq(oppositionTeams.id, id));
+    
+    const [updatedTeam] = await db.select().from(oppositionTeams).where(eq(oppositionTeams.id, id));
+    if (!updatedTeam) throw new Error('Opposition team not found');
+    
+    return updatedTeam;
+  }
+
+  async deleteOppositionTeam(id: string): Promise<void> {
+    await db.delete(oppositionTeams).where(eq(oppositionTeams.id, id));
   }
 
   // Match stats operations

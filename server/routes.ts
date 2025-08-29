@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTeamSchema, insertPlayerSchema, insertFixtureSchema } from "@shared/schema";
+import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertFixtureSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -130,6 +130,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting player:", error);
       res.status(500).json({ message: "Failed to delete player" });
+    }
+  });
+
+  // Opposition team routes
+  app.get("/api/opposition-teams", async (req, res) => {
+    try {
+      const teams = await storage.getOppositionTeams();
+      res.json(teams);
+    } catch (error) {
+      console.error("Error fetching opposition teams:", error);
+      res.status(500).json({ message: "Failed to fetch opposition teams" });
+    }
+  });
+
+  app.get("/api/opposition-teams/:id", async (req, res) => {
+    try {
+      const team = await storage.getOppositionTeam(req.params.id);
+      if (!team) {
+        return res.status(404).json({ message: "Opposition team not found" });
+      }
+      res.json(team);
+    } catch (error) {
+      console.error("Error fetching opposition team:", error);
+      res.status(500).json({ message: "Failed to fetch opposition team" });
+    }
+  });
+
+  app.post("/api/opposition-teams", async (req, res) => {
+    try {
+      const teamData = insertOppositionTeamSchema.parse(req.body);
+      const team = await storage.createOppositionTeam(teamData);
+      res.status(201).json(team);
+    } catch (error) {
+      console.error("Error creating opposition team:", error);
+      res.status(400).json({ message: "Failed to create opposition team" });
+    }
+  });
+
+  app.put("/api/opposition-teams/:id", async (req, res) => {
+    try {
+      const teamData = insertOppositionTeamSchema.partial().parse(req.body);
+      const team = await storage.updateOppositionTeam(req.params.id, teamData);
+      res.json(team);
+    } catch (error) {
+      console.error("Error updating opposition team:", error);
+      res.status(400).json({ message: "Failed to update opposition team" });
+    }
+  });
+
+  app.delete("/api/opposition-teams/:id", async (req, res) => {
+    try {
+      await storage.deleteOppositionTeam(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting opposition team:", error);
+      res.status(500).json({ message: "Failed to delete opposition team" });
     }
   });
 

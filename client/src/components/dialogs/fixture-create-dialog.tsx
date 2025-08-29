@@ -8,10 +8,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import type { OppositionTeam } from "@shared/schema";
 
 const fixtureCreateSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
@@ -32,6 +34,12 @@ interface FixtureCreateDialogProps {
 
 export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
+
+  // Fetch existing opposition teams
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
 
   const form = useForm<FixtureCreateFormData>({
     resolver: zodResolver(fixtureCreateSchema),
@@ -71,7 +79,47 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   <FormItem>
                     <FormLabel>Opponent</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter opponent name" data-testid="input-new-opponent" />
+                      {showNewOpponentInput ? (
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewOpponentInput(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            data-testid="select-opponent"
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Select opponent" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {oppositionTeams.map((team) => (
+                                <SelectItem key={team.id} value={team.name}>
+                                  {team.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewOpponentInput(true)}
+                            data-testid="button-add-new-opponent"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

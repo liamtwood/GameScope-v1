@@ -36,7 +36,8 @@ export const players = pgTable("players", {
 export const fixtures = pgTable("fixtures", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   teamId: varchar("team_id").references(() => teams.id).notNull(),
-  opponent: text("opponent").notNull(),
+  opponent: text("opponent").notNull(), // Keep for backward compatibility
+  oppositionTeamId: varchar("opposition_team_id").references(() => oppositionTeams.id),
   date: timestamp("date").notNull(),
   venue: text("venue").notNull(),
   type: varchar("type", { length: 20 }).notNull(), // HOME, AWAY, NEUTRAL
@@ -81,6 +82,15 @@ export const matchStats = pgTable("match_stats", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const oppositionTeams = pgTable("opposition_teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  shortName: varchar("short_name", { length: 10 }),
+  logoPath: text("logo_path"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
@@ -95,6 +105,7 @@ export const users = pgTable("users", {
 // Insert schemas
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPlayerSchema = createInsertSchema(players).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertFixtureSchema = createInsertSchema(fixtures)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
@@ -106,12 +117,14 @@ export const insertUserSchema = createInsertSchema(users).omit({ id: true, creat
 // Types
 export type Team = typeof teams.$inferSelect;
 export type Player = typeof players.$inferSelect;
+export type OppositionTeam = typeof oppositionTeams.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
 export type MatchStats = typeof matchStats.$inferSelect;
 export type User = typeof users.$inferSelect;
 
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
+export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
