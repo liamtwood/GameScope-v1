@@ -1,0 +1,57 @@
+_app-598b61ec46a0b3de.js:38 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+23The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+23The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+23The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+/templates/websites:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+/templates/websites:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+/templates/websites:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-598b61ec46a0b3de.js:38 [LaunchDarkly] LaunchDarkly client initialized
+inject_main.js:1 inject_main.js
+16Unchecked runtime.lastError: The message port closed before a response was received.Understand this error
+/templates/websites:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+6/templates/websites:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+index.js:2 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+11Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'battery'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-1abe2d00c7a4c147.js:1Understand this warning
+framework-1abe2d00c7a4c147.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
