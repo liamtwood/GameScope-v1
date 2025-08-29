@@ -65,6 +65,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     onSuccess: (newTeam: OppositionTeam) => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
       setCurrentOppositionTeam(newTeam);
+      setShowLogoUpload(true); // Show upload dialog immediately after team creation
     },
   });
 
@@ -83,11 +84,20 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     const existingTeam = oppositionTeams.find(team => team.name === opponentName);
     if (existingTeam) {
       setCurrentOppositionTeam(existingTeam);
-    } else if (opponentName.trim()) {
-      // Create new opposition team if name doesn't exist
-      createOppositionTeamMutation.mutate(opponentName.trim());
     } else {
       setCurrentOppositionTeam(null);
+    }
+  };
+
+  // Handle logo upload click - create team if needed
+  const handleLogoUploadClick = () => {
+    const opponentName = form.watch("opponent");
+    if (!currentOppositionTeam && opponentName && opponentName.trim()) {
+      // Create the team first, then show upload
+      createOppositionTeamMutation.mutate(opponentName.trim());
+    } else {
+      // Team already exists, show upload immediately
+      setShowLogoUpload(true);
     }
   };
 
@@ -197,8 +207,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowLogoUpload(true)}
-                    disabled={createOppositionTeamMutation.isPending || !currentOppositionTeam}
+                    onClick={handleLogoUploadClick}
+                    disabled={createOppositionTeamMutation.isPending || !form.watch("opponent")?.trim()}
                     data-testid="button-edit-logo"
                   >
                     {currentOppositionTeam?.logoPath ? 'Change Logo' : 'Add Logo'}
