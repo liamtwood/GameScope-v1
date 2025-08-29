@@ -111,7 +111,11 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
   };
 
   return (
-    <Card data-testid={`card-fixture-${fixture.id}`} className="border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+    <Card 
+      data-testid={`card-fixture-${fixture.id}`} 
+      className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onViewDetails?.(fixture)}
+    >
       <CardContent className="p-4">
         <div className="flex items-center justify-between min-h-[80px]">
           {/* Opposition Team Logo */}

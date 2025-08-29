@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
@@ -23,6 +24,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
@@ -117,10 +119,7 @@ export default function Fixtures() {
   }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
   const handleViewDetails = (fixture: Fixture) => {
-    toast({
-      title: "Fixture Details",
-      description: `Viewing details for ${fixture.opponent}`,
-    });
+    setLocation(`/fixtures/${fixture.id}`);
   };
 
   const handleEditFixture = (data: any) => {
