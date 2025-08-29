@@ -78,31 +78,48 @@ export default function Squad() {
       </div>
 
       {/* Squad Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{getPositionCount('all')}</p>
-            <p className="text-sm text-muted-foreground">Total Players</p>
+      <div className="mb-6">
+        {/* Main Squad Size */}
+        <Card className="mb-4">
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">SQUAD SIZE</p>
+            <p className="text-4xl font-bold text-foreground">{getPositionCount('all')}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{getPositionCount('GK')}</p>
-            <p className="text-sm text-muted-foreground">Goalkeepers</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{getPositionCount('DEF')}</p>
-            <p className="text-sm text-muted-foreground">Defenders</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{getPositionCount('MID') + getPositionCount('FWD')}</p>
-            <p className="text-sm text-muted-foreground">Mid/Forward</p>
-          </CardContent>
-        </Card>
+        
+        {/* Position Breakdown */}
+        <div className="grid grid-cols-5 gap-2">
+          <Card className="bg-orange-50 border-orange-200">
+            <CardContent className="p-3 text-center">
+              <div className="text-xl mb-1">⭐</div>
+              <p className="text-2xl font-bold text-foreground">0</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground mb-1">GK</p>
+              <p className="text-2xl font-bold text-foreground">{getPositionCount('GK')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground mb-1">DEF</p>
+              <p className="text-2xl font-bold text-foreground">{getPositionCount('DEF')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground mb-1">MID</p>
+              <p className="text-2xl font-bold text-foreground">{getPositionCount('MID')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground mb-1">FWD</p>
+              <p className="text-2xl font-bold text-foreground">{getPositionCount('FWD')}</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Filters */}
