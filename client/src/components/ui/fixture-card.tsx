@@ -89,7 +89,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
         <img 
           src={oppositionTeam.logoPath}
           alt={fixture.opponent}
-          className="h-8 w-8 object-contain"
+          className="h-16 w-16 object-contain"
         />
       );
     }
@@ -99,7 +99,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
       fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
     
     return (
-      <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center text-xs font-medium text-gray-600">
+      <div className="h-16 w-16 bg-gray-100 rounded flex items-center justify-center text-sm font-medium text-gray-600">
         {initials}
       </div>
     );
@@ -111,7 +111,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
         <div className="flex items-center justify-between min-h-[80px]">
           {/* Opposition Team Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
+            <div className="w-24 h-24 flex items-center justify-center">
               {getOpponentDisplay()}
             </div>
             
