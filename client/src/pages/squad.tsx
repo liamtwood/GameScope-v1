@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Eye } from "lucide-react";
+import { UserPlus, Star, Edit, Eye, Check, X } from "lucide-react";
 import { Player, Team } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,8 @@ type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 export default function Squad() {
   const [activeFilter, setActiveFilter] = useState<PositionFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
+  const [editValue, setEditValue] = useState("");
   const { toast } = useToast();
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
@@ -133,6 +135,24 @@ export default function Squad() {
     });
   };
 
+  const handleStartEdit = (playerId: string, field: string, currentValue: string) => {
+    setEditingField({ playerId, field });
+    setEditValue(currentValue);
+  };
+
+  const handleSaveEdit = (playerId: string, field: string) => {
+    const value = field === 'goals' || field === 'assists' || field === 'appearances' 
+      ? parseInt(editValue) || 0 
+      : editValue;
+    
+    updatePlayerMutation.mutate({ 
+      playerId, 
+      data: { [field]: value } 
+    });
+    setEditingField(null);
+    setEditValue("");
+  };
+
   const handleViewPlayer = (player: Player) => {
     toast({
       title: "Player Profile",
@@ -237,11 +257,10 @@ export default function Squad() {
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">#</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Player</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Position</TableHead>
-                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Year</TableHead>
+                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Status</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Apps</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Goals</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Assists</TableHead>
-                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Height</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -298,11 +317,114 @@ export default function Squad() {
                           {player.position}
                         </div>
                       </TableCell>
-                      <TableCell className="text-foreground">{player.year}</TableCell>
-                      <TableCell className="text-foreground font-semibold">{player.appearances}</TableCell>
-                      <TableCell className="text-foreground font-semibold">{player.goals}</TableCell>
-                      <TableCell className="text-foreground font-semibold">{player.assists}</TableCell>
-                      <TableCell className="text-muted-foreground">{player.height}</TableCell>
+                      <TableCell>
+                        {editingField?.playerId === player.id && editingField?.field === 'status' ? (
+                          <div className="flex items-center space-x-2">
+                            <Select value={editValue} onValueChange={setEditValue}>
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Fit">Fit</SelectItem>
+                                <SelectItem value="Injured">Injured</SelectItem>
+                                <SelectItem value="Retired">Retired</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'status')}>
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div 
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:bg-opacity-80 ${
+                              player.status === 'Fit' ? 'bg-green-100 text-green-800' :
+                              player.status === 'Injured' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}
+                            onClick={() => handleStartEdit(player.id, 'status', player.status || 'Fit')}
+                          >
+                            {player.status || 'Fit'}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingField?.playerId === player.id && editingField?.field === 'appearances' ? (
+                          <div className="flex items-center space-x-2">
+                            <Input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="w-16"
+                            />
+                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'appearances')}>
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span 
+                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
+                            onClick={() => handleStartEdit(player.id, 'appearances', String(player.appearances || 0))}
+                          >
+                            {player.appearances}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingField?.playerId === player.id && editingField?.field === 'goals' ? (
+                          <div className="flex items-center space-x-2">
+                            <Input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="w-16"
+                            />
+                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'goals')}>
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span 
+                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
+                            onClick={() => handleStartEdit(player.id, 'goals', String(player.goals || 0))}
+                          >
+                            {player.goals}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingField?.playerId === player.id && editingField?.field === 'assists' ? (
+                          <div className="flex items-center space-x-2">
+                            <Input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="w-16"
+                            />
+                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'assists')}>
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span 
+                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
+                            onClick={() => handleStartEdit(player.id, 'assists', String(player.assists || 0))}
+                          >
+                            {player.assists}
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <PlayerEditDialog

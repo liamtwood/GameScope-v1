@@ -28,9 +28,8 @@ const createPlayerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   position: z.string().min(1, "Position is required"),
   jerseyNumber: z.number().min(0),
-  year: z.string().optional(),
   hometown: z.string().optional(),
-  height: z.string().optional(),
+  status: z.string().default("Fit"),
   goals: z.number().min(0).optional(),
   assists: z.number().min(0).optional(),
   appearances: z.number().min(0).optional(),
@@ -54,9 +53,8 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       name: "",
       position: "",
       jerseyNumber: 0,
-      year: "",
       hometown: "",
-      height: "",
+      status: "Fit",
       goals: 0,
       assists: 0,
       appearances: 0,
@@ -153,47 +151,41 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
               />
               <FormField
                 control={form.control}
-                name="year"
+                name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Freshman, Sophomore" {...field} data-testid="input-year" />
-                    </FormControl>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-status">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Fit">Fit</SelectItem>
+                        <SelectItem value="Injured">Injured</SelectItem>
+                        <SelectItem value="Retired">Retired</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="hometown"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hometown</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter hometown" {...field} data-testid="input-hometown" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Height</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 5'6&quot;" {...field} data-testid="input-height" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="hometown"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hometown</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter hometown" {...field} data-testid="input-hometown" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-3 gap-4">
               <FormField
