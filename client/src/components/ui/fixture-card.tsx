@@ -109,14 +109,10 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
     <Card data-testid={`card-fixture-${fixture.id}`} className="border rounded-lg shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-center justify-between min-h-[80px]">
-          {/* Team Logo/Badge */}
+          {/* Opposition Team Logo */}
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
-              <img 
-                src="/assets/logos/polk-state-logo.jpg" 
-                alt="Polk State College" 
-                className="h-8 w-8 object-contain"
-              />
+              {getOpponentDisplay()}
             </div>
             
             {/* Main Content */}
@@ -134,12 +130,8 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
             </div>
           </div>
 
-          {/* Right side - Opponent Logo, Status and Actions */}
+          {/* Right side - Status and Actions */}
           <div className="flex items-center space-x-3">
-            {/* Opponent Logo */}
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
-              {getOpponentDisplay()}
-            </div>
 
             {/* Result/Status */}
             <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
