@@ -1,21 +1,23 @@
-import { 
-  teams, 
-  players, 
-  fixtures, 
-  matchStats, 
+import { randomUUID } from 'crypto';
+import { eq } from "drizzle-orm";
+import { db } from "./db";
+import {
+  teams,
+  players,
+  fixtures,
+  matchStats,
   users,
-  type Team, 
-  type Player, 
-  type Fixture, 
-  type MatchStats, 
+  type Team,
+  type Player,
+  type Fixture,
+  type MatchStats,
   type User,
   type InsertTeam,
   type InsertPlayer,
   type InsertFixture,
   type InsertMatchStats,
-  type InsertUser
-} from "@shared/schema";
-import { randomUUID } from "crypto";
+  type InsertUser,
+} from '@shared/schema';
 
 export interface IStorage {
   // Team operations
@@ -48,18 +50,18 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private teams: Map<string, Team> = new Map();
-  private players: Map<string, Player> = new Map();
-  private fixtures: Map<string, Fixture> = new Map();
-  private matchStats: Map<string, MatchStats> = new Map();
-  private users: Map<string, User> = new Map();
-
+export class DatabaseStorage implements IStorage {
   constructor() {
     this.initializeData();
   }
 
-  private initializeData() {
+  private async initializeData() {
+    // Check if data already exists
+    const existingTeams = await db.select().from(teams);
+    if (existingTeams.length > 0) {
+      return; // Data already exists
+    }
+
     // Initialize with sample team
     const teamId = randomUUID();
     const team: Team = {
@@ -75,7 +77,8 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.teams.set(teamId, team);
+
+    await db.insert(teams).values(team);
 
     // Initialize sample players
     const samplePlayers = [
@@ -91,17 +94,15 @@ export class MemStorage implements IStorage {
       { name: 'Alex Van Lare', position: 'CF', jerseyNumber: 99, year: 'Junior', hometown: 'Ocala, FL', height: '5\'8"', goals: 9, assists: 4, appearances: 6 }
     ];
 
-    samplePlayers.forEach(playerData => {
-      const playerId = randomUUID();
-      const player: Player = {
-        id: playerId,
-        teamId,
-        ...playerData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      this.players.set(playerId, player);
-    });
+    const playerInserts = samplePlayers.map(playerData => ({
+      id: randomUUID(),
+      teamId,
+      ...playerData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    await db.insert(players).values(playerInserts);
 
     // Initialize sample fixtures
     const sampleFixtures = [
@@ -152,22 +153,19 @@ export class MemStorage implements IStorage {
       }
     ];
 
-    sampleFixtures.forEach(fixtureData => {
-      const fixtureId = randomUUID();
-      const fixture: Fixture = {
-        id: fixtureId,
-        teamId,
-        ...fixtureData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      this.fixtures.set(fixtureId, fixture);
-    });
+    const fixtureInserts = sampleFixtures.map(fixtureData => ({
+      id: randomUUID(),
+      teamId,
+      ...fixtureData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    await db.insert(fixtures).values(fixtureInserts);
 
     // Initialize sample user
-    const userId = randomUUID();
     const user: User = {
-      id: userId,
+      id: randomUUID(),
       username: 'coach',
       password: 'password',
       role: 'coach',
@@ -176,16 +174,18 @@ export class MemStorage implements IStorage {
       email: 'dee.shivraman@polk.edu',
       createdAt: new Date(),
     };
-    this.users.set(userId, user);
+
+    await db.insert(users).values(user);
   }
 
   // Team operations
   async getTeams(): Promise<Team[]> {
-    return Array.from(this.teams.values());
+    return await db.select().from(teams);
   }
 
   async getTeam(id: string): Promise<Team | undefined> {
-    return this.teams.get(id);
+    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    return team;
   }
 
   async createTeam(team: InsertTeam): Promise<Team> {
@@ -194,34 +194,44 @@ export class MemStorage implements IStorage {
       ...team,
       id,
       status: team.status || 'active',
+      coach: team.coach || null,
+      assistantCoach: team.assistantCoach || null,
+      ageGroup: team.ageGroup || null,
+      gender: team.gender || null,
+      season: team.season || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.teams.set(id, newTeam);
+    
+    await db.insert(teams).values(newTeam);
     return newTeam;
   }
 
   async updateTeam(id: string, team: Partial<InsertTeam>): Promise<Team> {
-    const existing = this.teams.get(id);
-    if (!existing) throw new Error('Team not found');
-    
-    const updated: Team = {
-      ...existing,
+    const updated = {
       ...team,
       updatedAt: new Date(),
     };
-    this.teams.set(id, updated);
-    return updated;
+    
+    await db.update(teams).set(updated).where(eq(teams.id, id));
+    
+    const [updatedTeam] = await db.select().from(teams).where(eq(teams.id, id));
+    if (!updatedTeam) throw new Error('Team not found');
+    
+    return updatedTeam;
   }
 
   // Player operations
   async getPlayers(teamId?: string): Promise<Player[]> {
-    const players = Array.from(this.players.values());
-    return teamId ? players.filter(p => p.teamId === teamId) : players;
+    if (teamId) {
+      return await db.select().from(players).where(eq(players.teamId, teamId));
+    }
+    return await db.select().from(players);
   }
 
   async getPlayer(id: string): Promise<Player | undefined> {
-    return this.players.get(id);
+    const [player] = await db.select().from(players).where(eq(players.id, id));
+    return player;
   }
 
   async createPlayer(player: InsertPlayer): Promise<Player> {
@@ -238,35 +248,40 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.players.set(id, newPlayer);
+    
+    await db.insert(players).values(newPlayer);
     return newPlayer;
   }
 
   async updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player> {
-    const existing = this.players.get(id);
-    if (!existing) throw new Error('Player not found');
-    
-    const updated: Player = {
-      ...existing,
+    const updated = {
       ...player,
       updatedAt: new Date(),
     };
-    this.players.set(id, updated);
-    return updated;
+    
+    await db.update(players).set(updated).where(eq(players.id, id));
+    
+    const [updatedPlayer] = await db.select().from(players).where(eq(players.id, id));
+    if (!updatedPlayer) throw new Error('Player not found');
+    
+    return updatedPlayer;
   }
 
   async deletePlayer(id: string): Promise<void> {
-    this.players.delete(id);
+    await db.delete(players).where(eq(players.id, id));
   }
 
   // Fixture operations
   async getFixtures(teamId?: string): Promise<Fixture[]> {
-    const fixtures = Array.from(this.fixtures.values());
-    return teamId ? fixtures.filter(f => f.teamId === teamId) : fixtures;
+    if (teamId) {
+      return await db.select().from(fixtures).where(eq(fixtures.teamId, teamId));
+    }
+    return await db.select().from(fixtures);
   }
 
   async getFixture(id: string): Promise<Fixture | undefined> {
-    return this.fixtures.get(id);
+    const [fixture] = await db.select().from(fixtures).where(eq(fixtures.id, id));
+    return fixture;
   }
 
   async createFixture(fixture: InsertFixture): Promise<Fixture> {
@@ -275,34 +290,38 @@ export class MemStorage implements IStorage {
       ...fixture,
       id,
       status: fixture.status || 'SCHEDULED',
+      homeScore: fixture.homeScore || null,
+      awayScore: fixture.awayScore || null,
       videoLinks: fixture.videoLinks || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.fixtures.set(id, newFixture);
+    
+    await db.insert(fixtures).values(newFixture);
     return newFixture;
   }
 
   async updateFixture(id: string, fixture: Partial<InsertFixture>): Promise<Fixture> {
-    const existing = this.fixtures.get(id);
-    if (!existing) throw new Error('Fixture not found');
-    
-    const updated: Fixture = {
-      ...existing,
+    const updated = {
       ...fixture,
       updatedAt: new Date(),
     };
-    this.fixtures.set(id, updated);
-    return updated;
+    
+    await db.update(fixtures).set(updated).where(eq(fixtures.id, id));
+    
+    const [updatedFixture] = await db.select().from(fixtures).where(eq(fixtures.id, id));
+    if (!updatedFixture) throw new Error('Fixture not found');
+    
+    return updatedFixture;
   }
 
   async deleteFixture(id: string): Promise<void> {
-    this.fixtures.delete(id);
+    await db.delete(fixtures).where(eq(fixtures.id, id));
   }
 
   // Match stats operations
   async getMatchStats(fixtureId: string): Promise<MatchStats[]> {
-    return Array.from(this.matchStats.values()).filter(s => s.fixtureId === fixtureId);
+    return await db.select().from(matchStats).where(eq(matchStats.fixtureId, fixtureId));
   }
 
   async createMatchStats(stats: InsertMatchStats): Promise<MatchStats> {
@@ -314,39 +333,22 @@ export class MemStorage implements IStorage {
       isTeamStats: stats.isTeamStats || null,
       totalTeamDistance: stats.totalTeamDistance || null,
       possession: stats.possession || null,
-      passes: stats.passes || null,
-      passesCompleted: stats.passesCompleted || null,
-      shots: stats.shots || null,
-      shotsOnTarget: stats.shotsOnTarget || null,
-      corners: stats.corners || null,
-      offsides: stats.offsides || null,
-      fouls: stats.fouls || null,
-      yellowCards: stats.yellowCards || null,
-      redCards: stats.redCards || null,
-      saves: stats.saves || null,
-      blocks: stats.blocks || null,
-      interceptions: stats.interceptions || null,
-      tackles: stats.tackles || null,
-      clearances: stats.clearances || null,
-      crosses: stats.crosses || null,
-      crossesSuccessful: stats.crossesSuccessful || null,
-      dribbles: stats.dribbles || null,
-      dribblesSuccessful: stats.dribblesSuccessful || null,
-      passingAccuracy: stats.passingAccuracy || null,
-      passingAverageVelocity: stats.passingAverageVelocity || null,
       createdAt: new Date(),
     };
-    this.matchStats.set(id, newStats);
+    
+    await db.insert(matchStats).values(newStats);
     return newStats;
   }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(user: InsertUser): Promise<User> {
@@ -355,11 +357,15 @@ export class MemStorage implements IStorage {
       ...user,
       id,
       role: user.role || 'player',
+      name: user.name || null,
+      email: user.email || null,
+      teamId: user.teamId || null,
       createdAt: new Date(),
     };
-    this.users.set(id, newUser);
+    
+    await db.insert(users).values(newUser);
     return newUser;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
