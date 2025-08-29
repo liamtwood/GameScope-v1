@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,17 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   const [currentOppositionTeam, setCurrentOppositionTeam] = useState<OppositionTeam | null>(
     () => oppositionTeams.find(team => team.name === fixture.opponent) || null
   );
+
+  // Keep currentOppositionTeam in sync with the latest opposition teams data
+  useEffect(() => {
+    if (oppositionTeams.length > 0) {
+      const opponentName = form.watch("opponent");
+      const foundTeam = oppositionTeams.find(team => team.name === opponentName);
+      if (foundTeam && (!currentOppositionTeam || currentOppositionTeam.id !== foundTeam.id)) {
+        setCurrentOppositionTeam(foundTeam);
+      }
+    }
+  }, [oppositionTeams, form.watch("opponent"), currentOppositionTeam]);
 
   // Create opposition team mutation
   const createOppositionTeamMutation = useMutation({
@@ -225,6 +236,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   teamName={currentOppositionTeam.name}
                   currentLogo={currentOppositionTeam.logoPath || undefined}
                   onUploadComplete={(logoPath: string) => {
+                    console.log("Upload complete, currentOppositionTeam:", currentOppositionTeam);
+                    if (!currentOppositionTeam?.id) {
+                      console.error("No currentOppositionTeam or ID found:", currentOppositionTeam);
+                      return;
+                    }
                     updateOppositionTeamMutation.mutate({
                       teamId: currentOppositionTeam.id,
                       logoPath
