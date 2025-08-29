@@ -71,7 +71,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
               <img 
-                src="/assets/logos/polk-state-logo.png" 
+                src="/assets/logos/polk-state-logo.jpg" 
                 alt="Polk State College" 
                 className="h-8 w-8 object-contain"
               />

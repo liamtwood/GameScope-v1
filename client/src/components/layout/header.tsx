@@ -29,7 +29,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           <div className="flex items-center space-x-3">
             <div className="h-12 w-12 flex items-center justify-center">
               <img 
-                src="/assets/logos/polk-state-logo.png" 
+                src="/assets/logos/polk-state-logo.jpg" 
                 alt="Polk State College Logo" 
                 className="h-10 w-10 object-contain"
               />
