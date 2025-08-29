@@ -51,7 +51,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/players/:id", async (req, res) => {
+  // Route for getting players by team ID (expected by frontend)
+  app.get("/api/players/:teamId", async (req, res) => {
+    try {
+      const teamId = req.params.teamId;
+      const players = await storage.getPlayers(teamId);
+      res.json(players);
+    } catch (error) {
+      console.error("Error fetching players by team:", error);
+      res.status(500).json({ message: "Failed to fetch players" });
+    }
+  });
+
+  app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);
       if (!player) {
@@ -108,7 +120,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/fixtures/:id", async (req, res) => {
+  // Route for getting fixtures by team ID (expected by frontend)
+  app.get("/api/fixtures/:teamId", async (req, res) => {
+    try {
+      const teamId = req.params.teamId;
+      const fixtures = await storage.getFixtures(teamId);
+      res.json(fixtures);
+    } catch (error) {
+      console.error("Error fetching fixtures by team:", error);
+      res.status(500).json({ message: "Failed to fetch fixtures" });
+    }
+  });
+
+  app.get("/api/fixture/:id", async (req, res) => {
     try {
       const fixture = await storage.getFixture(req.params.id);
       if (!fixture) {
