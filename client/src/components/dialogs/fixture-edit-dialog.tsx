@@ -51,8 +51,22 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     queryKey: ["/api/opposition-teams"],
   });
 
-  // Find the current opposition team
-  const currentOppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+  // Find the current opposition team, or create one if it doesn't exist
+  const [currentOppositionTeam, setCurrentOppositionTeam] = useState<OppositionTeam | null>(
+    () => oppositionTeams.find(team => team.name === fixture.opponent) || null
+  );
+
+  // Create opposition team mutation
+  const createOppositionTeamMutation = useMutation({
+    mutationFn: async (name: string): Promise<OppositionTeam> => {
+      const response = await apiRequest("POST", "/api/opposition-teams", { name });
+      return response as unknown as OppositionTeam;
+    },
+    onSuccess: (newTeam: OppositionTeam) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      setCurrentOppositionTeam(newTeam);
+    },
+  });
 
   const updateOppositionTeamMutation = useMutation({
     mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath: string }) => {
@@ -63,6 +77,19 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       setShowLogoUpload(false);
     },
   });
+
+  // Handle opponent name changes
+  const handleOpponentChange = (opponentName: string) => {
+    const existingTeam = oppositionTeams.find(team => team.name === opponentName);
+    if (existingTeam) {
+      setCurrentOppositionTeam(existingTeam);
+    } else if (opponentName.trim()) {
+      // Create new opposition team if name doesn't exist
+      createOppositionTeamMutation.mutate(opponentName.trim());
+    } else {
+      setCurrentOppositionTeam(null);
+    }
+  };
 
   const form = useForm<FixtureEditFormData>({
     resolver: zodResolver(fixtureEditSchema),
@@ -104,7 +131,14 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   <FormItem>
                     <FormLabel>Opponent</FormLabel>
                     <FormControl>
-                      <Input {...field} data-testid="input-opponent" />
+                      <Input 
+                        {...field} 
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleOpponentChange(e.target.value);
+                        }}
+                        data-testid="input-opponent" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,12 +161,12 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
             </div>
 
             {/* Opposition Team Logo Section */}
-            {currentOppositionTeam && (
+            {(currentOppositionTeam || (form.watch("opponent") && form.watch("opponent").trim())) && (
               <div className="border rounded-lg p-4 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-2">
-                      {currentOppositionTeam.logoPath ? (
+                      {currentOppositionTeam?.logoPath ? (
                         <img 
                           src={currentOppositionTeam.logoPath} 
                           alt={`${currentOppositionTeam.name} logo`}
@@ -140,14 +174,22 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center text-sm font-medium text-gray-600">
-                          {currentOppositionTeam.shortName || currentOppositionTeam.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
+                          {currentOppositionTeam?.shortName || 
+                           (currentOppositionTeam?.name || form.watch("opponent"))
+                             .split(' ').map((w: string) => w[0]).join('').slice(0, 3).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">{currentOppositionTeam.name}</h4>
+                      <h4 className="font-medium text-gray-900">
+                        {currentOppositionTeam?.name || form.watch("opponent")}
+                      </h4>
                       <p className="text-sm text-gray-600">
-                        {currentOppositionTeam.logoPath ? 'Logo uploaded' : 'No logo uploaded'}
+                        {createOppositionTeamMutation.isPending 
+                          ? 'Creating team...' 
+                          : currentOppositionTeam?.logoPath 
+                            ? 'Logo uploaded' 
+                            : 'No logo uploaded'}
                       </p>
                     </div>
                   </div>
@@ -156,9 +198,10 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                     variant="outline"
                     size="sm"
                     onClick={() => setShowLogoUpload(true)}
+                    disabled={createOppositionTeamMutation.isPending || !currentOppositionTeam}
                     data-testid="button-edit-logo"
                   >
-                    {currentOppositionTeam.logoPath ? 'Change Logo' : 'Add Logo'}
+                    {currentOppositionTeam?.logoPath ? 'Change Logo' : 'Add Logo'}
                   </Button>
                 </div>
               </div>
