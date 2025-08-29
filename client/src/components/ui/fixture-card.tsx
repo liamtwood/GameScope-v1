@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Video, Home, Plane } from "lucide-react";
+import { ChevronRight, Video, Home, Plane, Edit, Trash2 } from "lucide-react";
 import { Fixture } from "@shared/schema";
 import { STATUS_COLORS } from "@/lib/constants";
 import { format } from "date-fns";
@@ -9,9 +9,11 @@ import { format } from "date-fns";
 interface FixtureCardProps {
   fixture: Fixture;
   onViewDetails?: (fixture: Fixture) => void;
+  onEdit?: (fixture: Fixture) => void;
+  onDelete?: (fixture: Fixture) => void;
 }
 
-export function FixtureCard({ fixture, onViewDetails }: FixtureCardProps) {
+export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: FixtureCardProps) {
   const getResultDisplay = () => {
     if (fixture.status === 'COMPLETED') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
@@ -117,14 +119,35 @@ export function FixtureCard({ fixture, onViewDetails }: FixtureCardProps) {
               )}
             </div>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => onViewDetails?.(fixture)}
-              data-testid={`button-view-fixture-${fixture.id}`}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex space-x-1">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onEdit?.(fixture)}
+                data-testid={`button-edit-fixture-${fixture.id}`}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onDelete?.(fixture)}
+                data-testid={`button-delete-fixture-${fixture.id}`}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onViewDetails?.(fixture)}
+                data-testid={`button-view-fixture-${fixture.id}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

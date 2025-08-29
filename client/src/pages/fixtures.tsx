@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
+import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
+import { FixtureCreateDialog } from "@/components/dialogs/fixture-create-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus } from "lucide-react";
 import { Fixture, Team } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 type FilterType = 'all' | FixtureStatus;
@@ -16,6 +19,8 @@ type FilterType = 'all' | FixtureStatus;
 export default function Fixtures() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
   const { toast } = useToast();
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
@@ -24,6 +29,69 @@ export default function Fixtures() {
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
     enabled: !!currentTeam?.id 
+  });
+
+  // Mutation for updating fixtures
+  const updateFixtureMutation = useMutation({
+    mutationFn: async ({ fixtureId, data }: { fixtureId: string; data: any }) => {
+      return apiRequest("PUT", `/api/fixtures/${fixtureId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", currentTeam?.id] });
+      toast({
+        title: "Success",
+        description: "Fixture updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update fixture",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for deleting fixtures
+  const deleteFixtureMutation = useMutation({
+    mutationFn: async (fixtureId: string) => {
+      return apiRequest("DELETE", `/api/fixtures/${fixtureId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", currentTeam?.id] });
+      toast({
+        title: "Success",
+        description: "Fixture deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete fixture",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for creating fixtures
+  const createFixtureMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest("POST", "/api/fixtures", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", currentTeam?.id] });
+      toast({
+        title: "Success",
+        description: "Fixture created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create fixture",
+        variant: "destructive",
+      });
+    },
   });
 
   const filteredFixtures = fixtures?.filter(fixture => {
@@ -42,6 +110,24 @@ export default function Fixtures() {
     });
   };
 
+  const handleEditFixture = (data: any) => {
+    // This will be called from the dialog - we need to pass the fixture ID
+    // The actual handler is passed to the dialog
+  };
+
+  const handleDeleteFixture = (fixture: Fixture) => {
+    setFixtureToDelete(fixture);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (fixtureToDelete) {
+      deleteFixtureMutation.mutate(fixtureToDelete.id);
+      setDeleteDialogOpen(false);
+      setFixtureToDelete(null);
+    }
+  };
+
   const filterButtons = [
     { id: 'all' as const, label: 'All' },
     { id: 'COMPLETED' as const, label: 'Completed' },
@@ -54,10 +140,15 @@ export default function Fixtures() {
       subtitle="Manage team fixtures and match results"
     >
       <div className="mb-6 flex items-center justify-between">
-        <Button data-testid="button-add-fixture">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Fixture
-        </Button>
+        <FixtureCreateDialog 
+          teamId={currentTeam?.id || ""} 
+          onSave={(data) => createFixtureMutation.mutate(data)}
+        >
+          <Button data-testid="button-add-fixture">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Fixture
+          </Button>
+        </FixtureCreateDialog>
       </div>
 
       {/* Filters */}
@@ -105,11 +196,20 @@ export default function Fixtures() {
           </div>
         ) : filteredFixtures.length > 0 ? (
           filteredFixtures.map((fixture) => (
-            <FixtureCard
+            <FixtureEditDialog 
               key={fixture.id}
               fixture={fixture}
-              onViewDetails={handleViewDetails}
-            />
+              onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
+            >
+              <div className="w-full">
+                <FixtureCard
+                  fixture={fixture}
+                  onViewDetails={handleViewDetails}
+                  onEdit={() => {}} // Edit is handled by the dialog wrapper
+                  onDelete={handleDeleteFixture}
+                />
+              </div>
+            </FixtureEditDialog>
           ))
         ) : (
           <div className="text-center py-8">
@@ -117,6 +217,25 @@ export default function Fixtures() {
           </div>
         )}
       </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Fixture</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the fixture against {fixtureToDelete?.opponent}? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }
