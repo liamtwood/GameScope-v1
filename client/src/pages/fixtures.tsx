@@ -102,7 +102,10 @@ export default function Fixtures() {
   });
 
   const filteredFixtures = fixtures?.filter(fixture => {
-    const matchesFilter = activeFilter === 'all' || fixture.status === activeFilter;
+    // Treat NO_CONTEST the same as COMPLETED when filtering
+    const matchesFilter = activeFilter === 'all' || 
+      fixture.status === activeFilter ||
+      (activeFilter === 'COMPLETED' && fixture.status === 'NO_CONTEST');
     const matchesCompetition = competitionFilter === 'all' || fixture.competition === competitionFilter;
     const matchesSearch = searchTerm === '' || 
       fixture.opponent.toLowerCase().includes(searchTerm.toLowerCase()) ||
