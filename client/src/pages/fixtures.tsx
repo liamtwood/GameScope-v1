@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus } from "lucide-react";
-import { Fixture, Team } from "@shared/schema";
+import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ type FilterType = 'all' | FixtureStatus;
 
 export default function Fixtures() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [competitionFilter, setCompetitionFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
@@ -29,6 +30,10 @@ export default function Fixtures() {
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
     enabled: !!currentTeam?.id 
+  });
+
+  const { data: competitions = [] } = useQuery<Competition[]>({
+    queryKey: ["/api/competitions"]
   });
 
   // Mutation for updating fixtures
@@ -98,11 +103,13 @@ export default function Fixtures() {
 
   const filteredFixtures = fixtures?.filter(fixture => {
     const matchesFilter = activeFilter === 'all' || fixture.status === activeFilter;
+    const matchesCompetition = competitionFilter === 'all' || fixture.competition === competitionFilter;
     const matchesSearch = searchTerm === '' || 
       fixture.opponent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fixture.venue.toLowerCase().includes(searchTerm.toLowerCase());
+      fixture.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (fixture.competition && fixture.competition.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesCompetition && matchesSearch;
   }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
   const handleViewDetails = (fixture: Fixture) => {
@@ -170,14 +177,17 @@ export default function Fixtures() {
           ))}
         </div>
         
-        <Select defaultValue="all">
+        <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
           <SelectTrigger className="w-48" data-testid="select-competition">
             <SelectValue placeholder="All Competitions" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Competitions</SelectItem>
-            <SelectItem value="fcsaa-league">FCSAA League</SelectItem>
-            <SelectItem value="fcsaa-preseason">FCSAA Pre-Season</SelectItem>
+            {competitions.map((competition) => (
+              <SelectItem key={competition.id} value={competition.name}>
+                {competition.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

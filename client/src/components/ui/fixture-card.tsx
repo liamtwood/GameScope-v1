@@ -126,7 +126,13 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
               <p className="text-sm text-gray-600">
                 {format(new Date(fixture.date), 'EEEE, d MMM yyyy, h:mm a')}
               </p>
-              {/* Home/Away moved under date/time */}
+              {/* Competition display under date/time */}
+              {fixture.competition && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {fixture.competition}
+                </p>
+              )}
+              {/* Home/Away moved under competition */}
               <div className="mt-1">
                 <Badge variant="outline" className="text-xs">
                   {fixture.type}
