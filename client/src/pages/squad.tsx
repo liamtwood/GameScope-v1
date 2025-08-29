@@ -26,6 +26,14 @@ export default function Squad() {
     enabled: !!currentTeam?.id 
   });
 
+  const getPositionCategory = (position: string): PositionFilter => {
+    if (['GK'].includes(position)) return 'GK';
+    if (['CB', 'LB', 'RB', 'DEF'].includes(position)) return 'DEF';
+    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'MID'].includes(position)) return 'MID';
+    if (['ST', 'LW', 'RW', 'CF', 'FWD'].includes(position)) return 'FWD';
+    return 'DEF';
+  };
+
   const filteredPlayers = players?.filter(player => {
     const matchesFilter = activeFilter === 'all' || getPositionCategory(player.position) === activeFilter;
     const matchesSearch = searchTerm === '' || 
@@ -35,14 +43,6 @@ export default function Squad() {
     
     return matchesFilter && matchesSearch;
   }) || [];
-
-  const getPositionCategory = (position: string): PositionFilter => {
-    if (['GK'].includes(position)) return 'GK';
-    if (['CB', 'LB', 'RB'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM'].includes(position)) return 'MID';
-    if (['ST', 'LW', 'RW', 'CF'].includes(position)) return 'FWD';
-    return 'DEF';
-  };
 
   const getPositionCount = (category: PositionFilter) => {
     if (category === 'all') return players?.length || 0;
