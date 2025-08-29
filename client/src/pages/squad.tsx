@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Star } from "lucide-react";
 import { Player, Team } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 
@@ -25,6 +26,29 @@ export default function Squad() {
   const { data: players, isLoading } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],
     enabled: !!currentTeam?.id 
+  });
+
+  const toggleKeyPlayerMutation = useMutation({
+    mutationFn: async ({ playerId, keyPlayer }: { playerId: string; keyPlayer: boolean }) => {
+      return apiRequest(`/api/players/${playerId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ keyPlayer }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      toast({
+        title: "Key Player Updated",
+        description: "Player status has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player status.",
+        variant: "destructive",
+      });
+    },
   });
 
   const getPositionCategory = (position: string): PositionFilter => {
@@ -48,6 +72,18 @@ export default function Squad() {
   const getPositionCount = (category: PositionFilter) => {
     if (category === 'all') return players?.length || 0;
     return players?.filter(p => getPositionCategory(p.position) === category).length || 0;
+  };
+
+  const getKeyPlayersCount = () => {
+    if (!players) return 0;
+    return players.filter(player => player.keyPlayer).length;
+  };
+
+  const handleToggleKeyPlayer = (player: Player) => {
+    toggleKeyPlayerMutation.mutate({
+      playerId: player.id,
+      keyPlayer: !player.keyPlayer
+    });
   };
 
   const handleEditPlayer = (player: Player) => {
@@ -89,10 +125,10 @@ export default function Squad() {
         
         {/* Position Breakdown */}
         <div className="grid grid-cols-5 gap-2">
-          <Card className="bg-orange-50 border-orange-200">
+          <Card className="bg-orange-50 border-orange-200 cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => setActiveFilter('all')}>
             <CardContent className="p-3 text-center">
-              <div className="text-xl mb-1">⭐</div>
-              <p className="text-2xl font-bold text-foreground">0</p>
+              <Star className="h-5 w-5 mx-auto mb-1 text-orange-600" fill="currentColor" />
+              <p className="text-2xl font-bold text-foreground">{getKeyPlayersCount()}</p>
             </CardContent>
           </Card>
           <Card>
@@ -178,6 +214,7 @@ export default function Squad() {
                       player={player}
                       onEdit={handleEditPlayer}
                       onView={handleViewPlayer}
+                      onToggleKeyPlayer={handleToggleKeyPlayer}
                     />
                   ))
                 ) : (

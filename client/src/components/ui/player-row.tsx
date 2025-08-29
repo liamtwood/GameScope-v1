@@ -1,7 +1,7 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Eye } from "lucide-react";
+import { Edit, Eye, Star } from "lucide-react";
 import { Player } from "@shared/schema";
 import { POSITION_COLORS } from "@/lib/constants";
 
@@ -9,9 +9,10 @@ interface PlayerRowProps {
   player: Player;
   onEdit?: (player: Player) => void;
   onView?: (player: Player) => void;
+  onToggleKeyPlayer?: (player: Player) => void;
 }
 
-export function PlayerRow({ player, onEdit, onView }: PlayerRowProps) {
+export function PlayerRow({ player, onEdit, onView, onToggleKeyPlayer }: PlayerRowProps) {
   const getPositionCategory = (position: string) => {
     if (['GK'].includes(position)) return 'GK';
     if (['CB', 'LB', 'RB'].includes(position)) return 'DEF';
@@ -32,9 +33,28 @@ export function PlayerRow({ player, onEdit, onView }: PlayerRowProps) {
         </div>
       </TableCell>
       <TableCell>
-        <div>
-          <p className="font-semibold text-foreground">{player.name}</p>
-          <p className="text-sm text-muted-foreground">{player.hometown}</p>
+        <div className="flex items-center space-x-2">
+          <div>
+            <p className="font-semibold text-foreground">{player.name}</p>
+            <p className="text-sm text-muted-foreground">{player.hometown}</p>
+          </div>
+          {onToggleKeyPlayer && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleKeyPlayer(player)}
+              className="h-6 w-6 p-0"
+              data-testid={`button-key-player-${player.id}`}
+            >
+              <Star 
+                className={`h-4 w-4 transition-colors ${
+                  player.keyPlayer 
+                    ? 'text-orange-500 fill-orange-500' 
+                    : 'text-gray-300 hover:text-orange-300'
+                }`} 
+              />
+            </Button>
+          )}
         </div>
       </TableCell>
       <TableCell>

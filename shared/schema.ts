@@ -29,6 +29,7 @@ export const players = pgTable("players", {
   goals: integer("goals").default(0),
   assists: integer("assists").default(0),
   appearances: integer("appearances").default(0),
+  keyPlayer: boolean("key_player").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
