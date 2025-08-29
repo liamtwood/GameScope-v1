@@ -56,17 +56,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     () => oppositionTeams.find(team => team.name === fixture.opponent) || null
   );
 
-  // Keep currentOppositionTeam in sync with the latest opposition teams data
-  useEffect(() => {
-    if (oppositionTeams.length > 0) {
-      const opponentName = form.watch("opponent");
-      const foundTeam = oppositionTeams.find(team => team.name === opponentName);
-      if (foundTeam && (!currentOppositionTeam || currentOppositionTeam.id !== foundTeam.id)) {
-        setCurrentOppositionTeam(foundTeam);
-      }
-    }
-  }, [oppositionTeams, form.watch("opponent"), currentOppositionTeam]);
-
   // Create opposition team mutation
   const createOppositionTeamMutation = useMutation({
     mutationFn: async (name: string): Promise<OppositionTeam> => {
@@ -126,6 +115,17 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       notes: fixture.notes || "",
     },
   });
+
+  // Keep currentOppositionTeam in sync with the latest opposition teams data
+  useEffect(() => {
+    if (oppositionTeams.length > 0) {
+      const opponentName = form.watch("opponent");
+      const foundTeam = oppositionTeams.find(team => team.name === opponentName);
+      if (foundTeam && (!currentOppositionTeam || currentOppositionTeam.id !== foundTeam.id)) {
+        setCurrentOppositionTeam(foundTeam);
+      }
+    }
+  }, [oppositionTeams, form, currentOppositionTeam]);
 
   const handleSubmit = (data: FixtureEditFormData) => {
     onSave(data);
