@@ -310,7 +310,9 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium mb-2">Upload Logo for {selectedOpponentForLogo.name}</h4>
                 <LogoUpload
-                  onLogoUploaded={(logoPath) => {
+                  teamName={selectedOpponentForLogo.name}
+                  currentLogo={selectedOpponentForLogo.logoPath || undefined}
+                  onUploadComplete={(logoPath: string) => {
                     updateOppositionTeamMutation.mutate({
                       teamId: selectedOpponentForLogo.id,
                       logoPath

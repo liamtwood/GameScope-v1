@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Fixture, Competition } from "@shared/schema";
-import { useQuery } from "@tanstack/react-query";
+import { Fixture, Competition, OppositionTeam } from "@shared/schema";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { LogoUpload } from "@/components/logo-upload";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -38,10 +40,28 @@ interface FixtureEditDialogProps {
 
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showLogoUpload, setShowLogoUpload] = useState(false);
 
-  // Fetch existing competitions
+  // Fetch existing competitions and opposition teams
   const { data: competitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"],
+  });
+
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+
+  // Find the current opposition team
+  const currentOppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+
+  const updateOppositionTeamMutation = useMutation({
+    mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath: string }) => {
+      return apiRequest("PUT", `/api/opposition-teams/${teamId}`, { logoPath });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      setShowLogoUpload(false);
+    },
   });
 
   const form = useForm<FixtureEditFormData>({
@@ -105,6 +125,70 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                 )}
               />
             </div>
+
+            {/* Opposition Team Logo Section */}
+            {currentOppositionTeam && (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-2">
+                      {currentOppositionTeam.logoPath ? (
+                        <img 
+                          src={currentOppositionTeam.logoPath} 
+                          alt={`${currentOppositionTeam.name} logo`}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center text-sm font-medium text-gray-600">
+                          {currentOppositionTeam.shortName || currentOppositionTeam.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{currentOppositionTeam.name}</h4>
+                      <p className="text-sm text-gray-600">
+                        {currentOppositionTeam.logoPath ? 'Logo uploaded' : 'No logo uploaded'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowLogoUpload(true)}
+                    data-testid="button-edit-logo"
+                  >
+                    {currentOppositionTeam.logoPath ? 'Change Logo' : 'Add Logo'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Logo Upload Section */}
+            {showLogoUpload && currentOppositionTeam && (
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium mb-2">Upload Logo for {currentOppositionTeam.name}</h4>
+                <LogoUpload
+                  teamName={currentOppositionTeam.name}
+                  currentLogo={currentOppositionTeam.logoPath || undefined}
+                  onUploadComplete={(logoPath: string) => {
+                    updateOppositionTeamMutation.mutate({
+                      teamId: currentOppositionTeam.id,
+                      logoPath
+                    });
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLogoUpload(false)}
+                  className="mt-2"
+                >
+                  Cancel Logo Upload
+                </Button>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <FormField

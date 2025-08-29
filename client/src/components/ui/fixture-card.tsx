@@ -2,8 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, MoreHorizontal } from "lucide-react";
-import { Fixture } from "@shared/schema";
+import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,14 @@ interface FixtureCardProps {
 }
 
 export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: FixtureCardProps) {
+  // Fetch opposition teams to get logo information
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+
+  // Find the opposition team for this fixture
+  const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+
   const getResultDisplay = () => {
     if (fixture.status === 'COMPLETED') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
@@ -63,13 +72,37 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
     return 'bg-gray-200 text-gray-700';
   };
 
-  // Function to get opponent logo
+  // Function to get opponent logo from database or fallback
   const getOpponentLogo = () => {
-    const sanitizedName = fixture.opponent.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const logoPath = `/assets/team-logos/${sanitizedName}-logo.jpg`;
+    if (oppositionTeam?.logoPath) {
+      return oppositionTeam.logoPath;
+    }
     
-    // We'll use a default logic here - if logo doesn't exist, it will fallback to Polk logo
-    return logoPath;
+    // Fallback to a generic team icon or Polk logo
+    return "/assets/logos/polk-state-logo.jpg";
+  };
+
+  // Function to get opponent display info
+  const getOpponentDisplay = () => {
+    if (oppositionTeam?.logoPath) {
+      return (
+        <img 
+          src={oppositionTeam.logoPath}
+          alt={fixture.opponent}
+          className="h-8 w-8 object-contain"
+        />
+      );
+    }
+    
+    // Show team initials if no logo
+    const initials = oppositionTeam?.shortName || 
+      fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
+    
+    return (
+      <div className="h-8 w-8 bg-gray-100 rounded flex items-center justify-center text-xs font-medium text-gray-600">
+        {initials}
+      </div>
+    );
   };
 
   return (
@@ -105,15 +138,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
           <div className="flex items-center space-x-3">
             {/* Opponent Logo */}
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-1">
-              <img 
-                src={getOpponentLogo()}
-                alt={fixture.opponent}
-                className="h-8 w-8 object-contain"
-                onError={(e) => {
-                  // Fallback to Polk logo if opponent logo doesn't exist
-                  e.currentTarget.src = "/assets/logos/polk-state-logo.jpg";
-                }}
-              />
+              {getOpponentDisplay()}
             </div>
 
             {/* Result/Status */}
