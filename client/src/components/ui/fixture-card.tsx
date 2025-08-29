@@ -1,10 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Video, Home, Plane, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Fixture } from "@shared/schema";
-import { STATUS_COLORS } from "@/lib/constants";
 import { format } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface FixtureCardProps {
   fixture: Fixture;
@@ -20,17 +25,24 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
         const isHome = fixture.type === 'HOME';
         const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
         const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
-        return `${ourScore}-${theirScore}`;
+        
+        if (ourScore > theirScore) {
+          return `${ourScore}-${theirScore} WIN`;
+        } else if (ourScore < theirScore) {
+          return `${ourScore}-${theirScore} LOSS`;
+        } else {
+          return `${ourScore}-${theirScore} DRAW`;
+        }
       }
+    } else if (fixture.status === 'CANCELLED') {
+      return 'CANCELLED';
     } else if (fixture.status === 'NO_CONTEST') {
       return 'NO CONTEST';
-    } else if (fixture.status === 'SCHEDULED') {
-      return 'VS';
     }
-    return 'TBD';
+    return 'SCHEDULED';
   };
 
-  const getStatusBadge = () => {
+  const getStatusColor = () => {
     if (fixture.status === 'COMPLETED') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
         const isHome = fixture.type === 'HOME';
@@ -38,116 +50,80 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
         const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
         
         if (ourScore > theirScore) {
-          return <Badge className="bg-green-100 text-green-800">WIN {getResultDisplay()}</Badge>;
+          return 'bg-green-500 text-white';
         } else if (ourScore < theirScore) {
-          return <Badge className="bg-red-100 text-red-800">LOSS {getResultDisplay()}</Badge>;
+          return 'bg-red-500 text-white';
         } else {
-          return <Badge className="bg-yellow-100 text-yellow-800">DRAW {getResultDisplay()}</Badge>;
+          return 'bg-yellow-500 text-white';
         }
       }
-    } else if (fixture.status === 'NO_CONTEST') {
-      return <Badge className="bg-gray-100 text-gray-800">NO CONTEST</Badge>;
-    } else if (fixture.status === 'SCHEDULED') {
-      return <Badge className="bg-blue-100 text-blue-800">UPCOMING</Badge>;
+    } else if (fixture.status === 'CANCELLED') {
+      return 'bg-gray-500 text-white';
     }
-    return <Badge className={STATUS_COLORS[fixture.status as keyof typeof STATUS_COLORS] || "bg-gray-100 text-gray-800"}>{fixture.status}</Badge>;
+    return 'bg-gray-200 text-gray-700';
   };
 
   return (
-    <Card data-testid={`card-fixture-${fixture.id}`}>
-      <CardContent className="p-6">
+    <Card data-testid={`card-fixture-${fixture.id}`} className="border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="text-center">
-              <p className="text-sm font-medium text-muted-foreground">
-                {format(new Date(fixture.date), 'MMM').toUpperCase()}
-              </p>
-              <p className="text-2xl font-bold text-foreground">
-                {format(new Date(fixture.date), 'd')}
-              </p>
+          {/* Team Logo/Badge */}
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">PSC</span>
             </div>
             
-            <div className="flex items-center space-x-6">
-              <div className="text-right">
-                <p className="font-semibold text-foreground">Polk State College</p>
-                <p className="text-sm text-muted-foreground">Women's Soccer</p>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <span className="font-bold text-primary">PSC</span>
-                </div>
-                
-                <div className="text-center px-3 py-1 rounded-lg bg-muted">
-                  <span className="font-medium text-foreground">{getResultDisplay()}</span>
-                </div>
-                
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="font-bold text-gray-600">
-                    {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}
-                  </span>
-                </div>
-              </div>
-              
-              <div>
-                <p className="font-semibold text-foreground">{fixture.opponent}</p>
-                <p className="text-sm text-muted-foreground">Away Team</p>
-              </div>
+            {/* Main Content */}
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg text-gray-900">{fixture.opponent}</h3>
+              <p className="text-sm text-gray-600">
+                {format(new Date(fixture.date), 'EEEE, d MMM yyyy, h:mm a')}
+              </p>
             </div>
           </div>
-          
+
+          {/* Right side - Status and Actions */}
           <div className="flex items-center space-x-3">
-            <div className="text-right">
-              <div className="flex items-center space-x-2 mb-1">
-                {getStatusBadge()}
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                {format(new Date(fixture.date), 'h:mm a')}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {fixture.type === 'HOME' ? <Home className="inline w-3 h-3 mr-1" /> : <Plane className="inline w-3 h-3 mr-1" />}
-                {fixture.type} • {fixture.competition}
-              </p>
-              {fixture.hasVideo && (
-                <div className="flex items-center space-x-1 mt-1">
-                  <Video className="w-3 h-3 text-blue-600" />
-                  <span className="text-xs text-blue-600">Video Available</span>
-                </div>
-              )}
-              {fixture.notes && (
-                <p className="text-xs text-yellow-600 mt-1">{fixture.notes}</p>
-              )}
-            </div>
-            
-            <div className="flex space-x-1">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => onEdit?.(fixture)}
-                data-testid={`button-edit-fixture-${fixture.id}`}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => onDelete?.(fixture)}
-                data-testid={`button-delete-fixture-${fixture.id}`}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => onViewDetails?.(fixture)}
-                data-testid={`button-view-fixture-${fixture.id}`}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Home/Away Badge */}
+            <Badge variant="outline" className="text-xs">
+              {fixture.type}
+            </Badge>
+
+            {/* Result/Status */}
+            <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
+              {getResultDisplay()}
+            </Badge>
+
+            {/* Actions Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  data-testid={`button-menu-fixture-${fixture.id}`}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => onEdit?.(fixture)}
+                  data-testid={`button-edit-fixture-${fixture.id}`}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onDelete?.(fixture)}
+                  data-testid={`button-delete-fixture-${fixture.id}`}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardContent>
