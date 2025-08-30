@@ -90,7 +90,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               key={item.id}
               href={item.id === 'dashboard' ? '/' : `/${item.id}`}
               className={cn(
-                "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors w-full",
+                "flex items-center space-x-3 px-3 py-2 transition-colors w-full",
                 isActive 
                   ? "bg-primary text-primary-foreground" 
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
