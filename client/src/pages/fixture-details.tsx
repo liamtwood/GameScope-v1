@@ -466,19 +466,17 @@ export default function FixtureDetails() {
 
           <TabsContent value="analysis" className="mt-6">
             <div className="space-y-6">
-              {/* Excel Upload Section */}
-              <ExcelUpload 
-                fixtureId={fixture.id}
-                onUploadComplete={() => {
-                  // Invalidate match stats query to refresh the data
-                  queryClient.invalidateQueries({ queryKey: ["/api/match-stats", fixtureId] });
-                }}
-              />
-              
-              {/* Analysis Content */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
+              {/* Analysis Sub-tabs */}
+              <Tabs defaultValue="results" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="results" data-testid="subtab-results">Analysis Results</TabsTrigger>
+                  <TabsTrigger value="upload" data-testid="subtab-upload">Upload Data</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="results" className="mt-6">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
                   {fullGameStats ? (
                 <div className="space-y-6">
                   {/* Analysis Overview */}
@@ -650,8 +648,20 @@ export default function FixtureDetails() {
                     <p className="text-sm text-muted-foreground">Statistics will be displayed after the match is completed and data is uploaded.</p>
                   </div>
                 )}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="upload" className="mt-6">
+                  <ExcelUpload 
+                    fixtureId={fixture.id}
+                    onUploadComplete={() => {
+                      // Invalidate match stats query to refresh the data
+                      queryClient.invalidateQueries({ queryKey: ["/api/match-stats", fixtureId] });
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </TabsContent>
         </Tabs>
