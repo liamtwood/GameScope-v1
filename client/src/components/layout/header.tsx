@@ -42,10 +42,6 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button data-testid="button-quick-add">
-              <Plus className="mr-2 h-4 w-4" />
-              Quick Add
-            </Button>
             <Button variant="ghost" size="sm" data-testid="button-notifications">
               <Bell className="h-4 w-4" />
             </Button>
