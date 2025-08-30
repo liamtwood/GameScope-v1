@@ -190,23 +190,29 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     ));
   };
 
-  const handleProcessVideo = async (videoId: string) => {
-    if (processingVideos.has(videoId)) return;
-
-    setProcessingVideos(prev => new Set(prev).add(videoId));
+  const handleProcessAllVideos = async () => {
+    const unprocessedVideos = videos.filter(v => v.url && !v.processed && !v.isProcessing);
     
-    // Start progress simulation
-    const video = videos.find(v => v.id === videoId);
-    if (!video) return;
+    if (unprocessedVideos.length === 0) {
+      toast({
+        title: "No Videos to Process",
+        description: "All videos have already been processed or no videos are available.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    // Update video to show processing state
+    // Mark all unprocessed videos as processing
+    const videoIds = unprocessedVideos.map(v => v.id);
+    setProcessingVideos(new Set(videoIds));
+    
     setVideos(prev => prev.map(v => 
-      v.id === videoId 
+      videoIds.includes(v.id)
         ? { ...v, isProcessing: true, processingProgress: 0 }
         : v
     ));
 
-    // Simulate 10-second processing with progress updates
+    // Simulate 10-second processing with progress updates for all videos
     const startTime = Date.now();
     const duration = 10000; // 10 seconds
 
@@ -215,7 +221,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       const progress = Math.min((elapsed / duration) * 100, 100);
       
       setVideos(prev => prev.map(v => 
-        v.id === videoId 
+        videoIds.includes(v.id)
           ? { ...v, processingProgress: Math.round(progress) }
           : v
       ));
@@ -223,21 +229,17 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       if (progress < 100) {
         setTimeout(updateProgress, 100); // Update every 100ms for smooth progress
       } else {
-        // Processing complete
+        // Processing complete for all videos
         setVideos(prev => prev.map(v => 
-          v.id === videoId 
+          videoIds.includes(v.id)
             ? { ...v, isProcessing: false, processed: true, processingProgress: 100 }
             : v
         ));
-        setProcessingVideos(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(videoId);
-          return newSet;
-        });
+        setProcessingVideos(new Set());
 
         toast({
           title: "Video Processing Complete",
-          description: "Video has been successfully processed and is ready for analysis.",
+          description: `Successfully processed ${unprocessedVideos.length} video${unprocessedVideos.length > 1 ? 's' : ''} for analysis.`,
         });
       }
     };
@@ -257,15 +259,30 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-lg font-semibold">Match Videos</CardTitle>
-        <Button 
-          onClick={addNewRow} 
-          size="sm" 
-          className="flex items-center gap-2"
-          data-testid="button-add-video"
-        >
-          <Plus className="h-4 w-4" />
-          Add Video
-        </Button>
+        <div className="flex items-center gap-2">
+          {videos.some(v => v.url && !v.processed && !v.isProcessing) && (
+            <Button 
+              onClick={handleProcessAllVideos} 
+              size="sm" 
+              variant="default"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              data-testid="button-process-all-videos"
+              disabled={processingVideos.size > 0}
+            >
+              <Cog className="h-4 w-4" />
+              {processingVideos.size > 0 ? 'Processing...' : 'Process All Videos'}
+            </Button>
+          )}
+          <Button 
+            onClick={addNewRow} 
+            size="sm" 
+            className="flex items-center gap-2"
+            data-testid="button-add-video"
+          >
+            <Plus className="h-4 w-4" />
+            Add Video
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -308,18 +325,6 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                       data-testid={`button-view-${video.id}`}
                     >
                       <Play className="h-3 w-3" />
-                    </Button>
-                  )}
-                  {video.url && !video.isProcessing && !video.processed && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleProcessVideo(video.id)}
-                      className="text-blue-600 hover:text-blue-700"
-                      data-testid={`button-process-${video.id}`}
-                    >
-                      <Cog className="h-3 w-3 mr-1" />
-                      Process
                     </Button>
                   )}
                   <Button
