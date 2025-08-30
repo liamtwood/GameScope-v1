@@ -167,20 +167,27 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
                   size="sm"
                   className="h-8 w-8 p-0"
                   data-testid={`button-menu-fixture-${fixture.id}`}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem 
-                  onClick={() => onEdit?.(fixture)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit?.(fixture);
+                  }}
                   data-testid={`button-edit-fixture-${fixture.id}`}
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => onDelete?.(fixture)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete?.(fixture);
+                  }}
                   data-testid={`button-delete-fixture-${fixture.id}`}
                   className="text-red-600"
                 >
