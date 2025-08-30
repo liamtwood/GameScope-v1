@@ -162,7 +162,16 @@ export default function Videos() {
                         
                         <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                          Full Match • {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                          {new Date(fixture.date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}, {new Date(fixture.date).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
                         </p>
                         
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
