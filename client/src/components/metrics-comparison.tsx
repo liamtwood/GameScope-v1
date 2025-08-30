@@ -275,7 +275,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               <div className="flex items-center space-x-4 text-white flex-1">
                 {teamLogoPath ? (
                   <img 
-                    src="/assets/logos/polk-state-logo-transparent.jpg" 
+                    src="/assets/logos/polk-state-logo-transparent.png" 
                     alt={`${teamName} logo`}
                     className="w-20 h-20 object-contain"
                   />
