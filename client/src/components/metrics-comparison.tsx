@@ -291,7 +291,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
               
               {/* Center score - absolutely centered */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background/95 backdrop-blur rounded-2xl px-6 py-4 border-2 border-border shadow-2xl drop-shadow-lg">
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                 <div className="flex items-center space-x-4">
                   <div className="text-3xl font-bold text-red-600">{teamScore}</div>
                   <div className="text-2xl font-light text-muted-foreground">-</div>
