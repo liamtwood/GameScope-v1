@@ -82,8 +82,17 @@ export default function FixtureDetails() {
   
   // Use the same Polk State logo as in header, and opposition team logos from database
   const polkStateLogo = "/assets/logos/polk-state-logo.jpg";
-  const homeTeamLogo = isHomeMatch ? polkStateLogo : (oppositionTeam?.logoPath || null);
-  const awayTeamLogo = isHomeMatch ? (oppositionTeam?.logoPath || null) : polkStateLogo;
+  const getOppositionLogo = (logoPath: string | null) => {
+    if (!logoPath) return null;
+    // Convert /assets/ paths to public object storage paths
+    if (logoPath.startsWith('/assets/')) {
+      return `/public-objects${logoPath.replace('/assets/', '/')}`;
+    }
+    return logoPath;
+  };
+
+  const homeTeamLogo = isHomeMatch ? polkStateLogo : getOppositionLogo(oppositionTeam?.logoPath || null);
+  const awayTeamLogo = isHomeMatch ? getOppositionLogo(oppositionTeam?.logoPath || null) : polkStateLogo;
 
   const getStatusColor = (status: string) => {
     switch (status) {
