@@ -206,8 +206,8 @@ export default function LogoManagement() {
                         {team.logoPath ? "Has Logo" : "No Logo"}
                       </Badge>
                     </div>
-                    <div className="absolute inset-0 bg-blue-600 bg-opacity-0 hover:bg-opacity-10 dark:bg-blue-400 dark:hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
-                      <Edit3 className="h-6 w-6 text-blue-600 dark:text-blue-400 opacity-0 hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
+                      <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
                     </div>
                   </div>
                 </ThemedLogoContainer>
