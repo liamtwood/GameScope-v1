@@ -51,13 +51,13 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         </div>
       </div>
       
-      {/* Container below Polk State College - matches WOMEN'S SOCCER height */}
+      {/* Container below Polk State College - displays current page */}
       <div className="px-6 py-4 border-b border-border bg-secondary">
         <div className="bg-secondary rounded-lg p-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-sm text-foreground">WOMEN'S SOCCER</h3>
-              <p className="text-xs text-muted-foreground">{CLUB_NAME}</p>
+              <h3 className="font-semibold text-sm text-foreground">{title.toUpperCase()}</h3>
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
             </div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
