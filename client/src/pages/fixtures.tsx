@@ -25,7 +25,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video'>('season');
+  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video'>('video');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -107,6 +107,14 @@ export default function Fixtures() {
   });
 
   const filteredFixtures = fixtures?.filter(fixture => {
+    // When on video tab, only show past matches
+    if (overviewTab === 'video') {
+      const now = new Date();
+      const matchDate = new Date(fixture.date);
+      const isPastMatch = matchDate < now;
+      if (!isPastMatch) return false;
+    }
+    
     // Treat NO_CONTEST the same as COMPLETED when filtering
     const matchesFilter = activeFilter === 'all' || 
       fixture.status === activeFilter ||
@@ -120,8 +128,12 @@ export default function Fixtures() {
     return matchesFilter && matchesCompetition && matchesSearch;
   }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
-  const handleViewDetails = (fixture: Fixture) => {
-    setLocation(`/fixtures/${fixture.id}`);
+  const handleViewDetails = (fixture: Fixture, activeTab?: string) => {
+    if (activeTab) {
+      setLocation(`/fixtures/${fixture.id}?tab=${activeTab}`);
+    } else {
+      setLocation(`/fixtures/${fixture.id}`);
+    }
   };
 
   const handleEditFixture = (data: any) => {
@@ -521,7 +533,7 @@ export default function Fixtures() {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => handleViewDetails(fixture)}
+                              onClick={() => handleViewDetails(fixture, 'videos')}
                               className="border-orange-300 text-orange-700 hover:bg-orange-100"
                             >
                               <Video className="mr-2 h-4 w-4" />

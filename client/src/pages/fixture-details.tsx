@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -16,6 +16,16 @@ import { useToast } from "@/hooks/use-toast";
 export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
   const fixtureId = params?.id;
+  const [activeTab, setActiveTab] = useState("details");
+
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam && ['details', 'videos', 'lineups'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, []);
 
   const { data: fixture, isLoading } = useQuery<Fixture>({
     queryKey: [`/api/fixture/${fixtureId}`],
@@ -230,7 +240,7 @@ export default function FixtureDetails() {
         </Card>
 
         {/* Tabs Content */}
-        <Tabs defaultValue="details" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details" data-testid="tab-details">Details</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Videos</TabsTrigger>
