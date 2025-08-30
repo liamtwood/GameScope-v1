@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Share, Clock, Calendar, Video as VideoIcon } from "lucide-react";
-import { Fixture, Team } from "@shared/schema";
+import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
@@ -20,6 +20,10 @@ export default function Videos() {
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
     enabled: !!currentTeam?.id 
+  });
+
+  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
+    queryKey: ["/api/opposition-teams"] 
   });
 
   // Only show matches that have occurred before tomorrow
@@ -157,7 +161,25 @@ export default function Videos() {
                         </div>
                         
                         <div className="flex items-center mb-1">
-                          <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0">
+                          {(() => {
+                            const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                            return opponent?.logoPath ? (
+                              <img 
+                                src={opponent.logoPath} 
+                                alt={`${fixture.opponent} logo`}
+                                className="w-8 h-8 rounded-full object-cover mr-3 flex-shrink-0"
+                                onError={(e) => {
+                                  // Fallback to initials if image fails to load
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  target.nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null;
+                          })()}
+                          <div className={`w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 ${
+                            oppositionTeams?.find(team => team.name === fixture.opponent)?.logoPath ? 'hidden' : ''
+                          }`}>
                             {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
                           </div>
                           <h3 className="font-semibold text-foreground">vs {fixture.opponent}</h3>
