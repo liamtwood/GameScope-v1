@@ -203,7 +203,7 @@ export default function LogoManagement() {
                     <div className="text-center">
                       <p className="text-sm font-medium truncate">{team.name}</p>
                       <Badge variant="ghost" className="text-xs mt-1">
-                        {team.logoPath ? "Has Logo" : "No Logo"}
+                        Remove Background
                       </Badge>
                     </div>
                     <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
