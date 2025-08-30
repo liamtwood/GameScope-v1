@@ -55,6 +55,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
             </div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
