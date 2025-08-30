@@ -156,7 +156,12 @@ export default function Videos() {
                           </Badge>
                         </div>
                         
-                        <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
+                        <div className="flex items-center mb-1">
+                          <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0">
+                            {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                          <h3 className="font-semibold text-foreground">vs {fixture.opponent}</h3>
+                        </div>
                         <p className="text-sm text-muted-foreground mb-3">
                           {new Date(fixture.date).toLocaleDateString('en-US', {
                             weekday: 'long',
