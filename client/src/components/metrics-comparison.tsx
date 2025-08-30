@@ -84,14 +84,14 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         <div className="absolute left-1/2 top-0 h-full w-0.5 bg-white transform -translate-x-0.5 z-10" />
       </div>
       
-      <div className="flex justify-between items-center text-xs">
+      <div className="w-3/4 mx-auto flex justify-between items-center text-xs">
         <div className="text-left">
           <div className="text-red-600 font-semibold">{formatValue(displayTeamValue)}</div>
           {!isPercentage && <div className="text-red-400">{formatPercentage(normalizedTeamValue)}</div>}
         </div>
         <div className="text-right">
-          <div className="text-blue-600 font-semibold">{formatValue(displayOpponentValue)}</div>
-          {!isPercentage && <div className="text-blue-400">{formatPercentage(normalizedOpponentValue)}</div>}
+          <div className="text-red-600 font-semibold">{formatValue(displayOpponentValue)}</div>
+          {!isPercentage && <div className="text-red-400">{formatPercentage(normalizedOpponentValue)}</div>}
         </div>
       </div>
     </div>
