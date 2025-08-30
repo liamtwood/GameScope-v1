@@ -162,7 +162,7 @@ export default function Videos() {
                                 <img 
                                   src={opponent.logoPath} 
                                   alt={`${fixture.opponent} logo`}
-                                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                                  className="w-12 h-12 object-contain flex-shrink-0"
                                   onError={(e) => {
                                     // Fallback to initials if image fails to load
                                     const target = e.target as HTMLImageElement;
