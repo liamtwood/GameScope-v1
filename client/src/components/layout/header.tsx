@@ -27,7 +27,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
               </Button>
             )}
             
-            <div className="flex items-center space-x-3 border border-border rounded-lg p-3">
+            <div className="flex items-center space-x-3 border border-border rounded-lg px-3">
               <div className="h-16 w-16 flex items-center justify-center">
                 <img 
                   src="/assets/logos/polk-state-logo.jpg" 
