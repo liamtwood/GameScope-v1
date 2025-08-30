@@ -219,47 +219,6 @@ export default function Analysis() {
               </div>
             </div>
 
-            {/* Top Performers */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Top Performers</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 border rounded-lg bg-yellow-50">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                      10
-                    </div>
-                    <p className="font-medium text-foreground">Sarah Johnson</p>
-                    <p className="text-xs text-muted-foreground mb-2">Midfielder</p>
-                    <div className="text-sm text-yellow-700 font-medium">Player of the Match</div>
-                    <div className="text-xs text-muted-foreground">2 Goals, 1 Assist</div>
-                  </div>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gray-100 text-gray-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                      3
-                    </div>
-                    <p className="font-medium text-foreground">Emma Rodriguez</p>
-                    <p className="text-xs text-muted-foreground mb-2">Defender</p>
-                    <div className="text-sm text-muted-foreground font-medium">Best Defender</div>
-                    <div className="text-xs text-muted-foreground">5 Tackles, 8 Clearances</div>
-                  </div>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gray-100 text-gray-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                      1
-                    </div>
-                    <p className="font-medium text-foreground">Alex Mitchell</p>
-                    <p className="text-xs text-muted-foreground mb-2">Goalkeeper</p>
-                    <div className="text-sm text-muted-foreground font-medium">Clean Sheet</div>
-                    <div className="text-xs text-muted-foreground">6 Saves, 0 Goals Conceded</div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Performance Analysis Tabs */}
             <Tabs defaultValue="attack" className="w-full">
