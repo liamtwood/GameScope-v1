@@ -248,7 +248,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
   ];
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 border-2 border-gray-200 shadow-xl drop-shadow-lg">
       <div className="space-y-6">
         {/* Header with logos and score - Spurs vs Bournemouth inspired */}
         <div className="mb-6">
