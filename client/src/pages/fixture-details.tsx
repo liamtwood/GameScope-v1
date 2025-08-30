@@ -561,42 +561,168 @@ export default function FixtureDetails() {
                     </TabsList>
 
                     <TabsContent value="attack" className="mt-6">
-                      <Card className="p-6">
-                        <SpiderChart
-                          data={createAttackSpiderData(fullGameStats)}
-                          teamName="POLK"
-                          opponentName="OPP"
-                          title="Attack Performance"
-                          teamColor="#dc2626"
-                          opponentColor="#64748b"
-                        />
-                      </Card>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card className="p-6">
+                          <SpiderChart
+                            data={createAttackSpiderData(fullGameStats)}
+                            teamName="POLK"
+                            opponentName="OPP"
+                            title="Attack Performance"
+                            teamColor="#dc2626"
+                            opponentColor="#64748b"
+                          />
+                        </Card>
+                        <Card className="p-6">
+                          <h4 className="font-semibold text-foreground mb-4">Attack Metrics</h4>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                              <span className="text-muted-foreground">Metric</span>
+                              <span className="text-red-600 text-center">POLK</span>
+                              <span className="text-gray-600 text-center">OPP</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Goals</span>
+                              <span className="font-medium text-center">{fullGameStats.goals || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Shots Attempted</span>
+                              <span className="font-medium text-center">{fullGameStats.shotsAttempted || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Shots on Target</span>
+                              <span className="font-medium text-center">{fullGameStats.shotsOnTarget || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
+                              <span className="font-medium text-center">{fullGameStats.runsIntoBoxes || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Corner Kicks</span>
+                              <span className="font-medium text-center">{fullGameStats.corners || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
+                              <span className="font-medium text-center">{fullGameStats.dangerousCrosses || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
                     </TabsContent>
 
                     <TabsContent value="possession" className="mt-6">
-                      <Card className="p-6">
-                        <SpiderChart
-                          data={createPossessionSpiderData(fullGameStats)}
-                          teamName="POLK"
-                          opponentName="OPP"
-                          title="Possession & Passing"
-                          teamColor="#dc2626"
-                          opponentColor="#64748b"
-                        />
-                      </Card>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card className="p-6">
+                          <SpiderChart
+                            data={createPossessionSpiderData(fullGameStats)}
+                            teamName="POLK"
+                            opponentName="OPP"
+                            title="Possession & Passing"
+                            teamColor="#dc2626"
+                            opponentColor="#64748b"
+                          />
+                        </Card>
+                        <Card className="p-6">
+                          <h4 className="font-semibold text-foreground mb-4">Possession Metrics</h4>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                              <span className="text-muted-foreground">Metric</span>
+                              <span className="text-red-600 text-center">POLK</span>
+                              <span className="text-gray-600 text-center">OPP</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Possession %</span>
+                              <span className="font-medium text-center">{fullGameStats.possession || 0}%</span>
+                              <span className="font-medium text-center text-gray-600">0%</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Pass Accuracy %</span>
+                              <span className="font-medium text-center">{fullGameStats.passingSuccessRate || 0}%</span>
+                              <span className="font-medium text-center text-gray-600">0%</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">First Touch %</span>
+                              <span className="font-medium text-center">{fullGameStats.firstTouchSuccessRate || 0}%</span>
+                              <span className="font-medium text-center text-gray-600">0%</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Take Ons</span>
+                              <span className="font-medium text-center">{fullGameStats.takeOns || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Free Kicks</span>
+                              <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Passes Success</span>
+                              <span className="font-medium text-center">{fullGameStats.passesSuccess || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
                     </TabsContent>
 
                     <TabsContent value="technical" className="mt-6">
-                      <Card className="p-6">
-                        <SpiderChart
-                          data={createDefensiveSpiderData(fullGameStats)}
-                          teamName="POLK"
-                          opponentName="OPP"
-                          title="Technical Performance"
-                          teamColor="#dc2626"
-                          opponentColor="#64748b"
-                        />
-                      </Card>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card className="p-6">
+                          <SpiderChart
+                            data={createDefensiveSpiderData(fullGameStats)}
+                            teamName="POLK"
+                            opponentName="OPP"
+                            title="Technical Performance"
+                            teamColor="#dc2626"
+                            opponentColor="#64748b"
+                          />
+                        </Card>
+                        <Card className="p-6">
+                          <h4 className="font-semibold text-foreground mb-4">Technical Metrics</h4>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                              <span className="text-muted-foreground">Metric</span>
+                              <span className="text-red-600 text-center">POLK</span>
+                              <span className="text-gray-600 text-center">OPP</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Tackles</span>
+                              <span className="font-medium text-center">{fullGameStats.tackles || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Free Kicks</span>
+                              <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Offsides</span>
+                              <span className="font-medium text-center">{fullGameStats.offsides || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">Pass Distance (m)</span>
+                              <span className="font-medium text-center">{fullGameStats.passingTotalDistance || 0}</span>
+                              <span className="font-medium text-center text-gray-600">0</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">R.Foot Pass %</span>
+                              <span className="font-medium text-center">{fullGameStats.rightFootPassSuccessRate || 0}%</span>
+                              <span className="font-medium text-center text-gray-600">0%</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <span className="text-sm text-muted-foreground">L.Foot Pass %</span>
+                              <span className="font-medium text-center">{fullGameStats.leftFootPassSuccessRate || 0}%</span>
+                              <span className="font-medium text-center text-gray-600">0%</span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
                     </TabsContent>
                   </Tabs>
 

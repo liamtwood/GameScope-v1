@@ -25,10 +25,10 @@ export function SpiderChart({
   opponentColor = "#64748b" // Gray for opponent
 }: SpiderChartProps) {
   return (
-    <div className="w-full h-80">
+    <div className="w-full h-96">
       <h4 className="text-lg font-semibold mb-4 text-center">{title}</h4>
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart data={data} margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
+        <RadarChart data={data} margin={{ top: 40, right: 100, bottom: 40, left: 100 }}>
           <PolarGrid />
           <PolarAngleAxis 
             dataKey="metric" 
