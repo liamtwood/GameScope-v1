@@ -13,7 +13,7 @@ import { Fixture, MatchStats } from "@shared/schema";
 
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
-  const fixtureId = parseInt(params?.fixtureId || "0");
+  const fixtureId = params?.fixtureId || "";
 
   const { data: fixture, isLoading: fixtureLoading } = useQuery<Fixture>({
     queryKey: ["/api/fixture", fixtureId],
