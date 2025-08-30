@@ -151,13 +151,9 @@ export default function Videos() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           {getMatchBadge(fixture)}
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(fixture.date).toLocaleDateString('en-GB', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </span>
+                          <Badge className="bg-gray-100 text-gray-800">
+                            {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                          </Badge>
                         </div>
                         
                         <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
