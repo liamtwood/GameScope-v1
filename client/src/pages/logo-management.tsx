@@ -158,6 +158,68 @@ export default function LogoManagement() {
     }, 100);
   };
 
+  const handleRemoveBackground = async (team: OppositionTeam) => {
+    if (!team.logoPath) {
+      toast({
+        title: "No Logo Found",
+        description: "This team doesn't have a logo to process.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProcessing(true);
+    setSelectedTeam(team.id);
+    setOriginalImageUrl(team.logoPath);
+    
+    try {
+      // Fetch the existing logo as a blob
+      const response = await fetch(team.logoPath);
+      const blob = await response.blob();
+      
+      // Create a File object from the blob
+      const file = new File([blob], `${team.name}-logo`, { type: blob.type });
+      
+      // Process the image using the existing background removal logic
+      const backgroundRemover = new BackgroundRemover();
+      const options: BackgroundRemovalOptions = {
+        mode: processingMode,
+        tolerance: threshold,
+        preserveInternalWhite: true
+      };
+      
+      const processedBlob = await backgroundRemover.removeBackground(file, options);
+      const processedUrl = URL.createObjectURL(processedBlob);
+      setProcessedImageUrl(processedUrl);
+      
+      // Auto-save the processed logo
+      saveMutation.mutate({ teamId: team.id, logoData: processedBlob });
+      
+      toast({
+        title: "Background Removed",
+        description: `Successfully processed logo for ${team.name}`,
+      });
+      
+      // Scroll to see the results
+      setTimeout(() => {
+        document.getElementById('upload-section')?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+      
+    } catch (error) {
+      console.error('Background removal error:', error);
+      toast({
+        title: "Processing Failed",
+        description: "Failed to remove background from the logo. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
     <MainLayout 
       title="Logo Management" 
@@ -202,7 +264,15 @@ export default function LogoManagement() {
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-medium truncate">{team.name}</p>
-                      <Badge variant="ghost" className="text-xs mt-1">
+                      <Badge 
+                        variant="ghost" 
+                        className="text-xs mt-1 cursor-pointer hover:bg-accent"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveBackground(team);
+                        }}
+                        data-testid={`button-remove-bg-${team.id}`}
+                      >
                         Remove Background
                       </Badge>
                     </div>
