@@ -26,7 +26,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
   return (
     <div className={cn(
-      "h-screen bg-white border-r border-border transition-all duration-300",
+      "h-screen bg-background border-r border-border transition-all duration-300",
       collapsed ? "w-20" : "w-64"
     )}>
       {/* Header */}
@@ -107,7 +107,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
       {/* User Profile */}
       {!collapsed && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-background">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-blue-600 text-white font-bold text-sm">

@@ -31,7 +31,7 @@ export function MainLayout({ title, subtitle, children }: MainLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div className={`
         ${isMobile ? 'fixed z-50' : 'relative'} 
