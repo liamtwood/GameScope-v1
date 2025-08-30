@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { BackgroundRemover } from "@/utils/backgroundRemoval";
 
 interface LogoUploadProps {
   teamName: string;
@@ -42,8 +43,30 @@ export function LogoUpload({ teamName, onUploadComplete, currentLogo }: LogoUplo
     setUploading(true);
 
     try {
+      // Show processing toast
+      toast({
+        title: "Processing logo",
+        description: "Removing background from your logo...",
+      });
+
+      // Apply intelligent background removal
+      const backgroundRemover = new BackgroundRemover();
+      const processedBlob = await backgroundRemover.removeBackground(file, {
+        tolerance: 30,
+        preserveInternalWhite: true
+      });
+
+      // Create processed file for upload
+      const processedFile = new File([processedBlob], `${teamName}-logo.png`, {
+        type: 'image/png'
+      });
+
+      // Create preview URL for immediate display
+      const previewUrl = URL.createObjectURL(processedBlob);
+      setPreviewUrl(previewUrl);
+
       const formData = new FormData();
-      formData.append('logo', file);
+      formData.append('logo', processedFile);
       formData.append('teamName', teamName);
 
       const response = await fetch('/api/upload-logo', {
@@ -56,18 +79,17 @@ export function LogoUpload({ teamName, onUploadComplete, currentLogo }: LogoUplo
       }
 
       const result = await response.json();
-      setPreviewUrl(result.logoPath);
       onUploadComplete(result.logoPath);
 
       toast({
         title: "Success",
-        description: "Logo uploaded and background removed successfully",
+        description: "Logo uploaded with automatic background removal!",
       });
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload logo. Please try again.",
+        description: "Failed to process and upload logo. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -88,7 +110,12 @@ export function LogoUpload({ teamName, onUploadComplete, currentLogo }: LogoUplo
             <img 
               src={previewUrl} 
               alt={`${teamName} logo`}
-              className="w-16 h-16 object-contain border border-gray-200 rounded-lg bg-white p-2"
+              className="w-16 h-16 object-contain border border-gray-200 rounded-lg p-2"
+              style={{
+                background: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                backgroundSize: '12px 12px',
+                backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px'
+              }}
             />
             <Button
               variant="destructive"
@@ -128,7 +155,7 @@ export function LogoUpload({ teamName, onUploadComplete, currentLogo }: LogoUplo
             </Button>
           </label>
           <p className="text-xs text-gray-500 mt-1">
-            Upload team logo (max 5MB, background will be automatically removed)
+            Upload team logo (max 5MB, intelligent background removal applied automatically)
           </p>
         </div>
       </div>
