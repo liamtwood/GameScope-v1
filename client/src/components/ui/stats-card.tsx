@@ -30,7 +30,7 @@ export function StatsCard({
             <p className="text-muted-foreground text-sm font-medium">{title}</p>
             <p className="text-3xl font-bold text-foreground">{value}</p>
           </div>
-          <div className={`w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center ${iconColor.replace('text-', 'bg-')}`}>
+          <div className="w-12 h-12 flex items-center justify-center">
             <Icon className={`text-xl ${iconColor}`} />
           </div>
         </div>
