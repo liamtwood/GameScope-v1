@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Fixture, OppositionTeam, Player } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
@@ -28,6 +30,36 @@ export default function FixtureDetails() {
     queryKey: ["/api/players", fixture?.teamId],
     enabled: !!fixture?.teamId,
   });
+
+  const { toast } = useToast();
+
+  // Mutation for updating fixture
+  const updateFixtureMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/fixtures/${fixtureId}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/fixture/${fixtureId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixture?.teamId] });
+      toast({
+        title: "Fixture Updated",
+        description: "Fixture details have been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to update fixture:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update fixture. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleFixtureSave = (data: any) => {
+    updateFixtureMutation.mutate(data);
+  };
 
   if (isLoading || !fixture) {
     return (
@@ -210,10 +242,7 @@ export default function FixtureDetails() {
                   <h3 className="text-lg font-semibold">Match Details</h3>
                   <FixtureEditDialog 
                     fixture={fixture}
-                    onSave={(updatedFixture) => {
-                      // Handle fixture update - could trigger a refetch or update local state
-                      console.log('Fixture updated:', updatedFixture);
-                    }}
+                    onSave={handleFixtureSave}
                   >
                     <Button 
                       variant="default" 
