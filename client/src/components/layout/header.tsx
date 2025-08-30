@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Bell, Menu, Crosshair } from "lucide-react";
 import { CLUB_NAME } from "@/lib/constants";
+import { ModeToggle } from "@/components/mode-toggle";
 
 interface HeaderProps {
   title: string;
@@ -12,7 +13,7 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderProps) {
   return (
-    <header className="bg-white border-b border-border">
+    <header className="bg-background border-b border-border">
       <div className="px-6" style={{ paddingTop: '16.25px', paddingBottom: '16.25px' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -42,6 +43,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           </div>
           
           <div className="flex items-center space-x-4">
+            <ModeToggle />
             <Button variant="ghost" size="sm" data-testid="button-notifications">
               <Bell className="h-4 w-4" />
             </Button>
@@ -50,8 +52,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       </div>
       
       {/* Container below Polk State College - displays current page */}
-      <div className="px-6 bg-gray-50 border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
-        <div className="bg-gray-50 p-3">
+      <div className="px-6 bg-muted border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
+        <div className="bg-muted p-3">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>

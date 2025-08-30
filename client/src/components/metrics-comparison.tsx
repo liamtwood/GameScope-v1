@@ -67,7 +67,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         <span className="text-muted-foreground">{label}</span>
       </div>
       
-      <div className="relative w-3/4 h-8 bg-gray-200 rounded-lg overflow-hidden mx-auto">
+      <div className="relative w-3/4 h-8 bg-muted rounded-lg overflow-hidden mx-auto">
         {/* Team bar (from left) - POLK red/black gradient */}
         <div 
           className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500 ease-out"
@@ -248,11 +248,11 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
   ];
 
   return (
-    <Card className="p-6 border-2 border-gray-200 shadow-xl drop-shadow-lg">
+    <Card className="p-6 border-2 border-border shadow-xl drop-shadow-lg">
       <div className="space-y-6">
         {/* Header with logos and score - Spurs vs Bournemouth inspired */}
         <div className="mb-6">
-          <h4 className="font-semibold text-center mb-6 text-xl text-gray-800">Match Statistics</h4>
+          <h4 className="font-semibold text-center mb-6 text-xl text-foreground">Match Statistics</h4>
           
           {/* Main header container with vertical split */}
           <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
@@ -291,20 +291,20 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
               
               {/* Center score - absolutely centered */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur rounded-2xl px-6 py-4 border-2 border-gray-200 shadow-2xl drop-shadow-lg">
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background/95 backdrop-blur rounded-2xl px-6 py-4 border-2 border-border shadow-2xl drop-shadow-lg">
                 <div className="flex items-center space-x-4">
                   <div className="text-3xl font-bold text-red-600">{teamScore}</div>
-                  <div className="text-2xl font-light text-gray-400">-</div>
+                  <div className="text-2xl font-light text-muted-foreground">-</div>
                   <div className="text-3xl font-bold text-red-600">{opponentScore}</div>
                 </div>
-                <div className="text-xs text-gray-500 text-center mt-1">FT</div>
+                <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
               </div>
               
               {/* Opponent section */}
               <div className="flex items-center space-x-4 text-black flex-1 justify-end">
                 <div className="text-right">
                   <div className="text-2xl font-bold">{opponentName}</div>
-                  <div className="text-gray-600 text-sm">AWAY</div>
+                  <div className="text-muted-foreground text-sm">AWAY</div>
                 </div>
                 {opponentLogoPath ? (
                   <img 
