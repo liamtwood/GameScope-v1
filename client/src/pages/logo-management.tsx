@@ -180,12 +180,13 @@ export default function LogoManagement() {
                   className="group relative border rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
                   onClick={() => handleEditExistingLogo(team)}
                 >
-                  <div className="aspect-square bg-gray-100 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                  <div className="aspect-square bg-white border rounded-md mb-2 flex items-center justify-center overflow-hidden">
                     {team.logoPath ? (
                       <img 
                         src={team.logoPath} 
                         alt={`${team.name} logo`}
                         className="max-w-full max-h-full object-contain"
+                        style={{ backgroundColor: 'white' }}
                       />
                     ) : (
                       <div className="text-gray-400 text-center">
