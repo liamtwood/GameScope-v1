@@ -12,36 +12,36 @@ import XLSX from "xlsx";
 function parseStatsFromExcelData(data: any[], teamColumn: string) {
   const stats: any = {};
   
-  // Map Excel event names to database field names
-  const fieldMapping: { [key: string]: string } = {
-    'Total Team Distance (km)': 'totalTeamDistance',
-    'Possession (%)': 'possession',
-    'Goals': 'goals',
-    'Shots - Attempted': 'shotsAttempted',
-    'Shots - On Target': 'shotsOnTarget',
-    'Runs Into Boxes': 'runsIntoBoxes',
-    'Corners': 'corners',
-    'Dangerous Crosses': 'dangerousCrosses',
-    'Dribbles': 'dribbles',
-    'Penetrating Dribbles': 'penetratingDribbles',
-    'Take Ons': 'takeOns',
-    'First Touch - Success': 'firstTouchSuccess',
-    'First Touch - Success Rate (%)': 'firstTouchSuccessRate',
-    'Tackles': 'tackles',
-    'Free Kicks': 'freeKicks',
-    'Offsides': 'offsides',
-    'Pass - Total Attempted': 'passesAttempted',
-    'Pass - Success': 'passesSuccess',
-    'Pass - Success Rate (%)': 'passingSuccessRate',
-    'Pass - Total Distance (m)': 'passingTotalDistance',
-    'Pass - Average Pass Distance (m)': 'passingAverageDistance',
-    'Pass - Average Pass Velocity (km/h)': 'passingAverageVelocity',
-    'Right Foot Pass - Attempted': 'rightFootPassAttempted',
-    'Right Foot Pass - Success': 'rightFootPassSuccess',
-    'Right Foot Pass - Success Rate (%)': 'rightFootPassSuccessRate',
-    'Left Foot Pass - Attempted': 'leftFootPassAttempted',
-    'Left Foot Pass - Success': 'leftFootPassSuccess',
-    'Left Foot Pass - Success Rate (%)': 'leftFootPassSuccessRate',
+  // Map Excel event names to database field names with type information
+  const fieldMapping: { [key: string]: { field: string; type: 'integer' | 'float' | 'percentage' } } = {
+    'Total Team Distance (km)': { field: 'totalTeamDistance', type: 'integer' }, // converted to meters
+    'Possession (%)': { field: 'possession', type: 'percentage' },
+    'Goals': { field: 'goals', type: 'integer' },
+    'Shots - Attempted': { field: 'shotsAttempted', type: 'integer' },
+    'Shots - On Target': { field: 'shotsOnTarget', type: 'integer' },
+    'Runs Into Boxes': { field: 'runsIntoBoxes', type: 'integer' },
+    'Corners': { field: 'corners', type: 'integer' },
+    'Dangerous Crosses': { field: 'dangerousCrosses', type: 'integer' },
+    'Dribbles': { field: 'dribbles', type: 'integer' },
+    'Penetrating Dribbles': { field: 'penetratingDribbles', type: 'integer' },
+    'Take Ons': { field: 'takeOns', type: 'integer' },
+    'First Touch - Success': { field: 'firstTouchSuccess', type: 'integer' },
+    'First Touch - Success Rate (%)': { field: 'firstTouchSuccessRate', type: 'percentage' },
+    'Tackles': { field: 'tackles', type: 'integer' },
+    'Free Kicks': { field: 'freeKicks', type: 'integer' },
+    'Offsides': { field: 'offsides', type: 'integer' },
+    'Pass - Total Attempted': { field: 'passesAttempted', type: 'integer' },
+    'Pass - Success': { field: 'passesSuccess', type: 'integer' },
+    'Pass - Success Rate (%)': { field: 'passingSuccessRate', type: 'percentage' },
+    'Pass - Total Distance (m)': { field: 'passingTotalDistance', type: 'integer' },
+    'Pass - Average Pass Distance (m)': { field: 'passingAverageDistance', type: 'float' },
+    'Pass - Average Pass Velocity (km/h)': { field: 'passingAverageVelocity', type: 'float' },
+    'Right Foot Pass - Attempted': { field: 'rightFootPassAttempted', type: 'integer' },
+    'Right Foot Pass - Success': { field: 'rightFootPassSuccess', type: 'integer' },
+    'Right Foot Pass - Success Rate (%)': { field: 'rightFootPassSuccessRate', type: 'percentage' },
+    'Left Foot Pass - Attempted': { field: 'leftFootPassAttempted', type: 'integer' },
+    'Left Foot Pass - Success': { field: 'leftFootPassSuccess', type: 'integer' },
+    'Left Foot Pass - Success Rate (%)': { field: 'leftFootPassSuccessRate', type: 'percentage' },
   };
 
   // Process each row of data
@@ -50,29 +50,47 @@ function parseStatsFromExcelData(data: any[], teamColumn: string) {
     const value = row[teamColumn];
     
     if (event && fieldMapping[event] && value !== undefined && value !== null && value !== '') {
-      const fieldName = fieldMapping[event];
+      const mapping = fieldMapping[event];
+      const fieldName = mapping.field;
+      const fieldType = mapping.type;
       
       // Convert value to appropriate type
       let parsedValue = value;
+      
+      // First, extract numeric value from string if needed
       if (typeof value === 'string') {
-        // Remove any non-numeric characters except decimal points
+        // Remove any non-numeric characters except decimal points and negative signs
         const numericString = value.replace(/[^0-9.-]/g, '');
-        parsedValue = parseFloat(numericString);
-        
-        // If it's NaN, keep the original value
-        if (isNaN(parsedValue)) {
-          parsedValue = value;
+        if (numericString && !isNaN(parseFloat(numericString))) {
+          parsedValue = parseFloat(numericString);
+        } else {
+          continue; // Skip non-numeric values
         }
       }
       
-      // Special handling for distance values (convert km to meters)
-      if (fieldName === 'totalTeamDistance' && typeof parsedValue === 'number') {
-        parsedValue = Math.round(parsedValue * 1000); // Convert km to meters
+      // Ensure we have a number
+      if (typeof parsedValue !== 'number' || isNaN(parsedValue)) {
+        continue; // Skip invalid values
       }
       
-      // Special handling for distance in meters
-      if ((fieldName === 'passingTotalDistance' || fieldName === 'passingAverageDistance') && typeof parsedValue === 'number') {
-        parsedValue = Math.round(parsedValue); // Ensure integer meters
+      // Apply type-specific formatting
+      switch (fieldType) {
+        case 'integer':
+          // Special handling for distance conversion
+          if (fieldName === 'totalTeamDistance') {
+            parsedValue = Math.round(parsedValue * 1000); // Convert km to meters
+          } else {
+            parsedValue = Math.round(parsedValue); // Round to integer
+          }
+          break;
+        case 'percentage':
+          // Keep as float but ensure it's a reasonable percentage
+          parsedValue = Math.round(parsedValue * 100) / 100; // Round to 2 decimal places
+          break;
+        case 'float':
+          // Keep as float, round to reasonable precision
+          parsedValue = Math.round(parsedValue * 100) / 100; // Round to 2 decimal places
+          break;
       }
       
       stats[fieldName] = parsedValue;
