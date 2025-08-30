@@ -726,60 +726,6 @@ export default function FixtureDetails() {
                     </TabsContent>
                   </Tabs>
 
-                  {/* Performance Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-3">Attacking Metrics</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Total Shots</span>
-                          <span className="font-medium">{fullGameStats.shotsAttempted || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Shots on Target</span>
-                          <span className="font-medium">{fullGameStats.shotsOnTarget || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Corner Kicks</span>
-                          <span className="font-medium">{fullGameStats.corners || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
-                          <span className="font-medium">{fullGameStats.dangerousCrosses || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
-                          <span className="font-medium">{fullGameStats.runsIntoBoxes || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-3">Defensive & Possession</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Tackles</span>
-                          <span className="font-medium">{fullGameStats.tackles || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Take Ons</span>
-                          <span className="font-medium">{fullGameStats.takeOns || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Free Kicks</span>
-                          <span className="font-medium">{fullGameStats.freeKicks || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Offsides</span>
-                          <span className="font-medium">{fullGameStats.offsides || 0}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Dribbles</span>
-                          <span className="font-medium">{fullGameStats.dribbles || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Key Player Performance */}
                   <div>
