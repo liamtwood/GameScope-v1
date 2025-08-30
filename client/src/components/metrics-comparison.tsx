@@ -9,6 +9,8 @@ interface MetricsComparisonProps {
   opponentStats?: MatchStats;
   teamScore?: number;
   opponentScore?: number;
+  teamLogoPath?: string;
+  opponentLogoPath?: string;
 }
 
 interface MetricBarProps {
@@ -96,7 +98,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
   );
 }
 
-export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats, teamScore = 0, opponentScore = 0 }: MetricsComparisonProps) {
+export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats, teamScore = 0, opponentScore = 0, teamLogoPath, opponentLogoPath }: MetricsComparisonProps) {
   const metricCategories = [
     {
       category: "Key",
@@ -255,9 +257,17 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
             {/* POLK Logo Box */}
             <div className="flex items-center justify-center p-4 bg-red-50 rounded-lg border">
               <div className="text-center">
-                <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold text-sm">POLK</span>
-                </div>
+                {teamLogoPath ? (
+                  <img 
+                    src={teamLogoPath} 
+                    alt={`${teamName} logo`}
+                    className="w-12 h-12 object-contain mx-auto mb-2"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white font-bold text-sm">POLK</span>
+                  </div>
+                )}
                 <span className="text-sm font-medium text-red-600">{teamName}</span>
               </div>
             </div>
@@ -272,12 +282,20 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
             </div>
             
-            {/* Florida Logo Box */}
+            {/* Opponent Logo Box */}
             <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg border">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold text-xs">FSC</span>
-                </div>
+                {opponentLogoPath ? (
+                  <img 
+                    src={opponentLogoPath} 
+                    alt={`${opponentName} logo`}
+                    className="w-12 h-12 object-contain mx-auto mb-2"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white font-bold text-xs">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                  </div>
+                )}
                 <span className="text-sm font-medium text-blue-600">{opponentName}</span>
               </div>
             </div>

@@ -26,6 +26,14 @@ export default function Analysis() {
     enabled: !!fixtureId,
   });
 
+  const { data: oppositionTeams } = useQuery({
+    queryKey: ["/api/opposition-teams"],
+  });
+
+  const { data: teams } = useQuery({
+    queryKey: ["/api/teams"],
+  });
+
   // Spider Chart Data Transformation Functions (matching fixture details)
   const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
     { metric: 'Goals', team: teamStats.goals || 0, opponent: opponentStats?.goals || 0, fullMark: Math.max(10, (teamStats.goals || 0) * 2, (opponentStats?.goals || 0) * 2) },
@@ -86,6 +94,13 @@ export default function Analysis() {
   // Process match stats - get full game stats
   const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true);
   const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null));
+
+  // Get team and opponent logos
+  const team = teams?.[0]; // POLK team
+  const opponentTeam = oppositionTeams?.find(team => team.name === fixture?.opponent);
+  
+  const teamLogoPath = team?.logoPath;
+  const opponentLogoPath = opponentTeam?.logoPath;
 
   const getResultDisplay = () => {
     if (fixture.homeScore !== null && fixture.awayScore !== null) {
@@ -181,6 +196,8 @@ export default function Analysis() {
               opponentStats={opponentFullGameStats}
               teamScore={fixture.homeScore || 0}
               opponentScore={fixture.awayScore || 0}
+              teamLogoPath={teamLogoPath}
+              opponentLogoPath={opponentLogoPath}
             />
 
             {/* AI-Powered Insights */}
