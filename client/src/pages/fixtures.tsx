@@ -256,24 +256,22 @@ export default function Fixtures() {
     return { withVideo, withoutVideo, totalVideos, coverage };
   };
 
-  // Get matches that need video uploads (matches that have occurred or will happen in next 7 days)
+  // Get matches that need video uploads (only past matches using today's date - 1)
   const getMatchesNeedingVideos = () => {
     if (!fixtures) return [];
     
-    const now = new Date();
-    const sevenDaysFromNow = new Date();
-    sevenDaysFromNow.setDate(now.getDate() + 7);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
     
     return fixtures.filter(f => {
       const matchDate = new Date(f.date);
-      const isPastMatch = matchDate < now;
-      const isWithinNext7Days = matchDate >= now && matchDate <= sevenDaysFromNow;
+      const isPastMatch = matchDate < yesterday;
       const isCompleted = f.status === 'COMPLETED';
       const isNoContest = f.status === 'NO_CONTEST';
       const hasNoVideo = !f.hasVideo;
       
-      // Include matches that have occurred OR will happen in next 7 days, and need videos
-      return (isPastMatch || isWithinNext7Days || isCompleted || isNoContest) && hasNoVideo;
+      // Include only past matches (before yesterday) that need videos
+      return (isPastMatch || isCompleted || isNoContest) && hasNoVideo;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
   };
 
