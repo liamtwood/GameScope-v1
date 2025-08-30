@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal, Video } from "lucide-react";
 import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -147,6 +147,12 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
 
           {/* Right side - Status and Actions */}
           <div className="flex items-center space-x-3">
+            {/* Video Indicator */}
+            {fixture.hasVideo && (
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full" title="Videos available">
+                <Video className="h-4 w-4 text-blue-600" />
+              </div>
+            )}
 
             {/* Result/Status */}
             <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
