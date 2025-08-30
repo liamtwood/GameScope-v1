@@ -36,18 +36,18 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       )}>
         {!collapsed && (
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center">
-              <Crosshair className="h-6 w-6" />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">GameScope</h1>
+              <h1 className="text-xl font-bold" style={{ color: '#486D8D' }}>GameScope</h1>
               <p className="text-xs text-muted-foreground">AI Video Analysis</p>
             </div>
           </div>
         )}
         {collapsed && (
-          <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center">
-            <Crosshair className="h-6 w-6" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
           </div>
         )}
         <Button
