@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { MatchStats } from "@shared/schema";
+import { useState } from "react";
 
 interface MetricsComparisonProps {
   teamName: string;
   opponentName: string;
   teamStats: MatchStats;
   opponentStats?: MatchStats;
+  teamScore?: number;
+  opponentScore?: number;
 }
 
 interface MetricBarProps {
@@ -93,7 +96,8 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
   );
 }
 
-export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats }: MetricsComparisonProps) {
+export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats, teamScore = 0, opponentScore = 0 }: MetricsComparisonProps) {
+  const [activeTab, setActiveTab] = useState("Key");
   const metricCategories = [
     {
       category: "Key",
@@ -242,35 +246,81 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
     },
   ];
 
+  const activeCategory = metricCategories.find(cat => cat.category === activeTab);
+
   return (
     <Card className="p-6">
-      <div className="space-y-8">
+      <div className="space-y-6">
+        {/* Header with logos and score */}
         <div>
-          <h4 className="font-semibold text-center mb-2 text-lg">Match Statistics Comparison</h4>
-          <div className="flex justify-between items-center text-sm text-muted-foreground mb-6">
-            <span className="font-medium text-red-600">{teamName}</span>
-            <span>vs</span>
-            <span className="font-medium text-blue-600">{opponentName}</span>
+          <h4 className="font-semibold text-center mb-4 text-lg">Match Statistics Comparison</h4>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {/* POLK Logo Box */}
+            <div className="flex items-center justify-center p-4 bg-red-50 rounded-lg border">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-white font-bold text-sm">POLK</span>
+                </div>
+                <span className="text-sm font-medium text-red-600">{teamName}</span>
+              </div>
+            </div>
+            
+            {/* Score Box */}
+            <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg border">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-800">
+                  {teamScore} - {opponentScore}
+                </div>
+                <span className="text-sm text-gray-500">Final Score</span>
+              </div>
+            </div>
+            
+            {/* Florida Logo Box */}
+            <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg border">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-white font-bold text-xs">FSC</span>
+                </div>
+                <span className="text-sm font-medium text-blue-600">{opponentName}</span>
+              </div>
+            </div>
           </div>
         </div>
         
-        {metricCategories.map((category, categoryIndex) => (
-          <div key={categoryIndex} className="space-y-4">
-            <h5 className="text-md font-semibold text-gray-700 border-b pb-2 mb-4">{category.category}</h5>
-            <div className="space-y-4">
-              {category.metrics.map((metric, metricIndex) => (
-                <MetricBar
-                  key={`${categoryIndex}-${metricIndex}`}
-                  label={metric.label}
-                  teamValue={metric.teamValue}
-                  opponentValue={metric.opponentValue}
-                  unit={metric.unit}
-                  isPercentage={metric.isPercentage}
-                />
-              ))}
-            </div>
+        {/* Tab Navigation */}
+        <div className="border-b">
+          <nav className="flex space-x-8">
+            {metricCategories.map((category) => (
+              <button
+                key={category.category}
+                onClick={() => setActiveTab(category.category)}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === category.category
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {category.category}
+              </button>
+            ))}
+          </nav>
+        </div>
+        
+        {/* Active Category Content */}
+        {activeCategory && (
+          <div className="space-y-4">
+            {activeCategory.metrics.map((metric, metricIndex) => (
+              <MetricBar
+                key={metricIndex}
+                label={metric.label}
+                teamValue={metric.teamValue}
+                opponentValue={metric.opponentValue}
+                unit={metric.unit}
+                isPercentage={metric.isPercentage}
+              />
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </Card>
   );
