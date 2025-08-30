@@ -50,7 +50,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       </div>
       
       {/* Container below Polk State College - displays current page */}
-      <div className="px-6 bg-secondary" style={{ paddingTop: '3.0px', paddingBottom: '3.0px' }}>
+      <div className="px-6 bg-secondary" style={{ paddingTop: '4.0px', paddingBottom: '4.0px' }}>
         <div className="bg-secondary rounded-lg p-3">
           <div className="flex items-center justify-between">
             <div>
