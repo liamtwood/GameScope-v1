@@ -87,7 +87,7 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             {recentFixtures.length > 0 ? (
               recentFixtures.map((fixture) => (
-                <FixtureCard key={fixture.id} fixture={fixture} />
+                <FixtureCard key={fixture.id} fixture={fixture} showAnimatedBorder={true} />
               ))
             ) : (
               <p className="text-muted-foreground text-center py-4">No recent results</p>

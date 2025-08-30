@@ -17,9 +17,10 @@ interface FixtureCardProps {
   onViewDetails?: (fixture: Fixture) => void;
   onEdit?: (fixture: Fixture) => void;
   onDelete?: (fixture: Fixture) => void;
+  showAnimatedBorder?: boolean;
 }
 
-export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: FixtureCardProps) {
+export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, showAnimatedBorder = false }: FixtureCardProps) {
   // Fetch opposition teams to get logo information
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -113,9 +114,14 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete }: Fixtur
   return (
     <Card 
       data-testid={`card-fixture-${fixture.id}`} 
-      className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
+        showAnimatedBorder ? 'relative overflow-hidden' : ''
+      }`}
       onClick={() => onViewDetails?.(fixture)}
     >
+      {showAnimatedBorder && (
+        <div className="absolute inset-0 rounded-lg border-2 border-red-500 animate-pulse pointer-events-none" />
+      )}
       <CardContent className="p-4">
         <div className="flex items-center justify-between min-h-[80px]">
           {/* Opposition Team Logo */}
