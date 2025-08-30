@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Upload, Play, Link, Plus, Save, X } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Trash2, Upload, Play, Link, Plus, Save, X, Cog } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
 import type { UploadResult } from "@uppy/core";
@@ -35,6 +36,9 @@ interface VideoData {
   url?: string;
   filename?: string;
   uploadedAt?: string;
+  isProcessing?: boolean;
+  processingProgress?: number;
+  processed?: boolean;
 }
 
 interface NewVideoRow {
@@ -55,6 +59,7 @@ interface VideoManagerProps {
 export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoManagerProps) {
   const [videos, setVideos] = useState<VideoData[]>(videoLinks);
   const [newRows, setNewRows] = useState<NewVideoRow[]>([]);
+  const [processingVideos, setProcessingVideos] = useState<Set<string>>(new Set());
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -185,6 +190,61 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     ));
   };
 
+  const handleProcessVideo = async (videoId: string) => {
+    if (processingVideos.has(videoId)) return;
+
+    setProcessingVideos(prev => new Set(prev).add(videoId));
+    
+    // Start progress simulation
+    const video = videos.find(v => v.id === videoId);
+    if (!video) return;
+
+    // Update video to show processing state
+    setVideos(prev => prev.map(v => 
+      v.id === videoId 
+        ? { ...v, isProcessing: true, processingProgress: 0 }
+        : v
+    ));
+
+    // Simulate 10-second processing with progress updates
+    const startTime = Date.now();
+    const duration = 10000; // 10 seconds
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / duration) * 100, 100);
+      
+      setVideos(prev => prev.map(v => 
+        v.id === videoId 
+          ? { ...v, processingProgress: Math.round(progress) }
+          : v
+      ));
+
+      if (progress < 100) {
+        setTimeout(updateProgress, 100); // Update every 100ms for smooth progress
+      } else {
+        // Processing complete
+        setVideos(prev => prev.map(v => 
+          v.id === videoId 
+            ? { ...v, isProcessing: false, processed: true, processingProgress: 100 }
+            : v
+        ));
+        setProcessingVideos(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(videoId);
+          return newSet;
+        });
+
+        toast({
+          title: "Video Processing Complete",
+          description: "Video has been successfully processed and is ready for analysis.",
+        });
+      }
+    };
+
+    updateProgress();
+  };
+
   const getDurationLabel = (value: string) => {
     return DURATION_OPTIONS.find(opt => opt.value === value)?.label || value;
   };
@@ -211,44 +271,84 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         <div className="space-y-3">
           {/* Existing videos */}
           {videos.map((video) => (
-            <div key={video.id} className="flex items-center gap-4 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="secondary" className="text-xs">
-                      {getDurationLabel(video.duration)}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {getLocationLabel(video.location)}
-                    </Badge>
+            <div key={video.id} className="flex flex-col gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className="text-xs">
+                        {getDurationLabel(video.duration)}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {getLocationLabel(video.location)}
+                      </Badge>
+                      {video.processed && (
+                        <Badge variant="default" className="text-xs bg-green-500">
+                          Processed
+                        </Badge>
+                      )}
+                      {video.isProcessing && (
+                        <Badge variant="default" className="text-xs bg-blue-500">
+                          Processing...
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate mt-1">
+                      {video.filename || video.url}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground truncate mt-1">
-                    {video.filename || video.url}
-                  </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {video.url && (
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {video.url && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(video.url, '_blank')}
+                      data-testid={`button-view-${video.id}`}
+                    >
+                      <Play className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {video.url && !video.isProcessing && !video.processed && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleProcessVideo(video.id)}
+                      className="text-blue-600 hover:text-blue-700"
+                      data-testid={`button-process-${video.id}`}
+                    >
+                      <Cog className="h-3 w-3 mr-1" />
+                      Process
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(video.url, '_blank')}
-                    data-testid={`button-view-${video.id}`}
+                    onClick={() => handleRemoveVideo(video.id)}
+                    className="text-red-600 hover:text-red-700"
+                    data-testid={`button-remove-${video.id}`}
+                    disabled={video.isProcessing}
                   >
-                    <Play className="h-3 w-3" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleRemoveVideo(video.id)}
-                  className="text-red-600 hover:text-red-700"
-                  data-testid={`button-remove-${video.id}`}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                </div>
               </div>
+              
+              {/* Progress bar for processing videos */}
+              {video.isProcessing && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Processing video...</span>
+                    <span className="font-medium">{video.processingProgress || 0}%</span>
+                  </div>
+                  <Progress 
+                    value={video.processingProgress || 0} 
+                    className="h-2"
+                    data-testid={`progress-${video.id}`}
+                  />
+                </div>
+              )}
             </div>
           ))}
 
