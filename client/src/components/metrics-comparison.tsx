@@ -19,13 +19,41 @@ interface MetricBarProps {
 
 function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPercentage = false }: MetricBarProps) {
   const total = teamValue + opponentValue;
-  const max = maxValue || Math.max(total, teamValue * 2, opponentValue * 2, 10);
   
-  const teamPercentage = max > 0 ? (teamValue / max) * 100 : 0;
-  const opponentPercentage = max > 0 ? (opponentValue / max) * 100 : 0;
+  // Normalize to percentages if not already a percentage metric
+  let normalizedTeamValue, normalizedOpponentValue, displayTeamValue, displayOpponentValue;
+  
+  if (isPercentage) {
+    // For percentage metrics, use the raw values but still normalize for bar display
+    normalizedTeamValue = total > 0 ? (teamValue / total) * 100 : 50;
+    normalizedOpponentValue = 100 - normalizedTeamValue;
+    displayTeamValue = teamValue;
+    displayOpponentValue = opponentValue;
+  } else {
+    // For count metrics, normalize to show proportion
+    if (total > 0) {
+      normalizedTeamValue = (teamValue / total) * 100;
+      normalizedOpponentValue = (opponentValue / total) * 100;
+    } else if (teamValue > 0) {
+      normalizedTeamValue = 100;
+      normalizedOpponentValue = 0;
+    } else if (opponentValue > 0) {
+      normalizedTeamValue = 0;
+      normalizedOpponentValue = 100;
+    } else {
+      normalizedTeamValue = 50;
+      normalizedOpponentValue = 50;
+    }
+    displayTeamValue = teamValue;
+    displayOpponentValue = opponentValue;
+  }
 
   const formatValue = (value: number) => {
     return isPercentage ? `${value}%` : `${value}${unit}`;
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${Math.round(value)}%`;
   };
 
   return (
@@ -38,25 +66,27 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         {/* Team bar (from left) */}
         <div 
           className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-500 ease-out"
-          style={{ width: `${teamPercentage}%` }}
+          style={{ width: `${normalizedTeamValue}%` }}
         />
         
         {/* Opponent bar (from right) */}
         <div 
           className="absolute right-0 top-0 h-full bg-blue-500 transition-all duration-500 ease-out"
-          style={{ width: `${opponentPercentage}%` }}
+          style={{ width: `${normalizedOpponentValue}%` }}
         />
         
         {/* Center divider */}
         <div className="absolute left-1/2 top-0 h-full w-0.5 bg-white transform -translate-x-0.5 z-10" />
       </div>
       
-      <div className="flex justify-between items-center text-sm">
-        <div className="text-red-600 font-semibold">
-          {formatValue(teamValue)}
+      <div className="flex justify-between items-center text-xs">
+        <div className="text-left">
+          <div className="text-red-600 font-semibold">{formatValue(displayTeamValue)}</div>
+          <div className="text-red-400">{formatPercentage(normalizedTeamValue)}</div>
         </div>
-        <div className="text-blue-600 font-semibold">
-          {formatValue(opponentValue)}
+        <div className="text-right">
+          <div className="text-blue-600 font-semibold">{formatValue(displayOpponentValue)}</div>
+          <div className="text-blue-400">{formatPercentage(normalizedOpponentValue)}</div>
         </div>
       </div>
     </div>
