@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { OppositionTeam } from "@shared/schema";
-import { BackgroundRemover } from "@/utils/backgroundRemoval";
+import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -17,6 +18,9 @@ export default function LogoManagement() {
   const [processing, setProcessing] = useState(false);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [processingMode, setProcessingMode] = useState<'smart' | 'color' | 'manual'>('smart');
+  const [threshold, setThreshold] = useState(30);
+  const [showTip, setShowTip] = useState(false);
   const { toast } = useToast();
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
@@ -47,6 +51,9 @@ export default function LogoManagement() {
       setSelectedTeam("");
       setProcessedImageUrl(null);
       setOriginalImageUrl(null);
+      setShowTip(false);
+      setProcessingMode('smart');
+      setThreshold(30);
     },
     onError: (error) => {
       toast({
@@ -65,27 +72,13 @@ export default function LogoManagement() {
     setSelectedFile(file);
     setOriginalImageUrl(URL.createObjectURL(file));
     
-    // Automatically process the image
-    setProcessing(true);
-    try {
-      const backgroundRemover = new BackgroundRemover();
-      const processedBlob = await backgroundRemover.removeBackground(file, {
-        tolerance: 30,
-        preserveInternalWhite: true
-      });
-      
-      const processedUrl = URL.createObjectURL(processedBlob);
-      setProcessedImageUrl(processedUrl);
-    } catch (error) {
-      console.error('Processing error:', error);
-      toast({
-        title: "Processing Failed",
-        description: "Failed to remove background. Please try a different image.",
-        variant: "destructive",
-      });
-    } finally {
-      setProcessing(false);
+    // Show tip for larger images
+    if (file.size > 100000 || file.name.toLowerCase().includes('logo')) {
+      setShowTip(true);
     }
+    
+    // Automatically process the image
+    await processImageWithCurrentSettings(file);
   };
 
   const handleSave = async () => {
@@ -103,6 +96,45 @@ export default function LogoManagement() {
     const logoData = await response.blob();
     
     saveMutation.mutate({ teamId: selectedTeam, logoData });
+  };
+
+  const processImageWithCurrentSettings = async (file: File) => {
+    setProcessing(true);
+    try {
+      const backgroundRemover = new BackgroundRemover();
+      const options: BackgroundRemovalOptions = {
+        mode: processingMode,
+        tolerance: threshold,
+        preserveInternalWhite: true
+      };
+      
+      const processedBlob = await backgroundRemover.removeBackground(file, options);
+      const processedUrl = URL.createObjectURL(processedBlob);
+      setProcessedImageUrl(processedUrl);
+    } catch (error) {
+      console.error('Processing error:', error);
+      toast({
+        title: "Processing Failed",
+        description: "Failed to remove background. Please try a different image.",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleModeChange = async (newMode: 'smart' | 'color' | 'manual') => {
+    setProcessingMode(newMode);
+    if (selectedFile) {
+      await processImageWithCurrentSettings(selectedFile);
+    }
+  };
+
+  const handleThresholdChange = async (value: number[]) => {
+    setThreshold(value[0]);
+    if (selectedFile && processingMode === 'manual') {
+      await processImageWithCurrentSettings(selectedFile);
+    }
   };
 
   const selectedTeamData = oppositionTeams?.find(team => team.id === selectedTeam);
@@ -151,6 +183,50 @@ export default function LogoManagement() {
               </Select>
             </div>
 
+            {/* Processing Mode Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Processing Mode</label>
+              <div className="flex gap-2 mb-2">
+                <Button
+                  variant={processingMode === 'smart' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleModeChange('smart')}
+                >
+                  Smart Mode (Auto)
+                </Button>
+                <Button
+                  variant={processingMode === 'color' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleModeChange('color')}
+                >
+                  Color-Based
+                </Button>
+                <Button
+                  variant={processingMode === 'manual' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleModeChange('manual')}
+                >
+                  Manual Threshold
+                </Button>
+              </div>
+              {processingMode === 'manual' && (
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="flex items-center gap-3 mb-2">
+                    <label className="text-sm font-medium">Sensitivity:</label>
+                    <Slider
+                      value={[threshold]}
+                      onValueChange={handleThresholdChange}
+                      max={100}
+                      min={10}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium text-blue-600 min-w-[30px]">{threshold}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* File Upload */}
             <div>
               <label className="block text-sm font-medium mb-2">Upload Logo Image</label>
@@ -173,6 +249,17 @@ export default function LogoManagement() {
                 </label>
               </div>
             </div>
+
+            {showTip && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-blue-800">
+                    <strong>💡 Pro Tip:</strong> If the logo has symbols like ™ or ® that still show background, try "Color-Based" mode or adjust the manual threshold for better results.
+                  </div>
+                </div>
+              </div>
+            )}
 
             {processing && (
               <div className="text-center py-8">

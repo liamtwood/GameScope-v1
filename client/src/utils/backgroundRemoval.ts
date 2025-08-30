@@ -1,11 +1,12 @@
 /**
- * Intelligent background removal utility for eagle logos
- * Based on flood-fill algorithm with corner sampling
+ * Enhanced background removal utility for eagle logos
+ * Supports multiple processing modes for different logo types
  */
 
 export interface BackgroundRemovalOptions {
   tolerance?: number;
   preserveInternalWhite?: boolean;
+  mode?: 'smart' | 'color' | 'manual';
 }
 
 export class BackgroundRemover {
@@ -21,7 +22,7 @@ export class BackgroundRemover {
     imageFile: File, 
     options: BackgroundRemovalOptions = {}
   ): Promise<Blob> {
-    const { tolerance = 30, preserveInternalWhite = true } = options;
+    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart' } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -39,24 +40,14 @@ export class BackgroundRemover {
           const imageData = this.ctx.getImageData(0, 0, img.width, img.height);
           const data = imageData.data;
           
-          // Find background color by sampling corners
-          const bgColor = this.detectBackgroundColor(data, img.width, img.height);
-          
-          // Create visited array for flood fill
-          const visited = new Array(img.width * img.height).fill(false);
-          
-          // Perform flood fill from corners to identify external background
-          this.floodFillFromCorners(
-            data, 
-            visited, 
-            img.width, 
-            img.height, 
-            bgColor, 
-            tolerance
-          );
-          
-          // Apply transparency to background pixels
-          this.applyTransparency(data, visited);
+          // Process based on mode
+          if (mode === 'smart') {
+            this.processSmartMode(data, img.width, img.height);
+          } else if (mode === 'color') {
+            this.processColorMode(data, img.width, img.height);
+          } else if (mode === 'manual') {
+            this.processManualMode(data, img.width, img.height, tolerance);
+          }
           
           // Update canvas with processed data
           this.ctx.putImageData(imageData, 0, 0);
@@ -80,128 +71,212 @@ export class BackgroundRemover {
     });
   }
 
-  private detectBackgroundColor(
-    data: Uint8ClampedArray, 
-    width: number, 
-    height: number
-  ): { r: number; g: number; b: number } {
-    // Sample corner pixels
-    const corners = [
-      0, // top-left
-      (width - 1) * 4, // top-right
-      (height - 1) * width * 4, // bottom-left
-      ((height - 1) * width + width - 1) * 4 // bottom-right
-    ];
+  private processSmartMode(data: Uint8ClampedArray, width: number, height: number): void {
+    // Enhanced algorithm that handles isolated elements like TM symbols
+    const bgColor = this.detectBackgroundColor(data, width, height);
+    const tolerance = 35;
     
-    let bgR = 0, bgG = 0, bgB = 0;
-    let count = 0;
+    // First pass: Mark all pixels similar to background color
+    const isBackground = new Array(width * height).fill(false);
     
-    for (let corner of corners) {
-      // Check if corner is predominantly light (likely background)
-      if (data[corner] > 200 && data[corner + 1] > 200 && data[corner + 2] > 200) {
-        bgR += data[corner];
-        bgG += data[corner + 1];
-        bgB += data[corner + 2];
-        count++;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      
+      if (Math.abs(r - bgColor.r) < tolerance && 
+          Math.abs(g - bgColor.g) < tolerance && 
+          Math.abs(b - bgColor.b) < tolerance) {
+        isBackground[i / 4] = true;
       }
     }
     
-    if (count > 0) {
-      return {
-        r: Math.round(bgR / count),
-        g: Math.round(bgG / count),
-        b: Math.round(bgB / count)
-      };
-    } else {
-      // Default to white if no clear background found
-      return { r: 255, g: 255, b: 255 };
+    // Second pass: Find content islands and preserve internal white
+    const visited = new Array(width * height).fill(false);
+    const contentPixels = new Set<number>();
+    
+    // Find all non-background pixels as potential content
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (!isBackground[idx] && !visited[idx]) {
+          // Found content - flood fill to find connected component
+          const component = this.floodFillComponent(x, y, width, height, isBackground, visited);
+          component.forEach(pixel => contentPixels.add(pixel));
+        }
+      }
+    }
+    
+    // Apply transparency
+    for (let i = 0; i < data.length; i += 4) {
+      const pixelIdx = i / 4;
+      if (!contentPixels.has(pixelIdx) && isBackground[pixelIdx]) {
+        data[i + 3] = 0; // Make transparent
+      }
     }
   }
 
-  private floodFillFromCorners(
-    data: Uint8ClampedArray,
-    visited: boolean[],
-    width: number,
-    height: number,
-    bgColor: { r: number; g: number; b: number },
-    tolerance: number
-  ): void {
-    const queue: { x: number; y: number }[] = [];
+  private processColorMode(data: Uint8ClampedArray, width: number, height: number): void {
+    // Simple color-based removal - good for uniform backgrounds
+    const bgColor = this.detectBackgroundColor(data, width, height);
+    const tolerance = 25;
     
-    // Add corners to queue if they match background color
-    const cornerPositions = [
-      { x: 0, y: 0 },
-      { x: width - 1, y: 0 },
-      { x: 0, y: height - 1 },
-      { x: width - 1, y: height - 1 }
-    ];
-    
-    for (let corner of cornerPositions) {
-      const idx = corner.y * width + corner.x;
-      const pixelIdx = idx * 4;
-      if (this.colorMatch(data, pixelIdx, bgColor, tolerance)) {
-        queue.push(corner);
-        visited[idx] = true;
-      }
-    }
-    
-    // Flood fill algorithm
-    while (queue.length > 0) {
-      const { x, y } = queue.shift()!;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
       
-      // Check 4-connected neighbors
-      const neighbors = [
-        { x: x - 1, y: y },
-        { x: x + 1, y: y },
-        { x: x, y: y - 1 },
-        { x: x, y: y + 1 }
-      ];
-      
-      for (let neighbor of neighbors) {
-        if (
-          neighbor.x >= 0 && 
-          neighbor.x < width && 
-          neighbor.y >= 0 && 
-          neighbor.y < height
-        ) {
-          const idx = neighbor.y * width + neighbor.x;
-          const pixelIdx = idx * 4;
-          
-          if (
-            !visited[idx] && 
-            this.colorMatch(data, pixelIdx, bgColor, tolerance)
-          ) {
-            visited[idx] = true;
-            queue.push(neighbor);
-          }
+      // Check if pixel matches background color
+      if (Math.abs(r - bgColor.r) < tolerance && 
+          Math.abs(g - bgColor.g) < tolerance && 
+          Math.abs(b - bgColor.b) < tolerance) {
+        // Additional check: is this pixel surrounded by similar colors?
+        const pixelIdx = i / 4;
+        const x = pixelIdx % width;
+        const y = Math.floor(pixelIdx / width);
+        
+        if (this.isSurroundedByBackground(data, width, height, x, y, bgColor, tolerance)) {
+          data[i + 3] = 0; // Make transparent
         }
       }
     }
   }
 
-  private colorMatch(
-    data: Uint8ClampedArray,
-    pixelIdx: number,
-    bgColor: { r: number; g: number; b: number },
-    tolerance: number
-  ): boolean {
-    const r = data[pixelIdx];
-    const g = data[pixelIdx + 1];
-    const b = data[pixelIdx + 2];
+  private processManualMode(data: Uint8ClampedArray, width: number, height: number, threshold: number): void {
+    const bgColor = this.detectBackgroundColor(data, width, height);
     
-    return (
-      Math.abs(r - bgColor.r) < tolerance &&
-      Math.abs(g - bgColor.g) < tolerance &&
-      Math.abs(b - bgColor.b) < tolerance
-    );
-  }
-
-  private applyTransparency(data: Uint8ClampedArray, visited: boolean[]): void {
-    for (let i = 0; i < visited.length; i++) {
-      if (visited[i]) {
-        // Set alpha to 0 for background pixels
-        data[i * 4 + 3] = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      
+      if (Math.abs(r - bgColor.r) < threshold && 
+          Math.abs(g - bgColor.g) < threshold && 
+          Math.abs(b - bgColor.b) < threshold) {
+        data[i + 3] = 0; // Make transparent
       }
     }
+  }
+
+  private detectBackgroundColor(
+    data: Uint8ClampedArray, 
+    width: number, 
+    height: number
+  ): { r: number; g: number; b: number } {
+    // Enhanced edge sampling for better background detection
+    const samples: Array<{ r: number; g: number; b: number }> = [];
+    const sampleSize = 10;
+    
+    // Top edge
+    for (let x = 0; x < width; x += Math.floor(width / sampleSize)) {
+      const idx = x * 4;
+      samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+    }
+    
+    // Bottom edge
+    for (let x = 0; x < width; x += Math.floor(width / sampleSize)) {
+      const idx = ((height - 1) * width + x) * 4;
+      samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+    }
+    
+    // Left edge
+    for (let y = 0; y < height; y += Math.floor(height / sampleSize)) {
+      const idx = (y * width) * 4;
+      samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+    }
+    
+    // Right edge
+    for (let y = 0; y < height; y += Math.floor(height / sampleSize)) {
+      const idx = (y * width + width - 1) * 4;
+      samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+    }
+    
+    // Find most common color range
+    const colorCounts: { [key: string]: number } = {};
+    samples.forEach(sample => {
+      const key = `${Math.round(sample.r/10)*10},${Math.round(sample.g/10)*10},${Math.round(sample.b/10)*10}`;
+      colorCounts[key] = (colorCounts[key] || 0) + 1;
+    });
+    
+    let maxCount = 0;
+    let dominantColor = {r: 255, g: 255, b: 255};
+    
+    for (let key in colorCounts) {
+      if (colorCounts[key] > maxCount) {
+        maxCount = colorCounts[key];
+        const [r, g, b] = key.split(',').map(Number);
+        dominantColor = {r, g, b};
+      }
+    }
+    
+    return dominantColor;
+  }
+
+  private floodFillComponent(
+    startX: number, 
+    startY: number, 
+    width: number, 
+    height: number, 
+    isBackground: boolean[], 
+    visited: boolean[]
+  ): Set<number> {
+    const component = new Set<number>();
+    const stack = [{x: startX, y: startY}];
+    
+    while (stack.length > 0) {
+      const {x, y} = stack.pop()!;
+      
+      if (x < 0 || x >= width || y < 0 || y >= height) continue;
+      
+      const idx = y * width + x;
+      if (visited[idx] || isBackground[idx]) continue;
+      
+      visited[idx] = true;
+      component.add(idx);
+      
+      // Add neighbors
+      stack.push({x: x - 1, y});
+      stack.push({x: x + 1, y});
+      stack.push({x, y: y - 1});
+      stack.push({x, y: y + 1});
+    }
+    
+    return component;
+  }
+
+  private isSurroundedByBackground(
+    data: Uint8ClampedArray, 
+    width: number, 
+    height: number, 
+    x: number, 
+    y: number, 
+    bgColor: { r: number; g: number; b: number }, 
+    tolerance: number
+  ): boolean {
+    let backgroundCount = 0;
+    let totalCount = 0;
+    
+    // Check 3x3 area around pixel
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        
+        const nx = x + dx;
+        const ny = y + dy;
+        
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          const idx = (ny * width + nx) * 4;
+          totalCount++;
+          
+          if (Math.abs(data[idx] - bgColor.r) < tolerance &&
+              Math.abs(data[idx + 1] - bgColor.g) < tolerance &&
+              Math.abs(data[idx + 2] - bgColor.b) < tolerance) {
+            backgroundCount++;
+          }
+        }
+      }
+    }
+    
+    return totalCount > 0 && backgroundCount / totalCount > 0.5;
   }
 }
