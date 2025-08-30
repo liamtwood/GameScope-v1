@@ -31,13 +31,9 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3 px-3">
               <div className="h-16 w-16 flex items-center justify-center">
                 <img 
-                  src="/assets/logos/polk-state-logo.jpg" 
+                  src="/assets/logos/polk-state-logo-transparent.jpg" 
                   alt="Polk State College Logo" 
-                  className="h-14 w-14 object-contain dark:invert"
-                  style={{ 
-                    background: 'transparent',
-                    filter: 'contrast(1.3) brightness(1.1)'
-                  }}
+                  className="h-14 w-14 object-contain"
                 />
               </div>
               <div>
