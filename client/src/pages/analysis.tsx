@@ -153,15 +153,22 @@ export default function Analysis() {
             <p className="text-muted-foreground">{format(new Date(fixture.date), 'EEEE, MMMM d, yyyy')}</p>
           </div>
         </div>
-        <span 
-          className="text-white px-4 py-2 text-lg rounded-md font-semibold inline-block"
-          style={{ 
-            backgroundColor: color === 'bg-green-500' ? '#10b981' : color === 'bg-red-500' ? '#ef4444' : color === 'bg-yellow-500' ? '#eab308' : '#6b7280',
-            border: 'none'
-          }}
-        >
+        
+        {/* Score Display */}
+        <div style={{
+          backgroundColor: color === 'bg-green-500' ? '#059669' : 
+                          color === 'bg-red-500' ? '#dc2626' : 
+                          color === 'bg-yellow-500' ? '#d97706' : '#4b5563',
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontSize: '18px',
+          fontWeight: '600',
+          minWidth: '120px',
+          textAlign: 'center'
+        }}>
           {result}
-        </span>
+        </div>
       </div>
 
       <Card>
