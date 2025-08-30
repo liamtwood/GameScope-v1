@@ -301,10 +301,10 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
               
               {/* Opponent section */}
-              <div className="flex items-center space-x-4 text-red-600 flex-1 justify-end">
+              <div className="flex items-center space-x-4 text-black flex-1 justify-end">
                 <div className="text-right">
                   <div className="text-2xl font-bold">{opponentName}</div>
-                  <div className="text-red-500 text-sm">AWAY</div>
+                  <div className="text-gray-600 text-sm">AWAY</div>
                 </div>
                 {opponentLogoPath ? (
                   <img 
