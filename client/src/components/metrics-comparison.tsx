@@ -281,7 +281,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
                   />
                 ) : (
                   <div className="w-20 h-20 flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">POLK</span>
+                    <span className="text-white font-bold text-xs">Polk State</span>
                   </div>
                 )}
                 <div>
