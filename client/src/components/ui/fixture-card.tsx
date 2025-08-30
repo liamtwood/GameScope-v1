@@ -115,12 +115,12 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, showAnim
     <Card 
       data-testid={`card-fixture-${fixture.id}`} 
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
-        showAnimatedBorder ? 'relative overflow-hidden' : ''
+        showAnimatedBorder ? 'relative overflow-hidden group' : ''
       }`}
       onClick={() => onViewDetails?.(fixture)}
     >
       {showAnimatedBorder && (
-        <div className="absolute inset-0 rounded-lg border-2 border-red-500 animate-pulse pointer-events-none" />
+        <div className="absolute inset-0 rounded-lg border-2 border-red-500 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity pointer-events-none" />
       )}
       <CardContent className="p-4">
         <div className="flex items-center justify-between min-h-[80px]">
