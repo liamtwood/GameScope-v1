@@ -573,26 +573,8 @@ export default function Fixtures() {
 
       {/* Filters */}
       <div className="mb-6 space-y-3">
+        <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          {/* Status Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Status</label>
-            <div className="flex bg-muted rounded-lg p-1">
-              {filterButtons.map((filter) => (
-                <Button
-                  key={filter.id}
-                  variant={activeFilter === filter.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-                  data-testid={`button-filter-${filter.id}`}
-                >
-                  {filter.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
           {/* Competition Filter */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Competition</label>
@@ -611,6 +593,25 @@ export default function Fixtures() {
             </Select>
           </div>
 
+          {/* Status Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Status</label>
+            <div className="flex bg-muted rounded-lg p-1">
+              {filterButtons.map((filter) => (
+                <Button
+                  key={filter.id}
+                  variant={activeFilter === filter.id ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`flex-1 text-center ${activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}`}
+                  data-testid={`button-filter-${filter.id}`}
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Location Filter */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Location</label>
@@ -619,7 +620,7 @@ export default function Fixtures() {
                 variant={homeAwayFilter === 'all' ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setHomeAwayFilter('all')}
-                className={homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}
+                className={`flex-1 text-center ${homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}`}
                 data-testid="button-filter-venue-all"
               >
                 All
@@ -628,7 +629,7 @@ export default function Fixtures() {
                 variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setHomeAwayFilter('HOME')}
-                className={homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}
+                className={`flex-1 text-center ${homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}`}
                 data-testid="button-filter-venue-home"
               >
                 Home
@@ -637,7 +638,7 @@ export default function Fixtures() {
                 variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setHomeAwayFilter('AWAY')}
-                className={homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}
+                className={`flex-1 text-center ${homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}`}
                 data-testid="button-filter-venue-away"
               >
                 Away
