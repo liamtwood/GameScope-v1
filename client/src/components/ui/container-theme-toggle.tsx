@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -59,7 +59,7 @@ export function useContainerTheme(containerId: string) {
   });
 
   // Listen for theme changes
-  useState(() => {
+  useEffect(() => {
     const handleThemeChange = (event: CustomEvent) => {
       if (event.detail.containerId === containerId) {
         setTheme(event.detail.theme);
@@ -71,7 +71,7 @@ export function useContainerTheme(containerId: string) {
     return () => {
       window.removeEventListener('container-theme-change', handleThemeChange as EventListener);
     };
-  });
+  }, [containerId]);
 
   return theme;
 }

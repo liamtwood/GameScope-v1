@@ -11,6 +11,7 @@ import { OppositionTeam } from "@shared/schema";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
 
 export default function LogoManagement() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -175,36 +176,41 @@ export default function LogoManagement() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {oppositionTeams?.map((team) => (
-                <div
+                <ThemedLogoContainer
                   key={team.id}
-                  className="group relative border rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
-                  onClick={() => handleEditExistingLogo(team)}
+                  containerId={`team-logo-${team.id}`}
+                  className="border rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-500 dark:hover:bg-blue-950 cursor-pointer transition-all"
+                  showThemeToggle={true}
                 >
-                  <div className="aspect-square bg-white border rounded-md mb-2 flex items-center justify-center overflow-hidden">
-                    {team.logoPath ? (
-                      <img 
-                        src={team.logoPath} 
-                        alt={`${team.name} logo`}
-                        className="max-w-full max-h-full object-contain"
-                        style={{ backgroundColor: 'white' }}
-                      />
-                    ) : (
-                      <div className="text-gray-400 text-center">
-                        <Upload className="h-8 w-8 mx-auto mb-1" />
-                        <p className="text-xs">No Logo</p>
-                      </div>
-                    )}
+                  <div
+                    onClick={() => handleEditExistingLogo(team)}
+                    className="relative"
+                  >
+                    <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
+                      {team.logoPath ? (
+                        <img 
+                          src={team.logoPath} 
+                          alt={`${team.name} logo`}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      ) : (
+                        <div className="text-gray-400 dark:text-gray-500 text-center">
+                          <Upload className="h-8 w-8 mx-auto mb-1" />
+                          <p className="text-xs">No Logo</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium truncate">{team.name}</p>
+                      <Badge variant={team.logoPath ? "default" : "secondary"} className="text-xs mt-1">
+                        {team.logoPath ? "Has Logo" : "No Logo"}
+                      </Badge>
+                    </div>
+                    <div className="absolute inset-0 bg-blue-600 bg-opacity-0 hover:bg-opacity-10 dark:bg-blue-400 dark:hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
+                      <Edit3 className="h-6 w-6 text-blue-600 dark:text-blue-400 opacity-0 hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium truncate">{team.name}</p>
-                    <Badge variant={team.logoPath ? "default" : "secondary"} className="text-xs mt-1">
-                      {team.logoPath ? "Has Logo" : "No Logo"}
-                    </Badge>
-                  </div>
-                  <div className="absolute inset-0 bg-blue-600 bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-all duration-200 flex items-center justify-center">
-                    <Edit3 className="h-6 w-6 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
+                </ThemedLogoContainer>
               ))}
             </div>
           </CardContent>
@@ -415,13 +421,18 @@ export default function LogoManagement() {
         {/* Current Logos Overview */}
         <Card>
           <CardHeader>
-            <CardTitle>Current Team Logos</CardTitle>
+            <CardTitle>Team Logos Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {oppositionTeams?.map((team) => (
-                <div key={team.id} className="border rounded-lg p-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                <ThemedLogoContainer
+                  key={`overview-${team.id}`}
+                  containerId={`team-overview-${team.id}`}
+                  className="border rounded-lg p-4 text-center"
+                  showThemeToggle={true}
+                >
+                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center bg-inherit">
                     {team.logoPath ? (
                       <img 
                         src={team.logoPath} 
@@ -429,14 +440,14 @@ export default function LogoManagement() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No Logo</span>
+                      <div className="w-full h-full bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-400 dark:text-gray-500 text-xs">No Logo</span>
                       </div>
                     )}
                   </div>
                   <h3 className="font-semibold text-sm">{team.name}</h3>
                   {team.logoPath ? (
-                    <Badge className="mt-2 bg-green-100 text-green-800">
+                    <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Has Logo
                     </Badge>
@@ -446,7 +457,7 @@ export default function LogoManagement() {
                       Needs Logo
                     </Badge>
                   )}
-                </div>
+                </ThemedLogoContainer>
               ))}
             </div>
           </CardContent>
