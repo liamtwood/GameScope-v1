@@ -153,67 +153,87 @@ export default function Videos() {
                       </div>
                       
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          {getMatchBadge(fixture)}
-                          <Badge className="bg-gray-100 text-gray-800">
-                            {fixture.type === 'HOME' ? 'Home' : 'Away'}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center mb-1">
-                          {(() => {
-                            const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
-                            return opponent?.logoPath ? (
-                              <img 
-                                src={opponent.logoPath} 
-                                alt={`${fixture.opponent} logo`}
-                                className="w-8 h-8 rounded-full object-cover mr-3 flex-shrink-0"
-                                onError={(e) => {
-                                  // Fallback to initials if image fails to load
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  target.nextElementSibling?.classList.remove('hidden');
-                                }}
-                              />
-                            ) : null;
-                          })()}
-                          <div className={`w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 ${
-                            oppositionTeams?.find(team => team.name === fixture.opponent)?.logoPath ? 'hidden' : ''
-                          }`}>
-                            {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          {/* Column 1: Opponent Logo */}
+                          <div className="flex justify-center">
+                            {(() => {
+                              const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                              return opponent?.logoPath ? (
+                                <img 
+                                  src={opponent.logoPath} 
+                                  alt={`${fixture.opponent} logo`}
+                                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                                  onError={(e) => {
+                                    // Fallback to initials if image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null;
+                            })()}
+                            <div className={`w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                              oppositionTeams?.find(team => team.name === fixture.opponent)?.logoPath ? 'hidden' : ''
+                            }`}>
+                              {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
                           </div>
-                          <h3 className="font-semibold text-foreground">vs {fixture.opponent}</h3>
+
+                          {/* Column 2: Opponent Info */}
+                          <div className="space-y-1">
+                            {/* Row 1: Opponent Name */}
+                            <h3 className="font-semibold text-foreground text-sm leading-tight">
+                              {fixture.opponent}
+                            </h3>
+                            
+                            {/* Row 2: Date and Time */}
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(fixture.date).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              })}, {new Date(fixture.date).toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                            </p>
+                            
+                            {/* Row 3: Result Pill */}
+                            <div>
+                              {getMatchBadge(fixture)}
+                            </div>
+                          </div>
+
+                          {/* Column 3: Home/Away Pill */}
+                          <div className="flex justify-end">
+                            <Badge className="bg-gray-100 text-gray-800">
+                              {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                            </Badge>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {new Date(fixture.date).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}, {new Date(fixture.date).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })}
-                        </p>
                         
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          {fixture.hasVideo ? (
-                            <>
-                              <Clock className="w-3 h-3" />
-                              <span>90 min</span>
-                            </>
-                          ) : (
-                            <>
-                              <Calendar className="w-3 h-3" />
-                              <span>
-                                {fixture.status === 'SCHEDULED' 
-                                  ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                                  : 'Pending'
-                                }
-                              </span>
-                            </>
-                          )}
+                        {/* Video Duration Info */}
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {fixture.hasVideo ? (
+                              <>
+                                <Clock className="w-3 h-3" />
+                                <span>90 min</span>
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {fixture.status === 'SCHEDULED' 
+                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                                    : 'Pending'
+                                  }
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
