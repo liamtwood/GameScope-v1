@@ -63,7 +63,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between items-center text-sm font-medium">
+      <div className="w-3/4 mx-auto flex justify-between items-center text-sm font-medium">
         <span className="text-muted-foreground">{label}</span>
       </div>
       
