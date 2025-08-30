@@ -266,12 +266,10 @@ export default function Fixtures() {
     return fixtures.filter(f => {
       const matchDate = new Date(f.date);
       const isPastMatch = matchDate < yesterday;
-      const isCompleted = f.status === 'COMPLETED';
-      const isNoContest = f.status === 'NO_CONTEST';
       const hasNoVideo = !f.hasVideo;
       
-      // Include only past matches (before yesterday) that need videos
-      return (isPastMatch || isCompleted || isNoContest) && hasNoVideo;
+      // Include only past matches (before yesterday) that need videos, ignore status
+      return isPastMatch && hasNoVideo;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
   };
 
