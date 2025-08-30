@@ -13,6 +13,8 @@ export interface TeamStatistics {
   draws: number;
   losses: number;
   totalGoals: number;
+  totalGoalsConceded: number;
+  goalDifference: number;
   totalAssists: number;
   topScorer?: {
     name: string;

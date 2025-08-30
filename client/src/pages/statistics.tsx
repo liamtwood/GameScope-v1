@@ -90,11 +90,13 @@ export default function Statistics() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Goals Against</span>
-                <span className="font-semibold text-red-600">0</span>
+                <span className="font-semibold text-red-600">{statistics?.totalGoalsConceded || 0}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Goal Difference</span>
-                <span className="font-semibold text-green-600">+{statistics?.totalGoals || 0}</span>
+                <span className={`font-semibold ${(statistics?.goalDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {(statistics?.goalDifference || 0) >= 0 ? '+' : ''}{statistics?.goalDifference || 0}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Avg Goals/Game</span>
@@ -114,19 +116,19 @@ export default function Statistics() {
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">
-                {Math.max((statistics?.matchesPlayed || 0) - 1, 0)}
+                {statistics?.matchesPlayed && statistics?.totalGoalsConceded === 0 ? statistics.matchesPlayed : 0}
               </div>
               <p className="text-muted-foreground">out of {statistics?.matchesPlayed || 0} matches</p>
               <div className="mt-4 bg-blue-100 rounded-full h-2">
                 <div 
                   className="bg-blue-600 rounded-full h-2" 
                   style={{ 
-                    width: `${statistics?.matchesPlayed ? Math.max(((statistics.matchesPlayed - 1) / statistics.matchesPlayed) * 100, 0) : 0}%` 
+                    width: `${statistics?.matchesPlayed && statistics?.totalGoalsConceded === 0 ? 100 : 0}%` 
                   }}
                 />
               </div>
               <p className="text-sm text-blue-600 mt-2 font-medium">
-                {statistics?.matchesPlayed ? Math.round(Math.max(((statistics.matchesPlayed - 1) / statistics.matchesPlayed) * 100, 0)) : 0}% Clean Sheet Rate
+                {statistics?.matchesPlayed && statistics?.totalGoalsConceded === 0 ? 100 : 0}% Clean Sheet Rate
               </p>
             </div>
           </CardContent>

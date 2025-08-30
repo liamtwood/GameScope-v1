@@ -348,7 +348,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (f.type === 'AWAY' && f.awayScore! < f.homeScore!)
       ).length;
 
-      const totalGoals = players.reduce((sum, p) => sum + (p.goals || 0), 0);
+      // Calculate total goals scored by the team from match results
+      const totalGoalsScored = completedFixtures.reduce((sum, f) => {
+        if (f.type === 'HOME') {
+          return sum + (f.homeScore || 0);
+        } else {
+          return sum + (f.awayScore || 0);
+        }
+      }, 0);
+      
+      // Calculate total goals conceded by the team
+      const totalGoalsConceded = completedFixtures.reduce((sum, f) => {
+        if (f.type === 'HOME') {
+          return sum + (f.awayScore || 0);
+        } else {
+          return sum + (f.homeScore || 0);
+        }
+      }, 0);
+
+      // Individual player stats (for reference)
+      const totalPlayerGoals = players.reduce((sum, p) => sum + (p.goals || 0), 0);
       const totalAssists = players.reduce((sum, p) => sum + (p.assists || 0), 0);
 
       const statistics = {
@@ -357,7 +376,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         wins,
         draws,
         losses,
-        totalGoals,
+        totalGoals: totalGoalsScored, // Use actual match goals
+        totalGoalsConceded,
+        goalDifference: totalGoalsScored - totalGoalsConceded,
         totalAssists,
         topScorer: players.reduce((top, p) => (p.goals || 0) > (top.goals || 0) ? p : top, players[0]),
         topAssist: players.reduce((top, p) => (p.assists || 0) > (top.assists || 0) ? p : top, players[0]),
