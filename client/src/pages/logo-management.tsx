@@ -174,35 +174,70 @@ export default function LogoManagement() {
     setOriginalImageUrl(team.logoPath);
     
     try {
-      console.log('Fetching logo from:', team.logoPath);
-      // Fetch the existing logo as a blob
-      const response = await fetch(team.logoPath);
-      const blob = await response.blob();
-      console.log('Fetched blob size:', blob.size, 'type:', blob.type);
+      console.log('Starting background removal for logo:', team.logoPath);
       
-      // Create a File object from the blob
-      const file = new File([blob], `${team.name}-logo`, { type: blob.type });
-      console.log('Created file object');
+      // Create an image element to load the logo
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // Handle CORS
       
-      // Process the image using the existing background removal logic
-      console.log('Starting background removal with options:', { mode: processingMode, tolerance: threshold });
-      const backgroundRemover = new BackgroundRemover();
-      const options: BackgroundRemovalOptions = {
-        mode: processingMode,
-        tolerance: threshold,
-        preserveInternalWhite: true
-      };
-      
-      const processedBlob = await backgroundRemover.removeBackground(file, options);
-      console.log('Background removal completed, processed blob size:', processedBlob.size);
+      const processedBlob = await new Promise<Blob>((resolve, reject) => {
+        img.onload = async () => {
+          try {
+            console.log('Image loaded successfully, dimensions:', img.width, 'x', img.height);
+            
+            // Create a canvas and draw the image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d')!;
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert canvas to blob
+            canvas.toBlob(async (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob from canvas'));
+                return;
+              }
+              
+              console.log('Created blob from canvas, size:', blob.size);
+              
+              // Create File object and process
+              const file = new File([blob], `${team.name}-logo`, { type: 'image/png' });
+              
+              const backgroundRemover = new BackgroundRemover();
+              const options: BackgroundRemovalOptions = {
+                mode: processingMode,
+                tolerance: threshold,
+                preserveInternalWhite: true
+              };
+              
+              console.log('Processing with options:', options);
+              const processedBlob = await backgroundRemover.removeBackground(file, options);
+              console.log('Background removal completed, size:', processedBlob.size);
+              resolve(processedBlob);
+            }, 'image/png');
+          } catch (error) {
+            console.error('Error in image processing:', error);
+            reject(error);
+          }
+        };
+        
+        img.onerror = () => {
+          console.error('Failed to load image:', team.logoPath);
+          reject(new Error('Failed to load image'));
+        };
+        
+        img.src = team.logoPath;
+      });
       
       const processedUrl = URL.createObjectURL(processedBlob);
-      setProcessedImageUrl(processedUrl);
-      console.log('Set processed image URL');
+      console.log('Generated processed image URL:', processedUrl);
       
-      // Auto-save the processed logo
-      console.log('Auto-saving processed logo');
-      saveMutation.mutate({ teamId: team.id, logoData: processedBlob });
+      setProcessedImageUrl(processedUrl);
+      console.log('Set processed image URL in state');
+      
+      // Don't auto-save, just show the result
+      console.log('Background removal successful, showing result');
       
       toast({
         title: "Background Removed",
