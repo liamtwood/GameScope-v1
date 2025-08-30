@@ -34,8 +34,8 @@ function parseStatsFromExcelData(data: any[], teamColumn: string) {
     'Pass - Success': { field: 'passesSuccess', type: 'integer' },
     'Pass - Success Rate (%)': { field: 'passingSuccessRate', type: 'percentage' },
     'Pass - Total Distance (m)': { field: 'passingTotalDistance', type: 'integer' },
-    'Pass - Average Pass Distance (m)': { field: 'passingAverageDistance', type: 'float' },
-    'Pass - Average Pass Velocity (km/h)': { field: 'passingAverageVelocity', type: 'float' },
+    'Pass - Average Pass Distance (m)': { field: 'passingAverageDistance', type: 'integer' },
+    'Pass - Average Pass Velocity (km/h)': { field: 'passingAverageVelocity', type: 'integer' },
     'Right Foot Pass - Attempted': { field: 'rightFootPassAttempted', type: 'integer' },
     'Right Foot Pass - Success': { field: 'rightFootPassSuccess', type: 'integer' },
     'Right Foot Pass - Success Rate (%)': { field: 'rightFootPassSuccessRate', type: 'percentage' },
@@ -84,8 +84,8 @@ function parseStatsFromExcelData(data: any[], teamColumn: string) {
           }
           break;
         case 'percentage':
-          // Keep as float but ensure it's a reasonable percentage
-          parsedValue = Math.round(parsedValue * 100) / 100; // Round to 2 decimal places
+          // Database expects integer percentage values
+          parsedValue = Math.round(parsedValue); // Round to integer
           break;
         case 'float':
           // Keep as float, round to reasonable precision
