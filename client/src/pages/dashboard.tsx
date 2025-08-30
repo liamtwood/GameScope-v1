@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureCard } from "@/components/ui/fixture-card";
@@ -11,6 +12,7 @@ import { Fixture, Player, Team } from "@shared/schema";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
+  const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
   const currentTeam = teams?.[0]; // For demo, use first team
 
@@ -32,6 +34,33 @@ export default function Dashboard() {
   const recentFixtures = fixtures?.filter(f => f.status === 'COMPLETED').slice(0, 3) || [];
   const upcomingFixtures = fixtures?.filter(f => f.status === 'SCHEDULED').slice(0, 3) || [];
   const topScorers = players?.sort((a, b) => (b.goals || 0) - (a.goals || 0)).slice(0, 3) || [];
+
+  // Check for analysis data for recent fixtures
+  useEffect(() => {
+    const checkAnalysisData = async () => {
+      const fixtureIds = new Set<string>();
+      
+      for (const fixture of recentFixtures) {
+        try {
+          const response = await fetch(`/api/match-stats/${fixture.id}`);
+          if (response.ok) {
+            const stats = await response.json();
+            if (stats && stats.length > 0) {
+              fixtureIds.add(fixture.id);
+            }
+          }
+        } catch (error) {
+          // Ignore errors for now
+        }
+      }
+      
+      setFixturesWithAnalysis(fixtureIds);
+    };
+
+    if (recentFixtures.length > 0) {
+      checkAnalysisData();
+    }
+  }, [recentFixtures]);
 
   const nextMatch = upcomingFixtures[0];
   const daysUntilNext = nextMatch ? Math.ceil((new Date(nextMatch.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
@@ -98,6 +127,7 @@ export default function Dashboard() {
                   fixture={fixture} 
                   showAnimatedBorder={true}
                   onViewAnalysis={handleAnalysisView}
+                  hasAnalysisData={fixturesWithAnalysis.has(fixture.id)}
                 />
               ))
             ) : (

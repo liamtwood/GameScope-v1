@@ -19,9 +19,10 @@ interface FixtureCardProps {
   onDelete?: (fixture: Fixture) => void;
   onViewAnalysis?: (fixture: Fixture) => void;
   showAnimatedBorder?: boolean;
+  hasAnalysisData?: boolean;
 }
 
-export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, showAnimatedBorder = false }: FixtureCardProps) {
+export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, showAnimatedBorder = false, hasAnalysisData = false }: FixtureCardProps) {
   // Fetch opposition teams to get logo information
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -167,7 +168,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             )}
 
             {/* Analysis Icon */}
-            {fixture.status === 'COMPLETED' && (
+            {fixture.status === 'COMPLETED' && hasAnalysisData && (
               <Button
                 variant="ghost"
                 size="sm"
