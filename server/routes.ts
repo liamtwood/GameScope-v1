@@ -6,7 +6,7 @@ import { ObjectStorageService } from "./objectStorage";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
-import * as XLSX from "xlsx";
+import XLSX from "xlsx";
 
 // Helper function to parse statistics from Excel data
 function parseStatsFromExcelData(data: any[], teamColumn: string) {
@@ -567,6 +567,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating bulk match statistics:", error);
       res.status(400).json({ message: "Failed to create bulk match statistics" });
+    }
+  });
+
+  // Excel preview endpoint - shows what will be parsed without saving
+  app.post("/api/preview-match-stats", excelUpload.single('excel'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No Excel file uploaded" });
+      }
+
+      // Read and parse the Excel file
+      const workbook = XLSX.readFile(req.file.path);
+      const sheetNames = workbook.SheetNames;
+      
+      const preview: any = {
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        sheets: [],
+        totalSheets: sheetNames.length
+      };
+
+      // Process each sheet for preview
+      for (const sheetName of sheetNames) {
+        const worksheet = workbook.Sheets[sheetName];
+        const rawData = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Determine period based on sheet name
+        let period = 'FULL_GAME';
+        if (sheetName.toLowerCase().includes('1st') || sheetName.toLowerCase().includes('first')) {
+          period = 'FIRST_HALF';
+        } else if (sheetName.toLowerCase().includes('2nd') || sheetName.toLowerCase().includes('second')) {
+          period = 'SECOND_HALF';
+        }
+
+        // Parse the data for both team and opponent stats
+        const teamStats = parseStatsFromExcelData(rawData, 'POLK');
+        const opponentStats = parseStatsFromExcelData(rawData, 'FSC');
+
+        preview.sheets.push({
+          sheetName,
+          period,
+          rowCount: rawData.length,
+          rawSample: rawData.slice(0, 5), // First 5 rows for debugging
+          teamStatsFound: Object.keys(teamStats).length,
+          opponentStatsFound: Object.keys(opponentStats).length,
+          teamStatsParsed: teamStats,
+          opponentStatsParsed: opponentStats,
+          availableColumns: rawData.length > 0 ? Object.keys(rawData[0] as any) : []
+        });
+      }
+
+      // Clean up temp file
+      await fs.unlink(req.file.path);
+
+      res.json(preview);
+    } catch (error) {
+      console.error("Error previewing Excel file:", error);
+      
+      // Clean up temp file if it exists
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up temp file:", cleanupError);
+        }
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to preview Excel file",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
