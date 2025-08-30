@@ -165,47 +165,23 @@ export default function Videos() {
                           Full Match • {fixture.type === 'HOME' ? 'Home' : 'Away'}
                         </p>
                         
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            {fixture.hasVideo ? (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>90 min</span>
-                              </>
-                            ) : (
-                              <>
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  {fixture.status === 'SCHEDULED' 
-                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                                    : 'Pending'
-                                  }
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              size="sm" 
-                              disabled={!fixture.hasVideo}
-                              onClick={() => handleWatchVideo(fixture)}
-                              data-testid={`button-watch-${fixture.id}`}
-                            >
-                              <Play className="w-3 h-3 mr-1" />
-                              {fixture.hasVideo ? 'Watch' : 'Pending'}
-                            </Button>
-                            {fixture.hasVideo && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleShareVideo(fixture)}
-                                data-testid={`button-share-${fixture.id}`}
-                              >
-                                <Share className="w-3 h-3" />
-                              </Button>
-                            )}
-                          </div>
+                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          {fixture.hasVideo ? (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>90 min</span>
+                            </>
+                          ) : (
+                            <>
+                              <Calendar className="w-3 h-3" />
+                              <span>
+                                {fixture.status === 'SCHEDULED' 
+                                  ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                                  : 'Pending'
+                                }
+                              </span>
+                            </>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
