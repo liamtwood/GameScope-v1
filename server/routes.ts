@@ -6,6 +6,81 @@ import { ObjectStorageService } from "./objectStorage";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
+import * as XLSX from "xlsx";
+
+// Helper function to parse statistics from Excel data
+function parseStatsFromExcelData(data: any[], teamColumn: string) {
+  const stats: any = {};
+  
+  // Map Excel event names to database field names
+  const fieldMapping: { [key: string]: string } = {
+    'Total Team Distance (km)': 'totalTeamDistance',
+    'Possession (%)': 'possession',
+    'Goals': 'goals',
+    'Shots - Attempted': 'shotsAttempted',
+    'Shots - On Target': 'shotsOnTarget',
+    'Runs Into Boxes': 'runsIntoBoxes',
+    'Corners': 'corners',
+    'Dangerous Crosses': 'dangerousCrosses',
+    'Dribbles': 'dribbles',
+    'Penetrating Dribbles': 'penetratingDribbles',
+    'Take Ons': 'takeOns',
+    'First Touch - Success': 'firstTouchSuccess',
+    'First Touch - Success Rate (%)': 'firstTouchSuccessRate',
+    'Tackles': 'tackles',
+    'Free Kicks': 'freeKicks',
+    'Offsides': 'offsides',
+    'Pass - Total Attempted': 'passesAttempted',
+    'Pass - Success': 'passesSuccess',
+    'Pass - Success Rate (%)': 'passingSuccessRate',
+    'Pass - Total Distance (m)': 'passingTotalDistance',
+    'Pass - Average Pass Distance (m)': 'passingAverageDistance',
+    'Pass - Average Pass Velocity (km/h)': 'passingAverageVelocity',
+    'Right Foot Pass - Attempted': 'rightFootPassAttempted',
+    'Right Foot Pass - Success': 'rightFootPassSuccess',
+    'Right Foot Pass - Success Rate (%)': 'rightFootPassSuccessRate',
+    'Left Foot Pass - Attempted': 'leftFootPassAttempted',
+    'Left Foot Pass - Success': 'leftFootPassSuccess',
+    'Left Foot Pass - Success Rate (%)': 'leftFootPassSuccessRate',
+  };
+
+  // Process each row of data
+  for (const row of data) {
+    const event = row['Event'];
+    const value = row[teamColumn];
+    
+    if (event && fieldMapping[event] && value !== undefined && value !== null && value !== '') {
+      const fieldName = fieldMapping[event];
+      
+      // Convert value to appropriate type
+      let parsedValue = value;
+      if (typeof value === 'string') {
+        // Remove any non-numeric characters except decimal points
+        const numericString = value.replace(/[^0-9.-]/g, '');
+        parsedValue = parseFloat(numericString);
+        
+        // If it's NaN, keep the original value
+        if (isNaN(parsedValue)) {
+          parsedValue = value;
+        }
+      }
+      
+      // Special handling for distance values (convert km to meters)
+      if (fieldName === 'totalTeamDistance' && typeof parsedValue === 'number') {
+        parsedValue = Math.round(parsedValue * 1000); // Convert km to meters
+      }
+      
+      // Special handling for distance in meters
+      if ((fieldName === 'passingTotalDistance' || fieldName === 'passingAverageDistance') && typeof parsedValue === 'number') {
+        parsedValue = Math.round(parsedValue); // Ensure integer meters
+      }
+      
+      stats[fieldName] = parsedValue;
+    }
+  }
+  
+  return stats;
+}
 
 // Configure multer for file uploads
 const upload = multer({
@@ -472,6 +547,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating bulk match statistics:", error);
       res.status(400).json({ message: "Failed to create bulk match statistics" });
+    }
+  });
+
+  // Excel upload endpoint for match statistics
+  app.post("/api/upload-match-stats", upload.single('excel'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No Excel file uploaded" });
+      }
+
+      if (!req.body.fixtureId) {
+        return res.status(400).json({ message: "Fixture ID is required" });
+      }
+
+      const fixtureId = req.body.fixtureId;
+      
+      // Read and parse the Excel file
+      const workbook = XLSX.readFile(req.file.path);
+      const sheetNames = workbook.SheetNames;
+      
+      let periodsImported = 0;
+      const results = [];
+
+      // Process each sheet (expecting 1st Half, 2nd Half, Full Game)
+      for (const sheetName of sheetNames) {
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Determine period based on sheet name
+        let period = 'FULL_GAME';
+        if (sheetName.toLowerCase().includes('1st') || sheetName.toLowerCase().includes('first')) {
+          period = 'FIRST_HALF';
+        } else if (sheetName.toLowerCase().includes('2nd') || sheetName.toLowerCase().includes('second')) {
+          period = 'SECOND_HALF';
+        }
+
+        // Parse the data for both team and opponent stats
+        const teamStats = parseStatsFromExcelData(data, 'POLK');
+        const opponentStats = parseStatsFromExcelData(data, 'FSC');
+
+        // Create team statistics
+        if (teamStats && Object.keys(teamStats).length > 0) {
+          const teamStatsData = insertMatchStatsSchema.parse({
+            fixtureId,
+            period,
+            isTeamStats: true,
+            ...teamStats
+          });
+          const createdTeamStats = await storage.createMatchStats(teamStatsData);
+          results.push(createdTeamStats);
+        }
+
+        // Create opponent statistics
+        if (opponentStats && Object.keys(opponentStats).length > 0) {
+          const opponentStatsData = insertMatchStatsSchema.parse({
+            fixtureId,
+            period,
+            isTeamStats: false,
+            ...opponentStats
+          });
+          const createdOpponentStats = await storage.createMatchStats(opponentStatsData);
+          results.push(createdOpponentStats);
+        }
+
+        periodsImported++;
+      }
+
+      // Clean up temp file
+      await fs.unlink(req.file.path);
+
+      res.json({
+        message: "Match statistics uploaded successfully",
+        periodsImported,
+        recordsCreated: results.length
+      });
+    } catch (error) {
+      console.error("Error uploading match statistics:", error);
+      
+      // Clean up temp file if it exists
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up temp file:", cleanupError);
+        }
+      }
+      
+      res.status(500).json({ message: "Failed to upload match statistics" });
     }
   });
 
