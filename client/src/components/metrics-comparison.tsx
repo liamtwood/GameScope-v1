@@ -24,9 +24,9 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
   let normalizedTeamValue, normalizedOpponentValue, displayTeamValue, displayOpponentValue;
   
   if (isPercentage) {
-    // For percentage metrics, use the raw values but still normalize for bar display
-    normalizedTeamValue = total > 0 ? (teamValue / total) * 100 : 50;
-    normalizedOpponentValue = 100 - normalizedTeamValue;
+    // For percentage metrics, the values already represent proportions
+    normalizedTeamValue = teamValue;
+    normalizedOpponentValue = opponentValue;
     displayTeamValue = teamValue;
     displayOpponentValue = opponentValue;
   } else {
@@ -82,11 +82,11 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
       <div className="flex justify-between items-center text-xs">
         <div className="text-left">
           <div className="text-red-600 font-semibold">{formatValue(displayTeamValue)}</div>
-          <div className="text-red-400">{formatPercentage(normalizedTeamValue)}</div>
+          {!isPercentage && <div className="text-red-400">{formatPercentage(normalizedTeamValue)}</div>}
         </div>
         <div className="text-right">
           <div className="text-blue-600 font-semibold">{formatValue(displayOpponentValue)}</div>
-          <div className="text-blue-400">{formatPercentage(normalizedOpponentValue)}</div>
+          {!isPercentage && <div className="text-blue-400">{formatPercentage(normalizedOpponentValue)}</div>}
         </div>
       </div>
     </div>
