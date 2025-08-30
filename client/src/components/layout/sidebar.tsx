@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings } from "lucide-react";
+import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CLUB_NAME, NAVIGATION_ITEMS } from "@/lib/constants";
 
@@ -36,18 +36,18 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       )}>
         {!collapsed && (
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold">
-              GS
+            <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center">
+              <Crosshair className="h-6 w-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">GameScope</h1>
-              <p className="text-xs text-muted-foreground">Team Management</p>
+              <p className="text-xs text-muted-foreground">AI Video Analysis</p>
             </div>
           </div>
         )}
         {collapsed && (
-          <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold">
-            GS
+          <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center">
+            <Crosshair className="h-6 w-6" />
           </div>
         )}
         <Button
