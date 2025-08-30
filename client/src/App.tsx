@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import Fixtures from "@/pages/fixtures";
 import FixtureDetails from "@/pages/fixture-details";
+import Analysis from "@/pages/analysis";
 import Squad from "@/pages/squad";
 import Statistics from "@/pages/statistics";
 import Videos from "@/pages/videos";
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/fixtures" component={Fixtures} />
       <Route path="/fixtures/:id" component={FixtureDetails} />
+      <Route path="/analysis/:fixtureId" component={Analysis} />
       <Route path="/squad" component={Squad} />
       <Route path="/statistics" component={Statistics} />
       <Route path="/videos" component={Videos} />

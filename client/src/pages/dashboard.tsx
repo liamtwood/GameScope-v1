@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureCard } from "@/components/ui/fixture-card";
@@ -9,6 +10,7 @@ import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
   const currentTeam = teams?.[0]; // For demo, use first team
 
@@ -33,6 +35,10 @@ export default function Dashboard() {
 
   const nextMatch = upcomingFixtures[0];
   const daysUntilNext = nextMatch ? Math.ceil((new Date(nextMatch.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+
+  const handleAnalysisView = (fixture: Fixture) => {
+    setLocation(`/analysis/${fixture.id}`);
+  };
 
   return (
     <MainLayout 
@@ -87,7 +93,12 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             {recentFixtures.length > 0 ? (
               recentFixtures.map((fixture) => (
-                <FixtureCard key={fixture.id} fixture={fixture} showAnimatedBorder={true} />
+                <FixtureCard 
+                  key={fixture.id} 
+                  fixture={fixture} 
+                  showAnimatedBorder={true}
+                  onViewAnalysis={handleAnalysisView}
+                />
               ))
             ) : (
               <p className="text-muted-foreground text-center py-4">No recent results</p>

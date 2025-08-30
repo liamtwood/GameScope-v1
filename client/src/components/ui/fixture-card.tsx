@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, MoreHorizontal, Video } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal, Video, ChartSpline } from "lucide-react";
 import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -17,10 +17,11 @@ interface FixtureCardProps {
   onViewDetails?: (fixture: Fixture) => void;
   onEdit?: (fixture: Fixture) => void;
   onDelete?: (fixture: Fixture) => void;
+  onViewAnalysis?: (fixture: Fixture) => void;
   showAnimatedBorder?: boolean;
 }
 
-export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, showAnimatedBorder = false }: FixtureCardProps) {
+export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, showAnimatedBorder = false }: FixtureCardProps) {
   // Fetch opposition teams to get logo information
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -165,43 +166,24 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, showAnim
               </div>
             )}
 
-            {/* Actions Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  data-testid={`button-menu-fixture-${fixture.id}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit?.(fixture);
-                  }}
-                  data-testid={`button-edit-fixture-${fixture.id}`}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete?.(fixture);
-                  }}
-                  data-testid={`button-delete-fixture-${fixture.id}`}
-                  className="text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Analysis Icon */}
+            {fixture.status === 'COMPLETED' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                title="View GameScope Analysis"
+                data-testid={`button-analysis-fixture-${fixture.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewAnalysis?.(fixture);
+                }}
+              >
+                <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+                  <ChartSpline className="h-4 w-4 text-red-600" />
+                </div>
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
