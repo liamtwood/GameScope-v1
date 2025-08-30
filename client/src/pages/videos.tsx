@@ -161,7 +161,31 @@ export default function Videos() {
               groupedFixtures[competition].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             });
 
-            return Object.entries(groupedFixtures).map(([competition, fixtures]) => (
+            // Sort competitions by most recent video available
+            const sortedCompetitions = Object.entries(groupedFixtures).sort(([, fixturesA], [, fixturesB]) => {
+              // Find the most recent video in each competition
+              const mostRecentVideoA = fixturesA
+                .filter(f => f.hasVideo)
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+              
+              const mostRecentVideoB = fixturesB
+                .filter(f => f.hasVideo)
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+              
+              // If both have videos, sort by most recent video date
+              if (mostRecentVideoA && mostRecentVideoB) {
+                return new Date(mostRecentVideoB.date).getTime() - new Date(mostRecentVideoA.date).getTime();
+              }
+              
+              // If only one has videos, that one comes first
+              if (mostRecentVideoA && !mostRecentVideoB) return -1;
+              if (!mostRecentVideoA && mostRecentVideoB) return 1;
+              
+              // If neither has videos, maintain original order
+              return 0;
+            });
+
+            return sortedCompetitions.map(([competition, fixtures]) => (
               <div key={competition} className="mb-8">
                 <div className="flex items-center mb-4">
                   <h3 className="text-lg font-semibold text-foreground">{competition}</h3>
