@@ -408,81 +408,46 @@ export default function Fixtures() {
         {overviewTab === 'planning' && (() => {
           const planningStats = getPlanningStats();
           return (
-            <div className="space-y-4">
-              {/* Planning Filters */}
-              <div className="flex items-center space-x-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Filter by:</h4>
-                <div className="flex bg-muted rounded-lg p-1">
-                  <Button
-                    variant={homeAwayFilter === 'all' ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setHomeAwayFilter('all')}
-                    className={homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}
-                  >
-                    All Games
-                  </Button>
-                  <Button
-                    variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setHomeAwayFilter('HOME')}
-                    className={homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}
-                  >
-                    <Home className="mr-2 h-4 w-4" />
-                    Home
-                  </Button>
-                  <Button
-                    variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setHomeAwayFilter('AWAY')}
-                    className={homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}
-                  >
-                    <Plane className="mr-2 h-4 w-4" />
-                    Away
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Upcoming Fixtures */}
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-                  <CardContent className="p-6 text-center">
-                    <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                    <p className="text-sm text-purple-700 mb-1">UPCOMING</p>
-                    <p className="text-3xl font-bold text-purple-900">{planningStats.upcoming}</p>
-                    <p className="text-xs text-purple-600 mt-1">fixtures scheduled</p>
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Upcoming Fixtures */}
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-6 text-center">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                  <p className="text-sm text-purple-700 mb-1">UPCOMING</p>
+                  <p className="text-3xl font-bold text-purple-900">{planningStats.upcoming}</p>
+                  <p className="text-xs text-purple-600 mt-1">fixtures scheduled</p>
+                </CardContent>
+              </Card>
 
-                {/* Home Games */}
-                <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
-                  <CardContent className="p-6 text-center">
-                    <Home className="h-8 w-8 mx-auto mb-2 text-cyan-600" />
-                    <p className="text-sm text-cyan-700 mb-1">HOME GAMES</p>
-                    <p className="text-3xl font-bold text-cyan-900">{planningStats.homeGames}</p>
-                    <p className="text-xs text-cyan-600 mt-1">at home venue</p>
-                  </CardContent>
-                </Card>
+              {/* Home Games */}
+              <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+                <CardContent className="p-6 text-center">
+                  <Home className="h-8 w-8 mx-auto mb-2 text-cyan-600" />
+                  <p className="text-sm text-cyan-700 mb-1">HOME GAMES</p>
+                  <p className="text-3xl font-bold text-cyan-900">{planningStats.homeGames}</p>
+                  <p className="text-xs text-cyan-600 mt-1">at home venue</p>
+                </CardContent>
+              </Card>
 
-                {/* Away Games */}
-                <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
-                  <CardContent className="p-6 text-center">
-                    <Plane className="h-8 w-8 mx-auto mb-2 text-amber-600" />
-                    <p className="text-sm text-amber-700 mb-1">AWAY GAMES</p>
-                    <p className="text-3xl font-bold text-amber-900">{planningStats.awayGames}</p>
-                    <p className="text-xs text-amber-600 mt-1">away fixtures</p>
-                  </CardContent>
-                </Card>
+              {/* Away Games */}
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+                <CardContent className="p-6 text-center">
+                  <Plane className="h-8 w-8 mx-auto mb-2 text-amber-600" />
+                  <p className="text-sm text-amber-700 mb-1">AWAY GAMES</p>
+                  <p className="text-3xl font-bold text-amber-900">{planningStats.awayGames}</p>
+                  <p className="text-xs text-amber-600 mt-1">away fixtures</p>
+                </CardContent>
+              </Card>
 
-                {/* This Month */}
-                <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200">
-                  <CardContent className="p-6 text-center">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-rose-600" />
-                    <p className="text-sm text-rose-700 mb-1">THIS MONTH</p>
-                    <p className="text-3xl font-bold text-rose-900">{planningStats.thisMonth}</p>
-                    <p className="text-xs text-rose-600 mt-1">matches this month</p>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* This Month */}
+              <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200">
+                <CardContent className="p-6 text-center">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-rose-600" />
+                  <p className="text-sm text-rose-700 mb-1">THIS MONTH</p>
+                  <p className="text-3xl font-bold text-rose-900">{planningStats.thisMonth}</p>
+                  <p className="text-xs text-rose-600 mt-1">matches this month</p>
+                </CardContent>
+              </Card>
             </div>
           );
         })()}
@@ -636,6 +601,38 @@ export default function Fixtures() {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="flex bg-muted rounded-lg p-1">
+          <Button
+            variant={homeAwayFilter === 'all' ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setHomeAwayFilter('all')}
+            className={homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid="button-filter-venue-all"
+          >
+            All
+          </Button>
+          <Button
+            variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setHomeAwayFilter('HOME')}
+            className={homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid="button-filter-venue-home"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Home
+          </Button>
+          <Button
+            variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setHomeAwayFilter('AWAY')}
+            className={homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid="button-filter-venue-away"
+          >
+            <Plane className="mr-2 h-4 w-4" />
+            Away
+          </Button>
+        </div>
 
         <Input
           placeholder="Search fixtures..."
