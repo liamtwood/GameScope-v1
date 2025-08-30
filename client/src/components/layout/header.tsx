@@ -26,7 +26,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             </Button>
           )}
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 border border-border rounded-lg p-3">
             <div className="h-16 w-16 flex items-center justify-center">
               <img 
                 src="/assets/logos/polk-state-logo.jpg" 
@@ -53,7 +53,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       
       {/* Container below Polk State College - displays current page */}
       <div className="px-6 py-4 border-b border-border bg-secondary">
-        <div className="bg-secondary rounded-lg p-3">
+        <div className="bg-secondary rounded-lg p-3 border border-border">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-sm text-foreground">{title.toUpperCase()}</h3>
