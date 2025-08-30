@@ -102,6 +102,42 @@ export default function Videos() {
         ))}
       </div>
 
+      {/* Video Analytics Summary */}
+      <Card className="mb-8">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-6">Video Analytics</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <VideoIcon className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {videoFixtures.filter(f => f.hasVideo).length}
+              </p>
+              <p className="text-sm text-muted-foreground">Videos Available</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <Clock className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {videoFixtures.filter(f => f.hasVideo).length * 90}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Minutes</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <Play className="text-xl" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {Math.floor(Math.random() * 100) + 1}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Views</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Video Gallery - Grouped by Competition */}
       <div className="mb-8">
         {isLoading ? (
@@ -248,42 +284,6 @@ export default function Videos() {
           </div>
         )}
       </div>
-
-      {/* Video Analytics Summary */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-6">Video Analytics</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <VideoIcon className="text-xl" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {videoFixtures.filter(f => f.hasVideo).length}
-              </p>
-              <p className="text-sm text-muted-foreground">Videos Available</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <Clock className="text-xl" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {videoFixtures.filter(f => f.hasVideo).length * 90}
-              </p>
-              <p className="text-sm text-muted-foreground">Total Minutes</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <Play className="text-xl" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {Math.floor(Math.random() * 100) + 1}
-              </p>
-              <p className="text-sm text-muted-foreground">Total Views</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </MainLayout>
   );
 }
