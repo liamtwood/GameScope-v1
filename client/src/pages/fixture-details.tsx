@@ -84,21 +84,6 @@ export default function FixtureDetails() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Fixtures
           </Button>
-          <FixtureEditDialog 
-            fixture={fixture}
-            onSave={(updatedFixture) => {
-              // Handle fixture update - could trigger a refetch or update local state
-              console.log('Fixture updated:', updatedFixture);
-            }}
-          >
-            <Button 
-              variant="default" 
-              data-testid="button-edit-fixture"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Fixture
-            </Button>
-          </FixtureEditDialog>
         </div>
 
         {/* Header with Teams */}
@@ -221,7 +206,24 @@ export default function FixtureDetails() {
           <TabsContent value="details" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-6">Match Details</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold">Match Details</h3>
+                  <FixtureEditDialog 
+                    fixture={fixture}
+                    onSave={(updatedFixture) => {
+                      // Handle fixture update - could trigger a refetch or update local state
+                      console.log('Fixture updated:', updatedFixture);
+                    }}
+                  >
+                    <Button 
+                      variant="default" 
+                      data-testid="button-edit-fixture"
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Fixture
+                    </Button>
+                  </FixtureEditDialog>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
