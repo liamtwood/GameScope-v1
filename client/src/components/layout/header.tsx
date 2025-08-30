@@ -36,8 +36,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                   className="h-14 w-14 object-contain dark:invert"
                   style={{ 
                     background: 'transparent',
-                    clipPath: 'circle(45%)',
-                    filter: 'contrast(1.2) saturate(1.1)'
+                    filter: 'contrast(1.3) brightness(1.1)'
                   }}
                 />
               </div>
