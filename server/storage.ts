@@ -66,6 +66,8 @@ export interface IStorage {
   // Match stats operations
   getMatchStats(fixtureId: string): Promise<MatchStats[]>;
   createMatchStats(stats: InsertMatchStats): Promise<MatchStats>;
+  updateMatchStats(id: string, stats: Partial<InsertMatchStats>): Promise<MatchStats>;
+  deleteMatchStats(id: string): Promise<void>;
   
   // User operations
   getUser(id: string): Promise<User | undefined>;
@@ -518,11 +520,67 @@ export class DatabaseStorage implements IStorage {
       passingTotalDistance: stats.passingTotalDistance || null,
       passingAverageDistance: stats.passingAverageDistance || null,
       passingAverageVelocity: stats.passingAverageVelocity || null,
+      rightFootPassAttempted: stats.rightFootPassAttempted || null,
+      rightFootPassSuccess: stats.rightFootPassSuccess || null,
+      rightFootPassSuccessRate: stats.rightFootPassSuccessRate || null,
+      leftFootPassAttempted: stats.leftFootPassAttempted || null,
+      leftFootPassSuccess: stats.leftFootPassSuccess || null,
+      leftFootPassSuccessRate: stats.leftFootPassSuccessRate || null,
       createdAt: new Date(),
     };
     
     await db.insert(matchStats).values(newStats);
     return newStats;
+  }
+
+  async updateMatchStats(id: string, stats: Partial<InsertMatchStats>): Promise<MatchStats> {
+    const [updatedStats] = await db
+      .update(matchStats)
+      .set({
+        ...stats,
+        // Include all the new fields with proper null handling
+        goals: stats.goals !== undefined ? stats.goals : undefined,
+        isTeamStats: stats.isTeamStats !== undefined ? stats.isTeamStats : undefined,
+        totalTeamDistance: stats.totalTeamDistance !== undefined ? stats.totalTeamDistance : undefined,
+        possession: stats.possession !== undefined ? stats.possession : undefined,
+        shotsAttempted: stats.shotsAttempted !== undefined ? stats.shotsAttempted : undefined,
+        shotsOnTarget: stats.shotsOnTarget !== undefined ? stats.shotsOnTarget : undefined,
+        runsIntoBoxes: stats.runsIntoBoxes !== undefined ? stats.runsIntoBoxes : undefined,
+        corners: stats.corners !== undefined ? stats.corners : undefined,
+        dangerousCrosses: stats.dangerousCrosses !== undefined ? stats.dangerousCrosses : undefined,
+        dribbles: stats.dribbles !== undefined ? stats.dribbles : undefined,
+        penetratingDribbles: stats.penetratingDribbles !== undefined ? stats.penetratingDribbles : undefined,
+        takeOns: stats.takeOns !== undefined ? stats.takeOns : undefined,
+        firstTouchSuccess: stats.firstTouchSuccess !== undefined ? stats.firstTouchSuccess : undefined,
+        firstTouchSuccessRate: stats.firstTouchSuccessRate !== undefined ? stats.firstTouchSuccessRate : undefined,
+        tackles: stats.tackles !== undefined ? stats.tackles : undefined,
+        freeKicks: stats.freeKicks !== undefined ? stats.freeKicks : undefined,
+        offsides: stats.offsides !== undefined ? stats.offsides : undefined,
+        passesAttempted: stats.passesAttempted !== undefined ? stats.passesAttempted : undefined,
+        passesSuccess: stats.passesSuccess !== undefined ? stats.passesSuccess : undefined,
+        passingSuccessRate: stats.passingSuccessRate !== undefined ? stats.passingSuccessRate : undefined,
+        passingTotalDistance: stats.passingTotalDistance !== undefined ? stats.passingTotalDistance : undefined,
+        passingAverageDistance: stats.passingAverageDistance !== undefined ? stats.passingAverageDistance : undefined,
+        passingAverageVelocity: stats.passingAverageVelocity !== undefined ? stats.passingAverageVelocity : undefined,
+        rightFootPassAttempted: stats.rightFootPassAttempted !== undefined ? stats.rightFootPassAttempted : undefined,
+        rightFootPassSuccess: stats.rightFootPassSuccess !== undefined ? stats.rightFootPassSuccess : undefined,
+        rightFootPassSuccessRate: stats.rightFootPassSuccessRate !== undefined ? stats.rightFootPassSuccessRate : undefined,
+        leftFootPassAttempted: stats.leftFootPassAttempted !== undefined ? stats.leftFootPassAttempted : undefined,
+        leftFootPassSuccess: stats.leftFootPassSuccess !== undefined ? stats.leftFootPassSuccess : undefined,
+        leftFootPassSuccessRate: stats.leftFootPassSuccessRate !== undefined ? stats.leftFootPassSuccessRate : undefined,
+      })
+      .where(eq(matchStats.id, id))
+      .returning();
+    
+    if (!updatedStats) {
+      throw new Error("Match statistics not found");
+    }
+    
+    return updatedStats;
+  }
+
+  async deleteMatchStats(id: string): Promise<void> {
+    await db.delete(matchStats).where(eq(matchStats.id, id));
   }
 
   // User operations

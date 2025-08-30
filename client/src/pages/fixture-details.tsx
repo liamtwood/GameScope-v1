@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit } from "lucide-react";
-import { Fixture, OppositionTeam, Player } from "@shared/schema";
+import { Fixture, OppositionTeam, Player, MatchStats } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
@@ -39,6 +39,11 @@ export default function FixtureDetails() {
   const { data: players } = useQuery<Player[]>({
     queryKey: ["/api/players", fixture?.teamId],
     enabled: !!fixture?.teamId,
+  });
+
+  const { data: matchStats } = useQuery<MatchStats[]>({
+    queryKey: ["/api/match-stats", fixtureId],
+    enabled: !!fixtureId,
   });
 
   const { toast } = useToast();
@@ -114,6 +119,19 @@ export default function FixtureDetails() {
       default: return "Scheduled";
     }
   };
+
+  // Helper functions for match statistics
+  const getTeamStats = (period: string) => {
+    return matchStats?.find(stat => stat.period === period && stat.isTeamStats === true);
+  };
+
+  const getOpponentStats = (period: string) => {
+    return matchStats?.find(stat => stat.period === period && stat.isTeamStats === false);
+  };
+
+  const fullGameStats = getTeamStats('FULL_GAME');
+  const firstHalfStats = getTeamStats('FIRST_HALF');
+  const secondHalfStats = getTeamStats('SECOND_HALF');
 
   return (
     <MainLayout title="Fixture Details" subtitle={`${fixture.opponent} - ${format(new Date(fixture.date), "MMM d, yyyy")}`}>
@@ -449,19 +467,26 @@ export default function FixtureDetails() {
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
+                {fullGameStats ? (
                 <div className="space-y-6">
                   {/* Analysis Overview */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-2">85%</div>
+                      <div className="text-2xl font-bold text-blue-600 mb-2">
+                        {fullGameStats.possession || 0}%
+                      </div>
                       <div className="text-sm text-muted-foreground">Possession</div>
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-2">12</div>
+                      <div className="text-2xl font-bold text-green-600 mb-2">
+                        {fullGameStats.shotsOnTarget || 0}
+                      </div>
                       <div className="text-sm text-muted-foreground">Shots on Target</div>
                     </div>
                     <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600 mb-2">94%</div>
+                      <div className="text-2xl font-bold text-orange-600 mb-2">
+                        {fullGameStats.passingSuccessRate || 0}%
+                      </div>
                       <div className="text-sm text-muted-foreground">Pass Accuracy</div>
                     </div>
                   </div>
@@ -495,41 +520,49 @@ export default function FixtureDetails() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Total Shots</span>
-                          <span className="font-medium">18</span>
+                          <span className="font-medium">{fullGameStats.shotsAttempted || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Shots on Target</span>
-                          <span className="font-medium">12</span>
+                          <span className="font-medium">{fullGameStats.shotsOnTarget || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Corner Kicks</span>
-                          <span className="font-medium">8</span>
+                          <span className="font-medium">{fullGameStats.corners || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Offsides</span>
-                          <span className="font-medium">2</span>
+                          <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
+                          <span className="font-medium">{fullGameStats.dangerousCrosses || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
+                          <span className="font-medium">{fullGameStats.runsIntoBoxes || 0}</span>
                         </div>
                       </div>
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-foreground mb-3">Defensive Metrics</h4>
+                      <h4 className="font-semibold text-foreground mb-3">Defensive & Possession</h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Tackles Won</span>
-                          <span className="font-medium">15</span>
+                          <span className="text-sm text-muted-foreground">Tackles</span>
+                          <span className="font-medium">{fullGameStats.tackles || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Interceptions</span>
-                          <span className="font-medium">11</span>
+                          <span className="text-sm text-muted-foreground">Take Ons</span>
+                          <span className="font-medium">{fullGameStats.takeOns || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Clearances</span>
-                          <span className="font-medium">23</span>
+                          <span className="text-sm text-muted-foreground">Free Kicks</span>
+                          <span className="font-medium">{fullGameStats.freeKicks || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Saves</span>
-                          <span className="font-medium">4</span>
+                          <span className="text-sm text-muted-foreground">Offsides</span>
+                          <span className="font-medium">{fullGameStats.offsides || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Dribbles</span>
+                          <span className="font-medium">{fullGameStats.dribbles || 0}</span>
                         </div>
                       </div>
                     </div>
@@ -599,6 +632,12 @@ export default function FixtureDetails() {
                     </div>
                   )}
                 </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">No match statistics available</p>
+                    <p className="text-sm text-muted-foreground">Statistics will be displayed after the match is completed and data is uploaded.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

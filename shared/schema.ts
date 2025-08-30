@@ -57,28 +57,47 @@ export const matchStats = pgTable("match_stats", {
   fixtureId: varchar("fixture_id").references(() => fixtures.id).notNull(),
   period: varchar("period", { length: 20 }).notNull(), // FIRST_HALF, SECOND_HALF, FULL_GAME
   isTeamStats: boolean("is_team_stats").default(true), // true for team stats, false for opponent
-  totalTeamDistance: integer("total_team_distance"),
-  possession: integer("possession"),
+  
+  // Key stats (distance in km, stored as decimal with 2 places)
+  totalTeamDistance: integer("total_team_distance"), // stored as meters, display as km
+  possession: integer("possession"), // percentage
+  
+  // Attack stats
   goals: integer("goals"),
   shotsAttempted: integer("shots_attempted"),
   shotsOnTarget: integer("shots_on_target"),
   runsIntoBoxes: integer("runs_into_boxes"),
   corners: integer("corners"),
   dangerousCrosses: integer("dangerous_crosses"),
+  
+  // Possession stats
   dribbles: integer("dribbles"),
   penetratingDribbles: integer("penetrating_dribbles"),
   takeOns: integer("take_ons"),
   firstTouchSuccess: integer("first_touch_success"),
-  firstTouchSuccessRate: integer("first_touch_success_rate"),
+  firstTouchSuccessRate: integer("first_touch_success_rate"), // percentage
+  
+  // Defence stats
   tackles: integer("tackles"),
   freeKicks: integer("free_kicks"),
   offsides: integer("offsides"),
+  
+  // Passing stats
   passesAttempted: integer("passes_attempted"),
   passesSuccess: integer("passes_success"),
-  passingSuccessRate: integer("passing_success_rate"),
-  passingTotalDistance: integer("passing_total_distance"),
-  passingAverageDistance: integer("passing_average_distance"),
-  passingAverageVelocity: integer("passing_average_velocity"),
+  passingSuccessRate: integer("passing_success_rate"), // percentage
+  passingTotalDistance: integer("passing_total_distance"), // stored as meters
+  passingAverageDistance: integer("passing_average_distance"), // stored as meters
+  passingAverageVelocity: integer("passing_average_velocity"), // km/h
+  
+  // Foot-specific passing stats (new fields)
+  rightFootPassAttempted: integer("right_foot_pass_attempted"),
+  rightFootPassSuccess: integer("right_foot_pass_success"),
+  rightFootPassSuccessRate: integer("right_foot_pass_success_rate"), // percentage
+  leftFootPassAttempted: integer("left_foot_pass_attempted"),
+  leftFootPassSuccess: integer("left_foot_pass_success"),
+  leftFootPassSuccessRate: integer("left_foot_pass_success_rate"), // percentage
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 

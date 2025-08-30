@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema } from "@shared/schema";
+import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -388,6 +388,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching team statistics:", error);
       res.status(500).json({ message: "Failed to fetch team statistics" });
+    }
+  });
+
+  // Match Statistics routes
+  app.get("/api/match-stats/:fixtureId", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const matchStats = await storage.getMatchStats(fixtureId);
+      res.json(matchStats);
+    } catch (error) {
+      console.error("Error fetching match statistics:", error);
+      res.status(500).json({ message: "Failed to fetch match statistics" });
+    }
+  });
+
+  app.post("/api/match-stats", async (req, res) => {
+    try {
+      const statsData = insertMatchStatsSchema.parse(req.body);
+      const stats = await storage.createMatchStats(statsData);
+      res.status(201).json(stats);
+    } catch (error) {
+      console.error("Error creating match statistics:", error);
+      res.status(400).json({ message: "Failed to create match statistics" });
+    }
+  });
+
+  app.put("/api/match-stats/:id", async (req, res) => {
+    try {
+      const statsData = insertMatchStatsSchema.partial().parse(req.body);
+      const stats = await storage.updateMatchStats(req.params.id, statsData);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error updating match statistics:", error);
+      res.status(400).json({ message: "Failed to update match statistics" });
+    }
+  });
+
+  app.delete("/api/match-stats/:id", async (req, res) => {
+    try {
+      await storage.deleteMatchStats(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting match statistics:", error);
+      res.status(500).json({ message: "Failed to delete match statistics" });
+    }
+  });
+
+  // Bulk import match statistics for a fixture (1st half, 2nd half, full game)
+  app.post("/api/match-stats/bulk/:fixtureId", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const { periods } = req.body; // expects array of {period, teamStats, opponentStats}
+      
+      const results = [];
+      for (const periodData of periods) {
+        // Create team stats
+        if (periodData.teamStats) {
+          const teamStatsData = insertMatchStatsSchema.parse({
+            fixtureId,
+            period: periodData.period,
+            isTeamStats: true,
+            ...periodData.teamStats
+          });
+          const teamStats = await storage.createMatchStats(teamStatsData);
+          results.push(teamStats);
+        }
+        
+        // Create opponent stats
+        if (periodData.opponentStats) {
+          const opponentStatsData = insertMatchStatsSchema.parse({
+            fixtureId,
+            period: periodData.period,
+            isTeamStats: false,
+            ...periodData.opponentStats
+          });
+          const opponentStats = await storage.createMatchStats(opponentStatsData);
+          results.push(opponentStats);
+        }
+      }
+      
+      res.status(201).json(results);
+    } catch (error) {
+      console.error("Error creating bulk match statistics:", error);
+      res.status(400).json({ message: "Failed to create bulk match statistics" });
     }
   });
 
