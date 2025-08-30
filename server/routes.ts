@@ -82,7 +82,7 @@ function parseStatsFromExcelData(data: any[], teamColumn: string) {
   return stats;
 }
 
-// Configure multer for file uploads
+// Configure multer for image uploads
 const upload = multer({
   dest: "temp-uploads/",
   limits: {
@@ -93,6 +93,26 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed'));
+    }
+  },
+});
+
+// Configure multer for Excel uploads
+const excelUpload = multer({
+  dest: "temp-uploads/",
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit for Excel files
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files (.xlsx, .xls) are allowed'));
     }
   },
 });
@@ -551,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Excel upload endpoint for match statistics
-  app.post("/api/upload-match-stats", upload.single('excel'), async (req, res) => {
+  app.post("/api/upload-match-stats", excelUpload.single('excel'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No Excel file uploaded" });
