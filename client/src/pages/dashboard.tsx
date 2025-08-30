@@ -35,7 +35,7 @@ export default function Dashboard() {
   const upcomingFixtures = fixtures?.filter(f => f.status === 'SCHEDULED').slice(0, 3) || [];
   const topScorers = players?.sort((a, b) => (b.goals || 0) - (a.goals || 0)).slice(0, 3) || [];
 
-  // Check for analysis data for recent fixtures
+  // Check for analysis data for recent fixtures (memoized to prevent excessive API calls)
   useEffect(() => {
     const checkAnalysisData = async () => {
       const fixtureIds = new Set<string>();
@@ -60,7 +60,7 @@ export default function Dashboard() {
     if (recentFixtures.length > 0) {
       checkAnalysisData();
     }
-  }, [recentFixtures]);
+  }, [recentFixtures.map(f => f.id).join(',')]); // Only re-run when fixture IDs change
 
   const nextMatch = upcomingFixtures[0];
   const daysUntilNext = nextMatch ? Math.ceil((new Date(nextMatch.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;

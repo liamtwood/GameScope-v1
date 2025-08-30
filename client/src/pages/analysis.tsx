@@ -153,7 +153,7 @@ export default function Analysis() {
             <p className="text-muted-foreground">{format(new Date(fixture.date), 'EEEE, MMMM d, yyyy')}</p>
           </div>
         </div>
-        <Badge className={`${color} text-white px-4 py-2 text-lg`}>
+        <Badge className={`${color} text-white px-4 py-2 text-lg opacity-100`}>
           {result}
         </Badge>
       </div>
