@@ -108,7 +108,7 @@ export default function Videos() {
           <h3 className="text-lg font-semibold text-foreground mb-6">Video Analytics</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-16 h-16 bg-muted text-border rounded-full mx-auto mb-3 flex items-center justify-center">
                 <VideoIcon className="text-xl" />
               </div>
               <p className="text-2xl font-bold text-foreground">
@@ -117,7 +117,7 @@ export default function Videos() {
               <p className="text-sm text-muted-foreground">Videos Available</p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-16 h-16 bg-muted text-border rounded-full mx-auto mb-3 flex items-center justify-center">
                 <Clock className="text-xl" />
               </div>
               <p className="text-2xl font-bold text-foreground">
@@ -126,7 +126,7 @@ export default function Videos() {
               <p className="text-sm text-muted-foreground">Total Minutes</p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-16 h-16 bg-muted text-border rounded-full mx-auto mb-3 flex items-center justify-center">
                 <Play className="text-xl" />
               </div>
               <p className="text-2xl font-bold text-foreground">
@@ -201,7 +201,7 @@ export default function Videos() {
                       <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
                         {fixture.hasVideo ? (
                           <div className="text-center">
-                            <VideoIcon className="w-12 h-12 text-green-600 mx-auto mb-2" />
+                            <VideoIcon className="w-12 h-12 text-border mx-auto mb-2" />
                             <p className="text-sm font-medium text-green-800">Video Available</p>
                           </div>
                         ) : (

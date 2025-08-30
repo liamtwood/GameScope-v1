@@ -51,7 +51,7 @@ export default function Dashboard() {
           title="Total Players"
           value={statistics?.totalPlayers || 0}
           icon={Users}
-          iconColor="text-blue-600"
+          iconColor="text-border"
           trend={{
             value: "+2",
             label: "from last season",
@@ -63,7 +63,7 @@ export default function Dashboard() {
           title="Matches Played"
           value={statistics?.matchesPlayed || 0}
           icon={Target}
-          iconColor="text-green-600"
+          iconColor="text-border"
           subtitle={`${statistics?.wins || 0}W ${statistics?.draws || 0}D ${statistics?.losses || 0}L`}
         />
         
@@ -71,7 +71,7 @@ export default function Dashboard() {
           title="Goals Scored"
           value={statistics?.totalGoals || 0}
           icon={Trophy}
-          iconColor="text-yellow-600"
+          iconColor="text-border"
           subtitle={`${((statistics?.totalGoals || 0) / Math.max(statistics?.matchesPlayed || 1, 1)).toFixed(1)} avg per match`}
         />
         
@@ -79,7 +79,7 @@ export default function Dashboard() {
           title="Next Match"
           value={`${daysUntilNext} days`}
           icon={Calendar}
-          iconColor="text-purple-600"
+          iconColor="text-border"
           subtitle={nextMatch ? `vs ${nextMatch.opponent}` : "No upcoming matches"}
         />
       </div>

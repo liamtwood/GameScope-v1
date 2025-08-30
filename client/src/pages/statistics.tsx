@@ -50,7 +50,7 @@ export default function Statistics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Season Record</h3>
-              <Trophy className="text-yellow-600" />
+              <Trophy className="text-border" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -81,7 +81,7 @@ export default function Statistics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Goals Statistics</h3>
-              <Target className="text-green-600" />
+              <Target className="text-border" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
