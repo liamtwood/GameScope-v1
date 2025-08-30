@@ -9,6 +9,7 @@ import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit } from "lucide-react";
 import { Fixture, OppositionTeam, Player } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
+import { VideoManager } from "@/components/video-manager";
 
 export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
@@ -305,20 +306,10 @@ export default function FixtureDetails() {
           <TabsContent value="videos" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
-                {fixture.hasVideo ? (
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground">Video content available for this match.</p>
-                    {/* Video links would be displayed here */}
-                    <div className="bg-muted/30 rounded-lg p-4 text-center">
-                      <p className="text-muted-foreground">Video player implementation coming soon</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No videos available for this match.</p>
-                  </div>
-                )}
+                <VideoManager 
+                  fixtureId={fixture.id}
+                  videoLinks={(fixture.videoLinks as any[]) || []}
+                />
               </CardContent>
             </Card>
           </TabsContent>

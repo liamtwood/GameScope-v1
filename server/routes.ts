@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema } from "@shared/schema";
+import { ObjectStorageService } from "./objectStorage";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -410,6 +411,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(500).json({ message: "Failed to upload logo" });
+    }
+  });
+
+  // Video management endpoints
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Update fixture videos
+  app.put("/api/fixtures/:fixtureId/videos", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const { videos } = req.body;
+
+      if (!Array.isArray(videos)) {
+        return res.status(400).json({ error: "Videos must be an array" });
+      }
+
+      await storage.updateFixtureVideos(fixtureId, videos);
+      res.json({ message: "Videos updated successfully" });
+    } catch (error) {
+      console.error("Error updating fixture videos:", error);
+      res.status(500).json({ error: "Failed to update videos" });
     }
   });
 

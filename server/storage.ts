@@ -60,6 +60,7 @@ export interface IStorage {
   getFixture(id: string): Promise<Fixture | undefined>;
   createFixture(fixture: InsertFixture): Promise<Fixture>;
   updateFixture(id: string, fixture: Partial<InsertFixture>): Promise<Fixture>;
+  updateFixtureVideos(id: string, videos: any[]): Promise<void>;
   deleteFixture(id: string): Promise<void>;
   
   // Match stats operations
@@ -339,6 +340,17 @@ export class DatabaseStorage implements IStorage {
     if (!updatedFixture) throw new Error('Fixture not found');
     
     return updatedFixture;
+  }
+
+  async updateFixtureVideos(id: string, videos: any[]): Promise<void> {
+    const hasVideo = videos.length > 0;
+    await db.update(fixtures)
+      .set({ 
+        videoLinks: videos,
+        hasVideo,
+        updatedAt: new Date(),
+      })
+      .where(eq(fixtures.id, id));
   }
 
   async deleteFixture(id: string): Promise<void> {
