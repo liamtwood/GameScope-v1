@@ -191,8 +191,8 @@ export default function Analysis() {
               opponentName={fixture.opponent}
               teamStats={fullGameStats}
               opponentStats={opponentFullGameStats}
-              teamScore={fixture.homeScore || 0}
-              opponentScore={fixture.awayScore || 0}
+              teamScore={fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}
+              opponentScore={fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}
               teamLogoPath={teamLogoPath}
               opponentLogoPath={opponentLogoPath}
             />
