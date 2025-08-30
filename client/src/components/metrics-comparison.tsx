@@ -265,7 +265,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
             <div className="absolute inset-0 bg-white" 
                  style={{ 
                    clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                   backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 20px, #ef4444 20px, #ef4444 24px, transparent 24px, transparent 44px)'
+                   backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 6px, #ef4444 6px, #ef4444 8px, transparent 8px, transparent 24px)'
                  }}>
             </div>
             
