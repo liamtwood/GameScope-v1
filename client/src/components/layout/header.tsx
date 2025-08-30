@@ -34,8 +34,9 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 className="h-14 w-14 object-contain"
               />
             </div>
-            <div>
+            <div className="flex flex-col">
               <h1 className="text-3xl text-foreground">{CLUB_NAME}</h1>
+              <h2 className="text-xl font-bold text-foreground">{title}</h2>
             </div>
           </div>
         </div>
@@ -52,7 +53,6 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       </div>
       
       <div className="mt-4">
-        <h2 className="text-xl font-bold text-foreground">{title}</h2>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
     </header>
