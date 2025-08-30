@@ -68,15 +68,15 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
       </div>
       
       <div className="relative w-full h-8 bg-gray-200 rounded-lg overflow-hidden">
-        {/* Team bar (from left) */}
+        {/* Team bar (from left) - POLK red/black gradient */}
         <div 
-          className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+          className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500 ease-out"
           style={{ width: `${normalizedTeamValue}%` }}
         />
         
-        {/* Opponent bar (from right) */}
+        {/* Opponent bar (from right) - white with red accent */}
         <div 
-          className="absolute right-0 top-0 h-full bg-blue-500 transition-all duration-500 ease-out"
+          className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-400 to-red-300 transition-all duration-500 ease-out"
           style={{ width: `${normalizedOpponentValue}%` }}
         />
         
@@ -250,53 +250,73 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
   return (
     <Card className="p-6">
       <div className="space-y-6">
-        {/* Header with logos and score */}
-        <div>
-          <h4 className="font-semibold text-center mb-4 text-lg">Match Statistics Comparison</h4>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {/* POLK Logo Box */}
-            <div className="flex items-center justify-center p-4 bg-red-50 rounded-lg border">
-              <div className="text-center">
+        {/* Header with logos and score - Spurs vs Bournemouth inspired */}
+        <div className="mb-6">
+          <h4 className="font-semibold text-center mb-6 text-xl text-gray-800">Match Statistics</h4>
+          
+          {/* Main header container with diagonal split */}
+          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
+            {/* POLK side - red/black gradient diagonal */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black transform skew-x-12 origin-top-left" 
+                 style={{ clipPath: 'polygon(0 0, 60% 0, 45% 100%, 0 100%)' }}>
+            </div>
+            
+            {/* Opponent side - white with red pinstripes */}
+            <div className="absolute inset-0 bg-white transform -skew-x-12 origin-top-right" 
+                 style={{ 
+                   clipPath: 'polygon(45% 0, 100% 0, 100% 100%, 55% 100%)',
+                   backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, #ef4444 8px, #ef4444 10px, transparent 10px, transparent 18px)'
+                 }}>
+            </div>
+            
+            {/* Content overlay */}
+            <div className="relative z-10 h-full flex items-center justify-between px-8">
+              {/* POLK section */}
+              <div className="flex items-center space-x-4 text-white">
                 {teamLogoPath ? (
                   <img 
                     src={teamLogoPath} 
                     alt={`${teamName} logo`}
-                    className="w-12 h-12 object-contain mx-auto mb-2"
+                    className="w-16 h-16 object-contain bg-white/20 backdrop-blur rounded-lg p-2"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <span className="text-white font-bold text-sm">POLK</span>
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">POLK</span>
                   </div>
                 )}
-                <span className="text-sm font-medium text-red-600">{teamName}</span>
-              </div>
-            </div>
-            
-            {/* Score Box */}
-            <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg border">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-800">
-                  {teamScore} - {opponentScore}
+                <div>
+                  <div className="text-2xl font-bold">{teamName}</div>
+                  <div className="text-white/80 text-sm">HOME</div>
                 </div>
-                <span className="text-sm text-gray-500">Final Score</span>
               </div>
-            </div>
-            
-            {/* Opponent Logo Box */}
-            <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg border">
-              <div className="text-center">
+              
+              {/* Center score */}
+              <div className="bg-white/95 backdrop-blur rounded-2xl px-6 py-4 shadow-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="text-3xl font-bold text-red-600">{teamScore}</div>
+                  <div className="text-2xl font-light text-gray-400">-</div>
+                  <div className="text-3xl font-bold text-red-600">{opponentScore}</div>
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-1">FT</div>
+              </div>
+              
+              {/* Opponent section */}
+              <div className="flex items-center space-x-4 text-red-600">
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{opponentName}</div>
+                  <div className="text-red-500 text-sm">AWAY</div>
+                </div>
                 {opponentLogoPath ? (
                   <img 
                     src={opponentLogoPath} 
                     alt={`${opponentName} logo`}
-                    className="w-12 h-12 object-contain mx-auto mb-2"
+                    className="w-16 h-16 object-contain bg-white/80 backdrop-blur rounded-lg p-2"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <span className="text-white font-bold text-xs">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                  <div className="w-16 h-16 bg-white/80 backdrop-blur rounded-lg flex items-center justify-center">
+                    <span className="text-red-600 font-bold text-sm">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                   </div>
                 )}
-                <span className="text-sm font-medium text-blue-600">{opponentName}</span>
               </div>
             </div>
           </div>
