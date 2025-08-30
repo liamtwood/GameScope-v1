@@ -122,11 +122,11 @@ export default function Fixtures() {
       const matchDate = new Date(fixture.date);
       const isFutureMatch = matchDate > now || fixture.status === 'SCHEDULED';
       if (!isFutureMatch) return false;
-      
-      // Apply home/away filter for planning tab
-      if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
-        return false;
-      }
+    }
+    
+    // Apply home/away filter to all tabs
+    if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
+      return false;
     }
     
     // Treat NO_CONTEST the same as COMPLETED when filtering
@@ -572,75 +572,91 @@ export default function Fixtures() {
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex bg-muted rounded-lg p-1">
-          {filterButtons.map((filter) => (
-            <Button
-              key={filter.id}
-              variant={activeFilter === filter.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveFilter(filter.id)}
-              className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-              data-testid={`button-filter-${filter.id}`}
-            >
-              {filter.label}
-            </Button>
-          ))}
-        </div>
-        
-        <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
-          <SelectTrigger className="w-48" data-testid="select-competition">
-            <SelectValue placeholder="All Competitions" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Competitions</SelectItem>
-            {competitions.map((competition) => (
-              <SelectItem key={competition.id} value={competition.name}>
-                {competition.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="mb-6 space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          {/* Status Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Status</label>
+            <div className="flex bg-muted rounded-lg p-1">
+              {filterButtons.map((filter) => (
+                <Button
+                  key={filter.id}
+                  variant={activeFilter === filter.id ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
+                  data-testid={`button-filter-${filter.id}`}
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
+          </div>
 
-        <div className="flex bg-muted rounded-lg p-1">
-          <Button
-            variant={homeAwayFilter === 'all' ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setHomeAwayFilter('all')}
-            className={homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}
-            data-testid="button-filter-venue-all"
-          >
-            All
-          </Button>
-          <Button
-            variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setHomeAwayFilter('HOME')}
-            className={homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}
-            data-testid="button-filter-venue-home"
-          >
-            <Home className="mr-2 h-4 w-4" />
-            Home
-          </Button>
-          <Button
-            variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setHomeAwayFilter('AWAY')}
-            className={homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}
-            data-testid="button-filter-venue-away"
-          >
-            <Plane className="mr-2 h-4 w-4" />
-            Away
-          </Button>
-        </div>
+          {/* Competition Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Competition</label>
+            <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
+              <SelectTrigger className="w-full" data-testid="select-competition">
+                <SelectValue placeholder="All Competitions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Competitions</SelectItem>
+                {competitions.map((competition) => (
+                  <SelectItem key={competition.id} value={competition.name}>
+                    {competition.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <Input
-          placeholder="Search fixtures..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-64"
-          data-testid="input-search-fixtures"
-        />
+          {/* Location Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Location</label>
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button
+                variant={homeAwayFilter === 'all' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setHomeAwayFilter('all')}
+                className={homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid="button-filter-venue-all"
+              >
+                All
+              </Button>
+              <Button
+                variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setHomeAwayFilter('HOME')}
+                className={homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid="button-filter-venue-home"
+              >
+                Home
+              </Button>
+              <Button
+                variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setHomeAwayFilter('AWAY')}
+                className={homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid="button-filter-venue-away"
+              >
+                Away
+              </Button>
+            </div>
+          </div>
+
+          {/* Keyword Search */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Keyword</label>
+            <Input
+              placeholder="Search fixtures..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full"
+              data-testid="input-search-fixtures"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Fixtures List */}
