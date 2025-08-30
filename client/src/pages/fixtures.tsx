@@ -248,7 +248,7 @@ export default function Fixtures() {
     const withoutVideo = pastFixtures.filter(f => !f.hasVideo).length;
     
     const totalVideos = fixtures.reduce((sum, f) => {
-      return sum + (f.videoLinks ? f.videoLinks.length : 0);
+      return sum + (f.videoLinks && Array.isArray(f.videoLinks) ? f.videoLinks.length : 0);
     }, 0);
     
     const coverage = pastFixtures.length > 0 ? (withVideo / pastFixtures.length) * 100 : 0;
