@@ -67,7 +67,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         <span className="text-muted-foreground">{label}</span>
       </div>
       
-      <div className="relative w-full h-8 bg-gray-200 rounded-lg overflow-hidden">
+      <div className="relative w-3/4 h-8 bg-gray-200 rounded-lg overflow-hidden mx-auto">
         {/* Team bar (from left) - POLK red/black gradient */}
         <div 
           className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500 ease-out"
