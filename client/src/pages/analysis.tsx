@@ -187,7 +187,7 @@ export default function Analysis() {
 
             {/* Comprehensive Metrics Comparison */}
             <MetricsComparison
-              teamName="POLK"
+              teamName="Polk State College"
               opponentName={fixture.opponent}
               teamStats={fullGameStats}
               opponentStats={opponentFullGameStats}
@@ -274,7 +274,7 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="POLK"
+                      teamName="Polk State College"
                       opponentName={fixture.opponent}
                       title="Attack Performance"
                       teamColor="#dc2626"
@@ -286,7 +286,7 @@ export default function Analysis() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">POLK</span>
+                        <span className="text-red-600 text-center">Polk State College</span>
                         <span className="text-gray-600 text-center">OPP</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
@@ -329,7 +329,7 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="POLK"
+                      teamName="Polk State College"
                       opponentName={fixture.opponent}
                       title="Possession Performance"
                       teamColor="#dc2626"
@@ -341,7 +341,7 @@ export default function Analysis() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">POLK</span>
+                        <span className="text-red-600 text-center">Polk State College</span>
                         <span className="text-gray-600 text-center">OPP</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
@@ -379,7 +379,7 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createDefensiveSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="POLK"
+                      teamName="Polk State College"
                       opponentName={fixture.opponent}
                       title="Technical Performance"
                       teamColor="#dc2626"
@@ -391,7 +391,7 @@ export default function Analysis() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">POLK</span>
+                        <span className="text-red-600 text-center">Polk State College</span>
                         <span className="text-gray-600 text-center">OPP</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
