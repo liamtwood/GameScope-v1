@@ -37,7 +37,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {!collapsed && (
           <div className="flex items-center space-x-3">
             <div className="h-16 w-16 flex items-center justify-center">
-              <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
+              <Crosshair className="h-8 w-8" style={{ color: '#486D8D' }} />
             </div>
             <div>
               <h1 className="text-xl font-bold" style={{ color: '#486D8D' }}>GameScope</h1>
