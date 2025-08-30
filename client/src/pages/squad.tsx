@@ -34,7 +34,7 @@ export default function Squad() {
 
   const createPlayerMutation = useMutation({
     mutationFn: async (playerData: any) => {
-      return apiRequest("/api/players", "POST", playerData);
+      return apiRequest("POST", "/api/players", playerData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
@@ -54,7 +54,7 @@ export default function Squad() {
 
   const updatePlayerMutation = useMutation({
     mutationFn: async ({ playerId, data }: { playerId: string; data: any }) => {
-      return apiRequest(`/api/players/${playerId}`, "PUT", data);
+      return apiRequest("PUT", `/api/players/${playerId}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
@@ -74,7 +74,7 @@ export default function Squad() {
 
   const toggleKeyPlayerMutation = useMutation({
     mutationFn: async ({ playerId, keyPlayer }: { playerId: string; keyPlayer: boolean }) => {
-      return apiRequest(`/api/players/${playerId}`, "PATCH", { keyPlayer });
+      return apiRequest("PATCH", `/api/players/${playerId}`, { keyPlayer });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });

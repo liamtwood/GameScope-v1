@@ -126,19 +126,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/players/:id", async (req, res) => {
     try {
-      const updates = req.body;
+      // For PATCH requests, validate the partial data
+      const validKeys = ['keyPlayer', 'goals', 'assists', 'appearances', 'status', 'name', 'position', 'jerseyNumber', 'hometown'];
+      const updates = Object.keys(req.body).reduce((acc, key) => {
+        if (validKeys.includes(key)) {
+          acc[key] = req.body[key];
+        }
+        return acc;
+      }, {} as any);
+      
       const player = await storage.updatePlayer(req.params.id, updates);
-      res.json(player);
-    } catch (error) {
-      console.error("Error updating player:", error);
-      res.status(400).json({ message: "Failed to update player" });
-    }
-  });
-
-  app.put("/api/players/:id", async (req, res) => {
-    try {
-      const playerData = req.body;
-      const player = await storage.updatePlayer(req.params.id, playerData);
       res.json(player);
     } catch (error) {
       console.error("Error updating player:", error);
