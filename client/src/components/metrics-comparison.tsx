@@ -254,17 +254,17 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
         <div className="mb-6">
           <h4 className="font-semibold text-center mb-6 text-xl text-gray-800">Match Statistics</h4>
           
-          {/* Main header container with diagonal split */}
+          {/* Main header container with vertical split */}
           <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-            {/* POLK side - red/black gradient diagonal */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black transform skew-x-12 origin-top-left" 
-                 style={{ clipPath: 'polygon(0 0, 60% 0, 45% 100%, 0 100%)' }}>
+            {/* POLK side - red/black gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
+                 style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
             </div>
             
             {/* Opponent side - white with red pinstripes */}
-            <div className="absolute inset-0 bg-white transform -skew-x-12 origin-top-right" 
+            <div className="absolute inset-0 bg-white" 
                  style={{ 
-                   clipPath: 'polygon(45% 0, 100% 0, 100% 100%, 55% 100%)',
+                   clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
                    backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, #ef4444 8px, #ef4444 10px, transparent 10px, transparent 18px)'
                  }}>
             </div>
