@@ -202,7 +202,7 @@ export default function LogoManagement() {
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-medium truncate">{team.name}</p>
-                      <Badge variant={team.logoPath ? "default" : "secondary"} className="text-xs mt-1">
+                      <Badge variant="ghost" className="text-xs mt-1">
                         {team.logoPath ? "Has Logo" : "No Logo"}
                       </Badge>
                     </div>
