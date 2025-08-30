@@ -13,7 +13,6 @@ import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
   const fixtureId = params?.id;
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const { data: fixture, isLoading } = useQuery<Fixture>({
     queryKey: [`/api/fixture/${fixtureId}`],
@@ -48,8 +47,10 @@ export default function FixtureDetails() {
   const homeTeam = isHomeMatch ? "Polk State Women's Soccer" : (oppositionTeam?.name || fixture.opponent);
   const awayTeam = isHomeMatch ? (oppositionTeam?.name || fixture.opponent) : "Polk State Women's Soccer";
   
-  const homeTeamLogo = isHomeMatch ? "/assets/logos/polk-state-logo.png" : (oppositionTeam?.logoPath || "/default-team-logo.png");
-  const awayTeamLogo = isHomeMatch ? (oppositionTeam?.logoPath || "/default-team-logo.png") : "/assets/logos/polk-state-logo.png";
+  // Use the same Polk State logo as in header, and opposition team logos from database
+  const polkStateLogo = "/assets/logos/polk-state-logo.jpg";
+  const homeTeamLogo = isHomeMatch ? polkStateLogo : (oppositionTeam?.logoPath || null);
+  const awayTeamLogo = isHomeMatch ? (oppositionTeam?.logoPath || null) : polkStateLogo;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -82,14 +83,21 @@ export default function FixtureDetails() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Fixtures
           </Button>
-          <Button 
-            variant="default" 
-            onClick={() => setEditDialogOpen(true)}
-            data-testid="button-edit-fixture"
+          <FixtureEditDialog 
+            fixture={fixture}
+            onSave={(updatedFixture) => {
+              // Handle fixture update - could trigger a refetch or update local state
+              console.log('Fixture updated:', updatedFixture);
+            }}
           >
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Fixture
-          </Button>
+            <Button 
+              variant="default" 
+              data-testid="button-edit-fixture"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Fixture
+            </Button>
+          </FixtureEditDialog>
         </div>
 
         {/* Header with Teams */}
@@ -101,19 +109,25 @@ export default function FixtureDetails() {
                 {/* Home Team */}
                 <div className="flex flex-col items-center space-y-3">
                   <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={homeTeamLogo} 
-                      alt={homeTeam}
-                      className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        // If the logo fails to load, show initials instead
-                        const container = target.parentElement;
-                        if (container) {
-                          container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
-                        }
-                      }}
-                    />
+                    {homeTeamLogo ? (
+                      <img 
+                        src={homeTeamLogo} 
+                        alt={homeTeam}
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          // If the logo fails to load, show initials instead
+                          const container = target.parentElement;
+                          if (container) {
+                            container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                        {homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <h3 className="font-semibold text-lg text-foreground">{homeTeam}</h3>
@@ -143,19 +157,25 @@ export default function FixtureDetails() {
                 {/* Away Team */}
                 <div className="flex flex-col items-center space-y-3">
                   <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={awayTeamLogo} 
-                      alt={awayTeam}
-                      className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        // If the logo fails to load, show initials instead
-                        const container = target.parentElement;
-                        if (container) {
-                          container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
-                        }
-                      }}
-                    />
+                    {awayTeamLogo ? (
+                      <img 
+                        src={awayTeamLogo} 
+                        alt={awayTeam}
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          // If the logo fails to load, show initials instead
+                          const container = target.parentElement;
+                          if (container) {
+                            container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                        {awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <h3 className="font-semibold text-lg text-foreground">{awayTeam}</h3>
@@ -311,15 +331,21 @@ export default function FixtureDetails() {
                   {/* Home Team Lineup */}
                   <div>
                     <h4 className="font-medium mb-3 flex items-center space-x-2">
-                      <img 
-                        src={homeTeamLogo} 
-                        alt={homeTeam}
-                        className="w-6 h-6 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/default-team-logo.png";
-                        }}
-                      />
+                      {homeTeamLogo ? (
+                        <img 
+                          src={homeTeamLogo} 
+                          alt={homeTeam}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/default-team-logo.png";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">
+                          {homeTeam.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
                       <span>{homeTeam}</span>
                     </h4>
                     {isHomeMatch && players ? (
@@ -344,15 +370,21 @@ export default function FixtureDetails() {
                   {/* Away Team Lineup */}
                   <div>
                     <h4 className="font-medium mb-3 flex items-center space-x-2">
-                      <img 
-                        src={awayTeamLogo} 
-                        alt={awayTeam}
-                        className="w-6 h-6 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/default-team-logo.png";
-                        }}
-                      />
+                      {awayTeamLogo ? (
+                        <img 
+                          src={awayTeamLogo} 
+                          alt={awayTeam}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/default-team-logo.png";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">
+                          {awayTeam.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
                       <span>{awayTeam}</span>
                     </h4>
                     {!isHomeMatch && players ? (
@@ -380,12 +412,6 @@ export default function FixtureDetails() {
         </Tabs>
       </div>
       
-      {/* Edit Dialog */}
-      <FixtureEditDialog 
-        fixture={fixture}
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-      />
     </MainLayout>
   );
 }
