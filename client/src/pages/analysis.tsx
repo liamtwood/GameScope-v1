@@ -16,12 +16,12 @@ export default function Analysis() {
   const fixtureId = parseInt(params?.fixtureId || "0");
 
   const { data: fixture, isLoading: fixtureLoading } = useQuery<Fixture>({
-    queryKey: ["/api/fixtures", fixtureId],
+    queryKey: ["/api/fixture", fixtureId],
     enabled: !!fixtureId,
   });
 
   const { data: statistics, isLoading: statsLoading } = useQuery<MatchStats[]>({
-    queryKey: ["/api/match-statistics", fixtureId],
+    queryKey: ["/api/match-stats", fixtureId],
     enabled: !!fixtureId,
   });
 
