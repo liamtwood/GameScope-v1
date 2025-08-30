@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Share, Clock, Calendar, Video as VideoIcon } from "lucide-react";
 import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { BackgroundRemovalDemo } from "@/components/background-removal-demo";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 
@@ -100,6 +101,11 @@ export default function Videos() {
             {filter.label}
           </Button>
         ))}
+      </div>
+
+      {/* Background Removal Demo */}
+      <div className="mb-8">
+        <BackgroundRemovalDemo />
       </div>
 
       {/* Video Analytics Summary */}

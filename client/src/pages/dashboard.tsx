@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, Target, Trophy, Calendar } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
-import { BackgroundRemovalDemo } from "@/components/background-removal-demo";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -218,9 +217,6 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Background Removal Demo */}
-      <BackgroundRemovalDemo />
     </MainLayout>
   );
 }
