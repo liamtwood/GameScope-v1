@@ -12,7 +12,7 @@ import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
 import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
-import { PossessionChart } from "@/components/possession-chart";
+import { MetricsComparison } from "@/components/metrics-comparison";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -163,6 +163,7 @@ export default function FixtureDetails() {
   const fullGameStats = getTeamStats('FULL_GAME');
   const firstHalfStats = getTeamStats('FIRST_HALF');
   const secondHalfStats = getTeamStats('SECOND_HALF');
+  const opponentFullGameStats = getOpponentStats('FULL_GAME');
 
   return (
     <MainLayout title="Fixture Details" subtitle={`${fixture.opponent} - ${format(new Date(fixture.date), "MMM d, yyyy")}`}>
@@ -531,15 +532,13 @@ export default function FixtureDetails() {
                     </div>
                   </div>
 
-                  {/* Possession Chart */}
-                  <Card className="p-6">
-                    <PossessionChart
-                      teamName="POLK"
-                      opponentName={oppositionTeam?.name || fixture.opponent}
-                      teamPossession={fullGameStats.possession || 0}
-                      opponentPossession={opponentFullGameStats?.possession || (100 - (fullGameStats.possession || 0))}
-                    />
-                  </Card>
+                  {/* Comprehensive Metrics Comparison */}
+                  <MetricsComparison
+                    teamName="POLK"
+                    opponentName={oppositionTeam?.name || fixture.opponent}
+                    teamStats={fullGameStats}
+                    opponentStats={opponentFullGameStats}
+                  />
 
                   {/* AI-Powered Insights */}
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
