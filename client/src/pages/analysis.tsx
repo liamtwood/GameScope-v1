@@ -179,8 +179,8 @@ export default function Analysis() {
               opponentName={fixture.opponent}
               teamStats={fullGameStats}
               opponentStats={opponentFullGameStats}
-              teamScore={fixture.teamScore}
-              opponentScore={fixture.opponentScore}
+              teamScore={fixture.homeScore || 0}
+              opponentScore={fixture.awayScore || 0}
             />
 
             {/* AI-Powered Insights */}

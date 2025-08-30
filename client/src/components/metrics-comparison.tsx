@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchStats } from "@shared/schema";
-import { useState } from "react";
 
 interface MetricsComparisonProps {
   teamName: string;
@@ -97,7 +97,6 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
 }
 
 export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats, teamScore = 0, opponentScore = 0 }: MetricsComparisonProps) {
-  const [activeTab, setActiveTab] = useState("Key");
   const metricCategories = [
     {
       category: "Key",
@@ -246,8 +245,6 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
     },
   ];
 
-  const activeCategory = metricCategories.find(cat => cat.category === activeTab);
-
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -287,40 +284,34 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
           </div>
         </div>
         
-        {/* Tab Navigation */}
-        <div className="border-b">
-          <nav className="flex space-x-8">
+        {/* Tab Navigation - Using shadcn Tabs like existing tabs */}
+        <Tabs defaultValue="Key" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
             {metricCategories.map((category) => (
-              <button
-                key={category.category}
-                onClick={() => setActiveTab(category.category)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === category.category
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
+              <TabsTrigger key={category.category} value={category.category}>
                 {category.category}
-              </button>
+              </TabsTrigger>
             ))}
-          </nav>
-        </div>
-        
-        {/* Active Category Content */}
-        {activeCategory && (
-          <div className="space-y-4">
-            {activeCategory.metrics.map((metric, metricIndex) => (
-              <MetricBar
-                key={metricIndex}
-                label={metric.label}
-                teamValue={metric.teamValue}
-                opponentValue={metric.opponentValue}
-                unit={metric.unit}
-                isPercentage={metric.isPercentage}
-              />
-            ))}
-          </div>
-        )}
+          </TabsList>
+          
+          {/* Tab Content */}
+          {metricCategories.map((category) => (
+            <TabsContent key={category.category} value={category.category} className="mt-6">
+              <div className="space-y-4">
+                {category.metrics.map((metric, metricIndex) => (
+                  <MetricBar
+                    key={metricIndex}
+                    label={metric.label}
+                    teamValue={metric.teamValue}
+                    opponentValue={metric.opponentValue}
+                    unit={metric.unit}
+                    isPercentage={metric.isPercentage}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </Card>
   );
