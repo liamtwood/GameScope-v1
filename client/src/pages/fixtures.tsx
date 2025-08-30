@@ -393,7 +393,7 @@ export default function Fixtures() {
                     ? 'text-emerald-900' 
                     : stats.goalsFor - stats.goalsAgainst < 0 
                       ? 'text-orange-900'
-                      : 'text-gray-900'
+                      : 'text-foreground'
                 }`}>
                   {stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}{stats.goalsFor - stats.goalsAgainst}
                 </p>

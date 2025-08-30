@@ -133,13 +133,13 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             
             {/* Main Content */}
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900">{fixture.opponent}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold text-lg text-foreground">{fixture.opponent}</h3>
+              <p className="text-sm text-muted-foreground">
                 {format(new Date(fixture.date), 'EEEE, d MMM yyyy, h:mm a')}
               </p>
               {/* Competition display under date/time */}
               {fixture.competition && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {fixture.competition}
                 </p>
               )}

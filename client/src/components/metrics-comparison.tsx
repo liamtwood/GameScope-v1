@@ -301,7 +301,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
               
               {/* Opponent section */}
-              <div className="flex items-center space-x-4 text-black flex-1 justify-end">
+              <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
                 <div className="text-right">
                   <div className="text-2xl font-bold">{opponentName}</div>
                   <div className="text-muted-foreground text-sm">AWAY</div>
