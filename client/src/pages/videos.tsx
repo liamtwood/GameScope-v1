@@ -153,7 +153,7 @@ export default function Videos() {
                       </div>
                       
                       <CardContent className="p-4">
-                        <div className="grid grid-cols-3 gap-4 items-center">
+                        <div className="grid grid-cols-[80px_1fr_auto] gap-4 items-center">
                           {/* Column 1: Opponent Logo */}
                           <div className="flex justify-center">
                             {(() => {
@@ -162,7 +162,7 @@ export default function Videos() {
                                 <img 
                                   src={opponent.logoPath} 
                                   alt={`${fixture.opponent} logo`}
-                                  className="w-12 h-12 object-contain flex-shrink-0"
+                                  className="w-16 h-16 object-contain flex-shrink-0"
                                   onError={(e) => {
                                     // Fallback to initials if image fails to load
                                     const target = e.target as HTMLImageElement;
@@ -172,7 +172,7 @@ export default function Videos() {
                                 />
                               ) : null;
                             })()}
-                            <div className={`w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                            <div className={`w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0 ${
                               oppositionTeams?.find(team => team.name === fixture.opponent)?.logoPath ? 'hidden' : ''
                             }`}>
                               {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
