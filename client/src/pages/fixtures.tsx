@@ -237,11 +237,11 @@ export default function Fixtures() {
   const getVideoStats = () => {
     if (!fixtures || fixtures.length === 0) return { withVideo: 0, withoutVideo: 0, totalVideos: 0, coverage: 0 };
     
-    // Include all past matches (completed, no contest, or past date) that need videos
+    // Include all past matches (ignore status, only check date) that need videos
     const now = new Date();
     const pastFixtures = fixtures.filter(f => {
       const matchDate = new Date(f.date);
-      return f.status === 'COMPLETED' || f.status === 'NO_CONTEST' || matchDate < now;
+      return matchDate < now;
     });
     
     const withVideo = pastFixtures.filter(f => f.hasVideo).length;
