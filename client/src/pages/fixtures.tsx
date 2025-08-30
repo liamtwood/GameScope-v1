@@ -237,15 +237,21 @@ export default function Fixtures() {
   const getVideoStats = () => {
     if (!fixtures || fixtures.length === 0) return { withVideo: 0, withoutVideo: 0, totalVideos: 0, coverage: 0 };
     
-    const completedFixtures = fixtures.filter(f => f.status === 'COMPLETED');
-    const withVideo = completedFixtures.filter(f => f.hasVideo).length;
-    const withoutVideo = completedFixtures.filter(f => !f.hasVideo).length;
+    // Include all past matches (completed, no contest, or past date) that need videos
+    const now = new Date();
+    const pastFixtures = fixtures.filter(f => {
+      const matchDate = new Date(f.date);
+      return f.status === 'COMPLETED' || f.status === 'NO_CONTEST' || matchDate < now;
+    });
+    
+    const withVideo = pastFixtures.filter(f => f.hasVideo).length;
+    const withoutVideo = pastFixtures.filter(f => !f.hasVideo).length;
     
     const totalVideos = fixtures.reduce((sum, f) => {
       return sum + (f.videoLinks ? f.videoLinks.length : 0);
     }, 0);
     
-    const coverage = completedFixtures.length > 0 ? (withVideo / completedFixtures.length) * 100 : 0;
+    const coverage = pastFixtures.length > 0 ? (withVideo / pastFixtures.length) * 100 : 0;
     
     return { withVideo, withoutVideo, totalVideos, coverage };
   };
@@ -259,9 +265,11 @@ export default function Fixtures() {
       const matchDate = new Date(f.date);
       const isPastMatch = matchDate < now;
       const isCompleted = f.status === 'COMPLETED';
+      const isNoContest = f.status === 'NO_CONTEST';
       const hasNoVideo = !f.hasVideo;
       
-      return (isCompleted || isPastMatch) && hasNoVideo;
+      // Include completed matches, no contest matches, and any past matches without video
+      return (isCompleted || isNoContest || isPastMatch) && hasNoVideo;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
   };
 
@@ -494,13 +502,13 @@ export default function Fixtures() {
                   </CardContent>
                 </Card>
 
-                {/* Total Videos */}
+                {/* Video Processing */}
                 <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200">
                   <CardContent className="p-6 text-center">
                     <Target className="h-8 w-8 mx-auto mb-2 text-violet-600" />
-                    <p className="text-sm text-violet-700 mb-1">TOTAL VIDEOS</p>
+                    <p className="text-sm text-violet-700 mb-1">VIDEO PROCESSING</p>
                     <p className="text-3xl font-bold text-violet-900">{videoStats.totalVideos}</p>
-                    <p className="text-xs text-violet-600 mt-1">video clips uploaded</p>
+                    <p className="text-xs text-violet-600 mt-1">feature coming soon</p>
                   </CardContent>
                 </Card>
               </div>
