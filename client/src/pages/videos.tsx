@@ -22,7 +22,20 @@ export default function Videos() {
     enabled: !!currentTeam?.id 
   });
 
-  const videoFixtures = fixtures?.filter(f => f.hasVideo || f.status === 'SCHEDULED') || [];
+  // Only show matches that have occurred or will happen in the next 7 days
+  const videoFixtures = fixtures?.filter(f => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+    const matchDate = new Date(f.date);
+    
+    const isPastMatch = matchDate < now;
+    const isWithinNext7Days = matchDate >= now && matchDate <= sevenDaysFromNow;
+    const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
+    
+    // Include matches that have occurred OR will happen in next 7 days
+    return (isPastMatch || isWithinNext7Days) && hasVideoOrRelevant;
+  }) || [];
 
   const handleWatchVideo = (fixture: Fixture) => {
     toast({
