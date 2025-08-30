@@ -256,19 +256,18 @@ export default function Fixtures() {
     return { withVideo, withoutVideo, totalVideos, coverage };
   };
 
-  // Get matches that need video uploads (only past matches using today's date - 1)
+  // Get matches that need video uploads (only past matches using today's date)
   const getMatchesNeedingVideos = () => {
     if (!fixtures) return [];
     
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    const now = new Date();
     
     return fixtures.filter(f => {
       const matchDate = new Date(f.date);
-      const isPastMatch = matchDate < yesterday;
+      const isPastMatch = matchDate < now;
       const hasNoVideo = !f.hasVideo;
       
-      // Include only past matches (before yesterday) that need videos, ignore status
+      // Include only past matches (before now) that need videos, ignore status
       return isPastMatch && hasNoVideo;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
   };
@@ -513,13 +512,13 @@ export default function Fixtures() {
                 </Card>
               </div>
 
-              {/* Matches Needing Videos */}
-              {matchesNeedingVideos.length > 0 && (
-                <div>
-                  <h4 className="text-md font-semibold mb-3 text-foreground flex items-center">
-                    <TrendingDown className="h-5 w-5 mr-2 text-orange-600" />
-                    Matches Needing Video Upload ({matchesNeedingVideos.length})
-                  </h4>
+              {/* Matches Needing Videos - Always Display */}
+              <div>
+                <h4 className="text-md font-semibold mb-3 text-foreground flex items-center">
+                  <TrendingDown className="h-5 w-5 mr-2 text-orange-600" />
+                  Matches Needing Video Upload ({matchesNeedingVideos.length})
+                </h4>
+                {matchesNeedingVideos.length > 0 ? (
                   <div className="space-y-3">
                     {matchesNeedingVideos.map((fixture) => (
                       <Card key={fixture.id} className="border-orange-200 bg-orange-50/50 hover:bg-orange-50 transition-colors">
@@ -566,14 +565,14 @@ export default function Fixtures() {
                       </Card>
                     ))}
                   </div>
-                  {matchesNeedingVideos.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Video className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <p>Great! All completed matches have videos uploaded.</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Video className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-lg font-medium">Up to date</p>
+                    <p className="text-sm mt-1">All completed matches have videos uploaded.</p>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })()}
