@@ -77,7 +77,7 @@ export default function Analysis() {
       <MainLayout title="GameScope Analysis" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">No analysis data available for this match.</p>
-          <Link href="/dashboard">
+          <Link href="/">
             <Button>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
@@ -123,7 +123,7 @@ export default function Analysis() {
       <MainLayout title="GameScope Analysis" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">No full game statistics available for this match.</p>
-          <Link href="/dashboard">
+          <Link href="/">
             <Button>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
@@ -142,7 +142,7 @@ export default function Analysis() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <Link href="/dashboard">
+          <Link href="/">
             <Button variant="outline" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
