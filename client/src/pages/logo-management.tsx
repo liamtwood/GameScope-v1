@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3 } from "lucide-react";
 import { OppositionTeam } from "@shared/schema";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { useToast } from "@/hooks/use-toast";
@@ -139,6 +139,24 @@ export default function LogoManagement() {
 
   const selectedTeamData = oppositionTeams?.find(team => team.id === selectedTeam);
 
+  const handleEditExistingLogo = (team: OppositionTeam) => {
+    setSelectedTeam(team.id);
+    if (team.logoPath) {
+      // Load the existing logo for editing
+      setOriginalImageUrl(team.logoPath);
+      setProcessedImageUrl(null);
+      setSelectedFile(null);
+      setShowTip(true);
+    }
+    // Scroll to the upload section
+    setTimeout(() => {
+      document.getElementById('upload-section')?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
+  };
+
   return (
     <MainLayout 
       title="Logo Management" 
@@ -146,13 +164,63 @@ export default function LogoManagement() {
     >
       <div className="space-y-8">
         
-        {/* Upload Section */}
+        {/* Current Team Logos Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Upload Team Logo
+              <Edit3 className="h-5 w-5" />
+              Current Team Logos
             </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {oppositionTeams?.map((team) => (
+                <div
+                  key={team.id}
+                  className="group relative border rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
+                  onClick={() => handleEditExistingLogo(team)}
+                >
+                  <div className="aspect-square bg-gray-100 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                    {team.logoPath ? (
+                      <img 
+                        src={team.logoPath} 
+                        alt={`${team.name} logo`}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-center">
+                        <Upload className="h-8 w-8 mx-auto mb-1" />
+                        <p className="text-xs">No Logo</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium truncate">{team.name}</p>
+                    <Badge variant={team.logoPath ? "default" : "secondary"} className="text-xs mt-1">
+                      {team.logoPath ? "Has Logo" : "No Logo"}
+                    </Badge>
+                  </div>
+                  <div className="absolute inset-0 bg-blue-600 bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-all duration-200 flex items-center justify-center">
+                    <Edit3 className="h-6 w-6 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upload Section */}
+        <Card id="upload-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              {selectedTeamData ? `Edit Logo: ${selectedTeamData.name}` : 'Upload Team Logo'}
+            </CardTitle>
+            {selectedTeamData && (
+              <p className="text-sm text-gray-600">
+                {selectedTeamData.logoPath ? 'Replace existing logo or upload a new image to reprocess' : 'Upload a new logo for this team'}
+              </p>
+            )}
           </CardHeader>
           <CardContent className="space-y-6">
             
