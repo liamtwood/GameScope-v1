@@ -94,110 +94,159 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
 }
 
 export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats }: MetricsComparisonProps) {
-  const metrics = [
+  const metricCategories = [
     {
-      label: "Ball Possession",
-      teamValue: teamStats.possession || 0,
-      opponentValue: opponentStats?.possession || (100 - (teamStats.possession || 0)),
-      maxValue: 100,
-      unit: "",
-      isPercentage: true
+      category: "Key",
+      metrics: [
+        {
+          label: "Total Team Distance",
+          teamValue: teamStats?.totalTeamDistance || 0,
+          opponentValue: opponentStats?.totalTeamDistance || 0,
+          unit: "m",
+        },
+        {
+          label: "Ball Possession",
+          teamValue: teamStats?.possession || 0,
+          opponentValue: opponentStats?.possession || 0,
+          unit: "%",
+          isPercentage: true,
+        },
+      ]
     },
     {
-      label: "Goals Scored",
-      teamValue: teamStats.goals || 0,
-      opponentValue: opponentStats?.goals || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
+      category: "Attack",
+      metrics: [
+        {
+          label: "Goals",
+          teamValue: teamStats?.goals || 0,
+          opponentValue: opponentStats?.goals || 0,
+        },
+        {
+          label: "Shots Attempted", 
+          teamValue: teamStats?.shotsAttempted || 0,
+          opponentValue: opponentStats?.shotsAttempted || 0,
+        },
+        {
+          label: "Shots on Target",
+          teamValue: teamStats?.shotsOnTarget || 0,
+          opponentValue: opponentStats?.shotsOnTarget || 0,
+        },
+        {
+          label: "Runs into Boxes",
+          teamValue: teamStats?.runsIntoBoxes || 0,
+          opponentValue: opponentStats?.runsIntoBoxes || 0,
+        },
+        {
+          label: "Corner Kicks",
+          teamValue: teamStats?.corners || 0,
+          opponentValue: opponentStats?.corners || 0,
+        },
+        {
+          label: "Dangerous Crosses",
+          teamValue: teamStats?.dangerousCrosses || 0,
+          opponentValue: opponentStats?.dangerousCrosses || 0,
+        },
+      ]
     },
     {
-      label: "Shots Attempted",
-      teamValue: teamStats.shotsAttempted || 0,
-      opponentValue: opponentStats?.shotsAttempted || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
+      category: "Possession",
+      metrics: [
+        {
+          label: "Dribbles",
+          teamValue: teamStats?.dribbles || 0,
+          opponentValue: opponentStats?.dribbles || 0,
+        },
+        {
+          label: "Penetrating Dribbles",
+          teamValue: teamStats?.penetratingDribbles || 0,
+          opponentValue: opponentStats?.penetratingDribbles || 0,
+        },
+        {
+          label: "Take Ons",
+          teamValue: teamStats?.takeOns || 0,
+          opponentValue: opponentStats?.takeOns || 0,
+        },
+        {
+          label: "First Touch Success",
+          teamValue: teamStats?.firstTouchSuccess || 0,
+          opponentValue: opponentStats?.firstTouchSuccess || 0,
+        },
+        {
+          label: "First Touch Success Rate",
+          teamValue: teamStats?.firstTouchSuccessRate || 0,
+          opponentValue: opponentStats?.firstTouchSuccessRate || 0,
+          unit: "%",
+          isPercentage: true,
+        },
+      ]
     },
     {
-      label: "Shots on Target",
-      teamValue: teamStats.shotsOnTarget || 0,
-      opponentValue: opponentStats?.shotsOnTarget || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
+      category: "Defense",
+      metrics: [
+        {
+          label: "Tackles",
+          teamValue: teamStats?.tackles || 0,
+          opponentValue: opponentStats?.tackles || 0,
+        },
+        {
+          label: "Free Kicks",
+          teamValue: teamStats?.freeKicks || 0,
+          opponentValue: opponentStats?.freeKicks || 0,
+        },
+        {
+          label: "Offsides",
+          teamValue: teamStats?.offsides || 0,
+          opponentValue: opponentStats?.offsides || 0,
+        },
+      ]
     },
     {
-      label: "Pass Accuracy",
-      teamValue: teamStats.passingSuccessRate || 0,
-      opponentValue: opponentStats?.passingSuccessRate || 0,
-      maxValue: 100,
-      unit: "",
-      isPercentage: true
+      category: "Passing",
+      metrics: [
+        {
+          label: "Passes Attempted",
+          teamValue: teamStats?.passesAttempted || 0,
+          opponentValue: opponentStats?.passesAttempted || 0,
+        },
+        {
+          label: "Passes Success",
+          teamValue: teamStats?.passesSuccess || 0,
+          opponentValue: opponentStats?.passesSuccess || 0,
+        },
+        {
+          label: "Passing Success Rate",
+          teamValue: teamStats?.passingSuccessRate || 0,
+          opponentValue: opponentStats?.passingSuccessRate || 0,
+          unit: "%",
+          isPercentage: true,
+        },
+        {
+          label: "Passing Total Distance",
+          teamValue: teamStats?.passingTotalDistance || 0,
+          opponentValue: opponentStats?.passingTotalDistance || 0,
+          unit: "m",
+        },
+        {
+          label: "Passing Average Distance",
+          teamValue: teamStats?.passingAverageDistance || 0,
+          opponentValue: opponentStats?.passingAverageDistance || 0,
+          unit: "m",
+        },
+        {
+          label: "Passing Average Velocity",
+          teamValue: teamStats?.passingAverageVelocity || 0,
+          opponentValue: opponentStats?.passingAverageVelocity || 0,
+          unit: "km/h",
+        },
+      ]
     },
-    {
-      label: "Corners",
-      teamValue: teamStats.corners || 0,
-      opponentValue: opponentStats?.corners || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Free Kicks",
-      teamValue: teamStats.freeKicks || 0,
-      opponentValue: opponentStats?.freeKicks || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Tackles",
-      teamValue: teamStats.tackles || 0,
-      opponentValue: opponentStats?.tackles || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Offsides",
-      teamValue: teamStats.offsides || 0,
-      opponentValue: opponentStats?.offsides || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Dangerous Crosses",
-      teamValue: teamStats.dangerousCrosses || 0,
-      opponentValue: opponentStats?.dangerousCrosses || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Take Ons",
-      teamValue: teamStats.takeOns || 0,
-      opponentValue: opponentStats?.takeOns || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    },
-    {
-      label: "Runs Into Boxes",
-      teamValue: teamStats.runsIntoBoxes || 0,
-      opponentValue: opponentStats?.runsIntoBoxes || 0,
-      maxValue: undefined,
-      unit: "",
-      isPercentage: false
-    }
   ];
 
   return (
     <Card className="p-6">
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
-          <h4 className="font-semibold text-center mb-2">Match Statistics Comparison</h4>
+          <h4 className="font-semibold text-center mb-2 text-lg">Match Statistics Comparison</h4>
           <div className="flex justify-between items-center text-sm text-muted-foreground mb-6">
             <span className="font-medium text-red-600">{teamName}</span>
             <span>vs</span>
@@ -205,19 +254,23 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {metrics.map((metric, index) => (
-            <MetricBar
-              key={index}
-              label={metric.label}
-              teamValue={metric.teamValue}
-              opponentValue={metric.opponentValue}
-              maxValue={metric.maxValue}
-              unit={metric.unit}
-              isPercentage={metric.isPercentage}
-            />
-          ))}
-        </div>
+        {metricCategories.map((category, categoryIndex) => (
+          <div key={categoryIndex} className="space-y-4">
+            <h5 className="text-md font-semibold text-gray-700 border-b pb-2 mb-4">{category.category}</h5>
+            <div className="space-y-4">
+              {category.metrics.map((metric, metricIndex) => (
+                <MetricBar
+                  key={`${categoryIndex}-${metricIndex}`}
+                  label={metric.label}
+                  teamValue={metric.teamValue}
+                  opponentValue={metric.opponentValue}
+                  unit={metric.unit}
+                  isPercentage={metric.isPercentage}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </Card>
   );
