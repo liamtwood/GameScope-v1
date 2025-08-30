@@ -33,10 +33,11 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 <img 
                   src="/assets/logos/polk-state-logo.jpg" 
                   alt="Polk State College Logo" 
-                  className="h-14 w-14 object-contain rounded-full dark:invert"
+                  className="h-14 w-14 object-contain dark:invert"
                   style={{ 
                     background: 'transparent',
-                    clipPath: 'circle(50%)'
+                    clipPath: 'circle(45%)',
+                    filter: 'contrast(1.2) saturate(1.1)'
                   }}
                 />
               </div>
