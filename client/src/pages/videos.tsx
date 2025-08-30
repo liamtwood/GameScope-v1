@@ -99,90 +99,120 @@ export default function Videos() {
         ))}
       </div>
 
-      {/* Video Gallery */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {/* Video Gallery - Grouped by Competition */}
+      <div className="mb-8">
         {isLoading ? (
-          <div className="col-span-full text-center py-8">
+          <div className="text-center py-8">
             <p className="text-muted-foreground">Loading videos...</p>
           </div>
         ) : videoFixtures.length > 0 ? (
-          videoFixtures.map((fixture) => (
-            <Card key={fixture.id} className="overflow-hidden" data-testid={`card-video-${fixture.id}`}>
-              {/* Video Thumbnail */}
-              <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                {fixture.hasVideo ? (
-                  <div className="text-center">
-                    <VideoIcon className="w-12 h-12 text-green-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-green-800">Video Available</p>
+          (() => {
+            // Group fixtures by competition
+            const groupedFixtures = videoFixtures.reduce((groups, fixture) => {
+              const competition = fixture.competition || 'Other';
+              if (!groups[competition]) {
+                groups[competition] = [];
+              }
+              groups[competition].push(fixture);
+              return groups;
+            }, {} as Record<string, typeof videoFixtures>);
+
+            // Sort each group by date (most recent first)
+            Object.keys(groupedFixtures).forEach(competition => {
+              groupedFixtures[competition].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            });
+
+            return Object.entries(groupedFixtures).map(([competition, fixtures]) => (
+              <div key={competition} className="mb-8">
+                <div className="flex items-center mb-4">
+                  <h3 className="text-lg font-semibold text-foreground">{competition}</h3>
+                  <div className="ml-3 px-2 py-1 bg-muted rounded-full">
+                    <span className="text-xs text-muted-foreground">{fixtures.length} matches</span>
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Video will be available after match</p>
-                  </div>
-                )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {fixtures.map((fixture) => (
+                    <Card key={fixture.id} className="overflow-hidden" data-testid={`card-video-${fixture.id}`}>
+                      {/* Video Thumbnail */}
+                      <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                        {fixture.hasVideo ? (
+                          <div className="text-center">
+                            <VideoIcon className="w-12 h-12 text-green-600 mx-auto mb-2" />
+                            <p className="text-sm font-medium text-green-800">Video Available</p>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">Video will be available after match</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          {getMatchBadge(fixture)}
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(fixture.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        
+                        <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Full Match • {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {fixture.hasVideo ? (
+                              <>
+                                <Clock className="w-3 h-3" />
+                                <span>90 min</span>
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {fixture.status === 'SCHEDULED' 
+                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                                    : 'Pending'
+                                  }
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              size="sm" 
+                              disabled={!fixture.hasVideo}
+                              onClick={() => handleWatchVideo(fixture)}
+                              data-testid={`button-watch-${fixture.id}`}
+                            >
+                              <Play className="w-3 h-3 mr-1" />
+                              {fixture.hasVideo ? 'Watch' : 'Pending'}
+                            </Button>
+                            {fixture.hasVideo && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleShareVideo(fixture)}
+                                data-testid={`button-share-${fixture.id}`}
+                              >
+                                <Share className="w-3 h-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-              
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  {getMatchBadge(fixture)}
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(fixture.date).toLocaleDateString()}
-                  </span>
-                </div>
-                
-                <h3 className="font-semibold text-foreground mb-1">vs {fixture.opponent}</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Full Match • {fixture.type === 'HOME' ? 'Home' : 'Away'}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    {fixture.hasVideo ? (
-                      <>
-                        <Clock className="w-3 h-3" />
-                        <span>90 min</span>
-                      </>
-                    ) : (
-                      <>
-                        <Calendar className="w-3 h-3" />
-                        <span>
-                          {fixture.status === 'SCHEDULED' 
-                            ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                            : 'Pending'
-                          }
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Button 
-                      size="sm" 
-                      disabled={!fixture.hasVideo}
-                      onClick={() => handleWatchVideo(fixture)}
-                      data-testid={`button-watch-${fixture.id}`}
-                    >
-                      <Play className="w-3 h-3 mr-1" />
-                      {fixture.hasVideo ? 'Watch' : 'Pending'}
-                    </Button>
-                    {fixture.hasVideo && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleShareVideo(fixture)}
-                        data-testid={`button-share-${fixture.id}`}
-                      >
-                        <Share className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+            ));
+          })()
         ) : (
-          <div className="col-span-full text-center py-8">
+          <div className="text-center py-8">
             <p className="text-muted-foreground">No videos available</p>
           </div>
         )}
