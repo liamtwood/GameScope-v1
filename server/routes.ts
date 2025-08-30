@@ -821,6 +821,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Logo upload endpoint
+  const logoUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.') as any, false);
+      }
+    }
+  });
+
+  app.post('/api/opposition-teams/logo', logoUpload.single('logo'), async (req, res) => {
+    try {
+      const teamId = req.body.teamId;
+      const file = req.file;
+
+      if (!teamId || !file) {
+        return res.status(400).json({ error: 'Team ID and logo file are required' });
+      }
+
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const ext = path.extname(file.originalname) || '.png';
+      const filename = `${teamId}-logo-${timestamp}${ext}`;
+      const filepath = path.join(uploadsDir, filename);
+
+      // Save the file
+      await fs.writeFile(filepath, file.buffer);
+
+      // Update the opposition team with the logo path
+      const logoPath = `/uploads/${filename}`;
+      await storage.updateOppositionTeam(teamId, { logoPath });
+
+      res.json({ 
+        success: true, 
+        logoPath,
+        message: 'Logo uploaded and saved successfully'
+      });
+
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      res.status(500).json({ error: 'Failed to upload logo' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

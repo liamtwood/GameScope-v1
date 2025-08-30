@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image } from "lucide-react";
 import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { BackgroundRemovalDemo } from "@/components/background-removal-demo";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 
 export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
@@ -87,25 +88,31 @@ export default function Videos() {
       title="Match Videos" 
       subtitle="Video analysis and match recordings"
     >
-      {/* Video Filter */}
-      <div className="mb-6 flex bg-muted rounded-lg p-1 w-fit">
-        {filterButtons.map((filter) => (
-          <Button
-            key={filter.id}
-            variant={activeFilter === filter.id ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setActiveFilter(filter.id)}
-            className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-            data-testid={`button-filter-${filter.id}`}
-          >
-            {filter.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Background Removal Demo */}
-      <div className="mb-8">
-        <BackgroundRemovalDemo />
+      {/* Video Filter and Logo Management */}
+      <div className="mb-6 flex justify-between items-center">
+        <div className="flex bg-muted rounded-lg p-1 w-fit">
+          {filterButtons.map((filter) => (
+            <Button
+              key={filter.id}
+              variant={activeFilter === filter.id ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveFilter(filter.id)}
+              className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
+              data-testid={`button-filter-${filter.id}`}
+            >
+              {filter.label}
+            </Button>
+          ))}
+        </div>
+        
+        <Button
+          onClick={() => setLocation('/logo-management')}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Image className="h-4 w-4" />
+          Logo Management
+        </Button>
       </div>
 
       {/* Video Analytics Summary */}

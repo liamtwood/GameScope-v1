@@ -12,6 +12,7 @@ import Analysis from "@/pages/analysis";
 import Squad from "@/pages/squad";
 import Statistics from "@/pages/statistics";
 import Videos from "@/pages/videos";
+import LogoManagement from "@/pages/logo-management";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/squad" component={Squad} />
       <Route path="/statistics" component={Statistics} />
       <Route path="/videos" component={Videos} />
+      <Route path="/logo-management" component={LogoManagement} />
       <Route component={NotFound} />
     </Switch>
   );
