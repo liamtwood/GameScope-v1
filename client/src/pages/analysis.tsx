@@ -198,7 +198,7 @@ export default function Analysis() {
             />
 
             {/* AI-Powered Insights */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
+            <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800/20 p-6 rounded-lg border">
               <h4 className="font-semibold text-foreground mb-4 flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
                 AI-Powered Match Insights

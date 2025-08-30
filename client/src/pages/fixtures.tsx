@@ -417,12 +417,12 @@ export default function Fixtures() {
           return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Upcoming Fixtures */}
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+              <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
                 <CardContent className="p-6 text-center">
-                  <Calendar className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm text-purple-700 mb-1">UPCOMING</p>
-                  <p className="text-3xl font-bold text-purple-900">{planningStats.upcoming}</p>
-                  <p className="text-xs text-purple-600 mt-1">fixtures scheduled</p>
+                  <Calendar className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">UPCOMING</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{planningStats.upcoming}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">fixtures scheduled</p>
                 </CardContent>
               </Card>
 
@@ -469,12 +469,12 @@ export default function Fixtures() {
               {/* Video Statistics Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Video Coverage */}
-                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 dark:border-indigo-700/50">
+                <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
                   <CardContent className="p-6 text-center">
-                    <Video className="h-8 w-8 mx-auto mb-2 text-indigo-600" />
-                    <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-1">COVERAGE</p>
-                    <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-100">{videoStats.coverage.toFixed(0)}%</p>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">matches with video</p>
+                    <Video className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
+                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">COVERAGE</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{videoStats.coverage.toFixed(0)}%</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">matches with video</p>
                   </CardContent>
                 </Card>
 
@@ -502,12 +502,12 @@ export default function Fixtures() {
                 </Card>
 
                 {/* Video Processing */}
-                <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200 dark:from-violet-900/30 dark:to-violet-800/30 dark:border-violet-700/50">
+                <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
                   <CardContent className="p-6 text-center">
-                    <Target className="h-8 w-8 mx-auto mb-2 text-violet-600" />
-                    <p className="text-sm text-violet-700 dark:text-violet-300 mb-1">VIDEO PROCESSING</p>
-                    <p className="text-3xl font-bold text-violet-900 dark:text-violet-100">{videoStats.totalVideos}</p>
-                    <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">feature coming soon</p>
+                    <Target className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
+                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">VIDEO PROCESSING</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{videoStats.totalVideos}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">feature coming soon</p>
                   </CardContent>
                 </Card>
               </div>

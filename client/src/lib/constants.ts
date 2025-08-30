@@ -10,10 +10,10 @@ export const POSITION_COLORS = {
   CAM: "bg-green-100 text-green-800",
   LM: "bg-green-100 text-green-800",
   RM: "bg-green-100 text-green-800",
-  LW: "bg-purple-100 text-purple-800",
-  RW: "bg-purple-100 text-purple-800",
-  ST: "bg-purple-100 text-purple-800",
-  CF: "bg-purple-100 text-purple-800",
+  LW: "bg-slate-100 text-slate-700",
+  RW: "bg-slate-100 text-slate-700",
+  ST: "bg-slate-100 text-slate-700",
+  CF: "bg-slate-100 text-slate-700",
 };
 
 export const STATUS_COLORS = {
