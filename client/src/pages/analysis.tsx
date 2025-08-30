@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SpiderChart } from "@/components/spider-chart";
+import { PossessionChart } from "@/components/possession-chart";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
@@ -171,6 +172,16 @@ export default function Analysis() {
                 <div className="text-sm text-muted-foreground">Pass Accuracy</div>
               </div>
             </div>
+
+            {/* Possession Chart */}
+            <Card className="p-6">
+              <PossessionChart
+                teamName="POLK"
+                opponentName={fixture.opponent}
+                teamPossession={fullGameStats.possession || 0}
+                opponentPossession={opponentFullGameStats?.possession || (100 - (fullGameStats.possession || 0))}
+              />
+            </Card>
 
             {/* AI-Powered Insights */}
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
