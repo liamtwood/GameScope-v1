@@ -74,9 +74,9 @@ export class BackgroundRemover {
   private processSmartMode(data: Uint8ClampedArray, width: number, height: number): void {
     // Enhanced algorithm that handles isolated elements like TM symbols
     const bgColor = this.detectBackgroundColor(data, width, height);
-    const tolerance = 35;
+    const tolerance = 40; // Increased tolerance for more aggressive background removal
     
-    // First pass: Mark all pixels similar to background color
+    // First pass: Mark all pixels similar to background color (including most whites/lights)
     const isBackground = new Array(width * height).fill(false);
     
     for (let i = 0; i < data.length; i += 4) {
@@ -84,14 +84,18 @@ export class BackgroundRemover {
       const g = data[i + 1];
       const b = data[i + 2];
       
-      if (Math.abs(r - bgColor.r) < tolerance && 
-          Math.abs(g - bgColor.g) < tolerance && 
-          Math.abs(b - bgColor.b) < tolerance) {
+      // More aggressive background detection for whites and light colors
+      const isWhiteish = r > 200 && g > 200 && b > 200;
+      const matchesBgColor = Math.abs(r - bgColor.r) < tolerance && 
+                            Math.abs(g - bgColor.g) < tolerance && 
+                            Math.abs(b - bgColor.b) < tolerance;
+      
+      if (matchesBgColor || isWhiteish) {
         isBackground[i / 4] = true;
       }
     }
     
-    // Second pass: Find content islands and preserve internal white
+    // Second pass: Find content islands and preserve internal content only
     const visited = new Array(width * height).fill(false);
     const contentPixels = new Set<number>();
     
@@ -102,42 +106,41 @@ export class BackgroundRemover {
         if (!isBackground[idx] && !visited[idx]) {
           // Found content - flood fill to find connected component
           const component = this.floodFillComponent(x, y, width, height, isBackground, visited);
-          component.forEach(pixel => contentPixels.add(pixel));
+          // Only keep components that are substantial (not just noise/artifacts)
+          if (component.size > 5) {
+            component.forEach(pixel => contentPixels.add(pixel));
+          }
         }
       }
     }
     
-    // Apply transparency
+    // Apply transparency to everything except solid content
     for (let i = 0; i < data.length; i += 4) {
       const pixelIdx = i / 4;
-      if (!contentPixels.has(pixelIdx) && isBackground[pixelIdx]) {
+      if (!contentPixels.has(pixelIdx)) {
         data[i + 3] = 0; // Make transparent
       }
     }
   }
 
   private processColorMode(data: Uint8ClampedArray, width: number, height: number): void {
-    // Simple color-based removal - good for uniform backgrounds
+    // Aggressive color-based removal - removes all light/white backgrounds
     const bgColor = this.detectBackgroundColor(data, width, height);
-    const tolerance = 25;
+    const tolerance = 35; // Increased for more aggressive removal
     
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
       
-      // Check if pixel matches background color
-      if (Math.abs(r - bgColor.r) < tolerance && 
-          Math.abs(g - bgColor.g) < tolerance && 
-          Math.abs(b - bgColor.b) < tolerance) {
-        // Additional check: is this pixel surrounded by similar colors?
-        const pixelIdx = i / 4;
-        const x = pixelIdx % width;
-        const y = Math.floor(pixelIdx / width);
-        
-        if (this.isSurroundedByBackground(data, width, height, x, y, bgColor, tolerance)) {
-          data[i + 3] = 0; // Make transparent
-        }
+      // More aggressive white/light color removal
+      const isVeryLight = r > 220 && g > 220 && b > 220;
+      const matchesBgColor = Math.abs(r - bgColor.r) < tolerance && 
+                            Math.abs(g - bgColor.g) < tolerance && 
+                            Math.abs(b - bgColor.b) < tolerance;
+      
+      if (isVeryLight || matchesBgColor) {
+        data[i + 3] = 0; // Make transparent
       }
     }
   }
