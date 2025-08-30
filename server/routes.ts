@@ -573,7 +573,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Excel preview endpoint - shows what will be parsed without saving
   app.post("/api/preview-match-stats", excelUpload.single('excel'), async (req, res) => {
     try {
+      console.log('Preview request received, file:', req.file ? req.file.originalname : 'none');
+      
       if (!req.file) {
+        console.log('No file in request');
         return res.status(400).json({ message: "No Excel file uploaded" });
       }
 

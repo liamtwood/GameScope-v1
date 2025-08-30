@@ -70,10 +70,13 @@ export function ExcelUpload({ fixtureId, onUploadComplete }: ExcelUploadProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Preview failed');
+        const errorText = await response.text();
+        console.error('Preview failed with status:', response.status, errorText);
+        throw new Error(`Preview failed: ${response.status} ${errorText}`);
       }
 
       const result = await response.json();
+      console.log('Preview result:', result);
       setPreviewData(result);
       
       toast({
