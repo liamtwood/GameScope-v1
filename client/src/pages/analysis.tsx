@@ -30,9 +30,6 @@ export default function Analysis() {
     queryKey: ["/api/opposition-teams"],
   });
 
-  const { data: teams } = useQuery({
-    queryKey: ["/api/teams"],
-  });
 
   // Spider Chart Data Transformation Functions (matching fixture details)
   const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
@@ -95,11 +92,11 @@ export default function Analysis() {
   const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true);
   const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null));
 
-  // Get team and opponent logos
-  const team = teams?.[0]; // POLK team
-  const opponentTeam = oppositionTeams?.find(team => team.name === fixture?.opponent);
+  // Get team and opponent logos from opponents table
+  const polkTeam = oppositionTeams?.find((team: any) => team.shortName === "POLK");
+  const opponentTeam = oppositionTeams?.find((team: any) => team.name === fixture?.opponent);
   
-  const teamLogoPath = team?.logoPath;
+  const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
 
   const getResultDisplay = () => {
