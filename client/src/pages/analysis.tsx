@@ -85,7 +85,7 @@ export default function Analysis() {
 
   // Process match stats - get full game stats
   const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true);
-  const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === false);
+  const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null));
 
   const getResultDisplay = () => {
     if (fixture.homeScore !== null && fixture.awayScore !== null) {

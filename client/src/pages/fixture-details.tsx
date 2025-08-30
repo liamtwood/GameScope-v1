@@ -157,7 +157,7 @@ export default function FixtureDetails() {
   };
 
   const getOpponentStats = (period: string) => {
-    return matchStats?.find(stat => stat.period === period && stat.isTeamStats === false);
+    return matchStats?.find(stat => stat.period === period && (stat.isTeamStats === false || stat.isTeamStats === null));
   };
 
   const fullGameStats = getTeamStats('FULL_GAME');
