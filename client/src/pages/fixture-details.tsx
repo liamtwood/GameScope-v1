@@ -552,39 +552,53 @@ export default function FixtureDetails() {
                     </div>
                   </div>
 
-                  {/* Performance Spider Charts */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <Card className="p-4">
-                      <SpiderChart
-                        data={createAttackSpiderData(fullGameStats)}
-                        teamName="POLK"
-                        opponentName="OPP"
-                        title="Attack Performance"
-                        teamColor="#dc2626"
-                        opponentColor="#64748b"
-                      />
-                    </Card>
-                    <Card className="p-4">
-                      <SpiderChart
-                        data={createPossessionSpiderData(fullGameStats)}
-                        teamName="POLK"
-                        opponentName="OPP"
-                        title="Possession & Passing"
-                        teamColor="#dc2626"
-                        opponentColor="#64748b"
-                      />
-                    </Card>
-                    <Card className="p-4">
-                      <SpiderChart
-                        data={createDefensiveSpiderData(fullGameStats)}
-                        teamName="POLK"
-                        opponentName="OPP"
-                        title="Technical Performance"
-                        teamColor="#dc2626"
-                        opponentColor="#64748b"
-                      />
-                    </Card>
-                  </div>
+                  {/* Performance Analysis Tabs */}
+                  <Tabs defaultValue="attack" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="attack" data-testid="tab-attack">Attack</TabsTrigger>
+                      <TabsTrigger value="possession" data-testid="tab-possession">Possession</TabsTrigger>
+                      <TabsTrigger value="technical" data-testid="tab-technical">Technical</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="attack" className="mt-6">
+                      <Card className="p-6">
+                        <SpiderChart
+                          data={createAttackSpiderData(fullGameStats)}
+                          teamName="POLK"
+                          opponentName="OPP"
+                          title="Attack Performance"
+                          teamColor="#dc2626"
+                          opponentColor="#64748b"
+                        />
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="possession" className="mt-6">
+                      <Card className="p-6">
+                        <SpiderChart
+                          data={createPossessionSpiderData(fullGameStats)}
+                          teamName="POLK"
+                          opponentName="OPP"
+                          title="Possession & Passing"
+                          teamColor="#dc2626"
+                          opponentColor="#64748b"
+                        />
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="technical" className="mt-6">
+                      <Card className="p-6">
+                        <SpiderChart
+                          data={createDefensiveSpiderData(fullGameStats)}
+                          teamName="POLK"
+                          opponentName="OPP"
+                          title="Technical Performance"
+                          teamColor="#dc2626"
+                          opponentColor="#64748b"
+                        />
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
 
                   {/* Performance Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
