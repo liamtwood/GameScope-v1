@@ -421,18 +421,13 @@ export default function LogoManagement() {
         {/* Current Logos Overview */}
         <Card>
           <CardHeader>
-            <CardTitle>Team Logos Overview</CardTitle>
+            <CardTitle>Current Team Logos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {oppositionTeams?.map((team) => (
-                <ThemedLogoContainer
-                  key={`overview-${team.id}`}
-                  containerId={`team-overview-${team.id}`}
-                  className="border rounded-lg p-4 text-center"
-                  showThemeToggle={true}
-                >
-                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center bg-inherit">
+                <div key={team.id} className="border rounded-lg p-4 text-center">
+                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
                     {team.logoPath ? (
                       <img 
                         src={team.logoPath} 
@@ -440,14 +435,14 @@ export default function LogoManagement() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 dark:text-gray-500 text-xs">No Logo</span>
+                      <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">No Logo</span>
                       </div>
                     )}
                   </div>
                   <h3 className="font-semibold text-sm">{team.name}</h3>
                   {team.logoPath ? (
-                    <Badge className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <Badge className="mt-2 bg-green-100 text-green-800">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Has Logo
                     </Badge>
@@ -457,7 +452,7 @@ export default function LogoManagement() {
                       Needs Logo
                     </Badge>
                   )}
-                </ThemedLogoContainer>
+                </div>
               ))}
             </div>
           </CardContent>
