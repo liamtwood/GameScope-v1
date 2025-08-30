@@ -181,14 +181,18 @@ export default function Fixtures() {
         </FixtureCreateDialog>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* Total Fixtures Card */}
+      <div className="grid grid-cols-1 gap-4 mb-4">
         <Card>
           <CardContent className="p-4">
             <p className="text-2xl font-bold text-foreground">{stats.total}</p>
             <p className="text-sm text-muted-foreground">Total Fixtures</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="p-4">
             <p className="text-2xl font-bold text-foreground">{stats.competitions}</p>
