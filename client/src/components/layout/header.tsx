@@ -13,7 +13,7 @@ interface HeaderProps {
 export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderProps) {
   return (
     <header className="bg-white border-b border-border">
-      <div className="px-6 py-4">
+      <div className="px-6" style={{ paddingTop: '16.25px', paddingBottom: '16.25px' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {isMobile && (
