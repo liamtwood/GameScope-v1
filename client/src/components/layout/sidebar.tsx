@@ -31,7 +31,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     )}>
       {/* Header */}
       <div className={cn(
-        "h-20 px-6 border-b border-border flex items-center",
+        "px-6 py-4 border-b border-border flex items-center",
         collapsed ? "justify-center px-4" : "justify-between"
       )}>
         {!collapsed && (
