@@ -152,7 +152,11 @@ export default function Videos() {
                         <div className="flex items-center justify-between mb-2">
                           {getMatchBadge(fixture)}
                           <span className="text-xs text-muted-foreground">
-                            {new Date(fixture.date).toLocaleDateString()}
+                            {new Date(fixture.date).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
                           </span>
                         </div>
                         
