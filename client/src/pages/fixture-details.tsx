@@ -10,6 +10,7 @@ import { Fixture, OppositionTeam, Player, MatchStats } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
+import { ExcelUpload } from "@/components/excel-upload";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -464,10 +465,21 @@ export default function FixtureDetails() {
           </TabsContent>
 
           <TabsContent value="analysis" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
-                {fullGameStats ? (
+            <div className="space-y-6">
+              {/* Excel Upload Section */}
+              <ExcelUpload 
+                fixtureId={fixture.id}
+                onUploadComplete={() => {
+                  // Invalidate match stats query to refresh the data
+                  queryClient.invalidateQueries({ queryKey: ["/api/match-stats", fixtureId] });
+                }}
+              />
+              
+              {/* Analysis Content */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
+                  {fullGameStats ? (
                 <div className="space-y-6">
                   {/* Analysis Overview */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -638,8 +650,9 @@ export default function FixtureDetails() {
                     <p className="text-sm text-muted-foreground">Statistics will be displayed after the match is completed and data is uploaded.</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
