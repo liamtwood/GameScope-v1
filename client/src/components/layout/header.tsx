@@ -17,20 +17,13 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         <div className="grid grid-cols-2 gap-8 flex-1">
           {/* Left Column */}
           <div className="space-y-2">
-            {/* Row 1: GameScope */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 flex items-center justify-center">
-                <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold" style={{ color: '#486D8D' }}>GameScope</h1>
-                <p className="text-xs text-muted-foreground">AI Video Analysis</p>
-              </div>
-            </div>
+            {/* Row 1: Empty space to align with Polk State */}
+            <div className="h-16"></div>
             
             {/* Row 2: Women's Soccer */}
-            <div className="pl-13">
+            <div>
               <h3 className="font-semibold text-sm text-foreground">WOMEN'S SOCCER</h3>
+              <p className="text-xs text-muted-foreground">{CLUB_NAME}</p>
             </div>
           </div>
 
@@ -51,7 +44,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             </div>
             
             {/* Row 2: Dashboard */}
-            <div className="pl-19">
+            <div className="pl-16">
               <h2 className="text-xl font-bold text-foreground">{title}</h2>
               <p className="text-sm text-muted-foreground">{subtitle}</p>
             </div>
