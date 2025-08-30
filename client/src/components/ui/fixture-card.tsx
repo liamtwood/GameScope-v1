@@ -106,7 +106,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
     
     return (
-      <div className="h-16 w-16 bg-gray-100 rounded flex items-center justify-center text-sm font-medium text-gray-600">
+      <div className="h-16 w-16 bg-muted rounded flex items-center justify-center text-sm font-medium text-muted-foreground">
         {initials}
       </div>
     );
@@ -161,7 +161,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             
             {/* Video Indicator */}
             {fixture.hasVideo && (
-              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full" title="Videos available">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full" title="Videos available">
                 <Video className="h-4 w-4 text-blue-600" />
               </div>
             )}

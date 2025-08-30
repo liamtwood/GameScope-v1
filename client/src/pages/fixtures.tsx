@@ -469,32 +469,32 @@ export default function Fixtures() {
               {/* Video Statistics Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Video Coverage */}
-                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200">
+                <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 dark:border-indigo-700/50">
                   <CardContent className="p-6 text-center">
                     <Video className="h-8 w-8 mx-auto mb-2 text-indigo-600" />
-                    <p className="text-sm text-indigo-700 mb-1">COVERAGE</p>
-                    <p className="text-3xl font-bold text-indigo-900">{videoStats.coverage.toFixed(0)}%</p>
-                    <p className="text-xs text-indigo-600 mt-1">matches with video</p>
+                    <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-1">COVERAGE</p>
+                    <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-100">{videoStats.coverage.toFixed(0)}%</p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">matches with video</p>
                   </CardContent>
                 </Card>
 
                 {/* Matches with Video */}
-                <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200">
+                <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 dark:from-teal-900/30 dark:to-teal-800/30 dark:border-teal-700/50">
                   <CardContent className="p-6 text-center">
                     <TrendingUp className="h-8 w-8 mx-auto mb-2 text-teal-600" />
-                    <p className="text-sm text-teal-700 mb-1">WITH VIDEO</p>
-                    <p className="text-3xl font-bold text-teal-900">{videoStats.withVideo}</p>
-                    <p className="text-xs text-teal-600 mt-1">completed matches</p>
+                    <p className="text-sm text-teal-700 dark:text-teal-300 mb-1">WITH VIDEO</p>
+                    <p className="text-3xl font-bold text-teal-900 dark:text-teal-100">{videoStats.withVideo}</p>
+                    <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">completed matches</p>
                   </CardContent>
                 </Card>
 
                 {/* Missing Videos - Actionable */}
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:from-orange-100 hover:to-orange-200 transition-colors">
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 dark:from-orange-900/30 dark:to-orange-800/30 dark:border-orange-700/50 cursor-pointer hover:from-orange-100 hover:to-orange-200 dark:hover:from-orange-800/40 dark:hover:to-orange-700/40 transition-colors">
                   <CardContent className="p-6 text-center">
                     <TrendingDown className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                    <p className="text-sm text-orange-700 mb-1">MISSING VIDEO</p>
-                    <p className="text-3xl font-bold text-orange-900">{videoStats.withoutVideo}</p>
-                    <p className="text-xs text-orange-600 mt-1">need video uploads</p>
+                    <p className="text-sm text-orange-700 dark:text-orange-300 mb-1">MISSING VIDEO</p>
+                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">{videoStats.withoutVideo}</p>
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">need video uploads</p>
                     {videoStats.withoutVideo > 0 && (
                       <p className="text-xs text-orange-700 mt-2 font-medium">👇 See matches below</p>
                     )}
@@ -502,12 +502,12 @@ export default function Fixtures() {
                 </Card>
 
                 {/* Video Processing */}
-                <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200">
+                <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200 dark:from-violet-900/30 dark:to-violet-800/30 dark:border-violet-700/50">
                   <CardContent className="p-6 text-center">
                     <Target className="h-8 w-8 mx-auto mb-2 text-violet-600" />
-                    <p className="text-sm text-violet-700 mb-1">VIDEO PROCESSING</p>
-                    <p className="text-3xl font-bold text-violet-900">{videoStats.totalVideos}</p>
-                    <p className="text-xs text-violet-600 mt-1">feature coming soon</p>
+                    <p className="text-sm text-violet-700 dark:text-violet-300 mb-1">VIDEO PROCESSING</p>
+                    <p className="text-3xl font-bold text-violet-900 dark:text-violet-100">{videoStats.totalVideos}</p>
+                    <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">feature coming soon</p>
                   </CardContent>
                 </Card>
               </div>
@@ -521,7 +521,7 @@ export default function Fixtures() {
                 {matchesNeedingVideos.length > 0 ? (
                   <div className="space-y-3">
                     {matchesNeedingVideos.map((fixture) => (
-                      <Card key={fixture.id} className="border-orange-200 bg-orange-50/50 hover:bg-orange-50 transition-colors">
+                      <Card key={fixture.id} className="border-orange-200 bg-orange-50/50 hover:bg-orange-50 dark:border-orange-700/50 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 transition-colors">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
