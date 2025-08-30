@@ -184,9 +184,9 @@ export default function Fixtures() {
       {/* Total Fixtures Card */}
       <div className="grid grid-cols-1 gap-4 mb-4">
         <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-            <p className="text-sm text-muted-foreground">Total Fixtures</p>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">TOTAL FIXTURES</p>
+            <p className="text-4xl font-bold text-foreground">{stats.total}</p>
           </CardContent>
         </Card>
       </div>
@@ -194,21 +194,21 @@ export default function Fixtures() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{stats.competitions}</p>
-            <p className="text-sm text-muted-foreground">Competitions</p>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">COMPETITIONS</p>
+            <p className="text-4xl font-bold text-foreground">{stats.competitions}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{stats.scheduled}</p>
-            <p className="text-sm text-muted-foreground">Scheduled</p>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">SCHEDULED</p>
+            <p className="text-4xl font-bold text-foreground">{stats.scheduled}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
-            <p className="text-sm text-muted-foreground">Completed</p>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">COMPLETED</p>
+            <p className="text-4xl font-bold text-foreground">{stats.completed}</p>
           </CardContent>
         </Card>
       </div>
