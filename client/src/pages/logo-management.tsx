@@ -179,7 +179,7 @@ export default function LogoManagement() {
                 <ThemedLogoContainer
                   key={team.id}
                   containerId={`team-logo-${team.id}`}
-                  className="border rounded-lg p-3 hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-500 dark:hover:bg-blue-950 cursor-pointer transition-all"
+                  className="border rounded-lg p-3 cursor-pointer transition-all"
                   showThemeToggle={true}
                 >
                   <div
