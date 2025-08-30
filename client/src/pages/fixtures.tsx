@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy } from "lucide-react";
 import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -148,17 +148,43 @@ export default function Fixtures() {
 
   // Calculate fixture statistics
   const getFixtureStats = () => {
-    if (!fixtures) return { total: 0, scheduled: 0, completed: 0, competitions: 0 };
+    if (!fixtures) return { 
+      total: 0, scheduled: 0, completed: 0, competitions: 0,
+      wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0
+    };
     
     const scheduled = fixtures.filter(f => f.status === 'SCHEDULED').length;
-    const completed = fixtures.filter(f => f.status === 'COMPLETED' || f.status === 'NO_CONTEST').length;
+    const completed = fixtures.filter(f => f.status === 'COMPLETED').length;
     const uniqueCompetitions = new Set(fixtures.map(f => f.competition).filter(Boolean)).size;
+    
+    // Calculate match results and goals
+    let wins = 0, draws = 0, losses = 0, goalsFor = 0, goalsAgainst = 0;
+    
+    fixtures.forEach(fixture => {
+      if (fixture.status === 'COMPLETED' && fixture.homeScore !== null && fixture.awayScore !== null) {
+        const isHome = fixture.type === 'HOME';
+        const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
+        const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
+        
+        goalsFor += ourScore;
+        goalsAgainst += theirScore;
+        
+        if (ourScore > theirScore) wins++;
+        else if (ourScore === theirScore) draws++;
+        else losses++;
+      }
+    });
     
     return {
       total: fixtures.length,
       scheduled,
       completed,
-      competitions: uniqueCompetitions
+      competitions: uniqueCompetitions,
+      wins,
+      draws,
+      losses,
+      goalsFor,
+      goalsAgainst
     };
   };
 
@@ -181,36 +207,90 @@ export default function Fixtures() {
         </FixtureCreateDialog>
       </div>
 
-      {/* Total Fixtures Card */}
-      <div className="grid grid-cols-1 gap-4 mb-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-1">TOTAL FIXTURES</p>
-            <p className="text-4xl font-bold text-foreground">{stats.total}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Season Overview */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Season Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Record Card */}
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <CardContent className="p-6 text-center">
+              <Trophy className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <p className="text-sm text-blue-700 mb-1">RECORD</p>
+              <p className="text-2xl font-bold text-blue-900">
+                {stats.wins}-{stats.draws}-{stats.losses}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">W-D-L</p>
+            </CardContent>
+          </Card>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-1">COMPETITIONS</p>
-            <p className="text-4xl font-bold text-foreground">{stats.competitions}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-1">SCHEDULED</p>
-            <p className="text-4xl font-bold text-foreground">{stats.scheduled}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-1">COMPLETED</p>
-            <p className="text-4xl font-bold text-foreground">{stats.completed}</p>
-          </CardContent>
-        </Card>
+          {/* Goals For Card */}
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <CardContent className="p-6 text-center">
+              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-600" />
+              <p className="text-sm text-green-700 mb-1">GOALS FOR</p>
+              <p className="text-3xl font-bold text-green-900">{stats.goalsFor}</p>
+              <p className="text-xs text-green-600 mt-1">
+                {stats.completed > 0 ? (stats.goalsFor / stats.completed).toFixed(1) : '0.0'} per game
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Goals Against Card */}
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+            <CardContent className="p-6 text-center">
+              <TrendingDown className="h-8 w-8 mx-auto mb-2 text-red-600" />
+              <p className="text-sm text-red-700 mb-1">GOALS AGAINST</p>
+              <p className="text-3xl font-bold text-red-900">{stats.goalsAgainst}</p>
+              <p className="text-xs text-red-600 mt-1">
+                {stats.completed > 0 ? (stats.goalsAgainst / stats.completed).toFixed(1) : '0.0'} per game
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Goal Difference Card */}
+          <Card className={`bg-gradient-to-br ${
+            stats.goalsFor - stats.goalsAgainst > 0 
+              ? 'from-emerald-50 to-emerald-100 border-emerald-200' 
+              : stats.goalsFor - stats.goalsAgainst < 0 
+                ? 'from-orange-50 to-orange-100 border-orange-200'
+                : 'from-gray-50 to-gray-100 border-gray-200'
+          }`}>
+            <CardContent className="p-6 text-center">
+              <Target className={`h-8 w-8 mx-auto mb-2 ${
+                stats.goalsFor - stats.goalsAgainst > 0 
+                  ? 'text-emerald-600' 
+                  : stats.goalsFor - stats.goalsAgainst < 0 
+                    ? 'text-orange-600'
+                    : 'text-gray-600'
+              }`} />
+              <p className={`text-sm mb-1 ${
+                stats.goalsFor - stats.goalsAgainst > 0 
+                  ? 'text-emerald-700' 
+                  : stats.goalsFor - stats.goalsAgainst < 0 
+                    ? 'text-orange-700'
+                    : 'text-gray-700'
+              }`}>GOAL DIFFERENCE</p>
+              <p className={`text-3xl font-bold ${
+                stats.goalsFor - stats.goalsAgainst > 0 
+                  ? 'text-emerald-900' 
+                  : stats.goalsFor - stats.goalsAgainst < 0 
+                    ? 'text-orange-900'
+                    : 'text-gray-900'
+              }`}>
+                {stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}{stats.goalsFor - stats.goalsAgainst}
+              </p>
+              <p className={`text-xs mt-1 ${
+                stats.goalsFor - stats.goalsAgainst > 0 
+                  ? 'text-emerald-600' 
+                  : stats.goalsFor - stats.goalsAgainst < 0 
+                    ? 'text-orange-600'
+                    : 'text-gray-600'
+              }`}>
+                {stats.completed} matches played
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Filters */}
