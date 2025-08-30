@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
 import { ExcelUpload } from "@/components/excel-upload";
+import { SpiderChart } from "@/components/spider-chart";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,6 +19,34 @@ export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
   const fixtureId = params?.id;
   const [activeTab, setActiveTab] = useState("details");
+
+  // Spider Chart Data Transformation Functions
+  const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
+    { metric: 'Goals', team: teamStats.goals || 0, opponent: opponentStats?.goals || 0, fullMark: Math.max(10, (teamStats.goals || 0) * 2, (opponentStats?.goals || 0) * 2) },
+    { metric: 'Shots Attempted', team: teamStats.shotsAttempted || 0, opponent: opponentStats?.shotsAttempted || 0, fullMark: Math.max(40, teamStats.shotsAttempted || 0, opponentStats?.shotsAttempted || 0) },
+    { metric: 'Shots On Target', team: teamStats.shotsOnTarget || 0, opponent: opponentStats?.shotsOnTarget || 0, fullMark: Math.max(20, teamStats.shotsOnTarget || 0, opponentStats?.shotsOnTarget || 0) },
+    { metric: 'Runs Into Boxes', team: teamStats.runsIntoBoxes || 0, opponent: opponentStats?.runsIntoBoxes || 0, fullMark: Math.max(70, teamStats.runsIntoBoxes || 0, opponentStats?.runsIntoBoxes || 0) },
+    { metric: 'Corners', team: teamStats.corners || 0, opponent: opponentStats?.corners || 0, fullMark: Math.max(15, teamStats.corners || 0, opponentStats?.corners || 0) },
+    { metric: 'Dangerous Crosses', team: teamStats.dangerousCrosses || 0, opponent: opponentStats?.dangerousCrosses || 0, fullMark: Math.max(20, teamStats.dangerousCrosses || 0, opponentStats?.dangerousCrosses || 0) }
+  ];
+
+  const createPossessionSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
+    { metric: 'Possession %', team: teamStats.possession || 0, opponent: opponentStats?.possession || 0, fullMark: 100 },
+    { metric: 'Pass Accuracy %', team: teamStats.passingSuccessRate || 0, opponent: opponentStats?.passingSuccessRate || 0, fullMark: 100 },
+    { metric: 'First Touch %', team: teamStats.firstTouchSuccessRate || 0, opponent: opponentStats?.firstTouchSuccessRate || 0, fullMark: 100 },
+    { metric: 'Take Ons', team: teamStats.takeOns || 0, opponent: opponentStats?.takeOns || 0, fullMark: Math.max(30, teamStats.takeOns || 0, opponentStats?.takeOns || 0) },
+    { metric: 'Free Kicks', team: teamStats.freeKicks || 0, opponent: opponentStats?.freeKicks || 0, fullMark: Math.max(20, teamStats.freeKicks || 0, opponentStats?.freeKicks || 0) },
+    { metric: 'Passes Success', team: teamStats.passesSuccess || 0, opponent: opponentStats?.passesSuccess || 0, fullMark: Math.max(200, teamStats.passesSuccess || 0, opponentStats?.passesSuccess || 0) }
+  ];
+
+  const createDefensiveSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
+    { metric: 'Tackles', team: teamStats.tackles || 0, opponent: opponentStats?.tackles || 0, fullMark: Math.max(40, teamStats.tackles || 0, opponentStats?.tackles || 0) },
+    { metric: 'Free Kicks', team: teamStats.freeKicks || 0, opponent: opponentStats?.freeKicks || 0, fullMark: Math.max(20, teamStats.freeKicks || 0, opponentStats?.freeKicks || 0) },
+    { metric: 'Offsides', team: teamStats.offsides || 0, opponent: opponentStats?.offsides || 0, fullMark: Math.max(10, teamStats.offsides || 0, opponentStats?.offsides || 0) },
+    { metric: 'Pass Distance', team: teamStats.passingTotalDistance || 0, opponent: opponentStats?.passingTotalDistance || 0, fullMark: Math.max(5000, teamStats.passingTotalDistance || 0, opponentStats?.passingTotalDistance || 0) },
+    { metric: 'R.Foot Pass %', team: teamStats.rightFootPassSuccessRate || 0, opponent: opponentStats?.rightFootPassSuccessRate || 0, fullMark: 100 },
+    { metric: 'L.Foot Pass %', team: teamStats.leftFootPassSuccessRate || 0, opponent: opponentStats?.leftFootPassSuccessRate || 0, fullMark: 100 }
+  ];
 
   // Check for tab parameter in URL
   useEffect(() => {
@@ -521,6 +550,40 @@ export default function FixtureDetails() {
                         <p className="text-muted-foreground">Opportunity for improvement: Converting corner kicks into scoring chances (2 out of 8 corners resulted in shots).</p>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Performance Spider Charts */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <Card className="p-4">
+                      <SpiderChart
+                        data={createAttackSpiderData(fullGameStats)}
+                        teamName="POLK"
+                        opponentName="OPP"
+                        title="Attack Performance"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
+                    <Card className="p-4">
+                      <SpiderChart
+                        data={createPossessionSpiderData(fullGameStats)}
+                        teamName="POLK"
+                        opponentName="OPP"
+                        title="Possession & Passing"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
+                    <Card className="p-4">
+                      <SpiderChart
+                        data={createDefensiveSpiderData(fullGameStats)}
+                        teamName="POLK"
+                        opponentName="OPP"
+                        title="Technical Performance"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
                   </div>
 
                   {/* Performance Metrics */}
