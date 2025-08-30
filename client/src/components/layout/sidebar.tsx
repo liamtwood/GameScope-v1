@@ -36,7 +36,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       )}>
         {!collapsed && (
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 flex items-center justify-center">
+            <div className="h-16 w-16 flex items-center justify-center">
               <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
             </div>
             <div>
@@ -46,7 +46,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           </div>
         )}
         {collapsed && (
-          <div className="w-10 h-10 flex items-center justify-center">
+          <div className="h-16 w-16 flex items-center justify-center">
             <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
           </div>
         )}
