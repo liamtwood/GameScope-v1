@@ -270,18 +270,18 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
             </div>
             
             {/* Content overlay */}
-            <div className="relative z-10 h-full flex items-center justify-between px-8">
+            <div className="relative z-10 h-full flex items-center px-8">
               {/* POLK section */}
-              <div className="flex items-center space-x-4 text-white">
+              <div className="flex items-center space-x-4 text-white flex-1">
                 {teamLogoPath ? (
                   <img 
                     src={teamLogoPath} 
                     alt={`${teamName} logo`}
-                    className="w-16 h-16 object-contain bg-white/20 backdrop-blur rounded-lg p-2"
+                    className="w-20 h-20 object-contain"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">POLK</span>
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">POLK</span>
                   </div>
                 )}
                 <div>
@@ -290,8 +290,8 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
                 </div>
               </div>
               
-              {/* Center score */}
-              <div className="bg-white/95 backdrop-blur rounded-2xl px-6 py-4 shadow-lg">
+              {/* Center score - absolutely centered */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur rounded-2xl px-6 py-4 shadow-lg">
                 <div className="flex items-center space-x-4">
                   <div className="text-3xl font-bold text-red-600">{teamScore}</div>
                   <div className="text-2xl font-light text-gray-400">-</div>
@@ -301,7 +301,7 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
               </div>
               
               {/* Opponent section */}
-              <div className="flex items-center space-x-4 text-red-600">
+              <div className="flex items-center space-x-4 text-red-600 flex-1 justify-end">
                 <div className="text-right">
                   <div className="text-2xl font-bold">{opponentName}</div>
                   <div className="text-red-500 text-sm">AWAY</div>
@@ -310,11 +310,11 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
                   <img 
                     src={opponentLogoPath} 
                     alt={`${opponentName} logo`}
-                    className="w-16 h-16 object-contain bg-white/80 backdrop-blur rounded-lg p-2"
+                    className="w-20 h-20 object-contain"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-white/80 backdrop-blur rounded-lg flex items-center justify-center">
-                    <span className="text-red-600 font-bold text-sm">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <span className="text-red-600 font-bold text-lg">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                   </div>
                 )}
               </div>
