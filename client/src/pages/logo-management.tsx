@@ -168,19 +168,24 @@ export default function LogoManagement() {
       return;
     }
 
+    console.log('Starting background removal for team:', team.name);
     setProcessing(true);
     setSelectedTeam(team.id);
     setOriginalImageUrl(team.logoPath);
     
     try {
+      console.log('Fetching logo from:', team.logoPath);
       // Fetch the existing logo as a blob
       const response = await fetch(team.logoPath);
       const blob = await response.blob();
+      console.log('Fetched blob size:', blob.size, 'type:', blob.type);
       
       // Create a File object from the blob
       const file = new File([blob], `${team.name}-logo`, { type: blob.type });
+      console.log('Created file object');
       
       // Process the image using the existing background removal logic
+      console.log('Starting background removal with options:', { mode: processingMode, tolerance: threshold });
       const backgroundRemover = new BackgroundRemover();
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
@@ -189,10 +194,14 @@ export default function LogoManagement() {
       };
       
       const processedBlob = await backgroundRemover.removeBackground(file, options);
+      console.log('Background removal completed, processed blob size:', processedBlob.size);
+      
       const processedUrl = URL.createObjectURL(processedBlob);
       setProcessedImageUrl(processedUrl);
+      console.log('Set processed image URL');
       
       // Auto-save the processed logo
+      console.log('Auto-saving processed logo');
       saveMutation.mutate({ teamId: team.id, logoData: processedBlob });
       
       toast({
@@ -212,7 +221,7 @@ export default function LogoManagement() {
       console.error('Background removal error:', error);
       toast({
         title: "Processing Failed",
-        description: "Failed to remove background from the logo. Please try again.",
+        description: `Failed to remove background: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -265,7 +274,7 @@ export default function LogoManagement() {
                     <div className="text-center">
                       <p className="text-sm font-medium truncate">{team.name}</p>
                       <Badge 
-                        variant="ghost" 
+                        variant="outline" 
                         className="text-xs mt-1 cursor-pointer hover:bg-accent"
                         onClick={(e) => {
                           e.stopPropagation();
