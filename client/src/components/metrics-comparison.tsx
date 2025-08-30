@@ -278,6 +278,11 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
                     src={teamLogoPath} 
                     alt={`${teamName} logo`}
                     className="w-20 h-20 object-contain"
+                    style={{ 
+                      background: 'transparent',
+                      clipPath: 'circle(45%)',
+                      filter: 'contrast(1.2) saturate(1.1)'
+                    }}
                   />
                 ) : (
                   <div className="w-20 h-20 flex items-center justify-center">
