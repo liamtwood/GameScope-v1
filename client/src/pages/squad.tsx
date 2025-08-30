@@ -100,6 +100,17 @@ export default function Squad() {
     return 'DEF';
   };
 
+  const getPositionOrder = (position: string): number => {
+    const category = getPositionCategory(position);
+    switch (category) {
+      case 'GK': return 1;
+      case 'DEF': return 2;
+      case 'MID': return 3;
+      case 'FWD': return 4;
+      default: return 5;
+    }
+  };
+
   const filteredPlayers = players?.filter(player => {
     const matchesFilter = activeFilter === 'all' || getPositionCategory(player.position) === activeFilter;
     const matchesSearch = searchTerm === '' || 
@@ -108,6 +119,13 @@ export default function Squad() {
       player.hometown?.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesFilter && matchesSearch;
+  }).sort((a, b) => {
+    // First sort by position order (GK, DEF, MID, FWD)
+    const positionDiff = getPositionOrder(a.position) - getPositionOrder(b.position);
+    if (positionDiff !== 0) return positionDiff;
+    
+    // Then sort by jersey number
+    return (a.jerseyNumber || 999) - (b.jerseyNumber || 999);
   }) || [];
 
   const getPositionCount = (category: PositionFilter) => {
