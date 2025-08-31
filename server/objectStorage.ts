@@ -232,6 +232,31 @@ export class ObjectStorageService {
     }
     return logoFile;
   }
+
+  // Gets the upload file from the upload path.
+  async getUploadFile(uploadPath: string): Promise<File> {
+    if (!uploadPath.startsWith("/uploads/")) {
+      throw new ObjectNotFoundError();
+    }
+
+    const uploadId = uploadPath.slice("/uploads/".length);
+    let uploadDir = this.getPrivateObjectDir();
+    if (!uploadDir.endsWith("/")) {
+      uploadDir = `${uploadDir}/`;
+    }
+    
+    const uploadObjectPath = `${uploadDir}uploads/${uploadId}`;
+    
+    const { bucketName, objectName } = parseObjectPath(uploadObjectPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const uploadFile = bucket.file(objectName);
+    const [exists] = await uploadFile.exists();
+    
+    if (!exists) {
+      throw new ObjectNotFoundError();
+    }
+    return uploadFile;
+  }
 }
 
 function parseObjectPath(path: string): {

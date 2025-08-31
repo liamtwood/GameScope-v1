@@ -225,6 +225,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve uploads from object storage
+  app.get("/uploads/:uploadPath(*)", async (req, res) => {
+    try {
+      const uploadPath = `/uploads/${req.params.uploadPath}`;
+      const objectStorageService = new ObjectStorageService();
+      const uploadFile = await objectStorageService.getUploadFile(uploadPath);
+      await objectStorageService.downloadObject(uploadFile, res);
+    } catch (error) {
+      console.error("Error serving upload:", error);
+      res.status(404).json({ message: "Upload not found" });
+    }
+  });
+
   // Team routes
   app.get("/api/teams", async (req, res) => {
     try {
