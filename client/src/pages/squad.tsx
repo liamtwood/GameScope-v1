@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Eye, Check, X, Users, Shield, Target, Trophy } from "lucide-react";
+import { UserPlus, Star, Edit, Trash, Check, X, Users, Shield, Target, Trophy } from "lucide-react";
 import { Player, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -93,6 +93,26 @@ export default function Squad() {
       toast({
         title: "Error",
         description: "Failed to update player status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePlayerMutation = useMutation({
+    mutationFn: async (playerId: string) => {
+      return apiRequest("DELETE", `/api/players/${playerId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      toast({
+        title: "Player Deleted",
+        description: "Player has been removed from the squad.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete player.",
         variant: "destructive",
       });
     },
@@ -201,11 +221,10 @@ export default function Squad() {
     setEditValue("");
   };
 
-  const handleViewPlayer = (player: Player) => {
-    toast({
-      title: "Player Profile",
-      description: `Viewing profile for ${player.name}`,
-    });
+  const handleDeletePlayer = (player: Player) => {
+    if (window.confirm(`Are you sure you want to delete ${player.name} from the squad?`)) {
+      deletePlayerMutation.mutate(player.id);
+    }
   };
 
 
@@ -480,10 +499,10 @@ export default function Squad() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => handleViewPlayer(player)}
-                            data-testid={`button-view-player-${player.id}`}
+                            onClick={() => handleDeletePlayer(player)}
+                            data-testid={`button-delete-player-${player.id}`}
                           >
-                            <Eye className="h-4 w-4 text-green-600" />
+                            <Trash className="h-4 w-4 text-red-600" />
                           </Button>
                         </div>
                       </TableCell>
