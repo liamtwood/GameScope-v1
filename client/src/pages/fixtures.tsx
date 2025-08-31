@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, OppositionTeam } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -571,7 +571,7 @@ export default function Fixtures() {
             <StatsCard
               title="Goal Difference"
               value={`${stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}${stats.goalsFor - stats.goalsAgainst}`}
-              icon={ArrowUpDown}
+              icon={TrendingUpDown}
               iconColor="text-border"
               subtitle={`${stats.completed} matches played`}
             />
