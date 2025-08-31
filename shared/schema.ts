@@ -9,6 +9,27 @@ export const clubs = pgTable("clubs", {
   shortName: text("short_name").notNull().default("PSC"),
   owner: text("owner").notNull(),
   logoPath: text("logo_path"),
+  // Tenant-specific attributes
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  postalCode: text("postal_code"),
+  phone: text("phone"),
+  email: text("email"),
+  website: text("website"),
+  description: text("description"),
+  established: text("established"), // Year established
+  colors: jsonb("colors"), // Primary and secondary colors
+  socialMedia: jsonb("social_media"), // Links to social media
+  // Settings and preferences
+  timezone: text("timezone").default("UTC"),
+  currency: text("currency").default("USD"),
+  dateFormat: text("date_format").default("MM/DD/YYYY"),
+  // Subscription/tenant info
+  subscriptionTier: text("subscription_tier").default("basic"),
+  subscriptionStatus: text("subscription_status").default("active"),
+  // Metadata
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

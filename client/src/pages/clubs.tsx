@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Building2, Edit, Trash2, User, ArrowRight } from "lucide-react";
+import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail } from "lucide-react";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -37,6 +37,10 @@ export default function Clubs() {
       name: "",
       shortName: "",
       owner: "admin", // Default owner
+      address: "",
+      city: "",
+      phone: "",
+      email: "",
     },
   });
 
@@ -148,6 +152,78 @@ export default function Clubs() {
                     </FormItem>
                   )}
                 />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter address"
+                            data-testid="input-club-address"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter city"
+                            data-testid="input-club-city"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Phone number"
+                            data-testid="input-club-phone"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="contact@club.com"
+                            data-testid="input-club-email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
                     type="button"
@@ -207,6 +283,24 @@ export default function Clubs() {
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{club.owner}</span>
                 </div>
+                {club.address && (
+                  <div className="flex items-start space-x-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <span className="text-muted-foreground">{club.address}{club.city && `, ${club.city}`}</span>
+                  </div>
+                )}
+                {club.phone && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{club.phone}</span>
+                  </div>
+                )}
+                {club.email && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{club.email}</span>
+                  </div>
+                )}
                 <div className="text-xs text-muted-foreground">
                   Created: {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : 'N/A'}
                 </div>

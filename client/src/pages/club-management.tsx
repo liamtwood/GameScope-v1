@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User } from "lucide-react";
+import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import type { Club, Team } from "@shared/schema";
 import { insertTeamSchema } from "@shared/schema";
@@ -149,22 +149,77 @@ export default function ClubManagement() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center space-x-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Owner: {selectedClub.owner}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Contact</h4>
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">Owner: {selectedClub.owner}</span>
+              </div>
+              {selectedClub.phone && (
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{selectedClub.phone}</span>
+                </div>
+              )}
+              {selectedClub.email && (
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{selectedClub.email}</span>
+                </div>
+              )}
+              {selectedClub.website && (
+                <div className="flex items-center space-x-2">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{selectedClub.website}</span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">
-                Created: {selectedClub.createdAt ? new Date(selectedClub.createdAt).toLocaleDateString() : 'N/A'}
-              </span>
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Location</h4>
+              {selectedClub.address && (
+                <div className="flex items-start space-x-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <div>{selectedClub.address}</div>
+                    {selectedClub.city && <div>{selectedClub.city}{selectedClub.state && `, ${selectedClub.state}`}</div>}
+                    {selectedClub.country && <div>{selectedClub.country}</div>}
+                  </div>
+                </div>
+              )}
+              {selectedClub.established && (
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Est. {selectedClub.established}</span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{clubTeams.length} teams</span>
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Club Info</h4>
+              <div className="flex items-center space-x-2">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{clubTeams.length} teams</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Settings className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {selectedClub.subscriptionTier || 'Basic'} • {selectedClub.subscriptionStatus || 'Active'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  Created: {selectedClub.createdAt ? new Date(selectedClub.createdAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
             </div>
           </div>
+          {selectedClub.description && (
+            <div className="mt-6 pt-6 border-t border-border">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h4>
+              <p className="text-sm text-muted-foreground">{selectedClub.description}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -229,7 +284,7 @@ export default function ClubManagement() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                             <FormControl>
                               <SelectTrigger data-testid="select-team-gender">
                                 <SelectValue placeholder="Select gender" />
@@ -256,6 +311,7 @@ export default function ClubManagement() {
                               placeholder="e.g., U21, Senior"
                               data-testid="input-team-age-group"
                               {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -274,6 +330,7 @@ export default function ClubManagement() {
                             placeholder="Enter coach name"
                             data-testid="input-team-coach"
                             {...field}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -291,6 +348,7 @@ export default function ClubManagement() {
                             placeholder="e.g., 2025/26"
                             data-testid="input-team-season"
                             {...field}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
