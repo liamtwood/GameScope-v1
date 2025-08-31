@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, OppositionTeam } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -568,48 +568,13 @@ export default function Fixtures() {
             />
 
             {/* Goal Difference Card */}
-            <Card className={`bg-gradient-to-br ${
-              stats.goalsFor - stats.goalsAgainst > 0 
-                ? 'from-emerald-50 to-emerald-100 border-emerald-200' 
-                : stats.goalsFor - stats.goalsAgainst < 0 
-                  ? 'from-orange-50 to-orange-100 border-orange-200'
-                  : 'from-gray-50 to-gray-100 border-gray-200'
-            }`}>
-              <CardContent className="p-6 text-center">
-                <Target className={`h-8 w-8 mx-auto mb-2 ${
-                  stats.goalsFor - stats.goalsAgainst > 0 
-                    ? 'text-emerald-600' 
-                    : stats.goalsFor - stats.goalsAgainst < 0 
-                      ? 'text-orange-600'
-                      : 'text-gray-600'
-                }`} />
-                <p className={`text-sm mb-1 ${
-                  stats.goalsFor - stats.goalsAgainst > 0 
-                    ? 'text-emerald-700' 
-                    : stats.goalsFor - stats.goalsAgainst < 0 
-                      ? 'text-orange-700'
-                      : 'text-gray-700'
-                }`}>GOAL DIFFERENCE</p>
-                <p className={`text-3xl font-bold ${
-                  stats.goalsFor - stats.goalsAgainst > 0 
-                    ? 'text-emerald-900' 
-                    : stats.goalsFor - stats.goalsAgainst < 0 
-                      ? 'text-orange-900'
-                      : 'text-foreground'
-                }`}>
-                  {stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}{stats.goalsFor - stats.goalsAgainst}
-                </p>
-                <p className={`text-xs mt-1 ${
-                  stats.goalsFor - stats.goalsAgainst > 0 
-                    ? 'text-emerald-600' 
-                    : stats.goalsFor - stats.goalsAgainst < 0 
-                      ? 'text-orange-600'
-                      : 'text-gray-600'
-                }`}>
-                  {stats.completed} matches played
-                </p>
-              </CardContent>
-            </Card>
+            <StatsCard
+              title="Goal Difference"
+              value={`${stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}${stats.goalsFor - stats.goalsAgainst}`}
+              icon={ArrowUpDown}
+              iconColor="text-border"
+              subtitle={`${stats.completed} matches played`}
+            />
         </div>
       </div>
 
