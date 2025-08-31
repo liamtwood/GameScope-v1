@@ -20,6 +20,7 @@ import { format } from "date-fns";
 
 const fixtureEditSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
+  shortName: z.string().optional(),
   venue: z.string().optional(),
   date: z.date(),
   type: z.enum(["HOME", "AWAY"]),
@@ -71,8 +72,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   });
 
   const updateOppositionTeamMutation = useMutation({
-    mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath: string }) => {
-      return apiRequest("PUT", `/api/opposition-teams/${teamId}`, { logoPath });
+    mutationFn: async ({ teamId, logoPath, shortName }: { teamId: string; logoPath?: string; shortName?: string }) => {
+      const updateData: any = {};
+      if (logoPath !== undefined) updateData.logoPath = logoPath;
+      if (shortName !== undefined) updateData.shortName = shortName;
+      return apiRequest("PUT", `/api/opposition-teams/${teamId}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
@@ -106,6 +110,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     resolver: zodResolver(fixtureEditSchema),
     defaultValues: {
       opponent: fixture.opponent,
+      shortName: currentOppositionTeam?.shortName || "",
       venue: fixture.venue,
       date: new Date(fixture.date),
       type: fixture.type as "HOME" | "AWAY",
@@ -124,12 +129,24 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       const foundTeam = oppositionTeams.find(team => team.name === opponentName);
       if (foundTeam && (!currentOppositionTeam || currentOppositionTeam.id !== foundTeam.id)) {
         setCurrentOppositionTeam(foundTeam);
+        // Update the shortName field when team changes
+        form.setValue("shortName", foundTeam.shortName || "");
       }
     }
   }, [oppositionTeams, form, currentOppositionTeam]);
 
   const handleSubmit = (data: FixtureEditFormData) => {
-    onSave(data);
+    // Update opposition team short name if it exists and shortName is provided
+    if (currentOppositionTeam?.id && data.shortName !== undefined) {
+      updateOppositionTeamMutation.mutate({
+        teamId: currentOppositionTeam.id,
+        shortName: data.shortName
+      });
+    }
+    
+    // Save fixture data (excluding shortName as it's not a fixture field)
+    const { shortName, ...fixtureData } = data;
+    onSave(fixtureData);
     setOpen(false);
   };
 
@@ -167,6 +184,27 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                 )}
               />
               
+              <FormField
+                control={form.control}
+                name="shortName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Short Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="e.g. MCI, PSG"
+                        maxLength={10}
+                        data-testid="input-short-name" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="venue"
