@@ -1,4 +1,4 @@
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 
 interface SpiderChartData {
   metric: string;
@@ -58,10 +58,6 @@ export function SpiderChart({
             fillOpacity={0.1}
             strokeWidth={2}
             dot={{ r: 4, fill: opponentColor }}
-          />
-          <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
-            iconType="circle"
           />
         </RadarChart>
       </ResponsiveContainer>
