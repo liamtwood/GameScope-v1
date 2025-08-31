@@ -3,6 +3,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Bell, Menu, Crosshair } from "lucide-react";
 import { CLUB_NAME } from "@/lib/constants";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useQuery } from "@tanstack/react-query";
+import { OppositionTeam } from "@shared/schema";
 
 interface HeaderProps {
   title: string;
@@ -12,6 +14,18 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderProps) {
+  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
+    queryKey: ["/api/opposition-teams"] 
+  });
+
+  // Find Polk State team in opposition teams
+  const polkStateTeam = oppositionTeams?.find(team => 
+    team.name.toLowerCase().includes('polk state') || 
+    team.name.toLowerCase().includes('polk')
+  );
+
+  const logoSrc = polkStateTeam?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
+
   return (
     <header className="bg-background border-b border-border">
       <div className="px-6" style={{ paddingTop: '16.25px', paddingBottom: '16.25px' }}>
@@ -31,7 +45,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3 px-3">
               <div className="h-16 w-16 flex items-center justify-center">
                 <img 
-                  src="/assets/logos/polk-state-logo-transparent.png" 
+                  src={logoSrc}
                   alt="Polk State College Logo" 
                   className="h-14 w-14 object-contain"
                 />
