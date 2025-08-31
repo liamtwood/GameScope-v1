@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Shield, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS } from "@/lib/constants";
+import { useTeam } from "@/contexts/team-context";
 import type { Club } from "@shared/schema";
 
 interface SidebarProps {
@@ -17,6 +18,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
   const currentPath = location === "/" ? "dashboard" : location.slice(1);
+  const { selectedTeam } = useTeam();
 
   // Fetch club data
   const { data: clubs = [] } = useQuery<Club[]>({
@@ -81,12 +83,14 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           <div className="bg-secondary rounded-lg p-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-sm text-foreground">WOMEN'S SOCCER</h3>
+                <h3 className="font-semibold text-sm text-foreground">
+                  {selectedTeam ? selectedTeam.name.toUpperCase() : "NO TEAM SELECTED"}
+                </h3>
                 <p className="text-xs text-muted-foreground">
                   {currentClub ? `${currentClub.name} (${currentClub.shortName})` : "Loading..."}
                 </p>
               </div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className={`w-3 h-3 rounded-full ${selectedTeam ? 'bg-green-500' : 'bg-gray-400'}`}></div>
             </div>
           </div>
         </div>
