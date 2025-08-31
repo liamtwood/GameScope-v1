@@ -550,16 +550,13 @@ export default function Fixtures() {
             />
 
             {/* Goals For Card */}
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-6 text-center">
-                <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <p className="text-sm text-green-700 mb-1">GOALS FOR</p>
-                <p className="text-3xl font-bold text-green-900">{stats.goalsFor}</p>
-                <p className="text-xs text-green-600 mt-1">
-                  {stats.completed > 0 ? (stats.goalsFor / stats.completed).toFixed(1) : '0.0'} per game
-                </p>
-              </CardContent>
-            </Card>
+            <StatsCard
+              title="Goals For"
+              value={stats.goalsFor}
+              icon={TrendingUp}
+              iconColor="text-border"
+              subtitle={`${stats.completed > 0 ? (stats.goalsFor / stats.completed).toFixed(1) : '0.0'} per game`}
+            />
 
             {/* Goals Against Card */}
             <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
