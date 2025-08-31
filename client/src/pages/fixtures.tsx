@@ -543,7 +543,7 @@ export default function Fixtures() {
             {/* FCSAA League Card */}
             <StatsCard
               title="FCSAA League"
-              value={`${fcsaaStats.wins}W-${fcsaaStats.draws}D-${fcsaaStats.losses}L`}
+              value={`${fcsaaStats.wins}-${fcsaaStats.draws}-${fcsaaStats.losses}`}
               icon={Trophy}
               iconColor="text-border"
               subtitle="W-D-L"
