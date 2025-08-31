@@ -298,11 +298,11 @@ export default function Squad() {
               subtitle="regular starters"
             />
 
-            {/* Midfield */}
+            {/* Player Status */}
             <StatsCard
-              title="Midfield"
-              value={getPositionCount('MID')}
-              subtitle="midfield players"
+              title="Player Status"
+              value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
+              subtitle="fit-injured-retired"
             />
 
             {/* Forwards */}
