@@ -22,7 +22,15 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
     queryKey: ["/api/clubs"],
   });
 
-  const currentClub = clubs[0];
+  // Get club ID from URL if on club management page
+  const urlParams = new URLSearchParams(window.location.search);
+  const clubId = urlParams.get("clubId");
+  const isClubManagementPage = window.location.pathname === "/club-management";
+  
+  // Use selected club if on club management page, otherwise default to first club
+  const currentClub = isClubManagementPage && clubId 
+    ? clubs.find(club => club.id === clubId) || clubs[0]
+    : clubs[0];
 
   // Find Polk State team in opposition teams
   const polkStateTeam = oppositionTeams?.find(team => 
