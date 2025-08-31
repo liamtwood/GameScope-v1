@@ -265,16 +265,16 @@ export default function LogoManagement() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {oppositionTeams?.map((team) => (
-                <ThemedLogoContainer
-                  key={team.id}
-                  containerId={`team-logo-${team.id}`}
-                  className="border rounded-lg p-3 transition-all"
-                  showThemeToggle={true}
-                >
-                  <div className="relative">
+                <div className="space-y-2">
+                  <ThemedLogoContainer
+                    key={team.id}
+                    containerId={`team-logo-${team.id}`}
+                    className="border rounded-lg p-3 transition-all"
+                    showThemeToggle={true}
+                  >
                     <div 
                       onClick={() => handleEditExistingLogo(team)}
-                      className="cursor-pointer"
+                      className="cursor-pointer relative"
                     >
                       <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
                         {team.logoPath ? (
@@ -297,44 +297,20 @@ export default function LogoManagement() {
                         <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
-                    
-                    {/* Remove Background Button - Outside clickable area */}
-                    <div className="text-center mt-1">
-                      <button 
-                        className="text-xs cursor-pointer hover:bg-accent px-2 py-1 border rounded bg-white dark:bg-gray-800"
-                        onClick={async (e) => {
-                          console.log('Button clicked!', team.name);
-                          e.stopPropagation();
-                          e.preventDefault();
-                          
-                          // Show immediate feedback
-                          const button = e.target as HTMLButtonElement;
-                          const originalText = button.textContent;
-                          button.textContent = 'Processing...';
-                          button.disabled = true;
-                          
-                          try {
-                            await handleRemoveBackground(team);
-                            button.textContent = 'Done!';
-                            setTimeout(() => {
-                              button.textContent = originalText;
-                              button.disabled = false;
-                            }, 2000);
-                          } catch (error) {
-                            button.textContent = 'Error!';
-                            setTimeout(() => {
-                              button.textContent = originalText;
-                              button.disabled = false;
-                            }, 2000);
-                          }
-                        }}
-                        data-testid={`button-remove-bg-${team.id}`}
-                      >
-                        Remove Background
-                      </button>
-                    </div>
-                  </div>
-                </ThemedLogoContainer>
+                  </ThemedLogoContainer>
+                  
+                  {/* Remove Background Button - Completely outside container */}
+                  <button 
+                    className="w-full text-xs cursor-pointer hover:bg-gray-100 px-2 py-1 border rounded bg-white text-gray-700"
+                    onClick={async () => {
+                      alert(`Processing ${team.name}...`);
+                      await handleRemoveBackground(team);
+                    }}
+                    data-testid={`button-remove-bg-${team.id}`}
+                  >
+                    Remove Background
+                  </button>
+                </div>
               ))}
             </div>
           </CardContent>
