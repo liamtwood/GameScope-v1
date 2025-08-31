@@ -109,7 +109,7 @@ export default function ClubManagement() {
   };
 
   const handleLogoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful[0]?.uploadURL) {
+    if (result.successful && result.successful[0]?.uploadURL) {
       updateLogoMutation.mutate({
         logoURL: result.successful[0].uploadURL,
       });
@@ -169,20 +169,18 @@ export default function ClubManagement() {
           {/* Club Logo Section */}
           <div className="flex flex-col sm:flex-row gap-6 items-start">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center overflow-hidden min-w-16 min-h-16 max-w-32 max-h-32">
-                {currentClub.logoPath ? (
-                  <img
-                    src={currentClub.logoPath}
-                    alt={`${currentClub.name} logo`}
-                    className="max-w-full max-h-full object-contain"
-                    data-testid="img-club-logo"
-                  />
-                ) : (
-                  <div className="w-24 h-24 flex items-center justify-center">
-                    <Building2 className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
+              {currentClub.logoPath ? (
+                <img
+                  src={currentClub.logoPath}
+                  alt={`${currentClub.name} logo`}
+                  className="max-w-32 max-h-32 object-contain"
+                  data-testid="img-club-logo"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
+                  <Building2 className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
             </div>
             <div className="flex-1 space-y-3">
               <div>
