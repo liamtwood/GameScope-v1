@@ -7,6 +7,9 @@ export interface BackgroundRemovalOptions {
   tolerance?: number;
   preserveInternalWhite?: boolean;
   mode?: 'smart' | 'color' | 'manual';
+  autoCrop?: boolean;
+  cropPadding?: number;
+  resizeWidth?: number;
 }
 
 export class BackgroundRemover {
@@ -22,7 +25,14 @@ export class BackgroundRemover {
     imageFile: File, 
     options: BackgroundRemovalOptions = {}
   ): Promise<Blob> {
-    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart' } = options;
+    const { 
+      tolerance = 30, 
+      preserveInternalWhite = true, 
+      mode = 'smart',
+      autoCrop = false,
+      cropPadding = 10,
+      resizeWidth
+    } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -52,8 +62,22 @@ export class BackgroundRemover {
           // Update canvas with processed data
           this.ctx.putImageData(imageData, 0, 0);
           
+          // Handle cropping if enabled
+          let finalCanvas = this.canvas;
+          if (autoCrop) {
+            const cropBounds = this.findContentBounds(imageData.data, img.width, img.height);
+            if (cropBounds) {
+              finalCanvas = this.cropAndRecenter(this.canvas, cropBounds, cropPadding);
+            }
+          }
+          
+          // Handle resizing if enabled
+          if (resizeWidth && resizeWidth > 0) {
+            finalCanvas = this.resizeCanvas(finalCanvas, resizeWidth);
+          }
+          
           // Convert to blob
-          this.canvas.toBlob((blob) => {
+          finalCanvas.toBlob((blob) => {
             if (blob) {
               resolve(blob);
             } else {
@@ -281,5 +305,87 @@ export class BackgroundRemover {
     }
     
     return totalCount > 0 && backgroundCount / totalCount > 0.5;
+  }
+
+  private findContentBounds(
+    data: Uint8ClampedArray,
+    width: number,
+    height: number
+  ): { left: number; top: number; right: number; bottom: number; width: number; height: number } | null {
+    let left = width;
+    let right = 0;
+    let top = height;
+    let bottom = 0;
+    let hasContent = false;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        const alpha = data[idx + 3];
+        
+        if (alpha > 0) { // Non-transparent pixel
+          hasContent = true;
+          left = Math.min(left, x);
+          right = Math.max(right, x);
+          top = Math.min(top, y);
+          bottom = Math.max(bottom, y);
+        }
+      }
+    }
+
+    if (!hasContent) return null;
+
+    return {
+      left,
+      top,
+      right,
+      bottom,
+      width: right - left + 1,
+      height: bottom - top + 1
+    };
+  }
+
+  private cropAndRecenter(
+    canvas: HTMLCanvasElement,
+    bounds: { left: number; top: number; width: number; height: number },
+    padding: number
+  ): HTMLCanvasElement {
+    const newCanvas = document.createElement('canvas');
+    const ctx = newCanvas.getContext('2d')!;
+    
+    // Calculate new dimensions with padding
+    const newWidth = bounds.width + (padding * 2);
+    const newHeight = bounds.height + (padding * 2);
+    
+    newCanvas.width = newWidth;
+    newCanvas.height = newHeight;
+    
+    // Draw the cropped content centered with padding
+    ctx.drawImage(
+      canvas,
+      bounds.left, bounds.top, bounds.width, bounds.height,
+      padding, padding, bounds.width, bounds.height
+    );
+    
+    return newCanvas;
+  }
+
+  private resizeCanvas(canvas: HTMLCanvasElement, targetWidth: number): HTMLCanvasElement {
+    const aspectRatio = canvas.height / canvas.width;
+    const targetHeight = Math.round(targetWidth * aspectRatio);
+    
+    const resizedCanvas = document.createElement('canvas');
+    const ctx = resizedCanvas.getContext('2d')!;
+    
+    resizedCanvas.width = targetWidth;
+    resizedCanvas.height = targetHeight;
+    
+    // Use smooth scaling
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+    
+    return resizedCanvas;
   }
 }
