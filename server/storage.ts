@@ -34,6 +34,7 @@ export interface IStorage {
   getClub(id: string): Promise<Club | undefined>;
   createClub(club: InsertClub): Promise<Club>;
   updateClub(id: string, club: Partial<InsertClub>): Promise<Club>;
+  updateClubLogo(id: string, logoURL: string): Promise<Club>;
   
   // Team operations
   getTeams(): Promise<Team[]>;
@@ -237,6 +238,21 @@ export class DatabaseStorage implements IStorage {
   async updateClub(id: string, club: Partial<InsertClub>): Promise<Club> {
     const updated = {
       ...club,
+      updatedAt: new Date(),
+    };
+    
+    await db.update(clubs).set(updated).where(eq(clubs.id, id));
+    
+    const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, id));
+    return updatedClub!;
+  }
+
+  async updateClubLogo(id: string, logoURL: string): Promise<Club> {
+    // Convert the object storage URL to a relative path
+    const logoPath = logoURL.replace(/^https:\/\/[^\/]+/, '');
+    
+    const updated = {
+      logoPath,
       updatedAt: new Date(),
     };
     

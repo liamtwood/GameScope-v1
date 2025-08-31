@@ -189,6 +189,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/clubs/:id/logo", async (req, res) => {
+    try {
+      const { logoURL } = req.body;
+      const club = await storage.updateClubLogo(req.params.id, logoURL);
+      res.json(club);
+    } catch (error) {
+      console.error("Error updating club logo:", error);
+      res.status(400).json({ message: "Failed to update club logo" });
+    }
+  });
+
+  // Object upload route for logos
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      // Mock upload URL - replace with actual object storage implementation
+      const uploadURL = `https://storage.googleapis.com/bucket/logo-${Date.now()}.png`;
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
   // Team routes
   app.get("/api/teams", async (req, res) => {
     try {
