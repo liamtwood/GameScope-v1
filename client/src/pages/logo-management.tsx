@@ -268,31 +268,40 @@ export default function LogoManagement() {
                 <ThemedLogoContainer
                   key={team.id}
                   containerId={`team-logo-${team.id}`}
-                  className="border rounded-lg p-3 cursor-pointer transition-all"
+                  className="border rounded-lg p-3 transition-all"
                   showThemeToggle={true}
                 >
-                  <div
-                    onClick={() => handleEditExistingLogo(team)}
-                    className="relative"
-                  >
-                    <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
-                      {team.logoPath ? (
-                        <img 
-                          src={team.logoPath} 
-                          alt={`${team.name} logo`}
-                          className="max-w-full max-h-full object-contain"
-                        />
-                      ) : (
-                        <div className="text-gray-400 dark:text-gray-500 text-center">
-                          <Upload className="h-8 w-8 mx-auto mb-1" />
-                          <p className="text-xs">No Logo</p>
-                        </div>
-                      )}
+                  <div className="relative">
+                    <div 
+                      onClick={() => handleEditExistingLogo(team)}
+                      className="cursor-pointer"
+                    >
+                      <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
+                        {team.logoPath ? (
+                          <img 
+                            src={team.logoPath} 
+                            alt={`${team.name} logo`}
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-gray-400 dark:text-gray-500 text-center">
+                            <Upload className="h-8 w-8 mx-auto mb-1" />
+                            <p className="text-xs">No Logo</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium truncate">{team.name}</p>
+                      </div>
+                      <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
+                        <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium truncate">{team.name}</p>
+                    
+                    {/* Remove Background Button - Outside clickable area */}
+                    <div className="text-center mt-1">
                       <button 
-                        className="text-xs mt-1 cursor-pointer hover:bg-accent px-2 py-1 border rounded"
+                        className="text-xs cursor-pointer hover:bg-accent px-2 py-1 border rounded bg-white dark:bg-gray-800"
                         onClick={(e) => {
                           console.log('Button clicked!', team.name);
                           e.stopPropagation();
@@ -303,9 +312,6 @@ export default function LogoManagement() {
                       >
                         Remove Background
                       </button>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
-                      <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
                     </div>
                   </div>
                 </ThemedLogoContainer>
