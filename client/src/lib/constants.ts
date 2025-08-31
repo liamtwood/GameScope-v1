@@ -1,4 +1,3 @@
-export const CLUB_NAME = "Polk State College";
 
 export const POSITION_COLORS = {
   GK: "bg-blue-100 text-blue-800",

@@ -6,6 +6,7 @@ import { z } from "zod";
 export const clubs = pgTable("clubs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  shortName: text("short_name").notNull().default("PSC"),
   owner: text("owner").notNull(),
   logoPath: text("logo_path"),
   createdAt: timestamp("created_at").defaultNow(),

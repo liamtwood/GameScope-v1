@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Bell, Menu, Crosshair } from "lucide-react";
-import { CLUB_NAME } from "@/lib/constants";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
-import { OppositionTeam } from "@shared/schema";
+import { OppositionTeam, Club } from "@shared/schema";
 
 interface HeaderProps {
   title: string;
@@ -17,6 +16,13 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
     queryKey: ["/api/opposition-teams"] 
   });
+
+  // Fetch club data
+  const { data: clubs = [] } = useQuery<Club[]>({
+    queryKey: ["/api/clubs"],
+  });
+
+  const currentClub = clubs[0];
 
   // Find Polk State team in opposition teams
   const polkStateTeam = oppositionTeams?.find(team => 
@@ -51,7 +57,9 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 />
               </div>
               <div>
-                <h1 className="text-3xl text-foreground">{CLUB_NAME}</h1>
+                <h1 className="text-3xl text-foreground">
+                  {currentClub ? currentClub.name : "Loading..."}
+                </h1>
               </div>
             </div>
           </div>

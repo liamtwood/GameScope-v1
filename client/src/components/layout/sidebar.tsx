@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CLUB_NAME, NAVIGATION_ITEMS } from "@/lib/constants";
+import { NAVIGATION_ITEMS } from "@/lib/constants";
+import type { Club } from "@shared/schema";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -15,6 +17,13 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
   const currentPath = location === "/" ? "dashboard" : location.slice(1);
+
+  // Fetch club data
+  const { data: clubs = [] } = useQuery<Club[]>({
+    queryKey: ["/api/clubs"],
+  });
+
+  const currentClub = clubs[0];
 
   const iconMap = {
     Home,
@@ -72,7 +81,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-sm text-foreground">WOMEN'S SOCCER</h3>
-                <p className="text-xs text-muted-foreground">{CLUB_NAME}</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentClub ? `${currentClub.name} (${currentClub.shortName})` : "Loading..."}
+                </p>
               </div>
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>

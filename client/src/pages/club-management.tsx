@@ -14,18 +14,19 @@ export default function ClubManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<{ name: string; owner: string }>({
+  const [editForm, setEditForm] = useState<{ name: string; shortName: string; owner: string }>({
     name: "",
+    shortName: "",
     owner: "",
   });
 
   // Fetch clubs
-  const { data: clubs = [], isLoading: clubsLoading } = useQuery({
+  const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
   });
 
   // Fetch teams for the club
-  const { data: teams = [], isLoading: teamsLoading } = useQuery({
+  const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
   });
 
@@ -33,8 +34,8 @@ export default function ClubManagement() {
 
   // Update club mutation
   const updateClubMutation = useMutation({
-    mutationFn: async (data: { name: string; owner: string }) => {
-      return apiRequest("PATCH", `/api/clubs/${currentClub.id}`, data);
+    mutationFn: async (data: { name: string; shortName: string; owner: string }) => {
+      return apiRequest("PATCH", `/api/clubs/${currentClub?.id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
@@ -57,6 +58,7 @@ export default function ClubManagement() {
     if (currentClub) {
       setEditForm({
         name: currentClub.name,
+        shortName: currentClub.shortName,
         owner: currentClub.owner,
       });
       setIsEditing(true);
@@ -69,7 +71,7 @@ export default function ClubManagement() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditForm({ name: "", owner: "" });
+    setEditForm({ name: "", shortName: "", owner: "" });
   };
 
   if (clubsLoading || teamsLoading) {
@@ -92,7 +94,7 @@ export default function ClubManagement() {
     );
   }
 
-  const clubTeams = teams.filter((team: Team) => team.clubId === currentClub.id);
+  const clubTeams = teams.filter((team) => team.clubId === currentClub?.id);
 
   return (
     <MainLayout title="Club Management" subtitle="Manage your club information and teams">
@@ -134,6 +136,16 @@ export default function ClubManagement() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="club-short-name">Short Name</Label>
+                <Input
+                  id="club-short-name"
+                  value={editForm.shortName}
+                  onChange={(e) => setEditForm({ ...editForm, shortName: e.target.value })}
+                  placeholder="e.g., PSC"
+                  data-testid="input-club-short-name"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="club-owner">Club Owner</Label>
                 <Input
                   id="club-owner"
@@ -160,11 +172,17 @@ export default function ClubManagement() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">Club Name</Label>
                 <p className="text-lg font-semibold" data-testid="text-club-name">
                   {currentClub.name}
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Short Name</Label>
+                <p className="text-lg font-semibold" data-testid="text-club-short-name">
+                  {currentClub.shortName}
                 </p>
               </div>
               <div>
