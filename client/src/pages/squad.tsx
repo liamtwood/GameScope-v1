@@ -239,14 +239,13 @@ export default function Squad() {
           />
 
           {/* Total Players */}
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardContent className="p-6 text-center">
-              <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-              <p className="text-sm text-blue-700 mb-1">Total Players</p>
-              <p className="text-3xl font-bold text-blue-900">{getPositionCount('all')}</p>
-              <p className="text-xs text-blue-600 mt-1">active squad members</p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Total Players"
+            value={getPositionCount('all')}
+            icon={Users}
+            iconColor="text-border"
+            subtitle="active squad members"
+          />
 
           {/* Key Players */}
           <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
