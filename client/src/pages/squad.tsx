@@ -262,13 +262,7 @@ export default function Squad() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="grid grid-cols-5 gap-4">
-                      <div className="text-center">
-                        <div className="flex justify-center items-center h-5">
-                          <Star className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <p className="text-3xl font-bold text-foreground mt-1">{players?.filter(p => p.keyPlayer).length || 0}</p>
-                      </div>
+                    <div className="grid grid-cols-4 gap-4">
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">GK</p>
                         <p className="text-3xl font-bold text-foreground">{getPositionCount('GK')}</p>
