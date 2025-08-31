@@ -559,16 +559,13 @@ export default function Fixtures() {
             />
 
             {/* Goals Against Card */}
-            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-              <CardContent className="p-6 text-center">
-                <TrendingDown className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                <p className="text-sm text-red-700 mb-1">GOALS AGAINST</p>
-                <p className="text-3xl font-bold text-red-900">{stats.goalsAgainst}</p>
-                <p className="text-xs text-red-600 mt-1">
-                  {stats.completed > 0 ? (stats.goalsAgainst / stats.completed).toFixed(1) : '0.0'} per game
-                </p>
-              </CardContent>
-            </Card>
+            <StatsCard
+              title="Goals Against"
+              value={stats.goalsAgainst}
+              icon={TrendingDown}
+              iconColor="text-border"
+              subtitle={`${stats.completed > 0 ? (stats.goalsAgainst / stats.completed).toFixed(1) : '0.0'} per game`}
+            />
 
             {/* Goal Difference Card */}
             <Card className={`bg-gradient-to-br ${
