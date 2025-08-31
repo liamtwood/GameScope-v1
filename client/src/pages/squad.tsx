@@ -267,23 +267,23 @@ export default function Squad() {
                         <div className="flex justify-center items-center h-5">
                           <Star className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <p className="text-2xl font-bold text-foreground mt-1">{players?.filter(p => p.keyPlayer).length || 0}</p>
+                        <p className="text-3xl font-bold text-foreground mt-1">{players?.filter(p => p.keyPlayer).length || 0}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">GK</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('GK')}</p>
+                        <p className="text-3xl font-bold text-foreground">{getPositionCount('GK')}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">DEF</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('DEF')}</p>
+                        <p className="text-3xl font-bold text-foreground">{getPositionCount('DEF')}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">MID</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('MID')}</p>
+                        <p className="text-3xl font-bold text-foreground">{getPositionCount('MID')}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">FWD</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('FWD')}</p>
+                        <p className="text-3xl font-bold text-foreground">{getPositionCount('FWD')}</p>
                       </div>
                     </div>
                   </div>
