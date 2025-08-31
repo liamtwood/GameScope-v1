@@ -299,19 +299,12 @@ export default function Squad() {
           </div>
 
           {/* Other Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {/* Player Status */}
             <StatsCard
               title="Player Status"
               value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
               subtitle="fit-injured-retired"
-            />
-
-            {/* Forwards */}
-            <StatsCard
-              title="Forwards"
-              value={getPositionCount('FWD')}
-              subtitle="attacking players"
             />
           </div>
         </div>
