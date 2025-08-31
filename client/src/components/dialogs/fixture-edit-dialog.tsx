@@ -54,9 +54,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   });
 
   // Find the current opposition team, or create one if it doesn't exist
-  const [currentOppositionTeam, setCurrentOppositionTeam] = useState<OppositionTeam | null>(
-    () => oppositionTeams.find(team => team.name === fixture.opponent) || null
-  );
+  const [currentOppositionTeam, setCurrentOppositionTeam] = useState<OppositionTeam | null>(null);
 
   // Create opposition team mutation
   const createOppositionTeamMutation = useMutation({
@@ -110,7 +108,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     resolver: zodResolver(fixtureEditSchema),
     defaultValues: {
       opponent: fixture.opponent,
-      shortName: currentOppositionTeam?.shortName || "",
+      shortName: "",
       venue: fixture.venue,
       date: new Date(fixture.date),
       type: fixture.type as "HOME" | "AWAY",
@@ -122,7 +120,19 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     },
   });
 
-  // Keep currentOppositionTeam in sync with the latest opposition teams data
+  // Initialize and sync currentOppositionTeam with opposition teams data
+  useEffect(() => {
+    if (oppositionTeams.length > 0 && fixture.opponent) {
+      const foundTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+      if (foundTeam) {
+        setCurrentOppositionTeam(foundTeam);
+        // Update the shortName field with the found team's short name
+        form.setValue("shortName", foundTeam.shortName || "");
+      }
+    }
+  }, [oppositionTeams, fixture.opponent, form]);
+
+  // Keep currentOppositionTeam in sync when opponent name changes
   useEffect(() => {
     if (oppositionTeams.length > 0) {
       const opponentName = form.watch("opponent");
@@ -131,6 +141,9 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
         setCurrentOppositionTeam(foundTeam);
         // Update the shortName field when team changes
         form.setValue("shortName", foundTeam.shortName || "");
+      } else if (!foundTeam && currentOppositionTeam) {
+        setCurrentOppositionTeam(null);
+        form.setValue("shortName", "");
       }
     }
   }, [oppositionTeams, form, currentOppositionTeam]);
