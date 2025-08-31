@@ -248,8 +248,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateClubLogo(id: string, logoURL: string): Promise<Club> {
-    // Convert the object storage URL to a relative path
-    const logoPath = logoURL.replace(/^https:\/\/[^\/]+/, '');
+    // Import ObjectStorageService here to avoid circular dependency
+    const { ObjectStorageService } = await import('./objectStorage');
+    const objectStorageService = new ObjectStorageService();
+    
+    // Normalize the logo path using the object storage service
+    const logoPath = objectStorageService.normalizeLogoPath(logoURL);
     
     const updated = {
       logoPath,

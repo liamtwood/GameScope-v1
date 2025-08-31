@@ -203,12 +203,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Object upload route for logos
   app.post("/api/objects/upload", async (req, res) => {
     try {
-      // Mock upload URL - replace with actual object storage implementation
-      const uploadURL = `https://storage.googleapis.com/bucket/logo-${Date.now()}.png`;
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       res.json({ uploadURL });
     } catch (error) {
       console.error("Error generating upload URL:", error);
       res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
+  // Serve uploaded logos
+  app.get("/logos/:logoPath(*)", async (req, res) => {
+    try {
+      const logoPath = `/logos/${req.params.logoPath}`;
+      const objectStorageService = new ObjectStorageService();
+      const logoFile = await objectStorageService.getLogoFile(logoPath);
+      await objectStorageService.downloadObject(logoFile, res);
+    } catch (error) {
+      console.error("Error serving logo:", error);
+      res.status(404).json({ message: "Logo not found" });
     }
   });
 
