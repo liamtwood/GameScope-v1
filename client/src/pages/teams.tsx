@@ -1,10 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Shield, Trophy, Plus } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Club, Team } from "@shared/schema";
 
+// Form schema for creating teams
+const createTeamSchema = z.object({
+  name: z.string().min(1, "Team name is required"),
+  shortName: z.string().min(1, "Short name is required").max(10, "Short name must be 10 characters or less"),
+  coach: z.string().optional(),
+  assistantCoach: z.string().optional(),
+  ageGroup: z.string().optional(),
+  gender: z.string().optional(),
+  season: z.string().optional(),
+  status: z.string().default("ACTIVE"),
+});
+
+type CreateTeamFormData = z.infer<typeof createTeamSchema>;
+
 export default function Teams() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   // Fetch clubs data
   const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
@@ -16,6 +45,55 @@ export default function Teams() {
   });
 
   const currentClub = clubs[0]; // For now, we're working with the first club
+
+  // Form setup
+  const form = useForm<CreateTeamFormData>({
+    resolver: zodResolver(createTeamSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      coach: "",
+      assistantCoach: "",
+      ageGroup: "",
+      gender: "",
+      season: "",
+      status: "ACTIVE",
+    },
+  });
+
+  // Create team mutation
+  const createTeamMutation = useMutation({
+    mutationFn: async (data: CreateTeamFormData) => {
+      const teamData = {
+        ...data,
+        clubId: currentClub!.id,
+      };
+      return apiRequest("/api/teams", {
+        method: "POST",
+        body: teamData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+      toast({
+        title: "Success",
+        description: "Team created successfully",
+      });
+      setIsCreateDialogOpen(false);
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create team",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: CreateTeamFormData) => {
+    createTeamMutation.mutate(data);
+  };
 
   if (clubsLoading || teamsLoading) {
     return (
@@ -44,12 +122,157 @@ export default function Teams() {
       {/* Teams Overview */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <Shield className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <CardTitle className="text-xl">Teams in Club</CardTitle>
-              <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-muted-foreground" />
+              <div>
+                <CardTitle className="text-xl">Teams in Club</CardTitle>
+                <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
+              </div>
             </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" data-testid="button-add-team">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Team
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Team</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Team Name *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Women's Soccer" {...field} data-testid="input-team-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="shortName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Name *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., WSC" maxLength={10} {...field} data-testid="input-team-short-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="coach"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Head Coach</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Coach name" {...field} data-testid="input-team-coach" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="assistantCoach"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Assistant Coach</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Assistant coach name" {...field} data-testid="input-team-assistant-coach" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gender</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-team-gender">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="MALE">Male</SelectItem>
+                                <SelectItem value="FEMALE">Female</SelectItem>
+                                <SelectItem value="MIXED">Mixed</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="ageGroup"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Age Group</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., U21" {...field} data-testid="input-team-age-group" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="season"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Season</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., 2025/26" {...field} data-testid="input-team-season" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsCreateDialogOpen(false)}
+                        data-testid="button-cancel-team"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={createTeamMutation.isPending}
+                        data-testid="button-save-team"
+                      >
+                        {createTeamMutation.isPending ? "Creating..." : "Create Team"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>
