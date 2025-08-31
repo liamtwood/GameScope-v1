@@ -598,12 +598,56 @@ export default function Fixtures() {
       </div>
 
 
-      {/* Filters */}
-      <div className="mb-6 space-y-3">
-        <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="space-y-6">
-            {/* Current Team Logos */}
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="flex space-x-4 border-b border-gray-200">
+          <button
+            onClick={() => setOverviewTab('season')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              overviewTab === 'season' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Season
+          </button>
+          <button
+            onClick={() => setOverviewTab('planning')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              overviewTab === 'planning' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Planning
+          </button>
+          <button
+            onClick={() => setOverviewTab('video')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              overviewTab === 'video' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Videos
+          </button>
+          <button
+            onClick={() => setOverviewTab('logos')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              overviewTab === 'logos' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Logos
+          </button>
+        </div>
+      </div>
+
+      {/* Logos Tab Content */}
+      {overviewTab === 'logos' && (
+        <div className="space-y-6">
+          {/* Current Team Logos */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -892,9 +936,8 @@ export default function Fixtures() {
                 </CardContent>
               </Card>
             )}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {overviewTab !== 'logos' && (
         <>
