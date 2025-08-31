@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, Target, Shield } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
 import { Team, Player } from "@shared/schema";
+import { useTeam } from "@/contexts/team-context";
 
 export default function Statistics() {
-  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
-  const currentTeam = teams?.[0]; // For demo, use first team
+  const { selectedTeam: currentTeam } = useTeam();
 
   const { data: players } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],

@@ -14,6 +14,7 @@ import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy }
 import { Player, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useTeam } from "@/contexts/team-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
@@ -25,9 +26,7 @@ export default function Squad() {
   const [editValue, setEditValue] = useState("");
   const [activeTab, setActiveTab] = useState<'table' | 'player-card' | 'account-card'>('table');
   const { toast } = useToast();
-
-  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
-  const currentTeam = teams?.[0]; // For demo, use first team
+  const { selectedTeam: currentTeam } = useTeam();
 
   const { data: players, isLoading } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],

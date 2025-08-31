@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Share, Clock, Calendar, Video as VideoIcon, Image } from "lucide-react";
 import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useTeam } from "@/contexts/team-context";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 
@@ -15,9 +16,7 @@ export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
-  const currentTeam = teams?.[0]; // For demo, use first team
+  const { selectedTeam: currentTeam } = useTeam();
 
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
