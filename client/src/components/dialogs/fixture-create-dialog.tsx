@@ -177,25 +177,30 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                               Cancel
                             </Button>
                           </div>
-                          <div className="flex gap-2">
-                            <Input 
-                              placeholder="Team website URL (optional - for auto logo discovery)" 
-                              value={newOpponentWebsite}
-                              onChange={(e) => setNewOpponentWebsite(e.target.value)}
-                              data-testid="input-opponent-website"
-                              className="flex-1"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDiscoverLogo()}
-                              disabled={!newOpponentWebsite || isDiscoveringLogo}
-                              data-testid="button-discover-logo"
-                              title="Automatically find team logo from website"
-                            >
-                              {isDiscoveringLogo ? "Finding..." : "Find Logo"}
-                            </Button>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <Input 
+                                placeholder="Team website URL (optional - for auto logo discovery)" 
+                                value={newOpponentWebsite}
+                                onChange={(e) => setNewOpponentWebsite(e.target.value)}
+                                data-testid="input-opponent-website"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDiscoverLogo()}
+                                disabled={!newOpponentWebsite || isDiscoveringLogo}
+                                data-testid="button-discover-logo"
+                                title="Automatically find team logo from website"
+                              >
+                                {isDiscoveringLogo ? "Finding..." : "Find Logo"}
+                              </Button>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Note: Some major websites (like Man City) may block automatic discovery due to security restrictions.
+                            </p>
                           </div>
                           {discoveredLogoUrl && (
                             <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
