@@ -242,38 +242,35 @@ export function MetricsComparison({ teamStats, opponentStats }: MetricsCompariso
   ];
 
   return (
-    <Card className="p-6 border-2 border-border shadow-xl drop-shadow-lg">
-      <div className="space-y-6">
-        
-        {/* Tab Navigation - Using shadcn Tabs like existing tabs */}
-        <Tabs defaultValue="Key" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            {metricCategories.map((category) => (
-              <TabsTrigger key={category.category} value={category.category}>
-                {category.category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
-          {/* Tab Content */}
+    <div className="space-y-6">
+      {/* Tab Navigation - Using shadcn Tabs like existing tabs */}
+      <Tabs defaultValue="Key" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
           {metricCategories.map((category) => (
-            <TabsContent key={category.category} value={category.category} className="mt-6">
-              <div className="space-y-4">
-                {category.metrics.map((metric, metricIndex) => (
-                  <MetricBar
-                    key={metricIndex}
-                    label={metric.label}
-                    teamValue={metric.teamValue}
-                    opponentValue={metric.opponentValue}
-                    unit={metric.unit}
-                    isPercentage={metric.isPercentage}
-                  />
-                ))}
-              </div>
-            </TabsContent>
+            <TabsTrigger key={category.category} value={category.category}>
+              {category.category}
+            </TabsTrigger>
           ))}
-        </Tabs>
-      </div>
-    </Card>
+        </TabsList>
+        
+        {/* Tab Content */}
+        {metricCategories.map((category) => (
+          <TabsContent key={category.category} value={category.category} className="mt-6">
+            <div className="space-y-4">
+              {category.metrics.map((metric, metricIndex) => (
+                <MetricBar
+                  key={metricIndex}
+                  label={metric.label}
+                  teamValue={metric.teamValue}
+                  opponentValue={metric.opponentValue}
+                  unit={metric.unit}
+                  isPercentage={metric.isPercentage}
+                />
+              ))}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
   );
 }
