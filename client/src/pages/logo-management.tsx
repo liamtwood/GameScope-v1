@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3 } from "lucide-react";
 import { OppositionTeam } from "@shared/schema";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
@@ -24,10 +22,6 @@ export default function LogoManagement() {
   const [processingMode, setProcessingMode] = useState<'smart' | 'color' | 'manual'>('smart');
   const [threshold, setThreshold] = useState(30);
   const [showTip, setShowTip] = useState(false);
-  const [autoCrop, setAutoCrop] = useState(true);
-  const [cropPadding, setCropPadding] = useState(10);
-  const [enableResize, setEnableResize] = useState(false);
-  const [resizeWidth, setResizeWidth] = useState(500);
   const { toast } = useToast();
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
@@ -61,10 +55,6 @@ export default function LogoManagement() {
       setShowTip(false);
       setProcessingMode('smart');
       setThreshold(30);
-      setAutoCrop(true);
-      setCropPadding(10);
-      setEnableResize(false);
-      setResizeWidth(500);
     },
     onError: (error) => {
       toast({
@@ -120,10 +110,7 @@ export default function LogoManagement() {
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
         tolerance: threshold,
-        preserveInternalWhite: true,
-        autoCrop,
-        cropPadding,
-        resizeWidth: enableResize ? resizeWidth : undefined
+        preserveInternalWhite: true
       };
       
       const processedBlob = await backgroundRemover.removeBackground(file, options);
@@ -219,10 +206,7 @@ export default function LogoManagement() {
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
         tolerance: threshold,
-        preserveInternalWhite: true,
-        autoCrop,
-        cropPadding,
-        resizeWidth: enableResize ? resizeWidth : undefined
+        preserveInternalWhite: true
       };
       
       console.log('Step 5: Starting background removal with options:', options);
@@ -426,86 +410,6 @@ export default function LogoManagement() {
               )}
             </div>
 
-            {/* Crop and Resize Options */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-              <h4 className="text-sm font-medium text-gray-700">Output Options</h4>
-              
-              <div className="flex items-center space-x-3 flex-wrap">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="auto-crop"
-                    checked={autoCrop}
-                    onCheckedChange={(checked) => {
-                      setAutoCrop(!!checked);
-                      if (selectedFile) processImageWithCurrentSettings(selectedFile);
-                    }}
-                    data-testid="checkbox-auto-crop"
-                  />
-                  <label htmlFor="auto-crop" className="text-sm font-medium cursor-pointer">
-                    Auto Crop & Center
-                  </label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="crop-padding" className="text-sm text-gray-600">Padding:</label>
-                  <Input
-                    id="crop-padding"
-                    type="number"
-                    value={cropPadding}
-                    onChange={(e) => {
-                      setCropPadding(parseInt(e.target.value) || 0);
-                      if (selectedFile && autoCrop) processImageWithCurrentSettings(selectedFile);
-                    }}
-                    min={0}
-                    max={100}
-                    className="w-16 h-8 text-sm"
-                    data-testid="input-crop-padding"
-                  />
-                  <span className="text-xs text-gray-500">px</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3 flex-wrap">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="enable-resize"
-                    checked={enableResize}
-                    onCheckedChange={(checked) => {
-                      setEnableResize(!!checked);
-                      if (selectedFile) processImageWithCurrentSettings(selectedFile);
-                    }}
-                    data-testid="checkbox-enable-resize"
-                  />
-                  <label htmlFor="enable-resize" className="text-sm font-medium cursor-pointer">
-                    Resize Output
-                  </label>
-                </div>
-                
-                {enableResize && (
-                  <div className="flex items-center space-x-2">
-                    <label htmlFor="resize-width" className="text-sm text-gray-600">Width:</label>
-                    <Input
-                      id="resize-width"
-                      type="number"
-                      value={resizeWidth}
-                      onChange={(e) => {
-                        const newWidth = parseInt(e.target.value) || 500;
-                        setResizeWidth(newWidth);
-                        if (selectedFile && enableResize) processImageWithCurrentSettings(selectedFile);
-                      }}
-                      min={10}
-                      max={5000}
-                      className="w-20 h-8 text-sm"
-                      data-testid="input-resize-width"
-                    />
-                    <span className="text-xs text-gray-500">px</span>
-                    <span className="text-xs text-gray-500" data-testid="text-resize-info">
-                      (Auto height)
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* File Upload */}
             <div>

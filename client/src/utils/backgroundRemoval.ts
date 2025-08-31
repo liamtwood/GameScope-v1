@@ -7,9 +7,6 @@ export interface BackgroundRemovalOptions {
   tolerance?: number;
   preserveInternalWhite?: boolean;
   mode?: 'smart' | 'color' | 'manual';
-  autoCrop?: boolean;
-  cropPadding?: number;
-  resizeWidth?: number;
 }
 
 export class BackgroundRemover {
@@ -25,14 +22,7 @@ export class BackgroundRemover {
     imageFile: File, 
     options: BackgroundRemovalOptions = {}
   ): Promise<Blob> {
-    const { 
-      tolerance = 30, 
-      preserveInternalWhite = true, 
-      mode = 'smart',
-      autoCrop = false,
-      cropPadding = 10,
-      resizeWidth
-    } = options;
+    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart' } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -62,22 +52,8 @@ export class BackgroundRemover {
           // Update canvas with processed data
           this.ctx.putImageData(imageData, 0, 0);
           
-          // Handle cropping if enabled
-          let finalCanvas = this.canvas;
-          if (autoCrop) {
-            const cropBounds = this.findContentBounds(imageData.data, img.width, img.height);
-            if (cropBounds) {
-              finalCanvas = this.cropAndRecenter(this.canvas, cropBounds, cropPadding);
-            }
-          }
-          
-          // Handle resizing if enabled
-          if (resizeWidth && resizeWidth > 0) {
-            finalCanvas = this.resizeCanvas(finalCanvas, resizeWidth);
-          }
-          
           // Convert to blob
-          finalCanvas.toBlob((blob) => {
+          this.canvas.toBlob((blob) => {
             if (blob) {
               resolve(blob);
             } else {
@@ -96,52 +72,135 @@ export class BackgroundRemover {
   }
 
   private processSmartMode(data: Uint8ClampedArray, width: number, height: number): void {
-    // Enhanced algorithm that handles isolated elements like TM symbols
+    // Algorithm that specifically preserves internal white areas like in TM symbols
     const bgColor = this.detectBackgroundColor(data, width, height);
-    const tolerance = 40; // Increased tolerance for more aggressive background removal
+    const tolerance = 35;
     
-    // First pass: Mark all pixels similar to background color (including most whites/lights)
-    const isBackground = new Array(width * height).fill(false);
+    // First, identify all colored (non-white/non-background) pixels
+    // These form the boundaries that protect internal white
+    const isColoredContent = new Array(width * height).fill(false);
     
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
+      const idx = i / 4;
       
-      // More aggressive background detection for whites and light colors
-      const isWhiteish = r > 200 && g > 200 && b > 200;
-      const matchesBgColor = Math.abs(r - bgColor.r) < tolerance && 
-                            Math.abs(g - bgColor.g) < tolerance && 
-                            Math.abs(b - bgColor.b) < tolerance;
+      // Check if this is colored content (not white/light gray)
+      // This includes black, red, yellow, etc.
+      const isWhiteish = r > 240 && g > 240 && b > 240;
+      const isGrayish = Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && Math.abs(r - b) < 20 && r > 200;
       
-      if (matchesBgColor || isWhiteish) {
-        isBackground[i / 4] = true;
+      if (!isWhiteish && !isGrayish) {
+        isColoredContent[idx] = true;
       }
     }
     
-    // Second pass: Find content islands and preserve internal content only
+    // Create a flood fill mask starting ONLY from edges
+    // But stop at any colored content (black, red, yellow)
+    const externalBg = new Array(width * height).fill(false);
     const visited = new Array(width * height).fill(false);
-    const contentPixels = new Set<number>();
+    const queue: Array<{x: number, y: number}> = [];
     
-    // Find all non-background pixels as potential content
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = y * width + x;
-        if (!isBackground[idx] && !visited[idx]) {
-          // Found content - flood fill to find connected component
-          const component = this.floodFillComponent(x, y, width, height, isBackground, visited);
-          // Only keep components that are substantial (not just noise/artifacts)
-          if (component.size > 5) {
-            component.forEach(pixel => contentPixels.add(pixel));
+    // Add all edge pixels to queue
+    for (let x = 0; x < width; x++) {
+      // Top edge
+      if (!isColoredContent[x]) {
+        queue.push({x, y: 0});
+        visited[x] = true;
+      }
+      // Bottom edge
+      const bottomIdx = (height - 1) * width + x;
+      if (!isColoredContent[bottomIdx]) {
+        queue.push({x, y: height - 1});
+        visited[bottomIdx] = true;
+      }
+    }
+    
+    for (let y = 1; y < height - 1; y++) {
+      // Left edge
+      const leftIdx = y * width;
+      if (!isColoredContent[leftIdx]) {
+        queue.push({x: 0, y});
+        visited[leftIdx] = true;
+      }
+      // Right edge
+      const rightIdx = y * width + width - 1;
+      if (!isColoredContent[rightIdx]) {
+        queue.push({x: width - 1, y});
+        visited[rightIdx] = true;
+      }
+    }
+    
+    // Flood fill but STOP at colored content boundaries
+    while (queue.length > 0) {
+      const {x, y} = queue.shift()!;
+      const idx = y * width + x;
+      const pixelIdx = idx * 4;
+      
+      // Skip if this is colored content
+      if (isColoredContent[idx]) {
+        continue;
+      }
+      
+      const r = data[pixelIdx];
+      const g = data[pixelIdx + 1];
+      const b = data[pixelIdx + 2];
+      
+      // Only process if this looks like background (white/light)
+      if (Math.abs(r - bgColor.r) < tolerance && 
+          Math.abs(g - bgColor.g) < tolerance && 
+          Math.abs(b - bgColor.b) < tolerance) {
+        
+        externalBg[idx] = true;
+        
+        // Check neighbors
+        const neighbors = [
+          {x: x - 1, y}, {x: x + 1, y},
+          {x, y: y - 1}, {x, y: y + 1}
+        ];
+        
+        for (let neighbor of neighbors) {
+          if (neighbor.x >= 0 && neighbor.x < width && 
+              neighbor.y >= 0 && neighbor.y < height) {
+            const nIdx = neighbor.y * width + neighbor.x;
+            
+            // Don't cross colored content boundaries
+            if (!visited[nIdx] && !isColoredContent[nIdx]) {
+              visited[nIdx] = true;
+              queue.push(neighbor);
+            }
           }
         }
       }
     }
     
-    // Apply transparency to everything except solid content
+    // Special handling for isolated elements like TM
+    // Look for small white regions completely surrounded by background
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const idx = y * width + x;
+        const pixelIdx = idx * 4;
+        
+        if (!externalBg[idx] && !isColoredContent[idx]) {
+          const r = data[pixelIdx];
+          const g = data[pixelIdx + 1];
+          const b = data[pixelIdx + 2];
+          
+          // If this is white and completely surrounded by external background
+          if (r > 240 && g > 240 && b > 240) {
+            if (this.isCompletelyIsolated(x, y, width, height, externalBg, isColoredContent)) {
+              externalBg[idx] = true;
+            }
+          }
+        }
+      }
+    }
+    
+    // Apply transparency only to external background
     for (let i = 0; i < data.length; i += 4) {
       const pixelIdx = i / 4;
-      if (!contentPixels.has(pixelIdx)) {
+      if (externalBg[pixelIdx]) {
         data[i + 3] = 0; // Make transparent
       }
     }
@@ -307,85 +366,45 @@ export class BackgroundRemover {
     return totalCount > 0 && backgroundCount / totalCount > 0.5;
   }
 
-  private findContentBounds(
-    data: Uint8ClampedArray,
-    width: number,
-    height: number
-  ): { left: number; top: number; right: number; bottom: number; width: number; height: number } | null {
-    let left = width;
-    let right = 0;
-    let top = height;
-    let bottom = 0;
-    let hasContent = false;
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = (y * width + x) * 4;
-        const alpha = data[idx + 3];
+  private isCompletelyIsolated(
+    x: number, 
+    y: number, 
+    width: number, 
+    height: number, 
+    externalBg: boolean[], 
+    isColoredContent: boolean[]
+  ): boolean {
+    // Check if this white pixel is in a small isolated region
+    // surrounded by external background (for handling TM-like elements)
+    
+    // First check immediate surroundings
+    let hasColoredNeighbor = false;
+    let externalNeighbors = 0;
+    
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        if (dx === 0 && dy === 0) continue;
         
-        if (alpha > 0) { // Non-transparent pixel
-          hasContent = true;
-          left = Math.min(left, x);
-          right = Math.max(right, x);
-          top = Math.min(top, y);
-          bottom = Math.max(bottom, y);
+        const nx = x + dx;
+        const ny = y + dy;
+        
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          const nIdx = ny * width + nx;
+          
+          if (isColoredContent[nIdx]) {
+            hasColoredNeighbor = true;
+            break;
+          }
+          
+          if (externalBg[nIdx]) {
+            externalNeighbors++;
+          }
         }
       }
+      if (hasColoredNeighbor) break;
     }
-
-    if (!hasContent) return null;
-
-    return {
-      left,
-      top,
-      right,
-      bottom,
-      width: right - left + 1,
-      height: bottom - top + 1
-    };
-  }
-
-  private cropAndRecenter(
-    canvas: HTMLCanvasElement,
-    bounds: { left: number; top: number; width: number; height: number },
-    padding: number
-  ): HTMLCanvasElement {
-    const newCanvas = document.createElement('canvas');
-    const ctx = newCanvas.getContext('2d')!;
     
-    // Calculate new dimensions with padding
-    const newWidth = bounds.width + (padding * 2);
-    const newHeight = bounds.height + (padding * 2);
-    
-    newCanvas.width = newWidth;
-    newCanvas.height = newHeight;
-    
-    // Draw the cropped content centered with padding
-    ctx.drawImage(
-      canvas,
-      bounds.left, bounds.top, bounds.width, bounds.height,
-      padding, padding, bounds.width, bounds.height
-    );
-    
-    return newCanvas;
-  }
-
-  private resizeCanvas(canvas: HTMLCanvasElement, targetWidth: number): HTMLCanvasElement {
-    const aspectRatio = canvas.height / canvas.width;
-    const targetHeight = Math.round(targetWidth * aspectRatio);
-    
-    const resizedCanvas = document.createElement('canvas');
-    const ctx = resizedCanvas.getContext('2d')!;
-    
-    resizedCanvas.width = targetWidth;
-    resizedCanvas.height = targetHeight;
-    
-    // Use smooth scaling
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    
-    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
-    
-    return resizedCanvas;
+    // If no colored neighbors and mostly surrounded by external background
+    return !hasColoredNeighbor && externalNeighbors > 15;
   }
 }
