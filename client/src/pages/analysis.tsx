@@ -236,7 +236,7 @@ export default function Analysis() {
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
                         <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">OPP</span>
+                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <span className="text-sm text-muted-foreground">Goals</span>
@@ -291,7 +291,7 @@ export default function Analysis() {
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
                         <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">OPP</span>
+                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <span className="text-sm text-muted-foreground">Possession %</span>
@@ -341,7 +341,7 @@ export default function Analysis() {
                       <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                         <span className="text-muted-foreground">Metric</span>
                         <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">OPP</span>
+                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <span className="text-sm text-muted-foreground">Tackles</span>
