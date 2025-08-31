@@ -341,41 +341,6 @@ export class BackgroundRemover {
     return component;
   }
 
-  private isSurroundedByBackground(
-    data: Uint8ClampedArray, 
-    width: number, 
-    height: number, 
-    x: number, 
-    y: number, 
-    bgColor: { r: number; g: number; b: number }, 
-    tolerance: number
-  ): boolean {
-    let backgroundCount = 0;
-    let totalCount = 0;
-    
-    // Check 3x3 area around pixel
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        if (dx === 0 && dy === 0) continue;
-        
-        const nx = x + dx;
-        const ny = y + dy;
-        
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          const idx = (ny * width + nx) * 4;
-          totalCount++;
-          
-          if (Math.abs(data[idx] - bgColor.r) < tolerance &&
-              Math.abs(data[idx + 1] - bgColor.g) < tolerance &&
-              Math.abs(data[idx + 2] - bgColor.b) < tolerance) {
-            backgroundCount++;
-          }
-        }
-      }
-    }
-    
-    return totalCount > 0 && backgroundCount / totalCount > 0.5;
-  }
 
   private isCompletelyIsolated(
     x: number, 
