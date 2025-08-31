@@ -29,7 +29,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video' | 'logos'>('video');
+  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video'>('video');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -510,14 +510,6 @@ export default function Fixtures() {
           </Button>
         </FixtureCreateDialog>
         
-        <Button 
-          variant={overviewTab === 'logos' ? "default" : "outline"}
-          onClick={() => setOverviewTab('logos')}
-          data-testid="button-logo-management"
-        >
-          <Image className="mr-2 h-4 w-4" />
-          Logo Management
-        </Button>
       </div>
 
       {/* Overview Tabs */}
@@ -551,15 +543,6 @@ export default function Fixtures() {
             >
               <Video className="mr-2 h-4 w-4" />
               Videos
-            </Button>
-            <Button
-              variant={overviewTab === 'logos' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setOverviewTab('logos')}
-              className={overviewTab === 'logos' ? "bg-background text-foreground shadow-sm" : ""}
-            >
-              <Image className="mr-2 h-4 w-4" />
-              Logos
             </Button>
           </div>
         </div>
