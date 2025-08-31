@@ -228,16 +228,7 @@ export default function Squad() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-          {/* FCSAA League Card */}
-          <StatsCard
-            title="FCSAA League"
-            value={`${fcsaaStats.wins}-${fcsaaStats.draws}-${fcsaaStats.losses}`}
-            icon={Trophy}
-            iconColor="text-border"
-            subtitle="W-D-L"
-          />
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Players */}
           <StatsCard
             title="Total Players"
@@ -246,16 +237,6 @@ export default function Squad() {
             iconColor="text-border"
             subtitle="active squad members"
           />
-
-          {/* Key Players */}
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-            <CardContent className="p-6 text-center">
-              <Star className="h-8 w-8 mx-auto mb-2 text-orange-600" fill="currentColor" />
-              <p className="text-sm text-orange-700 mb-1">Key Players</p>
-              <p className="text-3xl font-bold text-orange-900">{getKeyPlayersCount()}</p>
-              <p className="text-xs text-orange-600 mt-1">core team members</p>
-            </CardContent>
-          </Card>
 
           {/* Defenders */}
           <StatsCard
