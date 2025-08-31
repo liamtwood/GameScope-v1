@@ -291,11 +291,11 @@ export default function Squad() {
 
           {/* Position Breakdown */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Defenders */}
+            {/* Star Players */}
             <StatsCard
-              title="Defenders"
-              value={getPositionCount('DEF')}
-              subtitle="defensive players"
+              title="Star Players"
+              value={players?.filter(p => p.keyPlayer).length || 0}
+              subtitle="regular starters"
             />
 
             {/* Midfield */}
