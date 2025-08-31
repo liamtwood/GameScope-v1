@@ -25,7 +25,7 @@ export function SpiderChart({
   opponentColor = "#64748b" // Gray for opponent
 }: SpiderChartProps) {
   return (
-    <div className="w-full h-96">
+    <div className="w-full h-96 flex flex-col items-center">
       <h4 className="text-lg font-semibold mb-4 text-center">{title}</h4>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data} margin={{ top: 40, right: 100, bottom: 40, left: 100 }}>
