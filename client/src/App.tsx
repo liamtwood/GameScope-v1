@@ -12,6 +12,7 @@ import FixtureDetails from "@/pages/fixture-details";
 import Analysis from "@/pages/analysis";
 import Squad from "@/pages/squad";
 import Statistics from "@/pages/statistics";
+import Teams from "@/pages/teams";
 import Videos from "@/pages/videos";
 import NotFound from "@/pages/not-found";
 
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/analysis/:fixtureId" component={Analysis} />
       <Route path="/squad" component={Squad} />
       <Route path="/statistics" component={Statistics} />
+      <Route path="/teams" component={Teams} />
       <Route path="/videos" component={Videos} />
       <Route component={NotFound} />
     </Switch>
