@@ -42,9 +42,11 @@ export default function Teams() {
   const urlParams = new URLSearchParams(window.location.search);
   const clubId = urlParams.get("clubId");
 
-  // Fetch clubs data
+  // Fetch clubs data (refetch when clubId changes to ensure fresh data)
   const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always refetch to ensure we have the latest data
   });
 
   // Use the club from URL context if available, otherwise default to first club
