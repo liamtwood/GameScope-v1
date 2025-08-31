@@ -29,6 +29,7 @@ const fixtureEditSchema = z.object({
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
   notes: z.string().optional(),
+  oppositionTeamId: z.string().optional(),
 });
 
 type FixtureEditFormData = z.infer<typeof fixtureEditSchema>;
@@ -117,6 +118,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       homeScore: fixture.homeScore || undefined,
       awayScore: fixture.awayScore || undefined,
       notes: fixture.notes || "",
+      oppositionTeamId: fixture.oppositionTeamId || undefined,
     },
   });
 
@@ -148,17 +150,45 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     }
   }, [oppositionTeams, form, currentOppositionTeam]);
 
-  const handleSubmit = (data: FixtureEditFormData) => {
-    // Update opposition team short name if it exists and shortName is provided
-    if (currentOppositionTeam?.id && data.shortName !== undefined) {
-      updateOppositionTeamMutation.mutate({
-        teamId: currentOppositionTeam.id,
-        shortName: data.shortName
-      });
+  const handleSubmit = async (data: FixtureEditFormData) => {
+    // If we have a current opposition team, update its short name and set the ID
+    if (currentOppositionTeam?.id) {
+      // Update short name if provided
+      if (data.shortName !== undefined && data.shortName !== currentOppositionTeam.shortName) {
+        updateOppositionTeamMutation.mutate({
+          teamId: currentOppositionTeam.id,
+          shortName: data.shortName
+        });
+      }
+      
+      // If the opponent name has changed, update the opposition team name as well
+      if (data.opponent !== currentOppositionTeam.name) {
+        updateOppositionTeamMutation.mutate({
+          teamId: currentOppositionTeam.id,
+          shortName: data.shortName
+        });
+        
+        // Update the opposition team name via API
+        await apiRequest("PUT", `/api/opposition-teams/${currentOppositionTeam.id}`, {
+          name: data.opponent,
+          shortName: data.shortName
+        });
+      }
+    } else if (data.opponent && data.opponent.trim()) {
+      // Create new opposition team if it doesn't exist
+      const newTeam = await apiRequest("POST", "/api/opposition-teams", {
+        name: data.opponent,
+        shortName: data.shortName || ""
+      }) as any;
+      data.oppositionTeamId = newTeam.id;
     }
     
-    // Save fixture data (excluding shortName as it's not a fixture field)
+    // Save fixture data with opposition team ID
     const { shortName, ...fixtureData } = data;
+    if (currentOppositionTeam?.id) {
+      fixtureData.oppositionTeamId = currentOppositionTeam.id;
+    }
+    
     onSave(fixtureData);
     setOpen(false);
   };
