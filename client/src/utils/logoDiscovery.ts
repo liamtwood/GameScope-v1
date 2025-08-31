@@ -23,22 +23,8 @@ export class LogoDiscovery {
         return { success: false, error: "Invalid website URL" };
       }
 
-      // Try common logo patterns
-      const logoPatterns = [
-        '/logo.png',
-        '/logo.jpg', 
-        '/logo.svg',
-        '/images/logo.png',
-        '/assets/logo.png',
-        '/wp-content/uploads/logo.png',
-        '/media/logo.png'
-      ];
-
-      // Try favicon as fallback
+      // Try favicon first as it's most reliable
       const faviconUrl = `${cleanUrl}/favicon.ico`;
-      
-      // For now, return the favicon as the most reliable option
-      // In a full implementation, you'd scrape the website for better logos
       try {
         const response = await fetch(faviconUrl, { method: 'HEAD' });
         if (response.ok) {
@@ -48,8 +34,22 @@ export class LogoDiscovery {
           };
         }
       } catch (e) {
-        // Favicon not found, continue
+        // Continue to other methods
       }
+
+      // Try common logo patterns
+      const logoPatterns = [
+        '/logo.png',
+        '/logo.jpg', 
+        '/logo.svg',
+        '/images/logo.png',
+        '/assets/logo.png',
+        '/wp-content/uploads/logo.png',
+        '/media/logo.png',
+        '/img/logo.png',
+        '/static/logo.png',
+        '/public/logo.png'
+      ];
 
       // Try common logo paths
       for (const pattern of logoPatterns) {
@@ -67,11 +67,63 @@ export class LogoDiscovery {
         }
       }
 
-      return { success: false, error: "No logo found at common locations" };
+      // Try to scrape the page for logo images
+      try {
+        const response = await fetch(cleanUrl);
+        if (response.ok) {
+          const html = await response.text();
+          const logoUrl = this.extractLogoFromHtml(html, cleanUrl);
+          if (logoUrl) {
+            return {
+              logoUrl,
+              success: true
+            };
+          }
+        }
+      } catch (e) {
+        // Page scraping failed
+      }
+
+      return { success: false, error: "No logo found at common locations or in page content" };
       
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
+  }
+
+  /**
+   * Extract logo from HTML content using common patterns
+   */
+  private extractLogoFromHtml(html: string, baseUrl: string): string | null {
+    // Look for common logo patterns in HTML
+    const logoPatterns = [
+      /<img[^>]*class="[^"]*logo[^"]*"[^>]*src="([^"]+)"/i,
+      /<img[^>]*src="([^"]+)"[^>]*class="[^"]*logo[^"]*"/i,
+      /<img[^>]*alt="[^"]*logo[^"]*"[^>]*src="([^"]+)"/i,
+      /<img[^>]*src="([^"]+)"[^>]*alt="[^"]*logo[^"]*"/i,
+      /<img[^>]*id="[^"]*logo[^"]*"[^>]*src="([^"]+)"/i,
+      /<img[^>]*src="([^"]+)"[^>]*id="[^"]*logo[^"]*"/i,
+    ];
+
+    for (const pattern of logoPatterns) {
+      const match = html.match(pattern);
+      if (match) {
+        let logoUrl = match[1];
+        
+        // Convert relative URLs to absolute
+        if (logoUrl.startsWith('/')) {
+          logoUrl = baseUrl + logoUrl;
+        } else if (logoUrl.startsWith('./')) {
+          logoUrl = baseUrl + logoUrl.substring(1);
+        } else if (!logoUrl.startsWith('http')) {
+          logoUrl = baseUrl + '/' + logoUrl;
+        }
+        
+        return logoUrl;
+      }
+    }
+
+    return null;
   }
 
   private cleanUrl(url: string): string | null {
