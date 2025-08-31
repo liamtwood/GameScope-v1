@@ -180,55 +180,33 @@ export default function LogoManagement() {
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Handle CORS
       
-      const processedBlob = await new Promise<Blob>((resolve, reject) => {
-        img.onload = async () => {
-          try {
-            console.log('Image loaded successfully, dimensions:', img.width, 'x', img.height);
-            
-            // Create a canvas and draw the image
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d')!;
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            
-            // Convert canvas to blob
-            canvas.toBlob(async (blob) => {
-              if (!blob) {
-                reject(new Error('Failed to create blob from canvas'));
-                return;
-              }
-              
-              console.log('Created blob from canvas, size:', blob.size);
-              
-              // Create File object and process
-              const file = new File([blob], `${team.name}-logo`, { type: 'image/png' });
-              
-              const backgroundRemover = new BackgroundRemover();
-              const options: BackgroundRemovalOptions = {
-                mode: processingMode,
-                tolerance: threshold,
-                preserveInternalWhite: true
-              };
-              
-              console.log('Processing with options:', options);
-              const processedBlob = await backgroundRemover.removeBackground(file, options);
-              console.log('Background removal completed, size:', processedBlob.size);
-              resolve(processedBlob);
-            }, 'image/png');
-          } catch (error) {
-            console.error('Error in image processing:', error);
-            reject(error);
-          }
-        };
-        
-        img.onerror = () => {
-          console.error('Failed to load image:', team.logoPath);
-          reject(new Error('Failed to load image'));
-        };
-        
-        img.src = team.logoPath;
+      // First, try to fetch the image as a blob
+      console.log('Fetching image from:', team.logoPath);
+      const response = await fetch(team.logoPath);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      console.log('Fetched blob, size:', blob.size, 'type:', blob.type);
+      
+      // Create File object
+      const file = new File([blob], `${team.name}-logo.png`, { 
+        type: blob.type || 'image/png' 
       });
+      console.log('Created file object');
+      
+      // Process the image
+      const backgroundRemover = new BackgroundRemover();
+      const options: BackgroundRemovalOptions = {
+        mode: processingMode,
+        tolerance: threshold,
+        preserveInternalWhite: true
+      };
+      
+      console.log('Starting background removal with options:', options);
+      const processedBlob = await backgroundRemover.removeBackground(file, options);
+      console.log('Background removal completed successfully, processed size:', processedBlob.size);
       
       const processedUrl = URL.createObjectURL(processedBlob);
       console.log('Generated processed image URL:', processedUrl);
@@ -457,6 +435,16 @@ export default function LogoManagement() {
                   <Wand2 className="inline h-4 w-4 mr-1" />
                   Applying intelligent background removal...
                 </p>
+              </div>
+            )}
+
+            {/* Debug info */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-gray-100 p-2 rounded text-xs">
+                <p>Original URL: {originalImageUrl ? 'Set' : 'Not set'}</p>
+                <p>Processed URL: {processedImageUrl ? 'Set' : 'Not set'}</p>
+                <p>Processing: {processing ? 'Yes' : 'No'}</p>
+                <p>Selected Team: {selectedTeam || 'None'}</p>
               </div>
             )}
 
