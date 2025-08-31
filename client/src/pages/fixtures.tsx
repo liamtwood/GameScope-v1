@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, OppositionTeam } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -43,6 +43,9 @@ export default function Fixtures() {
   const [processingMode, setProcessingMode] = useState<'smart' | 'color' | 'manual'>('smart');
   const [threshold, setThreshold] = useState(30);
   const [showTip, setShowTip] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
+  const [fetchingUrl, setFetchingUrl] = useState(false);
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
   const currentTeam = teams?.[0]; // For demo, use first team
@@ -151,6 +154,9 @@ export default function Fixtures() {
       setShowTip(false);
       setProcessingMode('smart');
       setThreshold(30);
+      setLogoUrl("");
+      setUploadMethod('file');
+      setFetchingUrl(false);
     },
     onError: (error) => {
       toast({
@@ -175,6 +181,57 @@ export default function Fixtures() {
     }
     
     await processImageWithCurrentSettings(file);
+  };
+
+  const handleUrlFetch = async () => {
+    if (!logoUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter a valid image URL.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFetchingUrl(true);
+    try {
+      // Create a proxy URL to handle CORS issues
+      const proxyUrl = `/api/fetch-image?url=${encodeURIComponent(logoUrl)}`;
+      const response = await fetch(proxyUrl);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch image');
+      }
+      
+      const blob = await response.blob();
+      
+      // Convert blob to file for processing
+      const file = new File([blob], 'fetched-logo.png', { type: blob.type });
+      
+      setSelectedFile(file);
+      setOriginalImageUrl(URL.createObjectURL(blob));
+      
+      if (blob.size > 100000) {
+        setShowTip(true);
+      }
+      
+      await processImageWithCurrentSettings(file);
+      
+      toast({
+        title: "Image Fetched",
+        description: "Logo image has been successfully downloaded and is ready for processing.",
+      });
+      
+    } catch (error) {
+      console.error('URL fetch error:', error);
+      toast({
+        title: "Fetch Failed",
+        description: "Failed to download image from URL. Please check the URL and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setFetchingUrl(false);
+    }
   };
 
   const handleSave = async () => {
@@ -830,127 +887,181 @@ export default function Fixtures() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* File Upload */}
+                {/* Upload Method Selection */}
                 <div className="space-y-4">
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                    <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <div className="space-y-2">
-                      <label 
-                        htmlFor="logo-upload"
-                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                      >
-                        Choose File
-                      </label>
-                      <input
-                        id="logo-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        data-testid="input-logo-upload"
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Upload a logo image (PNG, JPG, or SVG)
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Team Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Select Team</label>
-                    <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                      <SelectTrigger data-testid="select-team">
-                        <SelectValue placeholder="Choose a team for this logo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {oppositionTeams?.map((team) => (
-                          <SelectItem key={team.id} value={team.id}>
-                            {team.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Processing Controls */}
-                  {originalImageUrl && (
-                    <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-                      <h4 className="font-medium flex items-center">
-                        <Wand2 className="mr-2 h-4 w-4" />
-                        Background Removal Settings
-                      </h4>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Processing Mode */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Processing Mode</label>
-                          <Select value={processingMode} onValueChange={(value: any) => setProcessingMode(value)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="smart">Smart (Recommended)</SelectItem>
-                              <SelectItem value="color">Color-based</SelectItem>
-                              <SelectItem value="manual">Manual</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Threshold Slider */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">
-                            Sensitivity: {threshold}%
-                          </label>
-                          <Slider
-                            value={[threshold]}
-                            onValueChange={(value) => setThreshold(value[0])}
-                            max={100}
-                            min={1}
-                            step={1}
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Reprocess Button */}
-                      <Button
-                        onClick={() => selectedFile && processImageWithCurrentSettings(selectedFile)}
-                        disabled={!selectedFile || processing}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Wand2 className="mr-2 h-4 w-4" />
-                        {processing ? "Processing..." : "Reprocess"}
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Save Button */}
-                  {processedImageUrl && selectedTeam && (
-                    <Button 
-                      onClick={handleSave}
-                      disabled={saveMutation.isPending}
-                      className="w-full"
-                      data-testid="button-save-logo"
+                  <div className="flex space-x-4">
+                    <Button
+                      variant={uploadMethod === 'file' ? 'default' : 'outline'}
+                      onClick={() => setUploadMethod('file')}
+                      className="flex-1"
+                      data-testid="button-upload-method-file"
                     >
-                      <Save className="mr-2 h-4 w-4" />
-                      {saveMutation.isPending ? "Saving..." : "Save Logo"}
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload File
                     </Button>
-                  )}
+                    <Button
+                      variant={uploadMethod === 'url' ? 'default' : 'outline'}
+                      onClick={() => setUploadMethod('url')}
+                      className="flex-1"
+                      data-testid="button-upload-method-url"
+                    >
+                      <LinkIcon className="mr-2 h-4 w-4" />
+                      From URL
+                    </Button>
+                  </div>
 
-                  {/* Processing Tip */}
-                  {showTip && (
-                    <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-blue-900">Pro Tip</p>
-                        <p className="text-sm text-blue-700">
-                          For best results with logo background removal, use high-contrast images with clear edges. 
-                          White or solid color backgrounds work exceptionally well.
+                  {/* File Upload */}
+                  {uploadMethod === 'file' && (
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+                      <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <div className="space-y-2">
+                        <label 
+                          htmlFor="logo-upload"
+                          className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                        >
+                          Choose File
+                        </label>
+                        <input
+                          id="logo-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                          data-testid="input-logo-upload"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Upload a logo image (PNG, JPG, or SVG)
                         </p>
                       </div>
                     </div>
                   )}
+
+                  {/* URL Input */}
+                  {uploadMethod === 'url' && (
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center space-y-4">
+                      <LinkIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <div className="space-y-4">
+                        <div className="flex space-x-2">
+                          <input
+                            type="url"
+                            placeholder="Enter image URL (e.g., https://example.com/logo.png)"
+                            value={logoUrl}
+                            onChange={(e) => setLogoUrl(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            data-testid="input-logo-url"
+                          />
+                          <Button 
+                            onClick={handleUrlFetch}
+                            disabled={fetchingUrl || !logoUrl.trim()}
+                            data-testid="button-fetch-url"
+                          >
+                            {fetchingUrl ? "Fetching..." : "Fetch"}
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Enter a direct link to an image file
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Team Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Team</label>
+                  <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                    <SelectTrigger data-testid="select-team">
+                      <SelectValue placeholder="Choose a team for this logo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {oppositionTeams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Processing Controls */}
+                {originalImageUrl && (
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                    <h4 className="font-medium flex items-center">
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Background Removal Settings
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Processing Mode */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Processing Mode</label>
+                        <Select value={processingMode} onValueChange={(value: any) => setProcessingMode(value)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="smart">Smart (Recommended)</SelectItem>
+                            <SelectItem value="color">Color-based</SelectItem>
+                            <SelectItem value="manual">Manual</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Threshold Slider */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Sensitivity: {threshold}%
+                        </label>
+                        <Slider
+                          value={[threshold]}
+                          onValueChange={(value) => setThreshold(value[0])}
+                          max={100}
+                          min={1}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Reprocess Button */}
+                    <Button
+                      onClick={() => selectedFile && processImageWithCurrentSettings(selectedFile)}
+                      disabled={!selectedFile || processing}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      {processing ? "Processing..." : "Reprocess"}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Save Button */}
+                {processedImageUrl && selectedTeam && (
+                  <Button 
+                    onClick={handleSave}
+                    disabled={saveMutation.isPending}
+                    className="w-full"
+                    data-testid="button-save-logo"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {saveMutation.isPending ? "Saving..." : "Save Logo"}
+                  </Button>
+                )}
+
+                {/* Processing Tip */}
+                {showTip && (
+                  <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-blue-900">Pro Tip</p>
+                      <p className="text-sm text-blue-700">
+                        For best results with logo background removal, use high-contrast images with clear edges. 
+                        White or solid color backgrounds work exceptionally well.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 </div>
               </CardContent>
             </Card>
@@ -1003,143 +1114,143 @@ export default function Fixtures() {
 
       {overviewTab !== 'logos' && (
         <>
-      {/* Filters */}
-      <div className="mb-6 space-y-3">
-        <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          {/* Competition Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Competition</label>
-            <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
-              <SelectTrigger className="w-full" data-testid="select-competition">
-                <SelectValue placeholder="All Competitions" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Competitions</SelectItem>
-                {competitions.map((competition) => (
-                  <SelectItem key={competition.id} value={competition.name}>
-                    {competition.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Filters */}
+          <div className="mb-6 space-y-3">
+            <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              {/* Competition Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Competition</label>
+                <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
+                  <SelectTrigger className="w-full" data-testid="select-competition">
+                    <SelectValue placeholder="All Competitions" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Competitions</SelectItem>
+                    {competitions.map((competition) => (
+                      <SelectItem key={competition.id} value={competition.name}>
+                        {competition.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Status Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Status</label>
-            <div className="flex bg-muted rounded-lg p-1">
-              {filterButtons.map((filter) => (
-                <Button
-                  key={filter.id}
-                  variant={activeFilter === filter.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={`flex-1 text-center ${activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}`}
-                  data-testid={`button-filter-${filter.id}`}
-                >
-                  {filter.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+              {/* Status Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Status</label>
+                <div className="flex bg-muted rounded-lg p-1">
+                  {filterButtons.map((filter) => (
+                    <Button
+                      key={filter.id}
+                      variant={activeFilter === filter.id ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveFilter(filter.id)}
+                      className={`flex-1 text-center ${activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}`}
+                      data-testid={`button-filter-${filter.id}`}
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Location Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Location</label>
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button
-                variant={homeAwayFilter === 'all' ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setHomeAwayFilter('all')}
-                className={`flex-1 text-center ${homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}`}
-                data-testid="button-filter-venue-all"
-              >
-                All
-              </Button>
-              <Button
-                variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setHomeAwayFilter('HOME')}
-                className={`flex-1 text-center ${homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}`}
-                data-testid="button-filter-venue-home"
-              >
-                Home
-              </Button>
-              <Button
-                variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setHomeAwayFilter('AWAY')}
-                className={`flex-1 text-center ${homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}`}
-                data-testid="button-filter-venue-away"
-              >
-                Away
-              </Button>
-            </div>
-          </div>
+              {/* Location Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Location</label>
+                <div className="flex bg-muted rounded-lg p-1">
+                  <Button
+                    variant={homeAwayFilter === 'all' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setHomeAwayFilter('all')}
+                    className={`flex-1 text-center ${homeAwayFilter === 'all' ? "bg-background text-foreground shadow-sm" : ""}`}
+                    data-testid="button-filter-venue-all"
+                  >
+                    All
+                  </Button>
+                  <Button
+                    variant={homeAwayFilter === 'HOME' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setHomeAwayFilter('HOME')}
+                    className={`flex-1 text-center ${homeAwayFilter === 'HOME' ? "bg-background text-foreground shadow-sm" : ""}`}
+                    data-testid="button-filter-venue-home"
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    variant={homeAwayFilter === 'AWAY' ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setHomeAwayFilter('AWAY')}
+                    className={`flex-1 text-center ${homeAwayFilter === 'AWAY' ? "bg-background text-foreground shadow-sm" : ""}`}
+                    data-testid="button-filter-venue-away"
+                  >
+                    Away
+                  </Button>
+                </div>
+              </div>
 
-          {/* Keyword Search */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Keyword</label>
-            <Input
-              placeholder="Search fixtures..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-              data-testid="input-search-fixtures"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Fixtures List */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Loading fixtures...</p>
-          </div>
-        ) : filteredFixtures.length > 0 ? (
-          filteredFixtures.map((fixture) => (
-            <FixtureEditDialog 
-              key={fixture.id}
-              fixture={fixture}
-              onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
-            >
-              <div className="w-full">
-                <FixtureCard
-                  fixture={fixture}
-                  onViewDetails={handleViewDetails}
-                  onEdit={() => {}} // Edit is handled by the dialog wrapper
-                  onDelete={handleDeleteFixture}
+              {/* Keyword Search */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Keyword</label>
+                <Input
+                  placeholder="Search fixtures..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
+                  data-testid="input-search-fixtures"
                 />
               </div>
-            </FixtureEditDialog>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No fixtures found matching your criteria</p>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Fixture</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the fixture against {fixtureToDelete?.opponent}? 
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          {/* Fixtures List */}
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Loading fixtures...</p>
+              </div>
+            ) : filteredFixtures.length > 0 ? (
+              filteredFixtures.map((fixture) => (
+                <FixtureEditDialog 
+                  key={fixture.id}
+                  fixture={fixture}
+                  onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
+                >
+                  <div className="w-full">
+                    <FixtureCard
+                      fixture={fixture}
+                      onViewDetails={handleViewDetails}
+                      onEdit={() => {}} // Edit is handled by the dialog wrapper
+                      onDelete={handleDeleteFixture}
+                    />
+                  </div>
+                </FixtureEditDialog>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No fixtures found matching your criteria</p>
+              </div>
+            )}
+          </div>
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Fixture</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete the fixture against {fixtureToDelete?.opponent}? 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </>
       )}
     </MainLayout>

@@ -322,6 +322,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image fetching endpoint for URL-based logo acquisition
+  app.get("/api/fetch-image", async (req, res) => {
+    try {
+      const imageUrl = req.query.url as string;
+      
+      if (!imageUrl) {
+        return res.status(400).json({ message: "URL parameter is required" });
+      }
+
+      // Validate URL format
+      try {
+        new URL(imageUrl);
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid URL format" });
+      }
+
+      // Fetch the image
+      const response = await fetch(imageUrl);
+      
+      if (!response.ok) {
+        return res.status(400).json({ message: "Failed to fetch image from URL" });
+      }
+
+      const contentType = response.headers.get('content-type');
+      
+      // Validate that it's an image
+      if (!contentType || !contentType.startsWith('image/')) {
+        return res.status(400).json({ message: "URL does not point to a valid image" });
+      }
+
+      // Stream the image data back to the client
+      res.setHeader('Content-Type', contentType);
+      
+      const buffer = await response.arrayBuffer();
+      res.send(Buffer.from(buffer));
+
+    } catch (error) {
+      console.error("Error fetching image from URL:", error);
+      res.status(500).json({ message: "Failed to fetch image" });
+    }
+  });
+
   // Competition routes
   app.get("/api/competitions", async (req, res) => {
     try {
