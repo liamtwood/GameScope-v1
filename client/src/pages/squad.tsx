@@ -264,10 +264,10 @@ export default function Squad() {
                   <div>
                     <div className="grid grid-cols-5 gap-4">
                       <div className="text-center">
-                        <div className="flex justify-center items-center">
+                        <div className="flex justify-center items-center h-5 mb-1">
                           <Star className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <p className="text-2xl font-bold text-foreground">{players?.filter(p => p.isStarPlayer).length || 0}</p>
+                        <p className="text-2xl font-bold text-foreground">{players?.filter(p => p.keyPlayer).length || 0}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-medium text-muted-foreground">GK</p>
