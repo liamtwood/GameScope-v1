@@ -1,279 +1,392 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { Pencil, Building2, Upload } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User } from "lucide-react";
+import { useTeam } from "@/contexts/team-context";
 import type { Club, Team } from "@shared/schema";
-import type { UploadResult } from "@uppy/core";
+import { insertTeamSchema } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { z } from "zod";
+
+const createTeamSchema = insertTeamSchema.extend({
+  name: z.string().min(1, "Team name is required"),
+});
+
+type CreateTeamFormData = z.infer<typeof createTeamSchema>;
 
 export default function ClubManagement() {
+  const [, setLocation] = useLocation();
+  const [isCreateTeamDialogOpen, setIsCreateTeamDialogOpen] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<{ name: string; shortName: string; owner: string }>({
-    name: "",
-    shortName: "",
-    owner: "",
-  });
+  const { selectTeam } = useTeam();
 
-  // Fetch clubs
+  // Get club ID from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const clubId = urlParams.get("clubId");
+
+  // Fetch clubs to get selected club details
   const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
   });
 
-  // Fetch teams for the club
-  const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
+  // Fetch teams for the selected club
+  const { data: allTeams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
   });
 
-  const currentClub = clubs[0]; // For now, we're working with the first club
+  const selectedClub = clubs.find(club => club.id === clubId) || clubs[0];
+  const clubTeams = allTeams.filter(team => team.clubId === selectedClub?.id);
 
-  // Update club mutation
-  const updateClubMutation = useMutation({
-    mutationFn: async (data: { name: string; shortName: string; owner: string }) => {
-      return apiRequest("PATCH", `/api/clubs/${currentClub?.id}`, data);
+  const form = useForm<CreateTeamFormData>({
+    resolver: zodResolver(createTeamSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      clubId: selectedClub?.id || "",
+      status: "ACTIVE",
+      coach: "",
+      assistantCoach: "",
+      ageGroup: "",
+      gender: "",
+      season: "2025/26",
+    },
+  });
+
+  const createTeamMutation = useMutation({
+    mutationFn: async (teamData: CreateTeamFormData) => {
+      return apiRequest("POST", "/api/teams", { ...teamData, clubId: selectedClub?.id });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
-      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+      setIsCreateTeamDialogOpen(false);
+      form.reset();
       toast({
-        title: "Success",
-        description: "Club updated successfully",
+        title: "Team Created",
+        description: "New team has been created successfully.",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update club",
+        description: "Failed to create team.",
         variant: "destructive",
       });
     },
   });
 
-  // Logo upload mutation
-  const updateLogoMutation = useMutation({
-    mutationFn: async (data: { logoURL: string }) => {
-      return apiRequest("PUT", `/api/clubs/${currentClub?.id}/logo`, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
-      toast({
-        title: "Success",
-        description: "Club logo updated successfully",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update club logo",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleEdit = () => {
-    if (currentClub) {
-      setEditForm({
-        name: currentClub.name,
-        shortName: currentClub.shortName,
-        owner: currentClub.owner,
-      });
-      setIsEditing(true);
-    }
+  const onSubmit = (data: CreateTeamFormData) => {
+    createTeamMutation.mutate(data);
   };
 
-  const handleSave = () => {
-    updateClubMutation.mutate(editForm);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditForm({ name: "", shortName: "", owner: "" });
-  };
-
-  const handleLogoGetUploadParameters = async () => {
-    const response = await fetch("/api/logos/upload", {
-      method: "POST",
-    });
-    const { uploadURL } = await response.json();
-    return {
-      method: "PUT" as const,
-      url: uploadURL,
-    };
-  };
-
-  const handleLogoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful[0]?.uploadURL) {
-      updateLogoMutation.mutate({
-        logoURL: result.successful[0].uploadURL,
-      });
-    }
+  const handleTeamSelect = (team: Team) => {
+    selectTeam(team);
+    setLocation("/");
   };
 
   if (clubsLoading || teamsLoading) {
     return (
-      <MainLayout title="Club Management" subtitle="Manage your club information and teams">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Loading club information...</p>
+      <MainLayout title="Club Management" subtitle="Manage club information and teams">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground">Loading club information...</div>
         </div>
       </MainLayout>
     );
   }
 
-  if (!currentClub) {
+  if (!selectedClub) {
     return (
-      <MainLayout title="Club Management" subtitle="Manage your club information and teams">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No club found. Please contact support.</p>
+      <MainLayout title="Club Management" subtitle="Manage club information and teams">
+        <div className="text-center py-12">
+          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No club selected</h3>
+          <p className="text-muted-foreground mb-4">
+            Please select a club to manage.
+          </p>
+          <Button onClick={() => setLocation("/clubs")} data-testid="button-back-to-clubs">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Clubs
+          </Button>
         </div>
       </MainLayout>
     );
   }
-
-  const clubTeams = teams.filter((team) => team.clubId === currentClub?.id);
 
   return (
-    <MainLayout title="Club Management" subtitle="Manage your club information and teams">
+    <MainLayout 
+      title={`${selectedClub.name} Management`} 
+      subtitle="Manage club information and teams"
+    >
+      {/* Back Navigation */}
+      <div className="mb-6">
+        <Button 
+          variant="outline" 
+          onClick={() => setLocation("/clubs")}
+          data-testid="button-back-to-clubs"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Clubs
+        </Button>
+      </div>
+
       {/* Club Information Card */}
       <Card className="mb-8">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Building2 className="h-6 w-6 text-muted-foreground" />
-            <div>
-              <CardTitle className="text-xl">Club Information</CardTitle>
-              <p className="text-sm text-muted-foreground">Basic club details and settings</p>
-            </div>
-          </div>
-          {!isEditing && (
-            <Button
-              onClick={handleEdit}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-              data-testid="button-edit-club"
-            >
-              <Pencil className="h-4 w-4" />
-              Edit
-            </Button>
-          )}
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Building2 className="h-6 w-6 text-primary" />
+            <span>{selectedClub.name}</span>
+            <Badge variant="secondary">{selectedClub.shortName}</Badge>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Club Logo Section */}
-          <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <div className="flex-shrink-0">
-              {currentClub.logoPath ? (
-                <img
-                  src={currentClub.logoPath}
-                  alt={`${currentClub.name} logo`}
-                  className="max-w-32 max-h-32 object-contain"
-                  data-testid="img-club-logo"
-                />
-              ) : (
-                <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
-                  <Building2 className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex items-center space-x-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Owner: {selectedClub.owner}</span>
             </div>
-            <div className="flex-1 space-y-3">
-              <div>
-                <h3 className="font-medium">Club Logo</h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a logo for your club that will be used throughout the system
-                </p>
-              </div>
-              <ObjectUploader
-                maxNumberOfFiles={1}
-                maxFileSize={5242880} // 5MB
-                onGetUploadParameters={handleLogoGetUploadParameters}
-                onComplete={handleLogoUploadComplete}
-                buttonClassName="w-fit"
-              >
-                <div className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  <span>{currentClub.logoPath ? "Change Logo" : "Upload Logo"}</span>
-                </div>
-              </ObjectUploader>
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">
+                Created: {selectedClub.createdAt ? new Date(selectedClub.createdAt).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{clubTeams.length} teams</span>
             </div>
           </div>
-
-          {isEditing ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="club-name">Club Name</Label>
-                <Input
-                  id="club-name"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  data-testid="input-club-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="club-short-name">Short Name</Label>
-                <Input
-                  id="club-short-name"
-                  value={editForm.shortName}
-                  onChange={(e) => setEditForm({ ...editForm, shortName: e.target.value })}
-                  placeholder="e.g., PSC"
-                  data-testid="input-club-short-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="club-owner">Club Owner</Label>
-                <Input
-                  id="club-owner"
-                  value={editForm.owner}
-                  onChange={(e) => setEditForm({ ...editForm, owner: e.target.value })}
-                  data-testid="input-club-owner"
-                />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={handleSave}
-                  disabled={updateClubMutation.isPending}
-                  data-testid="button-save-club"
-                >
-                  {updateClubMutation.isPending ? "Saving..." : "Save Changes"}
-                </Button>
-                <Button
-                  onClick={handleCancel}
-                  variant="outline"
-                  data-testid="button-cancel-club"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Club Name</Label>
-                <p className="text-lg font-semibold" data-testid="text-club-name">
-                  {currentClub.name}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Short Name</Label>
-                <p className="text-lg font-semibold" data-testid="text-club-short-name">
-                  {currentClub.shortName}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Owner</Label>
-                <p className="text-lg font-semibold" data-testid="text-club-owner">
-                  {currentClub.owner}
-                </p>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
+      {/* Teams Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <h2 className="text-lg font-semibold">Teams</h2>
+          </div>
+          <Dialog open={isCreateTeamDialogOpen} onOpenChange={setIsCreateTeamDialogOpen}>
+            <DialogTrigger asChild>
+              <Button data-testid="button-create-team">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Team
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Create New Team</DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Team Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter team name"
+                            data-testid="input-team-name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="shortName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Short Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., WSC"
+                            data-testid="input-team-short-name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gender</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-team-gender">
+                                <SelectValue placeholder="Select gender" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Men">Men</SelectItem>
+                              <SelectItem value="Women">Women</SelectItem>
+                              <SelectItem value="Mixed">Mixed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ageGroup"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Age Group</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., U21, Senior"
+                              data-testid="input-team-age-group"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="coach"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Coach</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter coach name"
+                            data-testid="input-team-coach"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="season"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Season</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 2025/26"
+                            data-testid="input-team-season"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsCreateTeamDialogOpen(false)}
+                      data-testid="button-cancel-team"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={createTeamMutation.isPending}
+                      data-testid="button-submit-team"
+                    >
+                      {createTeamMutation.isPending ? "Creating..." : "Create Team"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Teams Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {clubTeams.map((team) => (
+            <Card key={team.id} className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    <span>{team.name}</span>
+                  </div>
+                  <Badge variant="outline">{team.status}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium bg-secondary px-2 py-1 rounded text-xs">
+                      {team.shortName}
+                    </span>
+                    <span className="text-muted-foreground">{team.season}</span>
+                  </div>
+                  {team.coach && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Coach: </span>
+                      <span className="font-medium">{team.coach}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{team.gender}</span>
+                    <span>{team.ageGroup}</span>
+                  </div>
+                  <div className="pt-2 border-t border-border">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleTeamSelect(team)}
+                      data-testid={`button-select-team-${team.id}`}
+                    >
+                      Select & Manage Team
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {clubTeams.length === 0 && (
+          <div className="text-center py-12">
+            <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No teams found</h3>
+            <p className="text-muted-foreground mb-4">
+              Create your first team for {selectedClub.name}.
+            </p>
+            <Dialog open={isCreateTeamDialogOpen} onOpenChange={setIsCreateTeamDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-create-first-team">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Team
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+          </div>
+        )}
+      </div>
     </MainLayout>
   );
 }

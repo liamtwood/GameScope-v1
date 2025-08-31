@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Building2, Edit, Trash2, User } from "lucide-react";
+import { Plus, Building2, Edit, Trash2, User, ArrowRight } from "lucide-react";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -24,6 +25,7 @@ type CreateClubFormData = z.infer<typeof createClubSchema>;
 export default function Clubs() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const { data: clubs, isLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
@@ -172,7 +174,7 @@ export default function Clubs() {
       {/* Clubs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clubs?.map((club) => (
-          <Card key={club.id} className="hover:shadow-md transition-shadow">
+          <Card key={club.id} className="hover:shadow-md transition-shadow cursor-pointer">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -207,6 +209,18 @@ export default function Clubs() {
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Created: {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : 'N/A'}
+                </div>
+                <div className="pt-2 border-t border-border">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setLocation(`/club-management?clubId=${club.id}`)}
+                    data-testid={`button-manage-club-${club.id}`}
+                  >
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Manage Club
+                  </Button>
                 </div>
               </div>
             </CardContent>
