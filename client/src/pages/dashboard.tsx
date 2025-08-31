@@ -6,7 +6,7 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Target, Trophy, Calendar } from "lucide-react";
+import { Users, Target, Trophy, Calendar, Sparkles } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
 
@@ -97,11 +97,11 @@ export default function Dashboard() {
         />
         
         <StatsCard
-          title="Goals Scored"
+          title="Videos Analyzed"
           value={statistics?.totalGoals || 0}
-          icon={Trophy}
+          icon={Sparkles}
           iconColor="text-border"
-          subtitle={`${((statistics?.totalGoals || 0) / Math.max(statistics?.matchesPlayed || 1, 1)).toFixed(1)} avg per match`}
+          subtitle="GameScope AI"
         />
         
         <StatsCard
