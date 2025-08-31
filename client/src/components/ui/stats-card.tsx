@@ -5,7 +5,7 @@ interface StatsCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   iconColor?: string;
   trend?: {
     value: string;
@@ -30,9 +30,11 @@ export function StatsCard({
             <p className="text-muted-foreground text-sm font-medium">{title}</p>
             <p className="text-3xl font-bold text-foreground">{value}</p>
           </div>
-          <div className="w-12 h-12 flex items-center justify-center">
-            <Icon className={`text-xl ${iconColor}`} />
-          </div>
+          {Icon && (
+            <div className="w-12 h-12 flex items-center justify-center">
+              <Icon className={`text-xl ${iconColor}`} />
+            </div>
+          )}
         </div>
         {(trend || subtitle) && (
           <div className="mt-4 flex items-center space-x-2">
