@@ -145,7 +145,7 @@ export default function FixtureDetails() {
   }
 
   const oppositionTeam = oppositionTeams?.find(team => 
-    team.id === fixture.oppositionTeamId || team.name === fixture.opponent
+    fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
   );
   const isHomeMatch = fixture.type === "HOME";
   

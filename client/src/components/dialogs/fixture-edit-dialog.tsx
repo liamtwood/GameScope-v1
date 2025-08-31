@@ -151,46 +151,48 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   }, [oppositionTeams, form, currentOppositionTeam]);
 
   const handleSubmit = async (data: FixtureEditFormData) => {
-    // If we have a current opposition team, update its short name and set the ID
-    if (currentOppositionTeam?.id) {
-      // Update short name if provided
-      if (data.shortName !== undefined && data.shortName !== currentOppositionTeam.shortName) {
-        updateOppositionTeamMutation.mutate({
-          teamId: currentOppositionTeam.id,
-          shortName: data.shortName
-        });
+    try {
+      // If we have a current opposition team, update it with any changes
+      if (currentOppositionTeam?.id) {
+        const updateData: any = {};
+        
+        // Update name if changed
+        if (data.opponent !== currentOppositionTeam.name) {
+          updateData.name = data.opponent;
+        }
+        
+        // Update short name if changed
+        if (data.shortName !== currentOppositionTeam.shortName) {
+          updateData.shortName = data.shortName;
+        }
+        
+        // Only make API call if there are changes to the opposition team
+        if (Object.keys(updateData).length > 0) {
+          await apiRequest("PUT", `/api/opposition-teams/${currentOppositionTeam.id}`, updateData);
+          // Invalidate queries to refresh data
+          queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+        }
+      } else if (data.opponent && data.opponent.trim()) {
+        // Create new opposition team if it doesn't exist
+        const newTeam = await apiRequest("POST", "/api/opposition-teams", {
+          name: data.opponent,
+          shortName: data.shortName || ""
+        }) as any;
+        data.oppositionTeamId = newTeam.id;
+        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
       }
       
-      // If the opponent name has changed, update the opposition team name as well
-      if (data.opponent !== currentOppositionTeam.name) {
-        updateOppositionTeamMutation.mutate({
-          teamId: currentOppositionTeam.id,
-          shortName: data.shortName
-        });
-        
-        // Update the opposition team name via API
-        await apiRequest("PUT", `/api/opposition-teams/${currentOppositionTeam.id}`, {
-          name: data.opponent,
-          shortName: data.shortName
-        });
+      // Save fixture data with opposition team ID
+      const { shortName, ...fixtureData } = data;
+      if (currentOppositionTeam?.id) {
+        fixtureData.oppositionTeamId = currentOppositionTeam.id;
       }
-    } else if (data.opponent && data.opponent.trim()) {
-      // Create new opposition team if it doesn't exist
-      const newTeam = await apiRequest("POST", "/api/opposition-teams", {
-        name: data.opponent,
-        shortName: data.shortName || ""
-      }) as any;
-      data.oppositionTeamId = newTeam.id;
+      
+      onSave(fixtureData);
+      setOpen(false);
+    } catch (error) {
+      console.error("Error updating fixture:", error);
     }
-    
-    // Save fixture data with opposition team ID
-    const { shortName, ...fixtureData } = data;
-    if (currentOppositionTeam?.id) {
-      fixtureData.oppositionTeamId = currentOppositionTeam.id;
-    }
-    
-    onSave(fixtureData);
-    setOpen(false);
   };
 
   return (

@@ -112,7 +112,9 @@ export default function Analysis() {
 
   // Get team and opponent logos from opponents table
   const polkTeam = oppositionTeams?.find((team: any) => team.shortName === "POLK");
-  const opponentTeam = oppositionTeams?.find((team: any) => team.name === fixture?.opponent);
+  const opponentTeam = oppositionTeams?.find((team: any) => 
+    fixture?.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture?.opponent
+  );
   
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
