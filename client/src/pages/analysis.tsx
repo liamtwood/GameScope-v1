@@ -141,34 +141,12 @@ export default function Analysis() {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <Link href="/">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div>
-            <h2 className="text-2xl font-bold">{fixture.opponent}</h2>
-            <p className="text-muted-foreground">{format(new Date(fixture.date), 'EEEE, MMMM d, yyyy')}</p>
-          </div>
-        </div>
-        
-        {/* Score Display */}
-        <div style={{
-          backgroundColor: color === 'bg-green-500' ? '#059669' : 
-                          color === 'bg-red-500' ? '#dc2626' : 
-                          color === 'bg-yellow-500' ? '#d97706' : '#4b5563',
-          color: 'white',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontSize: '18px',
-          fontWeight: '600',
-          minWidth: '120px',
-          textAlign: 'center'
-        }}>
-          {result}
-        </div>
+        <Link href="/">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
       </div>
 
       <Card>
@@ -176,27 +154,6 @@ export default function Analysis() {
           <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
           
           <div className="space-y-6">
-            {/* Analysis Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600 mb-2">
-                  {fullGameStats.possession || 0}%
-                </div>
-                <div className="text-sm text-muted-foreground">Possession</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 mb-2">
-                  {fullGameStats.shotsOnTarget || 0}
-                </div>
-                <div className="text-sm text-muted-foreground">Shots on Target</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600 mb-2">
-                  {fullGameStats.passingSuccessRate || 0}%
-                </div>
-                <div className="text-sm text-muted-foreground">Pass Accuracy</div>
-              </div>
-            </div>
 
             {/* Comprehensive Metrics Comparison */}
             <MetricsComparison
