@@ -495,6 +495,30 @@ export default function Fixtures() {
 
   const stats = getFixtureStats();
 
+  // Calculate FCSAA League specific stats
+  const getFCSAAStats = () => {
+    if (!fixtures) return { completed: 0, wins: 0, draws: 0, losses: 0 };
+    
+    const fcsaaFixtures = fixtures.filter(f => f.competition === 'FCSAA League' && f.status === 'COMPLETED');
+    let wins = 0, draws = 0, losses = 0;
+    
+    fcsaaFixtures.forEach(fixture => {
+      if (fixture.homeScore !== null && fixture.awayScore !== null) {
+        const isHome = fixture.type === 'HOME';
+        const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
+        const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
+        
+        if (ourScore > theirScore) wins++;
+        else if (ourScore === theirScore) draws++;
+        else losses++;
+      }
+    });
+    
+    return { completed: fcsaaFixtures.length, wins, draws, losses };
+  };
+
+  const fcsaaStats = getFCSAAStats();
+
   return (
     <MainLayout 
       title="Fixtures" 
@@ -516,13 +540,13 @@ export default function Fixtures() {
       {/* Summary Cards */}
       <div className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Matches Played Card */}
+            {/* FCSAA League Card */}
             <StatsCard
-              title="Matches Played"
-              value={stats.completed}
+              title="FCSAA League"
+              value={fcsaaStats.completed}
               icon={Trophy}
               iconColor="text-border"
-              subtitle={`${stats.wins} - ${stats.draws} - ${stats.losses}`}
+              subtitle={`${fcsaaStats.wins}W-${fcsaaStats.draws}D-${fcsaaStats.losses}L`}
             />
 
             {/* Record Card */}
