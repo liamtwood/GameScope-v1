@@ -15,6 +15,7 @@ import Squad from "@/pages/squad";
 import Statistics from "@/pages/statistics";
 import Teams from "@/pages/teams";
 import Videos from "@/pages/videos";
+import Clubs from "@/pages/clubs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/statistics" component={Statistics} />
       <Route path="/teams" component={Teams} />
       <Route path="/videos" component={Videos} />
+      <Route path="/clubs" component={Clubs} />
       <Route component={NotFound} />
     </Switch>
   );

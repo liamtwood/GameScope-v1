@@ -41,6 +41,12 @@ export const NAVIGATION_SECTIONS = [
     ]
   },
   {
+    title: 'DevOps',
+    items: [
+      { id: 'clubs', label: 'Clubs', icon: 'Settings', tooltip: 'Manage Clubs' },
+    ]
+  },
+  {
     title: 'Settings',
     items: []
   }
