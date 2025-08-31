@@ -247,66 +247,60 @@ export default function Squad() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="space-y-6">
-          {/* Total Players and Star Players */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <StatsCard
-              title="Total Players"
-              value={getPositionCount('all')}
-              icon={Users}
-              iconColor="text-border"
-              subtitle="active squad members"
-            />
-            
-            <StatsCard
-              title="Star Players"
-              value={players?.filter(p => p.keyPlayer).length || 0}
-              subtitle="regular starters"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Total Players */}
+          <StatsCard
+            title="Total Players"
+            value={getPositionCount('all')}
+            icon={Users}
+            iconColor="text-border"
+            subtitle="active squad members"
+          />
+          
+          {/* Star Players */}
+          <StatsCard
+            title="Star Players"
+            value={players?.filter(p => p.keyPlayer).length || 0}
+            subtitle="regular starters"
+          />
 
-          {/* Position Summary */}
-          <div className="grid grid-cols-1 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="grid grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-muted-foreground">GK</p>
-                        <p className="text-3xl font-bold text-foreground">{getPositionCount('GK')}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-muted-foreground">DEF</p>
-                        <p className="text-3xl font-bold text-foreground">{getPositionCount('DEF')}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-muted-foreground">MID</p>
-                        <p className="text-3xl font-bold text-foreground">{getPositionCount('MID')}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-muted-foreground">FWD</p>
-                        <p className="text-3xl font-bold text-foreground">{getPositionCount('FWD')}</p>
-                      </div>
+          {/* Position Breakdown */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">GK</p>
+                      <p className="text-lg font-bold text-foreground">{getPositionCount('GK')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">DEF</p>
+                      <p className="text-lg font-bold text-foreground">{getPositionCount('DEF')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">MID</p>
+                      <p className="text-lg font-bold text-foreground">{getPositionCount('MID')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">FWD</p>
+                      <p className="text-lg font-bold text-foreground">{getPositionCount('FWD')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="mt-4">
-                  <span className="text-muted-foreground text-sm">position breakdown</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-muted-foreground text-sm">position breakdown</span>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Other Statistics */}
-          <div className="grid grid-cols-1 gap-6">
-            {/* Player Status */}
-            <StatsCard
-              title="Player Status"
-              value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
-              subtitle="fit-injured-retired"
-            />
-          </div>
+          {/* Player Status */}
+          <StatsCard
+            title="Player Status"
+            value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
+            subtitle="fit-injured-retired"
+          />
         </div>
       </div>
 
