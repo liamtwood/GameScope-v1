@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2 } from "lucide-react";
 import { Fixture, OppositionTeam, Player, MatchStats } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
@@ -98,6 +98,30 @@ export default function FixtureDetails() {
       toast({
         title: "Error",
         description: "Failed to update fixture. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for deleting fixture
+  const deleteFixtureMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("DELETE", `/api/fixtures/${fixtureId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixture?.teamId] });
+      toast({
+        title: "Fixture Deleted",
+        description: "Fixture has been deleted successfully.",
+      });
+      // Navigate back to fixtures list
+      window.history.back();
+    },
+    onError: (error) => {
+      console.error("Failed to delete fixture:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete fixture. Please try again.",
         variant: "destructive",
       });
     },
@@ -303,18 +327,33 @@ export default function FixtureDetails() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">Match Details</h3>
-                  <FixtureEditDialog 
-                    fixture={fixture}
-                    onSave={handleFixtureSave}
-                  >
-                    <Button 
-                      variant="default" 
-                      data-testid="button-edit-fixture"
+                  <div className="flex gap-2">
+                    <FixtureEditDialog 
+                      fixture={fixture}
+                      onSave={handleFixtureSave}
                     >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Fixture
+                      <Button 
+                        variant="default" 
+                        data-testid="button-edit-fixture"
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Fixture
+                      </Button>
+                    </FixtureEditDialog>
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete this fixture against ${fixture.opponent}? This action cannot be undone.`)) {
+                          deleteFixtureMutation.mutate();
+                        }
+                      }}
+                      disabled={deleteFixtureMutation.isPending}
+                      data-testid="button-delete-fixture"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {deleteFixtureMutation.isPending ? "Deleting..." : "Delete Fixture"}
                     </Button>
-                  </FixtureEditDialog>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Basic Information */}
