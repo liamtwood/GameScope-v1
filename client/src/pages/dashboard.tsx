@@ -32,7 +32,12 @@ export default function Dashboard() {
   });
 
   const recentFixtures = fixtures?.filter(f => f.status === 'COMPLETED').slice(0, 3) || [];
-  const upcomingFixtures = fixtures?.filter(f => f.status === 'SCHEDULED').slice(0, 3) || [];
+  const upcomingFixtures = fixtures?.filter(f => {
+    const fixtureDate = new Date(f.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+    return f.status === 'SCHEDULED' && fixtureDate >= today;
+  }).slice(0, 3) || [];
   const topScorers = players?.sort((a, b) => (b.goals || 0) - (a.goals || 0)).slice(0, 3) || [];
 
   // Check for analysis data for recent fixtures (memoized to prevent excessive API calls)
@@ -63,7 +68,7 @@ export default function Dashboard() {
   }, [recentFixtures.map(f => f.id).join(',')]); // Only re-run when fixture IDs change
 
   const nextMatch = upcomingFixtures[0];
-  const daysUntilNext = nextMatch ? Math.ceil((new Date(nextMatch.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+  const daysUntilNext = nextMatch ? Math.ceil((new Date(nextMatch.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
 
   const handleAnalysisView = (fixture: Fixture) => {
     setLocation(`/analysis/${fixture.id}`);
@@ -106,7 +111,7 @@ export default function Dashboard() {
         
         <StatsCard
           title="Next Match"
-          value={`${daysUntilNext} days`}
+          value={daysUntilNext !== null ? `${daysUntilNext} days` : "None"}
           icon={Calendar}
           iconColor="text-border"
           subtitle={nextMatch ? `vs ${nextMatch.opponent}` : "No upcoming matches"}
