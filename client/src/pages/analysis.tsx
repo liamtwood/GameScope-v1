@@ -201,8 +201,8 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="Polk State College"
-                      opponentName={fixture.opponent}
+                      teamName=""
+                      opponentName=""
                       title="Attack Performance"
                       teamColor="#dc2626"
                       opponentColor="#64748b"
@@ -256,8 +256,8 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="Polk State College"
-                      opponentName={fixture.opponent}
+                      teamName=""
+                      opponentName=""
                       title="Possession Performance"
                       teamColor="#dc2626"
                       opponentColor="#64748b"
@@ -306,8 +306,8 @@ export default function Analysis() {
                   <Card className="p-6">
                     <SpiderChart
                       data={createTechnicalSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName="Polk State College"
-                      opponentName={fixture.opponent}
+                      teamName=""
+                      opponentName=""
                       title="Technical Performance"
                       teamColor="#dc2626"
                       opponentColor="#64748b"
