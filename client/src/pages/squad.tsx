@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Eye, Check, X } from "lucide-react";
+import { UserPlus, Star, Edit, Eye, Check, X, Users, Shield, Target } from "lucide-react";
 import { Player, Team } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -196,46 +196,46 @@ export default function Squad() {
         </PlayerCreateDialog>
       </div>
 
-      {/* Squad Overview Stats */}
+      {/* Summary Cards */}
       <div className="mb-6">
-        {/* Main Squad Size */}
-        <Card className="mb-4">
-          <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-1">SQUAD SIZE</p>
-            <p className="text-4xl font-bold text-foreground">{getPositionCount('all')}</p>
-          </CardContent>
-        </Card>
-        
-        {/* Position Breakdown */}
-        <div className="grid grid-cols-5 gap-2">
-          <Card className="bg-orange-50 border-orange-200 cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => setActiveFilter('all')}>
-            <CardContent className="p-3 text-center">
-              <Star className="h-5 w-5 mx-auto mb-1 text-orange-600" fill="currentColor" />
-              <p className="text-2xl font-bold text-foreground">{getKeyPlayersCount()}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Total Players */}
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <CardContent className="p-6 text-center">
+              <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <p className="text-sm text-blue-700 mb-1">Total Players</p>
+              <p className="text-3xl font-bold text-blue-900">{getPositionCount('all')}</p>
+              <p className="text-xs text-blue-600 mt-1">active squad members</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">GK</p>
-              <p className="text-2xl font-bold text-foreground">{getPositionCount('GK')}</p>
+
+          {/* Key Players */}
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+            <CardContent className="p-6 text-center">
+              <Star className="h-8 w-8 mx-auto mb-2 text-orange-600" fill="currentColor" />
+              <p className="text-sm text-orange-700 mb-1">Key Players</p>
+              <p className="text-3xl font-bold text-orange-900">{getKeyPlayersCount()}</p>
+              <p className="text-xs text-orange-600 mt-1">core team members</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">DEF</p>
-              <p className="text-2xl font-bold text-foreground">{getPositionCount('DEF')}</p>
+
+          {/* Defenders */}
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <CardContent className="p-6 text-center">
+              <Shield className="h-8 w-8 mx-auto mb-2 text-green-600" />
+              <p className="text-sm text-green-700 mb-1">Defenders</p>
+              <p className="text-3xl font-bold text-green-900">{getPositionCount('DEF')}</p>
+              <p className="text-xs text-green-600 mt-1">defensive players</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">MID</p>
-              <p className="text-2xl font-bold text-foreground">{getPositionCount('MID')}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">FWD</p>
-              <p className="text-2xl font-bold text-foreground">{getPositionCount('FWD')}</p>
+
+          {/* Forwards */}
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+            <CardContent className="p-6 text-center">
+              <Target className="h-8 w-8 mx-auto mb-2 text-red-600" />
+              <p className="text-sm text-red-700 mb-1">Forwards</p>
+              <p className="text-3xl font-bold text-red-900">{getPositionCount('FWD')}</p>
+              <p className="text-xs text-red-600 mt-1">attacking players</p>
             </CardContent>
           </Card>
         </div>

@@ -512,53 +512,9 @@ export default function Fixtures() {
         
       </div>
 
-      {/* Overview Tabs */}
+      {/* Summary Cards */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Dashboard Overview</h3>
-          <div className="flex bg-muted rounded-lg p-1">
-            <Button
-              variant={overviewTab === 'season' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setOverviewTab('season')}
-              className={overviewTab === 'season' ? "bg-background text-foreground shadow-sm" : ""}
-            >
-              <Trophy className="mr-2 h-4 w-4" />
-              Season
-            </Button>
-            <Button
-              variant={overviewTab === 'planning' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setOverviewTab('planning')}
-              className={overviewTab === 'planning' ? "bg-background text-foreground shadow-sm" : ""}
-            >
-              <Calendar className="mr-2 h-4 w-4" />
-              Planning
-            </Button>
-            <Button
-              variant={overviewTab === 'video' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setOverviewTab('video')}
-              className={overviewTab === 'video' ? "bg-background text-foreground shadow-sm" : ""}
-            >
-              <Video className="mr-2 h-4 w-4" />
-              Videos
-            </Button>
-            <Button
-              variant={overviewTab === 'logos' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setOverviewTab('logos')}
-              className={overviewTab === 'logos' ? "bg-background text-foreground shadow-sm" : ""}
-            >
-              <Image className="mr-2 h-4 w-4" />
-              Logos
-            </Button>
-          </div>
-        </div>
-
-        {/* Season Overview */}
-        {overviewTab === 'season' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Record Card */}
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
               <CardContent className="p-6 text-center">
@@ -638,177 +594,14 @@ export default function Fixtures() {
                 </p>
               </CardContent>
             </Card>
-          </div>
-        )}
+        </div>
+      </div>
 
-        {/* Fixture Planning Overview */}
-        {overviewTab === 'planning' && (() => {
-          const planningStats = getPlanningStats();
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Upcoming Fixtures */}
-              <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
-                <CardContent className="p-6 text-center">
-                  <Calendar className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
-                  <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">UPCOMING</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{planningStats.upcoming}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">fixtures scheduled</p>
-                </CardContent>
-              </Card>
 
-              {/* Home Games */}
-              <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
-                <CardContent className="p-6 text-center">
-                  <Home className="h-8 w-8 mx-auto mb-2 text-cyan-600" />
-                  <p className="text-sm text-cyan-700 mb-1">HOME GAMES</p>
-                  <p className="text-3xl font-bold text-cyan-900">{planningStats.homeGames}</p>
-                  <p className="text-xs text-cyan-600 mt-1">at home venue</p>
-                </CardContent>
-              </Card>
-
-              {/* Away Games */}
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
-                <CardContent className="p-6 text-center">
-                  <Plane className="h-8 w-8 mx-auto mb-2 text-amber-600" />
-                  <p className="text-sm text-amber-700 mb-1">AWAY GAMES</p>
-                  <p className="text-3xl font-bold text-amber-900">{planningStats.awayGames}</p>
-                  <p className="text-xs text-amber-600 mt-1">away fixtures</p>
-                </CardContent>
-              </Card>
-
-              {/* This Month */}
-              <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200">
-                <CardContent className="p-6 text-center">
-                  <Clock className="h-8 w-8 mx-auto mb-2 text-rose-600" />
-                  <p className="text-sm text-rose-700 mb-1">THIS MONTH</p>
-                  <p className="text-3xl font-bold text-rose-900">{planningStats.thisMonth}</p>
-                  <p className="text-xs text-rose-600 mt-1">matches this month</p>
-                </CardContent>
-              </Card>
-            </div>
-          );
-        })()}
-
-        {/* Video Management Overview */}
-        {overviewTab === 'video' && (() => {
-          const videoStats = getVideoStats();
-          const matchesNeedingVideos = getMatchesNeedingVideos();
-          
-          return (
-            <div className="space-y-6">
-              {/* Video Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Video Coverage */}
-                <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
-                  <CardContent className="p-6 text-center">
-                    <Video className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
-                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">COVERAGE</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{videoStats.coverage.toFixed(0)}%</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">matches with video</p>
-                  </CardContent>
-                </Card>
-
-                {/* Matches with Video */}
-                <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 dark:from-teal-900/30 dark:to-teal-800/30 dark:border-teal-700/50">
-                  <CardContent className="p-6 text-center">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-teal-600" />
-                    <p className="text-sm text-teal-700 dark:text-teal-300 mb-1">WITH VIDEO</p>
-                    <p className="text-3xl font-bold text-teal-900 dark:text-teal-100">{videoStats.withVideo}</p>
-                    <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">completed matches</p>
-                  </CardContent>
-                </Card>
-
-                {/* Missing Videos - Actionable */}
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 dark:from-orange-900/30 dark:to-orange-800/30 dark:border-orange-700/50 cursor-pointer hover:from-orange-100 hover:to-orange-200 dark:hover:from-orange-800/40 dark:hover:to-orange-700/40 transition-colors">
-                  <CardContent className="p-6 text-center">
-                    <TrendingDown className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                    <p className="text-sm text-orange-700 dark:text-orange-300 mb-1">MISSING VIDEO</p>
-                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">{videoStats.withoutVideo}</p>
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">need video uploads</p>
-                    {videoStats.withoutVideo > 0 && (
-                      <p className="text-xs text-orange-700 mt-2 font-medium">👇 See matches below</p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Video Processing */}
-                <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 dark:from-slate-800/30 dark:to-slate-700/30 dark:border-slate-600/50">
-                  <CardContent className="p-6 text-center">
-                    <Target className="h-8 w-8 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
-                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">VIDEO PROCESSING</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{videoStats.totalVideos}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">feature coming soon</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Matches Needing Videos - Always Display */}
-              <div>
-                <h4 className="text-md font-semibold mb-3 text-foreground flex items-center">
-                  <TrendingDown className="h-5 w-5 mr-2 text-orange-600" />
-                  Matches Needing Video Upload ({matchesNeedingVideos.length})
-                </h4>
-                {matchesNeedingVideos.length > 0 ? (
-                  <div className="space-y-3">
-                    {matchesNeedingVideos.map((fixture) => (
-                      <Card key={fixture.id} className="border-orange-200 bg-orange-50/50 hover:bg-orange-50 dark:border-orange-700/50 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 transition-colors">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-4">
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-foreground">
-                                    {fixture.type === 'HOME' ? 'vs' : '@'} {fixture.opponent}
-                                  </h5>
-                                  <div className="flex items-center space-x-2 text-sm text-muted-foreground mt-1">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>{format(new Date(fixture.date), "MMM d, yyyy")}</span>
-                                    <span>•</span>
-                                    <span className={`px-2 py-1 rounded text-xs ${
-                                      fixture.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                                    }`}>
-                                      {fixture.status === 'COMPLETED' ? 'Completed' : 'Past Date'}
-                                    </span>
-                                    {fixture.homeScore !== null && fixture.awayScore !== null && (
-                                      <>
-                                        <span>•</span>
-                                        <span className="font-medium">
-                                          {fixture.type === 'HOME' ? `${fixture.homeScore}-${fixture.awayScore}` : `${fixture.awayScore}-${fixture.homeScore}`}
-                                        </span>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleViewDetails(fixture, 'videos')}
-                              className="border-orange-300 text-orange-700 hover:bg-orange-100"
-                            >
-                              <Video className="mr-2 h-4 w-4" />
-                              Upload Video
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Video className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-lg font-medium">Up to date</p>
-                    <p className="text-sm mt-1">All completed matches have videos uploaded.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Logo Management Overview */}
-        {overviewTab === 'logos' && (
+      {/* Filters */}
+      <div className="mb-6 space-y-3">
+        <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className="space-y-6">
             {/* Current Team Logos */}
             <Card>
