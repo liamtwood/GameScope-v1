@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import {
+  clubs,
   teams,
   players,
   fixtures,
@@ -9,6 +10,7 @@ import {
   competitions,
   matchStats,
   users,
+  type Club,
   type Team,
   type Player,
   type Fixture,
@@ -16,6 +18,7 @@ import {
   type Competition,
   type MatchStats,
   type User,
+  type InsertClub,
   type InsertTeam,
   type InsertPlayer,
   type InsertFixture,
@@ -26,6 +29,12 @@ import {
 } from '@shared/schema';
 
 export interface IStorage {
+  // Club operations
+  getClubs(): Promise<Club[]>;
+  getClub(id: string): Promise<Club | undefined>;
+  createClub(club: InsertClub): Promise<Club>;
+  updateClub(id: string, club: Partial<InsertClub>): Promise<Club>;
+  
   // Team operations
   getTeams(): Promise<Team[]>;
   getTeam(id: string): Promise<Team | undefined>;
@@ -87,10 +96,17 @@ export class DatabaseStorage implements IStorage {
       return; // Data already exists
     }
 
+    // Create Polk State College club first
+    const [club] = await db.insert(clubs).values({
+      name: "Polk State College",
+      owner: "Liam Wood",
+    }).returning();
+
     // Initialize with sample team
     const teamId = randomUUID();
     const team: Team = {
       id: teamId,
+      clubId: club.id,
       name: "WOMEN'S SOCCER",
       shortName: "WSC",
       status: "ACTIVE",
@@ -201,6 +217,33 @@ export class DatabaseStorage implements IStorage {
     };
 
     await db.insert(users).values(user);
+  }
+
+  // Club operations
+  async getClubs(): Promise<Club[]> {
+    return await db.select().from(clubs);
+  }
+
+  async getClub(id: string): Promise<Club | undefined> {
+    const [club] = await db.select().from(clubs).where(eq(clubs.id, id));
+    return club;
+  }
+
+  async createClub(club: InsertClub): Promise<Club> {
+    const [newClub] = await db.insert(clubs).values(club).returning();
+    return newClub;
+  }
+
+  async updateClub(id: string, club: Partial<InsertClub>): Promise<Club> {
+    const updated = {
+      ...club,
+      updatedAt: new Date(),
+    };
+    
+    await db.update(clubs).set(updated).where(eq(clubs.id, id));
+    
+    const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, id));
+    return updatedClub!;
   }
 
   // Team operations

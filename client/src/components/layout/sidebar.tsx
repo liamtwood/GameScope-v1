@@ -22,6 +22,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     Users,
     BarChart3,
     Video,
+    Settings,
   };
 
   return (

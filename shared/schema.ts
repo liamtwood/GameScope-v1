@@ -3,8 +3,18 @@ import { pgTable, text, varchar, integer, timestamp, boolean, jsonb } from "driz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const clubs = pgTable("clubs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  owner: text("owner").notNull(),
+  logoPath: text("logo_path"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const teams = pgTable("teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clubId: varchar("club_id").references(() => clubs.id).notNull(),
   name: text("name").notNull(),
   shortName: varchar("short_name", { length: 10 }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("ACTIVE"),
@@ -131,6 +141,7 @@ export const users = pgTable("users", {
 });
 
 // Insert schemas
+export const insertClubSchema = createInsertSchema(clubs).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPlayerSchema = createInsertSchema(players).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
@@ -147,6 +158,7 @@ export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 
 // Types
+export type Club = typeof clubs.$inferSelect;
 export type Team = typeof teams.$inferSelect;
 export type Player = typeof players.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
@@ -155,6 +167,7 @@ export type Fixture = typeof fixtures.$inferSelect;
 export type MatchStats = typeof matchStats.$inferSelect;
 export type User = typeof users.$inferSelect;
 
+export type InsertClub = z.infer<typeof insertClubSchema>;
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
 export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;

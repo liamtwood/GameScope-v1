@@ -25,6 +25,7 @@ export const STATUS_COLORS = {
 
 export const NAVIGATION_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: 'Home', tooltip: 'Dashboard Overview' },
+  { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
   { id: 'fixtures', label: 'Fixtures', icon: 'Calendar', tooltip: 'Manage Fixtures' },
   { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
   { id: 'statistics', label: 'Statistics', icon: 'BarChart3', tooltip: 'Team Statistics' },

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -143,6 +143,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.log("Directories already exist");
   }
+  // Club routes
+  app.get("/api/clubs", async (req, res) => {
+    try {
+      const clubs = await storage.getClubs();
+      res.json(clubs);
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+      res.status(500).json({ message: "Failed to fetch clubs" });
+    }
+  });
+
+  app.get("/api/clubs/:id", async (req, res) => {
+    try {
+      const club = await storage.getClub(req.params.id);
+      if (!club) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+      res.json(club);
+    } catch (error) {
+      console.error("Error fetching club:", error);
+      res.status(500).json({ message: "Failed to fetch club" });
+    }
+  });
+
+  app.post("/api/clubs", async (req, res) => {
+    try {
+      const clubData = insertClubSchema.parse(req.body);
+      const club = await storage.createClub(clubData);
+      res.status(201).json(club);
+    } catch (error) {
+      console.error("Error creating club:", error);
+      res.status(400).json({ message: "Failed to create club" });
+    }
+  });
+
+  app.patch("/api/clubs/:id", async (req, res) => {
+    try {
+      const clubData = insertClubSchema.partial().parse(req.body);
+      const club = await storage.updateClub(req.params.id, clubData);
+      res.json(club);
+    } catch (error) {
+      console.error("Error updating club:", error);
+      res.status(400).json({ message: "Failed to update club" });
+    }
+  });
+
   // Team routes
   app.get("/api/teams", async (req, res) => {
     try {

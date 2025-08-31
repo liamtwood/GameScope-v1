@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import Dashboard from "@/pages/dashboard";
+import ClubManagement from "@/pages/club-management";
 import Fixtures from "@/pages/fixtures";
 import FixtureDetails from "@/pages/fixture-details";
 import Analysis from "@/pages/analysis";
@@ -18,6 +19,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/club-management" component={ClubManagement} />
       <Route path="/fixtures" component={Fixtures} />
       <Route path="/fixtures/:id" component={FixtureDetails} />
       <Route path="/analysis/:fixtureId" component={Analysis} />
