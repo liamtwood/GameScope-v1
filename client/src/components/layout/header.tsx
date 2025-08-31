@@ -32,13 +32,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
     ? clubs.find(club => club.id === clubId) || clubs[0]
     : clubs[0];
 
-  // Find Polk State team in opposition teams
-  const polkStateTeam = oppositionTeams?.find(team => 
-    team.name.toLowerCase().includes('polk state') || 
-    team.name.toLowerCase().includes('polk')
-  );
-
-  const logoSrc = polkStateTeam?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
+  // Use current club's logo instead of hardcoded Polk State
+  const logoSrc = currentClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
 
   return (
     <header className="bg-background border-b border-border">
@@ -60,7 +55,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
               <div className="h-16 w-16 flex items-center justify-center">
                 <img 
                   src={logoSrc}
-                  alt="Polk State College Logo" 
+                  alt={`${currentClub?.name || 'Club'} Logo`} 
                   className="h-14 w-14 object-contain"
                 />
               </div>
