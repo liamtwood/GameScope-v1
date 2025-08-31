@@ -162,19 +162,83 @@ export default function Analysis() {
           </TabsList>
         </div>
 
+        {/* Team Header - Always Visible */}
+        <div className="mb-6">
+          {/* Main header container with vertical split */}
+          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
+            {/* POLK side - red/black gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
+                 style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+            </div>
+            
+            {/* Opponent side - white with red pinstripes */}
+            <div className="absolute inset-0 bg-white" 
+                 style={{ 
+                   clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
+                   backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                 }}>
+            </div>
+            
+            {/* Content overlay */}
+            <div className="relative z-10 h-full flex items-center px-8">
+              {/* POLK section */}
+              <div className="flex items-center space-x-4 text-white flex-1">
+                {teamLogoPath ? (
+                  <img 
+                    src="/assets/logos/polk-state-logo-transparent.png" 
+                    alt="Polk State College logo"
+                    className="w-20 h-20 object-contain"
+                  />
+                ) : (
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">Polk State</span>
+                  </div>
+                )}
+                <div>
+                  <div className="text-2xl font-bold">Polk State College</div>
+                  <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
+                </div>
+              </div>
+              
+              {/* Center score - absolutely centered */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
+                <div className="flex items-center space-x-4">
+                  <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                  <div className="text-2xl font-light text-muted-foreground">-</div>
+                  <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                </div>
+                <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+              </div>
+              
+              {/* Opponent section */}
+              <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{fixture.opponent}</div>
+                  <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                </div>
+                {opponentLogoPath ? (
+                  <img 
+                    src={opponentLogoPath} 
+                    alt={`${fixture.opponent} logo`}
+                    className="w-20 h-20 object-contain"
+                  />
+                ) : (
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Statistics Tab */}
         <TabsContent value="statistics">
           <Card>
             <CardContent className="p-6">
               <MetricsComparison
-                teamName="Polk State College"
-                opponentName={fixture.opponent}
                 teamStats={fullGameStats}
                 opponentStats={opponentFullGameStats}
-                teamScore={fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}
-                opponentScore={fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}
-                teamLogoPath={teamLogoPath}
-                opponentLogoPath={opponentLogoPath}
               />
             </CardContent>
           </Card>

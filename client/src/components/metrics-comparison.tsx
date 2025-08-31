@@ -3,14 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchStats } from "@shared/schema";
 
 interface MetricsComparisonProps {
-  teamName: string;
-  opponentName: string;
   teamStats: MatchStats;
   opponentStats?: MatchStats;
-  teamScore?: number;
-  opponentScore?: number;
-  teamLogoPath?: string;
-  opponentLogoPath?: string;
 }
 
 interface MetricBarProps {
@@ -98,7 +92,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
   );
 }
 
-export function MetricsComparison({ teamName, opponentName, teamStats, opponentStats, teamScore = 0, opponentScore = 0, teamLogoPath, opponentLogoPath }: MetricsComparisonProps) {
+export function MetricsComparison({ teamStats, opponentStats }: MetricsComparisonProps) {
   const metricCategories = [
     {
       category: "Key",
@@ -250,77 +244,6 @@ export function MetricsComparison({ teamName, opponentName, teamStats, opponentS
   return (
     <Card className="p-6 border-2 border-border shadow-xl drop-shadow-lg">
       <div className="space-y-6">
-        {/* Header with logos and score - Spurs vs Bournemouth inspired */}
-        <div className="mb-6">
-          <h4 className="font-semibold text-center mb-6 text-xl text-foreground">Match Statistics</h4>
-          
-          {/* Main header container with vertical split */}
-          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-            {/* POLK side - red/black gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                 style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
-            </div>
-            
-            {/* Opponent side - white with red pinstripes */}
-            <div className="absolute inset-0 bg-white" 
-                 style={{ 
-                   clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                   backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
-                 }}>
-            </div>
-            
-            {/* Content overlay */}
-            <div className="relative z-10 h-full flex items-center px-8">
-              {/* POLK section */}
-              <div className="flex items-center space-x-4 text-white flex-1">
-                {teamLogoPath ? (
-                  <img 
-                    src="/assets/logos/polk-state-logo-transparent.png" 
-                    alt={`${teamName} logo`}
-                    className="w-20 h-20 object-contain"
-                  />
-                ) : (
-                  <div className="w-20 h-20 flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">Polk State</span>
-                  </div>
-                )}
-                <div>
-                  <div className="text-2xl font-bold">{teamName}</div>
-                  <div className="text-white/80 text-sm">HOME</div>
-                </div>
-              </div>
-              
-              {/* Center score - absolutely centered */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                <div className="flex items-center space-x-4">
-                  <div className="text-3xl font-bold text-red-600">{teamScore}</div>
-                  <div className="text-2xl font-light text-muted-foreground">-</div>
-                  <div className="text-3xl font-bold text-red-600">{opponentScore}</div>
-                </div>
-                <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-              </div>
-              
-              {/* Opponent section */}
-              <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                <div className="text-right">
-                  <div className="text-2xl font-bold">{opponentName}</div>
-                  <div className="text-muted-foreground text-sm">AWAY</div>
-                </div>
-                {opponentLogoPath ? (
-                  <img 
-                    src={opponentLogoPath} 
-                    alt={`${opponentName} logo`}
-                    className="w-20 h-20 object-contain"
-                  />
-                ) : (
-                  <div className="w-20 h-20 flex items-center justify-center">
-                    <span className="text-red-600 font-bold text-lg">{opponentName.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
         
         {/* Tab Navigation - Using shadcn Tabs like existing tabs */}
         <Tabs defaultValue="Key" className="w-full">
