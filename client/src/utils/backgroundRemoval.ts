@@ -223,14 +223,18 @@ export class BackgroundRemover {
       const g = data[i + 1];
       const b = data[i + 2];
       
-      // More aggressive white/light color removal
-      const isVeryLight = r > 220 && g > 220 && b > 220;
-      const matchesBgColor = Math.abs(r - bgColor.r) < tolerance && 
-                            Math.abs(g - bgColor.g) < tolerance && 
-                            Math.abs(b - bgColor.b) < tolerance;
-      
-      if (isVeryLight || matchesBgColor) {
-        data[i + 3] = 0; // Make transparent
+      // Check if pixel matches background color
+      if (Math.abs(r - bgColor.r) < tolerance && 
+          Math.abs(g - bgColor.g) < tolerance && 
+          Math.abs(b - bgColor.b) < tolerance) {
+        // Additional check: is this pixel surrounded by similar colors?
+        const pixelIdx = i / 4;
+        const x = pixelIdx % width;
+        const y = Math.floor(pixelIdx / width);
+        
+        if (this.isSurroundedByBackground(data, width, height, x, y, bgColor, tolerance)) {
+          data[i + 3] = 0; // Make transparent
+        }
       }
     }
   }
@@ -411,8 +415,13 @@ export class BackgroundRemover {
       if (hasColoredNeighbor) break;
     }
     
-    // If no colored neighbors and mostly surrounded by external background
-    return !hasColoredNeighbor && externalNeighbors > 15;
+    // If connected to colored content, it's not isolated (key fix from HTML version)
+    if (hasColoredNeighbor) {
+      return false;
+    }
+    
+    // If mostly surrounded by external background, it's isolated
+    return externalNeighbors > 12; // More than half of possible neighbors (matching HTML)
   }
 
   private resizeCanvas(canvas: HTMLCanvasElement, targetWidth: number): HTMLCanvasElement {
@@ -432,5 +441,41 @@ export class BackgroundRemover {
     ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
     
     return resizedCanvas;
+  }
+
+  private isSurroundedByBackground(
+    data: Uint8ClampedArray,
+    width: number,
+    height: number,
+    x: number,
+    y: number,
+    bgColor: { r: number; g: number; b: number },
+    tolerance: number
+  ): boolean {
+    let backgroundCount = 0;
+    let totalCount = 0;
+    
+    // Check 3x3 area around pixel
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        
+        const nx = x + dx;
+        const ny = y + dy;
+        
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          const idx = (ny * width + nx) * 4;
+          totalCount++;
+          
+          if (Math.abs(data[idx] - bgColor.r) < tolerance &&
+              Math.abs(data[idx + 1] - bgColor.g) < tolerance &&
+              Math.abs(data[idx + 2] - bgColor.b) < tolerance) {
+            backgroundCount++;
+          }
+        }
+      }
+    }
+    
+    return totalCount > 0 && backgroundCount / totalCount > 0.5;
   }
 }
