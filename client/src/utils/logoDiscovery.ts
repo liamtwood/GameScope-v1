@@ -34,19 +34,35 @@ export class LogoDiscovery {
         '/android-chrome-512x512.png'
       ];
 
+      let blockedCount = 0;
+      
       for (const pattern of faviconPatterns) {
         try {
           const faviconUrl = `${cleanUrl}${pattern}`;
-          const response = await fetch(faviconUrl, { method: 'HEAD' });
-          if (response.ok) {
+          const response = await fetch(faviconUrl, { 
+            method: 'HEAD',
+            mode: 'no-cors' // Try to bypass CORS restrictions
+          });
+          if (response.ok || response.type === 'opaque') {
             return {
               faviconUrl,
               success: true
             };
           }
+          if (response.status === 403 || response.status === 401) {
+            blockedCount++;
+          }
         } catch (e) {
           // Continue to next pattern
         }
+      }
+      
+      // If multiple requests were blocked, the site is likely protected
+      if (blockedCount > 2) {
+        return { 
+          success: false, 
+          error: `${new URL(cleanUrl).hostname} blocks automated access. Try manually uploading their logo instead.` 
+        };
       }
 
       // Try common logo patterns
@@ -107,7 +123,18 @@ export class LogoDiscovery {
         // Page scraping failed due to CORS or other restrictions
       }
 
-      return { success: false, error: "No accessible logo found. Some websites block automatic logo discovery due to security restrictions." };
+      // Check if this looks like a major commercial website
+      const hostname = new URL(cleanUrl).hostname.toLowerCase();
+      const majorSites = ['mancity.com', 'realmadrid.com', 'fcbarcelona.com', 'chelsea.com', 'arsenal.com', 'liverpool.com'];
+      
+      if (majorSites.some(site => hostname.includes(site))) {
+        return { 
+          success: false, 
+          error: `Major commercial websites like ${hostname} typically block automated logo discovery. You can manually upload their logo instead.` 
+        };
+      }
+      
+      return { success: false, error: "No accessible logo found. The website may have security restrictions that prevent automatic discovery." };
       
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" };

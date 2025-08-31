@@ -106,7 +106,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
         });
         
         // Store the discovered logo URL for use when creating the team
-        setDiscoveredLogoUrl(logoUrl);
+        setDiscoveredLogoUrl(logoUrl || null);
       } else {
         toast({
           title: "No Logo Found",
