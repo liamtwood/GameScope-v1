@@ -169,7 +169,7 @@ export default function ClubManagement() {
           {/* Club Logo Section */}
           <div className="flex flex-col sm:flex-row gap-6 items-start">
             <div className="flex-shrink-0">
-              <div className="bg-muted rounded-lg flex items-center justify-center overflow-hidden min-w-16 min-h-16 max-w-32 max-h-32">
+              <div className="flex items-center justify-center overflow-hidden min-w-16 min-h-16 max-w-32 max-h-32">
                 {currentClub.logoPath ? (
                   <img
                     src={currentClub.logoPath}
