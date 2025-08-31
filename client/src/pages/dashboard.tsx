@@ -9,12 +9,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, Target, Trophy, Calendar, Sparkles } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
+import { useTeam } from "@/contexts/team-context";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
-  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
-  const currentTeam = teams?.[0]; // For demo, use first team
+  const { selectedTeam: currentTeam } = useTeam();
 
   const { data: players } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],

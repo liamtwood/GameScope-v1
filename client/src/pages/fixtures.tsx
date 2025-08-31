@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useTeam } from "@/contexts/team-context";
 import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { StatsCard } from "@/components/ui/stats-card";
@@ -48,8 +49,7 @@ export default function Fixtures() {
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
   const [fetchingUrl, setFetchingUrl] = useState(false);
 
-  const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
-  const currentTeam = teams?.[0]; // For demo, use first team
+  const { selectedTeam: currentTeam } = useTeam();
 
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],

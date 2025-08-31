@@ -3,16 +3,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Trophy, Plus } from "lucide-react";
+import { Shield, Trophy, Plus, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTeam } from "@/contexts/team-context";
+import { cn } from "@/lib/utils";
 import type { Club, Team } from "@shared/schema";
 
 // Form schema for creating teams
@@ -33,15 +36,11 @@ export default function Teams() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
 
   // Fetch clubs data
   const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
-  });
-
-  // Fetch teams data
-  const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
-    queryKey: ["/api/teams"],
   });
 
   const currentClub = clubs[0]; // For now, we're working with the first club
@@ -70,7 +69,7 @@ export default function Teams() {
       };
       return apiRequest("POST", "/api/teams", teamData);
     },
-    onSuccess: () => {
+    onSuccess: (newTeam) => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
       toast({
         title: "Success",
@@ -113,6 +112,14 @@ export default function Teams() {
   }
 
   const clubTeams = teams.filter((team) => team.clubId === currentClub?.id);
+
+  const handleTeamSelect = (team: Team) => {
+    selectTeam(team);
+    toast({
+      title: "Team Selected",
+      description: `${team.name} is now the active team`,
+    });
+  };
 
   return (
     <MainLayout title="Teams" subtitle="Manage and view all teams in your club">
@@ -275,42 +282,69 @@ export default function Teams() {
         <CardContent>
           {clubTeams.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {clubTeams.map((team: Team) => (
-                <Card key={team.id} className="border-2">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Trophy className="h-5 w-5 text-primary" />
+              {clubTeams.map((team: Team) => {
+                const isSelected = selectedTeam?.id === team.id;
+                return (
+                  <Card 
+                    key={team.id} 
+                    className={cn(
+                      "border-2 cursor-pointer transition-all hover:shadow-md",
+                      isSelected 
+                        ? "border-primary bg-primary/5 shadow-md" 
+                        : "border-border hover:border-primary/50"
+                    )}
+                    onClick={() => handleTeamSelect(team)}
+                    data-testid={`card-team-${team.id}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center",
+                            isSelected ? "bg-primary/20" : "bg-primary/10"
+                          )}>
+                            <Trophy className={cn(
+                              "h-5 w-5",
+                              isSelected ? "text-primary" : "text-primary"
+                            )} />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
+                              {team.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">{team.shortName}</p>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <Badge variant="default" className="flex items-center gap-1">
+                            <Check className="h-3 w-3" />
+                            Active
+                          </Badge>
+                        )}
                       </div>
-                      <div>
-                        <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
-                          {team.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{team.shortName}</p>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Coach:</span>
+                          <span data-testid={`text-team-coach-${team.id}`}>{team.coach || "Not assigned"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Season:</span>
+                          <span data-testid={`text-team-season-${team.id}`}>{team.season || "Not set"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Status:</span>
+                          <span 
+                            className={`font-medium ${team.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-600'}`}
+                            data-testid={`text-team-status-${team.id}`}
+                          >
+                            {team.status}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Coach:</span>
-                        <span data-testid={`text-team-coach-${team.id}`}>{team.coach || "Not assigned"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Season:</span>
-                        <span data-testid={`text-team-season-${team.id}`}>{team.season || "Not set"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status:</span>
-                        <span 
-                          className={`font-medium ${team.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-600'}`}
-                          data-testid={`text-team-status-${team.id}`}
-                        >
-                          {team.status}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-8">
