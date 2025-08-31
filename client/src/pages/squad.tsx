@@ -258,24 +258,18 @@ export default function Squad() {
           </Card>
 
           {/* Defenders */}
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardContent className="p-6 text-center">
-              <Shield className="h-8 w-8 mx-auto mb-2 text-green-600" />
-              <p className="text-sm text-green-700 mb-1">Defenders</p>
-              <p className="text-3xl font-bold text-green-900">{getPositionCount('DEF')}</p>
-              <p className="text-xs text-green-600 mt-1">defensive players</p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Defenders"
+            value={getPositionCount('DEF')}
+            subtitle="defensive players"
+          />
 
           {/* Forwards */}
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-            <CardContent className="p-6 text-center">
-              <Target className="h-8 w-8 mx-auto mb-2 text-red-600" />
-              <p className="text-sm text-red-700 mb-1">Forwards</p>
-              <p className="text-3xl font-bold text-red-900">{getPositionCount('FWD')}</p>
-              <p className="text-xs text-red-600 mt-1">attacking players</p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Forwards"
+            value={getPositionCount('FWD')}
+            subtitle="attacking players"
+          />
         </div>
       </div>
 
