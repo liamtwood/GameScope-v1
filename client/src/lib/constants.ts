@@ -22,12 +22,26 @@ export const STATUS_COLORS = {
   NO_CONTEST: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
-export const NAVIGATION_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'Home', tooltip: 'Dashboard Overview' },
-  { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
-  { id: 'fixtures', label: 'Fixtures', icon: 'Calendar', tooltip: 'Manage Fixtures' },
-  { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
-  { id: 'teams', label: 'Teams', icon: 'Users', tooltip: 'Teams Overview' },
-  { id: 'statistics', label: 'Statistics', icon: 'BarChart3', tooltip: 'Team Statistics' },
-  { id: 'videos', label: 'Match Videos', icon: 'Video', tooltip: 'Match Videos' },
+export const NAVIGATION_SECTIONS = [
+  {
+    title: 'Club',
+    items: [
+      { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
+      { id: 'teams', label: 'Teams', icon: 'Shield', tooltip: 'Teams Overview' },
+    ]
+  },
+  {
+    title: 'Team',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'Home', tooltip: 'Dashboard Overview' },
+      { id: 'fixtures', label: 'Fixtures', icon: 'Calendar', tooltip: 'Manage Fixtures' },
+      { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
+      { id: 'statistics', label: 'Statistics', icon: 'BarChart3', tooltip: 'Team Statistics' },
+      { id: 'videos', label: 'Match Videos', icon: 'Video', tooltip: 'Match Videos' },
+    ]
+  },
+  {
+    title: 'Settings',
+    items: []
+  }
 ];

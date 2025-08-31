@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Crosshair } from "lucide-react";
+import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Shield, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NAVIGATION_ITEMS } from "@/lib/constants";
+import { NAVIGATION_SECTIONS } from "@/lib/constants";
 import type { Club } from "@shared/schema";
 
 interface SidebarProps {
@@ -32,6 +32,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     BarChart3,
     Video,
     Settings,
+    Shield,
   };
 
   return (
@@ -92,29 +93,43 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       )}
 
       {/* Navigation */}
-      <nav className="p-4 space-y-2">
-        {NAVIGATION_ITEMS.map((item) => {
-          const Icon = iconMap[item.icon as keyof typeof iconMap];
-          const isActive = currentPath === item.id;
-          
-          return (
-            <Link
-              key={item.id}
-              href={item.id === 'dashboard' ? '/' : `/${item.id}`}
-              className={cn(
-                "flex items-center space-x-3 px-3 py-2 transition-colors w-full",
-                isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                collapsed && "justify-center px-2"
-              )}
-              data-testid={`link-nav-${item.id}`}
-            >
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              {!collapsed && <span className="font-medium">{item.label}</span>}
-            </Link>
-          );
-        })}
+      <nav className="p-4 space-y-6">
+        {NAVIGATION_SECTIONS.map((section) => (
+          <div key={section.title}>
+            {!collapsed && (
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                {section.title}
+              </h3>
+            )}
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = iconMap[item.icon as keyof typeof iconMap];
+                const isActive = currentPath === item.id;
+                
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.id === 'dashboard' ? '/' : `/${item.id}`}
+                    className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors w-full",
+                      isActive 
+                        ? "bg-primary text-primary-foreground" 
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      collapsed && "justify-center px-2"
+                    )}
+                    data-testid={`link-nav-${item.id}`}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium">{item.label}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+            {!collapsed && section.items.length === 0 && (
+              <p className="text-xs text-muted-foreground italic px-3">No items yet</p>
+            )}
+          </div>
+        ))}
       </nav>
 
       {/* User Profile */}
