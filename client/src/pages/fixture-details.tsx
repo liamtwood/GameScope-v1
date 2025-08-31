@@ -364,6 +364,10 @@ export default function FixtureDetails() {
                       <p className="text-foreground">{fixture.opponent}</p>
                     </div>
                     <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Short Name</h5>
+                      <p className="text-foreground">{oppositionTeam?.shortName || 'N/A'}</p>
+                    </div>
+                    <div>
                       <h5 className="font-medium text-sm text-muted-foreground mb-1">Venue</h5>
                       <p className="text-foreground">{fixture.venue}</p>
                     </div>
