@@ -486,6 +486,18 @@ export default function LogoManagement() {
                 >
                   TEST CLICK (Click Me!)
                 </button>
+                <button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
+                  onClick={async () => {
+                    alert('Background removal starting!');
+                    if (oppositionTeams && oppositionTeams.length > 0) {
+                      const firstTeam = oppositionTeams[0];
+                      await handleRemoveBackground(firstTeam);
+                    }
+                  }}
+                >
+                  TEST REMOVE BG
+                </button>
               </div>
             )}
 
