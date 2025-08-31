@@ -71,6 +71,30 @@ export class ObjectStorageService {
     });
   }
 
+  // Gets the upload URL for a logo.
+  async getLogoUploadURL(): Promise<string> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    if (!privateObjectDir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
+          "tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+
+    const logoId = randomUUID();
+    const fullPath = `${privateObjectDir}/logos/${logoId}`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+
+    // Sign URL for PUT method with TTL
+    return signObjectURL({
+      bucketName,
+      objectName,
+      method: "PUT",
+      ttlSec: 900,
+    });
+  }
+
   // Gets the object entity file from the object path.
   async getObjectEntityFile(objectPath: string): Promise<File> {
     if (!objectPath.startsWith("/objects/")) {
@@ -151,6 +175,57 @@ export class ObjectStorageService {
         res.status(500).json({ error: "Error downloading file" });
       }
     }
+  }
+
+  // Normalize logo path from upload URL to serve path
+  normalizeLogoPath(rawPath: string): string {
+    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
+      return rawPath;
+    }
+  
+    // Extract the path from the URL by removing query parameters and domain
+    const url = new URL(rawPath);
+    const rawObjectPath = url.pathname;
+  
+    let logoDir = this.getPrivateObjectDir();
+    if (!logoDir.endsWith("/")) {
+      logoDir = `${logoDir}/`;
+    }
+  
+    if (!rawObjectPath.startsWith(logoDir)) {
+      return rawObjectPath;
+    }
+  
+    // Extract the logo ID from the path
+    const logoId = rawObjectPath.slice(logoDir.length);
+    return `/logos/${logoId}`;
+  }
+
+  // Gets the logo file from the logo path.
+  async getLogoFile(logoPath: string): Promise<File> {
+    if (!logoPath.startsWith("/logos/")) {
+      throw new ObjectNotFoundError();
+    }
+
+    const parts = logoPath.slice(1).split("/");
+    if (parts.length < 2) {
+      throw new ObjectNotFoundError();
+    }
+
+    const logoId = parts.slice(1).join("/");
+    let logoDir = this.getPrivateObjectDir();
+    if (!logoDir.endsWith("/")) {
+      logoDir = `${logoDir}/`;
+    }
+    const logoObjectPath = `${logoDir}logos/${logoId}`;
+    const { bucketName, objectName } = parseObjectPath(logoObjectPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const logoFile = bucket.file(objectName);
+    const [exists] = await logoFile.exists();
+    if (!exists) {
+      throw new ObjectNotFoundError();
+    }
+    return logoFile;
   }
 }
 

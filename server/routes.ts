@@ -901,6 +901,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Logo upload routes
+  app.post("/api/logos/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting logo upload URL:", error);
+      res.status(500).json({ error: "Failed to get logo upload URL" });
+    }
+  });
+
+  app.get("/logos/:logoPath(*)", async (req, res) => {
+    const logoPath = `/${req.params.logoPath}`;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const logoFile = await objectStorageService.getLogoFile(logoPath);
+      objectStorageService.downloadObject(logoFile, res);
+    } catch (error) {
+      console.error("Error serving logo:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // Update club logo
+  app.put("/api/clubs/:id/logo", async (req, res) => {
+    try {
+      if (!req.body.logoURL) {
+        return res.status(400).json({ error: "logoURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const logoPath = objectStorageService.normalizeLogoPath(req.body.logoURL);
+
+      const updatedClub = await storage.updateClub(req.params.id, {
+        logoPath: logoPath,
+      });
+
+      res.status(200).json({
+        logoPath: logoPath,
+        club: updatedClub,
+      });
+    } catch (error) {
+      console.error("Error setting club logo:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Update fixture videos
   app.put("/api/fixtures/:fixtureId/videos", async (req, res) => {
     try {

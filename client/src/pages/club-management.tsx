@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Pencil, Building2, Users, Trophy } from "lucide-react";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { Pencil, Building2, Users, Trophy, Upload } from "lucide-react";
 import type { Club, Team } from "@shared/schema";
+import type { UploadResult } from "@uppy/core";
 
 export default function ClubManagement() {
   const { toast } = useToast();
@@ -54,6 +56,27 @@ export default function ClubManagement() {
     },
   });
 
+  // Logo upload mutation
+  const updateLogoMutation = useMutation({
+    mutationFn: async (data: { logoURL: string }) => {
+      return apiRequest("PUT", `/api/clubs/${currentClub?.id}/logo`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      toast({
+        title: "Success",
+        description: "Club logo updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update club logo",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEdit = () => {
     if (currentClub) {
       setEditForm({
@@ -72,6 +95,25 @@ export default function ClubManagement() {
   const handleCancel = () => {
     setIsEditing(false);
     setEditForm({ name: "", shortName: "", owner: "" });
+  };
+
+  const handleLogoGetUploadParameters = async () => {
+    const response = await fetch("/api/logos/upload", {
+      method: "POST",
+    });
+    const { uploadURL } = await response.json();
+    return {
+      method: "PUT" as const,
+      url: uploadURL,
+    };
+  };
+
+  const handleLogoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful[0]?.uploadURL) {
+      updateLogoMutation.mutate({
+        logoURL: result.successful[0].uploadURL,
+      });
+    }
   };
 
   if (clubsLoading || teamsLoading) {
@@ -124,6 +166,44 @@ export default function ClubManagement() {
           )}
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Club Logo Section */}
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            <div className="flex-shrink-0">
+              <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                {currentClub.logoPath ? (
+                  <img
+                    src={currentClub.logoPath}
+                    alt={`${currentClub.name} logo`}
+                    className="w-full h-full object-cover"
+                    data-testid="img-club-logo"
+                  />
+                ) : (
+                  <Building2 className="h-12 w-12 text-muted-foreground" />
+                )}
+              </div>
+            </div>
+            <div className="flex-1 space-y-3">
+              <div>
+                <h3 className="font-medium">Club Logo</h3>
+                <p className="text-sm text-muted-foreground">
+                  Upload a logo for your club that will be used throughout the system
+                </p>
+              </div>
+              <ObjectUploader
+                maxNumberOfFiles={1}
+                maxFileSize={5242880} // 5MB
+                onGetUploadParameters={handleLogoGetUploadParameters}
+                onComplete={handleLogoUploadComplete}
+                buttonClassName="w-fit"
+              >
+                <div className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  <span>{currentClub.logoPath ? "Change Logo" : "Upload Logo"}</span>
+                </div>
+              </ObjectUploader>
+            </div>
+          </div>
+
           {isEditing ? (
             <div className="space-y-4">
               <div className="space-y-2">
