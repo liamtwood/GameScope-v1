@@ -439,14 +439,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/fixtures", async (req, res) => {
     try {
-      const fixtureData = insertFixtureSchema.parse(req.body);
+      const { newOpponentWebsite, discoveredLogoUrl, ...fixtureData } = req.body;
+      const parsedData = insertFixtureSchema.parse(fixtureData);
       
       // Auto-create competition if it doesn't exist
-      if (fixtureData.competition) {
-        await storage.getOrCreateCompetition(fixtureData.competition);
+      if (parsedData.competition) {
+        await storage.getOrCreateCompetition(parsedData.competition);
       }
       
-      const fixture = await storage.createFixture(fixtureData);
+      // Auto-create opposition team if it doesn't exist, with website URL and logo if provided
+      if (parsedData.opponent) {
+        await storage.getOrCreateOppositionTeam(
+          parsedData.opponent, 
+          newOpponentWebsite, 
+          discoveredLogoUrl
+        );
+      }
+      
+      const fixture = await storage.createFixture(parsedData);
       res.status(201).json(fixture);
     } catch (error) {
       console.error("Error creating fixture:", error);

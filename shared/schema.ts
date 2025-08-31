@@ -106,6 +106,7 @@ export const oppositionTeams = pgTable("opposition_teams", {
   name: text("name").notNull().unique(),
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
+  websiteUrl: text("website_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -132,7 +133,10 @@ export const users = pgTable("users", {
 // Insert schemas
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPlayerSchema = createInsertSchema(players).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    websiteUrl: z.string().url().optional().or(z.literal("")),
+  });
 export const insertCompetitionSchema = createInsertSchema(competitions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertFixtureSchema = createInsertSchema(fixtures)
   .omit({ id: true, createdAt: true, updatedAt: true })

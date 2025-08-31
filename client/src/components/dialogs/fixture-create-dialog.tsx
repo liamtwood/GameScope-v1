@@ -16,6 +16,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { OppositionTeam, Competition } from "@shared/schema";
 import { LogoUpload } from "@/components/logo-upload";
+import { LogoDiscovery } from "@/utils/logoDiscovery";
+import { useToast } from "@/hooks/use-toast";
 
 const fixtureCreateSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
@@ -35,11 +37,15 @@ interface FixtureCreateDialogProps {
 }
 
 export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
   const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
   const [selectedOpponentForLogo, setSelectedOpponentForLogo] = useState<OppositionTeam | null>(null);
+  const [newOpponentWebsite, setNewOpponentWebsite] = useState("");
+  const [isDiscoveringLogo, setIsDiscoveringLogo] = useState(false);
+  const [discoveredLogoUrl, setDiscoveredLogoUrl] = useState<string | null>(null);
 
   // Fetch existing opposition teams and competitions
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
@@ -74,10 +80,68 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
     },
   });
 
-  const handleSubmit = (data: FixtureCreateFormData) => {
-    onSave({ ...data, teamId });
+  const handleDiscoverLogo = async () => {
+    const opponentName = form.getValues("opponent");
+    if (!opponentName || !newOpponentWebsite) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both opponent name and website URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDiscoveringLogo(true);
+    
+    try {
+      const logoDiscovery = new LogoDiscovery();
+      const result = await logoDiscovery.findLogoFromWebsite(newOpponentWebsite);
+      
+      if (result.success && (result.logoUrl || result.faviconUrl)) {
+        const logoUrl = result.logoUrl || result.faviconUrl;
+        
+        toast({
+          title: "Logo Found!",
+          description: `Found a logo for ${opponentName}. It will be saved when you create the fixture.`,
+        });
+        
+        // Store the discovered logo URL for use when creating the team
+        setDiscoveredLogoUrl(logoUrl);
+      } else {
+        toast({
+          title: "No Logo Found",
+          description: result.error || "Could not find a logo at the provided website",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Discovery Failed",
+        description: "An error occurred while searching for the logo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDiscoveringLogo(false);
+    }
+  };
+
+  const handleSubmit = async (data: FixtureCreateFormData) => {
+    // If we're creating a new opponent and have a website URL, pass that along
+    if (showNewOpponentInput && newOpponentWebsite) {
+      onSave({ 
+        ...data, 
+        teamId, 
+        newOpponentWebsite, 
+        discoveredLogoUrl 
+      } as any);
+    } else {
+      onSave({ ...data, teamId });
+    }
+    
     setOpen(false);
     form.reset();
+    setNewOpponentWebsite("");
+    setDiscoveredLogoUrl(null);
   };
 
   return (
@@ -101,16 +165,50 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                     <FormLabel>Opponent</FormLabel>
                     <FormControl>
                       {showNewOpponentInput ? (
-                        <div className="flex gap-2">
-                          <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowNewOpponentInput(false)}
-                          >
-                            Cancel
-                          </Button>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowNewOpponentInput(false)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Team website URL (optional - for auto logo discovery)" 
+                              value={newOpponentWebsite}
+                              onChange={(e) => setNewOpponentWebsite(e.target.value)}
+                              data-testid="input-opponent-website"
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDiscoverLogo()}
+                              disabled={!newOpponentWebsite || isDiscoveringLogo}
+                              data-testid="button-discover-logo"
+                              title="Automatically find team logo from website"
+                            >
+                              {isDiscoveringLogo ? "Finding..." : "Find Logo"}
+                            </Button>
+                          </div>
+                          {discoveredLogoUrl && (
+                            <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                              <img 
+                                src={discoveredLogoUrl} 
+                                alt="Discovered logo"
+                                className="w-6 h-6 object-cover rounded"
+                              />
+                              <span className="text-sm text-green-700 dark:text-green-300">
+                                Logo found! Will be saved automatically.
+                              </span>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="flex gap-2">
