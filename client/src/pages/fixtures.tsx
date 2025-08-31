@@ -539,7 +539,7 @@ export default function Fixtures() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* FCSAA League Card */}
             <StatsCard
               title="FCSAA League"
@@ -548,18 +548,6 @@ export default function Fixtures() {
               iconColor="text-border"
               subtitle="W-D-L"
             />
-
-            {/* Record Card */}
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-6 text-center">
-                <Trophy className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <p className="text-sm text-blue-700 mb-1">RECORD</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  {stats.wins}-{stats.draws}-{stats.losses}
-                </p>
-                <p className="text-xs text-blue-600 mt-1">W-D-L</p>
-              </CardContent>
-            </Card>
 
             {/* Goals For Card */}
             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
