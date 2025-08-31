@@ -34,6 +34,8 @@ export function SpiderChart({
             dataKey="metric" 
             tick={{ fontSize: 12, fill: '#6b7280' }}
             className="text-xs"
+            tickFormatter={(value) => value}
+            tickSize={20}
           />
           <PolarRadiusAxis 
             angle={90} 
