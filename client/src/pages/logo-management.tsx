@@ -302,11 +302,31 @@ export default function LogoManagement() {
                     <div className="text-center mt-1">
                       <button 
                         className="text-xs cursor-pointer hover:bg-accent px-2 py-1 border rounded bg-white dark:bg-gray-800"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           console.log('Button clicked!', team.name);
                           e.stopPropagation();
                           e.preventDefault();
-                          handleRemoveBackground(team);
+                          
+                          // Show immediate feedback
+                          const button = e.target as HTMLButtonElement;
+                          const originalText = button.textContent;
+                          button.textContent = 'Processing...';
+                          button.disabled = true;
+                          
+                          try {
+                            await handleRemoveBackground(team);
+                            button.textContent = 'Done!';
+                            setTimeout(() => {
+                              button.textContent = originalText;
+                              button.disabled = false;
+                            }, 2000);
+                          } catch (error) {
+                            button.textContent = 'Error!';
+                            setTimeout(() => {
+                              button.textContent = originalText;
+                              button.disabled = false;
+                            }, 2000);
+                          }
                         }}
                         data-testid={`button-remove-bg-${team.id}`}
                       >
