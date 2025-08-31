@@ -189,7 +189,7 @@ export default function Analysis() {
                     <div className="flex items-center space-x-4 text-white flex-1">
                       {teamLogoPath ? (
                         <img 
-                          src="/assets/logos/polk-state-logo-transparent.png" 
+                          src={teamLogoPath} 
                           alt="Polk State College logo"
                           className="w-20 h-20 object-contain"
                         />
@@ -272,7 +272,7 @@ export default function Analysis() {
                     <div className="flex items-center space-x-4 text-white flex-1">
                       {teamLogoPath ? (
                         <img 
-                          src="/assets/logos/polk-state-logo-transparent.png" 
+                          src={teamLogoPath} 
                           alt="Polk State College logo"
                           className="w-20 h-20 object-contain"
                         />
@@ -371,7 +371,7 @@ export default function Analysis() {
                     <div className="flex items-center space-x-4 text-white flex-1">
                       {teamLogoPath ? (
                         <img 
-                          src="/assets/logos/polk-state-logo-transparent.png" 
+                          src={teamLogoPath} 
                           alt="Polk State College logo"
                           className="w-20 h-20 object-contain"
                         />
@@ -612,7 +612,7 @@ export default function Analysis() {
                     <div className="flex items-center space-x-4 text-white flex-1">
                       {teamLogoPath ? (
                         <img 
-                          src="/assets/logos/polk-state-logo-transparent.png" 
+                          src={teamLogoPath} 
                           alt="Polk State College logo"
                           className="w-20 h-20 object-contain"
                         />
@@ -694,7 +694,7 @@ export default function Analysis() {
                     <div className="flex items-center space-x-4 text-white flex-1">
                       {teamLogoPath ? (
                         <img 
-                          src="/assets/logos/polk-state-logo-transparent.png" 
+                          src={teamLogoPath} 
                           alt="Polk State College logo"
                           className="w-20 h-20 object-contain"
                         />
