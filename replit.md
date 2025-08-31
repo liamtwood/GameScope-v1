@@ -21,10 +21,20 @@ The application uses a modern React-based architecture built with TypeScript and
 
 The frontend follows a page-based architecture with dedicated routes for:
 - Dashboard (overview and key metrics)
-- Fixtures (match scheduling and management)
+- Fixtures (match scheduling, management, and team logo management)
 - Squad (player management)
 - Statistics (team performance analytics)
 - Videos (match video organization)
+
+## Recent Changes (August 31, 2025)
+
+### Logo Management Integration
+- **Moved logo management functionality from standalone page to Fixtures page**
+- **Added "Logos" tab to Fixtures page alongside Season, Planning, and Videos tabs**
+- **Individual theme controls**: Each team logo container has independent light/dark theme toggles
+- **Background removal**: Process existing team logos to remove backgrounds with smart, color-based, and manual modes
+- **Image comparison**: Side-by-side view of original vs processed logos
+- **ThemedLogoContainer component**: Custom container with per-container theme persistence in localStorage
 
 ## Backend Architecture
 
