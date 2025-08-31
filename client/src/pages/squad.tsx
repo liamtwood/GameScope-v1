@@ -189,7 +189,7 @@ export default function Squad() {
           teamId={currentTeam?.id || ""} 
           onSave={handleCreatePlayer}
         >
-          <Button data-testid="button-add-player">
+          <Button variant="outline" data-testid="button-add-player">
             <UserPlus className="mr-2 h-4 w-4" />
             Add Player
           </Button>
