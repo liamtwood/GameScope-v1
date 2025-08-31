@@ -291,23 +291,18 @@ export default function LogoManagement() {
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-medium truncate">{team.name}</p>
-                      <Badge 
-                        variant="outline" 
-                        className="text-xs mt-1 cursor-pointer hover:bg-accent"
+                      <button 
+                        className="text-xs mt-1 cursor-pointer hover:bg-accent px-2 py-1 border rounded"
                         onClick={(e) => {
-                          console.log('Badge clicked!', team.name);
+                          console.log('Button clicked!', team.name);
                           e.stopPropagation();
                           e.preventDefault();
-                          try {
-                            handleRemoveBackground(team);
-                          } catch (error) {
-                            console.error('Error calling handleRemoveBackground:', error);
-                          }
+                          handleRemoveBackground(team);
                         }}
                         data-testid={`button-remove-bg-${team.id}`}
                       >
                         Remove Background
-                      </Badge>
+                      </button>
                     </div>
                     <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
                       <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
