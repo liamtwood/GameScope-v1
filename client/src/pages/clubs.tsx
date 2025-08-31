@@ -117,8 +117,17 @@ export default function Clubs() {
     mutationFn: async (data: { id: string; logoURL: string }) => {
       return apiRequest("PUT", `/api/clubs/${data.id}/logo`, { logoURL: data.logoURL });
     },
-    onSuccess: () => {
+    onSuccess: (updatedClub) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      
+      // Update the editingClub state so the UI immediately reflects the new logo
+      if (editingClub && updatedClub?.logoPath) {
+        setEditingClub({
+          ...editingClub,
+          logoPath: updatedClub.logoPath
+        });
+      }
+      
       toast({
         title: "Logo Updated",
         description: "Club logo has been updated successfully.",
@@ -165,7 +174,7 @@ export default function Clubs() {
     };
   };
 
-  const handleLogoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+  const handleLogoUploadComplete = (result: { successful: Array<{ uploadURL: string }> }) => {
     if (result.successful && result.successful[0]?.uploadURL && editingClub) {
       logoUploadMutation.mutate({
         id: editingClub.id,
