@@ -248,7 +248,7 @@ export default function Squad() {
       {/* Summary Cards */}
       <div className="mb-6">
         <div className="space-y-6">
-          {/* Total Players and Position Summary */}
+          {/* Total Players and Star Players */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <StatsCard
               title="Total Players"
@@ -258,6 +258,15 @@ export default function Squad() {
               subtitle="active squad members"
             />
             
+            <StatsCard
+              title="Star Players"
+              value={players?.filter(p => p.keyPlayer).length || 0}
+              subtitle="regular starters"
+            />
+          </div>
+
+          {/* Position Summary */}
+          <div className="grid grid-cols-1 gap-6">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -289,15 +298,8 @@ export default function Squad() {
             </Card>
           </div>
 
-          {/* Position Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Star Players */}
-            <StatsCard
-              title="Star Players"
-              value={players?.filter(p => p.keyPlayer).length || 0}
-              subtitle="regular starters"
-            />
-
+          {/* Other Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Player Status */}
             <StatsCard
               title="Player Status"
