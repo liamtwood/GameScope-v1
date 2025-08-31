@@ -23,6 +23,7 @@ export default function Squad() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [activeTab, setActiveTab] = useState<'table' | 'player-card' | 'account-card'>('table');
   const { toast } = useToast();
 
   const { data: teams } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
@@ -304,7 +305,46 @@ export default function Squad() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="flex space-x-4 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('table')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              activeTab === 'table' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Table
+          </button>
+          <button
+            onClick={() => setActiveTab('player-card')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              activeTab === 'player-card' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Player Card
+          </button>
+          <button
+            onClick={() => setActiveTab('account-card')}
+            className={`pb-2 px-1 text-sm font-medium ${
+              activeTab === 'account-card' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Account Card
+          </button>
+        </div>
+      </div>
+
+      {/* Table Tab Content */}
+      {activeTab === 'table' && (
+        <>
+          {/* Filters */}
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
           <SelectTrigger className="w-48" data-testid="select-position">
@@ -545,6 +585,45 @@ export default function Squad() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add New Player Button */}
+      <div className="mt-6">
+        <PlayerCreateDialog 
+          teamId={currentTeam?.id || ''} 
+          onSave={handleCreatePlayer}
+        >
+          <Button className="w-full" data-testid="button-add-player">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add New Player
+          </Button>
+        </PlayerCreateDialog>
+      </div>
+        </>
+      )}
+
+      {/* Player Card Tab Content */}
+      {activeTab === 'player-card' && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">Player Card view coming soon</p>
+              <p className="text-sm text-muted-foreground mt-2">This will show player cards with photos and detailed stats</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Account Card Tab Content */}
+      {activeTab === 'account-card' && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">Account Card view coming soon</p>
+              <p className="text-sm text-muted-foreground mt-2">This will show player account information and contact details</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </MainLayout>
   );
 }
