@@ -295,8 +295,14 @@ export default function LogoManagement() {
                         variant="outline" 
                         className="text-xs mt-1 cursor-pointer hover:bg-accent"
                         onClick={(e) => {
+                          console.log('Badge clicked!', team.name);
                           e.stopPropagation();
-                          handleRemoveBackground(team);
+                          e.preventDefault();
+                          try {
+                            handleRemoveBackground(team);
+                          } catch (error) {
+                            console.error('Error calling handleRemoveBackground:', error);
+                          }
                         }}
                         data-testid={`button-remove-bg-${team.id}`}
                       >
