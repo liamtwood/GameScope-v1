@@ -26,7 +26,7 @@ export default function Analysis() {
     enabled: !!fixtureId,
   });
 
-  const { data: oppositionTeams } = useQuery({
+  const { data: oppositionTeams } = useQuery<any[]>({
     queryKey: ["/api/opposition-teams"],
   });
 
@@ -50,11 +50,10 @@ export default function Analysis() {
     { metric: 'Passes Success', team: teamStats.passesSuccess || 0, opponent: opponentStats?.passesSuccess || 0, fullMark: Math.max(200, teamStats.passesSuccess || 0, opponentStats?.passesSuccess || 0) }
   ];
 
-  const createDefensiveSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
+  const createTechnicalSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
     { metric: 'Tackles', team: teamStats.tackles || 0, opponent: opponentStats?.tackles || 0, fullMark: Math.max(40, teamStats.tackles || 0, opponentStats?.tackles || 0) },
     { metric: 'Free Kicks', team: teamStats.freeKicks || 0, opponent: opponentStats?.freeKicks || 0, fullMark: Math.max(20, teamStats.freeKicks || 0, opponentStats?.freeKicks || 0) },
     { metric: 'Offsides', team: teamStats.offsides || 0, opponent: opponentStats?.offsides || 0, fullMark: Math.max(10, teamStats.offsides || 0, opponentStats?.offsides || 0) },
-    { metric: 'Pass Distance', team: teamStats.passingTotalDistance || 0, opponent: opponentStats?.passingTotalDistance || 0, fullMark: Math.max(5000, teamStats.passingTotalDistance || 0, opponentStats?.passingTotalDistance || 0) },
     { metric: 'R.Foot Pass %', team: teamStats.rightFootPassSuccessRate || 0, opponent: opponentStats?.rightFootPassSuccessRate || 0, fullMark: 100 },
     { metric: 'L.Foot Pass %', team: teamStats.leftFootPassSuccessRate || 0, opponent: opponentStats?.leftFootPassSuccessRate || 0, fullMark: 100 }
   ];
@@ -307,7 +306,7 @@ export default function Analysis() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="p-6">
                     <SpiderChart
-                      data={createDefensiveSpiderData(fullGameStats, opponentFullGameStats)}
+                      data={createTechnicalSpiderData(fullGameStats, opponentFullGameStats)}
                       teamName="Polk State College"
                       opponentName={fixture.opponent}
                       title="Technical Performance"
