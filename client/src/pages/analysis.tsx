@@ -31,31 +31,51 @@ export default function Analysis() {
   });
 
 
-  // Spider Chart Data Transformation Functions (matching fixture details)
-  const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
-    { metric: 'Goals', team: teamStats.goals || 0, opponent: opponentStats?.goals || 0, fullMark: Math.max(10, (teamStats.goals || 0) * 2, (opponentStats?.goals || 0) * 2) },
-    { metric: 'Shots Attempted', team: teamStats.shotsAttempted || 0, opponent: opponentStats?.shotsAttempted || 0, fullMark: Math.max(40, teamStats.shotsAttempted || 0, opponentStats?.shotsAttempted || 0) },
-    { metric: 'Shots On Target', team: teamStats.shotsOnTarget || 0, opponent: opponentStats?.shotsOnTarget || 0, fullMark: Math.max(20, teamStats.shotsOnTarget || 0, opponentStats?.shotsOnTarget || 0) },
-    { metric: 'Runs Into Boxes', team: teamStats.runsIntoBoxes || 0, opponent: opponentStats?.runsIntoBoxes || 0, fullMark: Math.max(70, teamStats.runsIntoBoxes || 0, opponentStats?.runsIntoBoxes || 0) },
-    { metric: 'Corners', team: teamStats.corners || 0, opponent: opponentStats?.corners || 0, fullMark: Math.max(15, teamStats.corners || 0, opponentStats?.corners || 0) },
-    { metric: 'Dangerous Crosses', team: teamStats.dangerousCrosses || 0, opponent: opponentStats?.dangerousCrosses || 0, fullMark: Math.max(20, teamStats.dangerousCrosses || 0, opponentStats?.dangerousCrosses || 0) }
-  ];
+  // Spider Chart Data Transformation Functions - Normalized to percentages
+  const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => {
+    const maxGoals = Math.max(teamStats.goals || 0, opponentStats?.goals || 0, 1);
+    const maxShotsAttempted = Math.max(teamStats.shotsAttempted || 0, opponentStats?.shotsAttempted || 0, 1);
+    const maxShotsOnTarget = Math.max(teamStats.shotsOnTarget || 0, opponentStats?.shotsOnTarget || 0, 1);
+    const maxRunsIntoBoxes = Math.max(teamStats.runsIntoBoxes || 0, opponentStats?.runsIntoBoxes || 0, 1);
+    const maxCorners = Math.max(teamStats.corners || 0, opponentStats?.corners || 0, 1);
+    const maxDangerousCrosses = Math.max(teamStats.dangerousCrosses || 0, opponentStats?.dangerousCrosses || 0, 1);
+    
+    return [
+      { metric: 'Goals', team: ((teamStats.goals || 0) / maxGoals) * 100, opponent: ((opponentStats?.goals || 0) / maxGoals) * 100, fullMark: 100 },
+      { metric: 'Shots Attempted', team: ((teamStats.shotsAttempted || 0) / maxShotsAttempted) * 100, opponent: ((opponentStats?.shotsAttempted || 0) / maxShotsAttempted) * 100, fullMark: 100 },
+      { metric: 'Shots On Target', team: ((teamStats.shotsOnTarget || 0) / maxShotsOnTarget) * 100, opponent: ((opponentStats?.shotsOnTarget || 0) / maxShotsOnTarget) * 100, fullMark: 100 },
+      { metric: 'Runs Into Boxes', team: ((teamStats.runsIntoBoxes || 0) / maxRunsIntoBoxes) * 100, opponent: ((opponentStats?.runsIntoBoxes || 0) / maxRunsIntoBoxes) * 100, fullMark: 100 },
+      { metric: 'Corners', team: ((teamStats.corners || 0) / maxCorners) * 100, opponent: ((opponentStats?.corners || 0) / maxCorners) * 100, fullMark: 100 },
+      { metric: 'Dangerous Crosses', team: ((teamStats.dangerousCrosses || 0) / maxDangerousCrosses) * 100, opponent: ((opponentStats?.dangerousCrosses || 0) / maxDangerousCrosses) * 100, fullMark: 100 }
+    ];
+  };
 
-  const createPossessionSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
-    { metric: 'Possession %', team: teamStats.possession || 0, opponent: opponentStats?.possession || 0, fullMark: 100 },
-    { metric: 'Pass Accuracy %', team: teamStats.passingSuccessRate || 0, opponent: opponentStats?.passingSuccessRate || 0, fullMark: 100 },
-    { metric: 'First Touch %', team: teamStats.firstTouchSuccessRate || 0, opponent: opponentStats?.firstTouchSuccessRate || 0, fullMark: 100 },
-    { metric: 'Take Ons', team: teamStats.takeOns || 0, opponent: opponentStats?.takeOns || 0, fullMark: Math.max(30, teamStats.takeOns || 0, opponentStats?.takeOns || 0) },
-    { metric: 'Passes Success', team: teamStats.passesSuccess || 0, opponent: opponentStats?.passesSuccess || 0, fullMark: Math.max(200, teamStats.passesSuccess || 0, opponentStats?.passesSuccess || 0) }
-  ];
+  const createPossessionSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => {
+    const maxTakeOns = Math.max(teamStats.takeOns || 0, opponentStats?.takeOns || 0, 1);
+    const maxPassesSuccess = Math.max(teamStats.passesSuccess || 0, opponentStats?.passesSuccess || 0, 1);
+    
+    return [
+      { metric: 'Possession %', team: teamStats.possession || 0, opponent: opponentStats?.possession || 0, fullMark: 100 },
+      { metric: 'Pass Accuracy %', team: teamStats.passingSuccessRate || 0, opponent: opponentStats?.passingSuccessRate || 0, fullMark: 100 },
+      { metric: 'First Touch %', team: teamStats.firstTouchSuccessRate || 0, opponent: opponentStats?.firstTouchSuccessRate || 0, fullMark: 100 },
+      { metric: 'Take Ons', team: ((teamStats.takeOns || 0) / maxTakeOns) * 100, opponent: ((opponentStats?.takeOns || 0) / maxTakeOns) * 100, fullMark: 100 },
+      { metric: 'Passes Success', team: ((teamStats.passesSuccess || 0) / maxPassesSuccess) * 100, opponent: ((opponentStats?.passesSuccess || 0) / maxPassesSuccess) * 100, fullMark: 100 }
+    ];
+  };
 
-  const createTechnicalSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
-    { metric: 'Tackles', team: teamStats.tackles || 0, opponent: opponentStats?.tackles || 0, fullMark: Math.max(40, teamStats.tackles || 0, opponentStats?.tackles || 0) },
-    { metric: 'Free Kicks', team: teamStats.freeKicks || 0, opponent: opponentStats?.freeKicks || 0, fullMark: Math.max(20, teamStats.freeKicks || 0, opponentStats?.freeKicks || 0) },
-    { metric: 'Offsides', team: teamStats.offsides || 0, opponent: opponentStats?.offsides || 0, fullMark: Math.max(10, teamStats.offsides || 0, opponentStats?.offsides || 0) },
-    { metric: 'R.Foot Pass %', team: teamStats.rightFootPassSuccessRate || 0, opponent: opponentStats?.rightFootPassSuccessRate || 0, fullMark: 100 },
-    { metric: 'L.Foot Pass %', team: teamStats.leftFootPassSuccessRate || 0, opponent: opponentStats?.leftFootPassSuccessRate || 0, fullMark: 100 }
-  ];
+  const createTechnicalSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => {
+    const maxTackles = Math.max(teamStats.tackles || 0, opponentStats?.tackles || 0, 1);
+    const maxFreeKicks = Math.max(teamStats.freeKicks || 0, opponentStats?.freeKicks || 0, 1);
+    const maxOffsides = Math.max(teamStats.offsides || 0, opponentStats?.offsides || 0, 1);
+    
+    return [
+      { metric: 'Tackles', team: ((teamStats.tackles || 0) / maxTackles) * 100, opponent: ((opponentStats?.tackles || 0) / maxTackles) * 100, fullMark: 100 },
+      { metric: 'Free Kicks', team: ((teamStats.freeKicks || 0) / maxFreeKicks) * 100, opponent: ((opponentStats?.freeKicks || 0) / maxFreeKicks) * 100, fullMark: 100 },
+      { metric: 'Offsides', team: ((teamStats.offsides || 0) / maxOffsides) * 100, opponent: ((opponentStats?.offsides || 0) / maxOffsides) * 100, fullMark: 100 },
+      { metric: 'R.Foot Pass %', team: teamStats.rightFootPassSuccessRate || 0, opponent: opponentStats?.rightFootPassSuccessRate || 0, fullMark: 100 },
+      { metric: 'L.Foot Pass %', team: teamStats.leftFootPassSuccessRate || 0, opponent: opponentStats?.leftFootPassSuccessRate || 0, fullMark: 100 }
+    ];
+  };
 
   if (fixtureLoading || statsLoading) {
     return (
