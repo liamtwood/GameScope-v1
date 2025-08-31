@@ -248,8 +248,8 @@ export default function Squad() {
       {/* Summary Cards */}
       <div className="mb-6">
         <div className="space-y-6">
-          {/* Total Players */}
-          <div className="grid grid-cols-1 gap-6">
+          {/* Total Players and Position Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <StatsCard
               title="Total Players"
               value={getPositionCount('all')}
@@ -257,6 +257,37 @@ export default function Squad() {
               iconColor="text-border"
               subtitle="active squad members"
             />
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-muted-foreground text-sm font-medium">Position Summary</p>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">GK</p>
+                        <p className="text-lg font-bold text-foreground">{getPositionCount('GK')}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">DEF</p>
+                        <p className="text-lg font-bold text-foreground">{getPositionCount('DEF')}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">MID</p>
+                        <p className="text-lg font-bold text-foreground">{getPositionCount('MID')}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">FWD</p>
+                        <p className="text-lg font-bold text-foreground">{getPositionCount('FWD')}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-muted-foreground text-sm">position breakdown</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Position Breakdown */}
