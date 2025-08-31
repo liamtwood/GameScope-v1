@@ -49,6 +49,7 @@ export const fixtures = pgTable("fixtures", {
   teamId: varchar("team_id").references(() => teams.id).notNull(),
   opponent: text("opponent").notNull(), // Keep for backward compatibility
   oppositionTeamId: varchar("opposition_team_id").references(() => oppositionTeams.id),
+  oppositionClubId: varchar("opposition_club_id").references(() => clubs.id), // NEW: For club vs club games
   date: timestamp("date").notNull(),
   venue: text("venue").notNull(),
   type: varchar("type", { length: 20 }).notNull(), // HOME, AWAY, NEUTRAL
