@@ -6,16 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Building2, Edit, Trash2, MapPin, Phone, Mail } from "lucide-react";
+import { Plus, Building2, Edit, Trash2, User } from "lucide-react";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { z } from "zod";
 
-type CreateClubFormData = z.infer<typeof insertClubSchema>;
+// Create a schema with required name validation
+const createClubSchema = insertClubSchema.extend({
+  name: z.string().min(1, "Club name is required"),
+});
+
+type CreateClubFormData = z.infer<typeof createClubSchema>;
 
 export default function Clubs() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -26,14 +30,11 @@ export default function Clubs() {
   });
 
   const form = useForm<CreateClubFormData>({
-    resolver: zodResolver(insertClubSchema),
+    resolver: zodResolver(createClubSchema),
     defaultValues: {
       name: "",
       shortName: "",
-      address: "",
-      phone: "",
-      email: "",
-      description: "",
+      owner: "admin", // Default owner
     },
   });
 
@@ -130,67 +131,14 @@ export default function Clubs() {
                 />
                 <FormField
                   control={form.control}
-                  name="address"
+                  name="owner"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel>Owner</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter club address"
-                          data-testid="input-club-address"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Phone number"
-                            data-testid="input-club-phone"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="contact@club.com"
-                            data-testid="input-club-email"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter club description"
-                          data-testid="input-club-description"
+                          placeholder="Enter club owner"
+                          data-testid="input-club-owner"
                           {...field}
                         />
                       </FormControl>
@@ -248,34 +196,18 @@ export default function Clubs() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center text-sm text-muted-foreground">
+                <div className="flex items-center justify-between text-sm">
                   <span className="font-medium bg-secondary px-2 py-1 rounded text-xs">
                     {club.shortName}
                   </span>
                 </div>
-                {club.address && (
-                  <div className="flex items-start space-x-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{club.address}</span>
-                  </div>
-                )}
-                {club.phone && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{club.phone}</span>
-                  </div>
-                )}
-                {club.email && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{club.email}</span>
-                  </div>
-                )}
-                {club.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {club.description}
-                  </p>
-                )}
+                <div className="flex items-center space-x-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{club.owner}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Created: {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : 'N/A'}
+                </div>
               </div>
             </CardContent>
           </Card>
