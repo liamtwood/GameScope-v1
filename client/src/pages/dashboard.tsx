@@ -98,7 +98,7 @@ export default function Dashboard() {
           value={statistics?.matchesPlayed || 0}
           icon={Trophy}
           iconColor="text-border"
-          subtitle={`${statistics?.wins || 0}W ${statistics?.draws || 0}D ${statistics?.losses || 0}L`}
+          subtitle={`Win ${statistics?.wins || 0} Drawn ${statistics?.draws || 0} Lost ${statistics?.losses || 0}`}
         />
         
         <StatsCard
