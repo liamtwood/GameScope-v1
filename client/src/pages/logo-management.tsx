@@ -159,7 +159,11 @@ export default function LogoManagement() {
   };
 
   const handleRemoveBackground = async (team: OppositionTeam) => {
+    console.log('=== REMOVE BACKGROUND CLICKED ===');
+    console.log('Team:', team.name, 'Logo path:', team.logoPath);
+    
     if (!team.logoPath) {
+      console.log('ERROR: No logo path found for team');
       toast({
         title: "No Logo Found",
         description: "This team doesn't have a logo to process.",
@@ -168,35 +172,32 @@ export default function LogoManagement() {
       return;
     }
 
-    console.log('Starting background removal for team:', team.name);
+    console.log('Setting processing state...');
     setProcessing(true);
     setSelectedTeam(team.id);
     setOriginalImageUrl(team.logoPath);
+    console.log('State set, starting background removal process...');
     
     try {
-      console.log('Starting background removal for logo:', team.logoPath);
-      
-      // Create an image element to load the logo
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // Handle CORS
-      
-      // First, try to fetch the image as a blob
-      console.log('Fetching image from:', team.logoPath);
+      console.log('Step 1: Fetching image from:', team.logoPath);
       const response = await fetch(team.logoPath);
+      console.log('Fetch response status:', response.status, 'ok:', response.ok);
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.status}`);
       }
       
       const blob = await response.blob();
-      console.log('Fetched blob, size:', blob.size, 'type:', blob.type);
+      console.log('Step 2: Got blob, size:', blob.size, 'type:', blob.type);
       
       // Create File object
       const file = new File([blob], `${team.name}-logo.png`, { 
         type: blob.type || 'image/png' 
       });
-      console.log('Created file object');
+      console.log('Step 3: Created file object, size:', file.size);
       
       // Process the image
+      console.log('Step 4: Creating BackgroundRemover...');
       const backgroundRemover = new BackgroundRemover();
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
@@ -204,18 +205,16 @@ export default function LogoManagement() {
         preserveInternalWhite: true
       };
       
-      console.log('Starting background removal with options:', options);
+      console.log('Step 5: Starting background removal with options:', options);
       const processedBlob = await backgroundRemover.removeBackground(file, options);
-      console.log('Background removal completed successfully, processed size:', processedBlob.size);
+      console.log('Step 6: Background removal completed! Processed size:', processedBlob.size);
       
       const processedUrl = URL.createObjectURL(processedBlob);
-      console.log('Generated processed image URL:', processedUrl);
+      console.log('Step 7: Generated URL:', processedUrl);
       
+      console.log('Step 8: Setting processed image URL in state...');
       setProcessedImageUrl(processedUrl);
-      console.log('Set processed image URL in state');
-      
-      // Don't auto-save, just show the result
-      console.log('Background removal successful, showing result');
+      console.log('Step 9: State updated!');
       
       toast({
         title: "Background Removed",
@@ -231,14 +230,20 @@ export default function LogoManagement() {
       }, 100);
       
     } catch (error) {
-      console.error('Background removal error:', error);
+      console.error('=== BACKGROUND REMOVAL ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error message:', (error as Error).message);
+      console.error('Error stack:', (error as Error).stack);
+      
       toast({
         title: "Processing Failed",
-        description: `Failed to remove background: ${error.message || 'Unknown error'}`,
+        description: `Failed to remove background: ${(error as Error).message || 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
+      console.log('=== CLEANING UP ===');
       setProcessing(false);
+      console.log('Processing set to false');
     }
   };
 
