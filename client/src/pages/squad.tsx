@@ -337,6 +337,7 @@ export default function Squad() {
                 <TableRow className="bg-muted">
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">#</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Player</TableHead>
+                  <TableHead className="text-center py-3 px-4 font-medium text-muted-foreground text-sm">⭐</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Position</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Status</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Apps</TableHead>
@@ -348,7 +349,7 @@ export default function Squad() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <td colSpan={9} className="text-center py-8">
+                    <td colSpan={10} className="text-center py-8">
                       <p className="text-muted-foreground">Loading players...</p>
                     </td>
                   </TableRow>
@@ -366,27 +367,27 @@ export default function Squad() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div>
-                            <p className="font-semibold text-foreground">{player.name}</p>
-                            <p className="text-sm text-muted-foreground">{player.hometown}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleKeyPlayer(player)}
-                            className="h-6 w-6 p-0"
-                            data-testid={`button-key-player-${player.id}`}
-                          >
-                            <Star 
-                              className={`h-4 w-4 transition-colors ${
-                                player.keyPlayer 
-                                  ? 'text-orange-500 fill-orange-500' 
-                                  : 'text-gray-300 hover:text-orange-300'
-                              }`} 
-                            />
-                          </Button>
+                        <div>
+                          <p className="font-semibold text-foreground">{player.name}</p>
+                          <p className="text-sm text-muted-foreground">{player.hometown}</p>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleKeyPlayer(player)}
+                          className="h-6 w-6 p-0"
+                          data-testid={`button-key-player-${player.id}`}
+                        >
+                          <Star 
+                            className={`h-4 w-4 transition-colors ${
+                              player.keyPlayer 
+                                ? 'text-orange-500 fill-orange-500' 
+                                : 'text-gray-300 hover:text-orange-300'
+                            }`} 
+                          />
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -534,7 +535,7 @@ export default function Squad() {
                   ))
                 ) : (
                   <TableRow>
-                    <td colSpan={9} className="text-center py-8">
+                    <td colSpan={10} className="text-center py-8">
                       <p className="text-muted-foreground">No players found matching your criteria</p>
                     </td>
                   </TableRow>
