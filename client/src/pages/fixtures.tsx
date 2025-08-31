@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
+import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { FixtureCreateDialog } from "@/components/dialogs/fixture-create-dialog";
 import { Button } from "@/components/ui/button";
@@ -514,7 +515,16 @@ export default function Fixtures() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Matches Played Card */}
+            <StatsCard
+              title="Matches Played"
+              value={stats.completed}
+              icon={Trophy}
+              iconColor="text-border"
+              subtitle={`${stats.wins} - ${stats.draws} - ${stats.losses}`}
+            />
+
             {/* Record Card */}
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
               <CardContent className="p-6 text-center">
