@@ -236,6 +236,7 @@ export default function Analysis() {
                 </div>
               </div>
               
+              <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
               <MetricsComparison
                 teamStats={fullGameStats}
                 opponentStats={opponentFullGameStats}
@@ -318,6 +319,7 @@ export default function Analysis() {
                 </div>
               </div>
               
+              <h3 className="text-lg font-semibold mb-4">AI-Powered Analysis</h3>
               <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800/20 p-6 rounded-lg border">
                 <h4 className="font-semibold text-foreground mb-4 flex items-center">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
@@ -416,6 +418,7 @@ export default function Analysis() {
                 </div>
               </div>
               
+              <h3 className="text-lg font-semibold mb-4">Spider Charts</h3>
               <Tabs defaultValue="attack" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="attack">Attack</TabsTrigger>
