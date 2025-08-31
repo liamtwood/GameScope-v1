@@ -79,22 +79,22 @@ export default function Analysis() {
 
   if (fixtureLoading || statsLoading) {
     return (
-      <MainLayout title="GameScope Analysis" subtitle="Loading match analysis...">
+      <MainLayout title="GameScope Analysis" subtitle="Loading analysis...">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Loading analysis data...</p>
+            <p className="mt-2 text-muted-foreground">Loading match analysis...</p>
           </div>
         </div>
       </MainLayout>
     );
   }
 
-  if (!fixture || !matchStats || matchStats.length === 0) {
+  if (!fixture || !matchStats) {
     return (
       <MainLayout title="GameScope Analysis" subtitle="Analysis not found">
         <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">No analysis data available for this match.</p>
+          <p className="text-muted-foreground mb-4">Unable to load match analysis.</p>
           <Link href="/">
             <Button>
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -118,25 +118,6 @@ export default function Analysis() {
   
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
-
-  const getResultDisplay = () => {
-    if (fixture.homeScore !== null && fixture.awayScore !== null) {
-      const isHome = fixture.type === 'HOME';
-      const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
-      const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
-      
-      if (ourScore > theirScore) {
-        return { result: `${ourScore}-${theirScore} WIN`, color: 'bg-green-500' };
-      } else if (ourScore < theirScore) {
-        return { result: `${ourScore}-${theirScore} LOSS`, color: 'bg-red-500' };
-      } else {
-        return { result: `${ourScore}-${theirScore} DRAW`, color: 'bg-yellow-500' };
-      }
-    }
-    return { result: 'NO RESULT', color: 'bg-gray-500' };
-  };
-
-  const { result, color } = getResultDisplay();
 
   if (!fullGameStats) {
     return (
@@ -169,213 +150,258 @@ export default function Analysis() {
         </Link>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
-          
-          <div className="space-y-6">
+      {/* Main Analysis Tabs */}
+      <Tabs defaultValue="statistics" className="w-full">
+        <div className="flex justify-center mb-6">
+          <TabsList className="grid w-full max-w-[600px] grid-cols-5">
+            <TabsTrigger value="statistics">Statistics</TabsTrigger>
+            <TabsTrigger value="spider">Spider Charts</TabsTrigger>
+            <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
+            <TabsTrigger value="positions">Position Maps</TabsTrigger>
+            <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+          </TabsList>
+        </div>
 
-            {/* Comprehensive Metrics Comparison */}
-            <MetricsComparison
-              teamName="Polk State College"
-              opponentName={fixture.opponent}
-              teamStats={fullGameStats}
-              opponentStats={opponentFullGameStats}
-              teamScore={fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}
-              opponentScore={fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}
-              teamLogoPath={teamLogoPath}
-              opponentLogoPath={opponentLogoPath}
-            />
+        {/* Statistics Tab */}
+        <TabsContent value="statistics">
+          <Card>
+            <CardContent className="p-6">
+              <MetricsComparison
+                teamName="Polk State College"
+                opponentName={fixture.opponent}
+                teamStats={fullGameStats}
+                opponentStats={opponentFullGameStats}
+                teamScore={fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}
+                opponentScore={fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}
+                teamLogoPath={teamLogoPath}
+                opponentLogoPath={opponentLogoPath}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            {/* AI-Powered Insights */}
-            <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800/20 p-6 rounded-lg border">
-              <h4 className="font-semibold text-foreground mb-4 flex items-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                AI-Powered Match Insights
-              </h4>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-start space-x-3">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-muted-foreground">Strong defensive performance in the first half, intercepting 8 out of 12 opponent attacks in the midfield.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats.passingSuccessRate || 0}% success rate on pass attempts.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats.shotsAttempted || 0} shots attempted with {fullGameStats.shotsOnTarget || 0} on target.</p>
+        {/* AI Analysis Tab */}
+        <TabsContent value="ai">
+          <Card>
+            <CardContent className="p-6">
+              <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800/20 p-6 rounded-lg border">
+                <h4 className="font-semibold text-foreground mb-4 flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                  AI-Powered Match Insights
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-muted-foreground">Strong defensive performance in the first half, intercepting 8 out of 12 opponent attacks in the midfield.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats.passingSuccessRate || 0}% success rate on pass attempts.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats.shotsAttempted || 0} shots attempted with {fullGameStats.shotsOnTarget || 0} on target.</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
+        {/* Spider Charts Tab */}
+        <TabsContent value="spider">
+          <Card>
+            <CardContent className="p-6">
+              <Tabs defaultValue="attack" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="attack">Attack</TabsTrigger>
+                  <TabsTrigger value="possession">Possession</TabsTrigger>
+                  <TabsTrigger value="technical">Technical</TabsTrigger>
+                </TabsList>
 
-            {/* Performance Analysis Tabs */}
-            <Tabs defaultValue="attack" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="attack">Attack</TabsTrigger>
-                <TabsTrigger value="possession">Possession</TabsTrigger>
-                <TabsTrigger value="technical">Technical</TabsTrigger>
-              </TabsList>
+                <TabsContent value="attack" className="mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="p-6">
+                      <SpiderChart
+                        data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
+                        teamName=""
+                        opponentName=""
+                        title="Attack Performance"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
+                    <Card className="p-6">
+                      <h4 className="font-semibold text-foreground mb-4">Attack Metrics</h4>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                          <span className="text-muted-foreground">Metric</span>
+                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Goals</span>
+                          <span className="font-medium text-center">{fullGameStats.goals || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.goals || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Shots Attempted</span>
+                          <span className="font-medium text-center">{fullGameStats.shotsAttempted || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsAttempted || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Shots on Target</span>
+                          <span className="font-medium text-center">{fullGameStats.shotsOnTarget || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsOnTarget || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
+                          <span className="font-medium text-center">{fullGameStats.runsIntoBoxes || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.runsIntoBoxes || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Corner Kicks</span>
+                          <span className="font-medium text-center">{fullGameStats.corners || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.corners || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
+                          <span className="font-medium text-center">{fullGameStats.dangerousCrosses || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.dangerousCrosses || 0}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="attack" className="mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="p-6">
-                    <SpiderChart
-                      data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName=""
-                      opponentName=""
-                      title="Attack Performance"
-                      teamColor="#dc2626"
-                      opponentColor="#64748b"
-                    />
-                  </Card>
-                  <Card className="p-6">
-                    <h4 className="font-semibold text-foreground mb-4">Attack Metrics</h4>
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                        <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
+                <TabsContent value="possession" className="mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="p-6">
+                      <SpiderChart
+                        data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
+                        teamName=""
+                        opponentName=""
+                        title="Possession Performance"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
+                    <Card className="p-6">
+                      <h4 className="font-semibold text-foreground mb-4">Possession Metrics</h4>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                          <span className="text-muted-foreground">Metric</span>
+                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Possession %</span>
+                          <span className="font-medium text-center">{fullGameStats.possession || 0}%</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.possession || 0}%</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Pass Accuracy %</span>
+                          <span className="font-medium text-center">{fullGameStats.passingSuccessRate || 0}%</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passingSuccessRate || 0}%</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">First Touch %</span>
+                          <span className="font-medium text-center">{fullGameStats.firstTouchSuccessRate || 0}%</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.firstTouchSuccessRate || 0}%</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Take Ons</span>
+                          <span className="font-medium text-center">{fullGameStats.takeOns || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.takeOns || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Passes Success</span>
+                          <span className="font-medium text-center">{fullGameStats.passesSuccess || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passesSuccess || 0}</span>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Goals</span>
-                        <span className="font-medium text-center">{fullGameStats.goals || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.goals || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Shots Attempted</span>
-                        <span className="font-medium text-center">{fullGameStats.shotsAttempted || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsAttempted || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Shots on Target</span>
-                        <span className="font-medium text-center">{fullGameStats.shotsOnTarget || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsOnTarget || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
-                        <span className="font-medium text-center">{fullGameStats.runsIntoBoxes || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.runsIntoBoxes || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Corner Kicks</span>
-                        <span className="font-medium text-center">{fullGameStats.corners || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.corners || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
-                        <span className="font-medium text-center">{fullGameStats.dangerousCrosses || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.dangerousCrosses || 0}</span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </TabsContent>
+                    </Card>
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="possession" className="mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="p-6">
-                    <SpiderChart
-                      data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName=""
-                      opponentName=""
-                      title="Possession Performance"
-                      teamColor="#dc2626"
-                      opponentColor="#64748b"
-                    />
-                  </Card>
-                  <Card className="p-6">
-                    <h4 className="font-semibold text-foreground mb-4">Possession Metrics</h4>
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                        <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
+                <TabsContent value="technical" className="mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="p-6">
+                      <SpiderChart
+                        data={createTechnicalSpiderData(fullGameStats, opponentFullGameStats)}
+                        teamName=""
+                        opponentName=""
+                        title="Technical Performance"
+                        teamColor="#dc2626"
+                        opponentColor="#64748b"
+                      />
+                    </Card>
+                    <Card className="p-6">
+                      <h4 className="font-semibold text-foreground mb-4">Technical Metrics</h4>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
+                          <span className="text-muted-foreground">Metric</span>
+                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Tackles</span>
+                          <span className="font-medium text-center">{fullGameStats.tackles || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.tackles || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Free Kicks</span>
+                          <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.freeKicks || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Offsides</span>
+                          <span className="font-medium text-center">{fullGameStats.offsides || 0}</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.offsides || 0}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Right Foot Pass %</span>
+                          <span className="font-medium text-center">{fullGameStats.rightFootPassSuccessRate || 0}%</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.rightFootPassSuccessRate || 0}%</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <span className="text-sm text-muted-foreground">Left Foot Pass %</span>
+                          <span className="font-medium text-center">{fullGameStats.leftFootPassSuccessRate || 0}%</span>
+                          <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.leftFootPassSuccessRate || 0}%</span>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Possession %</span>
-                        <span className="font-medium text-center">{fullGameStats.possession || 0}%</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.possession || 0}%</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Pass Accuracy %</span>
-                        <span className="font-medium text-center">{fullGameStats.passingSuccessRate || 0}%</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passingSuccessRate || 0}%</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">First Touch %</span>
-                        <span className="font-medium text-center">{fullGameStats.firstTouchSuccessRate || 0}%</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.firstTouchSuccessRate || 0}%</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Take Ons</span>
-                        <span className="font-medium text-center">{fullGameStats.takeOns || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.takeOns || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Passes Success</span>
-                        <span className="font-medium text-center">{fullGameStats.passesSuccess || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passesSuccess || 0}</span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </TabsContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-              <TabsContent value="technical" className="mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="p-6">
-                    <SpiderChart
-                      data={createTechnicalSpiderData(fullGameStats, opponentFullGameStats)}
-                      teamName=""
-                      opponentName=""
-                      title="Technical Performance"
-                      teamColor="#dc2626"
-                      opponentColor="#64748b"
-                    />
-                  </Card>
-                  <Card className="p-6">
-                    <h4 className="font-semibold text-foreground mb-4">Technical Metrics</h4>
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                        <span className="text-muted-foreground">Metric</span>
-                        <span className="text-red-600 text-center">Polk State College</span>
-                        <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Tackles</span>
-                        <span className="font-medium text-center">{fullGameStats.tackles || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.tackles || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Free Kicks</span>
-                        <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.freeKicks || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Offsides</span>
-                        <span className="font-medium text-center">{fullGameStats.offsides || 0}</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.offsides || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Right Foot Pass %</span>
-                        <span className="font-medium text-center">{fullGameStats.rightFootPassSuccessRate || 0}%</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.rightFootPassSuccessRate || 0}%</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 items-center">
-                        <span className="text-sm text-muted-foreground">Left Foot Pass %</span>
-                        <span className="font-medium text-center">{fullGameStats.leftFootPassSuccessRate || 0}%</span>
-                        <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.leftFootPassSuccessRate || 0}%</span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Heat Maps Tab - Placeholder */}
+        <TabsContent value="heatmaps">
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center py-12">
+                <h3 className="text-lg font-semibold mb-2">Heat Maps</h3>
+                <p className="text-muted-foreground">Coming soon - visualize player movement and ball possession heat maps</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Position Maps Tab - Placeholder */}
+        <TabsContent value="positions">
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center py-12">
+                <h3 className="text-lg font-semibold mb-2">Position Maps</h3>
+                <p className="text-muted-foreground">Coming soon - analyze player positioning and formation effectiveness</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </MainLayout>
   );
 }
