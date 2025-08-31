@@ -247,36 +247,41 @@ export default function Squad() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-6">
           {/* Total Players */}
-          <StatsCard
-            title="Total Players"
-            value={getPositionCount('all')}
-            icon={Users}
-            iconColor="text-border"
-            subtitle="active squad members"
-          />
+          <div className="grid grid-cols-1 gap-6">
+            <StatsCard
+              title="Total Players"
+              value={getPositionCount('all')}
+              icon={Users}
+              iconColor="text-border"
+              subtitle="active squad members"
+            />
+          </div>
 
-          {/* Defenders */}
-          <StatsCard
-            title="Defenders"
-            value={getPositionCount('DEF')}
-            subtitle="defensive players"
-          />
+          {/* Position Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Defenders */}
+            <StatsCard
+              title="Defenders"
+              value={getPositionCount('DEF')}
+              subtitle="defensive players"
+            />
 
-          {/* Midfield */}
-          <StatsCard
-            title="Midfield"
-            value={getPositionCount('MID')}
-            subtitle="midfield players"
-          />
+            {/* Midfield */}
+            <StatsCard
+              title="Midfield"
+              value={getPositionCount('MID')}
+              subtitle="midfield players"
+            />
 
-          {/* Forwards */}
-          <StatsCard
-            title="Forwards"
-            value={getPositionCount('FWD')}
-            subtitle="attacking players"
-          />
+            {/* Forwards */}
+            <StatsCard
+              title="Forwards"
+              value={getPositionCount('FWD')}
+              subtitle="attacking players"
+            />
+          </div>
         </div>
       </div>
 
