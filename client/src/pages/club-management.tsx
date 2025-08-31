@@ -144,9 +144,7 @@ export default function ClubManagement() {
       <Card className="mb-8">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-muted-foreground" />
-            </div>
+            <Building2 className="h-6 w-6 text-muted-foreground" />
             <div>
               <CardTitle className="text-xl">Club Information</CardTitle>
               <p className="text-sm text-muted-foreground">Basic club details and settings</p>
