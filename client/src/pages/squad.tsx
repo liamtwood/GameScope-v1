@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Eye, Check, X, Users, Shield, Target } from "lucide-react";
-import { Player, Team } from "@shared/schema";
+import { UserPlus, Star, Edit, Eye, Check, X, Users, Shield, Target, Trophy } from "lucide-react";
+import { Player, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -29,6 +30,11 @@ export default function Squad() {
 
   const { data: players, isLoading } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],
+    enabled: !!currentTeam?.id 
+  });
+
+  const { data: fixtures } = useQuery<Fixture[]>({ 
+    queryKey: ["/api/fixtures", currentTeam?.id],
     enabled: !!currentTeam?.id 
   });
 
@@ -138,6 +144,30 @@ export default function Squad() {
     return players.filter(player => player.keyPlayer).length;
   };
 
+  // Calculate FCSAA League specific stats
+  const getFCSAAStats = () => {
+    if (!fixtures) return { completed: 0, wins: 0, draws: 0, losses: 0 };
+    
+    const fcsaaFixtures = fixtures.filter(f => f.competition === 'FCSAA League' && f.status === 'COMPLETED');
+    let wins = 0, draws = 0, losses = 0;
+    
+    fcsaaFixtures.forEach(fixture => {
+      if (fixture.homeScore !== null && fixture.awayScore !== null) {
+        const isHome = fixture.type === 'HOME';
+        const ourScore = isHome ? fixture.homeScore : fixture.awayScore;
+        const theirScore = isHome ? fixture.awayScore : fixture.homeScore;
+        
+        if (ourScore > theirScore) wins++;
+        else if (ourScore === theirScore) draws++;
+        else losses++;
+      }
+    });
+    
+    return { completed: fcsaaFixtures.length, wins, draws, losses };
+  };
+
+  const fcsaaStats = getFCSAAStats();
+
   const handleCreatePlayer = (data: any) => {
     createPlayerMutation.mutate(data);
   };
@@ -198,7 +228,16 @@ export default function Squad() {
 
       {/* Summary Cards */}
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {/* FCSAA League Card */}
+          <StatsCard
+            title="FCSAA League"
+            value={`${fcsaaStats.wins}-${fcsaaStats.draws}-${fcsaaStats.losses}`}
+            icon={Trophy}
+            iconColor="text-border"
+            subtitle="W-D-L"
+          />
+
           {/* Total Players */}
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardContent className="p-6 text-center">
