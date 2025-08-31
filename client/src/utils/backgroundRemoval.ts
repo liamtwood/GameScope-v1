@@ -7,6 +7,7 @@ export interface BackgroundRemovalOptions {
   tolerance?: number;
   preserveInternalWhite?: boolean;
   mode?: 'smart' | 'color' | 'manual';
+  resizeWidth?: number;
 }
 
 export class BackgroundRemover {
@@ -22,7 +23,7 @@ export class BackgroundRemover {
     imageFile: File, 
     options: BackgroundRemovalOptions = {}
   ): Promise<Blob> {
-    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart' } = options;
+    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart', resizeWidth } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -52,8 +53,14 @@ export class BackgroundRemover {
           // Update canvas with processed data
           this.ctx.putImageData(imageData, 0, 0);
           
+          // Handle resizing if specified
+          let finalCanvas = this.canvas;
+          if (resizeWidth && resizeWidth > 0) {
+            finalCanvas = this.resizeCanvas(this.canvas, resizeWidth);
+          }
+          
           // Convert to blob
-          this.canvas.toBlob((blob) => {
+          finalCanvas.toBlob((blob) => {
             if (blob) {
               resolve(blob);
             } else {
@@ -406,5 +413,24 @@ export class BackgroundRemover {
     
     // If no colored neighbors and mostly surrounded by external background
     return !hasColoredNeighbor && externalNeighbors > 15;
+  }
+
+  private resizeCanvas(canvas: HTMLCanvasElement, targetWidth: number): HTMLCanvasElement {
+    const aspectRatio = canvas.height / canvas.width;
+    const targetHeight = Math.round(targetWidth * aspectRatio);
+    
+    const resizedCanvas = document.createElement('canvas');
+    const ctx = resizedCanvas.getContext('2d')!;
+    
+    resizedCanvas.width = targetWidth;
+    resizedCanvas.height = targetHeight;
+    
+    // Use smooth scaling for high quality resize
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+    
+    return resizedCanvas;
   }
 }

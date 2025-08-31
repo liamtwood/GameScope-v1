@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3 } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Sun, Moon } from "lucide-react";
 import { OppositionTeam } from "@shared/schema";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,8 @@ export default function LogoManagement() {
   const [processingMode, setProcessingMode] = useState<'smart' | 'color' | 'manual'>('smart');
   const [threshold, setThreshold] = useState(30);
   const [showTip, setShowTip] = useState(false);
+  const [logoSize, setLogoSize] = useState(200);
+  const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
@@ -55,6 +57,7 @@ export default function LogoManagement() {
       setShowTip(false);
       setProcessingMode('smart');
       setThreshold(30);
+      setLogoSize(200);
     },
     onError: (error) => {
       toast({
@@ -110,7 +113,8 @@ export default function LogoManagement() {
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
         tolerance: threshold,
-        preserveInternalWhite: true
+        preserveInternalWhite: true,
+        resizeWidth: logoSize
       };
       
       const processedBlob = await backgroundRemover.removeBackground(file, options);
@@ -206,7 +210,8 @@ export default function LogoManagement() {
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
         tolerance: threshold,
-        preserveInternalWhite: true
+        preserveInternalWhite: true,
+        resizeWidth: logoSize
       };
       
       console.log('Step 5: Starting background removal with options:', options);
@@ -410,6 +415,52 @@ export default function LogoManagement() {
               )}
             </div>
 
+            {/* Logo Size Control */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Logo Size (for consistency)</label>
+              <div className="flex items-center space-x-4">
+                <Slider
+                  value={[logoSize]}
+                  onValueChange={(value) => {
+                    setLogoSize(value[0]);
+                    if (selectedFile) processImageWithCurrentSettings(selectedFile);
+                  }}
+                  min={50}
+                  max={400}
+                  step={10}
+                  className="flex-1"
+                  data-testid="slider-logo-size"
+                />
+                <span className="text-sm text-gray-600 w-16" data-testid="text-logo-size">
+                  {logoSize}px
+                </span>
+              </div>
+            </div>
+
+            {/* Theme Toggle */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Preview Theme</label>
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant={!darkMode ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDarkMode(false)}
+                  data-testid="button-light-mode"
+                >
+                  <Sun className="w-4 h-4 mr-2" />
+                  Light
+                </Button>
+                <Button
+                  variant={darkMode ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDarkMode(true)}
+                  data-testid="button-dark-mode"
+                >
+                  <Moon className="w-4 h-4 mr-2" />
+                  Dark
+                </Button>
+              </div>
+            </div>
 
             {/* File Upload */}
             <div>
@@ -440,7 +491,7 @@ export default function LogoManagement() {
                 <div className="flex items-start gap-2">
                   <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-blue-800">
-                    <strong>💡 Pro Tip:</strong> If the logo has symbols like ™ or ® that still show background, try "Color-Based" mode or adjust the manual threshold. Use "Auto Crop & Center" to automatically trim whitespace and "Resize Output" to standardize logo sizes.
+                    <strong>💡 Pro Tip:</strong> If the logo has symbols like ™ or ® that still show background, try "Color-Based" mode or adjust the manual threshold. Use the size slider to ensure all logos are consistently sized.
                   </div>
                 </div>
               </div>
@@ -464,11 +515,12 @@ export default function LogoManagement() {
                 {originalImageUrl && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-center">Original Upload</h3>
-                    <div className="border rounded-lg p-4 bg-white">
+                    <div className={`border rounded-lg p-4 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
                       <img 
                         src={originalImageUrl}
                         alt="Original upload"
                         className="w-full h-48 object-contain"
+                        data-testid="img-original-logo"
                       />
                     </div>
                     <p className="text-xs text-gray-500 text-center">
@@ -482,9 +534,11 @@ export default function LogoManagement() {
                   <div className="space-y-2">
                     <h3 className="font-semibold text-center">Background Removed</h3>
                     <div 
-                      className="border rounded-lg p-4"
+                      className={`border rounded-lg p-4 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}
                       style={{
-                        background: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                        background: darkMode 
+                          ? 'linear-gradient(45deg, #374151 25%, transparent 25%), linear-gradient(-45deg, #374151 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #374151 75%), linear-gradient(-45deg, transparent 75%, #374151 75%)'
+                          : 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
                         backgroundSize: '20px 20px',
                         backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
                       }}
@@ -493,6 +547,7 @@ export default function LogoManagement() {
                         src={processedImageUrl}
                         alt="Processed logo"
                         className="w-full h-48 object-contain"
+                        data-testid="img-processed-logo"
                       />
                     </div>
                     <p className="text-xs text-gray-500 text-center">
@@ -538,32 +593,54 @@ export default function LogoManagement() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {oppositionTeams?.map((team) => (
-                <div key={team.id} className="border rounded-lg p-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                <div key={team.id} className={`border rounded-lg p-4 text-center ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+                  <div 
+                    className="w-16 h-16 mx-auto mb-3 flex items-center justify-center rounded-lg"
+                    style={{
+                      background: team.logoPath && darkMode
+                        ? 'linear-gradient(45deg, #374151 25%, transparent 25%), linear-gradient(-45deg, #374151 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #374151 75%), linear-gradient(-45deg, transparent 75%, #374151 75%)'
+                        : team.logoPath 
+                          ? 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)'
+                          : darkMode ? '#374151' : '#f3f4f6',
+                      backgroundSize: team.logoPath ? '12px 12px' : 'auto',
+                      backgroundPosition: team.logoPath ? '0 0, 0 6px, 6px -6px, -6px 0px' : 'auto'
+                    }}
+                  >
                     {team.logoPath ? (
                       <img 
                         src={team.logoPath} 
                         alt={`${team.name} logo`}
                         className="w-full h-full object-contain"
+                        data-testid={`img-team-logo-${team.id}`}
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No Logo</span>
-                      </div>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>No Logo</span>
                     )}
                   </div>
-                  <h3 className="font-semibold text-sm">{team.name}</h3>
-                  {team.logoPath ? (
-                    <Badge className="mt-2 bg-green-100 text-green-800">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Has Logo
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="mt-2">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Needs Logo
-                    </Badge>
-                  )}
+                  <h3 className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{team.name}</h3>
+                  <div className="flex flex-col items-center gap-2">
+                    {team.logoPath ? (
+                      <Badge className={`${darkMode ? 'bg-green-800 text-green-100' : 'bg-green-100 text-green-800'}`}>
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Has Logo
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className={`${darkMode ? 'bg-gray-600 text-gray-200' : 'bg-gray-200 text-gray-700'}`}>
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Needs Logo
+                      </Badge>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditExistingLogo(team)}
+                      className="text-xs"
+                      data-testid={`button-edit-logo-${team.id}`}
+                    >
+                      <Edit3 className="h-3 w-3 mr-1" />
+                      {team.logoPath ? 'Update' : 'Add'} Logo
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
