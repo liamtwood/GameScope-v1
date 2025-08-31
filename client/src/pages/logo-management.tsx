@@ -446,36 +446,6 @@ export default function LogoManagement() {
               </div>
             )}
 
-            {/* Debug info */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="bg-gray-100 p-4 rounded text-sm space-y-2">
-                <p>Original URL: {originalImageUrl ? 'Set' : 'Not set'}</p>
-                <p>Processed URL: {processedImageUrl ? 'Set' : 'Not set'}</p>
-                <p>Processing: {processing ? 'Yes' : 'No'}</p>
-                <p>Selected Team: {selectedTeam || 'None'}</p>
-                <button 
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={() => {
-                    alert('Test button clicked!');
-                    setProcessing(!processing);
-                  }}
-                >
-                  TEST CLICK (Click Me!)
-                </button>
-                <button 
-                  className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
-                  onClick={async () => {
-                    alert('Background removal starting!');
-                    if (oppositionTeams && oppositionTeams.length > 0) {
-                      const firstTeam = oppositionTeams[0];
-                      await handleRemoveBackground(firstTeam);
-                    }
-                  }}
-                >
-                  TEST REMOVE BG
-                </button>
-              </div>
-            )}
 
             {/* Image Comparison */}
             {(originalImageUrl || processedImageUrl) && (
