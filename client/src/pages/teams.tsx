@@ -68,10 +68,7 @@ export default function Teams() {
         ...data,
         clubId: currentClub!.id,
       };
-      return apiRequest("/api/teams", {
-        method: "POST",
-        body: teamData,
-      });
+      return apiRequest("/api/teams", "POST", teamData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
