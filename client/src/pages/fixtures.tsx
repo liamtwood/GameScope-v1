@@ -504,7 +504,7 @@ export default function Fixtures() {
           teamId={currentTeam?.id || ""} 
           onSave={(data) => createFixtureMutation.mutate(data)}
         >
-          <Button data-testid="button-add-fixture">
+          <Button variant="outline" data-testid="button-add-fixture">
             <Plus className="mr-2 h-4 w-4" />
             Add Fixture
           </Button>
