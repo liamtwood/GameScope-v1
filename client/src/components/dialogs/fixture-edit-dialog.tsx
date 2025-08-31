@@ -83,14 +83,15 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     },
   });
 
-  // Handle opponent name changes
+  // Handle opponent name changes - don't reset team if we're just editing the name
   const handleOpponentChange = (opponentName: string) => {
+    // Only look for a different team if the name exactly matches another team
     const existingTeam = oppositionTeams.find(team => team.name === opponentName);
-    if (existingTeam) {
+    if (existingTeam && existingTeam.id !== currentOppositionTeam?.id) {
       setCurrentOppositionTeam(existingTeam);
-    } else {
-      setCurrentOppositionTeam(null);
+      form.setValue("shortName", existingTeam.shortName || "");
     }
+    // Don't reset currentOppositionTeam to null when typing - keep the existing team
   };
 
   // Handle logo upload click - create team if needed
