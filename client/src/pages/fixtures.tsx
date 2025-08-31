@@ -452,6 +452,15 @@ export default function Fixtures() {
             Add Fixture
           </Button>
         </FixtureCreateDialog>
+        
+        <Button 
+          variant={overviewTab === 'logos' ? "default" : "outline"}
+          onClick={() => setOverviewTab('logos')}
+          data-testid="button-logo-management"
+        >
+          <Image className="mr-2 h-4 w-4" />
+          Logo Management
+        </Button>
       </div>
 
       {/* Overview Tabs */}
