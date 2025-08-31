@@ -262,23 +262,22 @@ export default function Squad() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium">Position Summary</p>
-                    <div className="grid grid-cols-4 gap-2 mt-2">
+                    <div className="grid grid-cols-4 gap-4">
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground">GK</p>
-                        <p className="text-lg font-bold text-foreground">{getPositionCount('GK')}</p>
+                        <p className="text-sm font-medium text-muted-foreground">GK</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('GK')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground">DEF</p>
-                        <p className="text-lg font-bold text-foreground">{getPositionCount('DEF')}</p>
+                        <p className="text-sm font-medium text-muted-foreground">DEF</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('DEF')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground">MID</p>
-                        <p className="text-lg font-bold text-foreground">{getPositionCount('MID')}</p>
+                        <p className="text-sm font-medium text-muted-foreground">MID</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('MID')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground">FWD</p>
-                        <p className="text-lg font-bold text-foreground">{getPositionCount('FWD')}</p>
+                        <p className="text-sm font-medium text-muted-foreground">FWD</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('FWD')}</p>
                       </div>
                     </div>
                   </div>
