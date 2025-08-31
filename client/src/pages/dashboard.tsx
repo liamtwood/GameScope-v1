@@ -95,10 +95,10 @@ export default function Dashboard() {
         
         <StatsCard
           title="Matches Played"
-          value={statistics?.matchesPlayed || 0}
+          value={`${statistics?.wins || 0}-${statistics?.draws || 0}-${statistics?.losses || 0}`}
           icon={Trophy}
           iconColor="text-border"
-          subtitle={`${statistics?.wins || 0} - ${statistics?.draws || 0} - ${statistics?.losses || 0}`}
+          subtitle="W-D-L"
         />
         
         <StatsCard
