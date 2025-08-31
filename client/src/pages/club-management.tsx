@@ -142,8 +142,18 @@ export default function ClubManagement() {
       {/* Club Information Card */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
+          <CardTitle className="flex items-center space-x-4">
+            {selectedClub.logoPath ? (
+              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                <img 
+                  src={selectedClub.logoPath} 
+                  alt={`${selectedClub.name} logo`} 
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            ) : (
+              <Building2 className="h-6 w-6 text-primary" />
+            )}
             <span>{selectedClub.name}</span>
             <Badge variant="secondary">{selectedClub.shortName}</Badge>
           </CardTitle>

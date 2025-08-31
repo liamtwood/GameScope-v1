@@ -117,14 +117,14 @@ export default function Clubs() {
     mutationFn: async (data: { id: string; logoURL: string }) => {
       return apiRequest("PUT", `/api/clubs/${data.id}/logo`, { logoURL: data.logoURL });
     },
-    onSuccess: (updatedClub) => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
       
       // Update the editingClub state so the UI immediately reflects the new logo
-      if (editingClub && updatedClub?.logoPath) {
+      if (editingClub && response?.logoPath) {
         setEditingClub({
           ...editingClub,
-          logoPath: updatedClub.logoPath
+          logoPath: response.logoPath
         });
       }
       

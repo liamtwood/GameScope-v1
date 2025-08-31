@@ -38,12 +38,20 @@ export default function Teams() {
   const queryClient = useQueryClient();
   const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
 
+  // Check for club context from URL params (when coming from club management)
+  const urlParams = new URLSearchParams(window.location.search);
+  const clubId = urlParams.get("clubId");
+
   // Fetch clubs data
   const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
   });
 
-  const currentClub = clubs[0]; // For now, we're working with the first club
+  // Use the club from URL context if available, otherwise default to first club
+  const currentClub = clubId ? clubs.find(club => club.id === clubId) : clubs[0];
+  
+  // Filter teams by current club
+  const clubTeams = teams.filter(team => team.clubId === currentClub?.id);
 
   // Form setup
   const form = useForm<CreateTeamFormData>({
@@ -111,7 +119,6 @@ export default function Teams() {
     );
   }
 
-  const clubTeams = teams.filter((team) => team.clubId === currentClub?.id);
 
   const handleTeamSelect = (team: Team) => {
     selectTeam(team);
@@ -122,7 +129,35 @@ export default function Teams() {
   };
 
   return (
-    <MainLayout title="Teams" subtitle="Manage and view all teams in your club">
+    <MainLayout 
+      title={currentClub ? `${currentClub.name} - Teams` : "Teams"}
+      subtitle={currentClub ? `Manage teams for ${currentClub.name}` : "Manage and organize your teams"}
+    >
+      {/* Club Header with Logo */}
+      {currentClub && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-4">
+              {currentClub.logoPath ? (
+                <div className="h-12 w-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={currentClub.logoPath} 
+                    alt={`${currentClub.name} logo`} 
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <Shield className="h-8 w-8 text-primary" />
+              )}
+              <div>
+                <h1 className="text-2xl font-bold">{currentClub.name}</h1>
+                <p className="text-sm text-muted-foreground">{clubTeams.length} teams</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      )}
+
       {/* Teams Overview */}
       <Card>
         <CardHeader>

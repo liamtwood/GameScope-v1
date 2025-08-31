@@ -110,10 +110,20 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const Icon = iconMap[item.icon as keyof typeof iconMap];
                 const isActive = currentPath === item.id;
                 
+                // Check if we're currently in club-management context
+                const urlParams = new URLSearchParams(window.location.search);
+                const clubId = urlParams.get("clubId");
+                
+                // For teams link, pass club context if we have it
+                let href = item.id === 'dashboard' ? '/' : `/${item.id}`;
+                if (item.id === 'teams' && clubId) {
+                  href = `/teams?clubId=${clubId}`;
+                }
+                
                 return (
                   <Link
                     key={item.id}
-                    href={item.id === 'dashboard' ? '/' : `/${item.id}`}
+                    href={href}
                     className={cn(
                       "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors w-full",
                       isActive 
