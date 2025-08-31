@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Trophy } from "lucide-react";
+import { Shield, Trophy } from "lucide-react";
 import type { Club, Team } from "@shared/schema";
 
 export default function Teams() {
@@ -45,7 +45,7 @@ export default function Teams() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Users className="h-6 w-6 text-muted-foreground" />
+            <Shield className="h-6 w-6 text-muted-foreground" />
             <div>
               <CardTitle className="text-xl">Teams in Club</CardTitle>
               <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
