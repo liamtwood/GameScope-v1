@@ -761,6 +761,66 @@ export default function Fixtures() {
         {/* Logo Management Overview */}
         {overviewTab === 'logos' && (
           <div className="space-y-6">
+            {/* Current Team Logos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Image className="mr-2 h-5 w-5" />
+                  Current Team Logos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {oppositionTeams?.map((team) => (
+                    <div key={team.id} className="space-y-2">
+                      <ThemedLogoContainer
+                        containerId={`team-logo-${team.id}`}
+                        className="border rounded-lg p-3 transition-all"
+                        showThemeToggle={true}
+                      >
+                        <div 
+                          onClick={() => handleEditExistingLogo(team)}
+                          className="cursor-pointer relative"
+                        >
+                          <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
+                            {team.logoPath ? (
+                              <img 
+                                src={team.logoPath} 
+                                alt={`${team.name} logo`}
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            ) : (
+                              <div className="text-gray-400 dark:text-gray-500 text-center">
+                                <Upload className="h-8 w-8 mx-auto mb-1" />
+                                <p className="text-xs">No Logo</p>
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm font-medium truncate">{team.name}</p>
+                          </div>
+                          <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
+                            <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                      </ThemedLogoContainer>
+                      
+                      {/* Remove Background Button */}
+                      <button 
+                        className="w-full text-xs cursor-pointer hover:bg-gray-100 px-2 py-1 border rounded bg-white text-gray-700"
+                        onClick={async () => {
+                          await handleRemoveBackground(team);
+                        }}
+                        data-testid={`button-remove-bg-${team.id}`}
+                      >
+                        Remove Background
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Logo Upload Section */}
             <Card>
               <CardHeader>
@@ -891,66 +951,6 @@ export default function Fixtures() {
                       </div>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Current Team Logos */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Image className="mr-2 h-5 w-5" />
-                  Current Team Logos
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {oppositionTeams?.map((team) => (
-                    <div key={team.id} className="space-y-2">
-                      <ThemedLogoContainer
-                        containerId={`team-logo-${team.id}`}
-                        className="border rounded-lg p-3 transition-all"
-                        showThemeToggle={true}
-                      >
-                        <div 
-                          onClick={() => handleEditExistingLogo(team)}
-                          className="cursor-pointer relative"
-                        >
-                          <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
-                            {team.logoPath ? (
-                              <img 
-                                src={team.logoPath} 
-                                alt={`${team.name} logo`}
-                                className="max-w-full max-h-full object-contain"
-                              />
-                            ) : (
-                              <div className="text-gray-400 dark:text-gray-500 text-center">
-                                <Upload className="h-8 w-8 mx-auto mb-1" />
-                                <p className="text-xs">No Logo</p>
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-medium truncate">{team.name}</p>
-                          </div>
-                          <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
-                            <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
-                          </div>
-                        </div>
-                      </ThemedLogoContainer>
-                      
-                      {/* Remove Background Button */}
-                      <button 
-                        className="w-full text-xs cursor-pointer hover:bg-gray-100 px-2 py-1 border rounded bg-white text-gray-700"
-                        onClick={async () => {
-                          await handleRemoveBackground(team);
-                        }}
-                        data-testid={`button-remove-bg-${team.id}`}
-                      >
-                        Remove Background
-                      </button>
-                    </div>
-                  ))}
                 </div>
               </CardContent>
             </Card>
