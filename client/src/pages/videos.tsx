@@ -88,8 +88,8 @@ export default function Videos() {
       title="Match Videos" 
       subtitle="Video analysis and match recordings"
     >
-      {/* Video Filter and Logo Management */}
-      <div className="mb-6 flex justify-between items-center">
+      {/* Video Filter */}
+      <div className="mb-6">
         <div className="flex bg-muted rounded-lg p-1 w-fit">
           {filterButtons.map((filter) => (
             <Button
@@ -104,15 +104,6 @@ export default function Videos() {
             </Button>
           ))}
         </div>
-        
-        <Button
-          onClick={() => setLocation('/logo-management')}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Image className="h-4 w-4" />
-          Logo Management
-        </Button>
       </div>
 
       {/* Video Analytics Summary */}
