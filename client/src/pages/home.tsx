@@ -13,8 +13,8 @@ export default function Home() {
   });
 
   const handleClubSelect = (club: Club) => {
-    // Navigate to club management page for the selected club
-    setLocation(`/club-management?clubId=${club.id}`);
+    // Navigate to teams page for the selected club
+    setLocation(`/teams?clubId=${club.id}`);
   };
 
   if (isLoading) {

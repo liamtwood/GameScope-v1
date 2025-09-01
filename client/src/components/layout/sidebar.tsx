@@ -114,10 +114,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const clubId = urlParams.get("clubId");
                 
-                // For teams link, pass club context if we have it
+                // Build href with club context preservation
                 let href = item.id === 'home' ? '/' : `/${item.id}`;
-                if (item.id === 'teams' && clubId) {
-                  href = `/teams?clubId=${clubId}`;
+                
+                // Preserve club context for all team-related pages when clubId is present
+                if (clubId && ['dashboard', 'fixtures', 'squad', 'statistics', 'videos', 'teams'].includes(item.id)) {
+                  href = `/${item.id}?clubId=${clubId}`;
                 }
                 
                 return (

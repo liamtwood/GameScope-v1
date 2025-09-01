@@ -22,13 +22,12 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
     queryKey: ["/api/clubs"],
   });
 
-  // Get club ID from URL if on club management page
+  // Get club ID from URL if available
   const urlParams = new URLSearchParams(window.location.search);
   const clubId = urlParams.get("clubId");
-  const isClubManagementPage = window.location.pathname === "/club-management";
   
-  // Use selected club if on club management page, otherwise default to first club
-  const currentClub = isClubManagementPage && clubId 
+  // Use selected club if clubId is in URL, otherwise default to first club
+  const currentClub = clubId 
     ? clubs.find(club => club.id === clubId) || clubs[0]
     : clubs[0];
 
