@@ -25,7 +25,14 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     queryKey: ["/api/clubs"],
   });
 
-  const currentClub = clubs[0];
+  // Get club ID from URL context
+  const urlParams = new URLSearchParams(window.location.search);
+  const clubId = urlParams.get("clubId");
+  
+  // Use selected club if clubId is in URL, otherwise default to first club
+  const currentClub = clubId 
+    ? clubs.find(club => club.id === clubId) || clubs[0]
+    : clubs[0];
 
   const iconMap = {
     Home,
@@ -109,10 +116,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               {section.items.map((item) => {
                 const Icon = iconMap[item.icon as keyof typeof iconMap];
                 const isActive = currentPath === item.id;
-                
-                // Check if we're currently in club-management context
-                const urlParams = new URLSearchParams(window.location.search);
-                const clubId = urlParams.get("clubId");
                 
                 // Build href with club context preservation
                 let href = item.id === 'home' ? '/' : `/${item.id}`;
