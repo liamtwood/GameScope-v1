@@ -167,7 +167,17 @@ export default function FixtureDetails() {
           <div className="flex items-center space-x-2">
             <FixtureEditDialog 
               fixture={fixture}
-            />
+              onSave={async (data) => {
+                await apiRequest(`/api/fixtures/${fixture.id}`, "PUT", data);
+                queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+                queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+              }}
+            >
+              <Button variant="outline" size="sm" data-testid="button-edit-fixture-header">
+                <Edit className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+            </FixtureEditDialog>
             <Button
               variant="outline"
               size="sm"
@@ -249,7 +259,17 @@ export default function FixtureDetails() {
                   <h3 className="text-lg font-semibold">Match Details</h3>
                   <FixtureEditDialog 
                     fixture={fixture}
-                  />
+                    onSave={async (data) => {
+                      await apiRequest(`/api/fixtures/${fixture.id}`, "PUT", data);
+                      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+                      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+                    }}
+                  >
+                    <Button variant="outline" size="sm" data-testid="button-edit-fixture">
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                  </FixtureEditDialog>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
