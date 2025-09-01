@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings } from "lucide-react";
+import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import type { Club, Team } from "@shared/schema";
-import { insertTeamSchema } from "@shared/schema";
+import { insertTeamSchema, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { z } from "zod";
@@ -23,11 +24,17 @@ const createTeamSchema = insertTeamSchema.extend({
   name: z.string().min(1, "Team name is required"),
 });
 
+const editClubSchema = insertClubSchema.extend({
+  name: z.string().min(1, "Club name is required"),
+});
+
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
+type EditClubFormData = z.infer<typeof editClubSchema>;
 
 export default function ClubManagement() {
   const [, setLocation] = useLocation();
   const [isCreateTeamDialogOpen, setIsCreateTeamDialogOpen] = useState(false);
+  const [isEditClubDialogOpen, setIsEditClubDialogOpen] = useState(false);
   const { toast } = useToast();
   const { selectTeam } = useTeam();
 
@@ -47,6 +54,21 @@ export default function ClubManagement() {
 
   const selectedClub = clubs.find(club => club.id === clubId) || clubs[0];
   const clubTeams = allTeams.filter(team => team.clubId === selectedClub?.id);
+
+  const editClubForm = useForm<EditClubFormData>({
+    resolver: zodResolver(editClubSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      owner: "",
+      address: "",
+      city: "",
+      phone: "",
+      email: "",
+      description: "",
+      subscriptionStatus: "",
+    },
+  });
 
   const form = useForm<CreateTeamFormData>({
     resolver: zodResolver(createTeamSchema),
@@ -94,6 +116,51 @@ export default function ClubManagement() {
     setLocation("/");
   };
 
+  const updateClubMutation = useMutation({
+    mutationFn: async (data: { id: string; clubData: EditClubFormData }) => {
+      return apiRequest("PATCH", `/api/clubs/${data.id}`, data.clubData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      setIsEditClubDialogOpen(false);
+      editClubForm.reset();
+      toast({
+        title: "Club Updated",
+        description: "Club has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update club.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditClub = () => {
+    if (selectedClub) {
+      editClubForm.reset({
+        name: selectedClub.name,
+        shortName: selectedClub.shortName,
+        owner: selectedClub.owner,
+        address: selectedClub.address || "",
+        city: selectedClub.city || "",
+        phone: selectedClub.phone || "",
+        email: selectedClub.email || "",
+        description: selectedClub.description || "",
+        subscriptionStatus: selectedClub.subscriptionStatus || "active",
+      });
+      setIsEditClubDialogOpen(true);
+    }
+  };
+
+  const onEditClubSubmit = (data: EditClubFormData) => {
+    if (selectedClub) {
+      updateClubMutation.mutate({ id: selectedClub.id, clubData: data });
+    }
+  };
+
   if (clubsLoading || teamsLoading) {
     return (
       <MainLayout title="Club Management" subtitle="Manage club information and teams">
@@ -129,6 +196,10 @@ export default function ClubManagement() {
           <Building2 className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold">Club Management</h2>
         </div>
+        <Button onClick={handleEditClub} data-testid="button-edit-club">
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Club
+        </Button>
       </div>
 
       {/* Club Information Card */}
@@ -224,6 +295,206 @@ export default function ClubManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Club Dialog */}
+      <Dialog open={isEditClubDialogOpen} onOpenChange={setIsEditClubDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Club</DialogTitle>
+          </DialogHeader>
+          <Form {...editClubForm}>
+            <form onSubmit={editClubForm.handleSubmit(onEditClubSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editClubForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Club Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter club name"
+                          data-testid="input-edit-club-name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editClubForm.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., PSC"
+                          data-testid="input-edit-club-short-name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={editClubForm.control}
+                name="owner"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Owner</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter club owner"
+                        data-testid="input-edit-club-owner"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editClubForm.control}
+                name="subscriptionStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Club Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-edit-club-status">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="suspended">Suspended</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editClubForm.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter address"
+                          data-testid="input-edit-club-address"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editClubForm.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter city"
+                          data-testid="input-edit-club-city"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editClubForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Phone number"
+                          data-testid="input-edit-club-phone"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editClubForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="contact@club.com"
+                          data-testid="input-edit-club-email"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={editClubForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Brief description of the club"
+                        data-testid="input-edit-club-description"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditClubDialogOpen(false)}
+                  data-testid="button-cancel-edit-club"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateClubMutation.isPending}
+                  data-testid="button-submit-edit-club"
+                >
+                  {updateClubMutation.isPending ? "Updating..." : "Update Club"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
     </MainLayout>
   );
