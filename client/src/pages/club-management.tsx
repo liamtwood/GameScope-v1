@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import type { Club, Team } from "@shared/schema";
 import { insertTeamSchema, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -37,22 +38,13 @@ export default function ClubManagement() {
   const [isEditClubDialogOpen, setIsEditClubDialogOpen] = useState(false);
   const { toast } = useToast();
   const { selectTeam } = useTeam();
-
-  // Get club ID from URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const clubId = urlParams.get("clubId");
-
-  // Fetch clubs to get selected club details
-  const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-  });
+  const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
 
   // Fetch teams for the selected club
   const { data: allTeams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
   });
 
-  const selectedClub = clubs.find(club => club.id === clubId) || clubs[0];
   const clubTeams = allTeams.filter(team => team.clubId === selectedClub?.id);
 
   const editClubForm = useForm<EditClubFormData>({
