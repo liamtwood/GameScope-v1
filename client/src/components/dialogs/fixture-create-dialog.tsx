@@ -48,13 +48,18 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   const [discoveredLogoUrl, setDiscoveredLogoUrl] = useState<string | null>(null);
 
   // Fetch existing opposition teams and competitions
-  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+  const { data: oppositionTeams = [], isLoading: isLoadingTeams } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
   });
 
-  const { data: competitions = [] } = useQuery<Competition[]>({
+  const { data: competitions = [], isLoading: isLoadingCompetitions } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"],
   });
+
+  // Debug logging
+  console.log('Opposition teams data:', oppositionTeams);
+  console.log('Opposition teams count:', oppositionTeams.length);
+  console.log('Loading teams:', isLoadingTeams);
 
   const updateOppositionTeamMutation = useMutation({
     mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath: string }) => {
@@ -226,29 +231,36 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                               setSelectedOpponentForLogo(selectedTeam || null);
                             }}
                             data-testid="select-opponent"
+                            disabled={isLoadingTeams}
                           >
                             <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Select opponent" />
+                              <SelectValue placeholder={isLoadingTeams ? "Loading opponents..." : "Select opponent"} />
                             </SelectTrigger>
                             <SelectContent>
-                              {oppositionTeams.map((team) => (
-                                <SelectItem key={team.id} value={team.name}>
-                                  <div className="flex items-center gap-2">
-                                    {team.logoPath ? (
-                                      <img 
-                                        src={team.logoPath} 
-                                        alt={`${team.name} logo`}
-                                        className="w-4 h-4 object-cover rounded"
-                                      />
-                                    ) : (
-                                      <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                        {team.shortName}
-                                      </div>
-                                    )}
-                                    {team.name}
-                                  </div>
-                                </SelectItem>
-                              ))}
+                              {isLoadingTeams ? (
+                                <SelectItem value="loading" disabled>Loading teams...</SelectItem>
+                              ) : oppositionTeams.length === 0 ? (
+                                <SelectItem value="no-teams" disabled>No opponents available</SelectItem>
+                              ) : (
+                                oppositionTeams.map((team) => (
+                                  <SelectItem key={team.id} value={team.name}>
+                                    <div className="flex items-center gap-2">
+                                      {team.logoPath ? (
+                                        <img 
+                                          src={team.logoPath} 
+                                          alt={`${team.name} logo`}
+                                          className="w-4 h-4 object-cover rounded"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                          {team.shortName}
+                                        </div>
+                                      )}
+                                      {team.name}
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                           <Button
