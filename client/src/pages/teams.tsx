@@ -376,18 +376,11 @@ export default function Teams() {
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-10 h-10 rounded-lg flex items-center justify-center",
-                            isSelected ? "bg-primary/20" : "bg-primary/10"
-                          )}>
-                          </div>
-                          <div>
-                            <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
-                              {team.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">{team.shortName}</p>
-                          </div>
+                        <div>
+                          <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
+                            {team.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{team.shortName}</p>
                         </div>
                         <div className="flex items-center gap-1">
                           <Button
