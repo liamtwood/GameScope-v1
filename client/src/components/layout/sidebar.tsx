@@ -55,7 +55,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         collapsed ? "justify-center px-4" : "justify-between"
       )} style={{ paddingTop: '17px', paddingBottom: '17px' }}>
         {!collapsed && (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <div className="h-16 w-16 flex items-center justify-center">
               <Crosshair className="h-8 w-8" style={{ color: '#486D8D' }} />
             </div>
