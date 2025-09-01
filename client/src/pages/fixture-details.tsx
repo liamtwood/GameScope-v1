@@ -53,18 +53,16 @@ export default function FixtureDetails() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
-    if (tabParam && ['details', 'videos', 'lineups', 'analysis'].includes(tabParam)) {
-      setActiveTab(tabParam);
+    if (tabParam === 'analysis') {
+      setActiveTab('analysis');
     }
   }, []);
 
-  const { data: fixture, isLoading } = useQuery<Fixture>({
-    queryKey: [`/api/fixture/${fixtureId}`],
-    enabled: !!fixtureId,
-  });
+  const { toast } = useToast();
 
-  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+  const { data: fixture, isLoading: fixtureLoading } = useQuery<Fixture>({
+    queryKey: ["/api/fixture", fixtureId],
+    enabled: !!fixtureId,
   });
 
   const { data: players } = useQuery<Player[]>({
@@ -72,53 +70,28 @@ export default function FixtureDetails() {
     enabled: !!fixture?.teamId,
   });
 
+  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+
   const { data: matchStats } = useQuery<MatchStats[]>({
     queryKey: ["/api/match-stats", fixtureId],
     enabled: !!fixtureId,
   });
 
-  const { toast } = useToast();
-
-  // Mutation for updating fixture
-  const updateFixtureMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await apiRequest("PUT", `/api/fixtures/${fixtureId}`, data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/fixture/${fixtureId}`] });
-      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixture?.teamId] });
-      toast({
-        title: "Fixture Updated",
-        description: "Fixture details have been updated successfully.",
-      });
-    },
-    onError: (error) => {
-      console.error("Failed to update fixture:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update fixture. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Mutation for deleting fixture
   const deleteFixtureMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("DELETE", `/api/fixtures/${fixtureId}`);
+    mutationFn: async (id: string) => {
+      await apiRequest(`/api/fixtures/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixture?.teamId] });
       toast({
-        title: "Fixture Deleted",
-        description: "Fixture has been deleted successfully.",
+        title: "Fixture deleted",
+        description: "The fixture has been deleted successfully.",
       });
-      // Navigate back to fixtures list
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
       window.history.back();
     },
-    onError: (error) => {
-      console.error("Failed to delete fixture:", error);
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to delete fixture. Please try again.",
@@ -127,13 +100,9 @@ export default function FixtureDetails() {
     },
   });
 
-  const handleFixtureSave = (data: any) => {
-    updateFixtureMutation.mutate(data);
-  };
-
-  if (isLoading || !fixture) {
+  if (fixtureLoading) {
     return (
-      <MainLayout title="Fixture Details" subtitle="Loading fixture information...">
+      <MainLayout title="Loading..." subtitle="Loading fixture details...">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -144,170 +113,125 @@ export default function FixtureDetails() {
     );
   }
 
+  if (!fixture) {
+    return (
+      <MainLayout title="Fixture Not Found" subtitle="The requested fixture could not be found">
+        <div className="text-center py-8">
+          <p className="text-muted-foreground mb-4">The fixture you're looking for doesn't exist or has been deleted.</p>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back
+          </Button>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  // Process match stats - get full game stats
+  const fullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true);
+  const opponentFullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null));
+
+  // Find the opposition team details
   const oppositionTeam = oppositionTeams?.find(team => 
     fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
   );
-  const isHomeMatch = fixture.type === "HOME";
-  
-  const homeTeam = isHomeMatch ? "Polk State Women's Soccer" : (oppositionTeam?.name || fixture.opponent);
-  const awayTeam = isHomeMatch ? (oppositionTeam?.name || fixture.opponent) : "Polk State Women's Soccer";
-  
-  // Use the same Polk State logo as in header, and opposition team logos from database
-  const polkStateLogo = "/assets/logos/polk-state-logo.jpg";
-  const homeTeamLogo = isHomeMatch ? polkStateLogo : (oppositionTeam?.logoPath || null);
-  const awayTeamLogo = isHomeMatch ? (oppositionTeam?.logoPath || null) : polkStateLogo;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "COMPLETED": return "text-green-600";
-      case "CANCELLED": return "text-red-600";
-      case "NO_CONTEST": return "text-orange-600";
-      default: return "text-blue-600";
+  const isHomeMatch = fixture.type === 'HOME';
+  const homeTeam = isHomeMatch ? 'Polk State College' : fixture.opponent;
+  const awayTeam = isHomeMatch ? fixture.opponent : 'Polk State College';
+
+  const handleDeleteFixture = () => {
+    if (fixture) {
+      deleteFixtureMutation.mutate(fixture.id);
     }
   };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "COMPLETED": return "Completed";
-      case "CANCELLED": return "Cancelled";
-      case "NO_CONTEST": return "No Contest";
-      default: return "Scheduled";
-    }
-  };
-
-  // Helper functions for match statistics
-  const getTeamStats = (period: string) => {
-    return matchStats?.find(stat => stat.period === period && stat.isTeamStats === true);
-  };
-
-  const getOpponentStats = (period: string) => {
-    return matchStats?.find(stat => stat.period === period && (stat.isTeamStats === false || stat.isTeamStats === null));
-  };
-
-  const fullGameStats = getTeamStats('FULL_GAME');
-  const firstHalfStats = getTeamStats('FIRST_HALF');
-  const secondHalfStats = getTeamStats('SECOND_HALF');
-  const opponentFullGameStats = getOpponentStats('FULL_GAME');
 
   return (
-    <MainLayout title="Fixture Details" subtitle={`${fixture.opponent} - ${format(new Date(fixture.date), "MMM d, yyyy")}`}>
-      <div className="space-y-6">
-        {/* Header Buttons */}
-        <div className="flex items-center justify-between mb-4">
+    <MainLayout 
+      title={`${fixture.opponent}`}
+      subtitle={format(new Date(fixture.date), "EEEE, MMMM d, yyyy")}
+    >
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 
             onClick={() => window.history.back()}
+            className="flex items-center space-x-2"
             data-testid="button-back"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Fixtures
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Fixtures</span>
           </Button>
+          
+          <div className="flex items-center space-x-2">
+            <FixtureEditDialog 
+              fixture={fixture}
+              onUpdated={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+                queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDeleteFixture}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              data-testid="button-delete-fixture"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </div>
         </div>
 
-        {/* Header with Teams */}
+        {/* Match Score Card */}
         <Card>
-          <CardContent className="p-8">
-            <div className="text-center space-y-6">
-              {/* Teams Layout */}
-              <div className="flex items-center justify-center space-x-8 md:space-x-16">
-                {/* Home Team */}
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    {homeTeamLogo ? (
-                      <img 
-                        src={homeTeamLogo} 
-                        alt={homeTeam}
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          // If the logo fails to load, show initials instead
-                          const container = target.parentElement;
-                          if (container) {
-                            container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
-                        {homeTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-lg text-foreground">{homeTeam}</h3>
-                    <p className="text-sm text-muted-foreground">Home</p>
-                  </div>
-                </div>
-
-                {/* VS and Score */}
-                <div className="flex flex-col items-center space-y-2">
-                  {fixture.status === "COMPLETED" && fixture.homeScore !== null && fixture.awayScore !== null ? (
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl font-bold text-foreground">
-                        {fixture.homeScore} - {fixture.awayScore}
-                      </div>
-                      <p className="text-sm text-green-600 font-medium">Final Score</p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <div className="text-2xl md:text-3xl font-bold text-muted-foreground">VS</div>
-                      <p className={`text-sm font-medium ${getStatusColor(fixture.status)}`}>
-                        {getStatusText(fixture.status)}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Away Team */}
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    {awayTeamLogo ? (
-                      <img 
-                        src={awayTeamLogo} 
-                        alt={awayTeam}
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          // If the logo fails to load, show initials instead
-                          const container = target.parentElement;
-                          if (container) {
-                            container.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">${awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</div>`;
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
-                        {awayTeam.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-lg text-foreground">{awayTeam}</h3>
-                    <p className="text-sm text-muted-foreground">Away</p>
-                  </div>
-                </div>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="text-center flex-1">
+                <div className="text-2xl font-bold text-foreground mb-2">{homeTeam}</div>
+                <div className="text-sm text-muted-foreground">HOME</div>
               </div>
-
-              {/* Match Info */}
-              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{format(new Date(fixture.date), "EEEE, MMMM d, yyyy")}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4" />
-                  <span>{format(new Date(fixture.date), "h:mm a")}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{fixture.venue}</span>
-                </div>
-                {fixture.competition && (
-                  <div className="flex items-center space-x-2">
-                    <Trophy className="h-4 w-4" />
-                    <span>{fixture.competition}</span>
+              
+              <div className="text-center mx-8">
+                {fixture.status === 'COMPLETED' && (
+                  <div className="flex items-center space-x-4">
+                    <div className="text-4xl font-bold text-primary">{fixture.homeScore}</div>
+                    <div className="text-2xl text-muted-foreground">-</div>
+                    <div className="text-4xl font-bold text-primary">{fixture.awayScore}</div>
                   </div>
                 )}
+                {fixture.status === 'SCHEDULED' && (
+                  <div className="text-2xl font-semibold text-muted-foreground">vs</div>
+                )}
+                <div className="text-xs text-muted-foreground mt-2">
+                  {fixture.status === 'COMPLETED' ? 'FINAL' : format(new Date(fixture.date), "h:mm a")}
+                </div>
+              </div>
+              
+              <div className="text-center flex-1">
+                <div className="text-2xl font-bold text-foreground mb-2">{awayTeam}</div>
+                <div className="text-sm text-muted-foreground">AWAY</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center space-x-6 mt-6 pt-6 border-t text-sm text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4" />
+                <span>{format(new Date(fixture.date), "MMM d, yyyy")}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
+                <span>{format(new Date(fixture.date), "h:mm a")}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MapPin className="h-4 w-4" />
+                <span>{fixture.venue}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Trophy className="h-4 w-4" />
+                <span>{fixture.competition}</span>
               </div>
             </div>
           </CardContent>
@@ -330,112 +254,60 @@ export default function FixtureDetails() {
                   <div className="flex gap-2">
                     <FixtureEditDialog 
                       fixture={fixture}
-                      onSave={handleFixtureSave}
-                    >
-                      <Button 
-                        variant="default" 
-                        data-testid="button-edit-fixture"
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Fixture
-                      </Button>
-                    </FixtureEditDialog>
-                    <Button 
-                      variant="destructive" 
-                      onClick={() => {
-                        if (confirm(`Are you sure you want to delete this fixture against ${fixture.opponent}? This action cannot be undone.`)) {
-                          deleteFixtureMutation.mutate();
-                        }
+                      onUpdated={() => {
+                        queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+                        queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
                       }}
-                      disabled={deleteFixtureMutation.isPending}
-                      data-testid="button-delete-fixture"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {deleteFixtureMutation.isPending ? "Deleting..." : "Delete Fixture"}
-                    </Button>
+                    />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Basic Information */}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Basic Information</h4>
                     <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Opponent</h5>
-                      <p className="text-foreground">{fixture.opponent}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Opposition</label>
+                      <p className="text-lg font-semibold">{fixture.opponent}</p>
                     </div>
                     <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Short Name</h5>
-                      <p className="text-foreground">{oppositionTeam?.shortName || 'N/A'}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Competition</label>
+                      <p className="text-lg">{fixture.competition}</p>
                     </div>
                     <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Venue</h5>
-                      <p className="text-foreground">{fixture.venue}</p>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Competition</h5>
-                      <p className="text-foreground">{fixture.competition || "Regular Season"}</p>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Match Type</h5>
-                      <p className="text-foreground">{fixture.type === "HOME" ? "Home" : fixture.type === "AWAY" ? "Away" : "Neutral"}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Type</label>
+                      <p className="text-lg">{fixture.type}</p>
                     </div>
                   </div>
-
-                  {/* Status and Scores */}
+                  
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Status & Results</h4>
                     <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Status</h5>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        fixture.status === "COMPLETED" ? "bg-green-100 text-green-800" :
-                        fixture.status === "CANCELLED" ? "bg-red-100 text-red-800" :
-                        fixture.status === "NO_CONTEST" ? "bg-orange-100 text-orange-800" :
-                        "bg-blue-100 text-blue-800"
-                      }`}>
-                        {getStatusText(fixture.status)}
-                      </span>
-                    </div>
-                    {(fixture.status === "COMPLETED" || fixture.status === "NO_CONTEST") && (
-                      <>
-                        <div>
-                          <h5 className="font-medium text-sm text-muted-foreground mb-1">Home Score</h5>
-                          <p className="text-foreground text-xl font-bold">{fixture.homeScore ?? 'N/A'}</p>
-                        </div>
-                        <div>
-                          <h5 className="font-medium text-sm text-muted-foreground mb-1">Away Score</h5>
-                          <p className="text-foreground text-xl font-bold">{fixture.awayScore ?? 'N/A'}</p>
-                        </div>
-                      </>
-                    )}
-                    {fixture.hasVideo && (
-                      <div>
-                        <h5 className="font-medium text-sm text-muted-foreground mb-1">Video Available</h5>
-                        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                          Yes
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-base text-foreground border-b pb-2">Additional Information</h4>
-                    <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Created</h5>
-                      <p className="text-foreground text-sm">{fixture.createdAt ? format(new Date(fixture.createdAt), "MMM d, yyyy") : 'N/A'}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Date & Time</label>
+                      <p className="text-lg">{format(new Date(fixture.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
                     </div>
                     <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-1">Last Updated</h5>
-                      <p className="text-foreground text-sm">{fixture.updatedAt ? format(new Date(fixture.updatedAt), "MMM d, yyyy") : 'N/A'}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Venue</label>
+                      <p className="text-lg">{fixture.venue}</p>
                     </div>
-                    {fixture.notes && (
-                      <div>
-                        <h5 className="font-medium text-sm text-muted-foreground mb-1">Notes</h5>
-                        <p className="text-foreground bg-muted/30 p-3 rounded-lg text-sm">{fixture.notes}</p>
-                      </div>
-                    )}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Status</label>
+                      <p className="text-lg capitalize">{fixture.status.toLowerCase()}</p>
+                    </div>
                   </div>
                 </div>
+
+                {fixture.status === 'COMPLETED' && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h4 className="text-lg font-semibold mb-4">Final Score</h4>
+                    <div className="text-center">
+                      <div className="inline-flex items-center space-x-6 text-2xl font-bold">
+                        <span>{homeTeam}</span>
+                        <span className="text-3xl">{fixture.homeScore}</span>
+                        <span className="text-muted-foreground">-</span>
+                        <span className="text-3xl">{fixture.awayScore}</span>
+                        <span>{awayTeam}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -443,9 +315,10 @@ export default function FixtureDetails() {
           <TabsContent value="videos" className="mt-6">
             <Card>
               <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-6">Video Management</h3>
                 <VideoManager 
-                  fixtureId={fixture.id}
-                  videoLinks={(fixture.videoLinks as any[]) || []}
+                  fixtureId={fixtureId || ""} 
+                  videoLinks={fixture.videoLinks || []} 
                 />
               </CardContent>
             </Card>
@@ -454,27 +327,14 @@ export default function FixtureDetails() {
           <TabsContent value="lineups" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Team Lineups</h3>
+                <h3 className="text-lg font-semibold mb-6">Team Lineups</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Home Team Lineup */}
                   <div>
-                    <h4 className="font-medium mb-3 flex items-center space-x-2">
-                      {homeTeamLogo ? (
-                        <img 
-                          src={homeTeamLogo} 
-                          alt={homeTeam}
-                          className="w-6 h-6 object-contain"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/default-team-logo.png";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">
-                          {homeTeam.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
+                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                      {isHomeMatch && (
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                       )}
-                      <span>{homeTeam}</span>
+                      <span>Polk State College</span>
                     </h4>
                     {isHomeMatch && players ? (
                       <div className="space-y-2">
@@ -494,24 +354,11 @@ export default function FixtureDetails() {
                       <p className="text-muted-foreground">Lineup not available</p>
                     )}
                   </div>
-
-                  {/* Away Team Lineup */}
+                  
                   <div>
-                    <h4 className="font-medium mb-3 flex items-center space-x-2">
-                      {awayTeamLogo ? (
-                        <img 
-                          src={awayTeamLogo} 
-                          alt={awayTeam}
-                          className="w-6 h-6 object-contain"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/default-team-logo.png";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold text-gray-600">
-                          {awayTeam.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
+                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                      {!isHomeMatch && (
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                       )}
                       <span>{awayTeam}</span>
                     </h4>
@@ -540,328 +387,173 @@ export default function FixtureDetails() {
 
           <TabsContent value="analysis" className="mt-6">
             <div className="space-y-6">
-              {/* Analysis Sub-tabs */}
-              <Tabs defaultValue="results" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="results" data-testid="subtab-results">Analysis Results</TabsTrigger>
-                  <TabsTrigger value="upload" data-testid="subtab-upload">Upload Data</TabsTrigger>
-                </TabsList>
+              {/* Comprehensive Analysis Tabs */}
+              <Tabs defaultValue="statistics" className="w-full">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-[120px]"></div> {/* Spacer to balance the layout */}
+                  
+                  <div className="flex-1 flex justify-center">
+                    <TabsList className="grid max-w-[720px] grid-cols-6">
+                      <TabsTrigger value="statistics">Statistics</TabsTrigger>
+                      <TabsTrigger value="spider">Spider Charts</TabsTrigger>
+                      <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
+                      <TabsTrigger value="positions">Position Maps</TabsTrigger>
+                      <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+                      <TabsTrigger value="videos">Videos</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  
+                  <div className="w-[120px] flex justify-end">
+                    <Tabs defaultValue="upload" className="w-auto">
+                      <TabsList className="grid w-full grid-cols-1">
+                        <TabsTrigger value="upload" data-testid="subtab-upload">Upload Data</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="upload" className="mt-4">
+                        <Card>
+                          <CardContent className="p-6">
+                            <h3 className="text-lg font-semibold mb-4">Data Upload</h3>
+                            <ExcelUpload fixtureId={fixtureId || ""} />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </div>
 
-                <TabsContent value="results" className="mt-6">
+                {/* Statistics Tab */}
+                <TabsContent value="statistics">
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold mb-6">GameScope Analysis</h3>
-                  {fullGameStats ? (
-                <div className="space-y-6">
-                  {/* Analysis Overview */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-2">
-                        {fullGameStats.possession || 0}%
-                      </div>
-                      <div className="text-sm text-muted-foreground">Possession</div>
-                    </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-2">
-                        {fullGameStats.shotsOnTarget || 0}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Shots on Target</div>
-                    </div>
-                    <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600 mb-2">
-                        {fullGameStats.passingSuccessRate || 0}%
-                      </div>
-                      <div className="text-sm text-muted-foreground">Pass Accuracy</div>
-                    </div>
-                  </div>
-
-                  {/* Comprehensive Metrics Comparison */}
-                  <MetricsComparison
-                    teamName="POLK"
-                    opponentName={oppositionTeam?.name || fixture.opponent}
-                    teamStats={fullGameStats}
-                    opponentStats={opponentFullGameStats}
-                  />
-
-                  {/* AI-Powered Insights */}
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
-                    <h4 className="font-semibold text-foreground mb-4 flex items-center">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      AI-Powered Match Insights
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-muted-foreground">Strong defensive performance in the first half, intercepting 8 out of 12 opponent attacks in the midfield.</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-muted-foreground">Excellent ball retention through the wings, with 89% success rate on cross attempts.</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-muted-foreground">Opportunity for improvement: Converting corner kicks into scoring chances (2 out of 8 corners resulted in shots).</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Key Player Performance */}
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-4">Top Performers</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 border rounded-lg bg-yellow-50">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                            10
-                          </div>
-                          <p className="font-medium text-foreground">Sarah Johnson</p>
-                          <p className="text-xs text-muted-foreground mb-2">Midfielder</p>
-                          <div className="text-sm text-yellow-700 font-medium">Player of the Match</div>
-                          <div className="text-xs text-muted-foreground">2 Goals, 1 Assist</div>
+                      <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
+                      {fullGameStats ? (
+                        <MetricsComparison
+                          teamStats={fullGameStats}
+                          opponentStats={opponentFullGameStats}
+                        />
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-muted-foreground mb-4">No match statistics available</p>
+                          <p className="text-sm text-muted-foreground">Statistics will be displayed after the match is completed and data is uploaded.</p>
                         </div>
-                      </div>
-                      
-                      <div className="p-4 border rounded-lg">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-gray-100 text-gray-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                            3
-                          </div>
-                          <p className="font-medium text-foreground">Emma Rodriguez</p>
-                          <p className="text-xs text-muted-foreground mb-2">Defender</p>
-                          <div className="text-sm text-muted-foreground font-medium">Best Defender</div>
-                          <div className="text-xs text-muted-foreground">5 Tackles, 8 Clearances</div>
-                        </div>
-                      </div>
-                      
-                      <div className="p-4 border rounded-lg">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-gray-100 text-gray-700 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-lg">
-                            1
-                          </div>
-                          <p className="font-medium text-foreground">Alex Mitchell</p>
-                          <p className="text-xs text-muted-foreground mb-2">Goalkeeper</p>
-                          <div className="text-sm text-muted-foreground font-medium">Clean Sheet</div>
-                          <div className="text-xs text-muted-foreground">6 Saves, 0 Goals Conceded</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Performance Analysis Tabs */}
-                  <Tabs defaultValue="attack" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="attack" data-testid="tab-attack">Attack</TabsTrigger>
-                      <TabsTrigger value="possession" data-testid="tab-possession">Possession</TabsTrigger>
-                      <TabsTrigger value="technical" data-testid="tab-technical">Technical</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="attack" className="mt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card className="p-6">
-                          <SpiderChart
-                            data={createAttackSpiderData(fullGameStats)}
-                            teamName="POLK"
-                            opponentName="OPP"
-                            title="Attack Performance"
-                            teamColor="#dc2626"
-                            opponentColor="#64748b"
-                          />
-                        </Card>
-                        <Card className="p-6">
-                          <h4 className="font-semibold text-foreground mb-4">Attack Metrics</h4>
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                              <span className="text-muted-foreground">Metric</span>
-                              <span className="text-red-600 text-center">POLK</span>
-                              <span className="text-gray-600 text-center">OPP</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Goals</span>
-                              <span className="font-medium text-center">{fullGameStats.goals || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Shots Attempted</span>
-                              <span className="font-medium text-center">{fullGameStats.shotsAttempted || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Shots on Target</span>
-                              <span className="font-medium text-center">{fullGameStats.shotsOnTarget || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
-                              <span className="font-medium text-center">{fullGameStats.runsIntoBoxes || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Corner Kicks</span>
-                              <span className="font-medium text-center">{fullGameStats.corners || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
-                              <span className="font-medium text-center">{fullGameStats.dangerousCrosses || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                          </div>
-                        </Card>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="possession" className="mt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card className="p-6">
-                          <SpiderChart
-                            data={createPossessionSpiderData(fullGameStats)}
-                            teamName="POLK"
-                            opponentName="OPP"
-                            title="Possession & Passing"
-                            teamColor="#dc2626"
-                            opponentColor="#64748b"
-                          />
-                        </Card>
-                        <Card className="p-6">
-                          <h4 className="font-semibold text-foreground mb-4">Possession Metrics</h4>
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                              <span className="text-muted-foreground">Metric</span>
-                              <span className="text-red-600 text-center">POLK</span>
-                              <span className="text-gray-600 text-center">OPP</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Possession %</span>
-                              <span className="font-medium text-center">{fullGameStats.possession || 0}%</span>
-                              <span className="font-medium text-center text-gray-600">0%</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Pass Accuracy %</span>
-                              <span className="font-medium text-center">{fullGameStats.passingSuccessRate || 0}%</span>
-                              <span className="font-medium text-center text-gray-600">0%</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">First Touch %</span>
-                              <span className="font-medium text-center">{fullGameStats.firstTouchSuccessRate || 0}%</span>
-                              <span className="font-medium text-center text-gray-600">0%</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Take Ons</span>
-                              <span className="font-medium text-center">{fullGameStats.takeOns || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Free Kicks</span>
-                              <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Passes Success</span>
-                              <span className="font-medium text-center">{fullGameStats.passesSuccess || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                          </div>
-                        </Card>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="technical" className="mt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card className="p-6">
-                          <SpiderChart
-                            data={createDefensiveSpiderData(fullGameStats)}
-                            teamName="POLK"
-                            opponentName="OPP"
-                            title="Technical Performance"
-                            teamColor="#dc2626"
-                            opponentColor="#64748b"
-                          />
-                        </Card>
-                        <Card className="p-6">
-                          <h4 className="font-semibold text-foreground mb-4">Technical Metrics</h4>
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
-                              <span className="text-muted-foreground">Metric</span>
-                              <span className="text-red-600 text-center">POLK</span>
-                              <span className="text-gray-600 text-center">OPP</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Tackles</span>
-                              <span className="font-medium text-center">{fullGameStats.tackles || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Free Kicks</span>
-                              <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Offsides</span>
-                              <span className="font-medium text-center">{fullGameStats.offsides || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">Pass Distance (m)</span>
-                              <span className="font-medium text-center">{fullGameStats.passingTotalDistance || 0}</span>
-                              <span className="font-medium text-center text-gray-600">0</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">R.Foot Pass %</span>
-                              <span className="font-medium text-center">{fullGameStats.rightFootPassSuccessRate || 0}%</span>
-                              <span className="font-medium text-center text-gray-600">0%</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 items-center">
-                              <span className="text-sm text-muted-foreground">L.Foot Pass %</span>
-                              <span className="font-medium text-center">{fullGameStats.leftFootPassSuccessRate || 0}%</span>
-                              <span className="font-medium text-center text-gray-600">0%</span>
-                            </div>
-                          </div>
-                        </Card>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-
-
-                  {/* Video Analysis */}
-                  {fixture.hasVideo && (
-                    <div className="bg-muted/30 p-6 rounded-lg">
-                      <h4 className="font-semibold text-foreground mb-4">Video Analysis Available</h4>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Detailed video breakdown with tactical insights, player movements, and key moments analysis.
-                      </p>
-                      <Button className="bg-blue-600 hover:bg-blue-700">
-                        View Video Analysis
-                      </Button>
-                    </div>
-                  )}
-
-                  {!fixture.hasVideo && (
-                    <div className="bg-gray-50 p-6 rounded-lg text-center">
-                      <h4 className="font-semibold text-muted-foreground mb-2">Video Analysis Pending</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Upload match video to unlock AI-powered tactical analysis and detailed performance insights.
-                      </p>
-                    </div>
-                  )}
-                </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">No match statistics available</p>
-                    <p className="text-sm text-muted-foreground">Statistics will be displayed after the match is completed and data is uploaded.</p>
-                  </div>
-                )}
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="upload" className="mt-6">
-                  <ExcelUpload 
-                    fixtureId={fixture.id}
-                    onUploadComplete={() => {
-                      // Invalidate match stats query to refresh the data
-                      queryClient.invalidateQueries({ queryKey: ["/api/match-stats", fixtureId] });
-                    }}
-                  />
+                {/* Spider Charts Tab */}
+                <TabsContent value="spider">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Spider Charts</h3>
+                      {fullGameStats ? (
+                        <Tabs defaultValue="attack" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="attack">Attack</TabsTrigger>
+                            <TabsTrigger value="possession">Possession</TabsTrigger>
+                            <TabsTrigger value="technical">Technical</TabsTrigger>
+                          </TabsList>
+
+                          <TabsContent value="attack" className="mt-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <Card className="p-6">
+                                <SpiderChart
+                                  data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
+                                  teamName="POLK"
+                                  opponentName={fixture.opponent.slice(0, 8)}
+                                  title="Attack Performance"
+                                  teamColor="#dc2626"
+                                  opponentColor="#64748b"
+                                />
+                              </Card>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="possession" className="mt-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <Card className="p-6">
+                                <SpiderChart
+                                  data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
+                                  teamName="POLK"
+                                  opponentName={fixture.opponent.slice(0, 8)}
+                                  title="Possession & Passing"
+                                  teamColor="#dc2626"
+                                  opponentColor="#64748b"
+                                />
+                              </Card>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="technical" className="mt-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <Card className="p-6">
+                                <SpiderChart
+                                  data={createDefensiveSpiderData(fullGameStats, opponentFullGameStats)}
+                                  teamName="POLK"
+                                  opponentName={fixture.opponent.slice(0, 8)}
+                                  title="Technical Performance"
+                                  teamColor="#dc2626"
+                                  opponentColor="#64748b"
+                                />
+                              </Card>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      ) : (
+                        <div className="text-center py-12">
+                          <p className="text-muted-foreground">No data available for spider charts</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Heat Maps Tab */}
+                <TabsContent value="heatmaps">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="text-center py-12">
+                        <h3 className="text-lg font-semibold mb-2">Heat Maps</h3>
+                        <p className="text-muted-foreground">Coming soon - visualize player positioning and movement patterns</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Position Maps Tab */}
+                <TabsContent value="positions">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="text-center py-12">
+                        <h3 className="text-lg font-semibold mb-2">Position Maps</h3>
+                        <p className="text-muted-foreground">Coming soon - analyze player positioning and formation effectiveness</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* AI Analysis Tab */}
+                <TabsContent value="ai">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="text-center py-12">
+                        <h3 className="text-lg font-semibold mb-2">AI-Powered Analysis</h3>
+                        <p className="text-muted-foreground">Coming soon - AI-powered match insights and recommendations</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Videos Tab */}
+                <TabsContent value="videos">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
+                      <VideoManager 
+                        fixtureId={fixtureId || ""} 
+                        videoLinks={fixture.videoLinks || []} 
+                      />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </div>
