@@ -278,19 +278,29 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const getVideoPlaybackUrl = (video: VideoData) => {
     // If it's a Google Cloud Storage URL, convert it to use our server proxy
     if (video.url && video.url.includes('storage.googleapis.com')) {
-      // Extract the object path from the Google Cloud Storage URL
+      // Use a simple approach: extract everything after the bucket name
       const urlObj = new URL(video.url);
-      const pathSegments = urlObj.pathname.split('/');
+      const pathSegments = urlObj.pathname.split('/').filter(p => p); // Remove empty segments
       
-      // Find the uploads segment and get everything after it
-      const uploadsIndex = pathSegments.findIndex(segment => segment === 'uploads');
-      if (uploadsIndex !== -1 && uploadsIndex < pathSegments.length - 1) {
-        const objectId = pathSegments.slice(uploadsIndex + 1).join('/');
-        return `/objects/uploads/${objectId}`;
+      // For Replit object storage, the path should be: /bucket/private/uploads/objectId
+      // We want to create: /objects/uploads/objectId
+      if (pathSegments.length >= 3 && pathSegments.includes('uploads')) {
+        const uploadsIndex = pathSegments.indexOf('uploads');
+        if (uploadsIndex >= 0) {
+          const objectPath = pathSegments.slice(uploadsIndex).join('/');
+          const proxyUrl = `/objects/${objectPath}`;
+          console.log('Converting video URL:', video.url, ' -> ', proxyUrl);
+          return proxyUrl;
+        }
       }
+      
+      // Fallback: try to use the direct URL
+      console.log('Could not parse storage URL, using direct:', video.url);
+      return video.url;
     }
     
     // For other URLs, return as-is
+    console.log('Using original video URL:', video.url);
     return video.url;
   };
 
@@ -315,16 +325,31 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         </DialogHeader>
         <div className="p-6">
           {isVideoFile(video.url!, video.filename) ? (
-            <video 
-              controls 
-              className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
-              preload="metadata"
-            >
-              <source src={getVideoPlaybackUrl(video)} type="video/mp4" />
-              <source src={getVideoPlaybackUrl(video)} type="video/webm" />
-              <source src={getVideoPlaybackUrl(video)} type="video/ogg" />
-              Your browser does not support the video tag.
-            </video>
+            <div className="space-y-4">
+              <video 
+                controls 
+                className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
+                preload="metadata"
+                onError={(e) => {
+                  console.error('Video error:', e);
+                  const videoElement = e.target as HTMLVideoElement;
+                  console.error('Video error details:', videoElement.error);
+                }}
+                onLoadStart={() => console.log('Video started loading')}
+                onCanPlay={() => console.log('Video can play')}
+                onLoadedMetadata={() => console.log('Video metadata loaded')}
+              >
+                <source src={getVideoPlaybackUrl(video)} type="video/mp4" />
+                <source src={getVideoPlaybackUrl(video)} type="video/webm" />
+                <source src={getVideoPlaybackUrl(video)} type="video/ogg" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="text-xs text-muted-foreground">
+                <p><strong>Original URL:</strong> {video.url}</p>
+                <p><strong>Proxy URL:</strong> {getVideoPlaybackUrl(video)}</p>
+                <p><strong>Filename:</strong> {video.filename}</p>
+              </div>
+            </div>
           ) : (
             <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
               <div className="space-y-4">
