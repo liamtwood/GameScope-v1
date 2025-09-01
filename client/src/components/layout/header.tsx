@@ -4,6 +4,7 @@ import { Plus, Bell, Menu, Crosshair } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
+import { useClub } from "@/contexts/club-context";
 
 interface HeaderProps {
   title: string;
@@ -17,21 +18,10 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
     queryKey: ["/api/opposition-teams"] 
   });
 
-  // Fetch club data
-  const { data: clubs = [] } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-  });
+  // Use club context for active club
+  const { selectedClub: currentClub } = useClub();
 
-  // Get club ID from URL if available
-  const urlParams = new URLSearchParams(window.location.search);
-  const clubId = urlParams.get("clubId");
-  
-  // Use selected club if clubId is in URL, otherwise default to first club
-  const currentClub = clubId 
-    ? clubs.find(club => club.id === clubId) || clubs[0]
-    : clubs[0];
-
-  // Use current club's logo instead of hardcoded Polk State
+  // Use current club's logo instead of hardcoded GameScope
   const logoSrc = currentClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
 
   return (
