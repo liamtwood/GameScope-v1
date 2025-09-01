@@ -82,23 +82,26 @@ export default function Dashboard() {
       subtitle="Overview of team performance and upcoming matches"
     >
       {/* Welcome Section */}
-      <div className="flex flex-col items-center mb-8">
-        <div className="mb-4">
+      <div className="flex flex-col items-center mb-8 py-6">
+        <div className="mb-6">
           {currentClub?.logoPath ? (
             <img 
               src={currentClub.logoPath}
               alt={`${currentClub.name} Logo`} 
-              className="h-24 w-24 object-contain"
+              className="h-32 w-32 object-contain rounded-lg shadow-md"
+              data-testid="img-club-logo"
             />
           ) : (
-            <div className="h-24 w-24 flex items-center justify-center bg-muted rounded-full">
-              <span className="text-muted-foreground font-semibold">
-                {currentClub?.shortName || 'Club'}
+            <div className="h-32 w-32 flex items-center justify-center bg-muted rounded-lg shadow-md">
+              <span className="text-muted-foreground font-bold text-lg">
+                {currentClub?.shortName || 'CLUB'}
               </span>
             </div>
           )}
         </div>
-        <h2 className="text-2xl font-bold text-foreground">Welcome to GameScope</h2>
+        <h2 className="text-3xl font-bold text-foreground" data-testid="text-welcome-message">
+          Welcome to GameScope
+        </h2>
       </div>
 
       {/* Stats Overview */}
