@@ -165,7 +165,7 @@ export default function Teams() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-muted-foreground" />
+              <Shield className="h-10 w-10 text-muted-foreground" />
               <div>
                 <CardTitle className="text-xl">Teams in Club</CardTitle>
                 <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
