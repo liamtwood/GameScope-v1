@@ -187,8 +187,8 @@ export default function ClubManagement() {
 
   return (
     <MainLayout 
-      title={`${selectedClub.name} Management`} 
-      subtitle="Manage club information and teams"
+      title="Club Management" 
+      subtitle="Manage club information, logo and status"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
