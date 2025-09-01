@@ -320,9 +320,9 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
               className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
               preload="metadata"
             >
-              <source src={video.url} type="video/mp4" />
-              <source src={video.url} type="video/webm" />
-              <source src={video.url} type="video/ogg" />
+              <source src={getVideoPlaybackUrl(video)} type="video/mp4" />
+              <source src={getVideoPlaybackUrl(video)} type="video/webm" />
+              <source src={getVideoPlaybackUrl(video)} type="video/ogg" />
               Your browser does not support the video tag.
             </video>
           ) : (
