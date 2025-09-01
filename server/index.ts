@@ -6,11 +6,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Serve uploaded files
-app.use('/uploads', express.static('public/uploads'));
-
-// Serve client assets (for deployment)
-app.use('/assets', express.static('client/public/assets'));
+// Serve uploaded files and static assets
+if (app.get("env") === "development") {
+  // Development: serve from source directories
+  app.use('/uploads', express.static('public/uploads'));
+  app.use('/assets', express.static('client/public/assets'));
+} else {
+  // Production: serve from build directories
+  app.use('/uploads', express.static('public/uploads'));
+  app.use('/assets', express.static('dist/public/assets'));
+}
 
 app.use((req, res, next) => {
   const start = Date.now();
