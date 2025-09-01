@@ -194,11 +194,11 @@ export default function Teams() {
             <img 
               src={currentClub.logoPath}
               alt={`${currentClub.name} Logo`} 
-              className="h-32 w-32 object-contain rounded-lg shadow-md"
+              className="h-32 w-32 object-contain rounded-lg"
               data-testid="img-club-logo"
             />
           ) : (
-            <div className="h-32 w-32 flex items-center justify-center bg-muted rounded-lg shadow-md">
+            <div className="h-32 w-32 flex items-center justify-center bg-muted rounded-lg">
               <span className="text-muted-foreground font-bold text-lg">
                 {currentClub?.shortName || 'CLUB'}
               </span>
