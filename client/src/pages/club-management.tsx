@@ -113,10 +113,6 @@ export default function ClubManagement() {
           <p className="text-muted-foreground mb-4">
             Please select a club to manage.
           </p>
-          <Button onClick={() => setLocation("/clubs")} data-testid="button-back-to-clubs">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Clubs
-          </Button>
         </div>
       </MainLayout>
     );
@@ -127,17 +123,6 @@ export default function ClubManagement() {
       title={`${selectedClub.name} Management`} 
       subtitle="Manage club information and teams"
     >
-      {/* Back Navigation */}
-      <div className="mb-6">
-        <Button 
-          variant="outline" 
-          onClick={() => setLocation("/clubs")}
-          data-testid="button-back-to-clubs"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Clubs
-        </Button>
-      </div>
 
       {/* Club Information Card */}
       <Card className="mb-8">
