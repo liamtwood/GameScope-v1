@@ -324,10 +324,10 @@ export default function Settings() {
                         <img 
                           src={team.logoPath} 
                           alt={`${team.name} logo`}
-                          className="w-full h-24 object-contain rounded"
+                          className="w-full h-32 object-contain rounded"
                         />
                       ) : (
-                        <div className="w-full h-24 bg-muted rounded flex items-center justify-center">
+                        <div className="w-full h-32 bg-muted rounded flex items-center justify-center">
                           <Image className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
