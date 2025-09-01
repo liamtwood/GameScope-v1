@@ -381,6 +381,7 @@ export class DatabaseStorage implements IStorage {
       homeScore: fixture.homeScore || null,
       awayScore: fixture.awayScore || null,
       oppositionTeamId: fixture.oppositionTeamId || null,
+      oppositionClubId: fixture.oppositionClubId || null,
       competition: fixture.competition || null,
       notes: fixture.notes || null,
       hasVideo: fixture.hasVideo || false,
