@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Trophy, Plus, Check, Edit, Trash2 } from "lucide-react";
+import { Shield, Trophy, Plus, Check, Edit, Trash2, Building2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -187,6 +187,14 @@ export default function Teams() {
       title={currentClub ? `${currentClub.name} - Teams` : "Teams"}
       subtitle={currentClub ? `Manage teams for ${currentClub.name}` : "Manage and organize your teams"}
     >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <Building2 className="h-6 w-6 text-primary" />
+          <h2 className="text-lg font-semibold">Club Management</h2>
+        </div>
+      </div>
+
       {/* Teams Overview */}
       <Card>
         <CardHeader>
