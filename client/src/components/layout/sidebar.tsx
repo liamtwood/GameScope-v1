@@ -115,7 +115,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const clubId = urlParams.get("clubId");
                 
                 // For teams link, pass club context if we have it
-                let href = `/${item.id}`;
+                let href = item.id === 'home' ? '/' : `/${item.id}`;
                 if (item.id === 'teams' && clubId) {
                   href = `/teams?clubId=${clubId}`;
                 }

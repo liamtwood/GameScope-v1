@@ -24,6 +24,12 @@ export const STATUS_COLORS = {
 
 export const NAVIGATION_SECTIONS = [
   {
+    title: 'Navigation',
+    items: [
+      { id: 'home', label: 'Home', icon: 'Home', tooltip: 'Select Club' },
+    ]
+  },
+  {
     title: 'Club',
     items: [
       { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
