@@ -274,6 +274,26 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
            (urlLower.includes('objects/') && filename);
   };
 
+  // Helper function to get the correct video URL for playback
+  const getVideoPlaybackUrl = (video: VideoData) => {
+    // If it's a Google Cloud Storage URL, convert it to use our server proxy
+    if (video.url && video.url.includes('storage.googleapis.com')) {
+      // Extract the object path from the Google Cloud Storage URL
+      const urlObj = new URL(video.url);
+      const pathSegments = urlObj.pathname.split('/');
+      
+      // Find the uploads segment and get everything after it
+      const uploadsIndex = pathSegments.findIndex(segment => segment === 'uploads');
+      if (uploadsIndex !== -1 && uploadsIndex < pathSegments.length - 1) {
+        const objectId = pathSegments.slice(uploadsIndex + 1).join('/');
+        return `/objects/uploads/${objectId}`;
+      }
+    }
+    
+    // For other URLs, return as-is
+    return video.url;
+  };
+
   // Video Player Component for embedded playback
   const VideoPlayer = ({ video }: { video: VideoData }) => (
     <Dialog>

@@ -961,6 +961,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Video serving endpoint to handle CORS and authentication
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      // Set proper headers for video streaming
+      res.set({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers': 'Range, Content-Range, Content-Length',
+      });
+      
+      // Enable range requests for video seeking
+      if (req.headers.range) {
+        res.set('Accept-Ranges', 'bytes');
+      }
+      
+      await objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error serving video:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ error: "Video not found" });
+      }
+      return res.status(500).json({ error: "Failed to serve video" });
+    }
+  });
+
   // Logo upload routes
   app.post("/api/logos/upload", async (req, res) => {
     try {
