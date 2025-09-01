@@ -127,7 +127,7 @@ export default function ClubManagement() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Building2 className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-semibold">All Clubs</h2>
+          <h2 className="text-lg font-semibold">Club Management</h2>
         </div>
       </div>
 
