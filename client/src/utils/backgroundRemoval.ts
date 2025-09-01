@@ -10,6 +10,7 @@ export interface BackgroundRemovalOptions {
   resizeWidth?: number;
   autoCrop?: boolean;
   cropPadding?: number;
+  zoomLevel?: number;
 }
 
 export class BackgroundRemover {
@@ -31,7 +32,8 @@ export class BackgroundRemover {
       mode = 'smart', 
       resizeWidth, 
       autoCrop = true, 
-      cropPadding = 0 
+      cropPadding = 0,
+      zoomLevel = 100
     } = options;
 
     return new Promise((resolve, reject) => {
@@ -39,24 +41,29 @@ export class BackgroundRemover {
       
       img.onload = () => {
         try {
-          // Set canvas dimensions
-          this.canvas.width = img.width;
-          this.canvas.height = img.height;
+          // Calculate zoom dimensions
+          const zoomFactor = zoomLevel / 100;
+          const scaledWidth = Math.round(img.width * zoomFactor);
+          const scaledHeight = Math.round(img.height * zoomFactor);
           
-          // Draw original image
-          this.ctx.drawImage(img, 0, 0);
+          // Set canvas dimensions to scaled size
+          this.canvas.width = scaledWidth;
+          this.canvas.height = scaledHeight;
           
-          // Get image data
-          const imageData = this.ctx.getImageData(0, 0, img.width, img.height);
+          // Draw scaled image
+          this.ctx.drawImage(img, 0, 0, scaledWidth, scaledHeight);
+          
+          // Get image data from scaled canvas
+          const imageData = this.ctx.getImageData(0, 0, scaledWidth, scaledHeight);
           const data = imageData.data;
           
           // Process based on mode
           if (mode === 'smart') {
-            this.processSmartMode(data, img.width, img.height);
+            this.processSmartMode(data, scaledWidth, scaledHeight);
           } else if (mode === 'color') {
-            this.processColorMode(data, img.width, img.height);
+            this.processColorMode(data, scaledWidth, scaledHeight);
           } else if (mode === 'manual') {
-            this.processManualMode(data, img.width, img.height, tolerance);
+            this.processManualMode(data, scaledWidth, scaledHeight, tolerance);
           }
           
           // Update canvas with processed data
@@ -65,7 +72,7 @@ export class BackgroundRemover {
           // Handle auto-cropping to remove whitespace
           let finalCanvas = this.canvas;
           if (autoCrop) {
-            const bounds = this.findContentBounds(data, img.width, img.height);
+            const bounds = this.findContentBounds(data, scaledWidth, scaledHeight);
             if (bounds) {
               finalCanvas = this.cropAndRecenter(this.canvas, bounds, cropPadding);
             }

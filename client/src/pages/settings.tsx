@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut } from "lucide-react";
 import { Club, OppositionTeam } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,7 @@ export default function Settings() {
   const [enhancingTeam, setEnhancingTeam] = useState<any>(null);
   const [replacementModalOpen, setReplacementModalOpen] = useState(false);
   const [replacingTeam, setReplacingTeam] = useState<any>(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const { data: clubs } = useQuery<Club[]>({ 
     queryKey: ["/api/clubs"] 
@@ -175,6 +176,7 @@ export default function Settings() {
     setProcessedImageUrl(null);
     setProcessingMode('smart');
     setThreshold(30);
+    setZoomLevel(100);
     setEnhanceModalOpen(true);
     
     // Start initial processing
@@ -187,7 +189,8 @@ export default function Settings() {
       const options: BackgroundRemovalOptions = {
         mode: 'smart',
         tolerance: 30,
-        preserveInternalWhite: true
+        preserveInternalWhite: true,
+        zoomLevel: 100
       };
       
       const file = new File([blob], 'logo.png', { type: blob.type });
@@ -252,7 +255,8 @@ export default function Settings() {
       const options: BackgroundRemovalOptions = {
         mode: processingMode,
         tolerance: threshold,
-        preserveInternalWhite: true
+        preserveInternalWhite: true,
+        zoomLevel: zoomLevel
       };
       
       const file = new File([blob], 'logo.png', { type: blob.type });
@@ -721,6 +725,43 @@ export default function Settings() {
                     step={1}
                     className="w-full"
                     data-testid="slider-threshold-modal"
+                  />
+                </div>
+
+                {/* Zoom Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium">Logo Size</label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setZoomLevel(Math.max(10, zoomLevel - 10))}
+                        disabled={zoomLevel <= 10}
+                        data-testid="button-zoom-out"
+                      >
+                        <ZoomOut className="h-3 w-3" />
+                      </Button>
+                      <span className="text-xs text-muted-foreground min-w-[3rem] text-center">{zoomLevel}%</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setZoomLevel(Math.min(300, zoomLevel + 10))}
+                        disabled={zoomLevel >= 300}
+                        data-testid="button-zoom-in"
+                      >
+                        <ZoomIn className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <Slider
+                    value={[zoomLevel]}
+                    onValueChange={(value) => setZoomLevel(value[0])}
+                    max={300}
+                    min={10}
+                    step={5}
+                    className="w-full"
+                    data-testid="slider-zoom-modal"
                   />
                 </div>
 
