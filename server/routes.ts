@@ -273,6 +273,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/teams/:id", async (req, res) => {
+    try {
+      const teamData = insertTeamSchema.partial().parse(req.body);
+      const team = await storage.updateTeam(req.params.id, teamData);
+      res.json(team);
+    } catch (error) {
+      console.error("Error updating team:", error);
+      res.status(400).json({ message: "Failed to update team" });
+    }
+  });
+
   // Player routes
   app.get("/api/players", async (req, res) => {
     try {
