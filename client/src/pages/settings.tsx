@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
@@ -391,6 +391,17 @@ export default function Settings() {
       });
     }
   };
+
+  // Auto-reprocess when zoom level, processing mode, or threshold changes
+  useEffect(() => {
+    if (originalImageUrl && enhanceModalOpen && !processing) {
+      const timeoutId = setTimeout(() => {
+        reprocessModalImage();
+      }, 300);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [zoomLevel, processingMode, threshold]);
 
   return (
     <MainLayout title="Settings" subtitle="Club settings and team logo management">
