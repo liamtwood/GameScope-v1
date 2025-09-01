@@ -28,7 +28,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video'>('video');
+  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video' | 'competitions'>('video');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -396,6 +396,16 @@ export default function Fixtures() {
             >
               Videos
             </button>
+            <button
+              onClick={() => setOverviewTab('competitions')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                overviewTab === 'competitions' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Competitions
+            </button>
           </div>
         </div>
       </div>
@@ -491,35 +501,80 @@ export default function Fixtures() {
             </div>
           </div>
 
-          {/* Fixtures List */}
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Loading fixtures...</p>
-              </div>
-            ) : filteredFixtures.length > 0 ? (
-              filteredFixtures.map((fixture) => (
-                <FixtureEditDialog 
-                  key={fixture.id}
-                  fixture={fixture}
-                  onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
-                >
-                  <div className="w-full">
-                    <FixtureCard
-                      fixture={fixture}
-                      onViewDetails={handleViewDetails}
-                      onEdit={() => {}} // Edit is handled by the dialog wrapper
-                      onDelete={handleDeleteFixture}
-                    />
-                  </div>
-                </FixtureEditDialog>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No fixtures found matching your criteria</p>
-              </div>
-            )}
-          </div>
+          {/* Competitions Content */}
+          {overviewTab === 'competitions' ? (
+            <div className="space-y-4">
+              {competitions.length > 0 ? (
+                competitions.map((competition) => (
+                  <Card key={competition.id} className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-blue-100 rounded-full">
+                          <Trophy className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">{competition.name}</h3>
+                          {competition.shortName && (
+                            <p className="text-sm text-muted-foreground mt-1">{competition.shortName}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="mt-1">
+                        Competition
+                      </Badge>
+                    </div>
+                    
+                    {/* Competition fixtures count */}
+                    {fixtures && (
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {fixtures.filter(f => f.competition === competition.name).length} fixtures
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No competitions found</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Fixtures List */
+            <div className="space-y-4">
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading fixtures...</p>
+                </div>
+              ) : filteredFixtures.length > 0 ? (
+                filteredFixtures.map((fixture) => (
+                  <FixtureEditDialog 
+                    key={fixture.id}
+                    fixture={fixture}
+                    onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
+                  >
+                    <div className="w-full">
+                      <FixtureCard
+                        fixture={fixture}
+                        onViewDetails={handleViewDetails}
+                        onEdit={() => {}} // Edit is handled by the dialog wrapper
+                        onDelete={handleDeleteFixture}
+                      />
+                    </div>
+                  </FixtureEditDialog>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No fixtures found matching your criteria</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Delete confirmation dialog */}
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
