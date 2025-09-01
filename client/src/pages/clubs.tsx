@@ -11,9 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useClub } from "@/contexts/club-context";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { z } from "zod";
@@ -31,10 +33,7 @@ export default function Clubs() {
   const [editingClub, setEditingClub] = useState<Club | null>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-
-  const { data: clubs, isLoading } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-  });
+  const { clubs, isLoading, selectedClub, selectClub } = useClub();
 
   const form = useForm<CreateClubFormData>({
     resolver: zodResolver(createClubSchema),
@@ -384,13 +383,31 @@ export default function Clubs() {
 
       {/* Clubs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {clubs?.map((club) => (
-          <Card key={club.id} className="hover:shadow-md transition-shadow cursor-pointer">
+        {clubs?.map((club) => {
+          const isSelected = selectedClub?.id === club.id;
+          return (
+            <Card 
+              key={club.id} 
+              className={`hover:shadow-md transition-shadow cursor-pointer border-2 ${
+                isSelected 
+                  ? 'border-primary bg-primary/5 shadow-md' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => selectClub(club)}
+              data-testid={`card-club-${club.id}`}
+            >
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  <span>{club.name}</span>
+                  <Building2 className={`h-5 w-5 ${
+                    isSelected ? 'text-primary' : 'text-primary'
+                  }`} />
+                  <span className={isSelected ? 'font-bold' : ''}>{club.name}</span>
+                  {isSelected && (
+                    <Badge variant="default" className="ml-2 text-xs">
+                      Active
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center space-x-1">
                   <Button 
@@ -462,7 +479,8 @@ export default function Clubs() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Empty State */}
