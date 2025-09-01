@@ -196,29 +196,35 @@ export default function ClubManagement() {
           <Building2 className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold">Club Management</h2>
         </div>
-        <Button onClick={handleEditClub} data-testid="button-edit-club">
-          <Edit className="h-4 w-4 mr-2" />
-          Edit Club
-        </Button>
       </div>
 
       {/* Club Information Card */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-4">
-            {selectedClub.logoPath ? (
-              <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={selectedClub.logoPath} 
-                  alt={`${selectedClub.name} logo`} 
-                  className="h-full w-full object-contain"
-                />
-              </div>
-            ) : (
-              <Building2 className="h-6 w-6 text-primary" />
-            )}
-            <span>{selectedClub.name}</span>
-            <Badge variant="secondary">{selectedClub.shortName}</Badge>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {selectedClub.logoPath ? (
+                <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={selectedClub.logoPath} 
+                    alt={`${selectedClub.name} logo`} 
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <Building2 className="h-6 w-6 text-primary" />
+              )}
+              <span>{selectedClub.name}</span>
+              <Badge variant="secondary">{selectedClub.shortName}</Badge>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleEditClub}
+              data-testid="button-edit-club"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
