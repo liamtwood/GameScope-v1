@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
 import { ClubProvider } from "@/contexts/club-context";
 
+import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import ClubManagement from "@/pages/club-management";
 import Fixtures from "@/pages/fixtures";
@@ -23,8 +24,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Teams} />
-      <Route path="/home" component={Teams} />
+      <Route path="/" component={Home} />
+      <Route path="/home" component={Home} />
       <Route path="/teams" component={Teams} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/club-management" component={ClubManagement} />
