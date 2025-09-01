@@ -29,7 +29,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video' | 'competitions'>('video');
+  const [overviewTab, setOverviewTab] = useState<'season' | 'competitions'>('season');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
@@ -188,22 +188,6 @@ export default function Fixtures() {
   };
 
   const filteredFixtures = fixtures?.filter(fixture => {
-    // When on video tab, only show past matches
-    if (overviewTab === 'video') {
-      const now = new Date();
-      const matchDate = new Date(fixture.date);
-      const isPastMatch = matchDate < now;
-      if (!isPastMatch) return false;
-    }
-    
-    // When on planning tab, only show future matches
-    if (overviewTab === 'planning') {
-      const now = new Date();
-      const matchDate = new Date(fixture.date);
-      const isFutureMatch = matchDate > now || fixture.status === 'SCHEDULED';
-      if (!isFutureMatch) return false;
-    }
-    
     // Apply home/away filter to all tabs
     if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
       return false;
@@ -449,26 +433,6 @@ export default function Fixtures() {
               }`}
             >
               Season
-            </button>
-            <button
-              onClick={() => setOverviewTab('planning')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                overviewTab === 'planning' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Planning
-            </button>
-            <button
-              onClick={() => setOverviewTab('video')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                overviewTab === 'video' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Videos
             </button>
             <button
               onClick={() => setOverviewTab('competitions')}
