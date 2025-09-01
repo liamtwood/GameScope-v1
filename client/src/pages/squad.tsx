@@ -233,17 +233,6 @@ export default function Squad() {
       title="Squad Management" 
       subtitle="Manage player roster and profiles"
     >
-      <div className="mb-6 flex items-center justify-between">
-        <PlayerCreateDialog 
-          teamId={currentTeam?.id || ""} 
-          onSave={handleCreatePlayer}
-        >
-          <Button variant="outline" data-testid="button-add-player">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Player
-          </Button>
-        </PlayerCreateDialog>
-      </div>
 
       {/* Summary Cards */}
       <div className="mb-6">
@@ -304,39 +293,53 @@ export default function Squad() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="flex space-x-4 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('table')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              activeTab === 'table' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+      {/* Tab Navigation with Add Player Button */}
+      <div className="mb-6 relative">
+        <div className="flex items-center">
+          <PlayerCreateDialog 
+            teamId={currentTeam?.id || ""} 
+            onSave={handleCreatePlayer}
           >
-            Table
-          </button>
-          <button
-            onClick={() => setActiveTab('player-card')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              activeTab === 'player-card' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Player Card
-          </button>
-          <button
-            onClick={() => setActiveTab('account-card')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              activeTab === 'account-card' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Account Card
-          </button>
+            <Button variant="outline" data-testid="button-add-player">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Player
+            </Button>
+          </PlayerCreateDialog>
+        </div>
+        
+        <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+          <div className="flex space-x-8 border-b border-gray-200 pointer-events-auto">
+            <button
+              onClick={() => setActiveTab('table')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                activeTab === 'table' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Table
+            </button>
+            <button
+              onClick={() => setActiveTab('player-card')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                activeTab === 'player-card' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Player Card
+            </button>
+            <button
+              onClick={() => setActiveTab('account-card')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                activeTab === 'account-card' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Account Card
+            </button>
+          </div>
         </div>
       </div>
 
@@ -585,18 +588,6 @@ export default function Squad() {
         </CardContent>
       </Card>
 
-      {/* Add New Player Button */}
-      <div className="mt-6">
-        <PlayerCreateDialog 
-          teamId={currentTeam?.id || ''} 
-          onSave={handleCreatePlayer}
-        >
-          <Button className="w-full" data-testid="button-add-player">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add New Player
-          </Button>
-        </PlayerCreateDialog>
-      </div>
         </>
       )}
 
