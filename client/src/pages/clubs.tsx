@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload } from "lucide-react";
@@ -60,6 +61,7 @@ export default function Clubs() {
       phone: "",
       email: "",
       description: "",
+      subscriptionStatus: "",
     },
   });
 
@@ -152,6 +154,7 @@ export default function Clubs() {
       phone: club.phone || "",
       email: club.email || "",
       description: club.description || "",
+      subscriptionStatus: club.subscriptionStatus || "active",
     });
     setIsEditDialogOpen(true);
   };
@@ -559,6 +562,29 @@ export default function Clubs() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="subscriptionStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Club Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-edit-club-status">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="suspended">Suspended</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
