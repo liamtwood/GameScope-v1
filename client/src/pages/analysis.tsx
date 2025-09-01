@@ -140,30 +140,29 @@ export default function Analysis() {
       title="GameScope Analysis" 
       subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'MMM d, yyyy')}`}
     >
-      {/* Header with Tabs */}
-      <div className="flex items-center justify-between mb-6">
-        <Link href="/">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Button>
-        </Link>
-        
-        <div className="flex-1 flex justify-center">
-          <TabsList className="grid max-w-[600px] grid-cols-5">
-            <TabsTrigger value="statistics">Statistics</TabsTrigger>
-            <TabsTrigger value="spider">Spider Charts</TabsTrigger>
-            <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
-            <TabsTrigger value="positions">Position Maps</TabsTrigger>
-            <TabsTrigger value="ai">AI Analysis</TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <div className="w-[120px]"></div> {/* Spacer to balance the back button */}
-      </div>
-
       {/* Main Analysis Tabs */}
       <Tabs defaultValue="statistics" className="w-full">
+        {/* Header with Tabs */}
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          
+          <div className="flex-1 flex justify-center">
+            <TabsList className="grid max-w-[600px] grid-cols-5">
+              <TabsTrigger value="statistics">Statistics</TabsTrigger>
+              <TabsTrigger value="spider">Spider Charts</TabsTrigger>
+              <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
+              <TabsTrigger value="positions">Position Maps</TabsTrigger>
+              <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <div className="w-[120px]"></div> {/* Spacer to balance the back button */}
+        </div>
 
         {/* Statistics Tab */}
         <TabsContent value="statistics">
