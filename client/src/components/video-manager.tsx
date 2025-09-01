@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Trash2, Upload, Play, Link, Plus, Save, X, Cog } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
@@ -255,6 +256,67 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     return LOCATION_OPTIONS.find(opt => opt.value === value)?.label || value;
   };
 
+  // Helper function to determine if URL is a video file
+  const isVideoFile = (url: string) => {
+    return url.includes('.mp4') || url.includes('.webm') || url.includes('.ogg') || url.includes('.mov');
+  };
+
+  // Video Player Component for embedded playback
+  const VideoPlayer = ({ video }: { video: VideoData }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          data-testid={`button-play-${video.id}`}
+        >
+          <Play className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="flex items-center gap-2">
+            <Play className="h-5 w-5" />
+            {video.filename || `${getDurationLabel(video.duration)} - ${getLocationLabel(video.location)}`}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="p-6">
+          {isVideoFile(video.url!) ? (
+            <video 
+              controls 
+              className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
+              preload="metadata"
+            >
+              <source src={video.url} type="video/mp4" />
+              <source src={video.url} type="video/webm" />
+              <source src={video.url} type="video/ogg" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
+              <div className="space-y-4">
+                <p className="text-muted-foreground">External video link detected.</p>
+                <Button 
+                  onClick={() => window.open(video.url, '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  Open in New Tab
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium mb-2">Video Details:</p>
+                  <p>Duration: {getDurationLabel(video.duration)}</p>
+                  <p>Location: {getLocationLabel(video.location)}</p>
+                  <p className="break-all mt-2">{video.url}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -318,14 +380,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {video.url && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(video.url, '_blank')}
-                      data-testid={`button-view-${video.id}`}
-                    >
-                      <Play className="h-3 w-3" />
-                    </Button>
+                    <VideoPlayer video={video} />
                   )}
                   <Button
                     variant="outline"
