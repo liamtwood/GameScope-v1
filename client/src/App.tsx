@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
 
+import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import ClubManagement from "@/pages/club-management";
 import Fixtures from "@/pages/fixtures";
@@ -21,7 +22,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={Home} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/club-management" component={ClubManagement} />
       <Route path="/fixtures" component={Fixtures} />
       <Route path="/fixtures/:id" component={FixtureDetails} />

@@ -17,7 +17,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
-  const currentPath = location === "/" ? "dashboard" : location.slice(1);
+  const currentPath = location === "/" ? "home" : location.slice(1);
   const { selectedTeam } = useTeam();
 
   // Fetch club data
@@ -115,7 +115,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const clubId = urlParams.get("clubId");
                 
                 // For teams link, pass club context if we have it
-                let href = item.id === 'dashboard' ? '/' : `/${item.id}`;
+                let href = `/${item.id}`;
                 if (item.id === 'teams' && clubId) {
                   href = `/teams?clubId=${clubId}`;
                 }
