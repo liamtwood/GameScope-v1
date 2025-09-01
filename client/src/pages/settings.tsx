@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
-import { Club } from "@shared/schema";
+import { Club, OppositionTeam } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -34,24 +34,44 @@ export default function Settings() {
     queryKey: ["/api/clubs"] 
   });
 
+  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
+    queryKey: ["/api/opposition-teams"] 
+  });
+
+  // Combine clubs and opposition teams for logo management
+  const allTeams = [
+    ...(clubs?.map(club => ({ ...club, type: 'club' as const })) || []),
+    ...(oppositionTeams?.map(team => ({ ...team, type: 'opposition' as const, logoPath: team.logoPath })) || [])
+  ];
+
   const saveMutation = useMutation({
-    mutationFn: async ({ clubId, logoData }: { clubId: string; logoData: Blob }) => {
+    mutationFn: async ({ teamId, logoData, teamType }: { teamId: string; logoData: Blob; teamType: 'club' | 'opposition' }) => {
       const formData = new FormData();
-      formData.append('logo', logoData, `${clubId}-logo.png`);
-      formData.append('clubId', clubId);
+      formData.append('logo', logoData, `${teamId}-logo.png`);
       
-      const response = await fetch('/api/clubs/logo', {
-        method: 'POST',
-        body: formData,
-      });
+      let response;
+      if (teamType === 'club') {
+        formData.append('clubId', teamId);
+        response = await fetch('/api/clubs/logo', {
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        formData.append('teamId', teamId);
+        response = await fetch('/api/opposition-teams/logo', {
+          method: 'POST',
+          body: formData,
+        });
+      }
       return response;
     },
     onSuccess: () => {
       toast({
         title: "Logo Saved",
-        description: "Club logo has been processed and saved successfully!",
+        description: "Logo has been processed and saved successfully!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
       setSelectedFile(null);
       setSelectedClub("");
       setProcessedImageUrl(null);
@@ -141,17 +161,17 @@ export default function Settings() {
     }
   };
 
-  const handleRemoveBackground = async (club: Club) => {
-    if (!club.logoPath) return;
+  const handleRemoveBackground = async (team: any) => {
+    if (!team.logoPath) return;
     
     setProcessing(true);
-    setSelectedClub(club.id);
+    setSelectedClub(team.id);
     
     try {
-      const response = await fetch(club.logoPath);
+      const response = await fetch(team.logoPath);
       const blob = await response.blob();
       
-      setOriginalImageUrl(club.logoPath);
+      setOriginalImageUrl(team.logoPath);
       
       const backgroundRemover = new BackgroundRemover();
       const options: BackgroundRemovalOptions = {
@@ -176,11 +196,11 @@ export default function Settings() {
     }
   };
 
-  const handleEditExistingLogo = (club: Club) => {
-    if (club.logoPath) {
-      setSelectedClub(club.id);
-      setOriginalImageUrl(club.logoPath);
-      setProcessedImageUrl(club.logoPath);
+  const handleEditExistingLogo = (team: any) => {
+    if (team.logoPath) {
+      setSelectedClub(team.id);
+      setOriginalImageUrl(team.logoPath);
+      setProcessedImageUrl(team.logoPath);
     }
   };
 
@@ -191,7 +211,10 @@ export default function Settings() {
       const response = await fetch(processedImageUrl);
       const blob = await response.blob();
       
-      saveMutation.mutate({ clubId: selectedClub, logoData: blob });
+      const selectedTeam = allTeams.find(team => team.id === selectedClub);
+      if (selectedTeam) {
+        saveMutation.mutate({ teamId: selectedClub, logoData: blob, teamType: selectedTeam.type });
+      }
     } catch (error) {
       toast({
         title: "Save Failed",
@@ -215,26 +238,26 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Image className="mr-2 h-5 w-5" />
-              Current Club Logos
+              All Team Logos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {clubs?.map((club) => (
-                <div key={club.id} className="space-y-2">
+              {allTeams?.map((team) => (
+                <div key={team.id} className="space-y-2">
                   <ThemedLogoContainer
-                    containerId={`club-logo-${club.id}`}
+                    containerId={`team-logo-${team.id}`}
                     className="border rounded-lg p-3 transition-all"
                     showThemeToggle={true}
                   >
                     <div 
-                      onClick={() => handleEditExistingLogo(club)}
+                      onClick={() => handleEditExistingLogo(team)}
                       className="cursor-pointer relative"
                     >
-                      {club.logoPath ? (
+                      {team.logoPath ? (
                         <img 
-                          src={club.logoPath} 
-                          alt={`${club.name} logo`}
+                          src={team.logoPath} 
+                          alt={`${team.name} logo`}
                           className="w-full h-24 object-contain rounded"
                         />
                       ) : (
@@ -244,18 +267,23 @@ export default function Settings() {
                       )}
                     </div>
                   </ThemedLogoContainer>
-                  <p className="text-sm font-medium text-center">{club.name}</p>
-                  {club.logoPath && (
+                  <div className="text-center">
+                    <p className="text-sm font-medium">{team.name}</p>
+                    <Badge variant="outline" className="text-xs mt-1">
+                      {team.type === 'club' ? 'Club' : 'Opposition'}
+                    </Badge>
+                  </div>
+                  {team.logoPath && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleRemoveBackground(club)}
+                      onClick={() => handleRemoveBackground(team)}
                       className="w-full"
                       disabled={processing}
-                      data-testid={`button-remove-bg-${club.id}`}
+                      data-testid={`button-remove-bg-${team.id}`}
                     >
                       <Wand2 className="mr-1 h-3 w-3" />
-                      {processing && selectedClub === club.id ? 'Processing...' : 'Remove Background'}
+                      {processing && selectedClub === team.id ? 'Processing...' : 'Remove Background'}
                     </Button>
                   )}
                 </div>
@@ -354,9 +382,9 @@ export default function Settings() {
                     <SelectValue placeholder="Choose a club" />
                   </SelectTrigger>
                   <SelectContent>
-                    {clubs?.map((club) => (
-                      <SelectItem key={club.id} value={club.id}>
-                        {club.name}
+                    {allTeams?.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name} ({team.type === 'club' ? 'Club' : 'Opposition'})
                       </SelectItem>
                     ))}
                   </SelectContent>
