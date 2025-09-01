@@ -257,8 +257,21 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   // Helper function to determine if URL is a video file
-  const isVideoFile = (url: string) => {
-    return url.includes('.mp4') || url.includes('.webm') || url.includes('.ogg') || url.includes('.mov');
+  const isVideoFile = (url: string, filename?: string) => {
+    // Check filename first if available (more reliable for uploaded files)
+    if (filename) {
+      const ext = filename.toLowerCase();
+      return ext.endsWith('.mp4') || ext.endsWith('.webm') || ext.endsWith('.ogg') || 
+             ext.endsWith('.mov') || ext.endsWith('.avi') || ext.endsWith('.mkv');
+    }
+    
+    // Fallback to URL checking for direct links
+    const urlLower = url.toLowerCase();
+    return urlLower.includes('.mp4') || urlLower.includes('.webm') || urlLower.includes('.ogg') || 
+           urlLower.includes('.mov') || urlLower.includes('.avi') || urlLower.includes('.mkv') ||
+           // Check for Google Cloud Storage or other object storage patterns with video content
+           (urlLower.includes('storage.googleapis.com') && filename) ||
+           (urlLower.includes('objects/') && filename);
   };
 
   // Video Player Component for embedded playback
@@ -281,7 +294,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
           </DialogTitle>
         </DialogHeader>
         <div className="p-6">
-          {isVideoFile(video.url!) ? (
+          {isVideoFile(video.url!, video.filename) ? (
             <video 
               controls 
               className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
