@@ -351,8 +351,8 @@ export default function Fixtures() {
       </div>
 
       {/* Tab Navigation with Add Fixture Button */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 relative">
+        <div className="flex items-center">
           <FixtureCreateDialog 
             teamId={currentTeam?.id || ""} 
             onSave={(data) => createFixtureMutation.mutate(data)}
@@ -362,8 +362,10 @@ export default function Fixtures() {
               Add Fixture
             </Button>
           </FixtureCreateDialog>
-          
-          <div className="flex space-x-8 border-b border-gray-200">
+        </div>
+        
+        <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+          <div className="flex space-x-8 border-b border-gray-200 pointer-events-auto">
             <button
               onClick={() => setOverviewTab('season')}
               className={`pb-3 px-4 text-lg font-semibold ${
@@ -395,8 +397,6 @@ export default function Fixtures() {
               Videos
             </button>
           </div>
-          
-          <div></div>
         </div>
       </div>
 
