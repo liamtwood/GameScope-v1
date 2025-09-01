@@ -123,6 +123,13 @@ export default function ClubManagement() {
       title={`${selectedClub.name} Management`} 
       subtitle="Manage club information and teams"
     >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <Building2 className="h-6 w-6 text-primary" />
+          <h2 className="text-lg font-semibold">All Clubs</h2>
+        </div>
+      </div>
 
       {/* Club Information Card */}
       <Card className="mb-8">
