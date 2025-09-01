@@ -389,35 +389,16 @@ export default function FixtureDetails() {
             <div className="space-y-6">
               {/* Comprehensive Analysis Tabs */}
               <Tabs defaultValue="statistics" className="w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-[120px]"></div> {/* Spacer to balance the layout */}
-                  
-                  <div className="flex-1 flex justify-center">
-                    <TabsList className="grid max-w-[720px] grid-cols-6">
-                      <TabsTrigger value="statistics">Statistics</TabsTrigger>
-                      <TabsTrigger value="spider">Spider Charts</TabsTrigger>
-                      <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
-                      <TabsTrigger value="positions">Position Maps</TabsTrigger>
-                      <TabsTrigger value="ai">AI Analysis</TabsTrigger>
-                      <TabsTrigger value="videos">Videos</TabsTrigger>
-                    </TabsList>
-                  </div>
-                  
-                  <div className="w-[120px] flex justify-end">
-                    <Tabs defaultValue="upload" className="w-auto">
-                      <TabsList className="grid w-full grid-cols-1">
-                        <TabsTrigger value="upload" data-testid="subtab-upload">Upload Data</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="upload" className="mt-4">
-                        <Card>
-                          <CardContent className="p-6">
-                            <h3 className="text-lg font-semibold mb-4">Data Upload</h3>
-                            <ExcelUpload fixtureId={fixtureId || ""} />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
+                <div className="flex justify-center mb-6">
+                  <TabsList className="grid max-w-[800px] grid-cols-7">
+                    <TabsTrigger value="statistics">Statistics</TabsTrigger>
+                    <TabsTrigger value="spider">Spider Charts</TabsTrigger>
+                    <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
+                    <TabsTrigger value="positions">Position Maps</TabsTrigger>
+                    <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+                    <TabsTrigger value="videos">Videos</TabsTrigger>
+                    <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
+                  </TabsList>
                 </div>
 
                 {/* Statistics Tab */}
@@ -552,6 +533,16 @@ export default function FixtureDetails() {
                         fixtureId={fixtureId || ""} 
                         videoLinks={fixture.videoLinks || []} 
                       />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Upload Data Tab */}
+                <TabsContent value="upload">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Upload Match Data</h3>
+                      <ExcelUpload fixtureId={fixtureId || ""} />
                     </CardContent>
                   </Card>
                 </TabsContent>
