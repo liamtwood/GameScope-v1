@@ -381,10 +381,6 @@ export default function Teams() {
                             "w-10 h-10 rounded-lg flex items-center justify-center",
                             isSelected ? "bg-primary/20" : "bg-primary/10"
                           )}>
-                            <Trophy className={cn(
-                              "h-5 w-5",
-                              isSelected ? "text-primary" : "text-primary"
-                            )} />
                           </div>
                           <div>
                             <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
@@ -439,7 +435,6 @@ export default function Teams() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">No teams found in this club</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Teams will appear here once they are created and linked to this club
