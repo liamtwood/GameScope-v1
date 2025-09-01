@@ -26,7 +26,7 @@ const createTeamSchema = z.object({
   assistantCoach: z.string().optional(),
   ageGroup: z.string().optional(),
   gender: z.string().optional(),
-  season: z.string().optional(),
+  season: z.string().default("2025/26"),
   status: z.string().default("ACTIVE"),
 });
 
@@ -67,7 +67,7 @@ export default function Teams() {
       assistantCoach: "",
       ageGroup: "",
       gender: "",
-      season: "",
+      season: "2025/26",
       status: "ACTIVE",
     },
   });
@@ -113,7 +113,7 @@ export default function Teams() {
       assistantCoach: "",
       ageGroup: "",
       gender: "",
-      season: "",
+      season: "2025/26",
       status: "ACTIVE",
     },
   });
@@ -346,9 +346,18 @@ export default function Teams() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Season</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., 2025/26" {...field} data-testid="input-team-season" />
-                            </FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-team-season">
+                                  <SelectValue placeholder="Select season" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="2024/25">2024/25</SelectItem>
+                                <SelectItem value="2025/26">2025/26</SelectItem>
+                                <SelectItem value="2026/27">2026/27</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -578,9 +587,18 @@ export default function Teams() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Season</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., 2025/26" {...field} data-testid="input-edit-team-season" />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-edit-team-season">
+                            <SelectValue placeholder="Select season" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="2024/25">2024/25</SelectItem>
+                          <SelectItem value="2025/26">2025/26</SelectItem>
+                          <SelectItem value="2026/27">2026/27</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
