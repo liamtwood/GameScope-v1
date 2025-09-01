@@ -9,6 +9,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve uploaded files
 app.use('/uploads', express.static('public/uploads'));
 
+// Serve client assets (for deployment)
+app.use('/assets', express.static('client/public/assets'));
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
