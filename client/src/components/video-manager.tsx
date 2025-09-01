@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Upload, Play, Link, Plus, Save, X, Cog } from "lucide-react";
+import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
 import type { UploadResult } from "@uppy/core";
@@ -61,6 +61,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [videos, setVideos] = useState<VideoData[]>(videoLinks);
   const [newRows, setNewRows] = useState<NewVideoRow[]>([]);
   const [processingVideos, setProcessingVideos] = useState<Set<string>>(new Set());
+  const [editingVideo, setEditingVideo] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -248,6 +249,33 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     updateProgress();
   };
 
+  const handleEditVideo = (videoId: string) => {
+    setEditingVideo(videoId);
+  };
+
+  const handleSaveEdit = async (videoId: string, newDuration: string, newLocation: string) => {
+    const updatedVideos = videos.map(v => 
+      v.id === videoId 
+        ? { ...v, duration: newDuration, location: newLocation }
+        : v
+    );
+    
+    setVideos(updatedVideos);
+    setEditingVideo(null);
+    
+    try {
+      await updateVideosMutation.mutateAsync(updatedVideos);
+    } catch (error) {
+      // Revert on error
+      setVideos(videos);
+      console.error("Failed to update video:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingVideo(null);
+  };
+
   const getDurationLabel = (value: string) => {
     return DURATION_OPTIONS.find(opt => opt.value === value)?.label || value;
   };
@@ -302,6 +330,93 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     // For other URLs, return as-is
     console.log('Using original video URL:', video.url);
     return video.url;
+  };
+
+  // Video Edit Form Component
+  const VideoEditForm = ({ 
+    video, 
+    onSave, 
+    onCancel 
+  }: {
+    video: VideoData;
+    onSave: (videoId: string, newDuration: string, newLocation: string) => void;
+    onCancel: () => void;
+  }) => {
+    const [editDuration, setEditDuration] = useState(video.duration);
+    const [editLocation, setEditLocation] = useState(video.location);
+
+    const handleSave = () => {
+      onSave(video.id, editDuration, editLocation);
+    };
+
+    return (
+      <div className="flex items-center gap-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Edit className="h-4 w-4 text-blue-500 flex-shrink-0" />
+          <div className="flex items-center gap-3 flex-1">
+            {/* Duration Select */}
+            <div className="min-w-[140px]">
+              <Select value={editDuration} onValueChange={setEditDuration}>
+                <SelectTrigger className="h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DURATION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Location Select */}
+            <div className="min-w-[140px]">
+              <Select value={editLocation} onValueChange={setEditLocation}>
+                <SelectTrigger className="h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCATION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Video filename display */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-muted-foreground truncate">
+                {video.filename || video.url}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            size="sm"
+            onClick={handleSave}
+            className="h-8"
+            data-testid={`button-save-edit-${video.id}`}
+          >
+            <Save className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            className="h-8"
+            data-testid={`button-cancel-edit-${video.id}`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   // Video Player Component for embedded playback
@@ -409,49 +524,67 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
           {/* Existing videos */}
           {videos.map((video) => (
             <div key={video.id} className="flex flex-col gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  <div className="flex flex-col min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs">
-                        {getDurationLabel(video.duration)}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {getLocationLabel(video.location)}
-                      </Badge>
-                      {video.processed && (
-                        <Badge variant="default" className="text-xs bg-green-500">
-                          Processed
+              {editingVideo === video.id ? (
+                <VideoEditForm
+                  video={video}
+                  onSave={handleSaveEdit}
+                  onCancel={handleCancelEdit}
+                />
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          {getDurationLabel(video.duration)}
                         </Badge>
-                      )}
-                      {video.isProcessing && (
-                        <Badge variant="default" className="text-xs bg-blue-500">
-                          Processing...
+                        <Badge variant="outline" className="text-xs">
+                          {getLocationLabel(video.location)}
                         </Badge>
-                      )}
+                        {video.processed && (
+                          <Badge variant="default" className="text-xs bg-green-500">
+                            Processed
+                          </Badge>
+                        )}
+                        {video.isProcessing && (
+                          <Badge variant="default" className="text-xs bg-blue-500">
+                            Processing...
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate mt-1">
+                        {video.filename || video.url}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate mt-1">
-                      {video.filename || video.url}
-                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {video.url && (
+                      <VideoPlayer video={video} />
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditVideo(video.id)}
+                      className="text-blue-600 hover:text-blue-700"
+                      data-testid={`button-edit-${video.id}`}
+                      disabled={video.isProcessing}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRemoveVideo(video.id)}
+                      className="text-red-600 hover:text-red-700"
+                      data-testid={`button-remove-${video.id}`}
+                      disabled={video.isProcessing}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {video.url && (
-                    <VideoPlayer video={video} />
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRemoveVideo(video.id)}
-                    className="text-red-600 hover:text-red-700"
-                    data-testid={`button-remove-${video.id}`}
-                    disabled={video.isProcessing}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
+              )}
               
               {/* Progress bar for processing videos */}
               {video.isProcessing && (
