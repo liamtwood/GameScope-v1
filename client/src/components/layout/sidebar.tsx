@@ -8,6 +8,7 @@ import { ChevronLeft, Home, Calendar, Users, BarChart3, Video, Settings, Shield,
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS } from "@/lib/constants";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import type { Club } from "@shared/schema";
 
 interface SidebarProps {
@@ -19,20 +20,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
   const currentPath = location === "/" ? "home" : location.slice(1);
   const { selectedTeam } = useTeam();
-
-  // Fetch club data
-  const { data: clubs = [] } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-  });
-
-  // Get club ID from URL context
-  const urlParams = new URLSearchParams(window.location.search);
-  const clubId = urlParams.get("clubId");
-  
-  // Use selected club if clubId is in URL, otherwise default to first club
-  const currentClub = clubId 
-    ? clubs.find(club => club.id === clubId) || clubs[0]
-    : clubs[0];
+  const { selectedClub: currentClub } = useClub();
 
   const iconMap = {
     Home,
@@ -117,13 +105,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const Icon = iconMap[item.icon as keyof typeof iconMap];
                 const isActive = currentPath === item.id;
                 
-                // Build href with club context preservation
-                let href = item.id === 'home' ? '/' : `/${item.id}`;
-                
-                // Preserve club context for all team-related pages when clubId is present
-                if (clubId && ['dashboard', 'fixtures', 'squad', 'statistics', 'videos', 'teams'].includes(item.id)) {
-                  href = `/${item.id}?clubId=${clubId}`;
-                }
+                // Build href
+                const href = item.id === 'home' ? '/' : `/${item.id}`;
                 
                 return (
                   <Link

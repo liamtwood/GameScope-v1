@@ -24,15 +24,9 @@ export const STATUS_COLORS = {
 
 export const NAVIGATION_SECTIONS = [
   {
-    title: 'Navigation',
+    title: '',
     items: [
-      { id: 'home', label: 'Home', icon: 'Home', tooltip: 'Select Club' },
-    ]
-  },
-  {
-    title: 'Club',
-    items: [
-      { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
+      { id: 'home', label: 'Home', icon: 'Home', tooltip: 'Team Selection' },
       { id: 'teams', label: 'Teams', icon: 'Shield', tooltip: 'Teams Overview' },
     ]
   },
@@ -47,13 +41,15 @@ export const NAVIGATION_SECTIONS = [
     ]
   },
   {
+    title: 'Club',
+    items: [
+      { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
+    ]
+  },
+  {
     title: 'DevOps',
     items: [
       { id: 'clubs', label: 'Clubs', icon: 'Settings', tooltip: 'Manage Clubs' },
     ]
-  },
-  {
-    title: 'Settings',
-    items: []
   }
 ];

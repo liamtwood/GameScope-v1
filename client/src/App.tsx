@@ -23,6 +23,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Teams} />
+      <Route path="/home" component={Teams} />
+      <Route path="/teams" component={Teams} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/club-management" component={ClubManagement} />
       <Route path="/fixtures" component={Fixtures} />
