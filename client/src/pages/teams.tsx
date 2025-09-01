@@ -199,31 +199,6 @@ export default function Teams() {
       title={currentClub ? `${currentClub.name} - Teams` : "Teams"}
       subtitle={currentClub ? `Manage teams for ${currentClub.name}` : "Manage and organize your teams"}
     >
-      {/* Club Header with Logo */}
-      {currentClub && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-4">
-              {currentClub.logoPath ? (
-                <div className="h-12 w-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={currentClub.logoPath} 
-                    alt={`${currentClub.name} logo`} 
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-              ) : (
-                <Shield className="h-8 w-8 text-primary" />
-              )}
-              <div>
-                <h1 className="text-2xl font-bold">{currentClub.name}</h1>
-                <p className="text-sm text-muted-foreground">{clubTeams.length === 1 ? 'Team' : `${clubTeams.length} teams`} in {currentClub.name}</p>
-              </div>
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      )}
-
       {/* Teams Overview */}
       <Card>
         <CardHeader>
