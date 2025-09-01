@@ -10,11 +10,13 @@ import { Users, Target, Trophy, Calendar, Sparkles } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const { selectedTeam: currentTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
 
   const { data: players } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],
@@ -79,6 +81,26 @@ export default function Dashboard() {
       title="Dashboard" 
       subtitle="Overview of team performance and upcoming matches"
     >
+      {/* Welcome Section */}
+      <div className="flex flex-col items-center mb-8">
+        <div className="mb-4">
+          {currentClub?.logoPath ? (
+            <img 
+              src={currentClub.logoPath}
+              alt={`${currentClub.name} Logo`} 
+              className="h-24 w-24 object-contain"
+            />
+          ) : (
+            <div className="h-24 w-24 flex items-center justify-center bg-muted rounded-full">
+              <span className="text-muted-foreground font-semibold">
+                {currentClub?.shortName || 'Club'}
+              </span>
+            </div>
+          )}
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Welcome to GameScope</h2>
+      </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
