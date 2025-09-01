@@ -21,7 +21,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
   const currentPath = location === "/" ? "home" : location.slice(1);
   const { selectedTeam, selectTeam } = useTeam();
-  const { selectedClub: currentClub } = useClub();
+  const { selectedClub: currentClub, selectClub } = useClub();
 
   // Fetch all teams for the dropdown
   const { data: allTeams = [] } = useQuery<Team[]>({
@@ -119,7 +119,14 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 return (
                   <DropdownMenuItem
                     key={team.id}
-                    onClick={() => selectTeam(team)}
+                    onClick={() => {
+                      selectTeam(team);
+                      // Automatically select the club that owns this team
+                      const teamClub = allClubs.find(club => club.id === team.clubId);
+                      if (teamClub) {
+                        selectClub(teamClub);
+                      }
+                    }}
                     className={cn(
                       "cursor-pointer",
                       selectedTeam?.id === team.id && "bg-accent"
