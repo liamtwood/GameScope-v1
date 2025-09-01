@@ -568,6 +568,29 @@ export default function Teams() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={editForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-edit-team-status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                          <SelectItem value="ARCHIVED">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
