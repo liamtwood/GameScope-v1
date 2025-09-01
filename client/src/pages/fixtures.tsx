@@ -12,16 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane } from "lucide-react";
 import { format } from "date-fns";
-import { Fixture, Team, Competition, OppositionTeam } from "@shared/schema";
+import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
-import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
 
 type FilterType = 'all' | FixtureStatus;
 
@@ -31,23 +28,11 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video' | 'logos'>('video');
+  const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video'>('video');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Logo management state
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [processing, setProcessing] = useState(false);
-  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
-  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
-  const [processingMode, setProcessingMode] = useState<'smart' | 'color' | 'manual'>('smart');
-  const [threshold, setThreshold] = useState(30);
-  const [showTip, setShowTip] = useState(false);
-  const [logoUrl, setLogoUrl] = useState<string>("");
-  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
-  const [fetchingUrl, setFetchingUrl] = useState(false);
 
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -60,9 +45,6 @@ export default function Fixtures() {
     queryKey: ["/api/competitions"]
   });
 
-  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
-  });
 
   // Mutation for updating fixtures
   const updateFixtureMutation = useMutation({
@@ -129,204 +111,7 @@ export default function Fixtures() {
     },
   });
 
-  // Logo management mutations
-  const saveMutation = useMutation({
-    mutationFn: async ({ teamId, logoData }: { teamId: string; logoData: Blob }) => {
-      const formData = new FormData();
-      formData.append('logo', logoData, `${teamId}-logo.png`);
-      formData.append('teamId', teamId);
-      
-      const response = await fetch('/api/opposition-teams/logo', {
-        method: 'POST',
-        body: formData,
-      });
-      return response;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Logo Saved",
-        description: "Team logo has been processed and saved successfully!",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      setSelectedFile(null);
-      setSelectedTeam("");
-      setProcessedImageUrl(null);
-      setOriginalImageUrl(null);
-      setShowTip(false);
-      setProcessingMode('smart');
-      setThreshold(30);
-      setLogoUrl("");
-      setUploadMethod('file');
-      setFetchingUrl(false);
-    },
-    onError: (error) => {
-      toast({
-        title: "Save Failed",
-        description: "Failed to save the logo. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Save error:', error);
-    },
-  });
 
-  // Logo management functions
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setSelectedFile(file);
-    setOriginalImageUrl(URL.createObjectURL(file));
-    
-    if (file.size > 100000 || file.name.toLowerCase().includes('logo')) {
-      setShowTip(true);
-    }
-    
-    await processImageWithCurrentSettings(file);
-  };
-
-  const handleUrlFetch = async () => {
-    if (!logoUrl.trim()) {
-      toast({
-        title: "URL Required",
-        description: "Please enter a valid image URL.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setFetchingUrl(true);
-    try {
-      // Create a proxy URL to handle CORS issues
-      const proxyUrl = `/api/fetch-image?url=${encodeURIComponent(logoUrl)}`;
-      const response = await fetch(proxyUrl);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch image');
-      }
-      
-      const blob = await response.blob();
-      
-      // Convert blob to file for processing
-      const file = new File([blob], 'fetched-logo.png', { type: blob.type });
-      
-      setSelectedFile(file);
-      setOriginalImageUrl(URL.createObjectURL(blob));
-      
-      if (blob.size > 100000) {
-        setShowTip(true);
-      }
-      
-      await processImageWithCurrentSettings(file);
-      
-      toast({
-        title: "Image Fetched",
-        description: "Logo image has been successfully downloaded and is ready for processing.",
-      });
-      
-    } catch (error) {
-      console.error('URL fetch error:', error);
-      toast({
-        title: "Fetch Failed",
-        description: "Failed to download image from URL. Please check the URL and try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setFetchingUrl(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!selectedTeam || !processedImageUrl) {
-      toast({
-        title: "Missing Information",
-        description: "Please select a team and process an image first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const response = await fetch(processedImageUrl);
-    const logoData = await response.blob();
-    
-    saveMutation.mutate({ teamId: selectedTeam, logoData });
-  };
-
-  const processImageWithCurrentSettings = async (file: File) => {
-    setProcessing(true);
-    try {
-      const backgroundRemover = new BackgroundRemover();
-      const options: BackgroundRemovalOptions = {
-        mode: processingMode,
-        tolerance: threshold,
-        preserveInternalWhite: true
-      };
-      
-      const processedBlob = await backgroundRemover.removeBackground(file, options);
-      const processedUrl = URL.createObjectURL(processedBlob);
-      setProcessedImageUrl(processedUrl);
-    } catch (error) {
-      console.error('Processing error:', error);
-      toast({
-        title: "Processing Failed",
-        description: "Failed to remove background. Please try a different image.",
-        variant: "destructive",
-      });
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleRemoveBackground = async (team: OppositionTeam) => {
-    if (!team.logoPath) {
-      toast({
-        title: "No Logo Found",
-        description: "This team doesn't have a logo to process.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setProcessing(true);
-    setSelectedTeam(team.id);
-    
-    try {
-      const response = await fetch(team.logoPath);
-      const blob = await response.blob();
-      
-      setOriginalImageUrl(team.logoPath);
-      
-      const backgroundRemover = new BackgroundRemover();
-      const options: BackgroundRemovalOptions = {
-        mode: 'smart',
-        tolerance: 30,
-        preserveInternalWhite: true
-      };
-      
-      // Convert blob to File for processing
-      const file = new File([blob], 'logo.png', { type: blob.type });
-      const processedBlob = await backgroundRemover.removeBackground(file, options);
-      const processedUrl = URL.createObjectURL(processedBlob);
-      setProcessedImageUrl(processedUrl);
-    } catch (error) {
-      console.error('Processing error:', error);
-      toast({
-        title: "Processing Failed",
-        description: "Failed to remove background from existing logo.",
-        variant: "destructive",
-      });
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleEditExistingLogo = (team: OppositionTeam) => {
-    if (team.logoPath) {
-      setSelectedTeam(team.id);
-      setOriginalImageUrl(team.logoPath);
-      setProcessedImageUrl(team.logoPath);
-      setOverviewTab('logos');
-    }
-  };
 
   const filteredFixtures = fixtures?.filter(fixture => {
     // When on video tab, only show past matches
@@ -612,316 +397,11 @@ export default function Fixtures() {
           >
             Videos
           </button>
-          <button
-            onClick={() => setOverviewTab('logos')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              overviewTab === 'logos' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Logos
-          </button>
         </div>
       </div>
 
-      {/* Logos Tab Content */}
-      {overviewTab === 'logos' && (
-        <div className="space-y-6">
-          {/* Current Team Logos */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Image className="mr-2 h-5 w-5" />
-                  Current Team Logos
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {oppositionTeams?.map((team) => (
-                    <div key={team.id} className="space-y-2">
-                      <ThemedLogoContainer
-                        containerId={`team-logo-${team.id}`}
-                        className="border rounded-lg p-3 transition-all"
-                        showThemeToggle={true}
-                      >
-                        <div 
-                          onClick={() => handleEditExistingLogo(team)}
-                          className="cursor-pointer relative"
-                        >
-                          <div className="aspect-square border rounded-md mb-2 flex items-center justify-center overflow-hidden bg-inherit">
-                            {team.logoPath ? (
-                              <img 
-                                src={team.logoPath} 
-                                alt={`${team.name} logo`}
-                                className="max-w-full max-h-full object-contain"
-                              />
-                            ) : (
-                              <div className="text-gray-400 dark:text-gray-500 text-center">
-                                <Upload className="h-8 w-8 mx-auto mb-1" />
-                                <p className="text-xs">No Logo</p>
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-medium truncate">{team.name}</p>
-                          </div>
-                          <div className="absolute inset-0 rounded-lg transition-all duration-200 flex items-center justify-center">
-                            <Edit3 className="h-6 w-6 text-gray-600 dark:text-gray-400 opacity-0 hover:opacity-100 transition-opacity" />
-                          </div>
-                        </div>
-                      </ThemedLogoContainer>
-                      
-                      {/* Remove Background Button */}
-                      <button 
-                        className="w-full text-xs cursor-pointer hover:bg-gray-100 px-2 py-1 border rounded bg-white text-gray-700"
-                        onClick={async () => {
-                          await handleRemoveBackground(team);
-                        }}
-                        data-testid={`button-remove-bg-${team.id}`}
-                      >
-                        Remove Background
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Logo Upload Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Upload className="mr-2 h-5 w-5" />
-                  Upload New Logo
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Upload Method Selection */}
-                <div className="space-y-4">
-                  <div className="flex space-x-4">
-                    <Button
-                      variant={uploadMethod === 'file' ? 'default' : 'outline'}
-                      onClick={() => setUploadMethod('file')}
-                      className="flex-1"
-                      data-testid="button-upload-method-file"
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload File
-                    </Button>
-                    <Button
-                      variant={uploadMethod === 'url' ? 'default' : 'outline'}
-                      onClick={() => setUploadMethod('url')}
-                      className="flex-1"
-                      data-testid="button-upload-method-url"
-                    >
-                      <LinkIcon className="mr-2 h-4 w-4" />
-                      From URL
-                    </Button>
-                  </div>
-
-                  {/* File Upload */}
-                  {uploadMethod === 'file' && (
-                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                      <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <div className="space-y-2">
-                        <label 
-                          htmlFor="logo-upload"
-                          className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                        >
-                          Choose File
-                        </label>
-                        <input
-                          id="logo-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          data-testid="input-logo-upload"
-                        />
-                        <p className="text-sm text-muted-foreground">
-                          Upload a logo image (PNG, JPG, or SVG)
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* URL Input */}
-                  {uploadMethod === 'url' && (
-                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center space-y-4">
-                      <LinkIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <div className="space-y-4">
-                        <div className="flex space-x-2">
-                          <input
-                            type="url"
-                            placeholder="Enter image URL (e.g., https://example.com/logo.png)"
-                            value={logoUrl}
-                            onChange={(e) => setLogoUrl(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            data-testid="input-logo-url"
-                          />
-                          <Button 
-                            onClick={handleUrlFetch}
-                            disabled={fetchingUrl || !logoUrl.trim()}
-                            data-testid="button-fetch-url"
-                          >
-                            {fetchingUrl ? "Fetching..." : "Fetch"}
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Enter a direct link to an image file
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Team Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Team</label>
-                  <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                    <SelectTrigger data-testid="select-team">
-                      <SelectValue placeholder="Choose a team for this logo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {oppositionTeams?.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Processing Controls */}
-                {originalImageUrl && (
-                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-                    <h4 className="font-medium flex items-center">
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      Background Removal Settings
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Processing Mode */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Processing Mode</label>
-                        <Select value={processingMode} onValueChange={(value: any) => setProcessingMode(value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="smart">Smart (Recommended)</SelectItem>
-                            <SelectItem value="color">Color-based</SelectItem>
-                            <SelectItem value="manual">Manual</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Threshold Slider */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          Sensitivity: {threshold}%
-                        </label>
-                        <Slider
-                          value={[threshold]}
-                          onValueChange={(value) => setThreshold(value[0])}
-                          max={100}
-                          min={1}
-                          step={1}
-                          className="w-full"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Reprocess Button */}
-                    <Button
-                      onClick={() => selectedFile && processImageWithCurrentSettings(selectedFile)}
-                      disabled={!selectedFile || processing}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      {processing ? "Processing..." : "Reprocess"}
-                    </Button>
-                  </div>
-                )}
-
-                {/* Save Button */}
-                {processedImageUrl && selectedTeam && (
-                  <Button 
-                    onClick={handleSave}
-                    disabled={saveMutation.isPending}
-                    className="w-full"
-                    data-testid="button-save-logo"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {saveMutation.isPending ? "Saving..." : "Save Logo"}
-                  </Button>
-                )}
-
-                {/* Processing Tip */}
-                {showTip && (
-                  <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-blue-900">Pro Tip</p>
-                      <p className="text-sm text-blue-700">
-                        For best results with logo background removal, use high-contrast images with clear edges. 
-                        White or solid color backgrounds work exceptionally well.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Image Comparison */}
-            {(originalImageUrl || processedImageUrl) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Image Comparison</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Original Image */}
-                    {originalImageUrl && (
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-center">Original</h4>
-                        <div className="aspect-square border rounded-lg p-4 bg-white dark:bg-gray-900 flex items-center justify-center">
-                          <img 
-                            src={originalImageUrl} 
-                            alt="Original logo"
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Processed Image */}
-                    {processedImageUrl && (
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-center">
-                          Processed 
-                          {processing && <span className="text-sm text-muted-foreground ml-2">(Processing...)</span>}
-                        </h4>
-                        <div className="aspect-square border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
-                          <img 
-                            src={processedImageUrl} 
-                            alt="Processed logo"
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-        </div>
-      )}
-
-      {overviewTab !== 'logos' && (
-        <>
+      {/* Fixtures Content */}
+      <>
           {/* Filters */}
           <div className="mb-6 space-y-3">
             <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
@@ -1060,7 +540,6 @@ export default function Fixtures() {
             </AlertDialogContent>
           </AlertDialog>
         </>
-      )}
     </MainLayout>
   );
 }
