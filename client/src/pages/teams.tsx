@@ -199,12 +199,9 @@ export default function Teams() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Shield className="h-10 w-10 text-muted-foreground" />
-              <div>
-                <CardTitle className="text-xl">{clubTeams.length === 1 ? 'Team' : 'Teams'} in Club</CardTitle>
-                <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
-              </div>
+            <div>
+              <CardTitle className="text-xl">{clubTeams.length === 1 ? 'Team' : 'Teams'} in Club</CardTitle>
+              <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
