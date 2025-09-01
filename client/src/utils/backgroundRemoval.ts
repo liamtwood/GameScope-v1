@@ -8,6 +8,8 @@ export interface BackgroundRemovalOptions {
   preserveInternalWhite?: boolean;
   mode?: 'smart' | 'color' | 'manual';
   resizeWidth?: number;
+  autoCrop?: boolean;
+  cropPadding?: number;
 }
 
 export class BackgroundRemover {
@@ -23,7 +25,14 @@ export class BackgroundRemover {
     imageFile: File, 
     options: BackgroundRemovalOptions = {}
   ): Promise<Blob> {
-    const { tolerance = 30, preserveInternalWhite = true, mode = 'smart', resizeWidth } = options;
+    const { 
+      tolerance = 30, 
+      preserveInternalWhite = true, 
+      mode = 'smart', 
+      resizeWidth, 
+      autoCrop = true, 
+      cropPadding = 0 
+    } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -53,10 +62,18 @@ export class BackgroundRemover {
           // Update canvas with processed data
           this.ctx.putImageData(imageData, 0, 0);
           
-          // Handle resizing if specified
+          // Handle auto-cropping to remove whitespace
           let finalCanvas = this.canvas;
+          if (autoCrop) {
+            const bounds = this.findContentBounds(data, img.width, img.height);
+            if (bounds) {
+              finalCanvas = this.cropAndRecenter(this.canvas, bounds, cropPadding);
+            }
+          }
+          
+          // Handle resizing if specified
           if (resizeWidth && resizeWidth > 0) {
-            finalCanvas = this.resizeCanvas(this.canvas, resizeWidth);
+            finalCanvas = this.resizeCanvas(finalCanvas, resizeWidth);
           }
           
           // Convert to blob
@@ -342,53 +359,6 @@ export class BackgroundRemover {
   }
 
 
-  private isCompletelyIsolated(
-    x: number, 
-    y: number, 
-    width: number, 
-    height: number, 
-    externalBg: boolean[], 
-    isColoredContent: boolean[]
-  ): boolean {
-    // Check if this white pixel is in a small isolated region
-    // surrounded by external background (for handling TM-like elements)
-    
-    // First check immediate surroundings
-    let hasColoredNeighbor = false;
-    let externalNeighbors = 0;
-    
-    for (let dy = -2; dy <= 2; dy++) {
-      for (let dx = -2; dx <= 2; dx++) {
-        if (dx === 0 && dy === 0) continue;
-        
-        const nx = x + dx;
-        const ny = y + dy;
-        
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          const nIdx = ny * width + nx;
-          
-          if (isColoredContent[nIdx]) {
-            hasColoredNeighbor = true;
-            break;
-          }
-          
-          if (externalBg[nIdx]) {
-            externalNeighbors++;
-          }
-        }
-      }
-      if (hasColoredNeighbor) break;
-    }
-    
-    // If connected to colored content, it's not isolated (key fix from HTML version)
-    if (hasColoredNeighbor) {
-      return false;
-    }
-    
-    // If mostly surrounded by external background, it's isolated
-    return externalNeighbors > 12; // More than half of possible neighbors (matching HTML)
-  }
-
   private resizeCanvas(canvas: HTMLCanvasElement, targetWidth: number): HTMLCanvasElement {
     const aspectRatio = canvas.height / canvas.width;
     const targetHeight = Math.round(targetWidth * aspectRatio);
@@ -442,5 +412,150 @@ export class BackgroundRemover {
     }
     
     return totalCount > 0 && backgroundCount / totalCount > 0.5;
+  }
+
+  private findContentBounds(data: Uint8ClampedArray, width: number, height: number): {left: number, top: number, width: number, height: number} | null {
+    let minX = width;
+    let minY = height;
+    let maxX = 0;
+    let maxY = 0;
+    let hasContent = false;
+    
+    // Find bounds of non-transparent pixels AND non-background colored pixels
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const alpha = data[idx + 3];
+        
+        // Consider a pixel as content if:
+        // 1. It's not transparent (alpha > 0)
+        // 2. It's not white/near-white (even if opaque)
+        // This ensures we crop out white borders too
+        const isWhite = r > 250 && g > 250 && b > 250;
+        const isNearWhite = r > 245 && g > 245 && b > 245;
+        
+        if (alpha > 0 && !isWhite) {
+          // For near-white pixels, check if they're part of actual content
+          // by looking at surrounding pixels
+          if (isNearWhite) {
+            // Check if this near-white pixel is adjacent to colored content
+            let hasColoredNeighbor = false;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                if (dx === 0 && dy === 0) continue;
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                  const nIdx = (ny * width + nx) * 4;
+                  const nr = data[nIdx];
+                  const ng = data[nIdx + 1];
+                  const nb = data[nIdx + 2];
+                  const nalpha = data[nIdx + 3];
+                  // If neighbor is colored (not white) and opaque
+                  if (nalpha > 0 && (nr < 240 || ng < 240 || nb < 240)) {
+                    hasColoredNeighbor = true;
+                    break;
+                  }
+                }
+              }
+              if (hasColoredNeighbor) break;
+            }
+            // Skip this near-white pixel if it has no colored neighbors
+            if (!hasColoredNeighbor) continue;
+          }
+          
+          hasContent = true;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+    
+    if (!hasContent) {
+      return null;
+    }
+    
+    return {
+      left: minX,
+      top: minY,
+      width: maxX - minX + 1,
+      height: maxY - minY + 1
+    };
+  }
+
+  private cropAndRecenter(sourceCanvas: HTMLCanvasElement, bounds: {left: number, top: number, width: number, height: number}, padding: number): HTMLCanvasElement {
+    // Calculate new dimensions with padding
+    const cropWidth = bounds.width + padding * 2;
+    const cropHeight = bounds.height + padding * 2;
+    
+    // Create new canvas with cropped dimensions
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = cropWidth;
+    croppedCanvas.height = cropHeight;
+    const ctx = croppedCanvas.getContext('2d')!;
+    
+    // Calculate source position (ensure we don't go outside canvas bounds)
+    const sourceX = Math.max(0, bounds.left - padding);
+    const sourceY = Math.max(0, bounds.top - padding);
+    const sourceWidth = Math.min(sourceCanvas.width - sourceX, cropWidth);
+    const sourceHeight = Math.min(sourceCanvas.height - sourceY, cropHeight);
+    
+    // Calculate destination position (center if we couldn't get full padding)
+    const destX = (cropWidth - sourceWidth) / 2;
+    const destY = (cropHeight - sourceHeight) / 2;
+    
+    // Draw the cropped and centered content
+    ctx.drawImage(
+      sourceCanvas,
+      sourceX, sourceY, sourceWidth, sourceHeight,
+      destX, destY, sourceWidth, sourceHeight
+    );
+    
+    return croppedCanvas;
+  }
+
+  private isCompletelyIsolated(x: number, y: number, width: number, height: number, externalBg: boolean[], isColoredContent: boolean[]): boolean {
+    // Check if this white pixel is in a small isolated region
+    // surrounded by external background (for handling TM-like elements)
+    
+    // First check immediate surroundings
+    let hasColoredNeighbor = false;
+    let externalNeighbors = 0;
+    
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        
+        const nx = x + dx;
+        const ny = y + dy;
+        
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          const nIdx = ny * width + nx;
+          
+          if (isColoredContent[nIdx]) {
+            hasColoredNeighbor = true;
+            break;
+          }
+          
+          if (externalBg[nIdx]) {
+            externalNeighbors++;
+          }
+        }
+      }
+      if (hasColoredNeighbor) break;
+    }
+    
+    // If connected to colored content, it's not isolated
+    if (hasColoredNeighbor) {
+      return false;
+    }
+    
+    // If mostly surrounded by external background, it's isolated
+    return externalNeighbors > 12; // More than half of possible neighbors
   }
 }
