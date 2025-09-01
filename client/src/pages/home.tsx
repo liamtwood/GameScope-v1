@@ -30,80 +30,33 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Trophy className="h-12 w-12 text-primary mr-3" />
-            <h1 className="text-4xl font-bold text-foreground">GameScope</h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive sports team management for soccer clubs. 
-            Choose your club to get started managing teams, fixtures, and performance analytics.
-          </p>
-        </div>
-
         {/* Club Selection */}
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center mb-8">
-            <Building2 className="h-6 w-6 text-primary mr-2" />
-            <h2 className="text-2xl font-semibold text-foreground">Select Your Club</h2>
-          </div>
+        <div className="max-w-6xl mx-auto">
 
           {clubs && clubs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-center">
               {clubs.map((club) => (
-                <Card 
+                <div 
                   key={club.id} 
-                  className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-primary/50"
+                  className="flex flex-col items-center cursor-pointer group"
                   onClick={() => handleClubSelect(club)}
                   data-testid={`card-club-${club.id}`}
                 >
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Building2 className="h-5 w-5 text-primary" />
-                        <span className="text-lg">{club.name}</span>
-                      </div>
-                      <span className="text-sm font-medium bg-primary/10 text-primary px-2 py-1 rounded">
-                        {club.shortName}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Owner: {club.owner}</span>
-                      </div>
-                      
-                      {club.city && (
-                        <div className="text-sm text-muted-foreground">
-                          📍 {club.city}
-                        </div>
-                      )}
-                      
-                      {club.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {club.description}
-                        </p>
-                      )}
-                      
-                      <div className="pt-4">
-                        <Button 
-                          className="w-full" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleClubSelect(club);
-                          }}
-                          data-testid={`button-select-club-${club.id}`}
-                        >
-                          <ArrowRight className="h-4 w-4 mr-2" />
-                          Enter Club
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <div className="w-32 h-32 mb-4 rounded-full bg-background border-4 border-border group-hover:border-primary/50 transition-all duration-200 flex items-center justify-center overflow-hidden group-hover:scale-105">
+                    {club.logoPath ? (
+                      <img 
+                        src={club.logoPath}
+                        alt={`${club.name} Logo`}
+                        className="w-24 h-24 object-contain"
+                      />
+                    ) : (
+                      <Building2 className="h-16 w-16 text-muted-foreground" />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold text-center group-hover:text-primary transition-colors">
+                    {club.name}
+                  </h3>
+                </div>
               ))}
             </div>
           ) : (
