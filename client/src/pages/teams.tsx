@@ -54,9 +54,9 @@ export default function Teams() {
   // Use the club from URL context if available, otherwise default to first club
   const currentClub = clubId ? clubs.find(club => club.id === clubId) : clubs[0];
   
-  // Filter teams by current club and sort by team name
+  // Filter teams by current club (only show teams that belong to clubs) and sort by team name
   const clubTeams = teams
-    .filter(team => team.clubId === currentClub?.id)
+    .filter(team => team.clubId && team.clubId === currentClub?.id)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Form setup
