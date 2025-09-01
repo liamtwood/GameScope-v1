@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
-import { OppositionTeam } from "@shared/schema";
+import { Club } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ export default function Settings() {
 
   // Logo management state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<string>("");
+  const [selectedClub, setSelectedClub] = useState<string>("");
   const [processing, setProcessing] = useState(false);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
@@ -30,17 +30,17 @@ export default function Settings() {
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
   const [fetchingUrl, setFetchingUrl] = useState(false);
 
-  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
+  const { data: clubs } = useQuery<Club[]>({ 
+    queryKey: ["/api/clubs"] 
   });
 
   const saveMutation = useMutation({
-    mutationFn: async ({ teamId, logoData }: { teamId: string; logoData: Blob }) => {
+    mutationFn: async ({ clubId, logoData }: { clubId: string; logoData: Blob }) => {
       const formData = new FormData();
-      formData.append('logo', logoData, `${teamId}-logo.png`);
-      formData.append('teamId', teamId);
+      formData.append('logo', logoData, `${clubId}-logo.png`);
+      formData.append('clubId', clubId);
       
-      const response = await fetch('/api/opposition-teams/logo', {
+      const response = await fetch('/api/clubs/logo', {
         method: 'POST',
         body: formData,
       });
@@ -49,11 +49,11 @@ export default function Settings() {
     onSuccess: () => {
       toast({
         title: "Logo Saved",
-        description: "Team logo has been processed and saved successfully!",
+        description: "Club logo has been processed and saved successfully!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
       setSelectedFile(null);
-      setSelectedTeam("");
+      setSelectedClub("");
       setProcessedImageUrl(null);
       setOriginalImageUrl(null);
       setShowTip(false);
@@ -141,17 +141,17 @@ export default function Settings() {
     }
   };
 
-  const handleRemoveBackground = async (team: OppositionTeam) => {
-    if (!team.logoPath) return;
+  const handleRemoveBackground = async (club: Club) => {
+    if (!club.logoPath) return;
     
     setProcessing(true);
-    setSelectedTeam(team.id);
+    setSelectedClub(club.id);
     
     try {
-      const response = await fetch(team.logoPath);
+      const response = await fetch(club.logoPath);
       const blob = await response.blob();
       
-      setOriginalImageUrl(team.logoPath);
+      setOriginalImageUrl(club.logoPath);
       
       const backgroundRemover = new BackgroundRemover();
       const options: BackgroundRemovalOptions = {
@@ -176,22 +176,22 @@ export default function Settings() {
     }
   };
 
-  const handleEditExistingLogo = (team: OppositionTeam) => {
-    if (team.logoPath) {
-      setSelectedTeam(team.id);
-      setOriginalImageUrl(team.logoPath);
-      setProcessedImageUrl(team.logoPath);
+  const handleEditExistingLogo = (club: Club) => {
+    if (club.logoPath) {
+      setSelectedClub(club.id);
+      setOriginalImageUrl(club.logoPath);
+      setProcessedImageUrl(club.logoPath);
     }
   };
 
   const handleSaveLogo = async () => {
-    if (!processedImageUrl || !selectedTeam) return;
+    if (!processedImageUrl || !selectedClub) return;
     
     try {
       const response = await fetch(processedImageUrl);
       const blob = await response.blob();
       
-      saveMutation.mutate({ teamId: selectedTeam, logoData: blob });
+      saveMutation.mutate({ clubId: selectedClub, logoData: blob });
     } catch (error) {
       toast({
         title: "Save Failed",
@@ -210,31 +210,31 @@ export default function Settings() {
   return (
     <MainLayout title="Settings" subtitle="Club settings and team logo management">
       <div className="space-y-6">
-        {/* Current Team Logos */}
+        {/* Current Club Logos */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Image className="mr-2 h-5 w-5" />
-              Current Team Logos
+              Current Club Logos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {oppositionTeams?.map((team) => (
-                <div key={team.id} className="space-y-2">
+              {clubs?.map((club) => (
+                <div key={club.id} className="space-y-2">
                   <ThemedLogoContainer
-                    containerId={`team-logo-${team.id}`}
+                    containerId={`club-logo-${club.id}`}
                     className="border rounded-lg p-3 transition-all"
                     showThemeToggle={true}
                   >
                     <div 
-                      onClick={() => handleEditExistingLogo(team)}
+                      onClick={() => handleEditExistingLogo(club)}
                       className="cursor-pointer relative"
                     >
-                      {team.logoPath ? (
+                      {club.logoPath ? (
                         <img 
-                          src={team.logoPath} 
-                          alt={`${team.name} logo`}
+                          src={club.logoPath} 
+                          alt={`${club.name} logo`}
                           className="w-full h-24 object-contain rounded"
                         />
                       ) : (
@@ -244,18 +244,18 @@ export default function Settings() {
                       )}
                     </div>
                   </ThemedLogoContainer>
-                  <p className="text-sm font-medium text-center">{team.name}</p>
-                  {team.logoPath && (
+                  <p className="text-sm font-medium text-center">{club.name}</p>
+                  {club.logoPath && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleRemoveBackground(team)}
+                      onClick={() => handleRemoveBackground(club)}
                       className="w-full"
                       disabled={processing}
-                      data-testid={`button-remove-bg-${team.id}`}
+                      data-testid={`button-remove-bg-${club.id}`}
                     >
                       <Wand2 className="mr-1 h-3 w-3" />
-                      {processing && selectedTeam === team.id ? 'Processing...' : 'Remove Background'}
+                      {processing && selectedClub === club.id ? 'Processing...' : 'Remove Background'}
                     </Button>
                   )}
                 </div>
@@ -345,18 +345,18 @@ export default function Settings() {
               )}
             </div>
 
-            {/* Team Selection */}
+            {/* Club Selection */}
             {(selectedFile || originalImageUrl) && (
               <div className="space-y-4">
-                <h4 className="font-medium">Select Team</h4>
-                <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                  <SelectTrigger data-testid="select-team">
-                    <SelectValue placeholder="Choose a team" />
+                <h4 className="font-medium">Select Club</h4>
+                <Select value={selectedClub} onValueChange={setSelectedClub}>
+                  <SelectTrigger data-testid="select-club">
+                    <SelectValue placeholder="Choose a club" />
                   </SelectTrigger>
                   <SelectContent>
-                    {oppositionTeams?.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
+                    {clubs?.map((club) => (
+                      <SelectItem key={club.id} value={club.id}>
+                        {club.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -416,7 +416,7 @@ export default function Settings() {
             )}
 
             {/* Save Button */}
-            {processedImageUrl && selectedTeam && (
+            {processedImageUrl && selectedClub && (
               <Button 
                 onClick={handleSaveLogo}
                 disabled={saveMutation.isPending}

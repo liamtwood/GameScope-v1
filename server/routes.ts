@@ -1082,6 +1082,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/clubs/logo', logoUpload.single('logo'), async (req, res) => {
+    try {
+      const clubId = req.body.clubId;
+      const file = req.file;
+
+      if (!clubId || !file) {
+        return res.status(400).json({ error: 'Club ID and logo file are required' });
+      }
+
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const ext = path.extname(file.originalname) || '.png';
+      const filename = `${clubId}-logo-${timestamp}${ext}`;
+      const filepath = path.join(uploadsDir, filename);
+
+      // Save the file
+      await fs.writeFile(filepath, file.buffer);
+
+      // Update the club with the logo path
+      const logoPath = `/uploads/${filename}`;
+      await storage.updateClub(clubId, { logoPath });
+
+      res.json({ 
+        success: true, 
+        logoPath,
+        message: 'Club logo uploaded and saved successfully'
+      });
+
+    } catch (error) {
+      console.error('Club logo upload error:', error);
+      res.status(500).json({ error: 'Failed to upload club logo' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
