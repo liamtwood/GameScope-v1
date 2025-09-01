@@ -190,8 +190,8 @@ export default function Teams() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <Building2 className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-semibold">Club Management</h2>
+          <Shield className="h-6 w-6 text-primary" />
+          <h2 className="text-lg font-semibold">Teams Management</h2>
         </div>
       </div>
 
