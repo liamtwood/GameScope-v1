@@ -81,7 +81,7 @@ export default function FixtureDetails() {
 
   const deleteFixtureMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/fixtures/${id}`, "DELETE");
+      await apiRequest("DELETE", `/api/fixtures/${id}`);
     },
     onSuccess: () => {
       toast({
