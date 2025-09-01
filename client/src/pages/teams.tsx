@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Trophy, Plus, Check } from "lucide-react";
+import { Shield, Trophy, Plus, Check, Edit, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +34,8 @@ type CreateTeamFormData = z.infer<typeof createTeamSchema>;
 
 export default function Teams() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
@@ -99,6 +101,66 @@ export default function Teams() {
 
   const onSubmit = (data: CreateTeamFormData) => {
     createTeamMutation.mutate(data);
+  };
+
+  // Edit form setup
+  const editForm = useForm<CreateTeamFormData>({
+    resolver: zodResolver(createTeamSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      coach: "",
+      assistantCoach: "",
+      ageGroup: "",
+      gender: "",
+      season: "",
+      status: "ACTIVE",
+    },
+  });
+
+  // Update team mutation
+  const updateTeamMutation = useMutation({
+    mutationFn: async (data: { id: string; teamData: CreateTeamFormData }) => {
+      return apiRequest("PATCH", `/api/teams/${data.id}`, data.teamData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+      toast({
+        title: "Success",
+        description: "Team updated successfully",
+      });
+      setIsEditDialogOpen(false);
+      setEditingTeam(null);
+      editForm.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update team",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditTeam = (team: Team) => {
+    setEditingTeam(team);
+    editForm.reset({
+      name: team.name,
+      shortName: team.shortName,
+      coach: team.coach || "",
+      assistantCoach: team.assistantCoach || "",
+      ageGroup: team.ageGroup || "",
+      gender: team.gender || "",
+      season: team.season || "",
+      status: team.status || "ACTIVE",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const onEditSubmit = (data: CreateTeamFormData) => {
+    if (editingTeam) {
+      updateTeamMutation.mutate({ id: editingTeam.id, teamData: data });
+    }
   };
 
   if (clubsLoading || teamsLoading) {
@@ -352,12 +414,25 @@ export default function Teams() {
                             <p className="text-sm text-muted-foreground">{team.shortName}</p>
                           </div>
                         </div>
-                        {isSelected && (
-                          <Badge variant="default" className="flex items-center gap-1">
-                            <Check className="h-3 w-3" />
-                            Active
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditTeam(team);
+                            }}
+                            data-testid={`button-edit-team-${team.id}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {isSelected && (
+                            <Badge variant="default" className="flex items-center gap-1">
+                              <Check className="h-3 w-3" />
+                              Active
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
@@ -394,6 +469,145 @@ export default function Teams() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Team Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Team</DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Women's Soccer" {...field} data-testid="input-edit-team-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., WSC" maxLength={10} {...field} data-testid="input-edit-team-short-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="coach"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Coach</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Coach name" {...field} data-testid="input-edit-team-coach" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="assistantCoach"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assistant Coach</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Assistant coach name" {...field} data-testid="input-edit-team-assistant-coach" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-edit-team-gender">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="MALE">Male</SelectItem>
+                          <SelectItem value="FEMALE">Female</SelectItem>
+                          <SelectItem value="MIXED">Mixed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="ageGroup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age Group</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., U21" {...field} data-testid="input-edit-team-age-group" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="season"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Season</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 2025/26" {...field} data-testid="input-edit-team-season" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  data-testid="button-cancel-edit-team"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateTeamMutation.isPending}
+                  data-testid="button-save-edit-team"
+                >
+                  {updateTeamMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
