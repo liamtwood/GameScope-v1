@@ -81,7 +81,7 @@ export default function FixtureDetails() {
 
   const deleteFixtureMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/fixtures/${id}`, { method: "DELETE" });
+      await apiRequest(`/api/fixtures/${id}`, "DELETE");
     },
     onSuccess: () => {
       toast({
@@ -167,10 +167,6 @@ export default function FixtureDetails() {
           <div className="flex items-center space-x-2">
             <FixtureEditDialog 
               fixture={fixture}
-              onUpdated={() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
-                queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
-              }}
             />
             <Button
               variant="outline"
@@ -251,15 +247,9 @@ export default function FixtureDetails() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">Match Details</h3>
-                  <div className="flex gap-2">
-                    <FixtureEditDialog 
-                      fixture={fixture}
-                      onUpdated={() => {
-                        queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
-                        queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
-                      }}
-                    />
-                  </div>
+                  <FixtureEditDialog 
+                    fixture={fixture}
+                  />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -318,7 +308,7 @@ export default function FixtureDetails() {
                 <h3 className="text-lg font-semibold mb-6">Video Management</h3>
                 <VideoManager 
                   fixtureId={fixtureId || ""} 
-                  videoLinks={fixture.videoLinks || []} 
+                  videoLinks={Array.isArray(fixture.videoLinks) ? fixture.videoLinks : []} 
                 />
               </CardContent>
             </Card>
@@ -531,7 +521,7 @@ export default function FixtureDetails() {
                       <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
                       <VideoManager 
                         fixtureId={fixtureId || ""} 
-                        videoLinks={fixture.videoLinks || []} 
+                        videoLinks={Array.isArray(fixture.videoLinks) ? fixture.videoLinks : []} 
                       />
                     </CardContent>
                   </Card>
