@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -30,6 +31,9 @@ export default function Fixtures() {
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
   const [overviewTab, setOverviewTab] = useState<'season' | 'planning' | 'video' | 'competitions'>('video');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
+  const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
+  const [editCompetitionName, setEditCompetitionName] = useState("");
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -111,7 +115,77 @@ export default function Fixtures() {
     },
   });
 
+  const updateCompetitionMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      await apiRequest("PATCH", `/api/competitions/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/competitions'] });
+      toast({
+        title: "Success",
+        description: "Competition name has been updated successfully.",
+      });
+      setEditingCompetition(null);
+      setEditCompetitionName("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
+  const uploadCompetitionLogoMutation = useMutation({
+    mutationFn: async ({ competitionId, logoFile }: { competitionId: string; logoFile: File }) => {
+      const formData = new FormData();
+      formData.append('logo', logoFile);
+      
+      const response = await fetch(`/api/competitions/${competitionId}/logo`, {
+        method: 'PUT',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload logo');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/competitions'] });
+      toast({
+        title: "Success",
+        description: "Competition logo has been updated successfully.",
+      });
+      setIsUploadingLogo(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsUploadingLogo(false);
+    },
+  });
+
+  const handleEditCompetition = (competition: Competition) => {
+    setEditingCompetition(competition);
+    setEditCompetitionName(competition.name);
+  };
+
+  const handleSaveCompetitionName = () => {
+    if (editingCompetition && editCompetitionName.trim()) {
+      updateCompetitionMutation.mutate({ id: editingCompetition.id, name: editCompetitionName.trim() });
+    }
+  };
+
+  const handleLogoUpload = (competitionId: string, file: File) => {
+    setIsUploadingLogo(true);
+    uploadCompetitionLogoMutation.mutate({ competitionId, logoFile: file });
+  };
 
   const filteredFixtures = fixtures?.filter(fixture => {
     // When on video tab, only show past matches
@@ -510,7 +584,15 @@ export default function Fixtures() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="p-3 bg-blue-100 rounded-full">
-                          <Trophy className="h-6 w-6 text-blue-600" />
+                          {competition.logoPath ? (
+                            <img 
+                              src={competition.logoPath} 
+                              alt={competition.name}
+                              className="h-6 w-6 object-contain"
+                            />
+                          ) : (
+                            <Trophy className="h-6 w-6 text-blue-600" />
+                          )}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-foreground">{competition.name}</h3>
@@ -519,9 +601,20 @@ export default function Fixtures() {
                           )}
                         </div>
                       </div>
-                      <Badge variant="outline" className="mt-1">
-                        Competition
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className="mt-1">
+                          Competition
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditCompetition(competition)}
+                          className="mt-1"
+                          data-testid={`button-edit-competition-${competition.id}`}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     
                     {/* Competition fixtures count */}
@@ -594,6 +687,77 @@ export default function Fixtures() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* Edit Competition Dialog */}
+          <Dialog open={!!editingCompetition} onOpenChange={(open) => !open && setEditingCompetition(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Competition</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label htmlFor="competition-name" className="text-sm font-medium">
+                    Competition Name
+                  </label>
+                  <Input
+                    id="competition-name"
+                    value={editCompetitionName}
+                    onChange={(e) => setEditCompetitionName(e.target.value)}
+                    placeholder="Enter competition name"
+                    data-testid="input-competition-name"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Competition Logo</label>
+                  <div className="flex items-center space-x-3">
+                    {editingCompetition?.logoPath && (
+                      <img 
+                        src={editingCompetition.logoPath} 
+                        alt="Competition logo"
+                        className="h-10 w-10 object-contain border rounded"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file && editingCompetition) {
+                            handleLogoUpload(editingCompetition.id, file);
+                          }
+                        }}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        disabled={isUploadingLogo}
+                        data-testid="input-competition-logo"
+                      />
+                      {isUploadingLogo && (
+                        <p className="text-xs text-muted-foreground mt-1">Uploading logo...</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingCompetition(null)}
+                  data-testid="button-cancel-edit"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveCompetitionName}
+                  disabled={!editCompetitionName.trim() || updateCompetitionMutation.isPending}
+                  data-testid="button-save-competition"
+                >
+                  {updateCompetitionMutation.isPending ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </>
     </MainLayout>
   );

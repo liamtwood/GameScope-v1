@@ -492,6 +492,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/competitions/:id", async (req, res) => {
+    try {
+      const competitionData = insertCompetitionSchema.partial().parse(req.body);
+      const competition = await storage.updateCompetition(req.params.id, competitionData);
+      res.json(competition);
+    } catch (error) {
+      console.error("Error updating competition:", error);
+      res.status(400).json({ message: "Failed to update competition" });
+    }
+  });
+
+  app.post("/api/competitions/:id/logo", upload.single('logo'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No logo file uploaded" });
+      }
+      
+      const logoPath = `/uploads/${Date.now()}-${req.file.originalname}`;
+      await fs.writeFile(`public${logoPath}`, req.file.buffer);
+      
+      const competition = await storage.updateCompetitionLogo(req.params.id, logoPath);
+      res.json({ success: true, logoPath, competition });
+    } catch (error) {
+      console.error("Error uploading competition logo:", error);
+      res.status(500).json({ message: "Failed to upload competition logo" });
+    }
+  });
+
   // Fixture routes
   app.get("/api/fixtures", async (req, res) => {
     try {

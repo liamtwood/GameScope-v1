@@ -63,6 +63,7 @@ export interface IStorage {
   getOrCreateCompetition(name: string): Promise<Competition>;
   createCompetition(competition: InsertCompetition): Promise<Competition>;
   updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition>;
+  updateCompetitionLogo(id: string, logoURL: string): Promise<Competition>;
   deleteCompetition(id: string): Promise<void>;
   
   // Fixture operations
@@ -513,6 +514,7 @@ export class DatabaseStorage implements IStorage {
       id,
       name,
       shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      logoPath: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -527,6 +529,7 @@ export class DatabaseStorage implements IStorage {
       ...competition,
       id,
       shortName: competition.shortName || competition.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
+      logoPath: competition.logoPath || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -538,6 +541,20 @@ export class DatabaseStorage implements IStorage {
   async updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition> {
     const updated = {
       ...competition,
+      updatedAt: new Date(),
+    };
+    
+    await db.update(competitions).set(updated).where(eq(competitions.id, id));
+    
+    const [updatedCompetition] = await db.select().from(competitions).where(eq(competitions.id, id));
+    if (!updatedCompetition) throw new Error('Competition not found');
+    
+    return updatedCompetition;
+  }
+
+  async updateCompetitionLogo(id: string, logoURL: string): Promise<Competition> {
+    const updated = {
+      logoPath: logoURL,
       updatedAt: new Date(),
     };
     
