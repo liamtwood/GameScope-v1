@@ -121,7 +121,7 @@ export default function Teams() {
   // Update team mutation
   const updateTeamMutation = useMutation({
     mutationFn: async (data: { id: string; teamData: CreateTeamFormData }) => {
-      return apiRequest("PATCH", `/api/teams/${data.id}`, data.teamData);
+      return apiRequest("PUT", `/api/teams/${data.id}`, data.teamData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
