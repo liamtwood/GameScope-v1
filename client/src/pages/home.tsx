@@ -1,20 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowRight, Users, Trophy } from "lucide-react";
 import { Club } from "@shared/schema";
+import { useClub } from "@/contexts/club-context";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-
-  const { data: clubs, isLoading } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-  });
+  const { clubs, isLoading, selectClub } = useClub();
 
   const handleClubSelect = (club: Club) => {
-    // Navigate to teams page for the selected club
-    setLocation(`/teams?clubId=${club.id}`);
+    // Set the club as active and navigate to teams page
+    selectClub(club);
+    setLocation(`/teams`);
   };
 
   if (isLoading) {

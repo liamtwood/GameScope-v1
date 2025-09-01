@@ -15,6 +15,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import { cn } from "@/lib/utils";
 import type { Club, Team } from "@shared/schema";
 
@@ -39,20 +40,7 @@ export default function Teams() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
-
-  // Check for club context from URL params (when coming from club management)
-  const urlParams = new URLSearchParams(window.location.search);
-  const clubId = urlParams.get("clubId");
-
-  // Fetch clubs data (refetch when clubId changes to ensure fresh data)
-  const { data: clubs = [], isLoading: clubsLoading } = useQuery<Club[]>({
-    queryKey: ["/api/clubs"],
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Always refetch to ensure we have the latest data
-  });
-
-  // Use the club from URL context if available, otherwise default to first club
-  const currentClub = clubId ? clubs.find(club => club.id === clubId) : clubs[0];
+  const { selectedClub: currentClub, isLoading: clubsLoading } = useClub();
   
   // Filter teams by current club (only show teams that belong to clubs) and sort by team name
   const clubTeams = teams

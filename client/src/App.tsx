@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
+import { ClubProvider } from "@/contexts/club-context";
 
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
@@ -42,14 +43,16 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="gamescope-theme">
       <QueryClientProvider client={queryClient}>
-        <TeamProvider>
-          <TooltipProvider>
+        <ClubProvider>
+          <TeamProvider>
+            <TooltipProvider>
             <div className="min-h-screen bg-background text-foreground">
               <Toaster />
               <Router />
             </div>
-          </TooltipProvider>
-        </TeamProvider>
+            </TooltipProvider>
+          </TeamProvider>
+        </ClubProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
