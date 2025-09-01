@@ -508,12 +508,12 @@ export default function Settings() {
             
             <div className="space-y-6">
               {/* Image Comparison */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Original Image */}
                 {originalImageUrl && (
                   <div className="space-y-2">
                     <h4 className="font-medium text-center">Original</h4>
-                    <div className="aspect-square border rounded-lg p-4 bg-white dark:bg-gray-900 flex items-center justify-center">
+                    <div className="h-48 border rounded-lg p-2 bg-white dark:bg-gray-900 flex items-center justify-center">
                       <img 
                         src={originalImageUrl} 
                         alt="Original logo"
@@ -529,7 +529,7 @@ export default function Settings() {
                     Enhanced 
                     {processing && <span className="text-sm text-muted-foreground ml-2">(Processing...)</span>}
                   </h4>
-                  <div className="aspect-square border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                  <div className="h-48 border rounded-lg p-2 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
                     {processedImageUrl ? (
                       <img 
                         src={processedImageUrl} 
