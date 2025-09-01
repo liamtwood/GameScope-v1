@@ -217,7 +217,7 @@ export default function Teams() {
               )}
               <div>
                 <h1 className="text-2xl font-bold">{currentClub.name}</h1>
-                <p className="text-sm text-muted-foreground">{clubTeams.length} teams</p>
+                <p className="text-sm text-muted-foreground">{clubTeams.length === 1 ? 'Team' : `${clubTeams.length} teams`} in {currentClub.name}</p>
               </div>
             </CardTitle>
           </CardHeader>
@@ -231,7 +231,7 @@ export default function Teams() {
             <div className="flex items-center gap-3">
               <Shield className="h-10 w-10 text-muted-foreground" />
               <div>
-                <CardTitle className="text-xl">Teams in Club</CardTitle>
+                <CardTitle className="text-xl">{clubTeams.length === 1 ? 'Team' : 'Teams'} in Club</CardTitle>
                 <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
               </div>
             </div>
