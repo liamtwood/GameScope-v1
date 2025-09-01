@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
 import { Club, OppositionTeam } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
@@ -29,6 +30,8 @@ export default function Settings() {
   const [logoUrl, setLogoUrl] = useState<string>("");
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
   const [fetchingUrl, setFetchingUrl] = useState(false);
+  const [enhanceModalOpen, setEnhanceModalOpen] = useState(false);
+  const [enhancingTeam, setEnhancingTeam] = useState<any>(null);
 
   const { data: clubs } = useQuery<Club[]>({ 
     queryKey: ["/api/clubs"] 
@@ -161,17 +164,22 @@ export default function Settings() {
     }
   };
 
-  const handleRemoveBackground = async (team: any) => {
+  const handleEnhanceImage = async (team: any) => {
     if (!team.logoPath) return;
     
-    setProcessing(true);
+    setEnhancingTeam(team);
     setSelectedClub(team.id);
+    setOriginalImageUrl(team.logoPath);
+    setProcessedImageUrl(null);
+    setProcessingMode('smart');
+    setThreshold(30);
+    setEnhanceModalOpen(true);
     
+    // Start initial processing
+    setProcessing(true);
     try {
       const response = await fetch(team.logoPath);
       const blob = await response.blob();
-      
-      setOriginalImageUrl(team.logoPath);
       
       const backgroundRemover = new BackgroundRemover();
       const options: BackgroundRemovalOptions = {
@@ -188,7 +196,7 @@ export default function Settings() {
       console.error('Processing error:', error);
       toast({
         title: "Processing Failed",
-        description: "Failed to remove background from existing logo.",
+        description: "Failed to enhance image.",
         variant: "destructive",
       });
     } finally {
@@ -227,6 +235,64 @@ export default function Settings() {
   const reprocessWithSettings = () => {
     if (selectedFile) {
       processImageWithCurrentSettings(selectedFile);
+    }
+  };
+
+  const reprocessModalImage = async () => {
+    if (!enhancingTeam?.logoPath) return;
+    
+    setProcessing(true);
+    try {
+      const response = await fetch(enhancingTeam.logoPath);
+      const blob = await response.blob();
+      
+      const backgroundRemover = new BackgroundRemover();
+      const options: BackgroundRemovalOptions = {
+        mode: processingMode,
+        tolerance: threshold,
+        preserveInternalWhite: true
+      };
+      
+      const file = new File([blob], 'logo.png', { type: blob.type });
+      const processedBlob = await backgroundRemover.removeBackground(file, options);
+      const processedUrl = URL.createObjectURL(processedBlob);
+      setProcessedImageUrl(processedUrl);
+    } catch (error) {
+      console.error('Processing error:', error);
+      toast({
+        title: "Processing Failed",
+        description: "Failed to enhance image.",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleSaveEnhancedLogo = async () => {
+    if (!processedImageUrl || !enhancingTeam) return;
+    
+    try {
+      const response = await fetch(processedImageUrl);
+      const blob = await response.blob();
+      
+      saveMutation.mutate({ 
+        teamId: enhancingTeam.id, 
+        logoData: blob, 
+        teamType: enhancingTeam.type 
+      });
+      
+      // Close modal on successful save
+      setEnhanceModalOpen(false);
+      setEnhancingTeam(null);
+      setProcessedImageUrl(null);
+      setOriginalImageUrl(null);
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Failed to prepare logo for saving.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -277,13 +343,13 @@ export default function Settings() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleRemoveBackground(team)}
+                      onClick={() => handleEnhanceImage(team)}
                       className="w-full"
                       disabled={processing}
-                      data-testid={`button-remove-bg-${team.id}`}
+                      data-testid={`button-enhance-${team.id}`}
                     >
                       <Wand2 className="mr-1 h-3 w-3" />
-                      {processing && selectedClub === team.id ? 'Processing...' : 'Remove Background'}
+                      Enhance Image
                     </Button>
                   )}
                 </div>
@@ -392,56 +458,6 @@ export default function Settings() {
               </div>
             )}
 
-            {/* Background Removal Settings */}
-            {(selectedFile || originalImageUrl) && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Background Removal</h4>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={reprocessWithSettings}
-                    disabled={processing}
-                    data-testid="button-reprocess"
-                  >
-                    <ArrowUpDown className="mr-1 h-3 w-3" />
-                    {processing ? 'Processing...' : 'Reprocess'}
-                  </Button>
-                </div>
-
-                {/* Processing Mode */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Mode</label>
-                  <Select value={processingMode} onValueChange={(value: 'smart' | 'color' | 'manual') => setProcessingMode(value)}>
-                    <SelectTrigger data-testid="select-processing-mode">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="smart">Smart (Recommended)</SelectItem>
-                      <SelectItem value="color">Color-based</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Threshold Slider */}
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <label className="text-sm font-medium">Sensitivity</label>
-                    <span className="text-xs text-muted-foreground">{threshold}</span>
-                  </div>
-                  <Slider
-                    value={[threshold]}
-                    onValueChange={(value) => setThreshold(value[0])}
-                    max={100}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                    data-testid="slider-threshold"
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Save Button */}
             {processedImageUrl && selectedClub && (
@@ -480,13 +496,18 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Image Comparison */}
-        {(originalImageUrl || processedImageUrl) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Image Comparison</CardTitle>
-            </CardHeader>
-            <CardContent>
+        {/* Enhancement Modal */}
+        <Dialog open={enhanceModalOpen} onOpenChange={setEnhanceModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <Wand2 className="mr-2 h-5 w-5" />
+                Enhance {enhancingTeam?.name} Logo
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Image Comparison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original Image */}
                 {originalImageUrl && (
@@ -503,25 +524,92 @@ export default function Settings() {
                 )}
 
                 {/* Processed Image */}
-                {processedImageUrl && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-center">
-                      Processed 
-                      {processing && <span className="text-sm text-muted-foreground ml-2">(Processing...)</span>}
-                    </h4>
-                    <div className="aspect-square border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-center">
+                    Enhanced 
+                    {processing && <span className="text-sm text-muted-foreground ml-2">(Processing...)</span>}
+                  </h4>
+                  <div className="aspect-square border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                    {processedImageUrl ? (
                       <img 
                         src={processedImageUrl} 
-                        alt="Processed logo"
+                        alt="Enhanced logo"
                         className="max-w-full max-h-full object-contain"
                       />
-                    </div>
+                    ) : (
+                      <div className="text-muted-foreground text-center">
+                        <Wand2 className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm">Processing...</p>
+                      </div>
+                    )}
                   </div>
+                </div>
+              </div>
+
+              {/* Enhancement Controls */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Enhancement Settings</h4>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={reprocessModalImage}
+                    disabled={processing}
+                    data-testid="button-reprocess-modal"
+                  >
+                    <ArrowUpDown className="mr-1 h-3 w-3" />
+                    {processing ? 'Processing...' : 'Reprocess'}
+                  </Button>
+                </div>
+
+                {/* Processing Mode */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mode</label>
+                  <Select value={processingMode} onValueChange={(value: 'smart' | 'color' | 'manual') => setProcessingMode(value)}>
+                    <SelectTrigger data-testid="select-processing-mode-modal">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="smart">Smart (Recommended)</SelectItem>
+                      <SelectItem value="color">Color-based</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Threshold Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">Sensitivity</label>
+                    <span className="text-xs text-muted-foreground">{threshold}</span>
+                  </div>
+                  <Slider
+                    value={[threshold]}
+                    onValueChange={(value) => setThreshold(value[0])}
+                    max={100}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                    data-testid="slider-threshold-modal"
+                  />
+                </div>
+
+                {/* Save Button */}
+                {processedImageUrl && (
+                  <Button 
+                    onClick={handleSaveEnhancedLogo}
+                    disabled={saveMutation.isPending}
+                    className="w-full"
+                    data-testid="button-save-enhanced-logo"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {saveMutation.isPending ? 'Saving...' : 'Save Enhanced Logo'}
+                  </Button>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
