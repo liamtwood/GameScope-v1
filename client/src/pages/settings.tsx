@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud } from "lucide-react";
 import { Club, OppositionTeam } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +32,8 @@ export default function Settings() {
   const [fetchingUrl, setFetchingUrl] = useState(false);
   const [enhanceModalOpen, setEnhanceModalOpen] = useState(false);
   const [enhancingTeam, setEnhancingTeam] = useState<any>(null);
+  const [replacementModalOpen, setReplacementModalOpen] = useState(false);
+  const [replacingTeam, setReplacingTeam] = useState<any>(null);
 
   const { data: clubs } = useQuery<Club[]>({ 
     queryKey: ["/api/clubs"] 
@@ -296,6 +298,96 @@ export default function Settings() {
     }
   };
 
+  const handleDeleteLogo = async (team: any) => {
+    if (!team.logoPath) return;
+    
+    try {
+      let response;
+      if (team.type === 'club') {
+        response = await fetch(`/api/clubs/${team.id}/logo`, {
+          method: 'DELETE',
+        });
+      } else {
+        response = await fetch(`/api/opposition-teams/${team.id}/logo`, {
+          method: 'DELETE',
+        });
+      }
+
+      if (response.ok) {
+        toast({
+          title: "Logo Deleted",
+          description: "Team logo has been successfully deleted.",
+        });
+        queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      } else {
+        throw new Error('Delete failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete logo. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Delete error:', error);
+    }
+  };
+
+  const handleOpenReplacementModal = (team: any) => {
+    setReplacingTeam(team);
+    setSelectedClub(team.id);
+    setOriginalImageUrl(team.logoPath);
+    setProcessedImageUrl(null);
+    setSelectedFile(null);
+    setLogoUrl("");
+    setUploadMethod('file');
+    setReplacementModalOpen(true);
+  };
+
+  const handleReplacementFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    setOriginalImageUrl(URL.createObjectURL(file));
+    
+    if (file.size > 100000) {
+      setShowTip(true);
+    }
+    
+    await processImageWithCurrentSettings(file);
+  };
+
+  const handleSaveReplacement = async () => {
+    if (!processedImageUrl || !replacingTeam) return;
+    
+    try {
+      const response = await fetch(processedImageUrl);
+      const blob = await response.blob();
+      
+      saveMutation.mutate({ 
+        teamId: replacingTeam.id, 
+        logoData: blob, 
+        teamType: replacingTeam.type 
+      });
+      
+      // Close modal on successful save
+      setReplacementModalOpen(false);
+      setReplacingTeam(null);
+      setProcessedImageUrl(null);
+      setOriginalImageUrl(null);
+      setSelectedFile(null);
+      setLogoUrl("");
+      setShowTip(false);
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save replacement logo.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <MainLayout title="Settings" subtitle="Club settings and team logo management">
       <div className="space-y-6">
@@ -339,17 +431,55 @@ export default function Settings() {
                       {team.type === 'club' ? 'Club' : 'Opposition'}
                     </Badge>
                   </div>
+                  {team.logoPath ? (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEnhanceImage(team)}
+                        className="flex-1"
+                        disabled={processing}
+                        data-testid={`button-enhance-${team.id}`}
+                      >
+                        <Wand2 className="mr-1 h-3 w-3" />
+                        Enhance
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenReplacementModal(team)}
+                        className="flex-1"
+                        disabled={processing}
+                        data-testid={`button-replace-${team.id}`}
+                      >
+                        <UploadCloud className="mr-1 h-3 w-3" />
+                        Replace
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenReplacementModal(team)}
+                      className="w-full"
+                      disabled={processing}
+                      data-testid={`button-upload-${team.id}`}
+                    >
+                      <UploadCloud className="mr-1 h-3 w-3" />
+                      Upload Logo
+                    </Button>
+                  )}
                   {team.logoPath && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEnhanceImage(team)}
-                      className="w-full"
+                      onClick={() => handleDeleteLogo(team)}
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                       disabled={processing}
-                      data-testid={`button-enhance-${team.id}`}
+                      data-testid={`button-delete-${team.id}`}
                     >
-                      <Wand2 className="mr-1 h-3 w-3" />
-                      Enhance Image
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Delete Logo
                     </Button>
                   )}
                 </div>
@@ -607,6 +737,219 @@ export default function Settings() {
                   </Button>
                 )}
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Replacement Modal */}
+        <Dialog open={replacementModalOpen} onOpenChange={setReplacementModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <UploadCloud className="mr-2 h-5 w-5" />
+                Replace {replacingTeam?.name} Logo
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Upload Method Selection */}
+              <div className="space-y-4">
+                <div className="flex space-x-4">
+                  <Button
+                    variant={uploadMethod === 'file' ? 'default' : 'outline'}
+                    onClick={() => setUploadMethod('file')}
+                    className="flex-1"
+                    data-testid="button-replacement-method-file"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload File
+                  </Button>
+                  <Button
+                    variant={uploadMethod === 'url' ? 'default' : 'outline'}
+                    onClick={() => setUploadMethod('url')}
+                    className="flex-1"
+                    data-testid="button-replacement-method-url"
+                  >
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    From URL
+                  </Button>
+                </div>
+
+                {/* File Upload */}
+                {uploadMethod === 'file' && (
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+                    <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <div className="space-y-2">
+                      <label 
+                        htmlFor="replacement-logo-upload"
+                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                      >
+                        Choose New Logo
+                      </label>
+                      <input
+                        id="replacement-logo-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleReplacementFileChange}
+                        className="hidden"
+                        data-testid="input-replacement-logo-upload"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        PNG, JPG up to 10MB
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* URL Upload */}
+                {uploadMethod === 'url' && (
+                  <div className="space-y-4">
+                    <div className="flex space-x-2">
+                      <Input
+                        placeholder="Enter new logo URL..."
+                        value={logoUrl}
+                        onChange={(e) => setLogoUrl(e.target.value)}
+                        className="flex-1"
+                        data-testid="input-replacement-logo-url"
+                      />
+                      <Button 
+                        onClick={handleUrlSubmit}
+                        disabled={!logoUrl.trim() || fetchingUrl}
+                        data-testid="button-fetch-replacement-url"
+                      >
+                        {fetchingUrl ? 'Fetching...' : 'Fetch'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Image Comparison */}
+              {(selectedFile || originalImageUrl) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Original/Current Logo */}
+                  {replacingTeam?.logoPath && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-center">Current Logo</h4>
+                      <div className="h-48 border rounded-lg p-2 bg-white dark:bg-gray-900 flex items-center justify-center">
+                        <img 
+                          src={replacingTeam.logoPath} 
+                          alt="Current logo"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* New Processed Image */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-center">
+                      New Logo 
+                      {processing && <span className="text-sm text-muted-foreground ml-2">(Processing...)</span>}
+                    </h4>
+                    <div className="h-48 border rounded-lg p-2 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                      {processedImageUrl ? (
+                        <img 
+                          src={processedImageUrl} 
+                          alt="New logo"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground text-center">
+                          <UploadCloud className="h-8 w-8 mx-auto mb-2" />
+                          <p className="text-sm">Upload a new logo</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Processing Controls */}
+              {(selectedFile || originalImageUrl) && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Processing Settings</h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={reprocessWithSettings}
+                      disabled={processing}
+                      data-testid="button-reprocess-replacement"
+                    >
+                      <ArrowUpDown className="mr-1 h-3 w-3" />
+                      {processing ? 'Processing...' : 'Reprocess'}
+                    </Button>
+                  </div>
+
+                  {/* Processing Mode */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Mode</label>
+                    <Select value={processingMode} onValueChange={(value: 'smart' | 'color' | 'manual') => setProcessingMode(value)}>
+                      <SelectTrigger data-testid="select-processing-mode-replacement">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="smart">Smart (Recommended)</SelectItem>
+                        <SelectItem value="color">Color-based</SelectItem>
+                        <SelectItem value="manual">Manual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Threshold Slider */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <label className="text-sm font-medium">Sensitivity</label>
+                      <span className="text-xs text-muted-foreground">{threshold}</span>
+                    </div>
+                    <Slider
+                      value={[threshold]}
+                      onValueChange={(value) => setThreshold(value[0])}
+                      max={100}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                      data-testid="slider-threshold-replacement"
+                    />
+                  </div>
+
+                  {/* Processing Tips */}
+                  {showTip && (
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <div className="flex">
+                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            Pro Tip
+                          </h3>
+                          <div className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                            <p>For best results with logo processing:</p>
+                            <ul className="mt-1 list-disc list-inside space-y-1">
+                              <li>Use high contrast images with clear edges</li>
+                              <li>Try different sensitivity settings if needed</li>
+                              <li>Smart mode works best for most logos</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Save Button */}
+                  {processedImageUrl && (
+                    <Button 
+                      onClick={handleSaveReplacement}
+                      disabled={saveMutation.isPending}
+                      className="w-full"
+                      data-testid="button-save-replacement"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {saveMutation.isPending ? 'Saving...' : 'Save New Logo'}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>

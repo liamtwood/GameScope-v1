@@ -1110,6 +1110,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/opposition-teams/:id/logo', async (req, res) => {
+    try {
+      const teamId = req.params.id;
+      const team = await storage.getOppositionTeam(teamId);
+      
+      if (!team) {
+        return res.status(404).json({ error: 'Opposition team not found' });
+      }
+
+      if (!team.logoPath) {
+        return res.status(400).json({ error: 'Team has no logo to delete' });
+      }
+
+      // Delete the file if it exists
+      try {
+        if (team.logoPath.startsWith('/uploads/')) {
+          const filePath = path.join(process.cwd(), 'public', team.logoPath);
+          await fs.unlink(filePath);
+        }
+      } catch (fileError) {
+        console.warn('Could not delete logo file:', fileError);
+        // Continue even if file deletion fails
+      }
+
+      // Update team to remove logo path
+      await storage.updateOppositionTeam(teamId, { logoPath: null });
+
+      res.json({ 
+        success: true, 
+        message: 'Opposition team logo deleted successfully'
+      });
+
+    } catch (error) {
+      console.error('Opposition team logo deletion error:', error);
+      res.status(500).json({ error: 'Failed to delete opposition team logo' });
+    }
+  });
+
   app.post('/api/clubs/logo', logoUpload.single('logo'), async (req, res) => {
     try {
       const clubId = req.body.clubId;
@@ -1145,6 +1183,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Club logo upload error:', error);
       res.status(500).json({ error: 'Failed to upload club logo' });
+    }
+  });
+
+  app.delete('/api/clubs/:id/logo', async (req, res) => {
+    try {
+      const clubId = req.params.id;
+      const club = await storage.getClub(clubId);
+      
+      if (!club) {
+        return res.status(404).json({ error: 'Club not found' });
+      }
+
+      if (!club.logoPath) {
+        return res.status(400).json({ error: 'Club has no logo to delete' });
+      }
+
+      // Delete the file if it exists
+      try {
+        if (club.logoPath.startsWith('/uploads/')) {
+          const filePath = path.join(process.cwd(), 'public', club.logoPath);
+          await fs.unlink(filePath);
+        }
+      } catch (fileError) {
+        console.warn('Could not delete logo file:', fileError);
+        // Continue even if file deletion fails
+      }
+
+      // Update club to remove logo path
+      await storage.updateClub(clubId, { logoPath: null });
+
+      res.json({ 
+        success: true, 
+        message: 'Club logo deleted successfully'
+      });
+
+    } catch (error) {
+      console.error('Club logo deletion error:', error);
+      res.status(500).json({ error: 'Failed to delete club logo' });
     }
   });
 
