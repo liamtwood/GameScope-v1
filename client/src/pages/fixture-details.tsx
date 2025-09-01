@@ -168,7 +168,7 @@ export default function FixtureDetails() {
             <FixtureEditDialog 
               fixture={fixture}
               onSave={async (data) => {
-                await apiRequest(`/api/fixtures/${fixture.id}`, "PUT", data);
+                await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                 queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
                 queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
               }}
@@ -260,7 +260,7 @@ export default function FixtureDetails() {
                   <FixtureEditDialog 
                     fixture={fixture}
                     onSave={async (data) => {
-                      await apiRequest(`/api/fixtures/${fixture.id}`, "PUT", data);
+                      await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                       queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
                       queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
                     }}
