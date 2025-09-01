@@ -113,13 +113,22 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
     );
   };
 
+  const handleCardClick = () => {
+    // If this card has analysis data and onViewAnalysis is available, use that
+    if (hasAnalysisData && onViewAnalysis) {
+      onViewAnalysis(fixture);
+    } else if (onViewDetails) {
+      onViewDetails(fixture);
+    }
+  };
+
   return (
     <Card 
       data-testid={`card-fixture-${fixture.id}`} 
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
         showAnimatedBorder ? 'relative overflow-hidden group' : ''
       }`}
-      onClick={() => onViewDetails?.(fixture)}
+      onClick={handleCardClick}
     >
       {showAnimatedBorder && (
         <div className="absolute inset-0 rounded-lg border-2 border-red-500 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity pointer-events-none" />
