@@ -366,37 +366,39 @@ export default function Fixtures() {
 
       {/* Tab Navigation */}
       <div className="mb-6">
-        <div className="flex space-x-4 border-b border-gray-200">
-          <button
-            onClick={() => setOverviewTab('season')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              overviewTab === 'season' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Season
-          </button>
-          <button
-            onClick={() => setOverviewTab('planning')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              overviewTab === 'planning' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Planning
-          </button>
-          <button
-            onClick={() => setOverviewTab('video')}
-            className={`pb-2 px-1 text-sm font-medium ${
-              overviewTab === 'video' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Videos
-          </button>
+        <div className="flex justify-center">
+          <div className="flex space-x-8 border-b border-gray-200">
+            <button
+              onClick={() => setOverviewTab('season')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                overviewTab === 'season' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Season
+            </button>
+            <button
+              onClick={() => setOverviewTab('planning')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                overviewTab === 'planning' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Planning
+            </button>
+            <button
+              onClick={() => setOverviewTab('video')}
+              className={`pb-3 px-4 text-lg font-semibold ${
+                overviewTab === 'video' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Videos
+            </button>
+          </div>
         </div>
       </div>
 
