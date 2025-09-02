@@ -424,9 +424,9 @@ export default function Fixtures() {
               className="p-2"
               data-testid="button-toggle-filters"
             >
-              <Filter className="h-4 w-4" />
+              <Filter className="mr-2 h-4 w-4" />
             </Button>
-            <span className="text-sm font-medium text-foreground">Filter By:</span>
+            <span className="text-sm font-medium">Filter By:</span>
           </div>
           <FixtureCreateDialog 
             teamId={currentTeam?.id || ""} 
