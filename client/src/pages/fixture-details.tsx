@@ -286,20 +286,6 @@ export default function FixtureDetails() {
                   </div>
                 </div>
 
-                {fixture.status === 'COMPLETED' && (
-                  <div className="mt-6 pt-6 border-t">
-                    <h4 className="text-lg font-semibold mb-4">Final Score</h4>
-                    <div className="text-center">
-                      <div className="inline-flex items-center space-x-6 text-2xl font-bold">
-                        <span>{homeTeam}</span>
-                        <span className="text-3xl">{fixture.homeScore}</span>
-                        <span className="text-muted-foreground">-</span>
-                        <span className="text-3xl">{fixture.awayScore}</span>
-                        <span>{awayTeam}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
