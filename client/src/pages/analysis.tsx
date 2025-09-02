@@ -163,11 +163,11 @@ export default function Analysis() {
             <TabsList className="grid max-w-[840px] grid-cols-7">
               <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
               <TabsTrigger value="positions">Line-Ups</TabsTrigger>
+              <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
               <TabsTrigger value="ai">AI Analysis</TabsTrigger>
               <TabsTrigger value="line">Line</TabsTrigger>
-              <TabsTrigger value="videos">Videos</TabsTrigger>
             </TabsList>
           </div>
           
