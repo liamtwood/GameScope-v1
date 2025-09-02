@@ -290,6 +290,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                               field.onChange(value);
                               const selectedTeam = oppositionTeams.find(team => team.name === value);
                               setSelectedOpponentForLogo(selectedTeam || null);
+                              // Close any open logo upload section when changing selection
+                              setShowLogoUpload(false);
                             }}
                             data-testid="select-opponent"
                             disabled={isLoadingTeams}
@@ -364,10 +366,15 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   size="sm"
                   className="w-full"
                   onClick={() => {
-                    // Always show logo upload section when button is clicked
-                    if (selectedOpponentForLogo) {
-                      // Toggle the logo upload section visibility
-                      setSelectedOpponentForLogo(selectedOpponentForLogo);
+                    // Show logo upload section for any selected team
+                    const currentOpponent = form.getValues("opponent");
+                    if (currentOpponent) {
+                      // Find the team object for the selected opponent
+                      const opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                      if (opponentTeam) {
+                        setSelectedOpponentForLogo(opponentTeam);
+                        setShowLogoUpload(true);
+                      }
                     }
                   }}
                   data-testid="button-upload-logo"
@@ -484,7 +491,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
 
 
             {/* Logo Upload Section */}
-            {selectedOpponentForLogo && (
+            {showLogoUpload && selectedOpponentForLogo && (
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-medium">Logo for {selectedOpponentForLogo.name}</h4>
@@ -507,7 +514,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       teamId: selectedOpponentForLogo.id,
                       logoPath
                     });
-                    // Clear the selected opponent to hide the upload section
+                    // Close the upload section after successful upload
+                    setShowLogoUpload(false);
                     setSelectedOpponentForLogo(null);
                   }}
                 />
@@ -515,7 +523,10 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedOpponentForLogo(null)}
+                  onClick={() => {
+                    setShowLogoUpload(false);
+                    setSelectedOpponentForLogo(null);
+                  }}
                   className="mt-2"
                 >
                   Close Logo Upload
