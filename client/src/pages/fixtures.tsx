@@ -204,14 +204,14 @@ export default function Fixtures() {
     uploadCompetitionLogoMutation.mutate({ competitionId, logoFile: file });
   };
 
-  // First filter by season if we have the necessary data
-  let seasonFilteredFixtures = fixtures;
-  if (selectedSeason && currentTeam && currentClub) {
-    const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-    seasonFilteredFixtures = filterFixturesBySeason(fixtures || [], selectedSeason, seasonStartMonth);
-  }
+  // TODO: Season filtering temporarily disabled
+  // let seasonFilteredFixtures = fixtures;
+  // if (selectedSeason && currentTeam && currentClub) {
+  //   const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+  //   seasonFilteredFixtures = filterFixturesBySeason(fixtures || [], selectedSeason, seasonStartMonth);
+  // }
 
-  const filteredFixtures = seasonFilteredFixtures?.filter(fixture => {
+  const filteredFixtures = fixtures?.filter(fixture => {
     // Apply home/away filter to all tabs
     if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
       return false;
