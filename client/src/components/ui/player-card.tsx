@@ -79,7 +79,9 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow ${onSelect ? 'cursor-pointer' : ''}`}
       onClick={(e) => {
         // Only trigger selection if not clicking on interactive elements
+        console.log('Card clicked for player:', player.name, 'onSelect:', !!onSelect);
         if (onSelect && !e.defaultPrevented) {
+          console.log('Calling onSelect for:', player.name);
           onSelect(player);
         }
       }}

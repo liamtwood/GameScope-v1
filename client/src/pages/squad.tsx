@@ -29,6 +29,11 @@ export default function Squad() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  
+  const handlePlayerSelect = (player: Player) => {
+    console.log('Player selected:', player.name);
+    setSelectedPlayer(player);
+  };
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -518,7 +523,10 @@ export default function Squad() {
           {selectedPlayer ? (
             <PlayerReadOnlyView 
               player={selectedPlayer}
-              onBack={() => setSelectedPlayer(null)}
+              onBack={() => {
+                console.log('Going back from detailed view');
+                setSelectedPlayer(null);
+              }}
             />
           ) : (
             <>
@@ -584,6 +592,7 @@ export default function Squad() {
                         <div key={player.id} className="relative">
                           <PlayerCard
                             player={player}
+                            onSelect={handlePlayerSelect}
                             onEdit={(player) => {
                               const hiddenButton = document.getElementById(`hidden-edit-${player.id}`) as HTMLElement;
                               if (hiddenButton) {
