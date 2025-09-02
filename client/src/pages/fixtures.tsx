@@ -57,11 +57,23 @@ export default function Fixtures() {
   const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
   const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
   
+  // Debug logging
+  console.log("Debug fixtures page:", {
+    currentTeam: currentTeam,
+    currentClub: currentClub,
+    clubs: clubs,
+    selectedSeason: selectedSeason,
+    clubId: currentTeam?.clubId,
+    hasSeasonStartMonth: currentTeam?.seasonStartMonth,
+    clubSeasonStartMonth: currentClub?.seasonStartMonth
+  });
+  
   // Set default season when team/club data loads
   useEffect(() => {
     if (!selectedSeason && currentTeam && currentClub) {
       const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
       const currentSeason = getCurrentSeason(seasonStartMonth);
+      console.log("Setting season:", { seasonStartMonth, currentSeason });
       setSelectedSeason(currentSeason);
     }
   }, [selectedSeason, currentTeam, currentClub]);
