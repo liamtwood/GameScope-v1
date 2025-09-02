@@ -37,6 +37,7 @@ const createPlayerSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   gender: z.enum(["Male", "Female"]).optional(),
   dateOfBirth: z.string().optional(),
+  accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
 });
 
 type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
@@ -65,6 +66,7 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       email: "",
       gender: undefined,
       dateOfBirth: "",
+      accountStatus: "Draft",
     },
   });
 
@@ -217,7 +219,7 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="gender"
@@ -252,6 +254,29 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                           data-testid="input-date-of-birth" 
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="accountStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-account-status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Suspended">Suspended</SelectItem>
+                          <SelectItem value="Retired">Retired</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
