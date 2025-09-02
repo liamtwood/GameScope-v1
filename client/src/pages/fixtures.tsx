@@ -416,18 +416,14 @@ export default function Fixtures() {
       {/* Tab Navigation with Add Fixture Button */}
       <div className="mb-6 relative">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="p-2"
-              data-testid="button-toggle-filters"
-            >
-              <Filter className="mr-2 h-4 w-4" />
-            </Button>
-            <span className="text-base font-medium">Add Filter Criteria</span>
-          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowFilters(!showFilters)}
+            data-testid="button-toggle-filters"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Add Filter
+          </Button>
           <FixtureCreateDialog 
             teamId={currentTeam?.id || ""} 
             onSave={(data) => createFixtureMutation.mutate(data)}
