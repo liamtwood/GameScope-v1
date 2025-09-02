@@ -16,11 +16,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings } from "lucide-react";
 import { format } from "date-fns";
-import { Fixture, Team, Competition } from "@shared/schema";
+import { Fixture, Team, Competition, Club } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { SeasonPicker } from "@/components/ui/season-picker";
+import { getCurrentSeason, getEffectiveSeasonStartMonth, filterFixturesBySeason } from "@/utils/seasonUtils";
 
 type FilterType = 'all' | FixtureStatus;
 
@@ -36,6 +38,7 @@ export default function Fixtures() {
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -50,6 +53,16 @@ export default function Fixtures() {
   const { data: competitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"]
   });
+
+  const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
+  const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
+  
+  // Set default season when team/club data loads
+  if (!selectedSeason && currentTeam && currentClub) {
+    const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+    const currentSeason = getCurrentSeason(seasonStartMonth);
+    setSelectedSeason(currentSeason);
+  }
 
 
   // Mutation for updating fixtures
@@ -189,7 +202,14 @@ export default function Fixtures() {
     uploadCompetitionLogoMutation.mutate({ competitionId, logoFile: file });
   };
 
-  const filteredFixtures = fixtures?.filter(fixture => {
+  // First filter by season if we have the necessary data
+  let seasonFilteredFixtures = fixtures;
+  if (selectedSeason && currentTeam && currentClub) {
+    const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+    seasonFilteredFixtures = filterFixturesBySeason(fixtures || [], selectedSeason, seasonStartMonth);
+  }
+
+  const filteredFixtures = seasonFilteredFixtures?.filter(fixture => {
     // Apply home/away filter to all tabs
     if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
       return false;
@@ -417,14 +437,24 @@ export default function Fixtures() {
       {/* Tab Navigation with Add Fixture Button */}
       <div className="mb-6 relative">
         <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowFilters(!showFilters)}
-            data-testid="button-toggle-filters"
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Enable Filter
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-filters"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Enable Filter
+            </Button>
+            {currentTeam && currentClub && (
+              <SeasonPicker
+                team={currentTeam}
+                club={currentClub}
+                selectedSeason={selectedSeason}
+                onSeasonChange={setSelectedSeason}
+              />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <FixtureCreateDialog 
               teamId={currentTeam?.id || ""} 
