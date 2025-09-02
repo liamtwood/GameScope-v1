@@ -655,15 +655,29 @@ export default function Squad() {
                     </h3>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {playersInPosition.map((player) => (
-                        <PlayerCard
-                          key={player.id}
-                          player={player}
-                          onEdit={(player) => {
-                            setEditingPlayer(player);
-                          }}
-                          onDelete={handleDeletePlayer}
-                          onToggleKeyPlayer={handleToggleKeyPlayer}
-                        />
+                        <div key={player.id} className="relative">
+                          <PlayerCard
+                            player={player}
+                            onEdit={(player) => {
+                              const hiddenButton = document.getElementById(`hidden-edit-${player.id}`) as HTMLElement;
+                              if (hiddenButton) {
+                                hiddenButton.click();
+                              }
+                            }}
+                            onDelete={handleDeletePlayer}
+                            onToggleKeyPlayer={handleToggleKeyPlayer}
+                          />
+                          {/* Hidden edit dialog trigger for this player */}
+                          <PlayerEditDialog
+                            player={player}
+                            onSave={handleUpdatePlayer}
+                          >
+                            <button 
+                              id={`hidden-edit-${player.id}`}
+                              style={{ display: 'none' }}
+                            />
+                          </PlayerEditDialog>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -680,18 +694,6 @@ export default function Squad() {
             </Card>
           )}
 
-          {/* Edit Dialog for Player Cards */}
-          {editingPlayer && (
-            <PlayerEditDialog
-              player={editingPlayer}
-              onSave={(playerId, data) => {
-                handleUpdatePlayer(playerId, data);
-                setEditingPlayer(null);
-              }}
-            >
-              <div /> {/* Hidden trigger */}
-            </PlayerEditDialog>
-          )}
         </>
       )}
 
