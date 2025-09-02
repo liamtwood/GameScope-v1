@@ -332,10 +332,6 @@ export default function Analysis() {
               
               <h3 className="text-lg font-semibold mb-4">AI-Powered Analysis</h3>
               <div className="p-6 rounded-lg border">
-                <h4 className="font-semibold text-foreground mb-6 flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                  AI-Powered Match Insights
-                </h4>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="bg-muted/30 rounded-lg p-4 border">
                     <div className="flex items-start space-x-3">
