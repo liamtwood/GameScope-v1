@@ -9,8 +9,13 @@ interface FixtureResultHeaderProps {
 
 export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: FixtureResultHeaderProps) {
   const isHomeMatch = fixture.type === 'HOME';
-  const homeTeam = isHomeMatch ? team.name : fixture.opponent;
-  const awayTeam = isHomeMatch ? fixture.opponent : team.name;
+  
+  // Layout: Always show our team (Polk State College) on LEFT, opponent on RIGHT
+  // This matches GameScope Analysis where PSC is always on the left
+  const leftTeam = team.name; // Always Polk State College
+  const rightTeam = fixture.opponent; // Always the opponent
+  const leftTeamType = isHomeMatch ? 'HOME' : 'AWAY';
+  const rightTeamType = isHomeMatch ? 'AWAY' : 'HOME';
   
   // Default colors - using the exact red from the image
   const teamColors = (team.colors as any) || { primary: '#CC4125', secondary: '#ffffff' };
@@ -18,12 +23,14 @@ export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: Fix
   
   // Use team colors, fall back to club colors
   const primaryColor = teamColors.primary || clubColors.primary || '#CC4125';
-  const secondaryColor = teamColors.secondary || clubColors.secondary || '#ffffff';
   
-  const homeScore = fixture.homeScore;
-  const awayScore = fixture.awayScore;
+  // Scores: Show as Away - Home to match the layout
+  const leftScore = isHomeMatch ? fixture.homeScore : fixture.awayScore;  // PSC score
+  const rightScore = isHomeMatch ? fixture.awayScore : fixture.homeScore; // Opponent score
   
-  const showScore = fixture.status === 'COMPLETED' && homeScore !== undefined && homeScore !== null && awayScore !== undefined && awayScore !== null;
+  const showScore = fixture.status === 'COMPLETED' && 
+    leftScore !== undefined && leftScore !== null && 
+    rightScore !== undefined && rightScore !== null;
 
   return (
     <div className="w-full h-16 relative overflow-hidden rounded-lg" style={{ 
@@ -52,36 +59,20 @@ export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: Fix
       
       {/* Content */}
       <div className="relative h-full flex items-center justify-between px-6">
-        {/* Home Team */}
+        {/* Left Team (Always Polk State College) */}
         <div className="flex items-center space-x-4 flex-1">
-          {/* Team Logo - Home */}
+          {/* PSC Logo - Always on Left */}
           <div className="w-8 h-8 flex items-center justify-center">
-            {isHomeMatch ? (
-              <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
-                <div className="w-6 h-4 bg-white" style={{ 
-                  clipPath: 'polygon(0% 20%, 100% 0%, 80% 80%, 20% 100%)' 
-                }} />
-              </div>
-            ) : (
-              oppositionTeam?.logoPath ? (
-                <img 
-                  src={oppositionTeam.logoPath} 
-                  alt={`${oppositionTeam.name} logo`}
-                  className="w-8 h-8 object-contain"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">
-                    {fixture.opponent.substring(0, 3).toUpperCase()}
-                  </span>
-                </div>
-              )
-            )}
+            <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
+              <div className="w-6 h-4 bg-white" style={{ 
+                clipPath: 'polygon(0% 20%, 100% 0%, 80% 80%, 20% 100%)' 
+              }} />
+            </div>
           </div>
           
           <div className="flex-1">
-            <div className="text-white font-bold text-base leading-tight">{homeTeam}</div>
-            <div className="text-white/90 text-xs font-medium">{isHomeMatch ? 'HOME' : 'AWAY'}</div>
+            <div className="text-white font-bold text-base leading-tight">{leftTeam}</div>
+            <div className="text-white/90 text-xs font-medium">{leftTeamType}</div>
           </div>
         </div>
 
@@ -89,9 +80,9 @@ export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: Fix
         {showScore ? (
           <div className="bg-white rounded-lg px-3 py-2 mx-4 shadow-sm">
             <div className="flex items-center justify-center space-x-2">
-              <span className="text-xl font-bold text-gray-900">{homeScore}</span>
+              <span className="text-xl font-bold text-gray-900">{leftScore}</span>
               <span className="text-lg font-medium text-gray-500">-</span>
-              <span className="text-xl font-bold text-gray-900">{awayScore}</span>
+              <span className="text-xl font-bold text-gray-900">{rightScore}</span>
             </div>
             <div className="text-xs text-gray-500 text-center leading-none">FT</div>
           </div>
@@ -103,35 +94,27 @@ export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: Fix
           </div>
         )}
 
-        {/* Away Team */}
+        {/* Right Team (Always Opponent) */}
         <div className="flex items-center space-x-4 flex-1 justify-end">
           <div className="flex-1 text-right">
-            <div className="text-white font-bold text-base leading-tight">{awayTeam}</div>
-            <div className="text-white/90 text-xs font-medium">{isHomeMatch ? 'AWAY' : 'HOME'}</div>
+            <div className="text-white font-bold text-base leading-tight">{rightTeam}</div>
+            <div className="text-white/90 text-xs font-medium">{rightTeamType}</div>
           </div>
           
-          {/* Team Logo - Away */}
+          {/* Opponent Logo - Always on Right */}
           <div className="w-8 h-8 flex items-center justify-center">
-            {!isHomeMatch ? (
-              <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
-                <div className="w-6 h-4 bg-white" style={{ 
-                  clipPath: 'polygon(0% 20%, 100% 0%, 80% 80%, 20% 100%)' 
-                }} />
-              </div>
+            {oppositionTeam?.logoPath ? (
+              <img 
+                src={oppositionTeam.logoPath} 
+                alt={`${oppositionTeam.name} logo`}
+                className="w-8 h-8 object-contain"
+              />
             ) : (
-              oppositionTeam?.logoPath ? (
-                <img 
-                  src={oppositionTeam.logoPath} 
-                  alt={`${oppositionTeam.name} logo`}
-                  className="w-8 h-8 object-contain"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">
-                    {fixture.opponent.substring(0, 3).toUpperCase()}
-                  </span>
-                </div>
-              )
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <span className="text-white font-bold text-xs">
+                  {fixture.opponent.substring(0, 3).toUpperCase()}
+                </span>
+              </div>
             )}
           </div>
         </div>
