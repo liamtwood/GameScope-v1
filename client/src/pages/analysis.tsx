@@ -160,14 +160,13 @@ export default function Analysis() {
           </Link>
           
           <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[840px] grid-cols-7">
+            <TabsList className="grid max-w-[720px] grid-cols-6">
               <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
               <TabsTrigger value="positions">Line-Ups</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
               <TabsTrigger value="ai">AI Analysis</TabsTrigger>
-              <TabsTrigger value="line">Line</TabsTrigger>
             </TabsList>
           </div>
           
@@ -845,24 +844,6 @@ export default function Analysis() {
                 ) : (
                   <p className="text-muted-foreground">Lineup not available</p>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Line Tab */}
-        <TabsContent value="line">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-6">Line Analysis</h3>
-              
-              <div className="space-y-6">
-                <div className="text-center py-12">
-                  <div className="text-muted-foreground">
-                    <p className="text-lg mb-2">Line Analysis Coming Soon</p>
-                    <p className="text-sm">Advanced line formation and tactical analysis will be available here.</p>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
