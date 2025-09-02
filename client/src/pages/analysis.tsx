@@ -155,13 +155,14 @@ export default function Analysis() {
           </Link>
           
           <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[840px] grid-cols-7">
+            <TabsList className="grid max-w-[960px] grid-cols-8">
               <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
               <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
               <TabsTrigger value="positions">Position Maps</TabsTrigger>
               <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+              <TabsTrigger value="line">Line</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
             </TabsList>
           </div>
@@ -832,6 +833,24 @@ export default function Analysis() {
               <div className="text-center py-12">
                 <h3 className="text-lg font-semibold mb-2">Position Maps</h3>
                 <p className="text-muted-foreground">Coming soon - analyze player positioning and formation effectiveness</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Line Tab */}
+        <TabsContent value="line">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-6">Line Analysis</h3>
+              
+              <div className="space-y-6">
+                <div className="text-center py-12">
+                  <div className="text-muted-foreground">
+                    <p className="text-lg mb-2">Line Analysis Coming Soon</p>
+                    <p className="text-sm">Advanced line formation and tactical analysis will be available here.</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
