@@ -26,6 +26,7 @@ export const clubs = pgTable("clubs", {
   timezone: text("timezone").default("UTC"),
   currency: text("currency").default("USD"),
   dateFormat: text("date_format").default("MM/DD/YYYY"),
+  seasonStartMonth: varchar("season_start_month", { length: 20 }).default("August"),
   // Subscription/tenant info
   subscriptionTier: text("subscription_tier").default("basic"),
   subscriptionStatus: text("subscription_status").default("active"),
@@ -45,6 +46,7 @@ export const teams = pgTable("teams", {
   ageGroup: text("age_group"),
   gender: varchar("gender", { length: 20 }),
   season: varchar("season", { length: 20 }),
+  seasonStartMonth: varchar("season_start_month", { length: 20 }).default("inherit"), // inherit from club
   colors: jsonb("colors"), // Primary and secondary team colors
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -152,6 +154,7 @@ export const competitions = pgTable("competitions", {
   name: text("name").notNull().unique(),
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
+  seasonStartMonth: varchar("season_start_month", { length: 20 }).default("inherit"), // inherit from team
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
