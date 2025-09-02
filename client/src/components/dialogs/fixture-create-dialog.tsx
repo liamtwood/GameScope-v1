@@ -23,6 +23,8 @@ const fixtureCreateSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
   venue: z.string().optional(),
   date: z.date(),
+  timeSlot: z.enum(["MORNING", "AFTERNOON", "EVENING"]),
+  location: z.string().min(1, "Location is required"),
   type: z.enum(["HOME", "AWAY"]),
   competition: z.string().min(1, "Competition is required"),
   notes: z.string().optional(),
@@ -79,6 +81,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       opponent: "",
       venue: "",
       date: new Date(),
+      timeSlot: "AFTERNOON" as const,
+      location: "",
       type: "HOME",
       competition: "FCSAA League",
       notes: "",
@@ -131,16 +135,33 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   };
 
   const handleSubmit = async (data: FixtureCreateFormData) => {
+    // Map time slot to actual kick-off time
+    const timeMapping = {
+      MORNING: 10, // 10:00 AM
+      AFTERNOON: 15, // 3:00 PM  
+      EVENING: 20, // 8:00 PM
+    };
+    
+    const kickOffHour = timeMapping[data.timeSlot];
+    const updatedDate = new Date(data.date);
+    updatedDate.setHours(kickOffHour, 0, 0, 0); // Set to exact hour with 0 minutes/seconds
+    
+    const formattedData = {
+      ...data,
+      date: updatedDate,
+      venue: data.location, // Map location to venue for backend compatibility
+    };
+    
     // If we're creating a new opponent and have a website URL, pass that along
     if (showNewOpponentInput && newOpponentWebsite) {
       onSave({ 
-        ...data, 
+        ...formattedData, 
         teamId, 
         newOpponentWebsite, 
         discoveredLogoUrl 
       } as any);
     } else {
-      onSave({ ...data, teamId });
+      onSave({ ...formattedData, teamId });
     }
     
     setOpen(false);
@@ -161,160 +182,94 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="opponent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Opponent</FormLabel>
-                    <FormControl>
-                      {showNewOpponentInput ? (
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setShowNewOpponentInput(false)}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex gap-2">
-                              <Input 
-                                placeholder="Team website URL (optional - for auto logo discovery)" 
-                                value={newOpponentWebsite}
-                                onChange={(e) => setNewOpponentWebsite(e.target.value)}
-                                data-testid="input-opponent-website"
-                                className="flex-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDiscoverLogo()}
-                                disabled={!newOpponentWebsite || isDiscoveringLogo}
-                                data-testid="button-discover-logo"
-                                title="Automatically find team logo from website"
-                              >
-                                {isDiscoveringLogo ? "Finding..." : "Find Logo"}
-                              </Button>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              Note: Some major websites (like Man City) may block automatic discovery due to security restrictions.
-                            </p>
-                          </div>
-                          {discoveredLogoUrl && (
-                            <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                              <img 
-                                src={discoveredLogoUrl} 
-                                alt="Discovered logo"
-                                className="w-6 h-6 object-cover rounded"
-                              />
-                              <span className="text-sm text-green-700 dark:text-green-300">
-                                Logo found! Will be saved automatically.
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Select
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              // Find the selected team for logo upload
-                              const selectedTeam = oppositionTeams.find(team => team.name === value);
-                              setSelectedOpponentForLogo(selectedTeam || null);
-                            }}
-                            data-testid="select-opponent"
-                            disabled={isLoadingTeams}
-                          >
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder={isLoadingTeams ? "Loading opponents..." : "Select opponent"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {isLoadingTeams ? (
-                                <SelectItem value="loading" disabled>Loading teams...</SelectItem>
-                              ) : oppositionTeams.length === 0 ? (
-                                <SelectItem value="no-teams" disabled>No opponents available</SelectItem>
-                              ) : (
-                                oppositionTeams.map((team) => (
-                                  <SelectItem key={team.id} value={team.name}>
-                                    <div className="flex items-center gap-2">
-                                      {team.logoPath ? (
-                                        <img 
-                                          src={team.logoPath} 
-                                          alt={`${team.name} logo`}
-                                          className="w-4 h-4 object-cover rounded"
-                                        />
-                                      ) : (
-                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                          {team.shortName}
-                                        </div>
-                                      )}
-                                      {team.name}
-                                    </div>
-                                  </SelectItem>
-                                ))
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowNewOpponentInput(true)}
-                            data-testid="button-add-new-opponent"
-                            title="Add new opponent"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          {selectedOpponentForLogo && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setShowLogoUpload(true)}
-                              data-testid="button-upload-logo"
-                              title="Upload logo for selected opponent"
-                            >
-                              📷
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Venue</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter venue name" data-testid="input-new-venue" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Row 1 - Opponent only */}
+            <FormField
+              control={form.control}
+              name="opponent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Opponent</FormLabel>
+                  <FormControl>
+                    {showNewOpponentInput ? (
+                      <div className="flex gap-2">
+                        <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowNewOpponentInput(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            const selectedTeam = oppositionTeams.find(team => team.name === value);
+                            setSelectedOpponentForLogo(selectedTeam || null);
+                          }}
+                          data-testid="select-opponent"
+                          disabled={isLoadingTeams}
+                        >
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder={isLoadingTeams ? "Loading opponents..." : "Select opponent"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {isLoadingTeams ? (
+                              <SelectItem value="loading" disabled>Loading teams...</SelectItem>
+                            ) : oppositionTeams.length === 0 ? (
+                              <SelectItem value="no-teams" disabled>No opponents available</SelectItem>
+                            ) : (
+                              oppositionTeams.map((team) => (
+                                <SelectItem key={team.id} value={team.name}>
+                                  <div className="flex items-center gap-2">
+                                    {team.logoPath ? (
+                                      <img 
+                                        src={team.logoPath} 
+                                        alt={`${team.name} logo`}
+                                        className="w-4 h-4 object-cover rounded"
+                                      />
+                                    ) : (
+                                      <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                        {team.shortName}
+                                      </div>
+                                    )}
+                                    {team.name}
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowNewOpponentInput(true)}
+                          data-testid="button-add-new-opponent"
+                          title="Add new opponent"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            {/* Row 2 - Date, Time, Location, Match Type */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date & Time</FormLabel>
+                    <FormLabel>Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -327,7 +282,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             data-testid="button-new-date-picker"
                           >
                             {field.value ? (
-                              format(field.value, "PPP p")
+                              format(field.value, "PPP")
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -337,10 +292,10 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Input
-                          type="datetime-local"
-                          value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
+                          type="date"
+                          value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
                           onChange={(e) => field.onChange(new Date(e.target.value))}
-                          data-testid="input-new-datetime"
+                          data-testid="input-new-date"
                         />
                       </PopoverContent>
                     </Popover>
@@ -351,125 +306,131 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
 
               <FormField
                 control={form.control}
-                name="competition"
+                name="timeSlot"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Competition</FormLabel>
-                    <FormControl>
-                      {showNewCompetitionInput ? (
-                        <div className="flex gap-2">
-                          <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowNewCompetitionInput(false)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            data-testid="select-competition"
-                          >
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Select competition" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {competitions.map((comp) => (
-                                <SelectItem key={comp.id} value={comp.name}>
-                                  {comp.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowNewCompetitionInput(true)}
-                            data-testid="button-add-new-competition"
-                            title="Add new competition"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </FormControl>
+                    <FormLabel>Time</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-time-slot">
+                          <SelectValue placeholder="Select time" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="MORNING">Morning (10:00 AM)</SelectItem>
+                        <SelectItem value="AFTERNOON">Afternoon (3:00 PM)</SelectItem>
+                        <SelectItem value="EVENING">Evening (8:00 PM)</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Match Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
                     <FormControl>
-                      <SelectTrigger data-testid="select-new-type">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
+                      <Input {...field} placeholder="Enter location" data-testid="input-location" />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="HOME">Home</SelectItem>
-                      <SelectItem value="AWAY">Away</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Match Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-new-type">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="HOME">Home</SelectItem>
+                        <SelectItem value="AWAY">Away</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Competition */}
             <FormField
               control={form.control}
-              name="notes"
+              name="competition"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>Competition</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      {...field} 
-                      placeholder="Additional notes about this fixture..."
-                      data-testid="textarea-new-notes"
-                    />
+                    {showNewCompetitionInput ? (
+                      <div className="flex gap-2">
+                        <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowNewCompetitionInput(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          data-testid="select-competition"
+                        >
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select competition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {competitions.map((comp) => (
+                              <SelectItem key={comp.id} value={comp.name}>
+                                {comp.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowNewCompetitionInput(true)}
+                          data-testid="button-add-new-competition"
+                          title="Add new competition"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Logo Upload Section */}
-            {showLogoUpload && selectedOpponentForLogo && (
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium mb-2">Upload Logo for {selectedOpponentForLogo.name}</h4>
-                <LogoUpload
-                  teamName={selectedOpponentForLogo.name}
-                  currentLogo={selectedOpponentForLogo.logoPath || undefined}
-                  onUploadComplete={(logoPath: string) => {
-                    updateOppositionTeamMutation.mutate({
-                      teamId: selectedOpponentForLogo.id,
-                      logoPath
-                    });
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowLogoUpload(false)}
-                  className="mt-2"
-                >
-                  Cancel Logo Upload
-                </Button>
-              </div>
-            )}
+            {/* Notes field - hidden but still part of form for database */}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <input type="hidden" {...field} value="" />
+              )}
+            />
+
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
