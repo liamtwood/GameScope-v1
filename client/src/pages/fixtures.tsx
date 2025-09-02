@@ -467,6 +467,7 @@ export default function Fixtures() {
               >
                 <Filter className="h-4 w-4" />
               </Button>
+              <span className="text-sm font-medium text-foreground">Filter By:</span>
             </div>
             {showFilters && (
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
