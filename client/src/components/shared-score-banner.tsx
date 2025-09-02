@@ -20,9 +20,10 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
   // Default colors - using the exact red from the image
   const teamColors = (team.colors as any) || { primary: '#CC4125', secondary: '#ffffff' };
   const clubColors = (club.colors as any) || { primary: '#CC4125', secondary: '#ffffff' };
+  const oppositionColors = (oppositionTeam?.colors as any) || { primary: '#6b7280', secondary: '#4b5563' };
   
-  // Use team colors, fall back to club colors
-  const primaryColor = teamColors.primary || clubColors.primary || '#CC4125';
+  // Use opponent's primary color for the background, fall back to team colors if no opponent
+  const primaryColor = oppositionColors.primary || teamColors.primary || clubColors.primary || '#CC4125';
   
   // Scores: Show as Away - Home to match the layout
   const leftScore = isHomeMatch ? fixture.homeScore : fixture.awayScore;  // PSC score
