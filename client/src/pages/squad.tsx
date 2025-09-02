@@ -3,9 +3,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { PlayerCard } from "@/components/ui/player-card";
-import { AccountCard } from "@/components/ui/account-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { PlayerEditDialog } from "@/components/dialogs/player-edit-dialog";
+import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,7 +27,8 @@ export default function Squad() {
   const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
-  const [activeTab, setActiveTab] = useState<'table' | 'player-card' | 'account-card'>('player-card');
+  const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -336,17 +337,7 @@ export default function Squad() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Player Card
-            </button>
-            <button
-              onClick={() => setActiveTab('account-card')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                activeTab === 'account-card' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Account Card
+              Player Cards
             </button>
           </div>
         </div>
@@ -524,7 +515,14 @@ export default function Squad() {
       {/* Player Card Tab Content */}
       {activeTab === 'player-card' && (
         <>
-          {/* Filters */}
+          {selectedPlayer ? (
+            <PlayerReadOnlyView 
+              player={selectedPlayer}
+              onBack={() => setSelectedPlayer(null)}
+            />
+          ) : (
+            <>
+              {/* Filters */}
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
               <SelectTrigger className="w-48" data-testid="select-position-cards">
@@ -624,59 +622,12 @@ export default function Squad() {
               </CardContent>
             </Card>
           )}
+            </>
+          )}
 
         </>
       )}
 
-      {/* Account Card Tab Content */}
-      {activeTab === 'account-card' && (
-        <div className="space-y-6">
-          {filteredPlayers.length > 0 ? (
-            (() => {
-              // Group players by position for account cards
-              const positions = ['GK', 'DEF', 'MID', 'FWD'];
-              return positions.map((pos) => {
-                const positionPlayers = filteredPlayers.filter(player => player.position === pos);
-                if (positionPlayers.length === 0) return null;
-                
-                return (
-                  <div key={pos} className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 rounded-full ${
-                        pos === 'GK' ? 'bg-yellow-500' :
-                        pos === 'DEF' ? 'bg-blue-500' :
-                        pos === 'MID' ? 'bg-green-500' :
-                        'bg-red-500'
-                      }`} />
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {pos === 'GK' ? 'Goalkeepers' :
-                         pos === 'DEF' ? 'Defenders' :
-                         pos === 'MID' ? 'Midfielders' :
-                         'Forwards'} ({positionPlayers.length})
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {positionPlayers.map((player) => (
-                        <AccountCard key={player.id} player={player} />
-                      ))}
-                    </div>
-                  </div>
-                );
-              }).filter(Boolean);
-            })()
-          ) : (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center py-12">
-                  <div className="text-4xl mb-4">👥</div>
-                  <h2 className="text-xl font-semibold text-foreground mb-2">No Players Found</h2>
-                  <p className="text-muted-foreground">Add players to manage their accounts</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
     </MainLayout>
   );
 }

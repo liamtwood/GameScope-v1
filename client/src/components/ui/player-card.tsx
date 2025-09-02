@@ -18,9 +18,10 @@ interface PlayerCardProps {
   onDelete?: (player: Player) => void;
   onToggleKeyPlayer?: (player: Player) => void;
   onUpdateStatus?: (player: Player, newStatus: string) => void;
+  onSelect?: (player: Player) => void;
 }
 
-export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
+export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus, onSelect }: PlayerCardProps) {
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   
   const getStatusColor = () => {
@@ -75,7 +76,8 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   return (
     <Card 
       data-testid={`card-player-${player.id}`} 
-      className="border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+      className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow ${onSelect ? 'cursor-pointer' : ''}`}
+      onClick={() => onSelect && onSelect(player)}
     >
       <CardContent className="p-3">
         <div className="flex items-center justify-between min-h-[50px]">
