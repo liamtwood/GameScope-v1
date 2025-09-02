@@ -9,6 +9,7 @@ import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
 import { VideoManager } from "@/components/video-manager";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
+import { ExcelUpload } from "@/components/excel-upload";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit } from "lucide-react";
 import { Link } from "wouter";
@@ -160,10 +161,11 @@ export default function Analysis() {
           </Link>
           
           <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[720px] grid-cols-6">
+            <TabsList className="grid max-w-[840px] grid-cols-7">
               <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
               <TabsTrigger value="positions">Line-Ups</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
+              <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
               <TabsTrigger value="ai">AI Analysis</TabsTrigger>
@@ -930,6 +932,16 @@ export default function Analysis() {
                 fixtureId={fixtureId} 
                 videoLinks={fixture.videoLinks || []} 
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Upload Data Tab */}
+        <TabsContent value="upload">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Upload Match Data</h3>
+              <ExcelUpload fixtureId={fixtureId || ""} />
             </CardContent>
           </Card>
         </TabsContent>
