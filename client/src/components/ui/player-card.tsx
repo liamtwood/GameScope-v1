@@ -77,7 +77,12 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
     <Card 
       data-testid={`card-player-${player.id}`} 
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow ${onSelect ? 'cursor-pointer' : ''}`}
-      onClick={() => onSelect && onSelect(player)}
+      onClick={(e) => {
+        // Only trigger selection if not clicking on interactive elements
+        if (onSelect && !e.defaultPrevented) {
+          onSelect(player);
+        }
+      }}
     >
       <CardContent className="p-3">
         <div className="flex items-center justify-between min-h-[50px]">
@@ -126,7 +131,10 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             ) : (
               <Badge 
                 className={`text-xs px-3 py-1 cursor-pointer hover:opacity-80 ${getStatusColor()}`}
-                onClick={() => setIsEditingStatus(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingStatus(true);
+                }}
                 title="Click to edit status"
               >
                 {player.status}
@@ -137,7 +145,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             {/* Actions Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button 
+                  variant="ghost" 
+                  className="h-8 w-8 p-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
