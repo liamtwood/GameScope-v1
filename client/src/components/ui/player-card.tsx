@@ -102,14 +102,6 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
               {player.status}
             </Badge>
             
-            {/* Stats indicators */}
-            {(player.goals && player.goals > 0) || (player.assists && player.assists > 0) ? (
-              <div className="text-right">
-                <div className="text-sm font-medium text-foreground">
-                  {player.goals || 0}G {player.assists || 0}A
-                </div>
-              </div>
-            ) : null}
 
             {/* Actions Menu */}
             <DropdownMenu>
