@@ -28,12 +28,6 @@ export default function Squad() {
   const [editValue, setEditValue] = useState("");
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  
-  const handlePlayerSelect = (player: Player) => {
-    console.log('Player selected:', player.name);
-    setSelectedPlayer(player);
-  };
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -520,16 +514,6 @@ export default function Squad() {
       {/* Player Card Tab Content */}
       {activeTab === 'player-card' && (
         <>
-          {selectedPlayer ? (
-            <PlayerReadOnlyView 
-              player={selectedPlayer}
-              onBack={() => {
-                console.log('Going back from detailed view');
-                setSelectedPlayer(null);
-              }}
-            />
-          ) : (
-            <>
               {/* Filters */}
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
@@ -592,7 +576,6 @@ export default function Squad() {
                         <div key={player.id} className="relative">
                           <PlayerCard
                             player={player}
-                            onSelect={handlePlayerSelect}
                             onEdit={(player) => {
                               const hiddenButton = document.getElementById(`hidden-edit-${player.id}`) as HTMLElement;
                               if (hiddenButton) {
@@ -631,9 +614,6 @@ export default function Squad() {
               </CardContent>
             </Card>
           )}
-            </>
-          )}
-
         </>
       )}
 

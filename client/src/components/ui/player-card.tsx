@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, MoreHorizontal, Star, User } from "lucide-react";
 import { Player } from "@shared/schema";
+import { useLocation } from "wouter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +19,10 @@ interface PlayerCardProps {
   onDelete?: (player: Player) => void;
   onToggleKeyPlayer?: (player: Player) => void;
   onUpdateStatus?: (player: Player, newStatus: string) => void;
-  onSelect?: (player: Player) => void;
 }
 
-export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus, onSelect }: PlayerCardProps) {
+export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
+  const [, setLocation] = useLocation();
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   
   const getStatusColor = () => {
@@ -76,13 +77,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   return (
     <Card 
       data-testid={`card-player-${player.id}`} 
-      className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow ${onSelect ? 'cursor-pointer' : ''}`}
+      className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
       onClick={(e) => {
-        // Only trigger selection if not clicking on interactive elements
-        console.log('Card clicked for player:', player.name, 'onSelect:', !!onSelect);
-        if (onSelect && !e.defaultPrevented) {
-          console.log('Calling onSelect for:', player.name);
-          onSelect(player);
+        // Only trigger navigation if not clicking on interactive elements
+        if (!e.defaultPrevented) {
+          setLocation(`/players/${player.id}`);
         }
       }}
     >

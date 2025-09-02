@@ -19,6 +19,7 @@ import Teams from "@/pages/teams";
 import Videos from "@/pages/videos";
 import Clubs from "@/pages/clubs";
 import Settings from "@/pages/settings";
+import PlayerDetails from "@/pages/player-details";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/fixtures/:id" component={FixtureDetails} />
       <Route path="/analysis/:fixtureId" component={Analysis} />
       <Route path="/squad" component={Squad} />
+      <Route path="/players/:id" component={PlayerDetails} />
       <Route path="/statistics" component={Statistics} />
       <Route path="/teams" component={Teams} />
       <Route path="/videos" component={Videos} />
