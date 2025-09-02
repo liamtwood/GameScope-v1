@@ -620,24 +620,55 @@ export default function Squad() {
             />
           </div>
 
-          {/* Player Cards Grid */}
+          {/* Player Cards Grid - Grouped by Position */}
           {isLoading ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">Loading players...</p>
             </div>
           ) : filteredPlayers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredPlayers.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  player={player}
-                  onEdit={(player) => {
-                    setEditingPlayer(player);
-                  }}
-                  onDelete={handleDeletePlayer}
-                  onToggleKeyPlayer={handleToggleKeyPlayer}
-                />
-              ))}
+            <div className="space-y-8">
+              {/* Group players by position */}
+              {['GK', 'DEF', 'MID', 'FWD'].map(positionCategory => {
+                const playersInPosition = filteredPlayers.filter(player => 
+                  getPositionCategory(player.position) === positionCategory
+                );
+                
+                if (playersInPosition.length === 0) return null;
+                
+                const positionName = {
+                  'GK': 'Goalkeepers',
+                  'DEF': 'Defenders', 
+                  'MID': 'Midfielders',
+                  'FWD': 'Forwards'
+                }[positionCategory];
+                
+                return (
+                  <div key={positionCategory}>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <div className={`w-3 h-3 rounded-full mr-2 ${
+                        positionCategory === 'GK' ? 'bg-purple-500' :
+                        positionCategory === 'DEF' ? 'bg-blue-500' :
+                        positionCategory === 'MID' ? 'bg-green-500' :
+                        'bg-red-500'
+                      }`} />
+                      {positionName} ({playersInPosition.length})
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {playersInPosition.map((player) => (
+                        <PlayerCard
+                          key={player.id}
+                          player={player}
+                          onEdit={(player) => {
+                            setEditingPlayer(player);
+                          }}
+                          onDelete={handleDeletePlayer}
+                          onToggleKeyPlayer={handleToggleKeyPlayer}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <Card>
