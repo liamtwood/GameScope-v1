@@ -24,7 +24,8 @@ const fixtureCreateSchema = z.object({
   venue: z.string().optional(),
   date: z.date(),
   timeSlot: z.enum(["MORNING", "AFTERNOON", "EVENING"]),
-  location: z.string().min(1, "Location is required"),
+  kickoffTime: z.string().min(1, "Kick-off time is required"),
+  location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
   competition: z.string().min(1, "Competition is required"),
   notes: z.string().optional(),
@@ -82,6 +83,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       venue: "",
       date: new Date(),
       timeSlot: "AFTERNOON" as const,
+      kickoffTime: "15:00", // Default to 3:00 PM
       location: "",
       type: "HOME",
       competition: "FCSAA League",
@@ -135,21 +137,15 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   };
 
   const handleSubmit = async (data: FixtureCreateFormData) => {
-    // Map time slot to actual kick-off time
-    const timeMapping = {
-      MORNING: 10, // 10:00 AM
-      AFTERNOON: 15, // 3:00 PM  
-      EVENING: 20, // 8:00 PM
-    };
-    
-    const kickOffHour = timeMapping[data.timeSlot];
+    // Parse the kickoff time and set it on the date
+    const [hours, minutes] = data.kickoffTime.split(':').map(Number);
     const updatedDate = new Date(data.date);
-    updatedDate.setHours(kickOffHour, 0, 0, 0); // Set to exact hour with 0 minutes/seconds
+    updatedDate.setHours(hours, minutes, 0, 0);
     
     const formattedData = {
       ...data,
       date: updatedDate,
-      venue: data.location, // Map location to venue for backend compatibility
+      venue: data.location || "", // Map location to venue for backend compatibility
     };
     
     // If we're creating a new opponent and have a website URL, pass that along
@@ -342,8 +338,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               )}
             />
 
-            {/* Row 3 - Date, Time */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Row 3 - Date, Time Slot, Kick-off Time */}
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="date"
@@ -389,37 +385,61 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 name="timeSlot"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Time</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>Time Slot</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Update kick-off time based on time slot selection
+                        const timeMapping = {
+                          MORNING: "10:00",
+                          AFTERNOON: "15:00", 
+                          EVENING: "20:00"
+                        };
+                        form.setValue("kickoffTime", timeMapping[value as keyof typeof timeMapping]);
+                      }} 
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger data-testid="select-time-slot">
-                          <SelectValue placeholder="Select time" />
+                          <SelectValue placeholder="Select time slot" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="MORNING">Morning (10:00 AM)</SelectItem>
-                        <SelectItem value="AFTERNOON">Afternoon (3:00 PM)</SelectItem>
-                        <SelectItem value="EVENING">Evening (8:00 PM)</SelectItem>
+                        <SelectItem value="MORNING">Morning</SelectItem>
+                        <SelectItem value="AFTERNOON">Afternoon</SelectItem>
+                        <SelectItem value="EVENING">Evening</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="kickoffTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kick-off Time</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="time" 
+                        data-testid="input-kickoff-time"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Row 4 - Location */}
+            {/* Location field - hidden but still part of form for database */}
             <FormField
               control={form.control}
               name="location"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter location" data-testid="input-location" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <input type="hidden" {...field} value="" />
               )}
             />
 
