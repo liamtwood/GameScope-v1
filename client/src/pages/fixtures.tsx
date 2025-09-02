@@ -506,7 +506,21 @@ export default function Fixtures() {
           {/* Filters */}
           {showFilters && (
           <div className="mb-6 space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {/* Season Filter */}
+              {currentTeam && currentClub && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Season</label>
+                  <SeasonPicker
+                    team={currentTeam}
+                    club={currentClub}
+                    selectedSeason={selectedSeason}
+                    onSeasonChange={setSelectedSeason}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              
               {/* Competition Filter */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">Competition</label>

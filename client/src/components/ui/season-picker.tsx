@@ -1,7 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAvailableSeasons, getCurrentSeason, getEffectiveSeasonStartMonth } from "@/utils/seasonUtils";
 import { Team, Club, Competition } from "@shared/schema";
-import { Calendar } from "lucide-react";
 
 interface SeasonPickerProps {
   team?: Team;
@@ -25,10 +24,9 @@ export function SeasonPicker({
   const currentSeason = getCurrentSeason(seasonStartMonth);
   
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Calendar className="h-4 w-4 text-muted-foreground" />
+    <div className={className}>
       <Select value={selectedSeason} onValueChange={onSeasonChange}>
-        <SelectTrigger className="w-[140px]" data-testid="select-season">
+        <SelectTrigger className="w-full" data-testid="select-season">
           <SelectValue placeholder="Select season" />
         </SelectTrigger>
         <SelectContent>
