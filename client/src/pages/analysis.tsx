@@ -126,19 +126,7 @@ export default function Analysis() {
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
 
-  if (!fullGameStats) {
-    return (
-      <MainLayout title="View Fixture" subtitle="Analysis not found">
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">No full game statistics available for this match.</p>
-          <Button onClick={() => window.history.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
-      </MainLayout>
-    );
-  }
+  // Allow viewing fixture even without full game stats
 
   return (
     <MainLayout 
