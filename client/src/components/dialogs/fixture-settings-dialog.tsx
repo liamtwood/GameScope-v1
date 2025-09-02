@@ -70,35 +70,6 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Seasons */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Seasons</h3>
-              <Card className="border-2">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                        <Trophy className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg">2025/26 Season</CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">Current active season</p>
-                      </div>
-                    </div>
-                    <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      Active
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>Starts: August 1, 2025</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Basic Settings */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Settings</h3>
