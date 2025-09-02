@@ -155,9 +155,8 @@ export default function Analysis() {
           </Link>
           
           <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[960px] grid-cols-8">
+            <TabsList className="grid max-w-[840px] grid-cols-7">
               <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
-              <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
               <TabsTrigger value="positions">Position Maps</TabsTrigger>
@@ -169,87 +168,6 @@ export default function Analysis() {
           
           <div className="w-[120px]"></div> {/* Spacer to balance the back button */}
         </div>
-
-        {/* Fixture Details Tab */}
-        <TabsContent value="fixture-details">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Fixture Details</h3>
-                <FixtureEditDialog 
-                  fixture={fixture}
-                  onSave={async (data) => {
-                    await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
-                    queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
-                    queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
-                  }}
-                >
-                  <Button variant="outline" size="sm" data-testid="button-edit-fixture-analysis">
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                </FixtureEditDialog>
-              </div>
-              
-              <div className="space-y-4">
-                {/* Row 1 - Competition, Match Type, Opposition */}
-                <div className="grid grid-cols-3 gap-6">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Trophy className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-lg">{fixture.competition}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Match Type</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-lg">{fixture.type}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Opposition</label>
-                    <p className="text-lg mt-1">{fixture.opponent}</p>
-                  </div>
-                </div>
-
-                {/* Row 2 - Date, Time, Status */}
-                <div className="grid grid-cols-3 gap-6">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Date</label>
-                    <p className="text-base mt-1">{format(new Date(fixture.date), "d MMM yyyy")}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Time</label>
-                    <p className="text-base mt-1">{format(new Date(fixture.date), "h:mm a")}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Status</label>
-                    <p className="text-base capitalize mt-1">
-                      <span className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${
-                        fixture.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                        fixture.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                        fixture.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                        'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                      }`}>
-                        {fixture.status.toLowerCase()}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Additional Information */}
-                {fixture.notes && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Notes</label>
-                    <p className="text-base mt-1">{fixture.notes}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Statistics Tab */}
         <TabsContent value="statistics">
