@@ -31,6 +31,12 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
   // Find the opposition team for this fixture
   const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
 
+  // Get opponent's primary color
+  const getOpponentColor = () => {
+    const oppositionColors = (oppositionTeam?.colors as any) || { primary: '#6b7280', secondary: '#4b5563' };
+    return oppositionColors.primary || '#6b7280';
+  };
+
   const getResultDisplay = () => {
     if (fixture.status === 'COMPLETED' || fixture.status === 'NO_CONTEST') {
       if (fixture.homeScore !== null && fixture.awayScore !== null) {
@@ -142,6 +148,9 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
         showAnimatedBorder ? 'relative overflow-hidden group' : ''
       }`}
+      style={{
+        borderLeft: `4px solid ${getOpponentColor()}`
+      }}
       onClick={handleCardClick}
     >
       {showAnimatedBorder && (
