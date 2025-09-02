@@ -124,34 +124,34 @@ export default function PlayerDetails() {
         <Card>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="w-full justify-start border-b rounded-none bg-background">
+              <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-gray-200 rounded-none">
                 <TabsTrigger 
                   value="details" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-details"
                 >
-                  Player Details
+                  Details
                 </TabsTrigger>
                 <TabsTrigger 
                   value="account" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-account"
                 >
-                  Account Details
+                  Upload Video
                 </TabsTrigger>
                 <TabsTrigger 
                   value="teams" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-teams"
                 >
-                  Teams
+                  Lineups
                 </TabsTrigger>
                 <TabsTrigger 
                   value="parents" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none"
                   data-testid="tab-parents"
                 >
-                  Parents / Guardian
+                  GameScope Analysis
                 </TabsTrigger>
               </TabsList>
 
@@ -188,47 +188,18 @@ export default function PlayerDetails() {
 
               <TabsContent value="account" className="p-6 mt-0">
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
-                        {player.email || "Not provided"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
-                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
-                        Not provided
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Last Logged In</label>
-                      <p className="text-lg" data-testid={`text-last-login-${player.id}`}>
-                        Never logged in
-                      </p>
-                    </div>
+                  <div className="text-center py-8">
+                    <p className="text-lg text-muted-foreground">Upload Video functionality</p>
+                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="teams" className="p-6 mt-0">
                 <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Current Team</h3>
-                    <div className="grid grid-cols-1 gap-6">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Team</label>
-                        <p className="text-lg" data-testid={`text-current-team-${player.id}`}>
-                          Current Team Information
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <h4 className="text-md font-medium mb-2">Add to Other Teams</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Player can be added to other teams within the club - Coming soon
-                      </p>
-                    </div>
+                  <div className="text-center py-8">
+                    <p className="text-lg text-muted-foreground">Lineups functionality</p>
+                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
               </TabsContent>
@@ -236,7 +207,7 @@ export default function PlayerDetails() {
               <TabsContent value="parents" className="p-6 mt-0">
                 <div className="space-y-6">
                   <div className="text-center py-8">
-                    <p className="text-lg text-muted-foreground">Parents / Guardian functionality</p>
+                    <p className="text-lg text-muted-foreground">GameScope Analysis functionality</p>
                     <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
