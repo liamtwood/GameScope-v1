@@ -58,8 +58,8 @@ export default function Settings() {
       shortName: "",
       websiteUrl: "",
       colors: {
-        primary: "#dc2626", // Default red
-        secondary: "#000000", // Default black
+        primary: "#6b7280", // Default mid gray
+        secondary: "#4b5563", // Default darker gray
       },
     },
   });
@@ -71,8 +71,8 @@ export default function Settings() {
       shortName: "",
       websiteUrl: "",
       colors: {
-        primary: "#dc2626",
-        secondary: "#000000",
+        primary: "#6b7280", // Default mid gray
+        secondary: "#4b5563", // Default darker gray
       },
     },
   });
@@ -567,8 +567,8 @@ export default function Settings() {
       shortName: team.shortName || "",
       websiteUrl: team.websiteUrl || "",
       colors: (team.colors as { primary: string; secondary?: string }) || {
-        primary: "#dc2626",
-        secondary: "#000000",
+        primary: "#6b7280",
+        secondary: "#4b5563",
       },
     });
     setIsEditOppositionDialogOpen(true);
@@ -967,7 +967,7 @@ export default function Settings() {
                                     type="text"
                                     value={field.value}
                                     onChange={field.onChange}
-                                    placeholder="#dc2626"
+                                    placeholder="#6b7280"
                                     className="flex-1"
                                     data-testid="input-opposition-primary-color-text"
                                   />
@@ -995,7 +995,7 @@ export default function Settings() {
                                     type="text"
                                     value={field.value || ""}
                                     onChange={field.onChange}
-                                    placeholder="#000000"
+                                    placeholder="#4b5563"
                                     className="flex-1"
                                     data-testid="input-opposition-secondary-color-text"
                                   />
@@ -1172,7 +1172,7 @@ export default function Settings() {
                               type="text"
                               value={field.value}
                               onChange={field.onChange}
-                              placeholder="#dc2626"
+                              placeholder="#6b7280"
                               className="flex-1"
                               data-testid="input-edit-opposition-primary-color-text"
                             />
@@ -1200,7 +1200,7 @@ export default function Settings() {
                               type="text"
                               value={field.value || ""}
                               onChange={field.onChange}
-                              placeholder="#000000"
+                              placeholder="#4b5563"
                               className="flex-1"
                               data-testid="input-edit-opposition-secondary-color-text"
                             />

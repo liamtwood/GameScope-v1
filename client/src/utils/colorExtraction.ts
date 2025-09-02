@@ -45,7 +45,7 @@ export async function extractColorsFromImage(imageUrl: string): Promise<Extracte
         const filteredColors = filterColors(colors);
         
         // Get primary and secondary colors
-        const primary = filteredColors[0]?.color || '#dc2626';
+        const primary = filteredColors[0]?.color || '#6b7280';
         const secondary = filteredColors[1]?.color;
         
         resolve({
