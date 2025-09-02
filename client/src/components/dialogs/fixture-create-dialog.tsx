@@ -330,6 +330,18 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
+                        {selectedOpponentForLogo && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedOpponentForLogo(selectedOpponentForLogo)}
+                            data-testid="button-upload-logo"
+                            title="Upload logo for selected opponent"
+                          >
+                            📷
+                          </Button>
+                        )}
                       </div>
                     )}
                   </FormControl>
@@ -346,14 +358,35 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
-                        onChange={(e) => field.onChange(new Date(e.target.value))}
-                        data-testid="input-new-date"
-                      />
-                    </FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal h-10",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            data-testid="button-new-date-picker"
+                          >
+                            {field.value ? (
+                              format(field.value, "d MMM yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Input
+                          type="date"
+                          value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                          onChange={(e) => field.onChange(new Date(e.target.value))}
+                          data-testid="input-new-date"
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -422,6 +455,32 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               )}
             />
 
+
+            {/* Logo Upload Section */}
+            {selectedOpponentForLogo && (
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium mb-2">Upload Logo for {selectedOpponentForLogo.name}</h4>
+                <LogoUpload
+                  teamName={selectedOpponentForLogo.name}
+                  currentLogo={selectedOpponentForLogo.logoPath || undefined}
+                  onUploadComplete={(logoPath: string) => {
+                    updateOppositionTeamMutation.mutate({
+                      teamId: selectedOpponentForLogo.id,
+                      logoPath
+                    });
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedOpponentForLogo(null)}
+                  className="mt-2"
+                >
+                  Cancel Logo Upload
+                </Button>
+              </div>
+            )}
 
             {/* Notes field - hidden but still part of form for database */}
             <FormField
