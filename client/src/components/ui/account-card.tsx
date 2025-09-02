@@ -187,8 +187,8 @@ export function AccountCard({ player }: AccountCardProps) {
                 </p>
                 <p className="text-xs text-muted-foreground" data-testid={`text-date-of-birth-${player.id}`}>
                   {player.dateOfBirth 
-                    ? `Age: ${age} years`
-                    : "Age: Not provided"
+                    ? `${format(new Date(player.dateOfBirth), "d MMM yyyy")} (Age: ${age})`
+                    : "Date of birth not provided"
                   }
                 </p>
               </div>
