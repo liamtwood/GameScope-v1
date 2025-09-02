@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,15 +10,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PlayerCardProps {
   player: Player;
   onEdit?: (player: Player) => void;
   onDelete?: (player: Player) => void;
   onToggleKeyPlayer?: (player: Player) => void;
+  onUpdateStatus?: (player: Player, newStatus: string) => void;
 }
 
-export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: PlayerCardProps) {
+export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
   
   const getStatusColor = () => {
     switch (player.status) {
@@ -98,9 +102,34 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
           {/* Right side - Status and Stats */}
           <div className="flex items-center space-x-3">
             {/* Status */}
-            <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
-              {player.status}
-            </Badge>
+            {isEditingStatus ? (
+              <Select
+                value={player.status || "Fit"}
+                onValueChange={(newStatus) => {
+                  if (onUpdateStatus) {
+                    onUpdateStatus(player, newStatus);
+                  }
+                  setIsEditingStatus(false);
+                }}
+              >
+                <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Fit">Fit</SelectItem>
+                  <SelectItem value="Injured">Injured</SelectItem>
+                  <SelectItem value="Retired">Retired</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge 
+                className={`text-xs px-3 py-1 cursor-pointer hover:opacity-80 ${getStatusColor()}`}
+                onClick={() => setIsEditingStatus(true)}
+                title="Click to edit status"
+              >
+                {player.status}
+              </Badge>
+            )}
             
 
             {/* Actions Menu */}

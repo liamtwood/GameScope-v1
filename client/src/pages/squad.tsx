@@ -666,6 +666,9 @@ export default function Squad() {
                             }}
                             onDelete={handleDeletePlayer}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
+                            onUpdateStatus={(player, newStatus) => {
+                              handleUpdatePlayer(player.id, { status: newStatus });
+                            }}
                           />
                           {/* Hidden edit dialog trigger for this player */}
                           <PlayerEditDialog
