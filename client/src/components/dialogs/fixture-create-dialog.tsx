@@ -330,7 +330,13 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setShowNewOpponentInput(true)}
+                            onClick={() => {
+                              setShowNewOpponentInput(true);
+                              // Clear the opponent field and logo states when adding new opponent
+                              field.onChange("");
+                              setSelectedOpponentForLogo(null);
+                              setShowLogoUpload(false);
+                            }}
                             data-testid="button-add-new-opponent"
                             title="Add new opponent"
                           >
