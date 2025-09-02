@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -424,15 +424,20 @@ export default function Fixtures() {
             <Filter className="mr-2 h-4 w-4" />
             Enable Filter
           </Button>
-          <FixtureCreateDialog 
-            teamId={currentTeam?.id || ""} 
-            onSave={(data) => createFixtureMutation.mutate(data)}
-          >
-            <Button variant="outline" data-testid="button-add-fixture">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Fixture
+          <div className="flex items-center gap-2">
+            <FixtureCreateDialog 
+              teamId={currentTeam?.id || ""} 
+              onSave={(data) => createFixtureMutation.mutate(data)}
+            >
+              <Button variant="outline" data-testid="button-add-fixture">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Fixture
+              </Button>
+            </FixtureCreateDialog>
+            <Button variant="outline" data-testid="button-settings">
+              <Settings className="h-4 w-4" />
             </Button>
-          </FixtureCreateDialog>
+          </div>
         </div>
         
         <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
