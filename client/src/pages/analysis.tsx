@@ -13,7 +13,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { Fixture, MatchStats } from "@shared/schema";
+import { Fixture, MatchStats, Player } from "@shared/schema";
 
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
@@ -31,6 +31,11 @@ export default function Analysis() {
 
   const { data: oppositionTeams } = useQuery<any[]>({
     queryKey: ["/api/opposition-teams"],
+  });
+
+  const { data: players } = useQuery<Player[]>({
+    queryKey: ["/api/players", fixture?.teamId],
+    enabled: !!fixture?.teamId,
   });
 
 
@@ -820,9 +825,26 @@ export default function Analysis() {
                 </div>
               </div>
               
-              <div className="text-center py-12">
-                <h3 className="text-lg font-semibold mb-2">Position Maps</h3>
-                <p className="text-muted-foreground">Coming soon - analyze player positioning and formation effectiveness</p>
+              {/* Polk State College Lineups */}
+              <div>
+                <h3 className="text-lg font-semibold mb-6">Polk State College Lineup</h3>
+                {fixture && players ? (
+                  <div className="space-y-2">
+                    {players.slice(0, 11).map((player, index) => (
+                      <div key={player.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/30">
+                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                          {player.jerseyNumber}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{player.name}</p>
+                          <p className="text-xs text-muted-foreground">{player.position}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">Lineup not available</p>
+                )}
               </div>
             </CardContent>
           </Card>
