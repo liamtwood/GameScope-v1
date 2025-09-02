@@ -90,6 +90,16 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
     return "/assets/logos/polk-state-logo.jpg";
   };
 
+  // Function to handle logo clicks to navigate to VIEW FIXTURE
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    if (onViewAnalysis) {
+      onViewAnalysis(fixture);
+    } else if (onViewDetails) {
+      onViewDetails(fixture);
+    }
+  };
+
   // Function to get opponent display info
   const getOpponentDisplay = () => {
     if (oppositionTeam?.logoPath) {
@@ -97,7 +107,8 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
         <img 
           src={oppositionTeam.logoPath}
           alt={fixture.opponent}
-          className="h-16 w-16 object-contain"
+          className="h-16 w-16 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={handleLogoClick}
         />
       );
     }
@@ -107,7 +118,10 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
     
     return (
-      <div className="h-16 w-16 bg-muted rounded flex items-center justify-center text-sm font-medium text-muted-foreground">
+      <div 
+        className="h-16 w-16 bg-muted rounded flex items-center justify-center text-sm font-medium text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors"
+        onClick={handleLogoClick}
+      >
         {initials}
       </div>
     );
