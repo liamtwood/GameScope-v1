@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Sparkles } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette } from "lucide-react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
-import { extractColorsFromImage } from "@/utils/colorExtraction";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -382,55 +381,6 @@ export default function Settings() {
     }
   };
 
-  const handleSuggestColorsFromLogo = async (team: any) => {
-    if (!team.logoPath) {
-      toast({
-        title: "No Logo",
-        description: "This team doesn't have a logo to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setExtractingColors(team.id);
-    
-    try {
-      const extractedColors = await extractColorsFromImage(team.logoPath);
-      
-      // Update the team's colors
-      const updatedData = {
-        colors: {
-          primary: extractedColors.primary,
-          secondary: extractedColors.secondary,
-        }
-      };
-
-      let response;
-      if (team.type === 'club') {
-        response = await apiRequest("PATCH", `/api/clubs/${team.id}`, updatedData);
-      } else {
-        response = await apiRequest("PUT", `/api/opposition-teams/${team.id}`, updatedData);
-      }
-      
-      // Invalidate relevant query
-      queryClient.invalidateQueries({ queryKey: [team.type === 'club' ? '/api/clubs' : '/api/opposition-teams'] });
-      
-      toast({
-        title: "Colors Extracted!",
-        description: `Found primary color ${extractedColors.primary}${extractedColors.secondary ? ` and secondary color ${extractedColors.secondary}` : ''} from the logo.`,
-      });
-      
-    } catch (error) {
-      console.error('Error extracting colors:', error);
-      toast({
-        title: "Color Extraction Failed",
-        description: "Could not analyze the logo colors. Please try again or set colors manually.",
-        variant: "destructive",
-      });
-    } finally {
-      setExtractingColors(null);
-    }
-  };
 
   const handleOpenReplacementModal = (team: any) => {
     setReplacingTeam(team);
@@ -584,50 +534,6 @@ export default function Settings() {
     }
   };
 
-  const handleSuggestColors = async (team: OppositionTeam) => {
-    if (!team.logoPath) {
-      toast({
-        title: "No Logo",
-        description: "This team doesn't have a logo to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setExtractingColors(team.id);
-    
-    try {
-      const extractedColors = await extractColorsFromImage(team.logoPath);
-      
-      // Update the team's colors
-      const updatedData = {
-        colors: {
-          primary: extractedColors.primary,
-          secondary: extractedColors.secondary,
-        }
-      };
-
-      await updateOppositionMutation.mutateAsync({ 
-        id: team.id, 
-        teamData: updatedData 
-      });
-      
-      toast({
-        title: "Colors Extracted!",
-        description: `Found primary color ${extractedColors.primary}${extractedColors.secondary ? ` and secondary color ${extractedColors.secondary}` : ''} from the logo.`,
-      });
-      
-    } catch (error) {
-      console.error('Error extracting colors:', error);
-      toast({
-        title: "Color Extraction Failed",
-        description: "Could not analyze the logo colors. Please try again or set colors manually.",
-        variant: "destructive",
-      });
-    } finally {
-      setExtractingColors(null);
-    }
-  };
 
   // Auto-reprocess when zoom level, processing mode, or threshold changes
   useEffect(() => {
@@ -722,31 +628,17 @@ export default function Settings() {
                     </Button>
                   )}
                   {team.logoPath && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSuggestColorsFromLogo(team)}
-                        disabled={extractingColors === team.id}
-                        className="w-full text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950"
-                        data-testid={`button-suggest-colors-logo-${team.id}`}
-                        title="Extract colors from logo"
-                      >
-                        <Sparkles className="mr-1 h-3 w-3" />
-                        {extractingColors === team.id ? 'Analyzing...' : 'Suggest Colors'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteLogo(team)}
-                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                        disabled={processing}
-                        data-testid={`button-delete-${team.id}`}
-                      >
-                        <Trash2 className="mr-1 h-3 w-3" />
-                        Delete Logo
-                      </Button>
-                    </>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteLogo(team)}
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                      disabled={processing}
+                      data-testid={`button-delete-${team.id}`}
+                    >
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Delete Logo
+                    </Button>
                   )}
                 </div>
               ))}
@@ -1067,20 +959,6 @@ export default function Settings() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {team.logoPath && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSuggestColors(team)}
-                        disabled={extractingColors === team.id}
-                        className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950"
-                        data-testid={`button-suggest-colors-${team.id}`}
-                        title="Extract colors from logo"
-                      >
-                        <Sparkles className="h-4 w-4" />
-                        {extractingColors === team.id ? 'Analyzing...' : 'Suggest Colors'}
-                      </Button>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"
