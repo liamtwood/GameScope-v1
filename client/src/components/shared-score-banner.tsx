@@ -23,7 +23,7 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
   const oppositionColors = (oppositionTeam?.colors as any) || { primary: '#6b7280', secondary: '#4b5563' };
   
   // Use opponent's primary color for the background, fall back to team colors if no opponent
-  const primaryColor = oppositionColors.primary || teamColors.primary || clubColors.primary || '#CC4125';
+  const primaryColor = oppositionColors.primary || teamColors.primary || clubColors.primary || '#6b7280';
   
   // Scores: Show as Away - Home to match the layout
   const leftScore = isHomeMatch ? fixture.homeScore : fixture.awayScore;  // PSC score
