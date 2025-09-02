@@ -254,35 +254,100 @@ export default function FixtureDetails() {
                   </FixtureEditDialog>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Opposition</label>
-                      <p className="text-lg font-semibold">{fixture.opponent}</p>
-                    </div>
+                <div className="space-y-6">
+                  {/* Row 1 - Competition, Match Type */}
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                      <p className="text-lg">{fixture.competition}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Trophy className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-lg">{fixture.competition}</p>
+                      </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Type</label>
-                      <p className="text-lg">{fixture.type}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Match Type</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-lg">{fixture.type}</p>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="space-y-4">
+
+                  {/* Row 2 - Opponent with Logo */}
+                  <div className="grid grid-cols-[2fr,1fr] gap-6">
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Date & Time</label>
-                      <p className="text-lg">{format(new Date(fixture.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Opposition</label>
+                      <p className="text-xl font-semibold mt-1">{fixture.opponent}</p>
+                      {oppositionTeam?.shortName && (
+                        <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
+                      )}
+                    </div>
+                    
+                    {/* Logo Container */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">Logo</label>
+                      <div className="border rounded-lg p-4 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        {oppositionTeam?.logoPath ? (
+                          <img 
+                            src={oppositionTeam.logoPath}
+                            alt={`${oppositionTeam.name} logo`}
+                            className="max-h-16 max-w-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-sm text-muted-foreground text-center">
+                            No Logo
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 3 - Date, Time, Venue */}
+                  <div className="grid grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Date</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-lg">{format(new Date(fixture.date), "d MMM yyyy")}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Time</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-lg">{format(new Date(fixture.date), "h:mm a")}</p>
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Venue</label>
-                      <p className="text-lg">{fixture.venue}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-lg">{fixture.venue || "TBD"}</p>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Status</label>
-                      <p className="text-lg capitalize">{fixture.status.toLowerCase()}</p>
+                      <p className="text-lg capitalize mt-1">
+                        <span className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${
+                          fixture.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                          fixture.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                          fixture.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                          'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                        }`}>
+                          {fixture.status.toLowerCase()}
+                        </span>
+                      </p>
                     </div>
+                    {fixture.notes && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Notes</label>
+                        <p className="text-lg mt-1">{fixture.notes}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

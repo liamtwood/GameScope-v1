@@ -20,9 +20,11 @@ import { format } from "date-fns";
 
 const fixtureEditSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
-  shortName: z.string().optional(),
   venue: z.string().optional(),
   date: z.date(),
+  timeSlot: z.enum(["MORNING", "AFTERNOON", "EVENING"]).optional(),
+  kickoffTime: z.string().optional(),
+  location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
   status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED", "NO_CONTEST"]),
   competition: z.string().min(1, "Competition is required"),
@@ -42,8 +44,9 @@ interface FixtureEditDialogProps {
 
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
   const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
-  const [showLogoUpload, setShowLogoUpload] = useState(false);
+  const [selectedOpponentForLogo, setSelectedOpponentForLogo] = useState<OppositionTeam | null>(null);
 
   // Fetch existing competitions and opposition teams
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -57,18 +60,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   // Find the current opposition team, or create one if it doesn't exist
   const [currentOppositionTeam, setCurrentOppositionTeam] = useState<OppositionTeam | null>(null);
 
-  // Create opposition team mutation
-  const createOppositionTeamMutation = useMutation({
-    mutationFn: async (name: string): Promise<OppositionTeam> => {
-      const response = await apiRequest("POST", "/api/opposition-teams", { name });
-      return response as unknown as OppositionTeam;
-    },
-    onSuccess: (newTeam: OppositionTeam) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      setCurrentOppositionTeam(newTeam);
-      setShowLogoUpload(true); // Show upload dialog immediately after team creation
-    },
-  });
 
   const updateOppositionTeamMutation = useMutation({
     mutationFn: async ({ teamId, logoPath, shortName }: { teamId: string; logoPath?: string; shortName?: string }) => {
@@ -110,9 +101,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     resolver: zodResolver(fixtureEditSchema),
     defaultValues: {
       opponent: fixture.opponent,
-      shortName: "",
       venue: fixture.venue,
       date: new Date(fixture.date),
+      timeSlot: "AFTERNOON" as const,
+      kickoffTime: "15:00",
+      location: "",
       type: fixture.type as "HOME" | "AWAY",
       status: fixture.status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_CONTEST",
       competition: fixture.competition || "",
@@ -123,73 +116,35 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     },
   });
 
-  // Initialize and sync currentOppositionTeam with opposition teams data
+  // Initialize the selected opponent for logo
   useEffect(() => {
-    if (oppositionTeams.length > 0 && fixture.opponent) {
-      const foundTeam = oppositionTeams.find(team => team.name === fixture.opponent);
-      if (foundTeam) {
-        setCurrentOppositionTeam(foundTeam);
-        // Update the shortName field with the found team's short name
-        form.setValue("shortName", foundTeam.shortName || "");
-      }
+    if (fixture.oppositionTeamId) {
+      const team = oppositionTeams.find(team => team.id === fixture.oppositionTeamId);
+      setSelectedOpponentForLogo(team || null);
     }
-  }, [oppositionTeams, fixture.opponent, form]);
-
-  // Keep currentOppositionTeam in sync when opponent name changes
-  useEffect(() => {
-    if (oppositionTeams.length > 0) {
-      const opponentName = form.watch("opponent");
-      const foundTeam = oppositionTeams.find(team => team.name === opponentName);
-      if (foundTeam && (!currentOppositionTeam || currentOppositionTeam.id !== foundTeam.id)) {
-        setCurrentOppositionTeam(foundTeam);
-        // Update the shortName field when team changes
-        form.setValue("shortName", foundTeam.shortName || "");
-      } else if (!foundTeam && currentOppositionTeam) {
-        setCurrentOppositionTeam(null);
-        form.setValue("shortName", "");
-      }
-    }
-  }, [oppositionTeams, form, currentOppositionTeam]);
+  }, [fixture.oppositionTeamId, oppositionTeams]);
 
   const handleSubmit = async (data: FixtureEditFormData) => {
     try {
-      // If we have a current opposition team, update it with any changes
-      if (currentOppositionTeam?.id) {
-        const updateData: any = {};
-        
-        // Update name if changed
-        if (data.opponent !== currentOppositionTeam.name) {
-          updateData.name = data.opponent;
-        }
-        
-        // Update short name if changed
-        if (data.shortName !== currentOppositionTeam.shortName) {
-          updateData.shortName = data.shortName;
-        }
-        
-        // Only make API call if there are changes to the opposition team
-        if (Object.keys(updateData).length > 0) {
-          await apiRequest("PUT", `/api/opposition-teams/${currentOppositionTeam.id}`, updateData);
-          // Invalidate queries to refresh data
-          queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-        }
+      // Check if the opponent exists
+      let existingTeam = oppositionTeams.find(team => team.name === data.opponent);
+      
+      if (existingTeam) {
+        data.oppositionTeamId = existingTeam.id;
       } else if (data.opponent && data.opponent.trim()) {
         // Create new opposition team if it doesn't exist
         const newTeam = await apiRequest("POST", "/api/opposition-teams", {
           name: data.opponent,
-          shortName: data.shortName || ""
+          shortName: data.opponent.substring(0, 3).toUpperCase(),
+          logoPath: null,
+          websiteUrl: ""
         }) as any;
         data.oppositionTeamId = newTeam.id;
         queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
       }
       
-      // Save fixture data with opposition team ID
-      const { shortName, ...fixtureData } = data;
-      if (currentOppositionTeam?.id) {
-        fixtureData.oppositionTeamId = currentOppositionTeam.id;
-      }
-      
-      onSave(fixtureData);
+      // Save fixture data
+      onSave(data);
       setOpen(false);
     } catch (error) {
       console.error("Error updating fixture:", error);
@@ -208,183 +163,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            {/* Row 1 - Competition, Match Type */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="opponent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Opponent</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleOpponentChange(e.target.value);
-                        }}
-                        data-testid="input-opponent" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="shortName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Short Name</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="e.g. MCI, PSG"
-                        maxLength={10}
-                        data-testid="input-short-name" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Venue</FormLabel>
-                    <FormControl>
-                      <Input {...field} data-testid="input-venue" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Opposition Team Logo Section */}
-            {(currentOppositionTeam || (form.watch("opponent") && form.watch("opponent").trim())) && (
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 p-2">
-                      {currentOppositionTeam?.logoPath ? (
-                        <img 
-                          src={currentOppositionTeam.logoPath} 
-                          alt={`${currentOppositionTeam.name} logo`}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center text-sm font-medium text-gray-600">
-                          {currentOppositionTeam?.shortName || 
-                           (currentOppositionTeam?.name || form.watch("opponent"))
-                             .split(' ').map((w: string) => w[0]).join('').slice(0, 3).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">
-                        {currentOppositionTeam?.name || form.watch("opponent")}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {createOppositionTeamMutation.isPending 
-                          ? 'Creating team...' 
-                          : currentOppositionTeam?.logoPath 
-                            ? 'Logo uploaded' 
-                            : 'No logo uploaded'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogoUploadClick}
-                    disabled={createOppositionTeamMutation.isPending || !form.watch("opponent")?.trim()}
-                    data-testid="button-edit-logo"
-                  >
-                    {currentOppositionTeam?.logoPath ? 'Change Logo' : 'Add Logo'}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Logo Upload Section */}
-            {showLogoUpload && currentOppositionTeam && (
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium mb-2">Upload Logo for {currentOppositionTeam.name}</h4>
-                <LogoUpload
-                  teamName={currentOppositionTeam.name}
-                  currentLogo={currentOppositionTeam.logoPath || undefined}
-                  onUploadComplete={(logoPath: string) => {
-                    console.log("Upload complete, currentOppositionTeam:", currentOppositionTeam);
-                    if (!currentOppositionTeam?.id) {
-                      console.error("No currentOppositionTeam or ID found:", currentOppositionTeam);
-                      return;
-                    }
-                    updateOppositionTeamMutation.mutate({
-                      teamId: currentOppositionTeam.id,
-                      logoPath
-                    });
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowLogoUpload(false)}
-                  className="mt-2"
-                >
-                  Cancel Logo Upload
-                </Button>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date & Time</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            data-testid="button-date-picker"
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP p")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Input
-                          type="datetime-local"
-                          value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
-                          onChange={(e) => field.onChange(new Date(e.target.value))}
-                          data-testid="input-datetime"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="competition"
@@ -439,9 +219,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="type"
@@ -450,8 +228,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                     <FormLabel>Match Type</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger data-testid="select-type">
-                          <SelectValue placeholder="Select type" />
+                        <SelectTrigger data-testid="select-match-type">
+                          <SelectValue placeholder="Select match type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -459,6 +237,261 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                         <SelectItem value="AWAY">Away</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 2 - Opponent with Logo Container */}
+            <div className="grid grid-cols-[2fr,1fr] gap-4">
+              <FormField
+                control={form.control}
+                name="opponent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Opponent</FormLabel>
+                    <FormControl>
+                      {showNewOpponentInput ? (
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setShowNewOpponentInput(false);
+                              setSelectedOpponentForLogo(null);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              const selectedTeam = oppositionTeams.find(team => team.name === value);
+                              setSelectedOpponentForLogo(selectedTeam || null);
+                            }}
+                            data-testid="select-opponent"
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Select opponent" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {oppositionTeams.map((team) => (
+                                <SelectItem key={team.id} value={team.name}>
+                                  <div className="flex items-center gap-2">
+                                    {team.logoPath ? (
+                                      <img 
+                                        src={team.logoPath} 
+                                        alt={`${team.name} logo`}
+                                        className="w-4 h-4 object-cover rounded"
+                                      />
+                                    ) : (
+                                      <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                        {team.shortName}
+                                      </div>
+                                    )}
+                                    {team.name}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setShowNewOpponentInput(true);
+                              // Clear the opponent field and logo states when adding new opponent
+                              field.onChange("");
+                              setSelectedOpponentForLogo(null);
+                            }}
+                            data-testid="button-add-new-opponent"
+                            title="Add new opponent"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Logo Container */}
+              <div className="space-y-2">
+                <FormLabel>Logo</FormLabel>
+                <div className="border rounded-lg p-4 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                  {selectedOpponentForLogo?.logoPath ? (
+                    <img 
+                      src={selectedOpponentForLogo.logoPath}
+                      alt={`${selectedOpponentForLogo.name} logo`}
+                      className="max-h-16 max-w-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center">
+                      No Logo
+                    </div>
+                  )}
+                </div>
+                <LogoUpload
+                  teamName={selectedOpponentForLogo?.name || "Selected Team"}
+                  currentLogo={selectedOpponentForLogo?.logoPath || undefined}
+                  onUploadComplete={async (logoPath: string) => {
+                    const currentOpponent = form.getValues("opponent");
+                    if (!currentOpponent) return;
+
+                    // Find or create opponent team object
+                    let opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                    
+                    if (!opponentTeam) {
+                      // For new teams, create the team with the logo
+                      try {
+                        await apiRequest("POST", "/api/opposition-teams", {
+                          name: currentOpponent,
+                          shortName: currentOpponent.substring(0, 3).toUpperCase(),
+                          logoPath: logoPath,
+                          websiteUrl: ""
+                        });
+                        // Refresh opposition teams list
+                        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                      } catch (error) {
+                        console.error("Error creating team:", error);
+                      }
+                    } else {
+                      // For existing teams, just update the logo
+                      updateOppositionTeamMutation.mutate({
+                        teamId: opponentTeam.id,
+                        logoPath
+                      });
+                    }
+                    
+                    // Update the selected opponent to show new logo
+                    const updatedTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                    if (updatedTeam) {
+                      setSelectedOpponentForLogo({...updatedTeam, logoPath});
+                    }
+                  }}
+                  buttonText="Upload Logo"
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Row 3 - Date, Time Slot, Kick-off Time */}
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal h-10",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            data-testid="button-date-picker"
+                          >
+                            {field.value ? (
+                              format(field.value, "d MMM yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Input
+                          type="date"
+                          value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                          onChange={(e) => field.onChange(new Date(e.target.value))}
+                          data-testid="input-date"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="timeSlot"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time Slot</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Update kick-off time based on time slot selection
+                        const timeMapping = {
+                          MORNING: "10:00",
+                          AFTERNOON: "15:00", 
+                          EVENING: "20:00"
+                        };
+                        form.setValue("kickoffTime", timeMapping[value as keyof typeof timeMapping]);
+                      }} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger data-testid="select-time-slot">
+                          <SelectValue placeholder="Select time slot" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="MORNING">Morning</SelectItem>
+                        <SelectItem value="AFTERNOON">Afternoon</SelectItem>
+                        <SelectItem value="EVENING">Evening</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="kickoffTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kick-off Time</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="time" 
+                        data-testid="input-kickoff-time"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Additional Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="venue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Venue</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter venue" data-testid="input-venue" />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
