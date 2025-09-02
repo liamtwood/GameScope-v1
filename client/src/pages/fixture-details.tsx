@@ -280,8 +280,8 @@ export default function FixtureDetails() {
                     </div>
                   </div>
 
-                  {/* Row 2 - Date, Time */}
-                  <div className="grid grid-cols-2 gap-6">
+                  {/* Row 2 - Date, Time, Status */}
+                  <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Date</label>
                       <p className="text-base mt-1">{format(new Date(fixture.date), "d MMM yyyy")}</p>
@@ -290,13 +290,9 @@ export default function FixtureDetails() {
                       <label className="text-sm font-medium text-muted-foreground">Time</label>
                       <p className="text-base mt-1">{format(new Date(fixture.date), "h:mm a")}</p>
                     </div>
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Status</label>
-                      <p className="text-lg capitalize mt-1">
+                      <p className="text-base capitalize mt-1">
                         <span className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${
                           fixture.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                           fixture.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
@@ -307,20 +303,15 @@ export default function FixtureDetails() {
                         </span>
                       </p>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Venue</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-base">{fixture.venue || "TBD"}</p>
-                      </div>
-                    </div>
-                    {fixture.notes && (
-                      <div className="col-span-2">
-                        <label className="text-sm font-medium text-muted-foreground">Notes</label>
-                        <p className="text-base mt-1">{fixture.notes}</p>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Additional Information */}
+                  {fixture.notes && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Notes</label>
+                      <p className="text-base mt-1">{fixture.notes}</p>
+                    </div>
+                  )}
                 </div>
 
               </CardContent>
