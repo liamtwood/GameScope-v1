@@ -61,6 +61,10 @@ export const players = pgTable("players", {
   assists: integer("assists").default(0),
   appearances: integer("appearances").default(0),
   keyPlayer: boolean("key_player").default(false),
+  // Account fields
+  email: text("email"),
+  gender: varchar("gender", { length: 10 }), // Male or Female
+  dateOfBirth: timestamp("date_of_birth"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -167,7 +171,13 @@ export const users = pgTable("users", {
 // Insert schemas
 export const insertClubSchema = createInsertSchema(clubs).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertPlayerSchema = createInsertSchema(players).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPlayerSchema = createInsertSchema(players)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    email: z.string().email().optional().or(z.literal("")),
+    gender: z.enum(["Male", "Female"]).optional(),
+    dateOfBirth: z.string().or(z.date()).transform((val) => val ? new Date(val) : undefined).optional(),
+  });
 export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     websiteUrl: z.string().url().optional().or(z.literal("")),

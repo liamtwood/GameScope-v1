@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { PlayerCard } from "@/components/ui/player-card";
+import { AccountCard } from "@/components/ui/account-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { PlayerEditDialog } from "@/components/dialogs/player-edit-dialog";
 import { Button } from "@/components/ui/button";
@@ -692,14 +693,52 @@ export default function Squad() {
 
       {/* Account Card Tab Content */}
       {activeTab === 'account-card' && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Account Card view coming soon</p>
-              <p className="text-sm text-muted-foreground mt-2">This will show player account information and contact details</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          {filteredPlayers.length > 0 ? (
+            (() => {
+              // Group players by position for account cards
+              const positions = ['GK', 'DEF', 'MID', 'FWD'];
+              return positions.map((pos) => {
+                const positionPlayers = filteredPlayers.filter(player => player.position === pos);
+                if (positionPlayers.length === 0) return null;
+                
+                return (
+                  <div key={pos} className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-3 h-3 rounded-full ${
+                        pos === 'GK' ? 'bg-yellow-500' :
+                        pos === 'DEF' ? 'bg-blue-500' :
+                        pos === 'MID' ? 'bg-green-500' :
+                        'bg-red-500'
+                      }`} />
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {pos === 'GK' ? 'Goalkeepers' :
+                         pos === 'DEF' ? 'Defenders' :
+                         pos === 'MID' ? 'Midfielders' :
+                         'Forwards'} ({positionPlayers.length})
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {positionPlayers.map((player) => (
+                        <AccountCard key={player.id} player={player} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              }).filter(Boolean);
+            })()
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-4">👥</div>
+                  <h2 className="text-xl font-semibold text-foreground mb-2">No Players Found</h2>
+                  <p className="text-muted-foreground">Add players to manage their accounts</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
     </MainLayout>
   );

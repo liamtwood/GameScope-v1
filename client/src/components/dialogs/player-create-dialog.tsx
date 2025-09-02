@@ -33,6 +33,10 @@ const createPlayerSchema = z.object({
   goals: z.number().min(0).optional(),
   assists: z.number().min(0).optional(),
   appearances: z.number().min(0).optional(),
+  // Account fields
+  email: z.string().email().optional().or(z.literal("")),
+  gender: z.enum(["Male", "Female"]).optional(),
+  dateOfBirth: z.string().optional(),
 });
 
 type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
@@ -58,6 +62,9 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       goals: 0,
       assists: 0,
       appearances: 0,
+      email: "",
+      gender: undefined,
+      dateOfBirth: "",
     },
   });
 
@@ -186,6 +193,71 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                 </FormItem>
               )}
             />
+
+            {/* Account Information Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-semibold">Account Information</h3>
+              
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="Enter email address" 
+                        {...field} 
+                        data-testid="input-email" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-gender">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="date" 
+                          {...field} 
+                          data-testid="input-date-of-birth" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <div className="grid grid-cols-3 gap-4">
               <FormField
