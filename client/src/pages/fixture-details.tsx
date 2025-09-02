@@ -222,24 +222,6 @@ export default function FixtureDetails() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center space-x-6 mt-6 pt-6 border-t text-sm text-muted-foreground">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4" />
-                <span>{format(new Date(fixture.date), "MMM d, yyyy")}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4" />
-                <span>{format(new Date(fixture.date), "h:mm a")}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4" />
-                <span>{fixture.venue}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Trophy className="h-4 w-4" />
-                <span>{fixture.competition}</span>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
