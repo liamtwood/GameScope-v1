@@ -104,12 +104,10 @@ export default function Analysis() {
       <MainLayout title="View Fixture" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Unable to load match analysis.</p>
-          <Link href="/dashboard">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
         </div>
       </MainLayout>
     );
@@ -133,12 +131,10 @@ export default function Analysis() {
       <MainLayout title="View Fixture" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">No full game statistics available for this match.</p>
-          <Link href="/dashboard">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
         </div>
       </MainLayout>
     );
@@ -153,12 +149,10 @@ export default function Analysis() {
       <Tabs defaultValue="heatmaps" className="w-full">
         {/* Header with Tabs */}
         <div className="flex items-center justify-between mb-6">
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <Button variant="outline" size="sm" onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
           
           <div className="flex-1 flex justify-center">
             <TabsList className="grid max-w-[840px] grid-cols-7">
