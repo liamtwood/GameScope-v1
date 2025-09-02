@@ -6,8 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut } from "lucide-react";
-import { Club, OppositionTeam } from "@shared/schema";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette } from "lucide-react";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +40,40 @@ export default function Settings() {
   const [replacementModalOpen, setReplacementModalOpen] = useState(false);
   const [replacingTeam, setReplacingTeam] = useState<any>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
+
+  // Opposition team management state
+  const [isCreateOppositionDialogOpen, setIsCreateOppositionDialogOpen] = useState(false);
+  const [isEditOppositionDialogOpen, setIsEditOppositionDialogOpen] = useState(false);
+  const [editingOppositionTeam, setEditingOppositionTeam] = useState<OppositionTeam | null>(null);
+
+  // Form schema for opposition teams
+  type OppositionTeamFormData = z.infer<typeof insertOppositionTeamSchema>;
+
+  const oppositionForm = useForm<OppositionTeamFormData>({
+    resolver: zodResolver(insertOppositionTeamSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      websiteUrl: "",
+      colors: {
+        primary: "#dc2626", // Default red
+        secondary: "#000000", // Default black
+      },
+    },
+  });
+
+  const editOppositionForm = useForm<OppositionTeamFormData>({
+    resolver: zodResolver(insertOppositionTeamSchema),
+    defaultValues: {
+      name: "",
+      shortName: "",
+      websiteUrl: "",
+      colors: {
+        primary: "#dc2626",
+        secondary: "#000000",
+      },
+    },
+  });
 
   const { data: clubs } = useQuery<Club[]>({ 
     queryKey: ["/api/clubs"] 
@@ -392,6 +431,103 @@ export default function Settings() {
     }
   };
 
+  // Opposition team mutations
+  const createOppositionMutation = useMutation({
+    mutationFn: async (teamData: OppositionTeamFormData) => {
+      return apiRequest("POST", "/api/opposition-teams", teamData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      setIsCreateOppositionDialogOpen(false);
+      oppositionForm.reset();
+      toast({
+        title: "Opposition Team Created",
+        description: "New opposition team has been created successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create opposition team.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateOppositionMutation = useMutation({
+    mutationFn: async (data: { id: string; teamData: OppositionTeamFormData }) => {
+      return apiRequest("PUT", `/api/opposition-teams/${data.id}`, data.teamData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      setIsEditOppositionDialogOpen(false);
+      setEditingOppositionTeam(null);
+      editOppositionForm.reset();
+      toast({
+        title: "Opposition Team Updated",
+        description: "Opposition team has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update opposition team.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteOppositionMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/opposition-teams/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      toast({
+        title: "Opposition Team Deleted",
+        description: "Opposition team has been deleted successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete opposition team.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Form handlers
+  const onCreateOppositionSubmit = (data: OppositionTeamFormData) => {
+    createOppositionMutation.mutate(data);
+  };
+
+  const onUpdateOppositionSubmit = (data: OppositionTeamFormData) => {
+    if (editingOppositionTeam) {
+      updateOppositionMutation.mutate({ id: editingOppositionTeam.id, teamData: data });
+    }
+  };
+
+  const handleEditOpposition = (team: OppositionTeam) => {
+    setEditingOppositionTeam(team);
+    editOppositionForm.reset({
+      name: team.name,
+      shortName: team.shortName || "",
+      websiteUrl: team.websiteUrl || "",
+      colors: (team.colors as { primary: string; secondary?: string }) || {
+        primary: "#dc2626",
+        secondary: "#000000",
+      },
+    });
+    setIsEditOppositionDialogOpen(true);
+  };
+
+  const handleDeleteOpposition = async (team: OppositionTeam) => {
+    if (confirm(`Are you sure you want to delete ${team.name}?`)) {
+      deleteOppositionMutation.mutate(team.id);
+    }
+  };
+
   // Auto-reprocess when zoom level, processing mode, or threshold changes
   useEffect(() => {
     if (originalImageUrl && enhanceModalOpen && !processing) {
@@ -640,6 +776,340 @@ export default function Settings() {
             )}
           </CardContent>
         </Card>
+
+        {/* Opposition Team Management */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center">
+                <Palette className="mr-2 h-5 w-5" />
+                Opposition Teams
+              </CardTitle>
+              <Dialog open={isCreateOppositionDialogOpen} onOpenChange={setIsCreateOppositionDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" data-testid="button-create-opposition">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Team
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create Opposition Team</DialogTitle>
+                  </DialogHeader>
+                  <Form {...oppositionForm}>
+                    <form onSubmit={oppositionForm.handleSubmit(onCreateOppositionSubmit)} className="space-y-4">
+                      <FormField
+                        control={oppositionForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Team Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Enter team name" data-testid="input-opposition-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={oppositionForm.control}
+                        name="shortName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ""} placeholder="Enter short name (3-10 chars)" data-testid="input-opposition-short-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={oppositionForm.control}
+                        name="websiteUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Website URL (Optional)</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="https://example.com" data-testid="input-opposition-website" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={oppositionForm.control}
+                          name="colors.primary"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Primary Color</FormLabel>
+                              <FormControl>
+                                <div className="flex space-x-2">
+                                  <Input
+                                    type="color"
+                                    {...field}
+                                    className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                    data-testid="input-opposition-primary-color"
+                                  />
+                                  <Input
+                                    type="text"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="#dc2626"
+                                    className="flex-1"
+                                    data-testid="input-opposition-primary-color-text"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={oppositionForm.control}
+                          name="colors.secondary"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Secondary Color (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="flex space-x-2">
+                                  <Input
+                                    type="color"
+                                    {...field}
+                                    className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                    data-testid="input-opposition-secondary-color"
+                                  />
+                                  <Input
+                                    type="text"
+                                    value={field.value || ""}
+                                    onChange={field.onChange}
+                                    placeholder="#000000"
+                                    className="flex-1"
+                                    data-testid="input-opposition-secondary-color-text"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsCreateOppositionDialogOpen(false)}
+                          data-testid="button-cancel-opposition"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={createOppositionMutation.isPending}
+                          data-testid="button-submit-opposition"
+                        >
+                          {createOppositionMutation.isPending ? 'Creating...' : 'Create Team'}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {oppositionTeams?.map((team) => (
+                <div key={team.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex space-x-1">
+                      {team.colors && (team.colors as any).primary && (
+                        <div 
+                          className="w-6 h-6 rounded border" 
+                          style={{ backgroundColor: (team.colors as any).primary }}
+                          title="Primary color"
+                        />
+                      )}
+                      {team.colors && (team.colors as any).secondary && (
+                        <div 
+                          className="w-6 h-6 rounded border" 
+                          style={{ backgroundColor: (team.colors as any).secondary }}
+                          title="Secondary color"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{team.name}</h3>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        {team.shortName && <span>Short: {team.shortName}</span>}
+                        {team.websiteUrl && (
+                          <a href={team.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            Website
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditOpposition(team)}
+                      data-testid={`button-edit-opposition-${team.id}`}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteOpposition(team)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                      data-testid={`button-delete-opposition-${team.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )) || (
+                <div className="text-center py-8">
+                  <Palette className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No opposition teams found</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Edit Opposition Team Dialog */}
+        <Dialog open={isEditOppositionDialogOpen} onOpenChange={setIsEditOppositionDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Opposition Team</DialogTitle>
+            </DialogHeader>
+            <Form {...editOppositionForm}>
+              <form onSubmit={editOppositionForm.handleSubmit(onUpdateOppositionSubmit)} className="space-y-4">
+                <FormField
+                  control={editOppositionForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter team name" data-testid="input-edit-opposition-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editOppositionForm.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} placeholder="Enter short name (3-10 chars)" data-testid="input-edit-opposition-short-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editOppositionForm.control}
+                  name="websiteUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website URL (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://example.com" data-testid="input-edit-opposition-website" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={editOppositionForm.control}
+                    name="colors.primary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Primary Color</FormLabel>
+                        <FormControl>
+                          <div className="flex space-x-2">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-12 h-10 p-1 border rounded cursor-pointer"
+                              data-testid="input-edit-opposition-primary-color"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="#dc2626"
+                              className="flex-1"
+                              data-testid="input-edit-opposition-primary-color-text"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editOppositionForm.control}
+                    name="colors.secondary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Secondary Color (Optional)</FormLabel>
+                        <FormControl>
+                          <div className="flex space-x-2">
+                            <Input
+                              type="color"
+                              {...field}
+                              className="w-12 h-10 p-1 border rounded cursor-pointer"
+                              data-testid="input-edit-opposition-secondary-color"
+                            />
+                            <Input
+                              type="text"
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                              placeholder="#000000"
+                              className="flex-1"
+                              data-testid="input-edit-opposition-secondary-color-text"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditOppositionDialogOpen(false);
+                      setEditingOppositionTeam(null);
+                    }}
+                    data-testid="button-cancel-edit-opposition"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={updateOppositionMutation.isPending}
+                    data-testid="button-submit-edit-opposition"
+                  >
+                    {updateOppositionMutation.isPending ? 'Updating...' : 'Update Team'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
 
         {/* Enhancement Modal */}
         <Dialog open={enhanceModalOpen} onOpenChange={setEnhanceModalOpen}>

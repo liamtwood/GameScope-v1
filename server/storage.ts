@@ -449,6 +449,7 @@ export class DatabaseStorage implements IStorage {
       shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: logoUrl || null,
       websiteUrl: websiteUrl ?? null,
+      colors: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -465,6 +466,7 @@ export class DatabaseStorage implements IStorage {
       shortName: team.shortName || team.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: team.logoPath || null,
       websiteUrl: team.websiteUrl || null,
+      colors: team.colors || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

@@ -142,6 +142,7 @@ export const oppositionTeams = pgTable("opposition_teams", {
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
   websiteUrl: text("website_url"),
+  colors: jsonb("colors"), // Primary and secondary team colors
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -180,6 +181,10 @@ export const insertPlayerSchema = createInsertSchema(players)
 export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     websiteUrl: z.string().url().optional().or(z.literal("")),
+    colors: z.object({
+      primary: z.string().min(1, "Primary color is required"),
+      secondary: z.string().optional(),
+    }).optional(),
   });
 export const insertCompetitionSchema = createInsertSchema(competitions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertFixtureSchema = createInsertSchema(fixtures)
