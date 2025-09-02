@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
+import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { PlayerEditDialog } from "@/components/dialogs/player-edit-dialog";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export default function Squad() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card' | 'account-card'>('table');
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -593,14 +595,73 @@ export default function Squad() {
 
       {/* Player Card Tab Content */}
       {activeTab === 'player-card' && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Player Card view coming soon</p>
-              <p className="text-sm text-muted-foreground mt-2">This will show player cards with photos and detailed stats</p>
+        <>
+          {/* Filters */}
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+              <SelectTrigger className="w-48" data-testid="select-position-cards">
+                <SelectValue placeholder="All Positions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Positions</SelectItem>
+                <SelectItem value="GK">Goalkeeper</SelectItem>
+                <SelectItem value="DEF">Defense</SelectItem>
+                <SelectItem value="MID">Midfield</SelectItem>
+                <SelectItem value="FWD">Forward</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Input
+              placeholder="Search players..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-64"
+              data-testid="input-search-players-cards"
+            />
+          </div>
+
+          {/* Player Cards Grid */}
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading players...</p>
             </div>
-          </CardContent>
-        </Card>
+          ) : filteredPlayers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredPlayers.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  onEdit={(player) => {
+                    setEditingPlayer(player);
+                  }}
+                  onDelete={handleDeletePlayer}
+                  onToggleKeyPlayer={handleToggleKeyPlayer}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No players found matching your criteria</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Edit Dialog for Player Cards */}
+          {editingPlayer && (
+            <PlayerEditDialog
+              player={editingPlayer}
+              onSave={(playerId, data) => {
+                handleUpdatePlayer(playerId, data);
+                setEditingPlayer(null);
+              }}
+            >
+              <div /> {/* Hidden trigger */}
+            </PlayerEditDialog>
+          )}
+        </>
       )}
 
       {/* Account Card Tab Content */}
