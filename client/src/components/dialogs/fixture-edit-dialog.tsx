@@ -62,15 +62,13 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
 
   const updateOppositionTeamMutation = useMutation({
-    mutationFn: async ({ teamId, logoPath, shortName }: { teamId: string; logoPath?: string; shortName?: string }) => {
+    mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath?: string }) => {
       const updateData: any = {};
       if (logoPath !== undefined) updateData.logoPath = logoPath;
-      if (shortName !== undefined) updateData.shortName = shortName;
       return apiRequest("PUT", `/api/opposition-teams/${teamId}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      setShowLogoUpload(false);
     },
   });
 
@@ -379,7 +377,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                       setSelectedOpponentForLogo({...updatedTeam, logoPath});
                     }
                   }}
-                  buttonText="Upload Logo"
                   className="w-full"
                 />
               </div>
@@ -481,22 +478,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
               />
             </div>
 
-            {/* Additional Fields */}
+            {/* Status and Match Type Row */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Venue</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter venue" data-testid="input-venue" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="status"
@@ -514,6 +497,28 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                         <SelectItem value="COMPLETED">Completed</SelectItem>
                         <SelectItem value="CANCELLED">Cancelled</SelectItem>
                         <SelectItem value="NO_CONTEST">No Contest</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Home / Away</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-match-type-additional">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="HOME">Home</SelectItem>
+                        <SelectItem value="AWAY">Away</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -564,23 +569,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
               </div>
             )}
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      {...field} 
-                      placeholder="Additional notes about this fixture..."
-                      data-testid="textarea-notes"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
