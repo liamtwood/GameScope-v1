@@ -130,28 +130,28 @@ export default function PlayerDetails() {
                   className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-details"
                 >
-                  Details
+                  Player Details
                 </TabsTrigger>
                 <TabsTrigger 
                   value="account" 
                   className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-account"
                 >
-                  Upload Video
+                  Account Details
                 </TabsTrigger>
                 <TabsTrigger 
                   value="teams" 
                   className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
                   data-testid="tab-teams"
                 >
-                  Lineups
+                  Teams
                 </TabsTrigger>
                 <TabsTrigger 
                   value="parents" 
                   className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none"
                   data-testid="tab-parents"
                 >
-                  GameScope Analysis
+                  Parents / Guardian
                 </TabsTrigger>
               </TabsList>
 
@@ -188,18 +188,47 @@ export default function PlayerDetails() {
 
               <TabsContent value="account" className="p-6 mt-0">
                 <div className="space-y-6">
-                  <div className="text-center py-8">
-                    <p className="text-lg text-muted-foreground">Upload Video functionality</p>
-                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                        {player.email || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
+                        Not provided
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Last Logged In</label>
+                      <p className="text-lg" data-testid={`text-last-login-${player.id}`}>
+                        Never logged in
+                      </p>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="teams" className="p-6 mt-0">
                 <div className="space-y-6">
-                  <div className="text-center py-8">
-                    <p className="text-lg text-muted-foreground">Lineups functionality</p>
-                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Current Team</h3>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Team</label>
+                        <p className="text-lg" data-testid={`text-current-team-${player.id}`}>
+                          Current Team Information
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <h4 className="text-md font-medium mb-2">Add to Other Teams</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Player can be added to other teams within the club - Coming soon
+                      </p>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
@@ -207,7 +236,7 @@ export default function PlayerDetails() {
               <TabsContent value="parents" className="p-6 mt-0">
                 <div className="space-y-6">
                   <div className="text-center py-8">
-                    <p className="text-lg text-muted-foreground">GameScope Analysis functionality</p>
+                    <p className="text-lg text-muted-foreground">Parents / Guardian functionality</p>
                     <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
