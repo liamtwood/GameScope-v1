@@ -379,6 +379,16 @@ export default function FixtureDetails() {
 
           <TabsContent value="analysis" className="mt-6">
             <div className="space-y-6">
+              {/* GameScope Analysis Banner */}
+              {currentTeam && currentClub && (
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={currentTeam}
+                  club={currentClub}
+                  oppositionTeam={oppositionTeam}
+                />
+              )}
+              
               {/* Comprehensive Analysis Tabs */}
               <Tabs defaultValue="statistics" className="w-full">
                 <div className="flex justify-center mb-6">
