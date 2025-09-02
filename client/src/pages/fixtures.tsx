@@ -602,29 +602,51 @@ export default function Fixtures() {
               )}
             </div>
           ) : (
-            /* Fixtures List */
-            <div className="space-y-4">
+            /* Fixtures List - Grouped by Competition */
+            <div className="space-y-8">
               {isLoading ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Loading fixtures...</p>
                 </div>
               ) : filteredFixtures.length > 0 ? (
-                filteredFixtures.map((fixture) => (
-                  <FixtureEditDialog 
-                    key={fixture.id}
-                    fixture={fixture}
-                    onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
-                  >
-                    <div className="w-full">
-                      <FixtureCard
-                        fixture={fixture}
-                        onViewDetails={handleViewDetails}
-                        onEdit={() => {}} // Edit is handled by the dialog wrapper
-                        onDelete={handleDeleteFixture}
-                      />
+                (() => {
+                  // Group fixtures by competition
+                  const groupedFixtures = filteredFixtures.reduce((groups, fixture) => {
+                    const competition = fixture.competition || 'No Competition';
+                    if (!groups[competition]) {
+                      groups[competition] = [];
+                    }
+                    groups[competition].push(fixture);
+                    return groups;
+                  }, {} as Record<string, typeof filteredFixtures>);
+
+                  return Object.entries(groupedFixtures).map(([competitionName, competitionFixtures]) => (
+                    <div key={competitionName}>
+                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                        <div className="w-3 h-3 rounded-full mr-2 bg-blue-500" />
+                        {competitionName} ({competitionFixtures.length})
+                      </h3>
+                      <div className="space-y-4">
+                        {competitionFixtures.map((fixture) => (
+                          <FixtureEditDialog 
+                            key={fixture.id}
+                            fixture={fixture}
+                            onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
+                          >
+                            <div className="w-full">
+                              <FixtureCard
+                                fixture={fixture}
+                                onViewDetails={handleViewDetails}
+                                onEdit={() => {}} // Edit is handled by the dialog wrapper
+                                onDelete={handleDeleteFixture}
+                              />
+                            </div>
+                          </FixtureEditDialog>
+                        ))}
+                      </div>
                     </div>
-                  </FixtureEditDialog>
-                ))
+                  ));
+                })()
               ) : (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">No fixtures found matching your criteria</p>
