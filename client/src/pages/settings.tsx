@@ -85,10 +85,14 @@ export default function Settings() {
     queryKey: ["/api/opposition-teams"] 
   });
 
-  // Combine clubs and opposition teams for logo management
+  // Combine clubs and opposition teams for logo management, grouped and sorted
   const allTeams = [
-    ...(clubs?.map(club => ({ ...club, type: 'club' as const })) || []),
+    // Club teams first, sorted alphabetically
+    ...(clubs?.map(club => ({ ...club, type: 'club' as const })) || [])
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    // Opposition teams second, sorted alphabetically
     ...(oppositionTeams?.map(team => ({ ...team, type: 'opposition' as const, logoPath: team.logoPath })) || [])
+      .sort((a, b) => a.name.localeCompare(b.name))
   ];
 
   const saveMutation = useMutation({
