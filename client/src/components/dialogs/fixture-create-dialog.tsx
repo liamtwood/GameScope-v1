@@ -182,7 +182,87 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {/* Row 1 - Opponent only */}
+            {/* Row 1 - Competition, Match Type */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="competition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Competition</FormLabel>
+                    <FormControl>
+                      {showNewCompetitionInput ? (
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            data-testid="select-competition"
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Select competition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {competitions.map((comp) => (
+                                <SelectItem key={comp.id} value={comp.name}>
+                                  {comp.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewCompetitionInput(true)}
+                            data-testid="button-add-new-competition"
+                            title="Add new competition"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Match Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-new-type">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="HOME">Home</SelectItem>
+                        <SelectItem value="AWAY">Away</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 2 - Opponent */}
             <FormField
               control={form.control}
               name="opponent"
@@ -262,7 +342,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               )}
             />
 
-            {/* Row 2 - Date, Time, Location, Match Type */}
+            {/* Row 3 - Date, Time */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -328,99 +408,21 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter location" data-testid="input-location" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Match Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-new-type">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="HOME">Home</SelectItem>
-                        <SelectItem value="AWAY">Away</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Competition */}
+            {/* Row 4 - Location */}
             <FormField
               control={form.control}
-              name="competition"
+              name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Competition</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
-                    {showNewCompetitionInput ? (
-                      <div className="flex gap-2">
-                        <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowNewCompetitionInput(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          data-testid="select-competition"
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select competition" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {competitions.map((comp) => (
-                              <SelectItem key={comp.id} value={comp.name}>
-                                {comp.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowNewCompetitionInput(true)}
-                          data-testid="button-add-new-competition"
-                          title="Add new competition"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
+                    <Input {...field} placeholder="Enter location" data-testid="input-location" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
 
             {/* Notes field - hidden but still part of form for database */}
             <FormField
