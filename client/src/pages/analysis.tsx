@@ -88,7 +88,7 @@ export default function Analysis() {
 
   if (fixtureLoading || statsLoading) {
     return (
-      <MainLayout title="GameScope Analysis" subtitle="Loading analysis...">
+      <MainLayout title="View Fixture" subtitle="Loading analysis...">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -101,7 +101,7 @@ export default function Analysis() {
 
   if (!fixture || !matchStats) {
     return (
-      <MainLayout title="GameScope Analysis" subtitle="Analysis not found">
+      <MainLayout title="View Fixture" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">Unable to load match analysis.</p>
           <Link href="/dashboard">
@@ -130,7 +130,7 @@ export default function Analysis() {
 
   if (!fullGameStats) {
     return (
-      <MainLayout title="GameScope Analysis" subtitle="Analysis not found">
+      <MainLayout title="View Fixture" subtitle="Analysis not found">
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">No full game statistics available for this match.</p>
           <Link href="/dashboard">
@@ -146,7 +146,7 @@ export default function Analysis() {
 
   return (
     <MainLayout 
-      title="GameScope Analysis" 
+      title="View Fixture" 
       subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'MMM d, yyyy')}`}
     >
       {/* Main Analysis Tabs */}
