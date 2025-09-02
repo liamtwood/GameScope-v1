@@ -824,11 +824,6 @@ export default function Analysis() {
                   )}
                 </div>
               </div>
-              
-              <div className="text-center py-12">
-                <h3 className="text-lg font-semibold mb-2">Heat Maps</h3>
-                <p className="text-muted-foreground">Coming soon - visualize player movement and ball possession heat maps</p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
