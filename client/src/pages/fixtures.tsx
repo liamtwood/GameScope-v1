@@ -50,8 +50,6 @@ export default function Fixtures() {
     enabled: !!currentTeam?.id 
   });
 
-  console.log("Fixtures debug:", { fixtures, isLoading, fixturesLength: fixtures?.length });
-
   const { data: competitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"]
   });
