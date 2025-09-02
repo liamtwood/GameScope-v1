@@ -332,22 +332,28 @@ export default function Analysis() {
               
               <h3 className="text-lg font-semibold mb-4">AI-Powered Analysis</h3>
               <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800/20 p-6 rounded-lg border">
-                <h4 className="font-semibold text-foreground mb-4 flex items-center">
+                <h4 className="font-semibold text-foreground mb-6 flex items-center">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
                   AI-Powered Match Insights
                 </h4>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-muted-foreground">Strong defensive performance in the first half, intercepting 8 out of 12 opponent attacks in the midfield.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="bg-muted/30 rounded-lg p-4 border">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-muted-foreground">Strong defensive performance in the first half, intercepting 8 out of 12 opponent attacks in the midfield.</p>
+                    </div>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats.passingSuccessRate || 0}% success rate on pass attempts.</p>
+                  <div className="bg-muted/30 rounded-lg p-4 border">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats.passingSuccessRate || 0}% success rate on pass attempts.</p>
+                    </div>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats.shotsAttempted || 0} shots attempted with {fullGameStats.shotsOnTarget || 0} on target.</p>
+                  <div className="bg-muted/30 rounded-lg p-4 border">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats.shotsAttempted || 0} shots attempted with {fullGameStats.shotsOnTarget || 0} on target.</p>
+                    </div>
                   </div>
                 </div>
               </div>
