@@ -370,7 +370,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       setSelectedOpponentForLogo(selectedOpponentForLogo);
                     }
                   }}
-                  disabled={!selectedOpponentForLogo}
                   data-testid="button-upload-logo"
                 >
                   Upload Logo
@@ -508,6 +507,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       teamId: selectedOpponentForLogo.id,
                       logoPath
                     });
+                    // Clear the selected opponent to hide the upload section
+                    setSelectedOpponentForLogo(null);
                   }}
                 />
                 <Button
