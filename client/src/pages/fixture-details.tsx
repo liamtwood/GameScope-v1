@@ -273,33 +273,13 @@ export default function FixtureDetails() {
                     </div>
                   </div>
 
-                  {/* Row 2 - Opponent with Logo */}
-                  <div className="grid grid-cols-[2fr,1fr] gap-6">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Opposition</label>
-                      <p className="text-xl font-semibold mt-1">{fixture.opponent}</p>
-                      {oppositionTeam?.shortName && (
-                        <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
-                      )}
-                    </div>
-                    
-                    {/* Logo Container */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">Logo</label>
-                      <div className="border rounded-lg p-4 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                        {oppositionTeam?.logoPath ? (
-                          <img 
-                            src={oppositionTeam.logoPath}
-                            alt={`${oppositionTeam.name} logo`}
-                            className="max-h-16 max-w-full object-contain"
-                          />
-                        ) : (
-                          <div className="text-sm text-muted-foreground text-center">
-                            No Logo
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  {/* Row 2 - Opposition */}
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Opposition</label>
+                    <p className="text-xl font-semibold mt-1">{fixture.opponent}</p>
+                    {oppositionTeam?.shortName && (
+                      <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
+                    )}
                   </div>
 
                   {/* Row 3 - Date, Time, Venue */}
