@@ -59,14 +59,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
     }
   };
 
-  // Function to get player display (photo or initials)
+  // Function to get player display (jersey number)
   const getPlayerDisplay = () => {
-    // For now, show initials since we don't have player photos yet
-    const initials = player.name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
-    
     return (
-      <div className="h-16 w-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
-        {initials}
+      <div className="h-16 w-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+        {player.jerseyNumber}
       </div>
     );
   };
@@ -95,12 +92,6 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
               <p className="text-sm text-muted-foreground">
                 {player.position}
               </p>
-              {/* Hometown display under position */}
-              {player.hometown && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {player.hometown}
-                </p>
-              )}
               {/* Jersey Number */}
               <div className="mt-1">
                 <Badge variant="outline" className="text-xs">
@@ -119,12 +110,20 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
             
             {/* Stats indicators */}
             <div className="text-right">
-              <div className="text-sm font-medium text-foreground">
-                {player.goals || 0}G {player.assists || 0}A
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {player.appearances || 0} Apps
-              </div>
+              {(player.goals && player.goals > 0) || (player.assists && player.assists > 0) ? (
+                <>
+                  <div className="text-sm font-medium text-foreground">
+                    {player.goals || 0}G {player.assists || 0}A
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {player.appearances || 0} Apps
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm font-medium text-foreground">
+                  {player.appearances || 0} Apps
+                </div>
+              )}
             </div>
 
             {/* Actions Menu */}
