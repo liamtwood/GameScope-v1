@@ -267,16 +267,26 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   <FormLabel>Opponent</FormLabel>
                   <FormControl>
                     {showNewOpponentInput ? (
-                      <div className="flex gap-2">
-                        <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowNewOpponentInput(false)}
-                        >
-                          Cancel
-                        </Button>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setShowNewOpponentInput(false);
+                              setSelectedOpponentForLogo(null);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                        {field.value && (
+                          <div className="text-sm text-muted-foreground">
+                            💡 You can add a logo for this team after creating the fixture
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="flex gap-2">
@@ -335,11 +345,16 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedOpponentForLogo(selectedOpponentForLogo)}
+                            onClick={() => {
+                              // Toggle logo upload section
+                              if (selectedOpponentForLogo) {
+                                setSelectedOpponentForLogo(selectedOpponentForLogo);
+                              }
+                            }}
                             data-testid="button-upload-logo"
-                            title="Upload logo for selected opponent"
+                            title={selectedOpponentForLogo.logoPath ? "Change logo" : "Upload logo"}
                           >
-                            📷
+                            {selectedOpponentForLogo.logoPath ? "🔄" : "📷"}
                           </Button>
                         )}
                       </div>
@@ -459,7 +474,19 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
             {/* Logo Upload Section */}
             {selectedOpponentForLogo && (
               <div className="border-t pt-4">
-                <h4 className="text-sm font-medium mb-2">Upload Logo for {selectedOpponentForLogo.name}</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-medium">Logo for {selectedOpponentForLogo.name}</h4>
+                  {selectedOpponentForLogo.logoPath && (
+                    <div className="flex items-center space-x-2">
+                      <img 
+                        src={selectedOpponentForLogo.logoPath} 
+                        alt="Current logo"
+                        className="w-8 h-8 object-contain border rounded"
+                      />
+                      <span className="text-xs text-muted-foreground">Current logo</span>
+                    </div>
+                  )}
+                </div>
                 <LogoUpload
                   teamName={selectedOpponentForLogo.name}
                   currentLogo={selectedOpponentForLogo.logoPath || undefined}
@@ -477,7 +504,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   onClick={() => setSelectedOpponentForLogo(null)}
                   className="mt-2"
                 >
-                  Cancel Logo Upload
+                  Close Logo Upload
                 </Button>
               </div>
             )}
