@@ -21,9 +21,13 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { z } from "zod";
 
-// Create a schema with required name validation
+// Create a schema with required name validation and colors
 const createClubSchema = insertClubSchema.extend({
   name: z.string().min(1, "Club name is required"),
+  colors: z.object({
+    primary: z.string().min(1, "Primary color is required"),
+    secondary: z.string().optional(),
+  }).optional(),
 });
 
 type CreateClubFormData = z.infer<typeof createClubSchema>;
@@ -47,6 +51,10 @@ export default function Clubs() {
       phone: "",
       email: "",
       description: "",
+      colors: {
+        primary: "#dc2626", // Default red
+        secondary: "#000000", // Default black
+      },
     },
   });
 
@@ -62,6 +70,10 @@ export default function Clubs() {
       email: "",
       description: "",
       subscriptionStatus: "",
+      colors: {
+        primary: "#dc2626", // Default red
+        secondary: "#000000", // Default black
+      },
     },
   });
 
@@ -145,6 +157,7 @@ export default function Clubs() {
 
   const handleEditClub = (club: Club) => {
     setEditingClub(club);
+    const clubColors = club.colors as { primary?: string; secondary?: string } | null;
     editForm.reset({
       name: club.name,
       shortName: club.shortName,
@@ -155,6 +168,10 @@ export default function Clubs() {
       email: club.email || "",
       description: club.description || "",
       subscriptionStatus: club.subscriptionStatus || "active",
+      colors: {
+        primary: clubColors?.primary || "#dc2626",
+        secondary: clubColors?.secondary || "#000000",
+      },
     });
     setIsEditDialogOpen(true);
   };
@@ -361,6 +378,66 @@ export default function Clubs() {
                     </FormItem>
                   )}
                 />
+                
+                {/* Club Colors */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="colors.primary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Primary Color</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="color"
+                              className="w-12 h-10 p-1 border rounded cursor-pointer"
+                              data-testid="input-club-primary-color"
+                              {...field}
+                            />
+                            <Input
+                              type="text"
+                              placeholder="#dc2626"
+                              className="flex-1"
+                              data-testid="input-club-primary-color-text"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="colors.secondary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Secondary Color</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="color"
+                              className="w-12 h-10 p-1 border rounded cursor-pointer"
+                              data-testid="input-club-secondary-color"
+                              {...field}
+                              value={field.value || "#000000"}
+                            />
+                            <Input
+                              type="text"
+                              placeholder="#000000"
+                              className="flex-1"
+                              data-testid="input-club-secondary-color-text"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
                     type="button"
@@ -683,6 +760,66 @@ export default function Clubs() {
                   </FormItem>
                 )}
               />
+              
+              {/* Club Colors */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="colors.primary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Color</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="color"
+                            className="w-12 h-10 p-1 border rounded cursor-pointer"
+                            data-testid="input-edit-club-primary-color"
+                            {...field}
+                          />
+                          <Input
+                            type="text"
+                            placeholder="#dc2626"
+                            className="flex-1"
+                            data-testid="input-edit-club-primary-color-text"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="colors.secondary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Secondary Color</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="color"
+                            className="w-12 h-10 p-1 border rounded cursor-pointer"
+                            data-testid="input-edit-club-secondary-color"
+                            {...field}
+                            value={field.value || "#000000"}
+                          />
+                          <Input
+                            type="text"
+                            placeholder="#000000"
+                            className="flex-1"
+                            data-testid="input-edit-club-secondary-color-text"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               {/* Logo Upload Section */}
               <div className="border-t pt-4">
