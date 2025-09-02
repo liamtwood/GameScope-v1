@@ -346,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/players/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data
-      const validKeys = ['keyPlayer', 'goals', 'assists', 'appearances', 'status', 'name', 'position', 'jerseyNumber', 'hometown'];
+      const validKeys = ['keyPlayer', 'status', 'name', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
@@ -665,9 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }, 0);
 
-      // Individual player stats (for reference)
-      const totalPlayerGoals = players.reduce((sum, p) => sum + (p.goals || 0), 0);
-      const totalAssists = players.reduce((sum, p) => sum + (p.assists || 0), 0);
+      // Note: Individual player stats removed from schema
 
       const statistics = {
         totalPlayers: players.length,
@@ -678,9 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalGoals: totalGoalsScored, // Use actual match goals
         totalGoalsConceded,
         goalDifference: totalGoalsScored - totalGoalsConceded,
-        totalAssists,
-        topScorer: players.reduce((top, p) => (p.goals || 0) > (top.goals || 0) ? p : top, players[0]),
-        topAssist: players.reduce((top, p) => (p.assists || 0) > (top.assists || 0) ? p : top, players[0]),
+        // Player-level goal/assist tracking removed from individual player records
       };
 
       res.json(statistics);

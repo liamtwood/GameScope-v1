@@ -191,7 +191,22 @@ export default function Squad() {
   const fcsaaStats = getFCSAAStats();
 
   const handleCreatePlayer = (data: any) => {
-    createPlayerMutation.mutate(data);
+    if (!currentTeam?.id) {
+      toast({
+        title: "Error",
+        description: "No team selected. Please select a team first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Ensure teamId is properly set
+    const playerData = {
+      ...data,
+      teamId: currentTeam.id
+    };
+    
+    createPlayerMutation.mutate(playerData);
   };
 
   const handleUpdatePlayer = (playerId: string, data: any) => {
@@ -300,7 +315,11 @@ export default function Squad() {
             teamId={currentTeam?.id || ""} 
             onSave={handleCreatePlayer}
           >
-            <Button variant="outline" data-testid="button-add-player">
+            <Button 
+              variant="outline" 
+              data-testid="button-add-player"
+              disabled={!currentTeam?.id}
+            >
               <UserPlus className="mr-2 h-4 w-4" />
               Add Player
             </Button>
