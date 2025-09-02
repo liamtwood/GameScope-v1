@@ -45,6 +45,7 @@ export const teams = pgTable("teams", {
   ageGroup: text("age_group"),
   gender: varchar("gender", { length: 20 }),
   season: varchar("season", { length: 20 }),
+  colors: jsonb("colors"), // Primary and secondary team colors
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
