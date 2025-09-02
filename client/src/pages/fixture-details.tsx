@@ -13,7 +13,7 @@ import { VideoManager } from "@/components/video-manager";
 import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
-import { FixtureResultHeader } from "@/components/fixture-result-header";
+import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -206,7 +206,7 @@ export default function FixtureDetails() {
 
         {/* Result Header */}
         {currentTeam && currentClub && (
-          <FixtureResultHeader 
+          <SharedScoreBanner 
             fixture={fixture}
             team={currentTeam}
             club={currentClub}

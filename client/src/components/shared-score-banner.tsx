@@ -1,13 +1,13 @@
 import { Fixture, Team, Club, OppositionTeam } from "@shared/schema";
 
-interface FixtureResultHeaderProps {
+interface SharedScoreBannerProps {
   fixture: Fixture;
   team: Team;
   club: Club;
   oppositionTeam?: OppositionTeam;
 }
 
-export function FixtureResultHeader({ fixture, team, club, oppositionTeam }: FixtureResultHeaderProps) {
+export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: SharedScoreBannerProps) {
   const isHomeMatch = fixture.type === 'HOME';
   
   // Layout: Always show our team (Polk State College) on LEFT, opponent on RIGHT

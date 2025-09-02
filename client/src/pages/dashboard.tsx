@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureCard } from "@/components/ui/fixture-card";
+import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, Target, Trophy, Calendar, Sparkles } from "lucide-react";
 import { TeamStatistics } from "@/lib/types";
-import { Fixture, Player, Team } from "@shared/schema";
+import { Fixture, Player, Team, OppositionTeam } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 
@@ -31,6 +32,10 @@ export default function Dashboard() {
   const { data: statistics } = useQuery<TeamStatistics>({ 
     queryKey: ["/api/statistics/team", currentTeam?.id],
     enabled: !!currentTeam?.id 
+  });
+
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
   });
 
   const recentFixtures = fixtures?.filter(f => f.status === 'COMPLETED').slice(0, 3) || [];
@@ -127,16 +132,20 @@ export default function Dashboard() {
             <CardTitle>Recent Results</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentFixtures.length > 0 ? (
-              recentFixtures.map((fixture) => (
-                <FixtureCard 
-                  key={fixture.id} 
-                  fixture={fixture} 
-                  showAnimatedBorder={true}
-                  onViewAnalysis={handleAnalysisView}
-                  hasAnalysisData={fixturesWithAnalysis.has(fixture.id)}
-                />
-              ))
+            {recentFixtures.length > 0 && currentTeam && currentClub ? (
+              recentFixtures.map((fixture) => {
+                const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+                return (
+                  <div key={fixture.id} className="cursor-pointer" onClick={() => handleAnalysisView(fixture)}>
+                    <SharedScoreBanner 
+                      fixture={fixture}
+                      team={currentTeam}
+                      club={currentClub}
+                      oppositionTeam={oppositionTeam}
+                    />
+                  </div>
+                );
+              })
             ) : (
               <p className="text-muted-foreground text-center py-4">No recent results</p>
             )}
