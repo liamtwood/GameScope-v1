@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2 } from "lucide-react";
-import { Fixture, OppositionTeam, Player, MatchStats } from "@shared/schema";
+import { Fixture, OppositionTeam, Player, MatchStats, Team, Club } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
 import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
+import { FixtureResultHeader } from "@/components/fixture-result-header";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -72,6 +73,14 @@ export default function FixtureDetails() {
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
+  });
+
+  const { data: teams } = useQuery<Team[]>({
+    queryKey: ["/api/teams"],
+  });
+
+  const { data: clubs } = useQuery<Club[]>({
+    queryKey: ["/api/clubs"],
   });
 
   const { data: matchStats } = useQuery<MatchStats[]>({
@@ -136,6 +145,10 @@ export default function FixtureDetails() {
     fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
   );
 
+  // Find the current team and club details
+  const currentTeam = teams?.find(team => team.id === fixture.teamId);
+  const currentClub = clubs?.find(club => club.id === currentTeam?.clubId);
+
   const isHomeMatch = fixture.type === 'HOME';
   const homeTeam = isHomeMatch ? 'Polk State College' : fixture.opponent;
   const awayTeam = isHomeMatch ? fixture.opponent : 'Polk State College';
@@ -191,39 +204,15 @@ export default function FixtureDetails() {
           </div>
         </div>
 
-        {/* Match Score Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="text-center flex-1">
-                <div className="text-2xl font-bold text-foreground mb-2">{homeTeam}</div>
-                <div className="text-sm text-muted-foreground">HOME</div>
-              </div>
-              
-              <div className="text-center mx-8">
-                {fixture.status === 'COMPLETED' && (
-                  <div className="flex items-center space-x-4">
-                    <div className="text-4xl font-bold text-primary">{fixture.homeScore}</div>
-                    <div className="text-2xl text-muted-foreground">-</div>
-                    <div className="text-4xl font-bold text-primary">{fixture.awayScore}</div>
-                  </div>
-                )}
-                {fixture.status === 'SCHEDULED' && (
-                  <div className="text-2xl font-semibold text-muted-foreground">vs</div>
-                )}
-                <div className="text-xs text-muted-foreground mt-2">
-                  {fixture.status === 'COMPLETED' ? 'FINAL' : format(new Date(fixture.date), "h:mm a")}
-                </div>
-              </div>
-              
-              <div className="text-center flex-1">
-                <div className="text-2xl font-bold text-foreground mb-2">{awayTeam}</div>
-                <div className="text-sm text-muted-foreground">AWAY</div>
-              </div>
-            </div>
-
-          </CardContent>
-        </Card>
+        {/* Result Header */}
+        {currentTeam && currentClub && (
+          <FixtureResultHeader 
+            fixture={fixture}
+            team={currentTeam}
+            club={currentClub}
+            oppositionTeam={oppositionTeam}
+          />
+        )}
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
