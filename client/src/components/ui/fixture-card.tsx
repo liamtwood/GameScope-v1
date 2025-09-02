@@ -128,8 +128,8 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
   };
 
   const handleCardClick = () => {
-    // If this card has analysis data and onViewAnalysis is available, use that
-    if (hasAnalysisData && onViewAnalysis) {
+    // Always prioritize analysis page if onViewAnalysis is available
+    if (onViewAnalysis) {
       onViewAnalysis(fixture);
     } else if (onViewDetails) {
       onViewDetails(fixture);
