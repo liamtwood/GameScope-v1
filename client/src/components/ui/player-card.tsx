@@ -62,7 +62,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
   // Function to get player display (jersey number)
   const getPlayerDisplay = () => {
     return (
-      <div className="h-16 w-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+      <div className="h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
         {player.jerseyNumber}
       </div>
     );
