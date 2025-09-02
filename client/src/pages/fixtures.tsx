@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useTeam } from "@/contexts/team-context";
@@ -58,11 +58,13 @@ export default function Fixtures() {
   const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
   
   // Set default season when team/club data loads
-  if (!selectedSeason && currentTeam && currentClub) {
-    const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-    const currentSeason = getCurrentSeason(seasonStartMonth);
-    setSelectedSeason(currentSeason);
-  }
+  useEffect(() => {
+    if (!selectedSeason && currentTeam && currentClub) {
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      const currentSeason = getCurrentSeason(seasonStartMonth);
+      setSelectedSeason(currentSeason);
+    }
+  }, [selectedSeason, currentTeam, currentClub]);
 
 
   // Mutation for updating fixtures
