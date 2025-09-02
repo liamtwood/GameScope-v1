@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -34,6 +34,7 @@ export default function Fixtures() {
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -456,7 +457,18 @@ export default function Fixtures() {
       <>
           {/* Filters */}
           <div className="mb-6 space-y-3">
-            <h3 className="text-sm font-medium text-foreground">Filter by:</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="p-2"
+                data-testid="button-toggle-filters"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+            </div>
+            {showFilters && (
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               {/* Competition Filter */}
               <div className="space-y-2">
@@ -541,6 +553,7 @@ export default function Fixtures() {
                 />
               </div>
             </div>
+            )}
           </div>
 
           {/* Competitions Content */}
