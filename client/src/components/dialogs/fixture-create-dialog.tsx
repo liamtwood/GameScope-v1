@@ -344,37 +344,16 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            data-testid="button-new-date-picker"
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Input
-                          type="date"
-                          value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
-                          onChange={(e) => field.onChange(new Date(e.target.value))}
-                          data-testid="input-new-date"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                        onChange={(e) => field.onChange(new Date(e.target.value))}
+                        data-testid="input-new-date"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
