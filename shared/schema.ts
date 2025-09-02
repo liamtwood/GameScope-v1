@@ -55,11 +55,7 @@ export const players = pgTable("players", {
   name: text("name").notNull(),
   position: varchar("position", { length: 10 }).notNull(),
   jerseyNumber: integer("jersey_number").notNull(),
-  hometown: text("hometown"),
   status: varchar("status", { length: 20 }).default("Fit"),
-  goals: integer("goals").default(0),
-  assists: integer("assists").default(0),
-  appearances: integer("appearances").default(0),
   keyPlayer: boolean("key_player").default(false),
   // Account fields
   email: text("email"),

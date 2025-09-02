@@ -28,11 +28,7 @@ const createPlayerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   position: z.string().min(1, "Position is required"),
   jerseyNumber: z.number().min(0),
-  hometown: z.string().optional(),
   status: z.string().default("Fit"),
-  goals: z.number().min(0).optional(),
-  assists: z.number().min(0).optional(),
-  appearances: z.number().min(0).optional(),
   // Account fields
   email: z.string().email().optional().or(z.literal("")),
   gender: z.enum(["Male", "Female"]).optional(),
@@ -58,11 +54,7 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       name: "",
       position: "",
       jerseyNumber: 0,
-      hometown: "",
       status: "Fit",
-      goals: 0,
-      assists: 0,
-      appearances: 0,
       email: "",
       gender: undefined,
       dateOfBirth: "",
@@ -182,19 +174,6 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="hometown"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hometown</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter hometown" {...field} data-testid="input-hometown" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             {/* Account Information Section */}
             <div className="space-y-4 pt-4 border-t">
@@ -284,65 +263,6 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="goals"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Goals</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        data-testid="input-goals"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="assists"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assists</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        data-testid="input-assists"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="appearances"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Appearances</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        data-testid="input-appearances"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button 

@@ -144,8 +144,7 @@ export default function Squad() {
     const matchesFilter = activeFilter === 'all' || getPositionCategory(player.position) === activeFilter;
     const matchesSearch = searchTerm === '' || 
       player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.hometown?.toLowerCase().includes(searchTerm.toLowerCase());
+      player.position.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesFilter && matchesSearch;
   }).sort((a, b) => {
@@ -212,9 +211,7 @@ export default function Squad() {
   };
 
   const handleSaveEdit = (playerId: string, field: string) => {
-    const value = field === 'goals' || field === 'assists' || field === 'appearances' 
-      ? parseInt(editValue) || 0 
-      : editValue;
+    const value = editValue;
     
     updatePlayerMutation.mutate({ 
       playerId, 
@@ -375,9 +372,6 @@ export default function Squad() {
                   <TableHead className="text-center py-3 px-4 font-medium text-muted-foreground text-sm">⭐</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Position</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Status</TableHead>
-                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Apps</TableHead>
-                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Goals</TableHead>
-                  <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Assists</TableHead>
                   <TableHead className="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -404,7 +398,6 @@ export default function Squad() {
                       <TableCell>
                         <div>
                           <p className="font-semibold text-foreground">{player.name}</p>
-                          <p className="text-sm text-muted-foreground">{player.hometown}</p>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
@@ -465,81 +458,6 @@ export default function Squad() {
                           >
                             {player.status || 'Fit'}
                           </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingField?.playerId === player.id && editingField?.field === 'appearances' ? (
-                          <div className="flex items-center space-x-2">
-                            <Input 
-                              type="number" 
-                              value={editValue} 
-                              onChange={(e) => setEditValue(e.target.value)}
-                              className="w-16"
-                            />
-                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'appearances')}>
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <span 
-                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
-                            onClick={() => handleStartEdit(player.id, 'appearances', String(player.appearances || 0))}
-                          >
-                            {player.appearances}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingField?.playerId === player.id && editingField?.field === 'goals' ? (
-                          <div className="flex items-center space-x-2">
-                            <Input 
-                              type="number" 
-                              value={editValue} 
-                              onChange={(e) => setEditValue(e.target.value)}
-                              className="w-16"
-                            />
-                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'goals')}>
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <span 
-                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
-                            onClick={() => handleStartEdit(player.id, 'goals', String(player.goals || 0))}
-                          >
-                            {player.goals}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingField?.playerId === player.id && editingField?.field === 'assists' ? (
-                          <div className="flex items-center space-x-2">
-                            <Input 
-                              type="number" 
-                              value={editValue} 
-                              onChange={(e) => setEditValue(e.target.value)}
-                              className="w-16"
-                            />
-                            <Button size="sm" variant="ghost" onClick={() => handleSaveEdit(player.id, 'assists')}>
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingField(null)}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <span 
-                            className="text-foreground font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded"
-                            onClick={() => handleStartEdit(player.id, 'assists', String(player.assists || 0))}
-                          >
-                            {player.assists}
-                          </span>
                         )}
                       </TableCell>
                       <TableCell>
