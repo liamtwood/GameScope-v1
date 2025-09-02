@@ -38,74 +38,73 @@ export function AccountCard({ player }: AccountCardProps) {
 
   return (
     <>
-      <Card className="h-[140px] group hover:shadow-md transition-shadow duration-200" data-testid={`account-card-${player.id}`}>
-        <CardContent className="p-4 h-full flex flex-col">
-          {/* Header with name, jersey number, and menu */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-sm text-foreground" data-testid={`text-player-name-${player.id}`}>
-                  {player.name}
-                </h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-xs font-bold text-muted-foreground">
-                      {player.jerseyNumber}
-                    </span>
-                  </div>
-                  
-                  {/* Dropdown menu for actions */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        data-testid={`button-menu-account-${player.id}`}
-                      >
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem 
-                        onClick={() => setShowEditDialog(true)}
-                        data-testid={`button-edit-account-${player.id}`}
-                      >
-                        <Edit className="mr-2 h-3 w-3" />
-                        Edit Account
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+      <Card 
+        data-testid={`account-card-${player.id}`} 
+        className="border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+      >
+        <CardContent className="p-3">
+          <div className="flex items-center justify-between min-h-[50px]">
+            {/* Player Avatar */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 flex items-center justify-center">
+                <div className="h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                  {player.jerseyNumber}
                 </div>
               </div>
               
-              {/* Email in place of position */}
-              <p className="text-xs text-muted-foreground mt-1" data-testid={`text-email-${player.id}`}>
-                {player.email || "No email provided"}
-              </p>
+              {/* Main Content */}
+              <div className="flex-1">
+                <div className="flex items-center space-x-2">
+                  <h3 className="font-semibold text-lg text-foreground" data-testid={`text-player-name-${player.id}`}>
+                    {player.name}
+                  </h3>
+                </div>
+                <p className="text-sm text-muted-foreground" data-testid={`text-email-${player.id}`}>
+                  {player.email || "No email provided"}
+                </p>
+                <div className="text-xs text-muted-foreground mt-1">
+                  <span data-testid={`text-gender-${player.id}`}>
+                    {player.gender || "Gender not set"}
+                  </span>
+                  {player.gender && player.dateOfBirth && " • "}
+                  <span data-testid={`text-date-of-birth-${player.id}`}>
+                    {player.dateOfBirth 
+                      ? `${format(new Date(player.dateOfBirth), "d MMM yyyy")} (Age: ${age})`
+                      : "Date of birth not provided"
+                    }
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Account details and status */}
-          <div className="flex-1 flex items-end justify-between">
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground" data-testid={`text-gender-${player.id}`}>
-                {player.gender || "Gender not set"}
-              </p>
-              <p className="text-xs text-muted-foreground" data-testid={`text-date-of-birth-${player.id}`}>
-                {player.dateOfBirth 
-                  ? `${format(new Date(player.dateOfBirth), "d MMM yyyy")} (Age: ${age})`
-                  : "Date of birth not provided"
-                }
-              </p>
+            {/* Right side - Status and Actions */}
+            <div className="flex items-center space-x-3">
+              {/* Account Status */}
+              <Badge 
+                className={`text-xs px-3 py-1 ${getStatusColor(player.accountStatus || "Draft")}`}
+                data-testid={`badge-account-status-${player.id}`}
+              >
+                {player.accountStatus || "Draft"}
+              </Badge>
+              
+              {/* Actions Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0" data-testid={`button-menu-account-${player.id}`}>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={() => setShowEditDialog(true)}
+                    data-testid={`button-edit-account-${player.id}`}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            
-            <Badge 
-              className={`text-xs px-2 py-1 ${getStatusColor(player.accountStatus || "Draft")}`}
-              data-testid={`badge-account-status-${player.id}`}
-            >
-              {player.accountStatus || "Draft"}
-            </Badge>
           </div>
         </CardContent>
       </Card>
