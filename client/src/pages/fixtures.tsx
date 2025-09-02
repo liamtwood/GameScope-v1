@@ -7,6 +7,7 @@ import { FixtureCard } from "@/components/ui/fixture-card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { FixtureCreateDialog } from "@/components/dialogs/fixture-create-dialog";
+import { FixtureSettingsDialog } from "@/components/dialogs/fixture-settings-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -434,9 +435,11 @@ export default function Fixtures() {
                 Add Fixture
               </Button>
             </FixtureCreateDialog>
-            <Button variant="outline" data-testid="button-settings">
-              <Settings className="h-4 w-4" />
-            </Button>
+            <FixtureSettingsDialog>
+              <Button variant="outline" data-testid="button-settings">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </FixtureSettingsDialog>
           </div>
         </div>
         
