@@ -144,7 +144,7 @@ export default function Analysis() {
       subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'MMM d, yyyy')}`}
     >
       {/* Main Analysis Tabs */}
-      <Tabs defaultValue="fixture-details" className="w-full">
+      <Tabs defaultValue="heatmaps" className="w-full">
         {/* Header with Tabs */}
         <div className="flex items-center justify-between mb-6">
           <Link href="/dashboard">
@@ -156,10 +156,10 @@ export default function Analysis() {
           
           <div className="flex-1 flex justify-center">
             <TabsList className="grid max-w-[960px] grid-cols-8">
+              <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
               <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
               <TabsTrigger value="spider">Spider Charts</TabsTrigger>
-              <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
               <TabsTrigger value="positions">Position Maps</TabsTrigger>
               <TabsTrigger value="ai">AI Analysis</TabsTrigger>
               <TabsTrigger value="line">Line</TabsTrigger>
