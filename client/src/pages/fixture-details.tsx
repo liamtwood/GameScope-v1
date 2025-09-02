@@ -274,9 +274,6 @@ export default function FixtureDetails() {
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Opposition</label>
                       <p className="text-lg mt-1">{fixture.opponent}</p>
-                      {oppositionTeam?.shortName && (
-                        <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
-                      )}
                     </div>
                   </div>
 
