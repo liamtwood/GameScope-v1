@@ -366,39 +366,55 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                     </div>
                   )}
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    // Show logo upload section for any selected team
+                <LogoUpload
+                  teamName={selectedOpponentForLogo?.name || "Selected Team"}
+                  currentLogo={selectedOpponentForLogo?.logoPath || undefined}
+                  onUploadComplete={async (logoPath: string) => {
                     const currentOpponent = form.getValues("opponent");
-                    if (currentOpponent) {
-                      // Find the team object for the selected opponent
-                      let opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
-                      
-                      // If no existing team found (new opponent), create a temporary team object
-                      if (!opponentTeam) {
-                        opponentTeam = {
-                          id: 'new-team-temp', // Temporary ID for new teams
+                    if (!currentOpponent) return;
+
+                    // Find or create opponent team object
+                    let opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                    
+                    if (!opponentTeam) {
+                      // For new teams, create the team with the logo
+                      try {
+                        await apiRequest("POST", "/api/opposition-teams", {
                           name: currentOpponent,
                           shortName: currentOpponent.substring(0, 3).toUpperCase(),
-                          logoPath: null,
-                          websiteUrl: null,
-                          createdAt: new Date(),
-                          updatedAt: new Date()
-                        };
+                          logoPath: logoPath,
+                          websiteUrl: ""
+                        });
+                        // Refresh opposition teams list
+                        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                        toast({
+                          title: "Team Created",
+                          description: `${currentOpponent} has been created with logo!`,
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to create team with logo",
+                          variant: "destructive",
+                        });
                       }
-                      
-                      setSelectedOpponentForLogo(opponentTeam);
-                      setShowLogoUpload(true);
+                    } else {
+                      // For existing teams, just update the logo
+                      updateOppositionTeamMutation.mutate({
+                        teamId: opponentTeam.id,
+                        logoPath
+                      });
+                    }
+                    
+                    // Update the selected opponent to show new logo
+                    const updatedTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                    if (updatedTeam) {
+                      setSelectedOpponentForLogo({...updatedTeam, logoPath});
                     }
                   }}
-                  data-testid="button-upload-logo"
-                >
-                  Upload Logo
-                </Button>
+                  buttonText="Upload Logo"
+                  className="w-full"
+                />
               </div>
             </div>
 
@@ -508,74 +524,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
             />
 
 
-            {/* Logo Upload Section */}
-            {showLogoUpload && selectedOpponentForLogo && (
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-medium">Logo for {selectedOpponentForLogo.name}</h4>
-                  {selectedOpponentForLogo.logoPath && (
-                    <div className="flex items-center space-x-2">
-                      <img 
-                        src={selectedOpponentForLogo.logoPath} 
-                        alt="Current logo"
-                        className="w-8 h-8 object-contain border rounded"
-                      />
-                      <span className="text-xs text-muted-foreground">Current logo</span>
-                    </div>
-                  )}
-                </div>
-                <LogoUpload
-                  teamName={selectedOpponentForLogo.name}
-                  currentLogo={selectedOpponentForLogo.logoPath || undefined}
-                  onUploadComplete={async (logoPath: string) => {
-                    if (selectedOpponentForLogo.id === 'new-team-temp') {
-                      // For new teams, create the team first, then update with logo
-                      try {
-                        const newTeam = await apiRequest("POST", "/api/opposition-teams", {
-                          name: selectedOpponentForLogo.name,
-                          shortName: selectedOpponentForLogo.shortName,
-                          logoPath: logoPath,
-                          websiteUrl: null
-                        });
-                        // Refresh opposition teams list
-                        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-                        toast({
-                          title: "Team Created",
-                          description: `${selectedOpponentForLogo.name} has been created with logo!`,
-                        });
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: "Failed to create team with logo",
-                          variant: "destructive",
-                        });
-                      }
-                    } else {
-                      // For existing teams, just update the logo
-                      updateOppositionTeamMutation.mutate({
-                        teamId: selectedOpponentForLogo.id,
-                        logoPath
-                      });
-                    }
-                    // Close the upload section after successful upload
-                    setShowLogoUpload(false);
-                    setSelectedOpponentForLogo(null);
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowLogoUpload(false);
-                    setSelectedOpponentForLogo(null);
-                  }}
-                  className="mt-2"
-                >
-                  Close Logo Upload
-                </Button>
-              </div>
-            )}
 
             {/* Notes field - hidden but still part of form for database */}
             <FormField
