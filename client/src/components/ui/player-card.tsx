@@ -73,11 +73,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
       data-testid={`card-player-${player.id}`} 
       className="border rounded-lg shadow-sm hover:shadow-md transition-shadow"
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between min-h-[80px]">
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between min-h-[50px]">
           {/* Player Avatar */}
           <div className="flex items-center space-x-3">
-            <div className="w-24 h-24 flex items-center justify-center">
+            <div className="w-12 h-12 flex items-center justify-center">
               {getPlayerDisplay()}
             </div>
             
