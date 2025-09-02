@@ -376,11 +376,23 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                     const currentOpponent = form.getValues("opponent");
                     if (currentOpponent) {
                       // Find the team object for the selected opponent
-                      const opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
-                      if (opponentTeam) {
-                        setSelectedOpponentForLogo(opponentTeam);
-                        setShowLogoUpload(true);
+                      let opponentTeam = oppositionTeams.find(team => team.name === currentOpponent);
+                      
+                      // If no existing team found (new opponent), create a temporary team object
+                      if (!opponentTeam) {
+                        opponentTeam = {
+                          id: 'new-team-temp', // Temporary ID for new teams
+                          name: currentOpponent,
+                          shortName: currentOpponent.substring(0, 3).toUpperCase(),
+                          logoPath: null,
+                          websiteUrl: null,
+                          createdAt: new Date(),
+                          updatedAt: new Date()
+                        };
                       }
+                      
+                      setSelectedOpponentForLogo(opponentTeam);
+                      setShowLogoUpload(true);
                     }
                   }}
                   data-testid="button-upload-logo"
@@ -515,11 +527,36 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 <LogoUpload
                   teamName={selectedOpponentForLogo.name}
                   currentLogo={selectedOpponentForLogo.logoPath || undefined}
-                  onUploadComplete={(logoPath: string) => {
-                    updateOppositionTeamMutation.mutate({
-                      teamId: selectedOpponentForLogo.id,
-                      logoPath
-                    });
+                  onUploadComplete={async (logoPath: string) => {
+                    if (selectedOpponentForLogo.id === 'new-team-temp') {
+                      // For new teams, create the team first, then update with logo
+                      try {
+                        const newTeam = await apiRequest("POST", "/api/opposition-teams", {
+                          name: selectedOpponentForLogo.name,
+                          shortName: selectedOpponentForLogo.shortName,
+                          logoPath: logoPath,
+                          websiteUrl: null
+                        });
+                        // Refresh opposition teams list
+                        queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                        toast({
+                          title: "Team Created",
+                          description: `${selectedOpponentForLogo.name} has been created with logo!`,
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to create team with logo",
+                          variant: "destructive",
+                        });
+                      }
+                    } else {
+                      // For existing teams, just update the logo
+                      updateOppositionTeamMutation.mutate({
+                        teamId: selectedOpponentForLogo.id,
+                        logoPath
+                      });
+                    }
                     // Close the upload section after successful upload
                     setShowLogoUpload(false);
                     setSelectedOpponentForLogo(null);
