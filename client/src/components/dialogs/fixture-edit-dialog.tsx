@@ -478,8 +478,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
               />
             </div>
 
-            {/* Status and Match Type Row */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Status, Home Score, Dash, Away Score Row */}
+            <div className="grid grid-cols-4 gap-4 items-end">
               <FormField
                 control={form.control}
                 name="status"
@@ -506,68 +506,47 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
               <FormField
                 control={form.control}
-                name="type"
+                name="homeScore"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Home / Away</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-match-type-additional">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="HOME">Home</SelectItem>
-                        <SelectItem value="AWAY">Away</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Home Score</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        value={field.value || ""} 
+                        data-testid="input-home-score" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Dash separator */}
+              <div className="flex items-center justify-center h-10 text-xl font-semibold text-muted-foreground">
+                -
+              </div>
+
+              <FormField
+                control={form.control}
+                name="awayScore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Away Score</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        value={field.value || ""} 
+                        data-testid="input-away-score" 
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-
-            {(form.watch("status") === "COMPLETED" || form.watch("status") === "NO_CONTEST") && (
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="homeScore"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Home Score</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          value={field.value || ""} 
-                          data-testid="input-home-score" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="awayScore"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Away Score</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          value={field.value || ""} 
-                          data-testid="input-away-score" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
 
 
             <div className="flex justify-end space-x-2 pt-4">
