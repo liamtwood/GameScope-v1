@@ -92,12 +92,6 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
               <p className="text-sm text-muted-foreground">
                 {player.position}
               </p>
-              {/* Jersey Number */}
-              <div className="mt-1">
-                <Badge variant="outline" className="text-xs">
-                  #{player.jerseyNumber}
-                </Badge>
-              </div>
             </div>
           </div>
 
@@ -109,22 +103,13 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer }: Play
             </Badge>
             
             {/* Stats indicators */}
-            <div className="text-right">
-              {(player.goals && player.goals > 0) || (player.assists && player.assists > 0) ? (
-                <>
-                  <div className="text-sm font-medium text-foreground">
-                    {player.goals || 0}G {player.assists || 0}A
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {player.appearances || 0} Apps
-                  </div>
-                </>
-              ) : (
+            {(player.goals && player.goals > 0) || (player.assists && player.assists > 0) ? (
+              <div className="text-right">
                 <div className="text-sm font-medium text-foreground">
-                  {player.appearances || 0} Apps
+                  {player.goals || 0}G {player.assists || 0}A
                 </div>
-              )}
-            </div>
+              </div>
+            ) : null}
 
             {/* Actions Menu */}
             <DropdownMenu>
