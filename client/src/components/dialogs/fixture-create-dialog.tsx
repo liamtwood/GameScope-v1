@@ -258,16 +258,16 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
               />
             </div>
 
-            {/* Row 2 - Opponent */}
-            <FormField
-              control={form.control}
-              name="opponent"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Opponent</FormLabel>
-                  <FormControl>
-                    {showNewOpponentInput ? (
-                      <div className="space-y-2">
+            {/* Row 2 - Opponent with Logo Container */}
+            <div className="grid grid-cols-[2fr,1fr] gap-4">
+              <FormField
+                control={form.control}
+                name="opponent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Opponent</FormLabel>
+                    <FormControl>
+                      {showNewOpponentInput ? (
                         <div className="flex gap-2">
                           <Input {...field} placeholder="Enter new opponent name" data-testid="input-new-opponent" />
                           <Button
@@ -282,88 +282,101 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             Cancel
                           </Button>
                         </div>
-                        {field.value && (
-                          <div className="text-sm text-muted-foreground">
-                            💡 You can add a logo for this team after creating the fixture
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Select
-                          value={field.value}
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedTeam = oppositionTeams.find(team => team.name === value);
-                            setSelectedOpponentForLogo(selectedTeam || null);
-                          }}
-                          data-testid="select-opponent"
-                          disabled={isLoadingTeams}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder={isLoadingTeams ? "Loading opponents..." : "Select opponent"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {isLoadingTeams ? (
-                              <SelectItem value="loading" disabled>Loading teams...</SelectItem>
-                            ) : oppositionTeams.length === 0 ? (
-                              <SelectItem value="no-teams" disabled>No opponents available</SelectItem>
-                            ) : (
-                              oppositionTeams.map((team) => (
-                                <SelectItem key={team.id} value={team.name}>
-                                  <div className="flex items-center gap-2">
-                                    {team.logoPath ? (
-                                      <img 
-                                        src={team.logoPath} 
-                                        alt={`${team.name} logo`}
-                                        className="w-4 h-4 object-cover rounded"
-                                      />
-                                    ) : (
-                                      <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                        {team.shortName}
-                                      </div>
-                                    )}
-                                    {team.name}
-                                  </div>
-                                </SelectItem>
-                              ))
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowNewOpponentInput(true)}
-                          data-testid="button-add-new-opponent"
-                          title="Add new opponent"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        {selectedOpponentForLogo && (
+                      ) : (
+                        <div className="flex gap-2">
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              const selectedTeam = oppositionTeams.find(team => team.name === value);
+                              setSelectedOpponentForLogo(selectedTeam || null);
+                            }}
+                            data-testid="select-opponent"
+                            disabled={isLoadingTeams}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder={isLoadingTeams ? "Loading opponents..." : "Select opponent"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {isLoadingTeams ? (
+                                <SelectItem value="loading" disabled>Loading teams...</SelectItem>
+                              ) : oppositionTeams.length === 0 ? (
+                                <SelectItem value="no-teams" disabled>No opponents available</SelectItem>
+                              ) : (
+                                oppositionTeams.map((team) => (
+                                  <SelectItem key={team.id} value={team.name}>
+                                    <div className="flex items-center gap-2">
+                                      {team.logoPath ? (
+                                        <img 
+                                          src={team.logoPath} 
+                                          alt={`${team.name} logo`}
+                                          className="w-4 h-4 object-cover rounded"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                          {team.shortName}
+                                        </div>
+                                      )}
+                                      {team.name}
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              // Toggle logo upload section
-                              if (selectedOpponentForLogo) {
-                                setSelectedOpponentForLogo(selectedOpponentForLogo);
-                              }
-                            }}
-                            data-testid="button-upload-logo"
-                            title={selectedOpponentForLogo.logoPath ? "Change logo" : "Upload logo"}
+                            onClick={() => setShowNewOpponentInput(true)}
+                            data-testid="button-add-new-opponent"
+                            title="Add new opponent"
                           >
-                            {selectedOpponentForLogo.logoPath ? "🔄" : "📷"}
+                            <Plus className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        </div>
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Logo Container */}
+              <div className="space-y-2">
+                <FormLabel>Logo</FormLabel>
+                <div className="border rounded-lg p-4 h-24 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                  {selectedOpponentForLogo?.logoPath ? (
+                    <img 
+                      src={selectedOpponentForLogo.logoPath}
+                      alt={`${selectedOpponentForLogo.name} logo`}
+                      className="max-h-16 max-w-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center">
+                      No Logo
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    // Always show logo upload section when button is clicked
+                    if (selectedOpponentForLogo) {
+                      // Toggle the logo upload section visibility
+                      setSelectedOpponentForLogo(selectedOpponentForLogo);
+                    }
+                  }}
+                  disabled={!selectedOpponentForLogo}
+                  data-testid="button-upload-logo"
+                >
+                  Upload Logo
+                </Button>
+              </div>
+            </div>
 
             {/* Row 3 - Date, Time Slot, Kick-off Time */}
             <div className="grid grid-cols-3 gap-4">
