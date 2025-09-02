@@ -113,9 +113,9 @@ export default function Analysis() {
     );
   }
 
-  // Process match stats - get full game stats
-  const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true);
-  const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null));
+  // Process match stats - get full game stats (with fallback for missing data)
+  const fullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true) || null;
+  const opponentFullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null)) || null;
 
   // Get team and opponent logos from opponents table
   const polkTeam = oppositionTeams?.find((team: any) => team.shortName === "POLK");
@@ -233,8 +233,8 @@ export default function Analysis() {
               
               <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
               <MetricsComparison
-                teamStats={fullGameStats}
-                opponentStats={opponentFullGameStats}
+                teamStats={fullGameStats || undefined}
+                opponentStats={opponentFullGameStats || undefined}
               />
             </CardContent>
           </Card>
@@ -326,13 +326,13 @@ export default function Analysis() {
                   <div className="bg-muted/30 rounded-lg p-4 border">
                     <div className="flex items-start space-x-3">
                       <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-sm text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats.passingSuccessRate || 0}% success rate on pass attempts.</p>
+                      <p className="text-sm text-muted-foreground">Excellent ball retention through the wings, with {fullGameStats?.passingSuccessRate || 0}% success rate on pass attempts.</p>
                     </div>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-4 border">
                     <div className="flex items-start space-x-3">
                       <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-sm text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats.shotsAttempted || 0} shots attempted with {fullGameStats.shotsOnTarget || 0} on target.</p>
+                      <p className="text-sm text-muted-foreground">Opportunities to improve shot conversion - {fullGameStats?.shotsAttempted || 0} shots attempted with {fullGameStats?.shotsOnTarget || 0} on target.</p>
                     </div>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ export default function Analysis() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="p-6">
                       <SpiderChart
-                        data={createAttackSpiderData(fullGameStats, opponentFullGameStats)}
+                        data={createAttackSpiderData(fullGameStats || null, opponentFullGameStats)}
                         teamName=""
                         opponentName=""
                         title="Attack Performance"
@@ -445,32 +445,32 @@ export default function Analysis() {
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Goals</span>
-                          <span className="font-medium text-center">{fullGameStats.goals || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.goals || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.goals || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Shots Attempted</span>
-                          <span className="font-medium text-center">{fullGameStats.shotsAttempted || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.shotsAttempted || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsAttempted || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Shots on Target</span>
-                          <span className="font-medium text-center">{fullGameStats.shotsOnTarget || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.shotsOnTarget || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.shotsOnTarget || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Runs Into Boxes</span>
-                          <span className="font-medium text-center">{fullGameStats.runsIntoBoxes || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.runsIntoBoxes || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.runsIntoBoxes || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Corner Kicks</span>
-                          <span className="font-medium text-center">{fullGameStats.corners || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.corners || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.corners || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Dangerous Crosses</span>
-                          <span className="font-medium text-center">{fullGameStats.dangerousCrosses || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.dangerousCrosses || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.dangerousCrosses || 0}</span>
                         </div>
                       </div>
@@ -482,7 +482,7 @@ export default function Analysis() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="p-6">
                       <SpiderChart
-                        data={createPossessionSpiderData(fullGameStats, opponentFullGameStats)}
+                        data={createPossessionSpiderData(fullGameStats || null, opponentFullGameStats)}
                         teamName=""
                         opponentName=""
                         title="Possession Performance"
@@ -500,27 +500,27 @@ export default function Analysis() {
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Possession %</span>
-                          <span className="font-medium text-center">{fullGameStats.possession || 0}%</span>
+                          <span className="font-medium text-center">{fullGameStats?.possession || 0}%</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.possession || 0}%</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Pass Accuracy %</span>
-                          <span className="font-medium text-center">{fullGameStats.passingSuccessRate || 0}%</span>
+                          <span className="font-medium text-center">{fullGameStats?.passingSuccessRate || 0}%</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passingSuccessRate || 0}%</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">First Touch %</span>
-                          <span className="font-medium text-center">{fullGameStats.firstTouchSuccessRate || 0}%</span>
+                          <span className="font-medium text-center">{fullGameStats?.firstTouchSuccessRate || 0}%</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.firstTouchSuccessRate || 0}%</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Take Ons</span>
-                          <span className="font-medium text-center">{fullGameStats.takeOns || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.takeOns || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.takeOns || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Passes Success</span>
-                          <span className="font-medium text-center">{fullGameStats.passesSuccess || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.passesSuccess || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.passesSuccess || 0}</span>
                         </div>
                       </div>
@@ -532,7 +532,7 @@ export default function Analysis() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="p-6">
                       <SpiderChart
-                        data={createTechnicalSpiderData(fullGameStats, opponentFullGameStats)}
+                        data={createTechnicalSpiderData(fullGameStats || null, opponentFullGameStats)}
                         teamName=""
                         opponentName=""
                         title="Technical Performance"
@@ -550,27 +550,27 @@ export default function Analysis() {
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Tackles</span>
-                          <span className="font-medium text-center">{fullGameStats.tackles || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.tackles || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.tackles || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Free Kicks</span>
-                          <span className="font-medium text-center">{fullGameStats.freeKicks || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.freeKicks || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.freeKicks || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Offsides</span>
-                          <span className="font-medium text-center">{fullGameStats.offsides || 0}</span>
+                          <span className="font-medium text-center">{fullGameStats?.offsides || 0}</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.offsides || 0}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Right Foot Pass %</span>
-                          <span className="font-medium text-center">{fullGameStats.rightFootPassSuccessRate || 0}%</span>
+                          <span className="font-medium text-center">{fullGameStats?.rightFootPassSuccessRate || 0}%</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.rightFootPassSuccessRate || 0}%</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <span className="text-sm text-muted-foreground">Left Foot Pass %</span>
-                          <span className="font-medium text-center">{fullGameStats.leftFootPassSuccessRate || 0}%</span>
+                          <span className="font-medium text-center">{fullGameStats?.leftFootPassSuccessRate || 0}%</span>
                           <span className="font-medium text-center text-gray-600">{opponentFullGameStats?.leftFootPassSuccessRate || 0}%</span>
                         </div>
                       </div>
@@ -912,7 +912,7 @@ export default function Analysis() {
               <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
               <VideoManager 
                 fixtureId={fixtureId} 
-                videoLinks={fixture.videoLinks || []} 
+                videoLinks={fixture.videoLinks ? fixture.videoLinks as any[] : []} 
               />
             </CardContent>
           </Card>
