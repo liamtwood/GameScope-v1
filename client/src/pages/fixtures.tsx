@@ -214,6 +214,10 @@ export default function Fixtures() {
     }
   };
 
+  const handleViewAnalysis = (fixture: Fixture) => {
+    setLocation(`/analysis/${fixture.id}`);
+  };
+
   const handleEditFixture = (data: any) => {
     // This will be called from the dialog - we need to pass the fixture ID
     // The actual handler is passed to the dialog
@@ -637,6 +641,7 @@ export default function Fixtures() {
                               <FixtureCard
                                 fixture={fixture}
                                 onViewDetails={handleViewDetails}
+                                onViewAnalysis={handleViewAnalysis}
                                 onEdit={() => {}} // Edit is handled by the dialog wrapper
                                 onDelete={handleDeleteFixture}
                               />
