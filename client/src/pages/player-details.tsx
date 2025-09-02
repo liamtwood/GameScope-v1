@@ -120,88 +120,67 @@ export default function PlayerDetails() {
           Back to Squad
         </Button>
 
-        {/* Player Header Card */}
-        <Card className="bg-red-50 border-red-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              {/* Player Info */}
-              <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold">
-                  {player.jerseyNumber}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-3">
-                    <h1 className="text-2xl font-bold text-foreground" data-testid={`text-player-name-${player.id}`}>
-                      {player.name}
-                    </h1>
-                    {player.keyPlayer && (
-                      <Star className="h-6 w-6 text-orange-500 fill-orange-500" />
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-3 mt-2">
-                    <Badge 
-                      className={`text-sm px-3 py-1 ${getPositionColor()}`}
-                      data-testid={`badge-position-${player.id}`}
-                    >
-                      {player.position}
-                    </Badge>
-                    <Badge 
-                      className={`text-sm px-3 py-1 ${getStatusColor()}`}
-                      data-testid={`badge-status-${player.id}`}
-                    >
-                      {player.status || 'Fit'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Player Details Tabs */}
         <Card>
           <CardContent className="p-0">
-            <Tabs defaultValue="player" className="w-full">
+            <Tabs defaultValue="details" className="w-full">
               <TabsList className="w-full justify-start border-b rounded-none bg-background">
                 <TabsTrigger 
-                  value="player" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
-                  data-testid="tab-player"
+                  value="details" 
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  data-testid="tab-details"
                 >
-                  Player
+                  Player Details
                 </TabsTrigger>
                 <TabsTrigger 
                   value="account" 
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
                   data-testid="tab-account"
                 >
-                  Account
+                  Account Details
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="teams" 
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  data-testid="tab-teams"
+                >
+                  Teams
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="parents" 
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+                  data-testid="tab-parents"
+                >
+                  Parents / Guardian
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="player" className="p-6 mt-0">
+              <TabsContent value="details" className="p-6 mt-0">
                 <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Player Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
-                        <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Position</label>
-                        <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Player Status</label>
-                        <p className="text-lg" data-testid={`text-player-status-${player.id}`}>{player.status || 'Fit'}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Key Player</label>
-                        <p className="text-lg" data-testid={`text-key-player-${player.id}`}>
-                          {player.keyPlayer ? 'Yes' : 'No'}
-                        </p>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
+                      <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">First Name</label>
+                      <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Last Name</label>
+                      <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Position</label>
+                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Club ID</label>
+                      <p className="text-lg font-mono text-xs" data-testid={`text-club-id-${player.id}`}>{player.teamId}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Team ID</label>
+                      <p className="text-lg font-mono text-xs" data-testid={`text-team-id-${player.id}`}>{player.teamId}</p>
                     </div>
                   </div>
                 </div>
@@ -209,42 +188,56 @@ export default function PlayerDetails() {
 
               <TabsContent value="account" className="p-6 mt-0">
                 <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                        {player.email || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
+                        Not provided
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Last Logged In</label>
+                      <p className="text-lg" data-testid={`text-last-login-${player.id}`}>
+                        Never logged in
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="teams" className="p-6 mt-0">
+                <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Account Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <h3 className="text-lg font-semibold mb-4">Current Team</h3>
+                    <div className="grid grid-cols-1 gap-6">
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                        <p className="text-lg" data-testid={`text-email-${player.id}`}>
-                          {player.email || "Not provided"}
+                        <label className="text-sm font-medium text-muted-foreground">Team</label>
+                        <p className="text-lg" data-testid={`text-current-team-${player.id}`}>
+                          Current Team Information
                         </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                        <p className="text-lg" data-testid={`text-gender-${player.id}`}>
-                          {player.gender || "Not set"}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                        <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
-                          {player.dateOfBirth 
-                            ? `${format(new Date(player.dateOfBirth), "d MMM yyyy")} (Age: ${age})`
-                            : "Not provided"
-                          }
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Account Status</label>
-                        <div>
-                          <Badge 
-                            className={`text-sm px-3 py-1 ${getAccountStatusColor(player.accountStatus || "Draft")}`}
-                            data-testid={`badge-account-status-${player.id}`}
-                          >
-                            {player.accountStatus || "Draft"}
-                          </Badge>
-                        </div>
                       </div>
                     </div>
+                    <div className="mt-6">
+                      <h4 className="text-md font-medium mb-2">Add to Other Teams</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Player can be added to other teams within the club - Coming soon
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="parents" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div className="text-center py-8">
+                    <p className="text-lg text-muted-foreground">Parents / Guardian functionality</p>
+                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
               </TabsContent>
