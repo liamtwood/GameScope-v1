@@ -422,7 +422,7 @@ export default function Fixtures() {
             data-testid="button-toggle-filters"
           >
             <Filter className="mr-2 h-4 w-4" />
-            Add Filter
+            Enable Filter
           </Button>
           <FixtureCreateDialog 
             teamId={currentTeam?.id || ""} 
