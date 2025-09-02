@@ -34,7 +34,7 @@ export default function Fixtures() {
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
