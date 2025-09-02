@@ -238,7 +238,7 @@ export default function FixtureDetails() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold">Match Details</h3>
+                  <h3 className="text-lg font-semibold">Fixture Details</h3>
                   <FixtureEditDialog 
                     fixture={fixture}
                     onSave={async (data) => {
@@ -254,9 +254,9 @@ export default function FixtureDetails() {
                   </FixtureEditDialog>
                 </div>
                 
-                <div className="space-y-6">
-                  {/* Row 1 - Competition, Match Type */}
-                  <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  {/* Row 1 - Competition, Match Type, Opposition */}
+                  <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
                       <div className="flex items-center gap-2 mt-1">
@@ -271,39 +271,24 @@ export default function FixtureDetails() {
                         <p className="text-lg">{fixture.type}</p>
                       </div>
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Opposition</label>
+                      <p className="text-lg mt-1">{fixture.opponent}</p>
+                      {oppositionTeam?.shortName && (
+                        <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Row 2 - Opposition */}
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Opposition</label>
-                    <p className="text-xl font-semibold mt-1">{fixture.opponent}</p>
-                    {oppositionTeam?.shortName && (
-                      <p className="text-sm text-muted-foreground">Short name: {oppositionTeam.shortName}</p>
-                    )}
-                  </div>
-
-                  {/* Row 3 - Date, Time, Venue */}
-                  <div className="grid grid-cols-3 gap-6">
+                  {/* Row 2 - Date, Time */}
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Date</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{format(new Date(fixture.date), "d MMM yyyy")}</p>
-                      </div>
+                      <p className="text-base mt-1">{format(new Date(fixture.date), "d MMM yyyy")}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Time</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{format(new Date(fixture.date), "h:mm a")}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Venue</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{fixture.venue || "TBD"}</p>
-                      </div>
+                      <p className="text-base mt-1">{format(new Date(fixture.date), "h:mm a")}</p>
                     </div>
                   </div>
 
@@ -322,10 +307,17 @@ export default function FixtureDetails() {
                         </span>
                       </p>
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Venue</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-base">{fixture.venue || "TBD"}</p>
+                      </div>
+                    </div>
                     {fixture.notes && (
-                      <div>
+                      <div className="col-span-2">
                         <label className="text-sm font-medium text-muted-foreground">Notes</label>
-                        <p className="text-lg mt-1">{fixture.notes}</p>
+                        <p className="text-base mt-1">{fixture.notes}</p>
                       </div>
                     )}
                   </div>
