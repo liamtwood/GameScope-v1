@@ -415,7 +415,19 @@ export default function Fixtures() {
 
       {/* Tab Navigation with Add Fixture Button */}
       <div className="mb-6 relative">
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="p-2"
+              data-testid="button-toggle-filters"
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium text-foreground">Filter By:</span>
+          </div>
           <FixtureCreateDialog 
             teamId={currentTeam?.id || ""} 
             onSave={(data) => createFixtureMutation.mutate(data)}
@@ -456,20 +468,8 @@ export default function Fixtures() {
       {/* Fixtures Content */}
       <>
           {/* Filters */}
+          {showFilters && (
           <div className="mb-6 space-y-3">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="p-2"
-                data-testid="button-toggle-filters"
-              >
-                <Filter className="h-4 w-4" />
-              </Button>
-              <span className="text-sm font-medium text-foreground">Filter By:</span>
-            </div>
-            {showFilters && (
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               {/* Competition Filter */}
               <div className="space-y-2">
@@ -554,8 +554,8 @@ export default function Fixtures() {
                 />
               </div>
             </div>
-            )}
           </div>
+          )}
 
           {/* Competitions Content */}
           {overviewTab === 'competitions' ? (
