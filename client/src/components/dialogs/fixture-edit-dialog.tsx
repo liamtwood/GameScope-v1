@@ -478,8 +478,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
               />
             </div>
 
-            {/* Status, Home Score, Dash, Away Score Row */}
-            <div className="grid grid-cols-4 gap-4 items-end">
+            {/* Status and Scores Row */}
+            <div className="grid grid-cols-[2fr,1.5fr] gap-6 items-end">
               <FormField
                 control={form.control}
                 name="status"
@@ -504,48 +504,63 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="homeScore"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Home Score</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        value={field.value || ""} 
-                        data-testid="input-home-score" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Dash separator */}
-              <div className="flex items-center justify-center h-10 text-xl font-semibold text-muted-foreground">
-                -
+              {/* Score Section */}
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">Score</div>
+                <div className="flex items-center gap-2">
+                  <FormField
+                    control={form.control}
+                    name="homeScore"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value !== undefined && field.value !== null ? String(field.value) : ""} 
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === "" ? undefined : Number(value));
+                            }}
+                            placeholder="Home"
+                            data-testid="input-home-score"
+                            className="text-center"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="text-xl font-semibold text-muted-foreground px-2">
+                    -
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="awayScore"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value !== undefined && field.value !== null ? String(field.value) : ""} 
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === "" ? undefined : Number(value));
+                            }}
+                            placeholder="Away"
+                            data-testid="input-away-score"
+                            className="text-center"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-
-              <FormField
-                control={form.control}
-                name="awayScore"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Away Score</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        value={field.value || ""} 
-                        data-testid="input-away-score" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
 
