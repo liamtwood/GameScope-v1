@@ -32,11 +32,7 @@ export default function Fixtures() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
-  const [overviewTab, setOverviewTab] = useState<'season' | 'competitions'>('season');
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
-  const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
-  const [editCompetitionName, setEditCompetitionName] = useState("");
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [, setLocation] = useLocation();
@@ -469,26 +465,9 @@ export default function Fixtures() {
         
         <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
           <div className="flex space-x-8 border-b border-gray-200 pointer-events-auto">
-            <button
-              onClick={() => setOverviewTab('season')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                overviewTab === 'season' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
+            <div className="pb-3 px-4 text-lg font-semibold text-blue-600 border-b-2 border-blue-600">
               Season
-            </button>
-            <button
-              onClick={() => setOverviewTab('competitions')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                overviewTab === 'competitions' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Competitions
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -599,70 +578,7 @@ export default function Fixtures() {
           </div>
           )}
 
-          {/* Competitions Content */}
-          {overviewTab === 'competitions' ? (
-            <div className="space-y-4">
-              {competitions.length > 0 ? (
-                competitions.map((competition) => (
-                  <Card key={competition.id} className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-blue-100 rounded-full">
-                          {competition.logoPath ? (
-                            <img 
-                              src={competition.logoPath} 
-                              alt={competition.name}
-                              className="h-6 w-6 object-contain"
-                            />
-                          ) : (
-                            <Trophy className="h-6 w-6 text-blue-600" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground">{competition.name}</h3>
-                          {competition.shortName && (
-                            <p className="text-sm text-muted-foreground mt-1">{competition.shortName}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="mt-1">
-                          Competition
-                        </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCompetition(competition)}
-                          className="mt-1"
-                          data-testid={`button-edit-competition-${competition.id}`}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {/* Competition fixtures count */}
-                    {fixtures && (
-                      <div className="mt-4 pt-4 border-t">
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {fixtures.filter(f => f.competition === competition.name).length} fixtures
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No competitions found</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Fixtures List - Grouped by Competition */
+          {/* Fixtures List - Grouped by Competition */}
             <div className="space-y-8">
               {isLoading ? (
                 <div className="text-center py-8">
@@ -714,7 +630,6 @@ export default function Fixtures() {
                 </div>
               )}
             </div>
-          )}
 
           {/* Delete confirmation dialog */}
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
