@@ -14,7 +14,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { Fixture, MatchStats, Player } from "@shared/schema";
+import { Fixture, MatchStats, Player, Team, Club } from "@shared/schema";
+import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
@@ -38,6 +40,9 @@ export default function Analysis() {
     queryKey: ["/api/players", fixture?.teamId],
     enabled: !!fixture?.teamId,
   });
+
+  const { selectedTeam } = useTeam();
+  const { selectedClub } = useClub();
 
 
   // Spider Chart Data Transformation Functions - Normalized to percentages
@@ -126,6 +131,11 @@ export default function Analysis() {
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
 
+  // Get primary color from team/club colors with fallback
+  const teamColors = (selectedTeam?.colors as any) || {};
+  const clubColors = (selectedClub?.colors as any) || {};
+  const primaryColor = teamColors.primary || clubColors.primary || '#CC4125';
+
   // Allow viewing fixture even without full game stats
 
   return (
@@ -165,16 +175,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -202,9 +215,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -223,7 +236,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
@@ -254,16 +267,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -291,9 +307,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -312,7 +328,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
@@ -355,16 +371,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -392,9 +411,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -413,7 +432,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
@@ -596,16 +615,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -633,9 +655,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -654,7 +676,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
@@ -750,16 +772,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -787,9 +812,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -808,7 +833,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
@@ -849,16 +874,19 @@ export default function Analysis() {
               <div className="mb-6">
                 {/* Main header container with vertical split */}
                 <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - red/black gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-black" 
-                       style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}>
+                  {/* POLK side - club color gradient */}
+                  <div className="absolute inset-0 to-black" 
+                       style={{ 
+                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                       }}>
                   </div>
                   
-                  {/* Opponent side - white with red pinstripes */}
+                  {/* Opponent side - white with club color pinstripes */}
                   <div className="absolute inset-0 bg-white" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: 'repeating-linear-gradient(90deg, #ef4444 0px, #ef4444 2px, transparent 2px, transparent 12px, #ef4444 12px, #ef4444 14px, transparent 14px, transparent 44px, #ef4444 44px, #ef4444 46px, transparent 46px, transparent 56px, #ef4444 56px, #ef4444 58px, transparent 58px, transparent 88px)'
+                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
                        }}>
                   </div>
                   
@@ -886,9 +914,9 @@ export default function Analysis() {
                     {/* Center score - absolutely centered */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
                         <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold text-red-600">{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
+                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
                     </div>
@@ -907,7 +935,7 @@ export default function Analysis() {
                         />
                       ) : (
                         <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-red-600 font-bold text-lg">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
                         </div>
                       )}
                     </div>
