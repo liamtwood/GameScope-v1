@@ -28,6 +28,8 @@ export default function PlayerDetails() {
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
+  const [position, setPosition] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -77,10 +79,15 @@ export default function PlayerDetails() {
 
   // Mutation to add player to a new team
   const addPlayerToTeamMutation = useMutation({
-    mutationFn: async (teamId: string) => {
+    mutationFn: async ({ teamId, isPrimary, squadNumber, position }: {
+      teamId: string;
+      isPrimary: boolean;
+      squadNumber?: number;
+      position?: string;
+    }) => {
       const response = await fetch(`/api/player/${playerId}/teams`, {
         method: 'POST',
-        body: JSON.stringify({ teamId, isPrimary: playerTeams.length === 0 }),
+        body: JSON.stringify({ teamId, isPrimary, squadNumber, position }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -99,6 +106,8 @@ export default function PlayerDetails() {
       });
       setIsTeamDialogOpen(false);
       setSelectedTeamId("");
+      setSquadNumber(undefined);
+      setPosition("");
     },
     onError: () => {
       toast({
@@ -138,7 +147,12 @@ export default function PlayerDetails() {
 
   const handleAddTeam = () => {
     if (selectedTeamId && !playerTeams.some(pt => pt.teamId === selectedTeamId)) {
-      addPlayerToTeamMutation.mutate(selectedTeamId);
+      addPlayerToTeamMutation.mutate({
+        teamId: selectedTeamId,
+        isPrimary: playerTeams.length === 0,
+        squadNumber,
+        position: position || undefined
+      });
     }
   };
 
@@ -803,6 +817,32 @@ export default function PlayerDetails() {
                                       </SelectContent>
                                     </Select>
                                   </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium">Squad Number</label>
+                                      <Input
+                                        type="number"
+                                        placeholder="e.g. 1"
+                                        value={squadNumber || ""}
+                                        onChange={(e) => setSquadNumber(e.target.value ? parseInt(e.target.value) : undefined)}
+                                        data-testid="input-squad-number"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium">Position</label>
+                                      <Select value={position} onValueChange={setPosition}>
+                                        <SelectTrigger data-testid="select-position">
+                                          <SelectValue placeholder="Select position" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                          <SelectItem value="Defender">Defender</SelectItem>
+                                          <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                          <SelectItem value="Forward">Forward</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
                                   <div className="flex justify-end space-x-2">
                                     <Button 
                                       variant="outline" 
@@ -858,6 +898,14 @@ export default function PlayerDetails() {
                                           </Badge>
                                         </div>
                                         <div className="text-sm text-muted-foreground space-y-1">
+                                          <div className="flex space-x-4">
+                                            <p data-testid={`text-squad-number-${playerTeam.team.id}`}>
+                                              <span className="font-semibold">#{playerTeam.squadNumber || 'N/A'}</span>
+                                            </p>
+                                            <p data-testid={`text-position-${playerTeam.team.id}`}>
+                                              <span className="font-semibold">{playerTeam.position || 'No Position'}</span>
+                                            </p>
+                                          </div>
                                           <p data-testid={`text-team-short-name-${playerTeam.team.id}`}>
                                             Short Name: {playerTeam.team.shortName}
                                           </p>

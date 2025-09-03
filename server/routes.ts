@@ -421,8 +421,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add player to a team
   app.post("/api/player/:playerId/teams", async (req, res) => {
     try {
-      const { teamId, isPrimary = false } = req.body;
-      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, isPrimary);
+      const { teamId, isPrimary = false, squadNumber, position } = req.body;
+      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, isPrimary, squadNumber, position);
       res.status(201).json(playerTeam);
     } catch (error) {
       console.error("Error adding player to team:", error);

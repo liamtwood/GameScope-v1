@@ -54,7 +54,7 @@ export interface IStorage {
   
   // Player-Team relationship operations
   getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]>;
-  addPlayerToTeam(playerId: string, teamId: string, isPrimary?: boolean): Promise<PlayerTeam>;
+  addPlayerToTeam(playerId: string, teamId: string, isPrimary?: boolean, squadNumber?: number, position?: string): Promise<PlayerTeam>;
   removePlayerFromTeam(playerId: string, teamId: string): Promise<void>;
   setPrimaryTeam(playerId: string, teamId: string): Promise<void>;
   getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]>;
@@ -420,13 +420,21 @@ export class DatabaseStorage implements IStorage {
     .where(eq(playerTeams.playerId, playerId));
   }
 
-  async addPlayerToTeam(playerId: string, teamId: string, isPrimary: boolean = false): Promise<PlayerTeam> {
+  async addPlayerToTeam(
+    playerId: string, 
+    teamId: string, 
+    isPrimary: boolean = false,
+    squadNumber?: number,
+    position?: string
+  ): Promise<PlayerTeam> {
     const id = randomUUID();
     const newPlayerTeam = {
       id,
       playerId,
       teamId,
       isPrimary,
+      squadNumber: squadNumber || null,
+      position: position || null,
       status: 'active',
       joinedAt: new Date(),
       leftAt: null,

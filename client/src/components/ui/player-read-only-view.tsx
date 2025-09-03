@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,6 +23,8 @@ interface PlayerReadOnlyViewProps {
 export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) {
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
+  const [position, setPosition] = useState<string>("");
   const { teams } = useTeam();
   const { selectedClub } = useClub();
   const { toast } = useToast();
@@ -45,10 +48,15 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   // Mutation to add player to a new team
   const addPlayerToTeamMutation = useMutation({
-    mutationFn: async (teamId: string) => {
+    mutationFn: async ({ teamId, isPrimary, squadNumber, position }: {
+      teamId: string;
+      isPrimary: boolean;
+      squadNumber?: number;
+      position?: string;
+    }) => {
       const response = await fetch(`/api/player/${player.id}/teams`, {
         method: 'POST',
-        body: JSON.stringify({ teamId, isPrimary: playerTeams.length === 0 }),
+        body: JSON.stringify({ teamId, isPrimary, squadNumber, position }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -67,6 +75,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       });
       setIsTeamDialogOpen(false);
       setSelectedTeamId("");
+      setSquadNumber(undefined);
+      setPosition("");
     },
     onError: () => {
       toast({
@@ -106,7 +116,12 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   const handleAddTeam = () => {
     if (selectedTeamId && !playerTeams.some(pt => pt.teamId === selectedTeamId)) {
-      addPlayerToTeamMutation.mutate(selectedTeamId);
+      addPlayerToTeamMutation.mutate({
+        teamId: selectedTeamId,
+        isPrimary: playerTeams.length === 0,
+        squadNumber,
+        position: position || undefined
+      });
     }
   };
 
@@ -339,6 +354,32 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                               </SelectContent>
                             </Select>
                           </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-medium">Squad Number</label>
+                              <Input
+                                type="number"
+                                placeholder="e.g. 1"
+                                value={squadNumber || ""}
+                                onChange={(e) => setSquadNumber(e.target.value ? parseInt(e.target.value) : undefined)}
+                                data-testid="input-squad-number"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Position</label>
+                              <Select value={position} onValueChange={setPosition}>
+                                <SelectTrigger data-testid="select-position">
+                                  <SelectValue placeholder="Select position" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                  <SelectItem value="Defender">Defender</SelectItem>
+                                  <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                  <SelectItem value="Forward">Forward</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
                           <div className="flex justify-end space-x-2">
                             <Button 
                               variant="outline" 
@@ -394,6 +435,14 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                                   </Badge>
                                 </div>
                                 <div className="text-sm text-muted-foreground space-y-1">
+                                  <div className="flex space-x-4">
+                                    <p data-testid={`text-squad-number-${playerTeam.team.id}`}>
+                                      <span className="font-semibold">#{playerTeam.squadNumber || 'N/A'}</span>
+                                    </p>
+                                    <p data-testid={`text-position-${playerTeam.team.id}`}>
+                                      <span className="font-semibold">{playerTeam.position || 'No Position'}</span>
+                                    </p>
+                                  </div>
                                   <p data-testid={`text-team-short-name-${playerTeam.team.id}`}>
                                     Short Name: {playerTeam.team.shortName}
                                   </p>
