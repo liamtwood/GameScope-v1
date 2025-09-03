@@ -166,7 +166,7 @@ export default function PlayerDetails() {
                   <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {/* Player Avatar */}
-                    <Avatar className="h-20 w-20 bg-slate-600 text-white">
+                    <Avatar className="h-24 w-24 bg-slate-600 text-white">
                       {player.name === "Ashley Miller" ? (
                         <AvatarImage 
                           src={ashleyMillerPhoto} 
