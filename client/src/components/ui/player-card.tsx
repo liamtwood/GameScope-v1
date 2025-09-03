@@ -156,7 +156,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(player)}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEdit(player);
+                  }}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Player
                   </DropdownMenuItem>
