@@ -27,17 +27,18 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
   // Get the appropriate icon for each page
   const getPageIcon = (pageTitle: string) => {
     const titleLower = pageTitle.toLowerCase();
+    // Handle exact matches first
     switch (titleLower) {
       case 'home':
         return <Home className="h-10 w-10 text-foreground" />;
+      case 'dashboard':
+        return <Home className="h-10 w-10 text-foreground" />;
       case 'fixtures':
         return <Calendar className="h-10 w-10 text-foreground" />;
-      case 'squad':
+      case 'squad management':
         return <Users className="h-10 w-10 text-foreground" />;
       case 'match videos':
         return <Video className="h-10 w-10 text-foreground" />;
-      case 'teams':
-        return <Shield className="h-10 w-10 text-foreground" />;
       case 'club management':
         return <Landmark className="h-10 w-10 text-foreground" />;
       case 'settings':
@@ -45,6 +46,10 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       case 'clubs':
         return <Landmark className="h-10 w-10 text-foreground" />;
       default:
+        // Handle pattern matches (like "Club Name - Teams")
+        if (titleLower.includes('teams')) {
+          return <Shield className="h-10 w-10 text-foreground" />;
+        }
         return null;
     }
   };
