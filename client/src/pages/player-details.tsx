@@ -132,7 +132,7 @@ export default function PlayerDetails() {
         </div>
 
         {/* Player Header Card */}
-        <Card className="bg-background border border-border max-w-md mx-auto">
+        <Card className="bg-background border border-border max-w-4xl mx-auto">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {/* Player Avatar */}
@@ -185,7 +185,7 @@ export default function PlayerDetails() {
               <h2 className="text-xl font-semibold">Player Details</h2>
             </div>
             
-            <Card className="rounded-t-none border-t-0">
+            <Card className="rounded-t-none border-t-0 max-w-4xl mx-auto">
               <CardContent className="p-6 space-y-8">
                 {/* Team Details */}
                 <div>
