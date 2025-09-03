@@ -190,18 +190,18 @@ export default function PlayerDetails() {
                     </div>
                   </div>
 
-                  {/* Row 4: Email Address, Phone Number */}
+                  {/* Row 4: Phone Number, Email Address */}
                   <div className="flex gap-8">
-                    <div className="min-w-48">
-                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
-                        {player.email || "Not provided"}
-                      </p>
-                    </div>
                     <div className="min-w-36">
                       <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
                       <p className="text-lg" data-testid={`text-phone-${player.id}`}>
                         Not provided
+                      </p>
+                    </div>
+                    <div className="min-w-48">
+                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                        {player.email || "Not provided"}
                       </p>
                     </div>
                   </div>
