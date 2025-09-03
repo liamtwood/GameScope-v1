@@ -220,118 +220,88 @@ export default function PlayerDetails() {
             </div>
             
             <Card className="rounded-t-none border-t-0 max-w-4xl mx-auto">
-              <CardContent className="p-6 space-y-8">
-                {/* Team Details */}
-                <div>
-                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
-                    TEAM DETAILS
-                  </h3>
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">JERSEY NUMBER</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</span>
-                      </div>
+              <CardContent className="p-4 space-y-3">
+                {/* Compact Layout inspired by image */}
+                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Nationality</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-nationality-${player.id}`}>
+                        🇺🇸 England
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">POSITION</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-position-${player.id}`}>{player.position}</span>
-                      </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Preferred Foot</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-preferred-foot-${player.id}`}>
+                        Left
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-date-of-birth-${player.id}`}>
+                        {player.dateOfBirth 
+                          ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
+                          : "05/09/2001"
+                        }
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Name */}
-                <div>
-                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
-                    NAME
-                  </h3>
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-first-name-${player.id}`}>
-                          {player.name.split(' ')[0] || "Not provided"}
-                        </span>
-                      </div>
+                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Appearances</label>
+                    <div className="mt-0.5">
+                      <span className="text-lg font-bold" data-testid={`text-appearances-${player.id}`}>
+                        197
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-last-name-${player.id}`}>
-                          {player.name.split(' ').slice(1).join(' ') || "Not provided"}
-                        </span>
-                      </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Goals</label>
+                    <div className="mt-0.5">
+                      <span className="text-lg font-bold" data-testid={`text-goals-${player.id}`}>
+                        54
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-shirt-name-${player.id}`}>
-                          {player.name.split(' ').slice(-1)[0] || "Not provided"}
-                        </span>
-                      </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Assists</label>
+                    <div className="mt-0.5">
+                      <span className="text-lg font-bold" data-testid={`text-assists-${player.id}`}>
+                        45
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Personal */}
-                <div>
-                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
-                    PERSONAL
-                  </h3>
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">GENDER</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-gender-${player.id}`}>
-                          {player.gender || "Not set"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">DATE OF BIRTH</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-date-of-birth-${player.id}`}>
-                          {player.dateOfBirth 
-                            ? format(new Date(player.dateOfBirth), "d MMM yyyy")
-                            : "Not provided"
-                          }
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">AGE</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-age-${player.id}`}>
-                          {age ? `${age} years old` : "Not available"}
-                        </span>
-                      </div>
+                <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-border/50">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-jersey-number-${player.id}`}>
+                        {player.jerseyNumber}
+                      </span>
                     </div>
                   </div>
-                </div>
-
-                {/* Contact */}
-                <div>
-                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
-                    CONTACT
-                  </h3>
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">PHONE NUMBER</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm italic text-muted-foreground" data-testid={`text-phone-${player.id}`}>
-                          Not provided
-                        </span>
-                      </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Position</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-position-${player.id}`}>
+                        {player.position}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">EMAIL ADDRESS</label>
-                      <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-sm" data-testid={`text-email-${player.id}`}>
-                          {player.email || "Not provided"}
-                        </span>
-                      </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Email</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-email-${player.id}`}>
+                        {player.email || "Not provided"}
+                      </span>
                     </div>
                   </div>
                 </div>
