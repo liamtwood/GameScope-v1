@@ -250,6 +250,11 @@ export default function PlayerDetails() {
                       </div>
                     </div>
 
+                    {/* Section Header */}
+                    <div className="pt-2">
+                      <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Name Information</h4>
+                    </div>
+
                     {/* Name Info */}
                     <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                       <div className="border border-red-300 p-2">
