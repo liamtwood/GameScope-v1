@@ -197,7 +197,7 @@ export default function Teams() {
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-white text-black hover:bg-gray-100" data-testid="button-add-team">
+                <Button size="sm" className="bg-white text-black hover:bg-gray-100 border border-gray-300" data-testid="button-add-team">
                   <Shield className="h-4 w-4 mr-2" />
                   Add Team
                 </Button>
