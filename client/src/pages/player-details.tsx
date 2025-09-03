@@ -496,6 +496,10 @@ export default function PlayerDetails() {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
+                        border-top-left-radius: 0.5rem !important;
+                        border-top-right-radius: 0.5rem !important;
+                        border-bottom-left-radius: 0 !important;
+                        border-bottom-right-radius: 0 !important;
                       }
                     `}</style>
                     <TabsTrigger 
