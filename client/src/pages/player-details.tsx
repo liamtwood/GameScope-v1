@@ -487,7 +487,9 @@ export default function PlayerDetails() {
                         margin: 0 !important;
                         box-shadow: none !important;
                       }
-                      [data-testid="tab-details"] {
+                      [data-testid="tab-details"],
+                      [data-testid="tab-teams"],
+                      [data-testid="tab-parents"] {
                         border-left: none !important;
                         margin-left: 0 !important;
                         padding-left: 0 !important;
