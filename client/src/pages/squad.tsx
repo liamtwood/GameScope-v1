@@ -4,7 +4,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
-import { PlayerEditDialog } from "@/components/dialogs/player-edit-dialog";
+import { PlayerDetailsModal } from "@/components/dialogs/player-details-modal";
 import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,8 @@ export default function Squad() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedPlayerForModal, setSelectedPlayerForModal] = useState<Player | null>(null);
+  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -232,6 +234,24 @@ export default function Squad() {
   const handleStartEdit = (playerId: string, field: string, currentValue: string) => {
     setEditingField({ playerId, field });
     setEditValue(currentValue);
+  };
+
+  const handleOpenPlayerModal = (player: Player) => {
+    setSelectedPlayerForModal(player);
+    setIsPlayerModalOpen(true);
+  };
+
+  const handleClosePlayerModal = () => {
+    setIsPlayerModalOpen(false);
+    setSelectedPlayerForModal(null);
+  };
+
+  const handlePlayerUpdate = (updatedPlayer: Player) => {
+    queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+    toast({
+      title: "Player Updated",
+      description: "Player information has been updated successfully.",
+    });
   };
 
   const handleSaveEdit = (playerId: string, field: string) => {
@@ -518,18 +538,14 @@ export default function Squad() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <PlayerEditDialog
-                            player={player}
-                            onSave={handleUpdatePlayer}
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleOpenPlayerModal(player)}
+                            data-testid={`button-edit-player-${player.id}`}
                           >
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              data-testid={`button-edit-player-${player.id}`}
-                            >
-                              <Edit className="h-4 w-4 text-blue-600" />
-                            </Button>
-                          </PlayerEditDialog>
+                            <Edit className="h-4 w-4 text-blue-600" />
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm"
@@ -659,28 +675,13 @@ export default function Squad() {
                         <div key={player.id} className="relative">
                           <PlayerCard
                             player={player}
-                            onEdit={(player) => {
-                              const hiddenButton = document.getElementById(`hidden-edit-${player.id}`) as HTMLElement;
-                              if (hiddenButton) {
-                                hiddenButton.click();
-                              }
-                            }}
+                            onEdit={handleOpenPlayerModal}
                             onDelete={handleDeletePlayer}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
                             onUpdateStatus={(player, newStatus) => {
                               handleUpdatePlayer(player.id, { status: newStatus });
                             }}
                           />
-                          {/* Hidden edit dialog trigger for this player */}
-                          <PlayerEditDialog
-                            player={player}
-                            onSave={handleUpdatePlayer}
-                          >
-                            <button 
-                              id={`hidden-edit-${player.id}`}
-                              style={{ display: 'none' }}
-                            />
-                          </PlayerEditDialog>
                         </div>
                       ))}
                     </div>
@@ -699,6 +700,14 @@ export default function Squad() {
           )}
         </>
       )}
+
+      {/* Player Details Modal */}
+      <PlayerDetailsModal
+        player={selectedPlayerForModal}
+        open={isPlayerModalOpen}
+        onOpenChange={setIsPlayerModalOpen}
+        onPlayerUpdate={handlePlayerUpdate}
+      />
 
     </MainLayout>
   );
