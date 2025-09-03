@@ -252,8 +252,10 @@ export default function PlayerDetails() {
                     </div>
 
                     {/* Section Header */}
-                    <div className="pt-2">
-                      <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Name Information</h4>
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Name Information</h4>
+                      </div>
                     </div>
 
                     {/* Name Info */}
@@ -287,8 +289,10 @@ export default function PlayerDetails() {
                     </div>
 
                     {/* Section Header */}
-                    <div className="pt-2">
-                      <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Personal Information</h4>
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Personal Information</h4>
+                      </div>
                     </div>
 
                     {/* Personal Info */}
@@ -325,8 +329,10 @@ export default function PlayerDetails() {
                     </div>
 
                     {/* Section Header */}
-                    <div className="pt-2">
-                      <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Contact Information</h4>
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Contact Information</h4>
+                      </div>
                     </div>
 
                     {/* Contact Info */}
