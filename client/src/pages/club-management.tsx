@@ -202,7 +202,7 @@ export default function ClubManagement() {
               <Badge variant="secondary">{selectedClub.shortName}</Badge>
             </div>
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
               onClick={handleEditClub}
               data-testid="button-edit-club"
