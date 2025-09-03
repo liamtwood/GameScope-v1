@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Player } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil } from "lucide-react";
+import { Player, Team } from "@shared/schema";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
+import { useTeam } from "@/contexts/team-context";
 import { useToast } from "@/hooks/use-toast";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 
@@ -20,9 +22,12 @@ export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
   const playerId = params?.id;
   const { selectedClub } = useClub();
+  const { teams } = useTeam();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Player>>({});
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -30,6 +35,12 @@ export default function PlayerDetails() {
   const { data: player, isLoading } = useQuery<Player>({
     queryKey: ["/api/player", playerId],
     enabled: !!playerId,
+  });
+
+  // Get current team information
+  const { data: currentTeam } = useQuery<Team>({
+    queryKey: ["/api/teams", player?.teamId],
+    enabled: !!player?.teamId
   });
 
   const updatePlayerMutation = useMutation({
@@ -60,6 +71,47 @@ export default function PlayerDetails() {
       // Keep in editing mode if there's an error
     },
   });
+
+  // Mutation to update player's team
+  const updatePlayerTeamMutation = useMutation({
+    mutationFn: async (newTeamId: string) => {
+      const response = await fetch(`/api/player/${playerId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ teamId: newTeamId }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update player team');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/teams", player?.teamId] });
+      toast({
+        title: "Team Updated",
+        description: "Player has been successfully assigned to the new team.",
+      });
+      setIsTeamDialogOpen(false);
+      setSelectedTeamId("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player's team. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleTeamAssignment = () => {
+    if (selectedTeamId && selectedTeamId !== player?.teamId) {
+      updatePlayerTeamMutation.mutate(selectedTeamId);
+    }
+  };
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
     if (!dateOfBirth) return null;
@@ -675,9 +727,119 @@ export default function PlayerDetails() {
                 <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
-                      <div className="text-center py-8">
-                        <h4 className="text-lg font-medium text-gray-900 mb-2">Teams</h4>
-                        <p className="text-sm text-muted-foreground">Team information and history for this player.</p>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-lg font-medium text-gray-900">Team Assignment</h4>
+                          <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                data-testid="button-add-team"
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Change Team
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Assign to Team</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="text-sm font-medium">Select Team</label>
+                                  <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                                    <SelectTrigger data-testid="select-team">
+                                      <SelectValue placeholder="Choose a team" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {teams.map((team) => (
+                                        <SelectItem key={team.id} value={team.id} data-testid={`option-team-${team.id}`}>
+                                          {team.name} ({team.shortName})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={() => setIsTeamDialogOpen(false)}
+                                    data-testid="button-cancel-team"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button 
+                                    onClick={handleTeamAssignment}
+                                    disabled={!selectedTeamId || selectedTeamId === player?.teamId || updatePlayerTeamMutation.isPending}
+                                    data-testid="button-assign-team"
+                                  >
+                                    {updatePlayerTeamMutation.isPending ? "Assigning..." : "Assign to Team"}
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+
+                        {/* Current Team Card */}
+                        {currentTeam ? (
+                          <Card className="border-2" data-testid={`card-current-team-${currentTeam.id}`}>
+                            <CardContent className="p-4">
+                              <div className="flex items-center space-x-4">
+                                <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
+                                  <Users className="h-6 w-6" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2">
+                                    <h4 className="text-lg font-semibold" data-testid={`text-team-name-${currentTeam.id}`}>
+                                      {currentTeam.name}
+                                    </h4>
+                                    <Badge variant="secondary" data-testid={`badge-team-status-${currentTeam.id}`}>
+                                      Current Team
+                                    </Badge>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground space-y-1">
+                                    <p data-testid={`text-team-short-name-${currentTeam.id}`}>
+                                      Short Name: {currentTeam.shortName}
+                                    </p>
+                                    {currentTeam.coach && (
+                                      <p data-testid={`text-team-coach-${currentTeam.id}`}>
+                                        Coach: {currentTeam.coach}
+                                      </p>
+                                    )}
+                                    {currentTeam.ageGroup && (
+                                      <p data-testid={`text-team-age-group-${currentTeam.id}`}>
+                                        Age Group: {currentTeam.ageGroup}
+                                      </p>
+                                    )}
+                                    {currentTeam.season && (
+                                      <p data-testid={`text-team-season-${currentTeam.id}`}>
+                                        Season: {currentTeam.season}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge 
+                                  className={currentTeam.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                                  data-testid={`badge-team-status-indicator-${currentTeam.id}`}
+                                >
+                                  {currentTeam.status}
+                                </Badge>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <Card className="border-dashed border-2 border-gray-300">
+                            <CardContent className="p-6 text-center">
+                              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                              <p className="text-gray-500">No team assigned</p>
+                              <p className="text-sm text-gray-400 mt-2">
+                                Use the "Change Team" button to assign this player to a team.
+                              </p>
+                            </CardContent>
+                          </Card>
+                        )}
                       </div>
                     </div>
                   </div>
