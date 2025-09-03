@@ -216,7 +216,7 @@ export default function PlayerDetails() {
           <TabsContent value="details" className="mt-6">
             {/* Player Details Header */}
             <div className="p-4 rounded-t-lg max-w-4xl mx-auto" style={gradientStyle}>
-              <h2 className="text-xl font-semibold" style={{ color: textColor }}>Player Details</h2>
+              <h2 className="text-lg font-semibold" style={{ color: textColor }}>Player Details</h2>
             </div>
             
             <Card className="rounded-t-none border-t-0 max-w-4xl mx-auto">
@@ -228,15 +228,15 @@ export default function PlayerDetails() {
                   </h3>
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">JERSEY NUMBER</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">JERSEY NUMBER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</span>
+                        <span className="text-sm" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</span>
                       </div>
                     </div>
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">POSITION</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">POSITION</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-position-${player.id}`}>{player.position}</span>
+                        <span className="text-sm" data-testid={`text-position-${player.id}`}>{player.position}</span>
                       </div>
                     </div>
                   </div>
@@ -249,25 +249,25 @@ export default function PlayerDetails() {
                   </h3>
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-first-name-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-first-name-${player.id}`}>
                           {player.name.split(' ')[0] || "Not provided"}
                         </span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-last-name-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-last-name-${player.id}`}>
                           {player.name.split(' ').slice(1).join(' ') || "Not provided"}
                         </span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 lg:min-w-[150px]">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-shirt-name-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-shirt-name-${player.id}`}>
                           {player.name.split(' ').slice(-1)[0] || "Not provided"}
                         </span>
                       </div>
@@ -282,17 +282,17 @@ export default function PlayerDetails() {
                   </h3>
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">GENDER</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">GENDER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-gender-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-gender-${player.id}`}>
                           {player.gender || "Not set"}
                         </span>
                       </div>
                     </div>
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">DATE OF BIRTH</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">DATE OF BIRTH</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-date-of-birth-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-date-of-birth-${player.id}`}>
                           {player.dateOfBirth 
                             ? format(new Date(player.dateOfBirth), "d MMM yyyy")
                             : "Not provided"
@@ -301,9 +301,9 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">AGE</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">AGE</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-age-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-age-${player.id}`}>
                           {age ? `${age} years old` : "Not available"}
                         </span>
                       </div>
@@ -318,17 +318,17 @@ export default function PlayerDetails() {
                   </h3>
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">PHONE NUMBER</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">PHONE NUMBER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base italic text-muted-foreground" data-testid={`text-phone-${player.id}`}>
+                        <span className="text-sm italic text-muted-foreground" data-testid={`text-phone-${player.id}`}>
                           Not provided
                         </span>
                       </div>
                     </div>
                     <div className="flex-1">
-                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">EMAIL ADDRESS</label>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">EMAIL ADDRESS</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded">
-                        <span className="text-base" data-testid={`text-email-${player.id}`}>
+                        <span className="text-sm" data-testid={`text-email-${player.id}`}>
                           {player.email || "Not provided"}
                         </span>
                       </div>
