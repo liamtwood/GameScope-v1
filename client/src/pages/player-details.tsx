@@ -148,7 +148,7 @@ export default function PlayerDetails() {
                 <div className="flex gap-8 text-sm">
                   <div>
                     <span className="text-muted-foreground uppercase tracking-wide">AGE</span>
-                    <p className="font-semibold">{age ? `${age} years` : 'N/A'}</p>
+                    <p className="font-semibold">{age ? age : 'N/A'}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground uppercase tracking-wide">GENDER</span>
