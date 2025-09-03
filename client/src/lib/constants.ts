@@ -42,14 +42,14 @@ export const NAVIGATION_SECTIONS = [
     title: 'Club',
     items: [
       { id: 'teams', label: 'Teams', icon: 'Shield', tooltip: 'Teams Overview' },
-      { id: 'club-management', label: 'Club Management', icon: 'Settings', tooltip: 'Manage Club' },
+      { id: 'club-management', label: 'Club Management', icon: 'Landmark', tooltip: 'Manage Club' },
       { id: 'settings', label: 'Settings', icon: 'Settings', tooltip: 'Club Settings' },
     ]
   },
   {
     title: 'DevOps',
     items: [
-      { id: 'clubs', label: 'Clubs', icon: 'Settings', tooltip: 'Manage Clubs' },
+      { id: 'clubs', label: 'Clubs', icon: 'Landmark', tooltip: 'Manage Clubs' },
     ]
   }
 ];
