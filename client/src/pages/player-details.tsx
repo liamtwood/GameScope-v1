@@ -139,15 +139,17 @@ export default function PlayerDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Player Details</h3>
                   </div>
-                  {/* Row 1: Jersey Number, Position */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
-                      <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Position</label>
-                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                  {/* Row 1: Jersey Number and Position */}
+                  <div className="mb-1">
+                    <div className="flex items-center gap-6">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
+                        <p className="text-lg inline-block" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Position</label>
+                        <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                      </div>
                     </div>
                   </div>
 
