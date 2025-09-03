@@ -168,12 +168,12 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 3: Gender, Date of Birth, Age */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-1">
-                    <div>
+                  <div className="flex gap-8 mb-1">
+                    <div className="min-w-24">
                       <label className="text-sm font-medium text-muted-foreground">Gender</label>
                       <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
                     </div>
-                    <div>
+                    <div className="min-w-36">
                       <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                       <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
                         {player.dateOfBirth 
@@ -182,7 +182,7 @@ export default function PlayerDetails() {
                         }
                       </p>
                     </div>
-                    <div>
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Age</label>
                       <p className="text-lg" data-testid={`text-age-${player.id}`}>
                         {age ? `${age} years old` : "Not available"}
@@ -191,14 +191,14 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 4: Email Address, Phone Number */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
+                  <div className="flex gap-8">
+                    <div className="min-w-48">
                       <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                       <p className="text-lg" data-testid={`text-email-${player.id}`}>
                         {player.email || "Not provided"}
                       </p>
                     </div>
-                    <div>
+                    <div className="min-w-36">
                       <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
                       <p className="text-lg" data-testid={`text-phone-${player.id}`}>
                         Not provided
