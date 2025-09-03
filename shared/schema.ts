@@ -57,10 +57,18 @@ export const players = pgTable("players", {
   teamId: varchar("team_id").references(() => teams.id).notNull(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  position: varchar("position", { length: 10 }).notNull(),
+  position: varchar("position", { length: 20 }).notNull(), // Increased length for full position names
   jerseyNumber: integer("jersey_number").notNull(),
   status: varchar("status", { length: 20 }).default("Fit"),
   keyPlayer: boolean("key_player").default(false),
+  // Personal info
+  hometown: text("hometown"),
+  year: text("year"), // Academic year or age group
+  height: text("height"),
+  // Stats
+  appearances: integer("appearances").default(0),
+  goals: integer("goals").default(0),
+  assists: integer("assists").default(0),
   // Account fields
   email: text("email"),
   phone: text("phone"),
