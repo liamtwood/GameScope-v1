@@ -569,13 +569,7 @@ export default function PlayerDetails() {
                         color: activeTab === 'teams' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
                         backgroundColor: activeTab === 'teams' ? 'white !important' : `${clubPrimaryColor} !important`,
-                        backgroundImage: activeTab === 'teams' ? 'none !important' : `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
-                        `
+                        backgroundImage: 'none !important'
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Teams
@@ -588,13 +582,7 @@ export default function PlayerDetails() {
                         color: activeTab === 'parents' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
                         backgroundColor: activeTab === 'parents' ? 'white !important' : `${clubPrimaryColor} !important`,
-                        backgroundImage: activeTab === 'parents' ? 'none !important' : `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
-                        `
+                        backgroundImage: 'none !important'
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Parents
