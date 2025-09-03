@@ -156,7 +156,7 @@ export default function PlayerDetails() {
 
         {/* Player Header Card with Integrated Tabs */}
         <Tabs defaultValue="details" className="w-full">
-          <Card className="border border-gray-200 max-w-4xl mx-auto relative overflow-hidden shadow-lg" style={gradientStyle}>
+          <Card className="border border-gray-200 max-w-3xl mx-auto relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
               {/* Player Info Section */}
               <div className="p-6">
