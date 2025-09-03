@@ -147,7 +147,11 @@ export default function PlayerDetails() {
   };
 
   const getAvailableTeams = () => {
-    return teams.filter(team => !playerTeams.some(pt => pt.teamId === team.id));
+    // Filter teams to only those in the current club and not already assigned to player
+    return teams.filter(team => 
+      team.clubId === selectedClub?.id && 
+      !playerTeams.some(pt => pt.teamId === team.id)
+    );
   };
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
@@ -863,7 +867,7 @@ export default function PlayerDetails() {
                                             </p>
                                           )}
                                           <p data-testid={`text-joined-date-${playerTeam.team.id}`}>
-                                            Joined: {format(new Date(playerTeam.joinedAt), "d MMM yyyy")}
+                                            Joined: {playerTeam.joinedAt ? format(new Date(playerTeam.joinedAt), "d MMM yyyy") : 'Unknown'}
                                           </p>
                                         </div>
                                       </div>

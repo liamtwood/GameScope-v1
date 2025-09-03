@@ -9,6 +9,7 @@ import { Player, Team, PlayerTeam } from "@shared/schema";
 import { ArrowLeft, Star, Users, Plus } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const { teams } = useTeam();
+  const { selectedClub } = useClub();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -113,7 +115,11 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   };
 
   const getAvailableTeams = () => {
-    return teams.filter(team => !playerTeams.some(pt => pt.teamId === team.id));
+    // Filter teams to only those in the current club and not already assigned to player
+    return teams.filter(team => 
+      team.clubId === selectedClub?.id && 
+      !playerTeams.some(pt => pt.teamId === team.id)
+    );
   };
 
   const getStatusColor = () => {
@@ -397,7 +403,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                                     </p>
                                   )}
                                   <p data-testid={`text-joined-date-${playerTeam.team.id}`}>
-                                    Joined: {format(new Date(playerTeam.joinedAt), "d MMM yyyy")}
+                                    Joined: {playerTeam.joinedAt ? format(new Date(playerTeam.joinedAt), "d MMM yyyy") : 'Unknown'}
                                   </p>
                                 </div>
                               </div>
