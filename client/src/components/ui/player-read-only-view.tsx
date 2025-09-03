@@ -124,21 +124,9 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       <Card>
         <CardContent className="p-0">
           <Tabs defaultValue="player" className="w-full">
-            <TabsList className="w-full justify-start border-b rounded-none bg-background">
-              <TabsTrigger 
-                value="player" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
-                data-testid="tab-player"
-              >
-                Player
-              </TabsTrigger>
-              <TabsTrigger 
-                value="account" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
-                data-testid="tab-account"
-              >
-                Account
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="player" data-testid="tab-player">Player</TabsTrigger>
+              <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
             </TabsList>
 
             <TabsContent value="player" className="p-6 mt-0">
