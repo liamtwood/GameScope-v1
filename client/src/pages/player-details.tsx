@@ -223,7 +223,7 @@ export default function PlayerDetails() {
               <CardContent className="p-6 space-y-8">
                 {/* Team Details */}
                 <div>
-                  <h3 className="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     TEAM DETAILS
                   </h3>
                   <div className="flex flex-col md:flex-row gap-6">
@@ -244,7 +244,7 @@ export default function PlayerDetails() {
 
                 {/* Name */}
                 <div>
-                  <h3 className="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     NAME
                   </h3>
                   <div className="flex flex-col lg:flex-row gap-6">
@@ -277,7 +277,7 @@ export default function PlayerDetails() {
 
                 {/* Personal */}
                 <div>
-                  <h3 className="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     PERSONAL
                   </h3>
                   <div className="flex flex-col lg:flex-row gap-6">
@@ -313,7 +313,7 @@ export default function PlayerDetails() {
 
                 {/* Contact */}
                 <div>
-                  <h3 className="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                  <h3 className="text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     CONTACT
                   </h3>
                   <div className="flex flex-col md:flex-row gap-6">
