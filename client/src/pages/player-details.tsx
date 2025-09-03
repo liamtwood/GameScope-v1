@@ -501,7 +501,7 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-tr-lg border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold hover:bg-white/10"
+                      className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold hover:bg-white/10"
                       style={{ 
                         color: textColor,
                         '--club-primary': clubPrimaryColor
