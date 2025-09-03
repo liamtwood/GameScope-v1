@@ -159,22 +159,17 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
         <Tabs defaultValue="details" className="w-full">
           <Card className="border border-gray-200 relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
-              {/* Header with Close Button */}
-              <div className="px-6 py-1 flex justify-between items-center">
-                <DialogTitle className="text-lg font-semibold" style={{ color: textColor }}>
-                  {player.firstName} {player.lastName}
-                </DialogTitle>
-                
+              {/* Header with Edit Button */}
+              <div className="px-6 py-1 flex justify-end items-center">
                 {!isEditing ? (
                   <Button 
                     variant="ghost" 
                     onClick={handleEdit}
                     data-testid="button-edit-player"
-                    className="text-white hover:bg-white/10"
+                    className="text-white hover:bg-white/10 h-8 w-8 p-0"
                     style={{ color: textColor }}
                   >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
+                    <Edit className="h-4 w-4" />
                   </Button>
                 ) : (
                   <div className="flex gap-2">
@@ -183,21 +178,19 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                       onClick={handleSave}
                       disabled={updatePlayerMutation.isPending}
                       data-testid="button-save-player"
-                      className="text-white hover:bg-white/10"
+                      className="text-white hover:bg-white/10 h-8 w-8 p-0"
                       style={{ color: textColor }}
                     >
-                      <Save className="mr-2 h-4 w-4" />
-                      Save
+                      <Save className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       onClick={handleCancel}
                       data-testid="button-cancel-edit"
-                      className="text-white hover:bg-white/10"
+                      className="text-white hover:bg-white/10 h-8 w-8 p-0"
                       style={{ color: textColor }}
                     >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
