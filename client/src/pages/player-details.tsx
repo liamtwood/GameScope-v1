@@ -344,7 +344,7 @@ export default function PlayerDetails() {
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
         <Tabs defaultValue="details" className="w-full">
-          <Card className="max-w-3xl relative overflow-hidden border-2" style={{...solidStyle, borderColor: clubPrimaryColor}}>
+          <Card className="max-w-3xl relative overflow-hidden border-2 shadow-lg" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
