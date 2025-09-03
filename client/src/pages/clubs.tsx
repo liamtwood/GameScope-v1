@@ -579,7 +579,6 @@ export default function Clubs() {
           </Dialog>
         </div>
       )}
-          </div>
         </CardContent>
       </Card>
 
@@ -829,7 +828,7 @@ export default function Clubs() {
                   {editingClub?.logoPath && (
                     <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                       <img 
-                        src={editingClub.logoPath} 
+                        src={editingClub?.logoPath || ''} 
                         alt="Current logo" 
                         className="h-full w-full object-contain"
                       />
@@ -869,7 +868,6 @@ export default function Clubs() {
           </Form>
         </DialogContent>
       </Dialog>
-      </div>
     </MainLayout>
   );
 }
