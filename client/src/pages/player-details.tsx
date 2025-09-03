@@ -363,7 +363,7 @@ export default function PlayerDetails() {
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
                 <div className="pt-4">
-                  <TabsList className="grid grid-cols-2 w-full bg-transparent border-none p-0 h-auto">
+                  <TabsList className="grid grid-cols-3 w-full bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
@@ -373,12 +373,20 @@ export default function PlayerDetails() {
                       <span className="relative z-10">Player Details</span>
                     </TabsTrigger>
                     <TabsTrigger 
-                      value="bob" 
-                      data-testid="tab-bob" 
+                      value="teams" 
+                      data-testid="tab-teams" 
                       className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
-                      <span className="relative z-10">Bob</span>
+                      <span className="relative z-10">Teams</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="parents" 
+                      data-testid="tab-parents" 
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
+                      style={{ color: textColor }}
+                    >
+                      <span className="relative z-10">Parents</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -662,14 +670,28 @@ export default function PlayerDetails() {
                 </div>
               </TabsContent>
 
-              {/* Bob Tab Content - Simplified */}
-              <TabsContent value="bob" className="m-0">
+              {/* Teams Tab Content */}
+              <TabsContent value="teams" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="text-center py-8">
-                        <h4 className="text-lg font-medium text-gray-900 mb-2">Bob Tab</h4>
-                        <p className="text-sm text-muted-foreground">This is a simplified tab without the detailed information sections.</p>
+                        <h4 className="text-lg font-medium text-gray-900 mb-2">Teams</h4>
+                        <p className="text-sm text-muted-foreground">Team information and history for this player.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Parents Tab Content */}
+              <TabsContent value="parents" className="m-0">
+                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                  <div className="pt-4">
+                    <div className="w-4/5 mx-auto">
+                      <div className="text-center py-8">
+                        <h4 className="text-lg font-medium text-gray-900 mb-2">Parents</h4>
+                        <p className="text-sm text-muted-foreground">Parent and guardian information for this player.</p>
                       </div>
                     </div>
                   </div>
