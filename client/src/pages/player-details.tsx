@@ -132,7 +132,7 @@ export default function PlayerDetails() {
         </div>
 
         {/* Player Header Card */}
-        <Card className="bg-background border border-border max-w-4xl mx-auto">
+        <Card className="bg-primary border border-border max-w-4xl mx-auto">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {/* Player Avatar */}
@@ -151,16 +151,16 @@ export default function PlayerDetails() {
               
               {/* Player Info */}
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground mb-3">{player.name}</h1>
+                <h1 className="text-2xl font-bold text-primary-foreground mb-3">{player.name}</h1>
                 
                 <div className="flex gap-8 text-sm">
                   <div>
-                    <span className="text-muted-foreground uppercase tracking-wide">AGE</span>
-                    <p className="font-semibold">{age ? age : 'N/A'}</p>
+                    <span className="text-primary-foreground/70 uppercase tracking-wide">AGE</span>
+                    <p className="font-semibold text-primary-foreground">{age ? age : 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground uppercase tracking-wide">GENDER</span>
-                    <p className="font-semibold">{player.gender || 'Not set'}</p>
+                    <span className="text-primary-foreground/70 uppercase tracking-wide">GENDER</span>
+                    <p className="font-semibold text-primary-foreground">{player.gender || 'Not set'}</p>
                   </div>
                 </div>
               </div>
