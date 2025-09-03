@@ -363,7 +363,7 @@ export default function PlayerDetails() {
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
                 <div className="pt-4">
-                  <TabsList className="grid grid-cols-5 w-full bg-transparent border-none p-0 h-auto">
+                  <TabsList className="grid grid-cols-2 w-full bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
@@ -379,30 +379,6 @@ export default function PlayerDetails() {
                       style={{ color: textColor }}
                     >
                       <span className="relative z-10">Bob</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="account" 
-                      data-testid="tab-account" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
-                    >
-                      <span className="relative z-10">Account Details</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="teams" 
-                      data-testid="tab-teams" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
-                    >
-                      <span className="relative z-10">Teams</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="parents" 
-                      data-testid="tab-parents" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
-                    >
-                      <span className="relative z-10">Parents / Guardian</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -702,73 +678,6 @@ export default function PlayerDetails() {
             </CardContent>
           </Card>
 
-          <TabsContent value="account" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
-                        {player.email || "Not provided"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
-                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
-                        Not provided
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Last Logged In</label>
-                      <p className="text-lg" data-testid={`text-last-login-${player.id}`}>
-                        Never logged in
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="teams" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Current Team</h3>
-                    <div className="grid grid-cols-1 gap-6">
-                      <div className="border border-red-300 p-2">
-                        <label className="text-sm font-medium text-muted-foreground">Team</label>
-                        <p className="text-lg" data-testid={`text-current-team-${player.id}`}>
-                          Current Team Information
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <h4 className="text-md font-medium mb-2">Add to Other Teams</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Player can be added to other teams within the club - Coming soon
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="parents" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div className="text-center py-8">
-                    <p className="text-lg text-muted-foreground">Parents / Guardian functionality</p>
-                    <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </MainLayout>
