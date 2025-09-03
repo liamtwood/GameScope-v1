@@ -133,7 +133,7 @@ export default function PlayerDetails() {
   
   // Create gradient background style
   const gradientStyle = {
-    background: `linear-gradient(to right, ${clubPrimaryColor}, ${clubPrimaryColor}dd)`,
+    background: `linear-gradient(to right, ${clubPrimaryColor}, ${clubPrimaryColor}88)`,
   };
 
   return (
