@@ -539,8 +539,15 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
-                      [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                      [data-testid="tab-details"],
+                      [data-testid="tab-teams"],
+                      [data-testid="tab-parents"],
+                      [data-testid="tab-details"]:hover,
+                      [data-testid="tab-teams"]:hover,
+                      [data-testid="tab-parents"]:hover,
+                      [data-testid="tab-details"][data-state="active"],
+                      [data-testid="tab-teams"][data-state="active"],
+                      [data-testid="tab-parents"][data-state="active"] {
                         background-color: ${clubPrimaryColor} !important;
                         background-image: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
                                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
