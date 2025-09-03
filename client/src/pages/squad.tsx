@@ -360,27 +360,34 @@ export default function Squad() {
         <>
           {/* Filters */}
           {showFilters && (
-            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
-                <SelectTrigger className="w-48" data-testid="select-position">
-                  <SelectValue placeholder="All Positions" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Positions</SelectItem>
-                  <SelectItem value="GK">Goalkeeper</SelectItem>
-                  <SelectItem value="DEF">Defense</SelectItem>
-                  <SelectItem value="MID">Midfield</SelectItem>
-                  <SelectItem value="FWD">Forward</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Input
-                placeholder="Search players..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
-                data-testid="input-search-players"
-              />
+            <div className="mb-6 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Position</label>
+                  <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-position">
+                      <SelectValue placeholder="All Positions" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Positions</SelectItem>
+                      <SelectItem value="GK">Goalkeeper</SelectItem>
+                      <SelectItem value="DEF">Defense</SelectItem>
+                      <SelectItem value="MID">Midfield</SelectItem>
+                      <SelectItem value="FWD">Forward</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Keyword</label>
+                  <Input
+                    placeholder="Search players..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                    data-testid="input-search-players"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -531,27 +538,34 @@ export default function Squad() {
         <>
           {/* Filters */}
           {showFilters && (
-            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
-                <SelectTrigger className="w-48" data-testid="select-position-cards">
-                  <SelectValue placeholder="All Positions" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Positions</SelectItem>
-                  <SelectItem value="GK">Goalkeeper</SelectItem>
-                  <SelectItem value="DEF">Defense</SelectItem>
-                  <SelectItem value="MID">Midfield</SelectItem>
-                  <SelectItem value="FWD">Forward</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Input
-                placeholder="Search players..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
-                data-testid="input-search-players-cards"
-              />
+            <div className="mb-6 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Position</label>
+                  <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-position-cards">
+                      <SelectValue placeholder="All Positions" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Positions</SelectItem>
+                      <SelectItem value="GK">Goalkeeper</SelectItem>
+                      <SelectItem value="DEF">Defense</SelectItem>
+                      <SelectItem value="MID">Midfield</SelectItem>
+                      <SelectItem value="FWD">Forward</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Keyword</label>
+                  <Input
+                    placeholder="Search players..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                    data-testid="input-search-players-cards"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
