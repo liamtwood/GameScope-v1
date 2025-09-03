@@ -166,19 +166,19 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                     variant="ghost" 
                     onClick={handleEdit}
                     data-testid="button-edit-player"
-                    className="text-white hover:bg-white/10 h-8 w-8 p-0"
+                    className="text-white hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
                     style={{ color: textColor }}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Button 
                       variant="ghost" 
                       onClick={handleSave}
                       disabled={updatePlayerMutation.isPending}
                       data-testid="button-save-player"
-                      className="text-white hover:bg-white/10 h-8 w-8 p-0"
+                      className="text-white hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
                       style={{ color: textColor }}
                     >
                       <Save className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                       variant="ghost" 
                       onClick={handleCancel}
                       data-testid="button-cancel-edit"
-                      className="text-white hover:bg-white/10 h-8 w-8 p-0"
+                      className="text-white hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
                       style={{ color: textColor }}
                     >
                       <X className="h-4 w-4" />
