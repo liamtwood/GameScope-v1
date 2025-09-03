@@ -331,9 +331,9 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create gradient background style
-  const gradientStyle = {
-    background: `linear-gradient(to right, ${clubPrimaryColor}, ${clubPrimaryColor}88)`,
+  // Create solid background style
+  const solidStyle = {
+    background: clubPrimaryColor,
   };
 
   return (
@@ -344,7 +344,7 @@ export default function PlayerDetails() {
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
         <Tabs defaultValue="details" className="w-full">
-          <Card className="border border-gray-200 max-w-3xl relative overflow-hidden shadow-lg" style={gradientStyle}>
+          <Card className="border border-gray-200 max-w-3xl relative overflow-hidden shadow-lg" style={solidStyle}>
             <CardContent className="p-0">
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
