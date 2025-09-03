@@ -20,9 +20,13 @@ import { useTeam } from "@/contexts/team-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
+type StatusFilter = 'all' | 'Fit' | 'Injured' | 'Retired';
+type StarFilter = 'all' | 'star' | 'regular';
 
 export default function Squad() {
   const [activeFilter, setActiveFilter] = useState<PositionFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [starFilter, setStarFilter] = useState<StarFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -143,11 +147,15 @@ export default function Squad() {
 
   const filteredPlayers = players?.filter(player => {
     const matchesFilter = activeFilter === 'all' || getPositionCategory(player.position) === activeFilter;
+    const matchesStatus = statusFilter === 'all' || player.status === statusFilter;
+    const matchesStar = starFilter === 'all' || 
+      (starFilter === 'star' && player.keyPlayer) ||
+      (starFilter === 'regular' && !player.keyPlayer);
     const matchesSearch = searchTerm === '' || 
       player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.position.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesStatus && matchesStar && matchesSearch;
   }).sort((a, b) => {
     // First sort by position order (GK, DEF, MID, FWD)
     const positionDiff = getPositionOrder(a.position) - getPositionOrder(b.position);
@@ -361,7 +369,7 @@ export default function Squad() {
           {/* Filters */}
           {showFilters && (
             <div className="mb-6 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Position</label>
                   <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
@@ -374,6 +382,33 @@ export default function Squad() {
                       <SelectItem value="DEF">Defense</SelectItem>
                       <SelectItem value="MID">Midfield</SelectItem>
                       <SelectItem value="FWD">Forward</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Status</label>
+                  <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-status">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Fit">Fit</SelectItem>
+                      <SelectItem value="Injured">Injured</SelectItem>
+                      <SelectItem value="Retired">Retired</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Star Players</label>
+                  <Select value={starFilter} onValueChange={(value: StarFilter) => setStarFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-star">
+                      <SelectValue placeholder="All Players" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Players</SelectItem>
+                      <SelectItem value="star">Star Players</SelectItem>
+                      <SelectItem value="regular">Regular Players</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -539,7 +574,7 @@ export default function Squad() {
           {/* Filters */}
           {showFilters && (
             <div className="mb-6 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Position</label>
                   <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
@@ -552,6 +587,33 @@ export default function Squad() {
                       <SelectItem value="DEF">Defense</SelectItem>
                       <SelectItem value="MID">Midfield</SelectItem>
                       <SelectItem value="FWD">Forward</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Status</label>
+                  <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-status-cards">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Fit">Fit</SelectItem>
+                      <SelectItem value="Injured">Injured</SelectItem>
+                      <SelectItem value="Retired">Retired</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Star Players</label>
+                  <Select value={starFilter} onValueChange={(value: StarFilter) => setStarFilter(value)}>
+                    <SelectTrigger className="w-full" data-testid="select-star-cards">
+                      <SelectValue placeholder="All Players" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Players</SelectItem>
+                      <SelectItem value="star">Star Players</SelectItem>
+                      <SelectItem value="regular">Regular Players</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
