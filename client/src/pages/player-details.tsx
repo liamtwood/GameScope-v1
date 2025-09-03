@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
 import { ArrowLeft, Star } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
-import ashleyMillerPhoto from "@assets/image_1756910239772.png";
+import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 
 export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
