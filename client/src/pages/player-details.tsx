@@ -142,7 +142,7 @@ export default function PlayerDetails() {
                   
                   {/* Team Details */}
                   <div>
-                    <h4 className="text-md font-medium text-foreground mb-2">Team Details</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">TEAM DETAILS</h4>
                     <div className="flex gap-8 mb-1">
                       <div className="min-w-32">
                         <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
@@ -157,7 +157,7 @@ export default function PlayerDetails() {
 
                   {/* Name */}
                   <div>
-                    <h4 className="text-md font-medium text-foreground mb-2">Name</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">NAME</h4>
                     <div className="flex gap-8 mb-1">
                       <div className="min-w-32">
                         <label className="text-sm font-medium text-muted-foreground">First Name</label>
@@ -176,7 +176,7 @@ export default function PlayerDetails() {
 
                   {/* Personal */}
                   <div>
-                    <h4 className="text-md font-medium text-foreground mb-2">Personal</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">PERSONAL</h4>
                     <div className="flex gap-8 mb-1">
                       <div className="min-w-32">
                         <label className="text-sm font-medium text-muted-foreground">Gender</label>
@@ -202,7 +202,7 @@ export default function PlayerDetails() {
 
                   {/* Contact */}
                   <div>
-                    <h4 className="text-md font-medium text-foreground mb-2">Contact</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">CONTACT</h4>
                     <div className="flex gap-8">
                       <div className="min-w-32">
                         <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
