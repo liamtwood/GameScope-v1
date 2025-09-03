@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload } from "lucide-react";
+import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload, Landmark } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 import type { Club, Team } from "@shared/schema";
@@ -167,7 +167,7 @@ export default function ClubManagement() {
     return (
       <MainLayout title="Club Management" subtitle="Manage club information and teams">
         <div className="text-center py-12">
-          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <Landmark className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">No club selected</h3>
           <p className="text-muted-foreground mb-4">
             Please select a club to manage.
@@ -185,7 +185,7 @@ export default function ClubManagement() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <Building2 className="h-6 w-6 text-primary" />
+          <Landmark className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold">Club Management</h2>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default function ClubManagement() {
                   />
                 </div>
               ) : (
-                <Building2 className="h-6 w-6 text-primary" />
+                <Landmark className="h-6 w-6 text-primary" />
               )}
               <span>{selectedClub.name}</span>
               <Badge variant="secondary">{selectedClub.shortName}</Badge>
