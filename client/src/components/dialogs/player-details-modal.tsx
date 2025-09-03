@@ -235,7 +235,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-transparent hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
                       <span className="relative z-10">Player Details</span>
@@ -243,7 +243,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                     <TabsTrigger 
                       value="bob" 
                       data-testid="tab-bob" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-transparent hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
                       <span className="relative z-10">Bob</span>
