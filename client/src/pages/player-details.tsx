@@ -491,6 +491,11 @@ export default function PlayerDetails() {
                         border-left: none !important;
                         margin-left: 0 !important;
                         padding-left: 0 !important;
+                        outline: none !important;
+                        outline-offset: 0 !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
                       }
                     `}</style>
                     <TabsTrigger 
