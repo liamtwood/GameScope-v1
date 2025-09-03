@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload } from "lucide-react";
+import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload, Landmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -477,7 +477,7 @@ export default function Clubs() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Building2 className={`h-5 w-5 ${
+                  <Landmark className={`h-5 w-5 ${
                     isSelected ? 'text-primary' : 'text-primary'
                   }`} />
                   <span className={isSelected ? 'font-bold' : ''}>{club.name}</span>
@@ -564,7 +564,7 @@ export default function Clubs() {
       {/* Empty State */}
       {clubs?.length === 0 && (
         <div className="text-center py-12">
-          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <Landmark className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">No clubs found</h3>
           <p className="text-muted-foreground mb-4">
             Get started by creating your first club.
