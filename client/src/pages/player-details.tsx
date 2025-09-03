@@ -135,12 +135,12 @@ export default function PlayerDetails() {
           <TabsContent value="details" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <div className="space-y-6">
+                <div className="space-y-3">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Player Details</h3>
+                    <h3 className="text-lg font-semibold mb-3">Player Details</h3>
                   </div>
                   {/* Row 1: Jersey Number, Position */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
                       <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
@@ -152,7 +152,7 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 2: First Name, Last Name, Shirt Name */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">First Name</label>
                       <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
@@ -168,7 +168,7 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 3: Gender, Date of Birth, Age */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Gender</label>
                       <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
@@ -191,7 +191,7 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 4: Email Address, Phone Number */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                       <p className="text-lg" data-testid={`text-email-${player.id}`}>
