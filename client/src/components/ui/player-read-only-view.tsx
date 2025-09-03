@@ -414,8 +414,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                              <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
-                                <Users className="h-6 w-6" />
+                              <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+                                #{playerTeam.squadNumber || '?'}
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2">
