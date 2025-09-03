@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
 import { ArrowLeft, Star } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
@@ -103,118 +104,196 @@ export default function PlayerDetails() {
     );
   }
 
+  const getPlayerInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   return (
     <MainLayout 
       title="VIEW SQUAD MEMBER" 
       subtitle={player.name}
     >
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => window.history.back()}
+            data-testid="button-back-to-squad"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+
+        {/* Player Header Card */}
+        <Card className="bg-background border border-border">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-6">
+              {/* Player Avatar */}
+              <Avatar className="h-20 w-20 bg-slate-600 text-white">
+                <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                  {getPlayerInitials(player.name)}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* Player Info */}
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-foreground mb-1">{player.name}</h1>
+                <p className="text-lg text-muted-foreground mb-3">{player.position}</p>
+                
+                <div className="flex gap-8 text-sm">
+                  <div>
+                    <span className="text-muted-foreground uppercase tracking-wide">NUMBER</span>
+                    <p className="font-semibold">#{player.jerseyNumber}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground uppercase tracking-wide">AGE</span>
+                    <p className="font-semibold">{age ? `${age} years` : 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground uppercase tracking-wide">GENDER</span>
+                    <p className="font-semibold">{player.gender || 'Not set'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Player Details Tabs */}
         <Tabs defaultValue="details" className="w-full">
-          {/* Back Button and Tabs on same row */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => window.history.back()}
-              data-testid="button-back-to-squad"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            
-            <div className="flex-1 flex justify-center">
-              <TabsList className="grid grid-cols-4 w-full max-w-4xl">
-                <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
-                <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
-                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
-                <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
-              </TabsList>
-            </div>
+          <div className="flex justify-center mb-6">
+            <TabsList className="grid grid-cols-4 w-full max-w-4xl">
+              <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
+              <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
+              <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+              <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
+            </TabsList>
           </div>
 
           <TabsContent value="details" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Player Details</h3>
-                  </div>
-                  
-                  {/* Team Details */}
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">TEAM DETAILS</h4>
-                    <div className="flex gap-8 mb-1">
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
-                        <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
+            {/* Player Details Header */}
+            <div className="bg-slate-700 text-white p-4 rounded-t-lg">
+              <h2 className="text-xl font-semibold">Player Details</h2>
+            </div>
+            
+            <Card className="rounded-t-none border-t-0">
+              <CardContent className="p-6 space-y-8">
+                {/* Team Details */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                    TEAM DETAILS
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">JERSEY NUMBER</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Position</label>
-                        <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">POSITION</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-position-${player.id}`}>{player.position}</span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Name */}
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">NAME</h4>
-                    <div className="flex gap-8 mb-1">
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">First Name</label>
-                        <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
+                {/* Name */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                    NAME
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-first-name-${player.id}`}>
+                          {player.name.split(' ')[0] || "Not provided"}
+                        </span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Last Name</label>
-                        <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-last-name-${player.id}`}>
+                          {player.name.split(' ').slice(1).join(' ') || "Not provided"}
+                        </span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
-                        <p className="text-lg" data-testid={`text-shirt-name-${player.id}`}>{player.name.split(' ').slice(-1)[0] || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-shirt-name-${player.id}`}>
+                          {player.name.split(' ').slice(-1)[0] || "Not provided"}
+                        </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Personal */}
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">PERSONAL</h4>
-                    <div className="flex gap-8 mb-1">
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                        <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
+                {/* Personal */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                    PERSONAL
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">GENDER</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-gender-${player.id}`}>
+                          {player.gender || "Not set"}
+                        </span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                        <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">DATE OF BIRTH</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-date-of-birth-${player.id}`}>
                           {player.dateOfBirth 
                             ? format(new Date(player.dateOfBirth), "d MMM yyyy")
                             : "Not provided"
                           }
-                        </p>
+                        </span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Age</label>
-                        <p className="text-lg" data-testid={`text-age-${player.id}`}>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">AGE</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-age-${player.id}`}>
                           {age ? `${age} years old` : "Not available"}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Contact */}
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2 uppercase">CONTACT</h4>
-                    <div className="flex gap-8">
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
-                        <p className="text-lg" data-testid={`text-phone-${player.id}`}>
+                {/* Contact */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
+                    CONTACT
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">PHONE NUMBER</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base italic text-muted-foreground" data-testid={`text-phone-${player.id}`}>
                           Not provided
-                        </p>
+                        </span>
                       </div>
-                      <div className="min-w-32">
-                        <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                        <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">EMAIL ADDRESS</label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded border">
+                        <span className="text-base" data-testid={`text-email-${player.id}`}>
                           {player.email || "Not provided"}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   </div>
