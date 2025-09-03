@@ -42,10 +42,29 @@ export default function Teams() {
   const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
   const { selectedClub: currentClub, isLoading: clubsLoading } = useClub();
   
-  // Filter teams by current club (only show teams that belong to clubs) and sort by team name
+  // Filter teams by current club and group by gender
   const clubTeams = teams
     .filter(team => team.clubId && team.clubId === currentClub?.id)
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  // Group teams by gender
+  const teamsByGender = clubTeams.reduce((groups, team) => {
+    const gender = team.gender || 'UNSPECIFIED';
+    if (!groups[gender]) {
+      groups[gender] = [];
+    }
+    groups[gender].push(team);
+    return groups;
+  }, {} as Record<string, Team[]>);
+
+  // Define gender display order and labels
+  const genderOrder = ['FEMALE', 'MALE', 'MIXED', 'UNSPECIFIED'];
+  const genderLabels = {
+    'FEMALE': 'Women\'s Teams',
+    'MALE': 'Men\'s Teams', 
+    'MIXED': 'Mixed Teams',
+    'UNSPECIFIED': 'Other Teams'
+  };
 
   // Form setup
   const form = useForm<CreateTeamFormData>({
@@ -351,70 +370,89 @@ export default function Teams() {
         </CardHeader>
         <CardContent>
           {clubTeams.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {clubTeams.map((team: Team) => {
-                const isSelected = selectedTeam?.id === team.id;
+            <div className="space-y-8">
+              {genderOrder.map(gender => {
+                const teamsInGender = teamsByGender[gender];
+                if (!teamsInGender || teamsInGender.length === 0) return null;
+                
                 return (
-                  <Card 
-                    key={team.id} 
-                    className={cn(
-                      "border-2 cursor-pointer transition-all hover:shadow-md",
-                      isSelected 
-                        ? "border-primary bg-primary/5 shadow-md" 
-                        : "border-border hover:border-primary/50"
-                    )}
-                    onClick={() => handleTeamSelect(team)}
-                    data-testid={`card-team-${team.id}`}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
-                            {team.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{team.shortName}</p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditTeam(team);
-                            }}
-                            data-testid={`button-edit-team-${team.id}`}
+                  <div key={gender}>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold text-foreground mb-1">
+                        {genderLabels[gender]}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {teamsInGender.length} {teamsInGender.length === 1 ? 'team' : 'teams'}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {teamsInGender.map((team: Team) => {
+                        const isSelected = selectedTeam?.id === team.id;
+                        return (
+                          <Card 
+                            key={team.id} 
+                            className={cn(
+                              "border-2 cursor-pointer transition-all hover:shadow-md",
+                              isSelected 
+                                ? "border-primary bg-primary/5 shadow-md" 
+                                : "border-border hover:border-primary/50"
+                            )}
+                            onClick={() => handleTeamSelect(team)}
+                            data-testid={`card-team-${team.id}`}
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {isSelected && (
-                            <Badge variant="default" className="flex items-center gap-1">
-                              <Check className="h-3 w-3" />
-                              Active
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Coach:</span>
-                          <span data-testid={`text-team-coach-${team.id}`}>{team.coach || "Not assigned"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Season:</span>
-                          <span data-testid={`text-team-season-${team.id}`}>{team.season || "Not set"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Status:</span>
-                          <span 
-                            className={`font-medium ${team.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-600'}`}
-                            data-testid={`text-team-status-${team.id}`}
-                          >
-                            {team.status}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <div>
+                                  <h4 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
+                                    {team.name}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">{team.shortName}</p>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditTeam(team);
+                                    }}
+                                    data-testid={`button-edit-team-${team.id}`}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  {isSelected && (
+                                    <Badge variant="default" className="flex items-center gap-1">
+                                      <Check className="h-3 w-3" />
+                                      Active
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Coach:</span>
+                                  <span data-testid={`text-team-coach-${team.id}`}>{team.coach || "Not assigned"}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Season:</span>
+                                  <span data-testid={`text-team-season-${team.id}`}>{team.season || "Not set"}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Status:</span>
+                                  <span 
+                                    className={`font-medium ${team.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-600'}`}
+                                    data-testid={`text-team-status-${team.id}`}
+                                  >
+                                    {team.status}
+                                  </span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
