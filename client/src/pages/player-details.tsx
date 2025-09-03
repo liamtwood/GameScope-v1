@@ -878,7 +878,7 @@ export default function PlayerDetails() {
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
                                       <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
-                                        #{playerTeam.squadNumber || '?'}
+                                        {playerTeam.squadNumber || '?'}
                                       </div>
                                       <div className="flex-1">
                                         <div className="flex items-center space-x-2">
@@ -899,16 +899,10 @@ export default function PlayerDetails() {
                                         </div>
                                         <div className="space-y-2">
                                           <div className="flex items-center space-x-3">
-                                            <div className="text-2xl font-bold text-primary" data-testid={`text-squad-number-${playerTeam.team.id}`}>
-                                              #{playerTeam.squadNumber || '?'}
-                                            </div>
                                             <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${playerTeam.team.id}`}>
                                               {playerTeam.position || 'Position not set'}
                                             </div>
                                           </div>
-                                          <p className="text-xs text-muted-foreground" data-testid={`text-joined-date-${playerTeam.team.id}`}>
-                                            Joined: {playerTeam.joinedAt ? format(new Date(playerTeam.joinedAt), "d MMM yyyy") : 'Unknown'}
-                                          </p>
                                         </div>
                                       </div>
                                     </div>
