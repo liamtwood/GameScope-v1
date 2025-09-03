@@ -190,11 +190,6 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
                 <Video className="h-4 w-4 text-blue-600" />
               </div>
             )}
-            
-            {/* Result/Status */}
-            <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
-              {getResultDisplay()}
-            </Badge>
 
             {/* Analysis Icon */}
             {fixture.status === 'COMPLETED' && hasAnalysisData && (
@@ -214,6 +209,11 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
                 </div>
               </Button>
             )}
+            
+            {/* Result/Status */}
+            <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
+              {getResultDisplay()}
+            </Badge>
           </div>
         </div>
       </CardContent>
