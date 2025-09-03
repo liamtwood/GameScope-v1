@@ -96,7 +96,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             {/* Main Content */}
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-lg text-foreground">{player.name}</h3>
+                <h3 className="font-semibold text-lg text-foreground">{player.firstName} {player.lastName}</h3>
                 {player.keyPlayer && (
                   <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
                 )}

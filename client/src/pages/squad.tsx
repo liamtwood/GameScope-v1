@@ -152,7 +152,7 @@ export default function Squad() {
       (starFilter === 'star' && player.keyPlayer) ||
       (starFilter === 'regular' && !player.keyPlayer);
     const matchesSearch = searchTerm === '' || 
-      player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${player.firstName} ${player.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.position.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesFilter && matchesStatus && matchesStar && matchesSearch;
@@ -246,7 +246,7 @@ export default function Squad() {
   };
 
   const handleDeletePlayer = (player: Player) => {
-    if (window.confirm(`Are you sure you want to delete ${player.name} from the squad?`)) {
+    if (window.confirm(`Are you sure you want to delete ${player.firstName} ${player.lastName} from the squad?`)) {
       deletePlayerMutation.mutate(player.id);
     }
   };
@@ -453,7 +453,7 @@ export default function Squad() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-semibold text-foreground">{player.name}</p>
+                          <p className="font-semibold text-foreground">{player.firstName} {player.lastName}</p>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">

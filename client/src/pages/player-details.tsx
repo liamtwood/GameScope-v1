@@ -180,7 +180,7 @@ export default function PlayerDetails() {
   return (
     <MainLayout 
       title="VIEW SQUAD MEMBER" 
-      subtitle={player.name}
+      subtitle={`${player.firstName} ${player.lastName}`}
     >
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
@@ -245,7 +245,7 @@ export default function PlayerDetails() {
                   <div className="flex items-center gap-4">
                     {/* Player Avatar */}
                     <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                      {player.name === "Ashley Miller" ? (
+                      {`${player.firstName} ${player.lastName}` === "Ashley Miller" ? (
                         <AvatarImage 
                           src={ashleyMillerPhoto} 
                           alt="Ashley Miller"
@@ -253,15 +253,15 @@ export default function PlayerDetails() {
                         />
                       ) : null}
                       <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                        {getPlayerInitials(player.name)}
+                        {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
                       </AvatarFallback>
                     </Avatar>
                     
                     {/* Player Info */}
                     <div className="flex-1">
                       <div className="mb-3">
-                        <div className="text-lg font-medium" style={{ color: textColor }}>Ashley</div>
-                        <div className="text-3xl font-bold" style={{ color: textColor }}>Miller</div>
+                        <div className="text-lg font-medium" style={{ color: textColor }}>{player.firstName}</div>
+                        <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
                       </div>
                     </div>
                   </div>
@@ -417,36 +417,35 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Full name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
-                                value={editData.name || ''}
-                                onChange={(e) => handleInputChange('name', e.target.value)}
+                                value={editData.firstName || ''}
+                                onChange={(e) => handleInputChange('firstName', e.target.value)}
                                 className="h-6 text-sm font-semibold"
-                                data-testid={`input-name-${player.id}`}
+                                data-testid={`input-first-name-${player.id}`}
                               />
                             ) : (
-                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-name-${player.id}`}>
-                                {player.name || "Not provided"}
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
+                                {player.firstName || "Not provided"}
                               </span>
                             )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Email</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
-                                type="email"
-                                value={editData.email || ''}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                value={editData.lastName || ''}
+                                onChange={(e) => handleInputChange('lastName', e.target.value)}
                                 className="h-6 text-sm font-semibold"
-                                data-testid={`input-email-${player.id}`}
+                                data-testid={`input-last-name-${player.id}`}
                               />
                             ) : (
-                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
-                                {player.email || "Not provided"}
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
+                                {player.lastName || "Not provided"}
                               </span>
                             )}
                           </div>
@@ -455,7 +454,7 @@ export default function PlayerDetails() {
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
-                              {player.name.split(' ').slice(-1)[0] || "Not provided"}
+                              {player.lastName || "Not provided"}
                             </span>
                           </div>
                         </div>

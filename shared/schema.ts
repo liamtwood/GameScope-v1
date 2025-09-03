@@ -55,7 +55,8 @@ export const teams = pgTable("teams", {
 export const players = pgTable("players", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   teamId: varchar("team_id").references(() => teams.id).notNull(),
-  name: text("name").notNull(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
   position: varchar("position", { length: 10 }).notNull(),
   jerseyNumber: integer("jersey_number").notNull(),
   status: varchar("status", { length: 20 }).default("Fit"),

@@ -35,7 +35,7 @@ export function PlayerRow({ player, onEdit, onView, onToggleKeyPlayer }: PlayerR
       <TableCell>
         <div className="flex items-center space-x-2">
           <div>
-            <p className="font-semibold text-foreground">{player.name}</p>
+            <p className="font-semibold text-foreground">{player.firstName} {player.lastName}</p>
             <p className="text-sm text-muted-foreground">{player.hometown}</p>
           </div>
           {onToggleKeyPlayer && (
