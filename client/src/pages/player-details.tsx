@@ -293,7 +293,7 @@ export default function PlayerDetails() {
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
                 <div className="pt-4">
-                  <TabsList className="grid grid-cols-4 w-full bg-transparent border-none p-0 h-auto">
+                  <TabsList className="grid grid-cols-5 w-full bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
@@ -301,6 +301,14 @@ export default function PlayerDetails() {
                       style={{ color: textColor }}
                     >
                       <span className="relative z-10">Player Details</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="bob" 
+                      data-testid="tab-bob" 
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
+                      style={{ color: textColor }}
+                    >
+                      <span className="relative z-10">Bob</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="account" 
@@ -332,6 +340,284 @@ export default function PlayerDetails() {
               
               {/* Player Details Content integrated into the same card */}
               <TabsContent value="details" className="m-0">
+                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                  <div className="pt-4">
+                    
+                    {/* Section Header */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Team Information</h4>
+                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
+                      </div>
+                    </div>
+
+                    {/* Team & Position Info */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Jersey number</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                type="number"
+                                value={editData.jerseyNumber || ''}
+                                onChange={(e) => handleInputChange('jerseyNumber', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-jersey-number-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-jersey-number-${player.id}`}>
+                                {player.jerseyNumber}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Position</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Select
+                                value={editData.position || ''}
+                                onValueChange={(value) => handleInputChange('position', value)}
+                              >
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-position-${player.id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                  <SelectItem value="Defender">Defender</SelectItem>
+                                  <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                  <SelectItem value="Forward">Forward</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-position-${player.id}`}>
+                                {player.position}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Status</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Select
+                                value={editData.status || ''}
+                                onValueChange={(value) => handleInputChange('status', value)}
+                              >
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-status-${player.id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Fit">Fit</SelectItem>
+                                  <SelectItem value="Injured">Injured</SelectItem>
+                                  <SelectItem value="Suspended">Suspended</SelectItem>
+                                  <SelectItem value="Retired">Retired</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-status-${player.id}`}>
+                                {player.status || 'Fit'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Header */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Name Information</h4>
+                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
+                      </div>
+                    </div>
+
+                    {/* Name Info */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                value={editData.firstName || ''}
+                                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-first-name-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
+                                {player.firstName || "Not provided"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                value={editData.lastName || ''}
+                                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-last-name-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
+                                {player.lastName || "Not provided"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt name</label>
+                          <div className="mt-0.5">
+                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
+                              {player.lastName || "Not provided"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Header */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Personal Information</h4>
+                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
+                      </div>
+                    </div>
+
+                    {/* Personal Info */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date of birth</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                type="date"
+                                value={editData.dateOfBirth ? new Date(editData.dateOfBirth).toISOString().split('T')[0] : ''}
+                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-date-of-birth-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
+                                {player.dateOfBirth 
+                                  ? format(new Date(player.dateOfBirth), "d MMM yyyy")
+                                  : "Not provided"
+                                }
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Age</label>
+                          <div className="mt-0.5">
+                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-age-${player.id}`}>
+                              {age ? `${age} years old` : "Not available"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Gender</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Select value={editData.gender || ''} onValueChange={(value) => handleInputChange('gender', value)}>
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-gender-${player.id}`}>
+                                  <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Male">Male</SelectItem>
+                                  <SelectItem value="Female">Female</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
+                                {player.gender || "Not set"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Header */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Contact Information</h4>
+                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
+                      </div>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Email</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                type="email"
+                                value={editData.email || ''}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-email-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
+                                {player.email || "Not provided"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Phone number</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                type="tel"
+                                value={editData.phone || ''}
+                                onChange={(e) => handleInputChange('phone', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-phone-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-phone-${player.id}`}>
+                                {player.phone || "Not provided"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-2 py-1">
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Emergency contact</label>
+                          <div className="mt-0.5">
+                            {isEditing ? (
+                              <Input
+                                value={editData.emergencyContact || ''}
+                                onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                placeholder="Name and phone number"
+                                data-testid={`input-emergency-contact-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
+                                {player.emergencyContact || "Not provided"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Bob Tab Content - Copy of Player Details */}
+              <TabsContent value="bob" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
                     
