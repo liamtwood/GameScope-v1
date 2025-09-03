@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter } from "lucide-react";
 import { Player, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,7 @@ export default function Squad() {
   const [editValue, setEditValue] = useState("");
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
+  const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -308,22 +309,34 @@ export default function Squad() {
         </div>
       </div>
 
-      {/* Tab Navigation with Add Player Button */}
+      {/* Tab Navigation with Filter and Add Player Buttons */}
       <div className="mb-6 relative">
-        <div className="flex items-center">
-          <PlayerCreateDialog 
-            teamId={currentTeam?.id || ""} 
-            onSave={handleCreatePlayer}
-          >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
-              data-testid="button-add-player"
-              disabled={!currentTeam?.id}
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-filters"
             >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Player
+              <Filter className="mr-2 h-4 w-4" />
+              Enable Filter
             </Button>
-          </PlayerCreateDialog>
+          </div>
+          <div className="flex items-center gap-2">
+            <PlayerCreateDialog 
+              teamId={currentTeam?.id || ""} 
+              onSave={handleCreatePlayer}
+            >
+              <Button 
+                variant="outline" 
+                data-testid="button-add-player"
+                disabled={!currentTeam?.id}
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Player
+              </Button>
+            </PlayerCreateDialog>
+          </div>
         </div>
         
         <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
@@ -346,28 +359,30 @@ export default function Squad() {
       {activeTab === 'table' && (
         <>
           {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
-          <SelectTrigger className="w-48" data-testid="select-position">
-            <SelectValue placeholder="All Positions" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Positions</SelectItem>
-            <SelectItem value="GK">Goalkeeper</SelectItem>
-            <SelectItem value="DEF">Defense</SelectItem>
-            <SelectItem value="MID">Midfield</SelectItem>
-            <SelectItem value="FWD">Forward</SelectItem>
-          </SelectContent>
-        </Select>
+          {showFilters && (
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+                <SelectTrigger className="w-48" data-testid="select-position">
+                  <SelectValue placeholder="All Positions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Positions</SelectItem>
+                  <SelectItem value="GK">Goalkeeper</SelectItem>
+                  <SelectItem value="DEF">Defense</SelectItem>
+                  <SelectItem value="MID">Midfield</SelectItem>
+                  <SelectItem value="FWD">Forward</SelectItem>
+                </SelectContent>
+              </Select>
 
-        <Input
-          placeholder="Search players..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-64"
-          data-testid="input-search-players"
-        />
-      </div>
+              <Input
+                placeholder="Search players..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+                data-testid="input-search-players"
+              />
+            </div>
+          )}
 
       {/* Squad Table */}
       <Card>
@@ -514,29 +529,31 @@ export default function Squad() {
       {/* Player Card Tab Content */}
       {activeTab === 'player-card' && (
         <>
-              {/* Filters */}
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
-              <SelectTrigger className="w-48" data-testid="select-position-cards">
-                <SelectValue placeholder="All Positions" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Positions</SelectItem>
-                <SelectItem value="GK">Goalkeeper</SelectItem>
-                <SelectItem value="DEF">Defense</SelectItem>
-                <SelectItem value="MID">Midfield</SelectItem>
-                <SelectItem value="FWD">Forward</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Filters */}
+          {showFilters && (
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <Select value={activeFilter} onValueChange={(value: PositionFilter) => setActiveFilter(value)}>
+                <SelectTrigger className="w-48" data-testid="select-position-cards">
+                  <SelectValue placeholder="All Positions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Positions</SelectItem>
+                  <SelectItem value="GK">Goalkeeper</SelectItem>
+                  <SelectItem value="DEF">Defense</SelectItem>
+                  <SelectItem value="MID">Midfield</SelectItem>
+                  <SelectItem value="FWD">Forward</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Input
-              placeholder="Search players..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
-              data-testid="input-search-players-cards"
-            />
-          </div>
+              <Input
+                placeholder="Search players..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+                data-testid="input-search-players-cards"
+              />
+            </div>
+          )}
 
           {/* Player Cards Grid - Grouped by Position */}
           {isLoading ? (
