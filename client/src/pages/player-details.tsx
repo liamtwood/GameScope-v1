@@ -135,74 +135,87 @@ export default function PlayerDetails() {
           <TabsContent value="details" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Player Details</h3>
                   </div>
-                  {/* Row 1: Jersey Number, Position */}
-                  <div className="flex gap-8 mb-1">
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
-                      <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
-                    </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Position</label>
-                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
-                    </div>
-                  </div>
-
-                  {/* Row 2: First Name, Last Name, Shirt Name */}
-                  <div className="flex gap-8 mb-1">
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">First Name</label>
-                      <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
-                    </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Last Name</label>
-                      <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
-                    </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
-                      <p className="text-lg" data-testid={`text-shirt-name-${player.id}`}>{player.name.split(' ').slice(-1)[0] || "Not provided"}</p>
+                  
+                  {/* Team Details */}
+                  <div>
+                    <h4 className="text-md font-medium text-foreground mb-2">Team Details</h4>
+                    <div className="flex gap-8 mb-1">
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
+                        <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Position</label>
+                        <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Row 3: Gender, Date of Birth, Age */}
-                  <div className="flex gap-8 mb-1">
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                      <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
-                    </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                      <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
-                        {player.dateOfBirth 
-                          ? format(new Date(player.dateOfBirth), "d MMM yyyy")
-                          : "Not provided"
-                        }
-                      </p>
-                    </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Age</label>
-                      <p className="text-lg" data-testid={`text-age-${player.id}`}>
-                        {age ? `${age} years old` : "Not available"}
-                      </p>
+                  {/* Name */}
+                  <div>
+                    <h4 className="text-md font-medium text-foreground mb-2">Name</h4>
+                    <div className="flex gap-8 mb-1">
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">First Name</label>
+                        <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Last Name</label>
+                        <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
+                        <p className="text-lg" data-testid={`text-shirt-name-${player.id}`}>{player.name.split(' ').slice(-1)[0] || "Not provided"}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Row 4: Phone Number, Email Address */}
-                  <div className="flex gap-8">
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
-                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
-                        Not provided
-                      </p>
+                  {/* Personal */}
+                  <div>
+                    <h4 className="text-md font-medium text-foreground mb-2">Personal</h4>
+                    <div className="flex gap-8 mb-1">
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Gender</label>
+                        <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                        <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
+                          {player.dateOfBirth 
+                            ? format(new Date(player.dateOfBirth), "d MMM yyyy")
+                            : "Not provided"
+                          }
+                        </p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Age</label>
+                        <p className="text-lg" data-testid={`text-age-${player.id}`}>
+                          {age ? `${age} years old` : "Not available"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-32">
-                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
-                        {player.email || "Not provided"}
-                      </p>
+                  </div>
+
+                  {/* Contact */}
+                  <div>
+                    <h4 className="text-md font-medium text-foreground mb-2">Contact</h4>
+                    <div className="flex gap-8">
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                        <p className="text-lg" data-testid={`text-phone-${player.id}`}>
+                          Not provided
+                        </p>
+                      </div>
+                      <div className="min-w-32">
+                        <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                        <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                          {player.email || "Not provided"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
