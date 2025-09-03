@@ -139,11 +139,20 @@ export default function PlayerDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Player Details</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Row 1: Jersey Number, Position */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
                       <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Position</label>
+                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                    </div>
+                  </div>
+
+                  {/* Row 2: First Name, Last Name, Shirt Name */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">First Name</label>
                       <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
@@ -153,16 +162,47 @@ export default function PlayerDetails() {
                       <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Position</label>
-                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
+                      <p className="text-lg" data-testid={`text-shirt-name-${player.id}`}>{player.name.split(' ').slice(-1)[0] || "Not provided"}</p>
+                    </div>
+                  </div>
+
+                  {/* Row 3: Gender, Date of Birth, Age */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Gender</label>
+                      <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Club ID</label>
-                      <p className="text-lg font-mono text-xs" data-testid={`text-club-id-${player.id}`}>{player.teamId}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                      <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
+                        {player.dateOfBirth 
+                          ? format(new Date(player.dateOfBirth), "d MMM yyyy")
+                          : "Not provided"
+                        }
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Team ID</label>
-                      <p className="text-lg font-mono text-xs" data-testid={`text-team-id-${player.id}`}>{player.teamId}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Age</label>
+                      <p className="text-lg" data-testid={`text-age-${player.id}`}>
+                        {age ? `${age} years old` : "Not available"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Email Address, Phone Number */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                      <p className="text-lg" data-testid={`text-email-${player.id}`}>
+                        {player.email || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                      <p className="text-lg" data-testid={`text-phone-${player.id}`}>
+                        Not provided
+                      </p>
                     </div>
                   </div>
                 </div>
