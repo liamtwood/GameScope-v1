@@ -62,6 +62,8 @@ export const players = pgTable("players", {
   keyPlayer: boolean("key_player").default(false),
   // Account fields
   email: text("email"),
+  phone: text("phone"),
+  emergencyContact: text("emergency_contact"),
   gender: varchar("gender", { length: 10 }), // Male or Female
   dateOfBirth: timestamp("date_of_birth"),
   accountStatus: varchar("account_status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired

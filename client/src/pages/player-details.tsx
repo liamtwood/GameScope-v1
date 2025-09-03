@@ -476,12 +476,22 @@ export default function PlayerDetails() {
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date of birth</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
-                              {player.dateOfBirth 
-                                ? format(new Date(player.dateOfBirth), "d MMM yyyy")
-                                : "Not provided"
-                              }
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                type="date"
+                                value={editData.dateOfBirth ? new Date(editData.dateOfBirth).toISOString().split('T')[0] : ''}
+                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-date-of-birth-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
+                                {player.dateOfBirth 
+                                  ? format(new Date(player.dateOfBirth), "d MMM yyyy")
+                                  : "Not provided"
+                                }
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
@@ -495,9 +505,22 @@ export default function PlayerDetails() {
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Gender</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
-                              {player.gender || "Not set"}
-                            </span>
+                            {isEditing ? (
+                              <Select value={editData.gender || ''} onValueChange={(value) => handleInputChange('gender', value)}>
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-gender-${player.id}`}>
+                                  <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Male">Male</SelectItem>
+                                  <SelectItem value="Female">Female</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
+                                {player.gender || "Not set"}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -517,25 +540,55 @@ export default function PlayerDetails() {
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Email</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
-                              {player.email || "Not provided"}
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                type="email"
+                                value={editData.email || ''}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-email-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
+                                {player.email || "Not provided"}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Phone number</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-phone-${player.id}`}>
-                              Not provided
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                type="tel"
+                                value={editData.phone || ''}
+                                onChange={(e) => handleInputChange('phone', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-phone-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-phone-${player.id}`}>
+                                {player.phone || "Not provided"}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Emergency contact</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
-                              Not provided
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                value={editData.emergencyContact || ''}
+                                onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                placeholder="Name and phone number"
+                                data-testid={`input-emergency-contact-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
+                                {player.emergencyContact || "Not provided"}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
