@@ -211,7 +211,7 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
                       style={{ color: textColor }}
                     >
                       Player Details
@@ -219,7 +219,7 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="account" 
                       data-testid="tab-account" 
-                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
                       style={{ color: textColor }}
                     >
                       Account Details
@@ -227,7 +227,7 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="teams" 
                       data-testid="tab-teams" 
-                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
                       style={{ color: textColor }}
                     >
                       Teams
@@ -235,7 +235,7 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="parents" 
                       data-testid="tab-parents" 
-                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
                       style={{ color: textColor }}
                     >
                       Parents / Guardian
