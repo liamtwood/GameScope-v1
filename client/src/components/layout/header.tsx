@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Bell, Menu, Crosshair } from "lucide-react";
+import { Plus, Bell, Menu, Crosshair, Home } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
@@ -70,7 +70,12 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         <div className="bg-muted p-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
+              <div className="flex items-center space-x-2">
+                {title.toLowerCase() === 'home' && (
+                  <Home className="h-4 w-4 text-foreground" />
+                )}
+                <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
+              </div>
               <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
             </div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
