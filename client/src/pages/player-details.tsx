@@ -132,9 +132,9 @@ export default function PlayerDetails() {
         </div>
 
         {/* Player Header Card */}
-        <Card className="bg-background border border-border">
+        <Card className="bg-background border border-border max-w-md mx-auto">
           <CardContent className="p-6">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               {/* Player Avatar */}
               <Avatar className="h-20 w-20 bg-slate-600 text-white">
                 {player.name === "Ashley Miller" ? (
