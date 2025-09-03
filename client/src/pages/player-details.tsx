@@ -218,16 +218,16 @@ export default function PlayerDetails() {
               
               {/* Player Details Content integrated into the same card */}
               <TabsContent value="details" className="m-0">
-                <div className="px-6 pb-6 space-y-3 border-t border-white/10">
+                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
-                    <h3 className="text-sm font-medium mb-4" style={{ color: textColor }}>Player Details</h3>
+                    <h3 className="text-sm font-medium mb-4 text-gray-900">Player Details</h3>
                     
                     {/* Team & Position Info */}
                     <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-jersey-number-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-jersey-number-${player.id}`}>
                             {player.jerseyNumber}
                           </span>
                         </div>
@@ -235,7 +235,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Position</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-position-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-position-${player.id}`}>
                             {player.position}
                           </span>
                         </div>
@@ -243,7 +243,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-gender-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
                             {player.gender || "Not set"}
                           </span>
                         </div>
@@ -255,7 +255,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">First Name</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-first-name-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
                             {player.name.split(' ')[0] || "Not provided"}
                           </span>
                         </div>
@@ -263,7 +263,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Last Name</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-last-name-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
                             {player.name.split(' ').slice(1).join(' ') || "Not provided"}
                           </span>
                         </div>
@@ -271,7 +271,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Shirt Name</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-shirt-name-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
                             {player.name.split(' ').slice(-1)[0] || "Not provided"}
                           </span>
                         </div>
@@ -283,7 +283,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-date-of-birth-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
                             {player.dateOfBirth 
                               ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
                               : "Not provided"
@@ -294,7 +294,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Age</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-age-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-age-${player.id}`}>
                             {age ? `${age} years old` : "Not available"}
                           </span>
                         </div>
@@ -302,7 +302,7 @@ export default function PlayerDetails() {
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Email</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-email-${player.id}`}>
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
                             {player.email || "Not provided"}
                           </span>
                         </div>
