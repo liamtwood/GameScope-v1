@@ -136,6 +136,9 @@ export default function PlayerDetails() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Player Details</h3>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
