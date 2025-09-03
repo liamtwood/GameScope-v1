@@ -187,14 +187,6 @@ export default function Teams() {
       title={currentClub ? `${currentClub.name} - Teams` : "Teams"}
       subtitle={currentClub ? `Manage teams for ${currentClub.name}` : "Manage and organize your teams"}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-semibold">Teams Management</h2>
-        </div>
-      </div>
-
       {/* Teams Overview */}
       <Card>
         <CardHeader>
