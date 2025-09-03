@@ -331,9 +331,6 @@ export default function Squad() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" data-testid="button-squad-settings">
-              <Settings className="h-4 w-4" />
-            </Button>
             <PlayerCreateDialog 
               teamId={currentTeam?.id || ""} 
               onSave={handleCreatePlayer}
@@ -347,6 +344,9 @@ export default function Squad() {
                 Add Player
               </Button>
             </PlayerCreateDialog>
+            <Button variant="outline" data-testid="button-squad-settings">
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         
