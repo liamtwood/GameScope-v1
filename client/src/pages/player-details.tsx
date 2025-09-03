@@ -249,6 +249,13 @@ export default function PlayerDetails() {
                 <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
                     
+                    {/* Section Header */}
+                    <div className="w-4/5 mx-auto">
+                      <div className="pt-2">
+                        <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Team Information</h4>
+                      </div>
+                    </div>
+
                     {/* Team & Position Info */}
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
