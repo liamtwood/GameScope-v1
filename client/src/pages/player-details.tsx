@@ -141,11 +141,11 @@ export default function PlayerDetails() {
                   </div>
                   {/* Row 1: Jersey Number, Position */}
                   <div className="flex gap-8 mb-1">
-                    <div>
+                    <div className="min-w-24">
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
                       <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
                     </div>
-                    <div>
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Position</label>
                       <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
                     </div>
@@ -153,15 +153,15 @@ export default function PlayerDetails() {
 
                   {/* Row 2: First Name, Last Name, Shirt Name */}
                   <div className="flex gap-8 mb-1">
-                    <div>
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">First Name</label>
                       <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
                     </div>
-                    <div>
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Last Name</label>
                       <p className="text-lg" data-testid={`text-last-name-${player.id}`}>{player.name.split(' ').slice(1).join(' ') || "Not provided"}</p>
                     </div>
-                    <div>
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
                       <p className="text-lg" data-testid={`text-shirt-name-${player.id}`}>{player.name.split(' ').slice(-1)[0] || "Not provided"}</p>
                     </div>
