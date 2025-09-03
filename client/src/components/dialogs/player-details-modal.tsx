@@ -230,7 +230,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
               
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
-                <div className="pt-4 flex items-center justify-between">
+                <div className="pt-4 flex items-center justify-center relative">
                   <TabsList className="grid grid-cols-2 w-auto bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
@@ -251,7 +251,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                   </TabsList>
                   
                   {/* Edit Button in Tab Area */}
-                  <div className="flex items-center">
+                  <div className="absolute right-0 flex items-center">
                     {!isEditing ? (
                       <div 
                         className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
