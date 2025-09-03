@@ -35,6 +35,7 @@ export default function Fixtures() {
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string>("");
+  const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -50,11 +51,32 @@ export default function Fixtures() {
     queryKey: ["/api/competitions"]
   });
 
-  // Query to get all match stats to determine which fixtures have analysis data
-  const { data: allMatchStats = [] } = useQuery({
-    queryKey: ["/api/match-stats/team", currentTeam?.id],
-    enabled: !!currentTeam?.id
-  });
+  // Check for analysis data for all fixtures
+  useEffect(() => {
+    const checkAnalysisData = async () => {
+      if (!fixtures || fixtures.length === 0) return;
+      
+      const fixtureIds = new Set<string>();
+      
+      for (const fixture of fixtures) {
+        try {
+          const response = await fetch(`/api/match-stats/${fixture.id}`);
+          if (response.ok) {
+            const stats = await response.json();
+            if (stats && stats.length > 0) {
+              fixtureIds.add(fixture.id);
+            }
+          }
+        } catch (error) {
+          // Ignore errors for now
+        }
+      }
+      
+      setFixturesWithAnalysis(fixtureIds);
+    };
+    
+    checkAnalysisData();
+  }, [fixtures]);
 
   const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
   const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
@@ -568,7 +590,7 @@ export default function Fixtures() {
                                 onViewAnalysis={handleViewAnalysis}
                                 onEdit={() => {}} // Edit is handled by the dialog wrapper
                                 onDelete={handleDeleteFixture}
-                                hasAnalysisData={allMatchStats.some((stat: any) => stat.fixtureId === fixture.id)} // Show only if match stats exist
+                                hasAnalysisData={fixturesWithAnalysis.has(fixture.id)} // Show only if match stats exist
                               />
                             </div>
                           </FixtureEditDialog>
