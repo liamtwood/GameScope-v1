@@ -333,7 +333,13 @@ export default function PlayerDetails() {
   
   // Create solid background style
   const solidStyle = {
-    background: clubPrimaryColor,
+    background: `
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(255,255,255,0.04) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%),
+      ${clubPrimaryColor}
+    `,
   };
 
   return (
