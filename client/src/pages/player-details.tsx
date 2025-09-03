@@ -220,7 +220,6 @@ export default function PlayerDetails() {
               <TabsContent value="details" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
                   <div className="pt-4">
-                    <h3 className="text-sm font-medium mb-4 text-gray-900">Player Details</h3>
                     
                     {/* Team & Position Info */}
                     <div className="grid grid-cols-3 gap-x-8 gap-y-3">
