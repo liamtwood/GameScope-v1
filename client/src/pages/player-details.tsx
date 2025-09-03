@@ -309,10 +309,43 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                       <div className="border border-red-300 p-2">
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Nationality</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-nationality-${player.id}`}>
+                            Not provided
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Header */}
+                    <div className="pt-2">
+                      <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-2">Contact Information</h4>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
+                      <div className="border border-red-300 p-2">
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Email</label>
                         <div className="mt-0.5">
                           <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
                             {player.email || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="border border-red-300 p-2">
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Phone Number</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-phone-${player.id}`}>
+                            Not provided
+                          </span>
+                        </div>
+                      </div>
+                      <div className="border border-red-300 p-2">
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Emergency Contact</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
+                            Not provided
                           </span>
                         </div>
                       </div>
