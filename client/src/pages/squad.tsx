@@ -347,20 +347,7 @@ export default function Squad() {
           </div>
         </div>
         
-        <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-          <div className="flex space-x-8 border-b border-gray-200 pointer-events-auto">
-            <button
-              onClick={() => setActiveTab('player-card')}
-              className={`pb-3 px-4 text-lg font-semibold ${
-                activeTab === 'player-card' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Player Cards
-            </button>
-          </div>
-        </div>
+{/* Tab navigation hidden when only one tab */}
       </div>
 
       {/* Table Tab Content */}
