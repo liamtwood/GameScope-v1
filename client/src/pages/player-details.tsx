@@ -112,7 +112,7 @@ export default function PlayerDetails() {
         {/* Player Details Tabs */}
         <Tabs defaultValue="details" className="w-full">
           {/* Back Button and Tabs on same row */}
-          <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <Button 
               variant="ghost" 
               onClick={() => window.history.back()}
@@ -122,12 +122,14 @@ export default function PlayerDetails() {
               Back
             </Button>
             
-            <TabsList className="grid grid-cols-4 flex-1 max-w-2xl">
-              <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
-              <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
-              <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
-              <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
-            </TabsList>
+            <div className="flex-1 flex justify-center">
+              <TabsList className="grid grid-cols-4 w-full max-w-4xl">
+                <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
+                <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
+                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+                <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
           <TabsContent value="details" className="mt-6">
