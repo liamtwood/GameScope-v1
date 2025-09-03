@@ -154,64 +154,69 @@ export default function PlayerDetails() {
           </Button>
         </div>
 
-        {/* Player Header Card */}
-        <Card className="border border-border max-w-4xl mx-auto relative overflow-hidden" style={gradientStyle}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {/* Player Avatar */}
-                <Avatar className="h-20 w-20 bg-slate-600 text-white">
-                  {player.name === "Ashley Miller" ? (
-                    <AvatarImage 
-                      src={ashleyMillerPhoto} 
-                      alt="Ashley Miller"
-                      className="object-cover"
-                    />
-                  ) : null}
-                  <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                    {getPlayerInitials(player.name)}
-                  </AvatarFallback>
-                </Avatar>
-                
-                {/* Player Info */}
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
+        {/* Player Header Card with Integrated Tabs */}
+        <Tabs defaultValue="details" className="w-full">
+          <Card className="border border-border max-w-4xl mx-auto relative overflow-hidden" style={gradientStyle}>
+            <CardContent className="p-0">
+              {/* Player Info Section */}
+              <div className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {/* Player Avatar */}
+                    <Avatar className="h-20 w-20 bg-slate-600 text-white">
+                      {player.name === "Ashley Miller" ? (
+                        <AvatarImage 
+                          src={ashleyMillerPhoto} 
+                          alt="Ashley Miller"
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                        {getPlayerInitials(player.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* Player Info */}
+                    <div className="flex-1">
+                      <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
+                      
+                      <div className="flex gap-8 text-sm">
+                        <div>
+                          <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
+                          <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
+                          <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   
-                  <div className="flex gap-8 text-sm">
-                    <div>
-                      <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
-                      <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
-                      <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
-                    </div>
+                  {/* Club Logo */}
+                  <div className="flex-shrink-0 opacity-80">
+                    <img 
+                      src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                      alt={selectedClub?.name || "Club Logo"} 
+                      className="h-16 w-auto object-contain"
+                    />
                   </div>
                 </div>
               </div>
               
-              {/* Club Logo */}
-              <div className="flex-shrink-0 opacity-80">
-                <img 
-                  src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
-                  alt={selectedClub?.name || "Club Logo"} 
-                  className="h-16 w-auto object-contain"
-                />
+              {/* Tabs integrated into the card */}
+              <div className="px-6 pb-4 border-t border-white/20">
+                <div className="pt-4">
+                  <TabsList className="grid grid-cols-4 w-full">
+                    <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
+                    <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
+                    <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+                    <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Player Details Tabs */}
-        <Tabs defaultValue="details" className="w-full">
-          <div className="flex justify-center mb-6">
-            <TabsList className="grid grid-cols-4 w-full max-w-4xl">
-              <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
-              <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
-              <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
-              <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
-            </TabsList>
-          </div>
+            </CardContent>
+          </Card>
 
           <TabsContent value="details" className="mt-6">
             {/* Player Details Header */}
