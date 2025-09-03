@@ -181,7 +181,7 @@ export default function PlayerDetails() {
 
           <TabsContent value="details" className="mt-6">
             {/* Player Details Header */}
-            <div className="bg-slate-700 text-white p-4 rounded-t-lg">
+            <div className="bg-slate-700 text-white p-4 rounded-t-lg max-w-4xl mx-auto">
               <h2 className="text-xl font-semibold">Player Details</h2>
             </div>
             
