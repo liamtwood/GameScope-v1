@@ -207,11 +207,39 @@ export default function PlayerDetails() {
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
                 <div className="pt-4">
-                  <TabsList className="grid grid-cols-4 w-full bg-transparent">
-                    <TabsTrigger value="details" data-testid="tab-details" style={{ color: textColor }}>Player Details</TabsTrigger>
-                    <TabsTrigger value="account" data-testid="tab-account" style={{ color: textColor }}>Account Details</TabsTrigger>
-                    <TabsTrigger value="teams" data-testid="tab-teams" style={{ color: textColor }}>Teams</TabsTrigger>
-                    <TabsTrigger value="parents" data-testid="tab-parents" style={{ color: textColor }}>Parents / Guardian</TabsTrigger>
+                  <TabsList className="grid grid-cols-4 w-full bg-transparent border-none p-0 h-auto">
+                    <TabsTrigger 
+                      value="details" 
+                      data-testid="tab-details" 
+                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      style={{ color: textColor }}
+                    >
+                      Player Details
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="account" 
+                      data-testid="tab-account" 
+                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      style={{ color: textColor }}
+                    >
+                      Account Details
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="teams" 
+                      data-testid="tab-teams" 
+                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      style={{ color: textColor }}
+                    >
+                      Teams
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="parents" 
+                      data-testid="tab-parents" 
+                      className="bg-transparent border-none shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:rounded-none px-3 py-2 rounded-none"
+                      style={{ color: textColor }}
+                    >
+                      Parents / Guardian
+                    </TabsTrigger>
                   </TabsList>
                 </div>
               </div>
