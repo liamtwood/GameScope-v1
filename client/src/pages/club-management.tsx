@@ -207,7 +207,8 @@ export default function ClubManagement() {
               onClick={handleEditClub}
               data-testid="button-edit-club"
             >
-              <Edit className="h-4 w-4" />
+              <Landmark className="h-4 w-4 mr-2" />
+              Edit Club
             </Button>
           </CardTitle>
         </CardHeader>
