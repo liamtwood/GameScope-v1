@@ -143,14 +143,9 @@ export default function PlayerDetails() {
               
               {/* Player Info */}
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground mb-1">{player.name}</h1>
-                <p className="text-lg text-muted-foreground mb-3">{player.position}</p>
+                <h1 className="text-2xl font-bold text-foreground mb-3">{player.name}</h1>
                 
                 <div className="flex gap-8 text-sm">
-                  <div>
-                    <span className="text-muted-foreground uppercase tracking-wide">NUMBER</span>
-                    <p className="font-semibold">#{player.jerseyNumber}</p>
-                  </div>
                   <div>
                     <span className="text-muted-foreground uppercase tracking-wide">AGE</span>
                     <p className="font-semibold">{age ? `${age} years` : 'N/A'}</p>
