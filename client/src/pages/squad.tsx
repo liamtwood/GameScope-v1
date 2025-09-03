@@ -38,10 +38,18 @@ export default function Squad() {
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
-  const { data: players, isLoading } = useQuery<Player[]>({ 
-    queryKey: ["/api/players", currentTeam?.id],
+  // Fetch team players (with squad numbers and positions)
+  const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
+    queryKey: ["/api/team", currentTeam?.id, "players"],
     enabled: !!currentTeam?.id 
   });
+  
+  // Convert team players to legacy format for compatibility
+  const players = teamPlayersData?.map(tp => ({
+    ...tp.player,
+    jerseyNumber: tp.squadNumber, // Map squad number to jersey number for display
+    position: tp.position // Use position from team assignment
+  })) || [];
 
   const { data: fixtures } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
