@@ -125,7 +125,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
               </Button>
               
               <TabsList className="grid grid-cols-2 w-auto">
-                <TabsTrigger value="player" data-testid="tab-player">Player</TabsTrigger>
+                <TabsTrigger value="player" data-testid="tab-player">Player Details</TabsTrigger>
                 <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
               </TabsList>
             </div>
