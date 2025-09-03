@@ -897,24 +897,16 @@ export default function PlayerDetails() {
                                             {playerTeam.team.status}
                                           </Badge>
                                         </div>
-                                        <div className="text-sm text-muted-foreground space-y-1">
-                                          <div className="flex space-x-4">
-                                            <p data-testid={`text-squad-number-${playerTeam.team.id}`}>
-                                              <span className="font-semibold">#{playerTeam.squadNumber || 'N/A'}</span>
-                                            </p>
-                                            <p data-testid={`text-position-${playerTeam.team.id}`}>
-                                              <span className="font-semibold">{playerTeam.position || 'No Position'}</span>
-                                            </p>
+                                        <div className="space-y-2">
+                                          <div className="flex items-center space-x-3">
+                                            <div className="text-2xl font-bold text-primary" data-testid={`text-squad-number-${playerTeam.team.id}`}>
+                                              #{playerTeam.squadNumber || '?'}
+                                            </div>
+                                            <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${playerTeam.team.id}`}>
+                                              {playerTeam.position || 'Position not set'}
+                                            </div>
                                           </div>
-                                          <p data-testid={`text-team-short-name-${playerTeam.team.id}`}>
-                                            Short Name: {playerTeam.team.shortName}
-                                          </p>
-                                          {playerTeam.team.coach && (
-                                            <p data-testid={`text-team-coach-${playerTeam.team.id}`}>
-                                              Coach: {playerTeam.team.coach}
-                                            </p>
-                                          )}
-                                          <p data-testid={`text-joined-date-${playerTeam.team.id}`}>
+                                          <p className="text-xs text-muted-foreground" data-testid={`text-joined-date-${playerTeam.team.id}`}>
                                             Joined: {playerTeam.joinedAt ? format(new Date(playerTeam.joinedAt), "d MMM yyyy") : 'Unknown'}
                                           </p>
                                         </div>
