@@ -20,7 +20,7 @@ export default function PlayerDetails() {
   const playerId = params?.id;
   const { selectedClub } = useClub();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<Player & { firstName?: string; lastName?: string }>>({});
+  const [editData, setEditData] = useState<Partial<Player>>({});
   const queryClient = useQueryClient();
 
   const { data: player, isLoading } = useQuery<Player>({
@@ -53,12 +53,7 @@ export default function PlayerDetails() {
   const age = player?.dateOfBirth ? calculateAge(player.dateOfBirth) : null;
 
   const handleEdit = () => {
-    const nameParts = player?.name.split(' ') || [];
-    setEditData({ 
-      ...player, 
-      firstName: nameParts[0] || '',
-      lastName: nameParts.slice(1).join(' ') || ''
-    } as any);
+    setEditData(player || {});
     setIsEditing(true);
   };
 
@@ -68,17 +63,10 @@ export default function PlayerDetails() {
   };
 
   const handleSave = () => {
-    const saveData = { ...editData };
-    // Combine firstName and lastName into name field
-    if (editData.firstName || editData.lastName) {
-      saveData.name = `${editData.firstName || ''} ${editData.lastName || ''}`.trim();
-      delete saveData.firstName;
-      delete saveData.lastName;
-    }
-    updatePlayerMutation.mutate(saveData);
+    updatePlayerMutation.mutate(editData);
   };
 
-  const handleInputChange = (field: keyof (Player & { firstName?: string; lastName?: string }), value: any) => {
+  const handleInputChange = (field: keyof Player, value: any) => {
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -429,35 +417,36 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Full name</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
-                                value={editData.firstName || ''}
-                                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                value={editData.name || ''}
+                                onChange={(e) => handleInputChange('name', e.target.value)}
                                 className="h-6 text-sm font-semibold"
-                                data-testid={`input-first-name-${player.id}`}
+                                data-testid={`input-name-${player.id}`}
                               />
                             ) : (
-                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
-                                {player.firstName || player.name.split(' ')[0] || "Not provided"}
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-name-${player.id}`}>
+                                {player.name || "Not provided"}
                               </span>
                             )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Email</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
-                                value={editData.lastName || ''}
-                                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                type="email"
+                                value={editData.email || ''}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
                                 className="h-6 text-sm font-semibold"
-                                data-testid={`input-last-name-${player.id}`}
+                                data-testid={`input-email-${player.id}`}
                               />
                             ) : (
-                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
-                                {player.lastName || player.name.split(' ').slice(1).join(' ') || "Not provided"}
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
+                                {player.email || "Not provided"}
                               </span>
                             )}
                           </div>
