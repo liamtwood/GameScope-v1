@@ -253,6 +253,7 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="pt-2">
                         <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Team Information</h4>
+                        <div className="w-full h-px mb-3" style={{ backgroundColor: clubPrimaryColor }}></div>
                       </div>
                     </div>
 
