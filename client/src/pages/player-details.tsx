@@ -207,7 +207,7 @@ export default function PlayerDetails() {
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
                 <div className="pt-4">
-                  <TabsList className="grid grid-cols-4 w-full">
+                  <TabsList className="grid grid-cols-4 w-full bg-transparent">
                     <TabsTrigger value="details" data-testid="tab-details">Player Details</TabsTrigger>
                     <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
                     <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
