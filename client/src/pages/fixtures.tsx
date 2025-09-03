@@ -415,13 +415,7 @@ export default function Fixtures() {
           </div>
         </div>
         
-        <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-          <div className="flex space-x-8 border-b border-gray-200 pointer-events-auto">
-            <div className="pb-3 px-4 text-lg font-semibold text-blue-600 border-b-2 border-blue-600">
-              Season
-            </div>
-          </div>
-        </div>
+{/* Tab navigation hidden when only one tab */}
       </div>
 
       {/* Fixtures Content */}
