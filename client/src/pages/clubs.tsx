@@ -214,12 +214,7 @@ export default function Clubs() {
 
   return (
     <MainLayout title="Clubs" subtitle="Manage all clubs in the system">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Building2 className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-semibold">All Clubs</h2>
-        </div>
+      <div className="flex items-center justify-end mb-6">
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button data-testid="button-create-club">
