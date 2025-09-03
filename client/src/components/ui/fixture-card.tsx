@@ -148,9 +148,6 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       className={`border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
         showAnimatedBorder ? 'relative overflow-hidden group' : ''
       }`}
-      style={{
-        borderLeft: `4px solid ${getOpponentColor()}`
-      }}
       onClick={handleCardClick}
     >
       {showAnimatedBorder && (
