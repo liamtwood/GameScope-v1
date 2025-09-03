@@ -477,12 +477,20 @@ export default function PlayerDetails() {
                         border: none !important;
                         outline: none !important;
                         box-shadow: none !important;
+                        margin: 0 !important;
                       }
                       [data-testid="tab-details"],
                       [data-testid="tab-teams"],
                       [data-testid="tab-parents"] {
                         border: none !important;
                         outline: none !important;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                      }
+                      [data-testid="tab-details"] {
+                        border-left: none !important;
+                        margin-left: 0 !important;
+                        padding-left: 0 !important;
                       }
                     `}</style>
                     <TabsTrigger 
