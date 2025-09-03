@@ -211,7 +211,7 @@ export default function PlayerDetails() {
                     NAME
                   </h3>
                   <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-first-name-${player.id}`}>
@@ -219,7 +219,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-last-name-${player.id}`}>
@@ -227,7 +227,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 lg:min-w-[150px]">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-shirt-name-${player.id}`}>
