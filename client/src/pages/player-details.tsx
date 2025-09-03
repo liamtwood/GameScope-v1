@@ -121,41 +121,17 @@ export default function PlayerDetails() {
         </Button>
 
         {/* Player Details Tabs */}
-        <Card>
-          <CardContent className="p-0">
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-gray-200 rounded-none">
-                <TabsTrigger 
-                  value="details" 
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
-                  data-testid="tab-details"
-                >
-                  {player.name}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="account" 
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
-                  data-testid="tab-account"
-                >
-                  Account Details
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="teams" 
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none mr-8"
-                  data-testid="tab-teams"
-                >
-                  Teams
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="parents" 
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 bg-transparent shadow-none rounded-none"
-                  data-testid="tab-parents"
-                >
-                  Parents / Guardian
-                </TabsTrigger>
-              </TabsList>
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="details" data-testid="tab-details">{player.name}</TabsTrigger>
+            <TabsTrigger value="account" data-testid="tab-account">Account Details</TabsTrigger>
+            <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+            <TabsTrigger value="parents" data-testid="tab-parents">Parents / Guardian</TabsTrigger>
+          </TabsList>
 
-              <TabsContent value="details" className="p-6 mt-0">
+          <TabsContent value="details" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -184,9 +160,13 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <TabsContent value="account" className="p-6 mt-0">
+          <TabsContent value="account" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -209,9 +189,13 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <TabsContent value="teams" className="p-6 mt-0">
+          <TabsContent value="teams" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Current Team</h3>
@@ -231,19 +215,23 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <TabsContent value="parents" className="p-6 mt-0">
+          <TabsContent value="parents" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="text-center py-8">
                     <p className="text-lg text-muted-foreground">Parents / Guardian functionality</p>
                     <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
