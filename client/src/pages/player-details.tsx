@@ -469,27 +469,43 @@ export default function PlayerDetails() {
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
                   <TabsList className="grid grid-cols-3 w-full rounded-none border-2 border-white border-b-0 shadow-sm p-1 h-auto" style={{ backgroundColor: clubPrimaryColor }}>
+                    <style>{`
+                      [data-testid="tab-details"][data-state="active"],
+                      [data-testid="tab-teams"][data-state="active"],
+                      [data-testid="tab-parents"][data-state="active"] {
+                        color: ${clubPrimaryColor} !important;
+                      }
+                    `}</style>
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ 
+                        color: textColor,
+                        '--club-primary': clubPrimaryColor
+                      } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Player Details
                     </TabsTrigger>
                     <TabsTrigger 
                       value="teams" 
                       data-testid="tab-teams" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ 
+                        color: textColor,
+                        '--club-primary': clubPrimaryColor
+                      } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Teams
                     </TabsTrigger>
                     <TabsTrigger 
                       value="parents" 
                       data-testid="tab-parents" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ 
+                        color: textColor,
+                        '--club-primary': clubPrimaryColor
+                      } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Parents
                     </TabsTrigger>
