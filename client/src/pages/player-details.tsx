@@ -215,106 +215,104 @@ export default function PlayerDetails() {
                   </TabsList>
                 </div>
               </div>
+              
+              {/* Player Details Content integrated into the same card */}
+              <TabsContent value="details" className="m-0">
+                <div className="px-6 pb-6 space-y-3 border-t border-white/10">
+                  <div className="pt-4">
+                    <h3 className="text-sm font-medium mb-4" style={{ color: textColor }}>Player Details</h3>
+                    
+                    {/* Team & Position Info */}
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-jersey-number-${player.id}`}>
+                            {player.jerseyNumber}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Position</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-position-${player.id}`}>
+                            {player.position}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-gender-${player.id}`}>
+                            {player.gender || "Not set"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Name Info */}
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">First Name</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-first-name-${player.id}`}>
+                            {player.name.split(' ')[0] || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Last Name</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-last-name-${player.id}`}>
+                            {player.name.split(' ').slice(1).join(' ') || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Shirt Name</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-shirt-name-${player.id}`}>
+                            {player.name.split(' ').slice(-1)[0] || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Personal Info */}
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-white/20">
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-date-of-birth-${player.id}`}>
+                            {player.dateOfBirth 
+                              ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
+                              : "Not provided"
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Age</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-age-${player.id}`}>
+                            {age ? `${age} years old` : "Not available"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Email</label>
+                        <div className="mt-0.5">
+                          <span className="text-sm font-semibold" style={{ color: textColor }} data-testid={`text-email-${player.id}`}>
+                            {player.email || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
             </CardContent>
           </Card>
-
-          <TabsContent value="details" className="mt-6">
-            {/* Player Details Header */}
-            <div className="p-4 rounded-t-lg max-w-4xl mx-auto" style={gradientStyle}>
-              <h2 className="text-lg font-semibold" style={{ color: textColor }}>Player Details</h2>
-            </div>
-            
-            <Card className="rounded-t-none border-t-0 max-w-4xl mx-auto">
-              <CardContent className="p-4 space-y-3">
-                {/* Team & Position Info */}
-                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-jersey-number-${player.id}`}>
-                        {player.jerseyNumber}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Position</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-position-${player.id}`}>
-                        {player.position}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-gender-${player.id}`}>
-                        {player.gender || "Not set"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Name Info */}
-                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">First Name</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-first-name-${player.id}`}>
-                        {player.name.split(' ')[0] || "Not provided"}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Last Name</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-last-name-${player.id}`}>
-                        {player.name.split(' ').slice(1).join(' ') || "Not provided"}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Shirt Name</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-shirt-name-${player.id}`}>
-                        {player.name.split(' ').slice(-1)[0] || "Not provided"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Personal Info */}
-                <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-border/50">
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-date-of-birth-${player.id}`}>
-                        {player.dateOfBirth 
-                          ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
-                          : "Not provided"
-                        }
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Age</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-age-${player.id}`}>
-                        {age ? `${age} years old` : "Not available"}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Email</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-email-${player.id}`}>
-                        {player.email || "Not provided"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="account" className="mt-6">
             <Card>
