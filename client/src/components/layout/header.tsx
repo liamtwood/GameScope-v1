@@ -71,7 +71,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {title.toLowerCase() === 'home' && (
-                <Home className="h-8 w-8 text-foreground" />
+                <Home className="h-10 w-10 text-foreground" />
               )}
               <div>
                 <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
