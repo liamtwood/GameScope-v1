@@ -160,40 +160,33 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
           <Card className="border border-gray-200 relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
               {/* Header with Edit Button */}
-              <div className="px-6 py-1 flex justify-end items-center min-h-[40px]">
-                <div className="flex gap-2 items-center h-8 w-20 justify-end">
+              <div className="px-6 py-2 flex justify-end items-center">
+                <div className="flex items-center justify-end h-10 w-24">
                   {!isEditing ? (
-                    <Button 
-                      variant="ghost" 
+                    <div 
+                      className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
                       onClick={handleEdit}
                       data-testid="button-edit-player"
-                      className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
-                      style={{ color: textColor }}
                     >
-                      <Edit className="h-4 w-4" style={{ color: textColor }} />
-                    </Button>
+                      <Edit className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                    </div>
                   ) : (
-                    <>
-                      <Button 
-                        variant="ghost" 
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
                         onClick={handleSave}
-                        disabled={updatePlayerMutation.isPending}
                         data-testid="button-save-player"
-                        className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
-                        style={{ color: textColor }}
                       >
-                        <Save className="h-4 w-4" style={{ color: textColor }} />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
+                        <Save className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                      </div>
+                      <div 
+                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
                         onClick={handleCancel}
                         data-testid="button-cancel-edit"
-                        className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
-                        style={{ color: textColor }}
                       >
-                        <X className="h-4 w-4" style={{ color: textColor }} />
-                      </Button>
-                    </>
+                        <X className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
