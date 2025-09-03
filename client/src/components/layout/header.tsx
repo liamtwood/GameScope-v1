@@ -69,14 +69,14 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       <div className="px-6 bg-muted border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
         <div className="bg-muted p-3">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-2">
-                {title.toLowerCase() === 'home' && (
-                  <Home className="h-4 w-4 text-foreground" />
-                )}
+            <div className="flex items-start space-x-3">
+              {title.toLowerCase() === 'home' && (
+                <Home className="h-6 w-6 text-foreground mt-0.5" />
+              )}
+              <div>
                 <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
+                <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
             </div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
