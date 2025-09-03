@@ -181,7 +181,10 @@ export default function PlayerDetails() {
                     
                     {/* Player Info */}
                     <div className="flex-1">
-                      <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
+                      <div className="mb-3">
+                        <div className="text-lg font-medium" style={{ color: textColor }}>Ashley</div>
+                        <div className="text-3xl font-bold" style={{ color: textColor }}>Miller</div>
+                      </div>
                       
                       <div className="flex gap-8 text-sm">
                         <div className="px-2 py-1">
