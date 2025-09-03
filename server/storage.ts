@@ -54,9 +54,8 @@ export interface IStorage {
   
   // Player-Team relationship operations
   getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]>;
-  addPlayerToTeam(playerId: string, teamId: string, isPrimary?: boolean, squadNumber?: number, position?: string): Promise<PlayerTeam>;
+  addPlayerToTeam(playerId: string, teamId: string, squadNumber?: number, position?: string): Promise<PlayerTeam>;
   removePlayerFromTeam(playerId: string, teamId: string): Promise<void>;
-  setPrimaryTeam(playerId: string, teamId: string): Promise<void>;
   getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]>;
   
   // Opposition team operations
@@ -410,7 +409,7 @@ export class DatabaseStorage implements IStorage {
       id: playerTeams.id,
       playerId: playerTeams.playerId,
       teamId: playerTeams.teamId,
-      isPrimary: playerTeams.isPrimary,
+
       squadNumber: playerTeams.squadNumber,
       position: playerTeams.position,
       joinedAt: playerTeams.joinedAt,
@@ -428,7 +427,6 @@ export class DatabaseStorage implements IStorage {
   async addPlayerToTeam(
     playerId: string, 
     teamId: string, 
-    isPrimary: boolean = false,
     squadNumber?: number,
     position?: string
   ): Promise<PlayerTeam> {
@@ -437,7 +435,6 @@ export class DatabaseStorage implements IStorage {
       id,
       playerId,
       teamId,
-      isPrimary,
       squadNumber: squadNumber !== undefined ? squadNumber : null,
       position: position || null,
       status: 'active',
@@ -456,24 +453,13 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(playerTeams.playerId, playerId), eq(playerTeams.teamId, teamId)));
   }
 
-  async setPrimaryTeam(playerId: string, teamId: string): Promise<void> {
-    // First, remove primary status from all teams for this player
-    await db.update(playerTeams)
-      .set({ isPrimary: false, updatedAt: new Date() })
-      .where(eq(playerTeams.playerId, playerId));
-    
-    // Then, set the specified team as primary
-    await db.update(playerTeams)
-      .set({ isPrimary: true, updatedAt: new Date() })
-      .where(and(eq(playerTeams.playerId, playerId), eq(playerTeams.teamId, teamId)));
-  }
 
   async getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]> {
     return await db.select({
       id: playerTeams.id,
       playerId: playerTeams.playerId,
       teamId: playerTeams.teamId,
-      isPrimary: playerTeams.isPrimary,
+
       squadNumber: playerTeams.squadNumber,
       position: playerTeams.position,
       joinedAt: playerTeams.joinedAt,

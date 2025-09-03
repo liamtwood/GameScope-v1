@@ -37,7 +37,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   });
 
   // Get primary team (for backwards compatibility)
-  const primaryTeam = playerTeams.find(pt => pt.isPrimary)?.team || playerTeams[0]?.team;
+  const primaryTeam = playerTeams[0]?.team;
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
     if (!dateOfBirth) return null;
@@ -48,15 +48,14 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   // Mutation to add player to a new team
   const addPlayerToTeamMutation = useMutation({
-    mutationFn: async ({ teamId, isPrimary, squadNumber, position }: {
+    mutationFn: async ({ teamId, squadNumber, position }: {
       teamId: string;
-      isPrimary: boolean;
       squadNumber?: number;
       position?: string;
     }) => {
       const response = await fetch(`/api/player/${player.id}/teams`, {
         method: 'POST',
-        body: JSON.stringify({ teamId, isPrimary, squadNumber, position }),
+        body: JSON.stringify({ teamId, squadNumber, position }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -118,7 +117,6 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
     if (selectedTeamId && !playerTeams.some(pt => pt.teamId === selectedTeamId)) {
       addPlayerToTeamMutation.mutate({
         teamId: selectedTeamId,
-        isPrimary: playerTeams.length === 0,
         squadNumber,
         position: position || undefined
       });
@@ -408,7 +406,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                     playerTeams.map((playerTeam) => (
                       <Card 
                         key={playerTeam.id} 
-                        className={`border-2 ${playerTeam.isPrimary ? 'border-primary' : ''}`} 
+                        className="border-2" 
                         data-testid={`card-team-${playerTeam.team.id}`}
                       >
                         <CardContent className="p-4">
@@ -422,11 +420,6 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                                   <h4 className="text-lg font-semibold" data-testid={`text-team-name-${playerTeam.team.id}`}>
                                     {playerTeam.team.name}
                                   </h4>
-                                  {playerTeam.isPrimary && (
-                                    <Badge variant="default" data-testid={`badge-primary-team-${playerTeam.team.id}`}>
-                                      Primary
-                                    </Badge>
-                                  )}
                                   <Badge 
                                     className={playerTeam.team.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
                                     data-testid={`badge-team-status-${playerTeam.team.id}`}

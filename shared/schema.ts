@@ -85,7 +85,6 @@ export const playerTeams = pgTable("player_teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   playerId: varchar("player_id").references(() => players.id).notNull(),
   teamId: varchar("team_id").references(() => teams.id).notNull(),
-  isPrimary: boolean("is_primary").default(false), // Indicates the player's primary team
   squadNumber: integer("squad_number"), // Player's squad number for this team
   position: varchar("position", { length: 20 }), // Player's position for this team
   joinedAt: timestamp("joined_at").defaultNow(),

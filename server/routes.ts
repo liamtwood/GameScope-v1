@@ -444,8 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add player to a team
   app.post("/api/player/:playerId/teams", async (req, res) => {
     try {
-      const { teamId, isPrimary = false, squadNumber, position } = req.body;
-      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, isPrimary, squadNumber, position);
+      const { teamId, squadNumber, position } = req.body;
+      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, squadNumber, position);
       res.status(201).json(playerTeam);
     } catch (error) {
       console.error("Error adding player to team:", error);
@@ -464,16 +464,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Set primary team for a player
-  app.patch("/api/player/:playerId/teams/:teamId/primary", async (req, res) => {
-    try {
-      await storage.setPrimaryTeam(req.params.playerId, req.params.teamId);
-      res.status(200).json({ message: "Primary team updated successfully" });
-    } catch (error) {
-      console.error("Error setting primary team:", error);
-      res.status(500).json({ message: "Failed to set primary team" });
-    }
-  });
 
   // Get all players for a team
   app.get("/api/team/:teamId/players", async (req, res) => {
