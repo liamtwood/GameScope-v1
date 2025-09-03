@@ -214,15 +214,17 @@ export default function Clubs() {
 
   return (
     <MainLayout title="Clubs" subtitle="Manage all clubs in the system">
-      <div className="flex items-center justify-end mb-6">
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button data-testid="button-create-club">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Club
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-end">
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-create-club">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Club
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Create New Club</DialogTitle>
             </DialogHeader>
@@ -452,12 +454,13 @@ export default function Clubs() {
                 </div>
               </form>
             </Form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Clubs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Clubs Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clubs?.map((club) => {
           const isSelected = selectedClub?.id === club.id;
           return (
@@ -576,6 +579,9 @@ export default function Clubs() {
           </Dialog>
         </div>
       )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Edit Club Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -863,6 +869,7 @@ export default function Clubs() {
           </Form>
         </DialogContent>
       </Dialog>
+      </div>
     </MainLayout>
   );
 }
