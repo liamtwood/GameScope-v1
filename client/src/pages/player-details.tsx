@@ -147,7 +147,7 @@ export default function PlayerDetails() {
           <Card className="border border-gray-200 max-w-3xl relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
               {/* Back Button Row */}
-              <div className="px-6 py-2">
+              <div className="px-6 py-1">
                 <Button 
                   variant="ghost" 
                   onClick={() => window.history.back()}
@@ -161,7 +161,7 @@ export default function PlayerDetails() {
               </div>
               
               {/* Player Info Section */}
-              <div className="p-6">
+              <div className="px-6 pt-2 pb-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {/* Player Avatar */}
