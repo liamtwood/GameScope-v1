@@ -161,39 +161,41 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
             <CardContent className="p-0">
               {/* Header with Edit Button */}
               <div className="px-6 py-1 flex justify-end items-center min-h-[40px]">
-                {!isEditing ? (
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleEdit}
-                    data-testid="button-edit-player"
-                    className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
-                    style={{ color: textColor }}
-                  >
-                    <Edit className="h-4 w-4" style={{ color: textColor }} />
-                  </Button>
-                ) : (
-                  <div className="flex gap-2 items-center h-8">
+                <div className="flex gap-2 items-center h-8 w-20 justify-end">
+                  {!isEditing ? (
                     <Button 
                       variant="ghost" 
-                      onClick={handleSave}
-                      disabled={updatePlayerMutation.isPending}
-                      data-testid="button-save-player"
+                      onClick={handleEdit}
+                      data-testid="button-edit-player"
                       className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
                       style={{ color: textColor }}
                     >
-                      <Save className="h-4 w-4" style={{ color: textColor }} />
+                      <Edit className="h-4 w-4" style={{ color: textColor }} />
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      onClick={handleCancel}
-                      data-testid="button-cancel-edit"
-                      className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
-                      style={{ color: textColor }}
-                    >
-                      <X className="h-4 w-4" style={{ color: textColor }} />
-                    </Button>
-                  </div>
-                )}
+                  ) : (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        onClick={handleSave}
+                        disabled={updatePlayerMutation.isPending}
+                        data-testid="button-save-player"
+                        className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
+                        style={{ color: textColor }}
+                      >
+                        <Save className="h-4 w-4" style={{ color: textColor }} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={handleCancel}
+                        data-testid="button-cancel-edit"
+                        className="hover:bg-white/10 h-8 w-8 p-0 flex items-center justify-center"
+                        style={{ color: textColor }}
+                      >
+                        <X className="h-4 w-4" style={{ color: textColor }} />
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
               
               {/* Player Info Section */}
