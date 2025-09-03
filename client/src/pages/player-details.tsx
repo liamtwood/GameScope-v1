@@ -1,13 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
@@ -16,10 +19,30 @@ export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
   const playerId = params?.id;
   const { selectedClub } = useClub();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<Partial<Player & { firstName?: string; lastName?: string }>>({});
+  const queryClient = useQueryClient();
 
   const { data: player, isLoading } = useQuery<Player>({
     queryKey: ["/api/player", playerId],
     enabled: !!playerId,
+  });
+
+  const updatePlayerMutation = useMutation({
+    mutationFn: async (updatedData: Partial<Player>) => {
+      const response = await fetch(`/api/player/${playerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      if (!response.ok) throw new Error('Failed to update player');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      setIsEditing(false);
+      setEditData({});
+    },
   });
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
@@ -28,6 +51,36 @@ export default function PlayerDetails() {
   };
 
   const age = player?.dateOfBirth ? calculateAge(player.dateOfBirth) : null;
+
+  const handleEdit = () => {
+    const nameParts = player?.name.split(' ') || [];
+    setEditData({ 
+      ...player, 
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || ''
+    } as any);
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditData({});
+  };
+
+  const handleSave = () => {
+    const saveData = { ...editData };
+    // Combine firstName and lastName into name field
+    if (editData.firstName || editData.lastName) {
+      saveData.name = `${editData.firstName || ''} ${editData.lastName || ''}`.trim();
+      delete saveData.firstName;
+      delete saveData.lastName;
+    }
+    updatePlayerMutation.mutate(saveData);
+  };
+
+  const handleInputChange = (field: keyof (Player & { firstName?: string; lastName?: string }), value: any) => {
+    setEditData(prev => ({ ...prev, [field]: value }));
+  };
 
   const getStatusColor = () => {
     if (!player) return 'bg-blue-500 text-white';
@@ -147,7 +200,7 @@ export default function PlayerDetails() {
           <Card className="border border-gray-200 max-w-3xl relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
               {/* Back Button Row */}
-              <div className="px-6 py-1">
+              <div className="px-6 py-1 flex justify-between items-center">
                 <Button 
                   variant="ghost" 
                   onClick={() => window.history.back()}
@@ -158,6 +211,43 @@ export default function PlayerDetails() {
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
+                
+                {!isEditing ? (
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleEdit}
+                    data-testid="button-edit-player"
+                    className="text-white hover:bg-white/10"
+                    style={{ color: textColor }}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      onClick={handleSave}
+                      disabled={updatePlayerMutation.isPending}
+                      data-testid="button-save-player"
+                      className="text-white hover:bg-white/10"
+                      style={{ color: textColor }}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={handleCancel}
+                      data-testid="button-cancel-edit"
+                      className="text-white hover:bg-white/10"
+                      style={{ color: textColor }}
+                    >
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
               
               {/* Player Info Section */}
@@ -259,25 +349,69 @@ export default function PlayerDetails() {
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Jersey number</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-jersey-number-${player.id}`}>
-                              {player.jerseyNumber}
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                type="number"
+                                value={editData.jerseyNumber || ''}
+                                onChange={(e) => handleInputChange('jerseyNumber', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-jersey-number-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-jersey-number-${player.id}`}>
+                                {player.jerseyNumber}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Position</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-position-${player.id}`}>
-                              {player.position}
-                            </span>
+                            {isEditing ? (
+                              <Select
+                                value={editData.position || ''}
+                                onValueChange={(value) => handleInputChange('position', value)}
+                              >
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-position-${player.id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                  <SelectItem value="Defender">Defender</SelectItem>
+                                  <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                  <SelectItem value="Forward">Forward</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-position-${player.id}`}>
+                                {player.position}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Status</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-status-${player.id}`}>
-                              Fit
-                            </span>
+                            {isEditing ? (
+                              <Select
+                                value={editData.status || ''}
+                                onValueChange={(value) => handleInputChange('status', value)}
+                              >
+                                <SelectTrigger className="h-6 text-sm font-semibold" data-testid={`select-status-${player.id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Fit">Fit</SelectItem>
+                                  <SelectItem value="Injured">Injured</SelectItem>
+                                  <SelectItem value="Suspended">Suspended</SelectItem>
+                                  <SelectItem value="Retired">Retired</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-status-${player.id}`}>
+                                {player.status || 'Fit'}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -297,17 +431,35 @@ export default function PlayerDetails() {
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
-                              {player.name.split(' ')[0] || "Not provided"}
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                value={editData.firstName || ''}
+                                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-first-name-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
+                                {player.firstName || player.name.split(' ')[0] || "Not provided"}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
                           <div className="mt-0.5">
-                            <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
-                              {player.name.split(' ').slice(1).join(' ') || "Not provided"}
-                            </span>
+                            {isEditing ? (
+                              <Input
+                                value={editData.lastName || ''}
+                                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                className="h-6 text-sm font-semibold"
+                                data-testid={`input-last-name-${player.id}`}
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
+                                {player.lastName || player.name.split(' ').slice(1).join(' ') || "Not provided"}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="px-2 py-1">
