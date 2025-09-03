@@ -303,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/player/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data with all the new fields
-      const validKeys = ['keyPlayer', 'status', 'firstName', 'lastName', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus', 'hometown', 'year', 'height', 'appearances', 'goals', 'assists', 'phone', 'emergencyContact'];
+      const validKeys = ['keyPlayer', 'status', 'firstName', 'lastName', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus', 'hometown', 'year', 'height', 'appearances', 'goals', 'assists', 'phone', 'emergencyContact', 'teamId'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
