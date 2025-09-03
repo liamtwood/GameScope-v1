@@ -539,6 +539,7 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
+                      /* COMPLETE OVERRIDE - KILL ALL TRANSPARENCY */
                       [data-testid="tab-details"],
                       [data-testid="tab-teams"],
                       [data-testid="tab-parents"],
@@ -549,7 +550,7 @@ export default function PlayerDetails() {
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"] {
                         opacity: 1 !important;
-                        background: none !important;
+                        background: ${clubPrimaryColor} !important;
                         background-color: ${clubPrimaryColor} !important;
                         background-image: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
                                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
@@ -557,13 +558,20 @@ export default function PlayerDetails() {
                                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
                                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px) !important;
                       }
-                      /* Override any Radix UI defaults */
-                      button[role="tab"] {
+                      /* NUCLEAR OPTION - Override ALL Radix styles */
+                      button[role="tab"],
+                      button[role="tab"]:hover,
+                      button[role="tab"][data-state="active"],
+                      button[role="tab"][data-state="inactive"] {
                         opacity: 1 !important;
+                        background: ${clubPrimaryColor} !important;
+                        background-color: ${clubPrimaryColor} !important;
                       }
                       button[role="tab"]:before, 
                       button[role="tab"]:after {
                         display: none !important;
+                        background: none !important;
+                        opacity: 0 !important;
                       }
                     `}</style>
                     <TabsTrigger 
@@ -573,14 +581,7 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'details' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: `${clubPrimaryColor} !important`,
-                        backgroundImage: `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
-                        ` + ' !important'
+// Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Player Details
@@ -592,14 +593,7 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'teams' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: `${clubPrimaryColor} !important`,
-                        backgroundImage: `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
-                        ` + ' !important'
+// Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Teams
@@ -611,14 +605,7 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'parents' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: `${clubPrimaryColor} !important`,
-                        backgroundImage: `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
-                        ` + ' !important'
+// Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Parents
