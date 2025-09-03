@@ -36,12 +36,21 @@ export default function PlayerDetails() {
         body: JSON.stringify(updatedData),
       });
       if (!response.ok) throw new Error('Failed to update player');
-      return response.json();
+      
+      // Handle empty response or parse JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      }
+      return {}; // Return empty object if no JSON content
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
       setIsEditing(false);
       setEditData({});
+    },
+    onError: (error) => {
+      console.error('Failed to update player:', error);
     },
   });
 
