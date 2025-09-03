@@ -162,7 +162,8 @@ export default function PlayerDetails() {
               
               {/* Player Info Section */}
               <div className="px-6 pt-2 pb-6">
-                <div className="flex items-center justify-between">
+                <div className="w-4/5 mx-auto">
+                  <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {/* Player Avatar */}
                     <Avatar className="h-20 w-20 bg-slate-600 text-white">
@@ -203,6 +204,7 @@ export default function PlayerDetails() {
                       className="h-16 w-auto object-contain"
                     />
                   </div>
+                </div>
                 </div>
               </div>
               
