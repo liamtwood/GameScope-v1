@@ -79,7 +79,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   return (
     <Card 
       data-testid={`card-player-${player.id}`} 
-      className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="border rounded-lg cursor-pointer"
       onClick={(e) => {
         // Only trigger navigation if not clicking on interactive elements
         if (!e.defaultPrevented) {
