@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Bell, Menu, Crosshair, Home } from "lucide-react";
+import { Plus, Bell, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
@@ -23,6 +23,31 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
 
   // Use current club's logo instead of hardcoded GameScope
   const logoSrc = currentClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
+
+  // Get the appropriate icon for each page
+  const getPageIcon = (pageTitle: string) => {
+    const titleLower = pageTitle.toLowerCase();
+    switch (titleLower) {
+      case 'home':
+        return <Home className="h-10 w-10 text-foreground" />;
+      case 'fixtures':
+        return <Calendar className="h-10 w-10 text-foreground" />;
+      case 'squad':
+        return <Users className="h-10 w-10 text-foreground" />;
+      case 'match videos':
+        return <Video className="h-10 w-10 text-foreground" />;
+      case 'teams':
+        return <Shield className="h-10 w-10 text-foreground" />;
+      case 'club management':
+        return <Landmark className="h-10 w-10 text-foreground" />;
+      case 'settings':
+        return <Settings className="h-10 w-10 text-foreground" />;
+      case 'clubs':
+        return <Landmark className="h-10 w-10 text-foreground" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <header className="bg-background border-b border-border">
@@ -70,9 +95,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         <div className="bg-muted p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              {title.toLowerCase() === 'home' && (
-                <Home className="h-10 w-10 text-foreground" />
-              )}
+              {getPageIcon(title)}
               <div>
                 <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
                 <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
