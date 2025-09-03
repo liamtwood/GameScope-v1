@@ -433,7 +433,7 @@ export default function Fixtures() {
               onSave={(data) => createFixtureMutation.mutate(data)}
             >
               <Button variant="outline" data-testid="button-add-fixture">
-                <Plus className="mr-2 h-4 w-4" />
+                <Calendar className="mr-2 h-4 w-4" />
                 Add Fixture
               </Button>
             </FixtureCreateDialog>
