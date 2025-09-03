@@ -527,6 +527,15 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
+                      [data-testid="tab-teams"]:not([data-state="active"]),
+                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                        background: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
+                                   radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
+                                   radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
+                                   radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
+                                   repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px),
+                                   ${clubPrimaryColor} !important;
+                      }
                     `}</style>
                     <TabsTrigger 
                       value="details" 
@@ -545,21 +554,7 @@ export default function PlayerDetails() {
                       className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold"
                       style={{ 
                         color: textColor,
-                        '--club-primary': clubPrimaryColor,
-                        background: `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(
-                            45deg,
-                            transparent,
-                            transparent 20px,
-                            rgba(255,255,255,0.08) 20px,
-                            rgba(255,255,255,0.08) 22px
-                          ),
-                          ${clubPrimaryColor}
-                        `
+                        '--club-primary': clubPrimaryColor
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Teams
@@ -570,21 +565,7 @@ export default function PlayerDetails() {
                       className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-semibold"
                       style={{ 
                         color: textColor,
-                        '--club-primary': clubPrimaryColor,
-                        background: `
-                          radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                          radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                          repeating-linear-gradient(
-                            45deg,
-                            transparent,
-                            transparent 20px,
-                            rgba(255,255,255,0.08) 20px,
-                            rgba(255,255,255,0.08) 22px
-                          ),
-                          ${clubPrimaryColor}
-                        `
+                        '--club-primary': clubPrimaryColor
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Parents
