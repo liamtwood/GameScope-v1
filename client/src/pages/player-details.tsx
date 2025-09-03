@@ -181,11 +181,11 @@ export default function PlayerDetails() {
                       <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
                       
                       <div className="flex gap-8 text-sm">
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
                           <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
                           <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
                         </div>
@@ -224,7 +224,7 @@ export default function PlayerDetails() {
                     {/* Team & Position Info */}
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Jersey number</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-jersey-number-${player.id}`}>
@@ -232,7 +232,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Position</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-position-${player.id}`}>
@@ -240,7 +240,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Status</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-status-${player.id}`}>
@@ -261,7 +261,7 @@ export default function PlayerDetails() {
                     {/* Name Info */}
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-first-name-${player.id}`}>
@@ -269,7 +269,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-last-name-${player.id}`}>
@@ -277,7 +277,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
@@ -298,7 +298,7 @@ export default function PlayerDetails() {
                     {/* Personal Info */}
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date of birth</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
@@ -309,7 +309,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Age</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-age-${player.id}`}>
@@ -317,7 +317,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Gender</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
@@ -338,7 +338,7 @@ export default function PlayerDetails() {
                     {/* Contact Info */}
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Email</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-email-${player.id}`}>
@@ -346,7 +346,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Phone number</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-phone-${player.id}`}>
@@ -354,7 +354,7 @@ export default function PlayerDetails() {
                             </span>
                           </div>
                         </div>
-                        <div className="border border-red-300 px-2 py-1">
+                        <div className="px-2 py-1">
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Emergency contact</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
