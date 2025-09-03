@@ -185,17 +185,6 @@ export default function PlayerDetails() {
                         <div className="text-lg font-medium" style={{ color: textColor }}>Ashley</div>
                         <div className="text-3xl font-bold" style={{ color: textColor }}>Miller</div>
                       </div>
-                      
-                      <div className="flex gap-8 text-sm">
-                        <div className="px-2 py-1">
-                          <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
-                          <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
-                        </div>
-                        <div className="px-2 py-1">
-                          <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
-                          <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                   
