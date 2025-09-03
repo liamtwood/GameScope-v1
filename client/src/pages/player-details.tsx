@@ -465,41 +465,38 @@ export default function PlayerDetails() {
                 </div>
               </div>
               
-              {/* Tabs integrated into the card */}
-              <div className="px-6 pb-4 border-t border-white/20">
-                <div className="pt-4">
-                  <TabsList className="grid grid-cols-3 w-full bg-transparent border-none p-0 h-auto">
+              {/* Modern Tab Navigation */}
+              <div className="px-0 bg-white/90 backdrop-blur-sm">
+                <div className="px-6">
+                  <TabsList className="grid grid-cols-3 w-full bg-white rounded-t-lg border border-gray-200 border-b-0 shadow-sm p-1 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     >
-                      <span className="relative z-10">Player Details</span>
+                      Player Details
                     </TabsTrigger>
                     <TabsTrigger 
                       value="teams" 
                       data-testid="tab-teams" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     >
-                      <span className="relative z-10">Teams</span>
+                      Teams
                     </TabsTrigger>
                     <TabsTrigger 
                       value="parents" 
                       data-testid="tab-parents" 
-                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
-                      style={{ color: textColor }}
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     >
-                      <span className="relative z-10">Parents</span>
+                      Parents
                     </TabsTrigger>
                   </TabsList>
                 </div>
               </div>
               
-              {/* Player Details Content integrated into the same card */}
+              {/* Player Details Content */}
               <TabsContent value="details" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
                   <div className="pt-4">
                     
                     {/* Section Header */}
@@ -777,7 +774,7 @@ export default function PlayerDetails() {
 
               {/* Teams Tab Content */}
               <TabsContent value="teams" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="space-y-6">
@@ -932,7 +929,7 @@ export default function PlayerDetails() {
 
               {/* Parents Tab Content */}
               <TabsContent value="parents" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="text-center py-8">
