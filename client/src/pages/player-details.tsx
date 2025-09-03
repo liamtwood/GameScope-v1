@@ -257,10 +257,10 @@ export default function PlayerDetails() {
                   <div className="flex items-center gap-4">
                     {/* Player Avatar */}
                     <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                      {`${player.firstName} ${player.lastName}` === "Ashley Miller" ? (
+                      {player.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
                         <AvatarImage 
                           src={ashleyMillerPhoto} 
-                          alt="Ashley Miller"
+                          alt={`${player.firstName} ${player.lastName}`}
                           className="object-cover"
                         />
                       ) : null}
