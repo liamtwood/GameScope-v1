@@ -357,8 +357,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/players", async (req, res) => {
     try {
-      const playerData = insertPlayerSchema.parse(req.body);
-      const player = await storage.createPlayer(playerData);
+      const { teamId, jerseyNumber, position, ...restData } = req.body;
+      
+      // For the new multi-team system, we need to handle team assignment separately
+      // Create player data - use the legacy fields for now but will assign via playerTeams
+      const playerData = {
+        ...restData,
+        teamId: teamId, // Keep for legacy compatibility
+        jerseyNumber: jerseyNumber || 0,
+        position: position || 'TBD'
+      };
+      
+      const validatedData = insertPlayerSchema.parse(playerData);
+      const player = await storage.createPlayer(validatedData);
+      
+      // Always add to team via the new system if teamId is provided
+      if (teamId && jerseyNumber !== undefined && position) {
+        await storage.addPlayerToTeam(
+          player.id,
+          teamId,
+          true, // Set as primary team
+          jerseyNumber, // Use jerseyNumber as squadNumber
+          position
+        );
+      }
+      
       res.status(201).json(player);
     } catch (error) {
       console.error("Error creating player:", error);
