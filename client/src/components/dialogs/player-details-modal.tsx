@@ -159,37 +159,6 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
         <Tabs defaultValue="details" className="w-full">
           <Card className="border border-gray-200 relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
-              {/* Header with Edit Button */}
-              <div className="px-6 py-2 flex justify-end items-center">
-                <div className="flex items-center justify-end h-10 w-24">
-                  {!isEditing ? (
-                    <div 
-                      className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
-                      onClick={handleEdit}
-                      data-testid="button-edit-player"
-                    >
-                      <Edit className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
-                        onClick={handleSave}
-                        data-testid="button-save-player"
-                      >
-                        <Save className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
-                      </div>
-                      <div 
-                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
-                        onClick={handleCancel}
-                        data-testid="button-cancel-edit"
-                      >
-                        <X className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
               
               {/* Player Info Section */}
               <div className="px-6 pt-2 pb-6">
@@ -261,8 +230,8 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
               
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4 border-t border-white/20">
-                <div className="pt-4">
-                  <TabsList className="grid grid-cols-2 w-full bg-transparent border-none p-0 h-auto">
+                <div className="pt-4 flex items-center justify-between">
+                  <TabsList className="grid grid-cols-2 w-auto bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
@@ -280,6 +249,36 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                       <span className="relative z-10">Bob</span>
                     </TabsTrigger>
                   </TabsList>
+                  
+                  {/* Edit Button in Tab Area */}
+                  <div className="flex items-center">
+                    {!isEditing ? (
+                      <div 
+                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
+                        onClick={handleEdit}
+                        data-testid="button-edit-player"
+                      >
+                        <Edit className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
+                          onClick={handleSave}
+                          data-testid="button-save-player"
+                        >
+                          <Save className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                        </div>
+                        <div 
+                          className="h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded transition-colors"
+                          onClick={handleCancel}
+                          data-testid="button-cancel-edit"
+                        >
+                          <X className="h-4 w-4" style={{ color: textColor, strokeWidth: 2 }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               
