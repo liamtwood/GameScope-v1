@@ -344,7 +344,7 @@ export default function Squad() {
                 Add Player
               </Button>
             </PlayerCreateDialog>
-            <Button variant="outline" data-testid="button-squad-settings">
+            <Button variant="ghost" data-testid="button-squad-settings">
               <Settings className="h-4 w-4" />
             </Button>
           </div>
