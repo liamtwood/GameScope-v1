@@ -9,11 +9,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
 import { ArrowLeft, Star } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
+import { useClub } from "@/contexts/club-context";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 
 export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
   const playerId = params?.id;
+  const { selectedClub } = useClub();
 
   const { data: player, isLoading } = useQuery<Player>({
     queryKey: ["/api/player", playerId],
@@ -113,6 +115,22 @@ export default function PlayerDetails() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Get club's primary color, fallback to default if not set
+  const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
+  
+  // Function to determine if a color is light or dark for text contrast
+  const isLightColor = (hexColor: string) => {
+    const color = hexColor.replace('#', '');
+    const r = parseInt(color.substr(0, 2), 16);
+    const g = parseInt(color.substr(2, 2), 16);
+    const b = parseInt(color.substr(4, 2), 16);
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return brightness > 155;
+  };
+
+  const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
+  const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
+
   return (
     <MainLayout 
       title="VIEW SQUAD MEMBER" 
@@ -132,7 +150,7 @@ export default function PlayerDetails() {
         </div>
 
         {/* Player Header Card */}
-        <Card className="bg-primary border border-border max-w-4xl mx-auto">
+        <Card className="border border-border max-w-4xl mx-auto" style={{ backgroundColor: clubPrimaryColor }}>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {/* Player Avatar */}
@@ -151,16 +169,16 @@ export default function PlayerDetails() {
               
               {/* Player Info */}
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-primary-foreground mb-3">{player.name}</h1>
+                <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
                 
                 <div className="flex gap-8 text-sm">
                   <div>
-                    <span className="text-primary-foreground/70 uppercase tracking-wide">AGE</span>
-                    <p className="font-semibold text-primary-foreground">{age ? age : 'N/A'}</p>
+                    <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
+                    <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-primary-foreground/70 uppercase tracking-wide">GENDER</span>
-                    <p className="font-semibold text-primary-foreground">{player.gender || 'Not set'}</p>
+                    <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
+                    <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
                   </div>
                 </div>
               </div>
