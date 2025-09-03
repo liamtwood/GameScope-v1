@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
 import { ArrowLeft, Star } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
@@ -136,6 +136,13 @@ export default function PlayerDetails() {
             <div className="flex items-center gap-6">
               {/* Player Avatar */}
               <Avatar className="h-20 w-20 bg-slate-600 text-white">
+                {player.name === "Ashley Miller" ? (
+                  <AvatarImage 
+                    src="@assets/image_1756910239772.png" 
+                    alt="Ashley Miller"
+                    className="object-cover"
+                  />
+                ) : null}
                 <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
                   {getPlayerInitials(player.name)}
                 </AvatarFallback>
