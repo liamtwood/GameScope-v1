@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -58,8 +58,8 @@ export default function Teams() {
   }, {} as Record<string, Team[]>);
 
   // Define gender display order and labels
-  const genderOrder = ['FEMALE', 'MALE', 'MIXED', 'UNSPECIFIED'];
-  const genderLabels = {
+  const genderOrder = ['FEMALE', 'MALE', 'MIXED', 'UNSPECIFIED'] as const;
+  const genderLabels: Record<string, string> = {
     'FEMALE': 'Women\'s Teams',
     'MALE': 'Men\'s Teams', 
     'MIXED': 'Mixed Teams',
@@ -207,13 +207,10 @@ export default function Teams() {
       subtitle={currentClub ? `Manage teams for ${currentClub.name}` : "Manage and organize your teams"}
     >
       {/* Teams Overview */}
-      <Card>
-        <CardHeader>
+      <div>
+        <div className="mb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">{clubTeams.length === 1 ? 'Team' : 'Teams'} in Club</CardTitle>
-              <p className="text-sm text-muted-foreground">Overview of all teams under this club</p>
-            </div>
+            <div className="flex-1"></div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-white text-black hover:bg-gray-100 border border-gray-300" data-testid="button-add-team">
@@ -367,8 +364,8 @@ export default function Teams() {
               </DialogContent>
             </Dialog>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {clubTeams.length > 0 ? (
             <div className="space-y-8">
               {genderOrder.map(gender => {
@@ -464,8 +461,8 @@ export default function Teams() {
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Edit Team Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
