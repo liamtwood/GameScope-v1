@@ -152,7 +152,7 @@ export default function PlayerDetails() {
                   </div>
 
                   {/* Row 2: First Name, Last Name, Shirt Name */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-1">
+                  <div className="flex gap-8 mb-1">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">First Name</label>
                       <p className="text-lg" data-testid={`text-first-name-${player.id}`}>{player.name.split(' ')[0] || "Not provided"}</p>
