@@ -562,6 +562,7 @@ export default function Fixtures() {
                                 onViewAnalysis={handleViewAnalysis}
                                 onEdit={() => {}} // Edit is handled by the dialog wrapper
                                 onDelete={handleDeleteFixture}
+                                hasAnalysisData={true} // Show analysis icon for completed fixtures
                               />
                             </div>
                           </FixtureEditDialog>
