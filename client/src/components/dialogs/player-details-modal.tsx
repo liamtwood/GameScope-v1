@@ -149,15 +149,15 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
 
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   
-  const gradientStyle = {
-    background: `linear-gradient(to right, ${clubPrimaryColor}, ${clubPrimaryColor}88)`,
+  const solidStyle = {
+    background: clubPrimaryColor,
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
         <Tabs defaultValue="details" className="w-full">
-          <Card className="border border-gray-200 relative overflow-hidden shadow-lg" style={gradientStyle}>
+          <Card className="border border-gray-200 relative overflow-hidden shadow-lg" style={solidStyle}>
             <CardContent className="p-0">
               
               {/* Player Info Section */}
