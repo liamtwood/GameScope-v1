@@ -189,14 +189,14 @@ export default function PlayerDetails() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     TEAM DETAILS
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">JERSEY NUMBER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">POSITION</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-position-${player.id}`}>{player.position}</span>
@@ -210,8 +210,8 @@ export default function PlayerDetails() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     NAME
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">FIRST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-first-name-${player.id}`}>
@@ -219,7 +219,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">LAST NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-last-name-${player.id}`}>
@@ -227,7 +227,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">SHIRT NAME</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-shirt-name-${player.id}`}>
@@ -243,8 +243,8 @@ export default function PlayerDetails() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     PERSONAL
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">GENDER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-gender-${player.id}`}>
@@ -252,7 +252,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">DATE OF BIRTH</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-date-of-birth-${player.id}`}>
@@ -263,7 +263,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">AGE</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-age-${player.id}`}>
@@ -279,8 +279,8 @@ export default function PlayerDetails() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide border-b border-border pb-1">
                     CONTACT
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">PHONE NUMBER</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base italic text-muted-foreground" data-testid={`text-phone-${player.id}`}>
@@ -288,7 +288,7 @@ export default function PlayerDetails() {
                         </span>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">EMAIL ADDRESS</label>
                       <div className="mt-1 p-3 bg-muted/30 rounded border">
                         <span className="text-base" data-testid={`text-email-${player.id}`}>
