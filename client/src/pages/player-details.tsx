@@ -495,13 +495,24 @@ export default function PlayerDetails() {
                         padding-left: 0 !important;
                         outline: none !important;
                         outline-offset: 0 !important;
-                        box-shadow: none !important;
-                        -webkit-box-shadow: none !important;
-                        -moz-box-shadow: none !important;
                         border-top-left-radius: 0.5rem !important;
                         border-top-right-radius: 0.5rem !important;
                         border-bottom-left-radius: 0 !important;
                         border-bottom-right-radius: 0 !important;
+                      }
+                      [data-testid="tab-details"][data-state="active"],
+                      [data-testid="tab-teams"][data-state="active"],
+                      [data-testid="tab-parents"][data-state="active"] {
+                        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                        -webkit-box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                        -moz-box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                      }
+                      [data-testid="tab-details"]:not([data-state="active"]),
+                      [data-testid="tab-teams"]:not([data-state="active"]),
+                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
                       }
                     `}</style>
                     <TabsTrigger 
