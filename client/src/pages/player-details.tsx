@@ -223,7 +223,7 @@ export default function PlayerDetails() {
                     <h3 className="text-sm font-medium mb-4 text-gray-900">Player Details</h3>
                     
                     {/* Team & Position Info */}
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 justify-items-center">
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
                         <div className="mt-0.5">
@@ -251,7 +251,7 @@ export default function PlayerDetails() {
                     </div>
 
                     {/* Name Info */}
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 justify-items-center">
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">First Name</label>
                         <div className="mt-0.5">
@@ -279,7 +279,7 @@ export default function PlayerDetails() {
                     </div>
 
                     {/* Personal Info */}
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-white/20 justify-items-center">
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-white/20">
                       <div>
                         <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
                         <div className="mt-0.5">
