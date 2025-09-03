@@ -299,6 +299,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update single player by id
+  app.patch("/api/player/:id", async (req, res) => {
+    try {
+      // For PATCH requests, validate the partial data with all the new fields
+      const validKeys = ['keyPlayer', 'status', 'firstName', 'lastName', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus', 'hometown', 'year', 'height', 'appearances', 'goals', 'assists', 'phone', 'emergencyContact'];
+      const updates = Object.keys(req.body).reduce((acc, key) => {
+        if (validKeys.includes(key)) {
+          acc[key] = req.body[key];
+        }
+        return acc;
+      }, {} as any);
+      
+      const player = await storage.updatePlayer(req.params.id, updates);
+      res.json(player);
+    } catch (error) {
+      console.error("Error updating player:", error);
+      res.status(400).json({ message: "Failed to update player" });
+    }
+  });
+
   app.get("/api/players", async (req, res) => {
     try {
       const teamId = req.query.teamId as string;
