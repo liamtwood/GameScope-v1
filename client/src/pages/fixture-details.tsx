@@ -170,7 +170,7 @@ export default function FixtureDetails() {
           <Button 
             variant="ghost" 
             onClick={() => window.history.back()}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 border-0 shadow-none"
             data-testid="button-back"
           >
             <ArrowLeft className="h-4 w-4" />
