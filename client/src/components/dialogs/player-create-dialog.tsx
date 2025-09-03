@@ -25,12 +25,20 @@ import { InsertPlayer } from "@shared/schema";
 
 const createPlayerSchema = z.object({
   teamId: z.string(),
-  name: z.string().min(1, "Name is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   position: z.string().min(1, "Position is required"),
   jerseyNumber: z.number().min(0),
   status: z.string().default("Fit"),
+  keyPlayer: z.boolean().optional(),
+  // Personal info
+  hometown: z.string().optional(),
+  year: z.string().optional(),
+  height: z.string().optional(),
   // Account fields
   email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().optional(),
+  emergencyContact: z.string().optional(),
   gender: z.enum(["Male", "Female"]).optional(),
   dateOfBirth: z.string().optional(),
   accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
@@ -51,11 +59,18 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
     resolver: zodResolver(createPlayerSchema),
     defaultValues: {
       teamId,
-      name: "",
+      firstName: "",
+      lastName: "",
       position: "",
       jerseyNumber: 0,
       status: "Fit",
+      keyPlayer: false,
+      hometown: "",
+      year: "",
+      height: "",
       email: "",
+      phone: "",
+      emergencyContact: "",
       gender: undefined,
       dateOfBirth: "",
       accountStatus: "Draft",
@@ -85,17 +100,33 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Player Name</FormLabel>
+                    <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter player name" {...field} data-testid="input-player-name" />
+                      <Input placeholder="Enter first name" {...field} data-testid="input-first-name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter last name" {...field} data-testid="input-last-name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="jerseyNumber"
@@ -112,6 +143,25 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="keyPlayer"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Key Player</FormLabel>
+                    </div>
+                    <FormControl>
+                      <input 
+                        type="checkbox" 
+                        checked={field.value} 
+                        onChange={field.onChange}
+                        data-testid="checkbox-key-player"
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -174,6 +224,81 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
               />
             </div>
 
+            {/* Personal Information Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-semibold">Personal Information</h3>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="hometown"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hometown</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter hometown" {...field} data-testid="input-hometown" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year/Age Group</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Freshman, U18" {...field} data-testid="input-year" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Height</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 5'8&quot;" {...field} data-testid="input-height" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter phone number" {...field} data-testid="input-phone" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="emergencyContact"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Emergency Contact</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Name and phone number" {...field} data-testid="input-emergency-contact" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             {/* Account Information Section */}
             <div className="space-y-4 pt-4 border-t">
