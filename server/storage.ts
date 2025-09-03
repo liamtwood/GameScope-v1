@@ -117,6 +117,8 @@ export class DatabaseStorage implements IStorage {
       ageGroup: "College",
       gender: "Women",
       season: "2024/25",
+      seasonStartMonth: "August",
+      colors: { primary: "#003366", secondary: "#FFD700" },
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -137,13 +139,33 @@ export class DatabaseStorage implements IStorage {
       { name: 'Alex Van Lare', position: 'CF', jerseyNumber: 99, year: 'Junior', hometown: 'Ocala, FL', height: '5\'8"', goals: 9, assists: 4, appearances: 6 }
     ];
 
-    const playerInserts = samplePlayers.map(playerData => ({
-      id: randomUUID(),
-      teamId,
-      ...playerData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
+    const playerInserts = samplePlayers.map(playerData => {
+      const [firstName, lastName] = playerData.name.split(' ');
+      return {
+        id: randomUUID(),
+        teamId,
+        firstName,
+        lastName: lastName || '',
+        position: playerData.position,
+        jerseyNumber: playerData.jerseyNumber,
+        year: playerData.year,
+        hometown: playerData.hometown,
+        height: playerData.height,
+        goals: playerData.goals,
+        assists: playerData.assists,
+        appearances: playerData.appearances,
+        status: 'Fit',
+        keyPlayer: false,
+        email: null,
+        phone: null,
+        emergencyContact: null,
+        gender: 'Female',
+        dateOfBirth: null,
+        accountStatus: 'Active',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    });
 
     await db.insert(players).values(playerInserts);
 
@@ -288,6 +310,8 @@ export class DatabaseStorage implements IStorage {
       ageGroup: team.ageGroup || null,
       gender: team.gender || null,
       season: team.season || null,
+      seasonStartMonth: team.seasonStartMonth || 'August',
+      colors: team.colors || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -324,22 +348,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createPlayer(player: InsertPlayer): Promise<Player> {
-    const id = randomUUID();
-    const newPlayer: Player = {
+    const newPlayerData = {
       ...player,
-      id,
+      id: randomUUID(),
       status: player.status || null,
+      keyPlayer: player.keyPlayer || false,
       hometown: player.hometown || null,
-      goals: player.goals || null,
-      assists: player.assists || null,
-      appearances: player.appearances || null,
-      keyPlayer: player.keyPlayer || null,
+      year: player.year || null,
+      height: player.height || null,
+      appearances: player.appearances || 0,
+      goals: player.goals || 0,
+      assists: player.assists || 0,
+      email: player.email || null,
+      phone: player.phone || null,
+      emergencyContact: player.emergencyContact || null,
+      gender: player.gender || null,
+      dateOfBirth: player.dateOfBirth || null,
+      accountStatus: player.accountStatus || 'Draft',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     
-    await db.insert(players).values(newPlayer);
-    return newPlayer;
+    await db.insert(players).values(newPlayerData);
+    return newPlayerData as Player;
   }
 
   async updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player> {
@@ -517,6 +548,7 @@ export class DatabaseStorage implements IStorage {
       name,
       shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: null,
+      seasonStartMonth: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -532,6 +564,7 @@ export class DatabaseStorage implements IStorage {
       id,
       shortName: competition.shortName || competition.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: competition.logoPath || null,
+      seasonStartMonth: competition.seasonStartMonth || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
