@@ -141,7 +141,7 @@ export default function PlayerDetails() {
                   </div>
                   {/* Row 1: Jersey Number, Position */}
                   <div className="flex gap-8 mb-1">
-                    <div className="min-w-24">
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
                       <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
                     </div>
@@ -169,11 +169,11 @@ export default function PlayerDetails() {
 
                   {/* Row 3: Gender, Date of Birth, Age */}
                   <div className="flex gap-8 mb-1">
-                    <div className="min-w-24">
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Gender</label>
                       <p className="text-lg" data-testid={`text-gender-${player.id}`}>{player.gender || "Not set"}</p>
                     </div>
-                    <div className="min-w-36">
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                       <p className="text-lg" data-testid={`text-date-of-birth-${player.id}`}>
                         {player.dateOfBirth 
@@ -192,13 +192,13 @@ export default function PlayerDetails() {
 
                   {/* Row 4: Phone Number, Email Address */}
                   <div className="flex gap-8">
-                    <div className="min-w-36">
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
                       <p className="text-lg" data-testid={`text-phone-${player.id}`}>
                         Not provided
                       </p>
                     </div>
-                    <div className="min-w-48">
+                    <div className="min-w-32">
                       <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                       <p className="text-lg" data-testid={`text-email-${player.id}`}>
                         {player.email || "Not provided"}
