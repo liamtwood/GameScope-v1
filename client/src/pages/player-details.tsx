@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -10,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
+import { useToast } from "@/hooks/use-toast";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 
 export default function PlayerDetails() {
@@ -21,6 +22,9 @@ export default function PlayerDetails() {
   const { selectedClub } = useClub();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Player>>({});
+  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: player, isLoading } = useQuery<Player>({
@@ -80,6 +84,44 @@ export default function PlayerDetails() {
 
   const handleInputChange = (field: keyof Player, value: any) => {
     setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create a local URL for preview
+      const photoUrl = URL.createObjectURL(file);
+      setUploadedPhoto(photoUrl);
+      
+      toast({
+        title: "Photo Updated",
+        description: "Photo has been updated locally. Note: This is just a preview - full upload functionality would need backend support.",
+      });
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
   };
 
   const getStatusColor = () => {
@@ -255,19 +297,47 @@ export default function PlayerDetails() {
                 <div className="w-4/5 mx-auto">
                   <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    {/* Player Avatar */}
-                    <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                      {player.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
-                        <AvatarImage 
-                          src={ashleyMillerPhoto} 
-                          alt={`${player.firstName} ${player.lastName}`}
-                          className="object-cover"
-                        />
-                      ) : null}
-                      <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                        {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
-                      </AvatarFallback>
-                    </Avatar>
+                    {/* Player Avatar with Upload */}
+                    <div className="relative group">
+                      <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
+                        {uploadedPhoto ? (
+                          <AvatarImage 
+                            src={uploadedPhoto} 
+                            alt={`${player.firstName} ${player.lastName}`}
+                            className="object-cover"
+                          />
+                        ) : player.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
+                          <AvatarImage 
+                            src={ashleyMillerPhoto} 
+                            alt={`${player.firstName} ${player.lastName}`}
+                            className="object-cover"
+                          />
+                        ) : null}
+                        <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                          {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      {/* Photo Upload Button */}
+                      <button
+                        onClick={handlePhotoClick}
+                        className="absolute -bottom-1 -right-1 bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg"
+                        data-testid="button-upload-photo"
+                        aria-label="Upload photo"
+                      >
+                        <Pencil className="h-3 w-3 text-gray-600" />
+                      </button>
+                      
+                      {/* Hidden File Input */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        data-testid="input-photo-upload"
+                      />
+                    </div>
                     
                     {/* Player Info */}
                     <div className="flex-1">
