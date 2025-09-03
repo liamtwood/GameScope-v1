@@ -211,34 +211,34 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
-                      Player Details
+                      <span className="relative z-10">Player Details</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="account" 
                       data-testid="tab-account" 
-                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
-                      Account Details
+                      <span className="relative z-10">Account Details</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="teams" 
                       data-testid="tab-teams" 
-                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
-                      Teams
+                      <span className="relative z-10">Teams</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="parents" 
                       data-testid="tab-parents" 
-                      className="bg-transparent border-none shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white hover:border-b-2 hover:border-white/50 transition-all duration-200 px-3 py-2 rounded-none"
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-white/5 hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
                       style={{ color: textColor }}
                     >
-                      Parents / Guardian
+                      <span className="relative z-10">Parents / Guardian</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
