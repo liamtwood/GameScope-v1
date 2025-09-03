@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Player, Team } from "@shared/schema";
+import { Player, Team, PlayerTeam } from "@shared/schema";
 import { ArrowLeft, Star, Users, Plus } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useTeam } from "@/contexts/team-context";
@@ -25,11 +25,14 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Get current team information
-  const { data: currentTeam } = useQuery<Team>({
-    queryKey: ["/api/teams", player.teamId],
-    enabled: !!player.teamId
+  // Get all teams for this player
+  const { data: playerTeams = [] } = useQuery<(PlayerTeam & { team: Team })[]>({
+    queryKey: ["/api/player", player.id, "teams"],
+    enabled: !!player.id
   });
+
+  // Get primary team (for backwards compatibility)
+  const primaryTeam = playerTeams.find(pt => pt.isPrimary)?.team || playerTeams[0]?.team;
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
     if (!dateOfBirth) return null;
@@ -38,28 +41,27 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   const age = calculateAge(player.dateOfBirth);
 
-  // Mutation to update player's team
-  const updatePlayerTeamMutation = useMutation({
-    mutationFn: async (newTeamId: string) => {
-      const response = await fetch(`/api/player/${player.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ teamId: newTeamId }),
+  // Mutation to add player to a new team
+  const addPlayerToTeamMutation = useMutation({
+    mutationFn: async (teamId: string) => {
+      const response = await fetch(`/api/player/${player.id}/teams`, {
+        method: 'POST',
+        body: JSON.stringify({ teamId, isPrimary: playerTeams.length === 0 }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to update player team');
+        throw new Error('Failed to add player to team');
       }
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", player.id, "teams"] });
       queryClient.invalidateQueries({ queryKey: ["/api/players"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/player", player.id] });
-      queryClient.invalidateQueries({ queryKey: ["/api/teams", player.teamId] });
       toast({
-        title: "Team Updated",
-        description: "Player has been successfully assigned to the new team.",
+        title: "Team Added",
+        description: "Player has been successfully added to the team.",
       });
       setIsTeamDialogOpen(false);
       setSelectedTeamId("");
@@ -67,16 +69,51 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update player's team. Please try again.",
+        description: "Failed to add player to team. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const handleTeamAssignment = () => {
-    if (selectedTeamId && selectedTeamId !== player.teamId) {
-      updatePlayerTeamMutation.mutate(selectedTeamId);
+  // Mutation to remove player from team
+  const removePlayerFromTeamMutation = useMutation({
+    mutationFn: async (teamId: string) => {
+      const response = await fetch(`/api/player/${player.id}/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to remove player from team');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", player.id, "teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/players"] });
+      toast({
+        title: "Team Removed",
+        description: "Player has been successfully removed from the team.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove player from team. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddTeam = () => {
+    if (selectedTeamId && !playerTeams.some(pt => pt.teamId === selectedTeamId)) {
+      addPlayerToTeamMutation.mutate(selectedTeamId);
     }
+  };
+
+  const handleRemoveTeam = (teamId: string) => {
+    removePlayerFromTeamMutation.mutate(teamId);
+  };
+
+  const getAvailableTeams = () => {
+    return teams.filter(team => !playerTeams.some(pt => pt.teamId === team.id));
   };
 
   const getStatusColor = () => {
@@ -263,117 +300,133 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
             <TabsContent value="teams" className="p-6 mt-0">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Team Assignment</h3>
-                  <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        data-testid="button-add-team"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Change Team
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Assign to Team</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium">Select Team</label>
-                          <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-                            <SelectTrigger data-testid="select-team">
-                              <SelectValue placeholder="Choose a team" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {teams.map((team) => (
-                                <SelectItem key={team.id} value={team.id} data-testid={`option-team-${team.id}`}>
-                                  {team.name} ({team.shortName})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                  <h3 className="text-lg font-semibold">Team Assignments</h3>
+                  {getAvailableTeams().length > 0 && (
+                    <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          data-testid="button-add-team"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Team
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Add to Team</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium">Select Team</label>
+                            <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                              <SelectTrigger data-testid="select-team">
+                                <SelectValue placeholder="Choose a team" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getAvailableTeams().map((team) => (
+                                  <SelectItem key={team.id} value={team.id} data-testid={`option-team-${team.id}`}>
+                                    {team.name} ({team.shortName})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setIsTeamDialogOpen(false)}
+                              data-testid="button-cancel-team"
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              onClick={handleAddTeam}
+                              disabled={!selectedTeamId || addPlayerToTeamMutation.isPending}
+                              data-testid="button-add-to-team"
+                            >
+                              {addPlayerToTeamMutation.isPending ? "Adding..." : "Add to Team"}
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setIsTeamDialogOpen(false)}
-                            data-testid="button-cancel-team"
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            onClick={handleTeamAssignment}
-                            disabled={!selectedTeamId || selectedTeamId === player.teamId || updatePlayerTeamMutation.isPending}
-                            data-testid="button-assign-team"
-                          >
-                            {updatePlayerTeamMutation.isPending ? "Assigning..." : "Assign to Team"}
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </div>
 
-                {/* Current Team Card */}
-                {currentTeam ? (
-                  <Card className="border-2" data-testid={`card-current-team-${currentTeam.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
-                          <Users className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="text-lg font-semibold" data-testid={`text-team-name-${currentTeam.id}`}>
-                              {currentTeam.name}
-                            </h4>
-                            <Badge variant="secondary" data-testid={`badge-team-status-${currentTeam.id}`}>
-                              Current Team
-                            </Badge>
+                {/* Team Cards */}
+                <div className="space-y-3">
+                  {playerTeams.length > 0 ? (
+                    playerTeams.map((playerTeam) => (
+                      <Card 
+                        key={playerTeam.id} 
+                        className={`border-2 ${playerTeam.isPrimary ? 'border-primary' : ''}`} 
+                        data-testid={`card-team-${playerTeam.team.id}`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
+                                <Users className="h-6 w-6" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <h4 className="text-lg font-semibold" data-testid={`text-team-name-${playerTeam.team.id}`}>
+                                    {playerTeam.team.name}
+                                  </h4>
+                                  {playerTeam.isPrimary && (
+                                    <Badge variant="default" data-testid={`badge-primary-team-${playerTeam.team.id}`}>
+                                      Primary
+                                    </Badge>
+                                  )}
+                                  <Badge 
+                                    className={playerTeam.team.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                                    data-testid={`badge-team-status-${playerTeam.team.id}`}
+                                  >
+                                    {playerTeam.team.status}
+                                  </Badge>
+                                </div>
+                                <div className="text-sm text-muted-foreground space-y-1">
+                                  <p data-testid={`text-team-short-name-${playerTeam.team.id}`}>
+                                    Short Name: {playerTeam.team.shortName}
+                                  </p>
+                                  {playerTeam.team.coach && (
+                                    <p data-testid={`text-team-coach-${playerTeam.team.id}`}>
+                                      Coach: {playerTeam.team.coach}
+                                    </p>
+                                  )}
+                                  <p data-testid={`text-joined-date-${playerTeam.team.id}`}>
+                                    Joined: {format(new Date(playerTeam.joinedAt), "d MMM yyyy")}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveTeam(playerTeam.team.id)}
+                              disabled={removePlayerFromTeamMutation.isPending}
+                              data-testid={`button-remove-team-${playerTeam.team.id}`}
+                            >
+                              Remove
+                            </Button>
                           </div>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <p data-testid={`text-team-short-name-${currentTeam.id}`}>
-                              Short Name: {currentTeam.shortName}
-                            </p>
-                            {currentTeam.coach && (
-                              <p data-testid={`text-team-coach-${currentTeam.id}`}>
-                                Coach: {currentTeam.coach}
-                              </p>
-                            )}
-                            {currentTeam.ageGroup && (
-                              <p data-testid={`text-team-age-group-${currentTeam.id}`}>
-                                Age Group: {currentTeam.ageGroup}
-                              </p>
-                            )}
-                            {currentTeam.season && (
-                              <p data-testid={`text-team-season-${currentTeam.id}`}>
-                                Season: {currentTeam.season}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <Badge 
-                          className={currentTeam.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
-                          data-testid={`badge-team-status-indicator-${currentTeam.id}`}
-                        >
-                          {currentTeam.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card className="border-dashed border-2 border-gray-300">
-                    <CardContent className="p-6 text-center">
-                      <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No team assigned</p>
-                      <p className="text-sm text-gray-400 mt-2">
-                        Use the "Change Team" button to assign this player to a team.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Card className="border-dashed border-2 border-gray-300">
+                      <CardContent className="p-6 text-center">
+                        <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No teams assigned</p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          Use the "Add Team" button to assign this player to a team.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </div>
             </TabsContent>
           </Tabs>

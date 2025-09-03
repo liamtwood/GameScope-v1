@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "./db";
 import {
   clubs,
   teams,
   players,
+  playerTeams,
   fixtures,
   oppositionTeams,
   competitions,
@@ -13,6 +14,7 @@ import {
   type Club,
   type Team,
   type Player,
+  type PlayerTeam,
   type Fixture,
   type OppositionTeam,
   type Competition,
@@ -21,6 +23,7 @@ import {
   type InsertClub,
   type InsertTeam,
   type InsertPlayer,
+  type InsertPlayerTeam,
   type InsertFixture,
   type InsertOppositionTeam,
   type InsertCompetition,
@@ -48,6 +51,13 @@ export interface IStorage {
   createPlayer(player: InsertPlayer): Promise<Player>;
   updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player>;
   deletePlayer(id: string): Promise<void>;
+  
+  // Player-Team relationship operations
+  getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]>;
+  addPlayerToTeam(playerId: string, teamId: string, isPrimary?: boolean): Promise<PlayerTeam>;
+  removePlayerFromTeam(playerId: string, teamId: string): Promise<void>;
+  setPrimaryTeam(playerId: string, teamId: string): Promise<void>;
+  getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]>;
   
   // Opposition team operations
   getOppositionTeams(): Promise<OppositionTeam[]>;
@@ -389,6 +399,78 @@ export class DatabaseStorage implements IStorage {
 
   async deletePlayer(id: string): Promise<void> {
     await db.delete(players).where(eq(players.id, id));
+  }
+
+  // Player-Team relationship operations
+  async getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]> {
+    return await db.select({
+      id: playerTeams.id,
+      playerId: playerTeams.playerId,
+      teamId: playerTeams.teamId,
+      isPrimary: playerTeams.isPrimary,
+      joinedAt: playerTeams.joinedAt,
+      leftAt: playerTeams.leftAt,
+      status: playerTeams.status,
+      createdAt: playerTeams.createdAt,
+      updatedAt: playerTeams.updatedAt,
+      team: teams
+    })
+    .from(playerTeams)
+    .innerJoin(teams, eq(playerTeams.teamId, teams.id))
+    .where(eq(playerTeams.playerId, playerId));
+  }
+
+  async addPlayerToTeam(playerId: string, teamId: string, isPrimary: boolean = false): Promise<PlayerTeam> {
+    const id = randomUUID();
+    const newPlayerTeam = {
+      id,
+      playerId,
+      teamId,
+      isPrimary,
+      status: 'active',
+      joinedAt: new Date(),
+      leftAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await db.insert(playerTeams).values(newPlayerTeam);
+    return newPlayerTeam as PlayerTeam;
+  }
+
+  async removePlayerFromTeam(playerId: string, teamId: string): Promise<void> {
+    await db.delete(playerTeams)
+      .where(and(eq(playerTeams.playerId, playerId), eq(playerTeams.teamId, teamId)));
+  }
+
+  async setPrimaryTeam(playerId: string, teamId: string): Promise<void> {
+    // First, remove primary status from all teams for this player
+    await db.update(playerTeams)
+      .set({ isPrimary: false, updatedAt: new Date() })
+      .where(eq(playerTeams.playerId, playerId));
+    
+    // Then, set the specified team as primary
+    await db.update(playerTeams)
+      .set({ isPrimary: true, updatedAt: new Date() })
+      .where(and(eq(playerTeams.playerId, playerId), eq(playerTeams.teamId, teamId)));
+  }
+
+  async getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]> {
+    return await db.select({
+      id: playerTeams.id,
+      playerId: playerTeams.playerId,
+      teamId: playerTeams.teamId,
+      isPrimary: playerTeams.isPrimary,
+      joinedAt: playerTeams.joinedAt,
+      leftAt: playerTeams.leftAt,
+      status: playerTeams.status,
+      createdAt: playerTeams.createdAt,
+      updatedAt: playerTeams.updatedAt,
+      player: players
+    })
+    .from(playerTeams)
+    .innerJoin(players, eq(playerTeams.playerId, players.id))
+    .where(eq(playerTeams.teamId, teamId));
   }
 
   // Fixture operations

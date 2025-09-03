@@ -54,7 +54,7 @@ export const teams = pgTable("teams", {
 
 export const players = pgTable("players", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  teamId: varchar("team_id").references(() => teams.id).notNull(),
+  teamId: varchar("team_id").references(() => teams.id), // Made nullable for backwards compatibility
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   position: varchar("position", { length: 20 }).notNull(), // Increased length for full position names
@@ -76,6 +76,19 @@ export const players = pgTable("players", {
   gender: varchar("gender", { length: 10 }), // Male or Female
   dateOfBirth: timestamp("date_of_birth"),
   accountStatus: varchar("account_status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Junction table for many-to-many relationship between players and teams
+export const playerTeams = pgTable("player_teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  playerId: varchar("player_id").references(() => players.id).notNull(),
+  teamId: varchar("team_id").references(() => teams.id).notNull(),
+  isPrimary: boolean("is_primary").default(false), // Indicates the player's primary team
+  joinedAt: timestamp("joined_at").defaultNow(),
+  leftAt: timestamp("left_at"),
+  status: varchar("status", { length: 20 }).default("active"), // active, inactive
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -192,6 +205,7 @@ export const insertPlayerSchema = createInsertSchema(players)
     dateOfBirth: z.string().or(z.date()).transform((val) => val ? new Date(val) : undefined).optional(),
     accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
   });
+export const insertPlayerTeamSchema = createInsertSchema(playerTeams).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     websiteUrl: z.string().url().optional().or(z.literal("")),
@@ -213,6 +227,7 @@ export const insertUserSchema = createInsertSchema(users).omit({ id: true, creat
 export type Club = typeof clubs.$inferSelect;
 export type Team = typeof teams.$inferSelect;
 export type Player = typeof players.$inferSelect;
+export type PlayerTeam = typeof playerTeams.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
@@ -222,6 +237,7 @@ export type User = typeof users.$inferSelect;
 export type InsertClub = z.infer<typeof insertClubSchema>;
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
+export type InsertPlayerTeam = z.infer<typeof insertPlayerTeamSchema>;
 export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;
 export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;

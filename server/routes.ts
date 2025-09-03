@@ -406,6 +406,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Player-Team relationship routes
+  // Get all teams for a player
+  app.get("/api/player/:playerId/teams", async (req, res) => {
+    try {
+      const playerTeams = await storage.getPlayerTeams(req.params.playerId);
+      res.json(playerTeams);
+    } catch (error) {
+      console.error("Error fetching player teams:", error);
+      res.status(500).json({ message: "Failed to fetch player teams" });
+    }
+  });
+
+  // Add player to a team
+  app.post("/api/player/:playerId/teams", async (req, res) => {
+    try {
+      const { teamId, isPrimary = false } = req.body;
+      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, isPrimary);
+      res.status(201).json(playerTeam);
+    } catch (error) {
+      console.error("Error adding player to team:", error);
+      res.status(400).json({ message: "Failed to add player to team" });
+    }
+  });
+
+  // Remove player from a team
+  app.delete("/api/player/:playerId/teams/:teamId", async (req, res) => {
+    try {
+      await storage.removePlayerFromTeam(req.params.playerId, req.params.teamId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing player from team:", error);
+      res.status(500).json({ message: "Failed to remove player from team" });
+    }
+  });
+
+  // Set primary team for a player
+  app.patch("/api/player/:playerId/teams/:teamId/primary", async (req, res) => {
+    try {
+      await storage.setPrimaryTeam(req.params.playerId, req.params.teamId);
+      res.status(200).json({ message: "Primary team updated successfully" });
+    } catch (error) {
+      console.error("Error setting primary team:", error);
+      res.status(500).json({ message: "Failed to set primary team" });
+    }
+  });
+
+  // Get all players for a team
+  app.get("/api/team/:teamId/players", async (req, res) => {
+    try {
+      const teamPlayers = await storage.getTeamPlayers(req.params.teamId);
+      res.json(teamPlayers);
+    } catch (error) {
+      console.error("Error fetching team players:", error);
+      res.status(500).json({ message: "Failed to fetch team players" });
+    }
+  });
+
   // Opposition team routes
   app.get("/api/opposition-teams", async (req, res) => {
     try {
