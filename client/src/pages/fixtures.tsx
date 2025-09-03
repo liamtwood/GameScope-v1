@@ -36,6 +36,8 @@ export default function Fixtures() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
+  const [editingCompetition, setEditingCompetition] = useState<string | null>(null);
+  const [editCompetitionName, setEditCompetitionName] = useState<string>("");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
