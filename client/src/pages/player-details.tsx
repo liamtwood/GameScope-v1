@@ -45,12 +45,15 @@ export default function PlayerDetails() {
       return {}; // Return empty object if no JSON content
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      // Exit editing mode immediately for better user experience
       setIsEditing(false);
       setEditData({});
+      // Then invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
     },
     onError: (error) => {
       console.error('Failed to update player:', error);
+      // Keep in editing mode if there's an error
     },
   });
 
