@@ -161,7 +161,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
             <CardContent className="p-0">
               
               {/* Player Info Section */}
-              <div className="px-6 pt-2 pb-6">
+              <div className="px-6 pt-8 pb-6">
                 <div className="w-4/5 mx-auto">
                   <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
