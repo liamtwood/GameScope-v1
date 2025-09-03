@@ -468,7 +468,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className="grid grid-cols-3 w-full rounded-none border-2 border-white border-b-0 shadow-sm p-1 h-auto" style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className="grid grid-cols-3 w-full rounded-none border-0 shadow-sm p-1 h-auto" style={{ backgroundColor: clubPrimaryColor }}>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
