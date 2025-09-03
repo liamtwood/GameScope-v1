@@ -67,9 +67,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
 
   // Function to get player display (jersey number)
   const getPlayerDisplay = () => {
+    // Show squad number if available, otherwise jersey number, otherwise ?
+    const displayNumber = player.jerseyNumber || '?';
     return (
       <div className="h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-        {player.jerseyNumber}
+        {displayNumber}
       </div>
     );
   };

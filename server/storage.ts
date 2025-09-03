@@ -438,7 +438,7 @@ export class DatabaseStorage implements IStorage {
       playerId,
       teamId,
       isPrimary,
-      squadNumber: squadNumber || null,
+      squadNumber: squadNumber !== undefined ? squadNumber : null,
       position: position || null,
       status: 'active',
       joinedAt: new Date(),
