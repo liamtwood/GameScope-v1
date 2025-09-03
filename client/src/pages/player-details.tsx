@@ -240,10 +240,10 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                       <div className="border border-red-300 p-2">
-                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Status</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
-                            {player.gender || "Not set"}
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-status-${player.id}`}>
+                            Fit
                           </span>
                         </div>
                       </div>
@@ -309,10 +309,10 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                       <div className="border border-red-300 p-2">
-                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Nationality</label>
+                        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
                         <div className="mt-0.5">
-                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-nationality-${player.id}`}>
-                            Not provided
+                          <span className="text-sm font-semibold text-gray-900" data-testid={`text-gender-${player.id}`}>
+                            {player.gender || "Not set"}
                           </span>
                         </div>
                       </div>
