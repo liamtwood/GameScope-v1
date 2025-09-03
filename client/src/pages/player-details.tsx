@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Player } from "@shared/schema";
 import { ArrowLeft, Star } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
+import ashleyMillerPhoto from "@assets/image_1756910239772.png";
 
 export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
@@ -138,7 +139,7 @@ export default function PlayerDetails() {
               <Avatar className="h-20 w-20 bg-slate-600 text-white">
                 {player.name === "Ashley Miller" ? (
                   <AvatarImage 
-                    src="@assets/image_1756910239772.png" 
+                    src={ashleyMillerPhoto} 
                     alt="Ashley Miller"
                     className="object-cover"
                   />
