@@ -127,10 +127,10 @@ export default function Squad() {
   });
 
   const getPositionCategory = (position: string): PositionFilter => {
-    if (['GK'].includes(position)) return 'GK';
-    if (['CB', 'LB', 'RB', 'DEF'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'MID'].includes(position)) return 'MID';
-    if (['ST', 'LW', 'RW', 'CF', 'FWD'].includes(position)) return 'FWD';
+    if (['GK', 'Goalkeeper'].includes(position)) return 'GK';
+    if (['CB', 'LB', 'RB', 'DEF', 'Defender'].includes(position)) return 'DEF';
+    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'MID', 'Midfielder'].includes(position)) return 'MID';
+    if (['ST', 'LW', 'RW', 'CF', 'FWD', 'Forward'].includes(position)) return 'FWD';
     return 'DEF';
   };
 
