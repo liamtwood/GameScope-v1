@@ -193,8 +193,8 @@ export default function PlayerDetails() {
               {/* Club Logo */}
               <div className="flex-shrink-0 opacity-80">
                 <img 
-                  src="/assets/logos/polk-state-logo-transparent.png" 
-                  alt="Polk State College" 
+                  src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                  alt={selectedClub?.name || "Club Logo"} 
                   className="h-16 w-auto object-contain"
                 />
               </div>
