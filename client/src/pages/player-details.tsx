@@ -221,65 +221,8 @@ export default function PlayerDetails() {
             
             <Card className="rounded-t-none border-t-0 max-w-4xl mx-auto">
               <CardContent className="p-4 space-y-3">
-                {/* Compact Layout inspired by image */}
+                {/* Team & Position Info */}
                 <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Nationality</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-nationality-${player.id}`}>
-                        🇺🇸 England
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Preferred Foot</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-preferred-foot-${player.id}`}>
-                        Left
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
-                    <div className="mt-0.5">
-                      <span className="text-sm font-semibold" data-testid={`text-date-of-birth-${player.id}`}>
-                        {player.dateOfBirth 
-                          ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
-                          : "05/09/2001"
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Appearances</label>
-                    <div className="mt-0.5">
-                      <span className="text-lg font-bold" data-testid={`text-appearances-${player.id}`}>
-                        197
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Goals</label>
-                    <div className="mt-0.5">
-                      <span className="text-lg font-bold" data-testid={`text-goals-${player.id}`}>
-                        54
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Assists</label>
-                    <div className="mt-0.5">
-                      <span className="text-lg font-bold" data-testid={`text-assists-${player.id}`}>
-                        45
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-border/50">
                   <div>
                     <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Jersey Number</label>
                     <div className="mt-0.5">
@@ -293,6 +236,65 @@ export default function PlayerDetails() {
                     <div className="mt-0.5">
                       <span className="text-sm font-semibold" data-testid={`text-position-${player.id}`}>
                         {player.position}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Gender</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-gender-${player.id}`}>
+                        {player.gender || "Not set"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Name Info */}
+                <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">First Name</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-first-name-${player.id}`}>
+                        {player.name.split(' ')[0] || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Last Name</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-last-name-${player.id}`}>
+                        {player.name.split(' ').slice(1).join(' ') || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Shirt Name</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-shirt-name-${player.id}`}>
+                        {player.name.split(' ').slice(-1)[0] || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Info */}
+                <div className="grid grid-cols-3 gap-x-8 gap-y-3 pt-2 border-t border-border/50">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Date of Birth</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-date-of-birth-${player.id}`}>
+                        {player.dateOfBirth 
+                          ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
+                          : "Not provided"
+                        }
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Age</label>
+                    <div className="mt-0.5">
+                      <span className="text-sm font-semibold" data-testid={`text-age-${player.id}`}>
+                        {age ? `${age} years old` : "Not available"}
                       </span>
                     </div>
                   </div>
