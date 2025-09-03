@@ -468,25 +468,28 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-6">
-                  <TabsList className="grid grid-cols-3 w-full bg-white rounded-t-lg border border-gray-200 border-b-0 shadow-sm p-1 h-auto">
+                  <TabsList className="grid grid-cols-3 w-full rounded-t-lg border-2 border-white border-b-0 shadow-sm p-1 h-auto" style={{ backgroundColor: clubPrimaryColor }}>
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ color: textColor }}
                     >
                       Player Details
                     </TabsTrigger>
                     <TabsTrigger 
                       value="teams" 
                       data-testid="tab-teams" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ color: textColor }}
                     >
                       Teams
                     </TabsTrigger>
                     <TabsTrigger 
                       value="parents" 
                       data-testid="tab-parents" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 data-[state=active]:font-semibold hover:bg-white/10"
+                      style={{ color: textColor }}
                     >
                       Parents
                     </TabsTrigger>
