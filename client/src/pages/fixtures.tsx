@@ -50,6 +50,12 @@ export default function Fixtures() {
     queryKey: ["/api/competitions"]
   });
 
+  // Query to get all match stats to determine which fixtures have analysis data
+  const { data: allMatchStats = [] } = useQuery({
+    queryKey: ["/api/match-stats/team", currentTeam?.id],
+    enabled: !!currentTeam?.id
+  });
+
   const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
   const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
   
@@ -562,7 +568,7 @@ export default function Fixtures() {
                                 onViewAnalysis={handleViewAnalysis}
                                 onEdit={() => {}} // Edit is handled by the dialog wrapper
                                 onDelete={handleDeleteFixture}
-                                hasAnalysisData={false} // Only show when actual analysis data exists
+                                hasAnalysisData={allMatchStats.some((stat: any) => stat.fixtureId === fixture.id)} // Show only if match stats exist
                               />
                             </div>
                           </FixtureEditDialog>
