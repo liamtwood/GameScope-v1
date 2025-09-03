@@ -18,7 +18,6 @@ import { Competition } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 
 const fixtureSettingsSchema = z.object({
-  defaultVenue: z.string().min(1, "Default venue is required"),
   enableNotifications: z.boolean().default(true),
   enablePublicResults: z.boolean().default(true),
 });
@@ -43,7 +42,6 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
   const form = useForm<FixtureSettingsFormData>({
     resolver: zodResolver(fixtureSettingsSchema),
     defaultValues: {
-      defaultVenue: "",
       enableNotifications: true,
       enablePublicResults: true,
     },
@@ -144,30 +142,6 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Settings */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Settings</h3>
-              
-              <FormField
-                control={form.control}
-                name="defaultVenue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Default Home Venue</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter default home venue"
-                        {...field}
-                        data-testid="input-default-venue"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-            </div>
-
             {/* Preferences */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Preferences</h3>
