@@ -543,7 +543,7 @@ export default function PlayerDetails() {
               
               {/* Player Details Content */}
               <TabsContent value="details" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3">
+                <div className="bg-white px-6 pb-6 space-y-3 min-h-[600px]">
                   <div className="pt-4">
                     
                     {/* Section Header */}
@@ -821,7 +821,7 @@ export default function PlayerDetails() {
 
               {/* Teams Tab Content */}
               <TabsContent value="teams" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[600px]">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="space-y-6">
@@ -976,7 +976,7 @@ export default function PlayerDetails() {
 
               {/* Parents Tab Content */}
               <TabsContent value="parents" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[600px]">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="text-center py-8">
