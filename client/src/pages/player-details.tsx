@@ -130,6 +130,11 @@ export default function PlayerDetails() {
 
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
+  
+  // Create gradient background style
+  const gradientStyle = {
+    background: `linear-gradient(to right, ${clubPrimaryColor}, ${clubPrimaryColor}dd)`,
+  };
 
   return (
     <MainLayout 
@@ -150,37 +155,48 @@ export default function PlayerDetails() {
         </div>
 
         {/* Player Header Card */}
-        <Card className="border border-border max-w-4xl mx-auto" style={{ backgroundColor: clubPrimaryColor }}>
+        <Card className="border border-border max-w-4xl mx-auto relative overflow-hidden" style={gradientStyle}>
           <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              {/* Player Avatar */}
-              <Avatar className="h-20 w-20 bg-slate-600 text-white">
-                {player.name === "Ashley Miller" ? (
-                  <AvatarImage 
-                    src={ashleyMillerPhoto} 
-                    alt="Ashley Miller"
-                    className="object-cover"
-                  />
-                ) : null}
-                <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                  {getPlayerInitials(player.name)}
-                </AvatarFallback>
-              </Avatar>
-              
-              {/* Player Info */}
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Player Avatar */}
+                <Avatar className="h-20 w-20 bg-slate-600 text-white">
+                  {player.name === "Ashley Miller" ? (
+                    <AvatarImage 
+                      src={ashleyMillerPhoto} 
+                      alt="Ashley Miller"
+                      className="object-cover"
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                    {getPlayerInitials(player.name)}
+                  </AvatarFallback>
+                </Avatar>
                 
-                <div className="flex gap-8 text-sm">
-                  <div>
-                    <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
-                    <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
-                  </div>
-                  <div>
-                    <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
-                    <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
+                {/* Player Info */}
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold mb-3" style={{ color: textColor }}>{player.name}</h1>
+                  
+                  <div className="flex gap-8 text-sm">
+                    <div>
+                      <span className="uppercase tracking-wide" style={{ color: labelColor }}>AGE</span>
+                      <p className="font-semibold" style={{ color: textColor }}>{age ? age : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="uppercase tracking-wide" style={{ color: labelColor }}>GENDER</span>
+                      <p className="font-semibold" style={{ color: textColor }}>{player.gender || 'Not set'}</p>
+                    </div>
                   </div>
                 </div>
+              </div>
+              
+              {/* Club Logo */}
+              <div className="flex-shrink-0 opacity-80">
+                <img 
+                  src="/assets/logos/polk-state-logo-transparent.png" 
+                  alt="Polk State College" 
+                  className="h-16 w-auto object-contain"
+                />
               </div>
             </div>
           </CardContent>
