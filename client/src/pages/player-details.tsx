@@ -337,7 +337,7 @@ export default function PlayerDetails() {
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
                               {player.dateOfBirth 
-                                ? format(new Date(player.dateOfBirth), "dd/MM/yyyy")
+                                ? format(new Date(player.dateOfBirth), "d MMM yyyy")
                                 : "Not provided"
                               }
                             </span>
