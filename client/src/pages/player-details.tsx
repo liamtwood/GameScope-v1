@@ -514,6 +514,17 @@ export default function PlayerDetails() {
                         border-bottom-left-radius: 0 !important;
                         border-bottom-right-radius: 0 !important;
                       }
+                      [data-testid="tab-details"]::before,
+                      [data-testid="tab-teams"]::before,
+                      [data-testid="tab-parents"]::before,
+                      [data-testid="tab-details"]::after,
+                      [data-testid="tab-teams"]::after,
+                      [data-testid="tab-parents"]::after {
+                        display: none !important;
+                        content: none !important;
+                        background: none !important;
+                        opacity: 0 !important;
+                      }
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"] {
@@ -545,7 +556,7 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'details' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: activeTab === 'details' ? 'white' : undefined
+                        backgroundColor: activeTab === 'details' ? 'white !important' : undefined
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Player Details
@@ -557,8 +568,8 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'teams' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: activeTab === 'teams' ? 'white' : clubPrimaryColor,
-                        backgroundImage: activeTab === 'teams' ? 'none' : `
+                        backgroundColor: activeTab === 'teams' ? 'white !important' : `${clubPrimaryColor} !important`,
+                        backgroundImage: activeTab === 'teams' ? 'none !important' : `
                           radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
                           radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
                           radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
@@ -576,8 +587,8 @@ export default function PlayerDetails() {
                       style={{ 
                         color: activeTab === 'parents' ? clubPrimaryColor : textColor,
                         '--club-primary': clubPrimaryColor,
-                        backgroundColor: activeTab === 'parents' ? 'white' : clubPrimaryColor,
-                        backgroundImage: activeTab === 'parents' ? 'none' : `
+                        backgroundColor: activeTab === 'parents' ? 'white !important' : `${clubPrimaryColor} !important`,
+                        backgroundImage: activeTab === 'parents' ? 'none !important' : `
                           radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
                           radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
                           radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
