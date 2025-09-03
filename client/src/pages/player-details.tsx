@@ -334,10 +334,11 @@ export default function PlayerDetails() {
   // Create solid background style
   const solidStyle = {
     background: `
-      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(255,255,255,0.04) 0%, transparent 50%),
-      linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%),
+      radial-gradient(ellipse 400px 200px at 30% 100%, rgba(255,255,255,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 300px 150px at 80% 10%, rgba(255,255,255,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 250px at 10% 60%, rgba(255,255,255,0.08) 0%, transparent 65%),
+      radial-gradient(ellipse 350px 180px at 90% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+      linear-gradient(45deg, rgba(255,255,255,0.05) 0%, transparent 30%, rgba(255,255,255,0.03) 70%, transparent 100%),
       ${clubPrimaryColor}
     `,
   };
