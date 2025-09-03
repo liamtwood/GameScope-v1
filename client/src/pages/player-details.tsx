@@ -524,7 +524,7 @@ export default function PlayerDetails() {
               
               {/* Player Details Content */}
               <TabsContent value="details" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 shadow-sm">
+                <div className="bg-white px-6 pb-6 space-y-3">
                   <div className="pt-4">
                     
                     {/* Section Header */}
