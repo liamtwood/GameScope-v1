@@ -142,22 +142,24 @@ export default function PlayerDetails() {
       subtitle={player.name}
     >
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
-        {/* Back Button */}
-        <div className="mb-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => window.history.back()}
-            data-testid="button-back-to-squad"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
-
         {/* Player Header Card with Integrated Tabs */}
         <Tabs defaultValue="details" className="w-full">
           <Card className="border border-gray-200 max-w-3xl mx-auto relative overflow-hidden shadow-lg" style={gradientStyle}>
             <CardContent className="p-0">
+              {/* Back Button Row */}
+              <div className="px-6 py-4 border-b border-white/20">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => window.history.back()}
+                  data-testid="button-back-to-squad"
+                  className="text-white hover:bg-white/10"
+                  style={{ color: textColor }}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </div>
+              
               {/* Player Info Section */}
               <div className="p-6">
                 <div className="flex items-center justify-between">
