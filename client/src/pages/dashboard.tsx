@@ -40,7 +40,7 @@ export default function Dashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
     return f.status === 'SCHEDULED' && fixtureDate >= today;
-  }).slice(0, 3) || [];
+  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 3) || [];
   const topScorers = players?.sort((a, b) => (b.goals || 0) - (a.goals || 0)).slice(0, 3) || [];
 
   // Check for analysis data for recent fixtures (memoized to prevent excessive API calls)
