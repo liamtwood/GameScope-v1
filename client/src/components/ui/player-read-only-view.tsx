@@ -71,17 +71,6 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   return (
     <div className="space-y-6" data-testid={`player-read-only-view-${player.id}`}>
-      {/* Back Button */}
-      <Button 
-        variant="ghost" 
-        onClick={onBack}
-        className="mb-4"
-        data-testid="button-back-to-cards"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Player Cards
-      </Button>
-
       {/* Player Header Card */}
       <Card className="bg-red-50 border-red-200">
         <CardContent className="p-6">
@@ -124,10 +113,22 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       <Card>
         <CardContent className="p-0">
           <Tabs defaultValue="player" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="player" data-testid="tab-player">Player</TabsTrigger>
-              <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
-            </TabsList>
+            {/* Back Button and Tabs on same row */}
+            <div className="flex items-center justify-between gap-4 p-4 border-b">
+              <Button 
+                variant="ghost" 
+                onClick={onBack}
+                data-testid="button-back-to-cards"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Player Cards
+              </Button>
+              
+              <TabsList className="grid grid-cols-2 w-auto">
+                <TabsTrigger value="player" data-testid="tab-player">Player</TabsTrigger>
+                <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="player" className="p-6 mt-0">
               <div className="space-y-6">
