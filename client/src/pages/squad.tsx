@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings } from "lucide-react";
 import { Player, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -331,6 +331,9 @@ export default function Squad() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" data-testid="button-squad-settings">
+              <Settings className="h-4 w-4" />
+            </Button>
             <PlayerCreateDialog 
               teamId={currentTeam?.id || ""} 
               onSave={handleCreatePlayer}
