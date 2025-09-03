@@ -577,10 +577,10 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
 
                 {/* Bob Tab Content */}
                 <TabsContent value="bob" className="m-0">
-                  <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg">
+                  <div className="bg-white px-6 pb-6 space-y-3 border-t border-white/10 rounded-b-lg min-h-[400px]">
                     <div className="pt-4">
                       <div className="w-4/5 mx-auto">
-                        <div className="text-center py-8">
+                        <div className="text-center py-16">
                           <h4 className="text-lg font-medium text-gray-900 mb-2">Bob Tab</h4>
                           <p className="text-sm text-muted-foreground">This is a simplified tab without the detailed information sections.</p>
                         </div>
