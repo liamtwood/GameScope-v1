@@ -219,8 +219,8 @@ export default function Clubs() {
           <div className="flex items-center justify-end">
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button data-testid="button-create-club">
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button className="bg-white text-black hover:bg-gray-100 border border-gray-300" data-testid="button-create-club">
+                  <Landmark className="h-4 w-4 mr-2" />
                   Create Club
                 </Button>
               </DialogTrigger>
@@ -571,8 +571,8 @@ export default function Clubs() {
           </p>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button data-testid="button-create-first-club">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="bg-white text-black hover:bg-gray-100 border border-gray-300" data-testid="button-create-first-club">
+                <Landmark className="h-4 w-4 mr-2" />
                 Create Your First Club
               </Button>
             </DialogTrigger>
