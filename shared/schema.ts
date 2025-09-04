@@ -52,47 +52,7 @@ export const teams = pgTable("teams", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const players = pgTable("players", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  teamId: varchar("team_id").references(() => teams.id), // Made nullable for backwards compatibility
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  position: varchar("position", { length: 20 }).notNull(), // Increased length for full position names
-  jerseyNumber: integer("jersey_number").notNull(),
-  status: varchar("status", { length: 20 }).default("Fit"),
-  keyPlayer: boolean("key_player").default(false),
-  // Personal info
-  hometown: text("hometown"),
-  year: text("year"), // Academic year or age group
-  height: text("height"),
-  // Stats
-  appearances: integer("appearances").default(0),
-  goals: integer("goals").default(0),
-  assists: integer("assists").default(0),
-  // Account fields
-  email: text("email"),
-  phone: text("phone"),
-  emergencyContact: text("emergency_contact"),
-  gender: varchar("gender", { length: 10 }), // Male or Female
-  dateOfBirth: timestamp("date_of_birth"),
-  accountStatus: varchar("account_status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
-// Junction table for many-to-many relationship between players and teams
-export const playerTeams = pgTable("player_teams", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  playerId: varchar("player_id").references(() => players.id).notNull(),
-  teamId: varchar("team_id").references(() => teams.id).notNull(),
-  squadNumber: integer("squad_number"), // Player's squad number for this team
-  position: varchar("position", { length: 20 }), // Player's position for this team
-  joinedAt: timestamp("joined_at").defaultNow(),
-  leftAt: timestamp("left_at"),
-  status: varchar("status", { length: 20 }).default("active"), // active, inactive
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
 export const fixtures = pgTable("fixtures", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -184,33 +144,99 @@ export const competitions = pgTable("competitions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Enhanced users table - replaces old users and players tables
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  role: varchar("role", { length: 20 }).notNull().default("player"), // admin, coach, player
-  teamId: varchar("team_id").references(() => teams.id),
-  name: text("name"),
+  
+  // Authentication (optional for players)
+  username: text("username").unique(),
+  password: text("password"),
+  
+  // Name Information
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  shirtName: text("shirt_name"), // What appears on jersey
+  
+  // Personal Information
+  dateOfBirth: timestamp("date_of_birth"),
+  gender: varchar("gender", { length: 10 }), // Male, Female, Other
+  
+  // Contact Information
   email: text("email"),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  status: varchar("status", { length: 20 }).default("active"), // active, inactive, suspended
-  keyUser: boolean("key_user").default(false),
+  phone: text("phone"),
+  emergencyContact: text("emergency_contact"),
+  emergencyContactPhone: text("emergency_contact_phone"),
+  
+  // Account Information
+  role: varchar("role", { length: 20 }).notNull().default("player"), // Player, Coach, Admin, Parent
+  status: varchar("status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired
+  
+  // Additional Personal Info
+  hometown: text("hometown"),
+  height: text("height"),
+  year: text("year"), // Academic year or age group
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Team assignments and stats - replaces player_teams table
+export const userTeams = pgTable("user_teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  teamId: varchar("team_id").references(() => teams.id).notNull(),
+  
+  // Team-specific assignments
+  jerseyNumber: integer("jersey_number"),
+  position: varchar("position", { length: 20 }),
+  starPlayer: boolean("star_player").default(false),
+  fitnessStatus: varchar("fitness_status", { length: 20 }).default("Fit"), // Fit, Injured, Retired
+  
+  // Team-specific stats
+  appearances: integer("appearances").default(0),
+  goals: integer("goals").default(0),
+  assists: integer("assists").default(0),
+  
+  // Assignment tracking
+  joinedAt: timestamp("joined_at").defaultNow(),
+  leftAt: timestamp("left_at"),
+  assignmentStatus: varchar("assignment_status", { length: 20 }).default("active"), // active, inactive
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Parent-child relationships
+export const userParents = pgTable("user_parents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(), // The child/player
+  parentUserId: varchar("parent_user_id").references(() => users.id).notNull(), // The parent
+  relationshipType: varchar("relationship_type", { length: 20 }).default("parent"), // parent, guardian, emergency_contact
+  
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Insert schemas
 export const insertClubSchema = createInsertSchema(clubs).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertPlayerSchema = createInsertSchema(players)
+export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     email: z.string().email().optional().or(z.literal("")),
-    gender: z.enum(["Male", "Female"]).optional(),
+    gender: z.enum(["Male", "Female", "Other"]).optional(),
     dateOfBirth: z.string().or(z.date()).transform((val) => val ? new Date(val) : undefined).optional(),
-    accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
+    role: z.enum(["Player", "Coach", "Admin", "Parent"]).optional(),
+    status: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
   });
-export const insertPlayerTeamSchema = createInsertSchema(playerTeams).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    fitnessStatus: z.enum(["Fit", "Injured", "Retired"]).optional(),
+    assignmentStatus: z.enum(["active", "inactive"]).optional(),
+  });
+export const insertUserParentSchema = createInsertSchema(userParents).omit({ id: true, createdAt: true })
+  .extend({
+    relationshipType: z.enum(["parent", "guardian", "emergency_contact"]).optional(),
+  });
 export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     websiteUrl: z.string().url().optional().or(z.literal("")),
@@ -226,13 +252,12 @@ export const insertFixtureSchema = createInsertSchema(fixtures)
     date: z.string().or(z.date()).transform((val) => new Date(val))
   });
 export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: true, createdAt: true });
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 
 // Types
 export type Club = typeof clubs.$inferSelect;
 export type Team = typeof teams.$inferSelect;
-export type Player = typeof players.$inferSelect;
-export type PlayerTeam = typeof playerTeams.$inferSelect;
+export type UserTeam = typeof userTeams.$inferSelect;
+export type UserParent = typeof userParents.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
@@ -241,8 +266,8 @@ export type User = typeof users.$inferSelect;
 
 export type InsertClub = z.infer<typeof insertClubSchema>;
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
-export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
-export type InsertPlayerTeam = z.infer<typeof insertPlayerTeamSchema>;
+export type InsertUserTeam = z.infer<typeof insertUserTeamSchema>;
+export type InsertUserParent = z.infer<typeof insertUserParentSchema>;
 export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;
 export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
