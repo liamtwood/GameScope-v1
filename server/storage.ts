@@ -418,6 +418,34 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users);
   }
 
+  async getUsersWithClubs(): Promise<(User & { clubId?: string | null; clubName?: string | null })[]> {
+    const result = await db.select({
+      id: users.id,
+      username: users.username,
+      password: users.password,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      shirtName: users.shirtName,
+      dateOfBirth: users.dateOfBirth,
+      gender: users.gender,
+      email: users.email,
+      phone: users.phone,
+      emergencyContact: users.emergencyContact,
+      emergencyContactPhone: users.emergencyContactPhone,
+      role: users.role,
+      status: users.status,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+      clubId: clubs.id,
+      clubName: clubs.name,
+    })
+    .from(users)
+    .leftJoin(userClubs, eq(users.id, userClubs.userId))
+    .leftJoin(clubs, eq(userClubs.clubId, clubs.id));
+    
+    return result;
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;

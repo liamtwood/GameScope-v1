@@ -16,12 +16,12 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type RoleFilter = 'all' | 'admin' | 'coach' | 'player';
 type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended' | 'Active' | 'Inactive' | 'Suspended' | 'Draft';
-type StarFilter = 'all' | 'star' | 'regular';
+type ClubFilter = 'all' | string;
 
 export default function DevOpsUsers() {
   const [activeFilter, setActiveFilter] = useState<RoleFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [starFilter, setStarFilter] = useState<StarFilter>('all');
+  const [clubFilter, setClubFilter] = useState<ClubFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{userId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -29,13 +29,18 @@ export default function DevOpsUsers() {
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
 
-  // Fetch all users (system-wide for DevOps)
-  const { data: users = [], isLoading } = useQuery<User[]>({ 
-    queryKey: ["/api/users"]
+  // Fetch all users with club information (system-wide for DevOps)
+  const { data: users = [], isLoading } = useQuery<(User & { clubId?: string | null; clubName?: string | null })[]>({ 
+    queryKey: ["/api/users-with-clubs"],
+    queryFn: async () => {
+      const response = await fetch('/api/users?includeClubs=true');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      return response.json();
+    }
   });
 
   // Fetch all clubs for user creation
-  const { data: clubs = [] } = useQuery({ 
+  const { data: clubs = [] } = useQuery<any[]>({ 
     queryKey: ["/api/clubs"]
   });
 
@@ -129,12 +134,12 @@ export default function DevOpsUsers() {
   const filteredUsers = users?.filter(user => {
     const matchesFilter = activeFilter === 'all' || getRoleCategory(user.role || 'player') === activeFilter;
     const matchesStatus = statusFilter === 'all' || (user.status || 'active').toLowerCase() === statusFilter;
-    const matchesStar = starFilter === 'all';
+    const matchesClub = clubFilter === 'all' || user.clubId === clubFilter;
     const matchesSearch = searchTerm === '' || 
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesFilter && matchesStatus && matchesStar && matchesSearch;
+    return matchesFilter && matchesStatus && matchesClub && matchesSearch;
   }).sort((a, b) => {
     // Sort by role first, then by name
     const roleOrder: Record<RoleFilter, number> = { all: 0, admin: 1, coach: 2, player: 3 };
@@ -151,10 +156,9 @@ export default function DevOpsUsers() {
     return users?.filter(u => getRoleCategory(u.role || 'player') === category).length || 0;
   };
 
-  const getKeyUsersCount = () => {
-    // For DevOps view, we'll count admin/coach roles as key users
+  const getClubUsersCount = (clubId: string) => {
     if (!users) return 0;
-    return users.filter(user => getRoleCategory(user.role || 'player') !== 'player').length;
+    return users.filter(user => user.clubId === clubId).length;
   };
 
   const handleCreateUser = (data: any) => {
@@ -197,9 +201,7 @@ export default function DevOpsUsers() {
 
   // Group users by club, then by role for card view
   const usersByClubAndRole = filteredUsers.reduce((groups, user) => {
-    // For DevOps view, assign all users to "Polk State College" as default
-    // since that appears to be the main club based on the previous data
-    const clubName = "Polk State College";
+    const clubName = user.clubName || 'No Club Assigned';
     const role = getRoleCategory(user.role || 'player');
     const roleDisplayName = role === 'coach' ? 'Coaches' : 
                            role === 'admin' ? 'Admins' : 
@@ -213,7 +215,7 @@ export default function DevOpsUsers() {
     }
     groups[clubName][roleDisplayName].push(user);
     return groups;
-  }, {} as Record<string, Record<string, User[]>>);
+  }, {} as Record<string, Record<string, (User & { clubId?: string | null; clubName?: string | null })[]>>);
 
   const roleDisplayOrder = ['Admins', 'Coaches', 'Players'];
 
@@ -234,13 +236,13 @@ export default function DevOpsUsers() {
             subtitle="across all clubs"
           />
           
-          {/* Key Users */}
+          {/* Clubs Count */}
           <StatsCard
-            title="Key Users"
-            value={getKeyUsersCount()}
+            title="Clubs"
+            value={clubs.length || 0}
             icon={Star}
             iconColor="text-club-primary"
-            subtitle="system-wide"
+            subtitle="total clubs"
           />
 
           {/* Role Breakdown */}
@@ -347,15 +349,16 @@ export default function DevOpsUsers() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Key Users</label>
-              <Select value={starFilter} onValueChange={(value: StarFilter) => setStarFilter(value)}>
-                <SelectTrigger className="w-full" data-testid="select-star">
-                  <SelectValue placeholder="All Users" />
+              <label className="text-sm font-medium text-foreground">Club</label>
+              <Select value={clubFilter} onValueChange={(value: ClubFilter) => setClubFilter(value)}>
+                <SelectTrigger className="w-full" data-testid="select-club">
+                  <SelectValue placeholder="All Clubs" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Users</SelectItem>
-                  <SelectItem value="star">Key Users</SelectItem>
-                  <SelectItem value="regular">Regular Users</SelectItem>
+                  <SelectItem value="all">All Clubs</SelectItem>
+                  {clubs.map((club: any) => (
+                    <SelectItem key={club.id} value={club.id}>{club.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
