@@ -508,10 +508,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/players", async (req, res) => {
     try {
-      const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, ...userData } = req.body;
+      const { teamId, jerseyNumber, position, starPlayer, status, keyPlayer, accountStatus, ...userData } = req.body;
+      
+      // Debug logging
+      console.log("Received data:", { teamId, jerseyNumber, position, starPlayer, status, keyPlayer, accountStatus, userData });
+      
+      // Map old frontend fields to new schema
+      const userStatus = accountStatus || "Draft"; // Use accountStatus or default to Draft
+      const teamFitnessStatus = status || "Fit"; // Old status field becomes fitnessStatus
+      const teamStarPlayer = keyPlayer || starPlayer || false; // Support both old and new names
       
       // Create user first with personal information
-      const validatedUserData = insertUserSchema.parse(userData);
+      // Explicitly exclude status from userData to avoid conflicts
+      const { status: excludedStatus, ...cleanFields } = userData;
+      const cleanUserData = {
+        ...cleanFields,
+        status: userStatus // Make sure we use the correct status for user
+      };
+      
+      console.log("Clean user data:", cleanUserData);
+      
+      const validatedUserData = insertUserSchema.parse(cleanUserData);
       const user = await storage.createUser(validatedUserData);
       
       // Add to team if teamId and position are provided
@@ -521,9 +538,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           teamId,
           jerseyNumber: jerseyNumber || 0,
           position,
-          starPlayer: starPlayer || false,
-          fitnessStatus: fitnessStatus || 'Fit'
+          starPlayer: teamStarPlayer,
+          fitnessStatus: teamFitnessStatus
         };
+        
+        console.log("Team assignment data:", teamAssignment);
         
         const validatedTeamData = insertUserTeamSchema.parse(teamAssignment);
         await storage.addUserToTeam(user.id, teamId, validatedTeamData);
