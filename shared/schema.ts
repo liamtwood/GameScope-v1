@@ -267,6 +267,7 @@ export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: 
 export type Club = typeof clubs.$inferSelect;
 export type Team = typeof teams.$inferSelect;
 export type UserTeam = typeof userTeams.$inferSelect;
+export type UserClub = typeof userClubs.$inferSelect;
 export type UserParent = typeof userParents.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
@@ -283,3 +284,8 @@ export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
+
+// Legacy aliases for backward compatibility
+export type InsertPlayer = InsertUser;
+export type Player = User;

@@ -834,7 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get player count via playerTeams junction table
       const teamPlayers = await storage.getTeamPlayers(teamId);
-      const playerCount = teamPlayers.filter(tp => tp.status === 'active').length;
+      const playerCount = teamPlayers.length;
       
       // Get all fixtures for this team
       const fixtures = await storage.getFixtures(teamId);
@@ -870,7 +870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalPlayers = 0;
       for (const team of clubTeams) {
         const teamPlayers = await storage.getTeamPlayers(team.id);
-        totalPlayers += teamPlayers.filter(tp => tp.status === 'active').length;
+        totalPlayers += teamPlayers.length;
       }
       
       // Get all fixtures across all teams in this club

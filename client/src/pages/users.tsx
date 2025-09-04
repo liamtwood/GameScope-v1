@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
-import { UserCard } from "@/components/ui/user-card";
-import { UserCreateDialog } from "@/components/dialogs/user-create-dialog";
+import { UserCard } from "@/components/ui/user-card.tsx";
+import { UserCreateDialog } from "@/components/dialogs/user-create-dialog.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

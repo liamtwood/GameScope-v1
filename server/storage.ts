@@ -106,6 +106,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // Legacy player methods (aliases to user methods)
+  getPlayer(id: string): Promise<User | undefined>;
+  getPlayers(teamId?: string): Promise<User[]>;
+  getTeamPlayers(teamId: string): Promise<(UserTeam & { user: User })[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -189,7 +194,36 @@ export class DatabaseStorage implements IStorage {
       };
     });
 
-    await db.insert(players).values(playerInserts);
+    // Convert to users and user-team assignments
+    for (const playerData of samplePlayers) {
+      const [firstName, lastName] = playerData.name.split(' ');
+      
+      // Create user
+      const userId = randomUUID();
+      const userData: InsertUser = {
+        firstName,
+        lastName: lastName || '',
+        role: 'Player',
+        status: 'Active',
+        gender: 'Female',
+        email: undefined,
+        phone: undefined
+      };
+      
+      await db.insert(users).values({ ...userData, id: userId });
+      
+      // Create team assignment
+      const userTeamData: InsertUserTeam = {
+        userId,
+        teamId,
+        position: playerData.position as 'Goalkeeper' | 'Defender' | 'Midfield' | 'Forward',
+        jerseyNumber: playerData.jerseyNumber,
+        starPlayer: false,
+        fitnessStatus: 'Fit'
+      };
+      
+      await db.insert(userTeams).values({ ...userTeamData, id: randomUUID() });
+    }
 
     // Initialize sample fixtures
     const sampleFixtures = [
@@ -251,18 +285,17 @@ export class DatabaseStorage implements IStorage {
     await db.insert(fixtures).values(fixtureInserts);
 
     // Initialize sample user
-    const user: User = {
-      id: randomUUID(),
+    const userData: InsertUser = {
       username: 'coach',
       password: 'password',
-      role: 'coach',
-      teamId,
-      name: 'Dee Shivraman',
+      role: 'Coach',
+      firstName: 'Dee',
+      lastName: 'Shivraman',
       email: 'dee.shivraman@polk.edu',
-      createdAt: new Date(),
+      status: 'Active'
     };
 
-    await db.insert(users).values(user);
+    await db.insert(users).values({ ...userData, id: randomUUID() });
   }
 
   // Club operations
@@ -375,9 +408,6 @@ export class DatabaseStorage implements IStorage {
         emergencyContactPhone: users.emergencyContactPhone,
         role: users.role,
         status: users.status,
-        hometown: users.hometown,
-        height: users.height,
-        year: users.year,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
@@ -408,9 +438,6 @@ export class DatabaseStorage implements IStorage {
       emergencyContactPhone: user.emergencyContactPhone || null,
       role: user.role || 'Player',
       status: user.status || 'Draft',
-      hometown: user.hometown || null,
-      height: user.height || null,
-      year: user.year || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -453,12 +480,10 @@ export class DatabaseStorage implements IStorage {
       position: userTeams.position,
       starPlayer: userTeams.starPlayer,
       fitnessStatus: userTeams.fitnessStatus,
-      appearances: userTeams.appearances,
-      goals: userTeams.goals,
-      assists: userTeams.assists,
+
       joinedAt: userTeams.joinedAt,
       leftAt: userTeams.leftAt,
-      assignmentStatus: userTeams.assignmentStatus,
+
       createdAt: userTeams.createdAt,
       updatedAt: userTeams.updatedAt,
       team: teams
@@ -482,10 +507,6 @@ export class DatabaseStorage implements IStorage {
       jerseyNumber: assignment.jerseyNumber || 0,
       starPlayer: assignment.starPlayer || false,
       fitnessStatus: assignment.fitnessStatus || 'Fit',
-      appearances: assignment.appearances || 0,
-      goals: assignment.goals || 0,
-      assists: assignment.assists || 0,
-      assignmentStatus: assignment.assignmentStatus || 'active',
       joinedAt: new Date(),
       leftAt: null,
       createdAt: new Date(),
@@ -565,12 +586,10 @@ export class DatabaseStorage implements IStorage {
       position: userTeams.position,
       starPlayer: userTeams.starPlayer,
       fitnessStatus: userTeams.fitnessStatus,
-      appearances: userTeams.appearances,
-      goals: userTeams.goals,
-      assists: userTeams.assists,
+
       joinedAt: userTeams.joinedAt,
       leftAt: userTeams.leftAt,
-      assignmentStatus: userTeams.assignmentStatus,
+
       createdAt: userTeams.createdAt,
       updatedAt: userTeams.updatedAt,
       user: users
@@ -924,32 +943,24 @@ export class DatabaseStorage implements IStorage {
     await db.delete(matchStats).where(eq(matchStats.id, id));
   }
 
-  // User operations
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const newUser: User = {
-      ...user,
-      id,
-      role: user.role || 'player',
-      name: user.name || null,
-      email: user.email || null,
-      teamId: user.teamId || null,
-      createdAt: new Date(),
-    };
-    
-    await db.insert(users).values(newUser);
-    return newUser;
+  
+  // Legacy player methods (aliases to user methods)
+  async getPlayer(id: string): Promise<User | undefined> {
+    return this.getUser(id);
   }
+  
+  async getPlayers(teamId?: string): Promise<User[]> {
+    return this.getUsers(teamId);
+  }
+  
+  async getTeamPlayers(teamId: string): Promise<(UserTeam & { user: User })[]> {
+    return this.getTeamUsers(teamId);
+  }
+
 }
 
 export const storage = new DatabaseStorage();

@@ -101,9 +101,7 @@ export function UserCard({ user, onDelete, onToggleKeyUser, onUpdateStatus }: Us
             <div className="flex-1">
               <div className="flex items-center space-x-2">
                 <h3 className="font-semibold text-lg text-foreground">{user.firstName} {user.lastName}</h3>
-                {user.keyUser && (
-                  <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                )}
+                {/* Key user status managed at club level */}
               </div>
               <p className="text-sm text-muted-foreground">
                 {user.email || "Not Provided"}
@@ -169,7 +167,7 @@ export function UserCard({ user, onDelete, onToggleKeyUser, onUpdateStatus }: Us
                     onToggleKeyUser(user);
                   }}>
                     <Star className="mr-2 h-4 w-4" />
-                    {user.keyUser ? 'Remove Star' : 'Make Key User'}
+                    {'Make Key User'}
                   </DropdownMenuItem>
                 )}
                 {onDelete && (
