@@ -12,8 +12,8 @@ const createUserSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
-  role: z.string().default("player"),
-  status: z.string().default("active"),
+  role: z.string().default("Player"),
+  status: z.string().default("Active"),
 });
 
 type CreateUserFormData = z.infer<typeof createUserSchema>;
@@ -33,8 +33,8 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
       firstName: "",
       lastName: "",
       email: "",
-      role: "player",
-      status: "active",
+      role: "Player",
+      status: "Active",
     },
   });
 
@@ -111,9 +111,9 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="coach">Coach</SelectItem>
-                      <SelectItem value="player">Player</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Coach">Coach</SelectItem>
+                      <SelectItem value="Player">Player</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -134,9 +134,10 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="suspended">Suspended</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Draft">Draft</SelectItem>
+                      <SelectItem value="Suspended">Suspended</SelectItem>
+                      <SelectItem value="Retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
