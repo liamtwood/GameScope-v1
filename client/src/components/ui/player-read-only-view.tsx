@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Player, Team, PlayerTeam } from "@shared/schema";
+import { User, Team, UserTeam } from "@shared/schema";
 import { ArrowLeft, Star, Users, Plus } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useTeam } from "@/contexts/team-context";
@@ -16,7 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface PlayerReadOnlyViewProps {
-  player: Player;
+  player: User;
   onBack: () => void;
 }
 
@@ -31,8 +31,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   const queryClient = useQueryClient();
 
   // Get all teams for this player
-  const { data: playerTeams = [] } = useQuery<(PlayerTeam & { team: Team })[]>({
-    queryKey: ["/api/player", player.id, "teams"],
+  const { data: playerTeams = [] } = useQuery<(UserTeam & { team: Team })[]>({
+    queryKey: ["/api/user", player.id, "teams"],
     enabled: !!player.id
   });
 

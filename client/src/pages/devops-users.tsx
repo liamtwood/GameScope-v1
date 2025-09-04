@@ -217,10 +217,6 @@ export default function DevOpsUsers() {
     return groups;
   }, {} as Record<string, Record<string, (User & { clubId?: string | null; clubName?: string | null })[]>>);
 
-  // Debug: Log the grouped data
-  console.log('Users by club and role:', usersByClubAndRole);
-  console.log('Total users:', users.length);
-  console.log('Users sample:', users.slice(0, 2));
 
   const roleDisplayOrder = ['Admins', 'Coaches', 'Players'];
 
