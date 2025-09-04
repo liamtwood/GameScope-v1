@@ -32,6 +32,82 @@ const editClubSchema = insertClubSchema.extend({
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
 type EditClubFormData = z.infer<typeof editClubSchema>;
 
+// Club card statistics type
+type ClubCardStats = {
+  players: number;
+  matches: number;
+  processing: number;
+};
+
+// Hook to fetch club card statistics
+const useClubCardStats = (clubId: string) => {
+  return useQuery<ClubCardStats>({
+    queryKey: ["/api/clubs", clubId, "card-stats"],
+    enabled: !!clubId,
+  });
+};
+
+// Club statistics display component
+const ClubStatsDisplay = ({ clubId }: { clubId: string }) => {
+  const { data: stats, isLoading } = useClubCardStats(clubId);
+  const { selectedClub } = useClub();
+  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
+  
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  return (
+    <div className="w-full">
+      {/* Grid layout for perfect alignment - full width centered */}
+      <div className="grid grid-cols-3 gap-4 text-center">
+        {/* Column 1: Players */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-players-${clubId}`}>
+            {stats.players}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
+        </div>
+        
+        {/* Column 2: Teams (labeled as Matches per request) */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-teams-${clubId}`}>
+            {stats.matches}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Teams</span>
+        </div>
+        
+        {/* Column 3: Total Fixtures (labeled as Processing) */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-fixtures-${clubId}`}>
+            {stats.processing}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Fixtures</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ClubManagement() {
   const [, setLocation] = useLocation();
   const [isCreateTeamDialogOpen, setIsCreateTeamDialogOpen] = useState(false);
@@ -39,6 +115,9 @@ export default function ClubManagement() {
   const { toast } = useToast();
   const { selectTeam } = useTeam();
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
+  
+  // Get club primary color for styling
+  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
 
   // Fetch teams for the selected club
   const { data: allTeams = [], isLoading: teamsLoading } = useQuery<Team[]>({
@@ -182,108 +261,55 @@ export default function ClubManagement() {
       title="Club Management" 
       subtitle="Manage club information, logo and status"
     >
-      {/* Club Information Card */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {selectedClub.logoPath ? (
-                <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={selectedClub.logoPath} 
-                    alt={`${selectedClub.name} logo`} 
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-              ) : (
-                <Landmark className="h-6 w-6 text-primary" />
-              )}
-              <span>{selectedClub.name}</span>
-              <Badge variant="secondary">{selectedClub.shortName}</Badge>
+      {/* Club Information Card - Team Card Style */}
+      <Card className="mb-8 border-2 hover:shadow-md transition-all">
+        <CardContent className="p-6">
+          {/* Header with Club Circle, Club Info, and Edit Button */}
+          <div className="flex items-start justify-between mb-4">
+            {/* Left side - Large Club Abbreviation Circle */}
+            <div className="flex items-start space-x-4">
+              <div 
+                className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white"
+                style={{ backgroundColor: clubPrimaryColor }}
+              >
+                {selectedClub.shortName || selectedClub.name.substring(0, 3).toUpperCase()}
+              </div>
+              
+              {/* Club Information */}
+              <div className="flex-1">
+                <h4 
+                  className="text-xl font-bold mb-2" 
+                  style={{ color: clubPrimaryColor }}
+                  data-testid={`text-club-name-${selectedClub.id}`}
+                >
+                  {selectedClub.name}
+                </h4>
+                <p className="text-sm text-gray-600 mb-1">
+                  Owner: {selectedClub.owner}
+                </p>
+                <Badge 
+                  className={selectedClub.subscriptionStatus === 'active' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
+                  data-testid={`text-club-status-${selectedClub.id}`}
+                >
+                  {selectedClub.subscriptionStatus === 'active' ? 'Active' : selectedClub.subscriptionStatus || 'Active'}
+                </Badge>
+              </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            
+            {/* Right side - Edit button */}
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleEditClub}
               data-testid="button-edit-club"
+              className="p-1 h-8 w-8"
             >
-              <Landmark className="h-4 w-4 mr-2" />
-              Edit Club
+              <Edit className="h-4 w-4" />
             </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Contact</h4>
-              <div className="flex items-center space-x-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Owner: {selectedClub.owner}</span>
-              </div>
-              {selectedClub.phone && (
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{selectedClub.phone}</span>
-                </div>
-              )}
-              {selectedClub.email && (
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{selectedClub.email}</span>
-                </div>
-              )}
-              {selectedClub.website && (
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{selectedClub.website}</span>
-                </div>
-              )}
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Location</h4>
-              {selectedClub.address && (
-                <div className="flex items-start space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
-                    <div>{selectedClub.address}</div>
-                    {selectedClub.city && <div>{selectedClub.city}{selectedClub.state && `, ${selectedClub.state}`}</div>}
-                    {selectedClub.country && <div>{selectedClub.country}</div>}
-                  </div>
-                </div>
-              )}
-              {selectedClub.established && (
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Est. {selectedClub.established}</span>
-                </div>
-              )}
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Club Info</h4>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{clubTeams.length} teams</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {selectedClub.subscriptionTier || 'Basic'} • {selectedClub.subscriptionStatus || 'Active'}
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  Created: {selectedClub.createdAt ? new Date(selectedClub.createdAt).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-            </div>
           </div>
-          {selectedClub.description && (
-            <div className="mt-6 pt-6 border-t border-border">
-              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h4>
-              <p className="text-sm text-muted-foreground">{selectedClub.description}</p>
-            </div>
-          )}
+          
+          {/* Club Statistics - Full Width Centered */}
+          <ClubStatsDisplay clubId={selectedClub.id} />
         </CardContent>
       </Card>
 

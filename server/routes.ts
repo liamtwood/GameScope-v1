@@ -818,6 +818,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Club card statistics (for club overview card)
+  app.get("/api/clubs/:clubId/card-stats", async (req, res) => {
+    try {
+      const { clubId } = req.params;
+      
+      // Get all teams for this club
+      const teams = await storage.getTeams();
+      const clubTeams = teams.filter(team => team.clubId === clubId);
+      const teamCount = clubTeams.length;
+      
+      // Get all players across all teams in this club
+      let totalPlayers = 0;
+      for (const team of clubTeams) {
+        const teamPlayers = await storage.getTeamPlayers(team.id);
+        totalPlayers += teamPlayers.filter(tp => tp.status === 'active').length;
+      }
+      
+      // Get all fixtures across all teams in this club
+      let totalFixtures = 0;
+      for (const team of clubTeams) {
+        const fixtures = await storage.getFixtures(team.id);
+        totalFixtures += fixtures.length;
+      }
+      
+      const cardStats = {
+        players: totalPlayers,
+        matches: teamCount, // Changed from fixtures to team count as requested
+        processing: totalFixtures // Using total fixtures for processing count
+      };
+
+      res.json(cardStats);
+    } catch (error) {
+      console.error("Error fetching club card statistics:", error);
+      res.status(500).json({ message: "Failed to fetch club card statistics" });
+    }
+  });
+
   // Match Statistics routes
   app.get("/api/match-stats/:fixtureId", async (req, res) => {
     try {
