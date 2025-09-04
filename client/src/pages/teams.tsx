@@ -490,7 +490,11 @@ export default function Teams() {
                                   
                                   {/* Team Information */}
                                   <div className="flex-1">
-                                    <h4 className="text-xl font-bold text-gray-900 mb-2" data-testid={`text-team-name-${team.id}`}>
+                                    <h4 
+                                      className="text-xl font-bold mb-2" 
+                                      style={{ color: clubPrimaryColor }}
+                                      data-testid={`text-team-name-${team.id}`}
+                                    >
                                       {team.name}
                                     </h4>
                                     <p className="text-sm text-gray-600 mb-1">
