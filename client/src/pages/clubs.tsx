@@ -638,8 +638,35 @@ export default function Clubs() {
         </CardHeader>
         <CardContent>
           {/* Clubs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {clubs?.map((club) => {
+          <div className="space-y-8">
+        {(() => {
+          // Group clubs by country
+          const groupedClubs = clubs?.reduce((acc, club) => {
+            const country = club.country || 'Other';
+            if (!acc[country]) {
+              acc[country] = [];
+            }
+            acc[country].push(club);
+            return acc;
+          }, {} as Record<string, typeof clubs>);
+
+          // Sort countries alphabetically
+          const sortedCountries = Object.keys(groupedClubs || {}).sort();
+
+          return sortedCountries.map((country) => (
+            <div key={country} className="space-y-4">
+              {/* Country Header */}
+              <h3 className="text-lg font-semibold text-club-primary mb-4 flex items-center">
+                <MapPin className="w-5 h-5 mr-2" />
+                {country}
+                <span className="ml-2 text-sm text-muted-foreground">
+                  ({groupedClubs[country].length} club{groupedClubs[country].length !== 1 ? 's' : ''})
+                </span>
+              </h3>
+              
+              {/* Clubs grid for this country */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {groupedClubs[country].map((club) => {
           const isSelected = selectedClub?.id === club.id;
           const clubPrimaryColor = (club?.colors as any)?.primary || '#dc2626';
           return (
@@ -717,7 +744,11 @@ export default function Clubs() {
             </CardContent>
           </Card>
           );
-        })}
+                })}
+              </div>
+            </div>
+          ));
+        })()}
       </div>
 
       {/* Empty State */}
