@@ -15,8 +15,8 @@ export function useTeams() {
 }
 
 export function usePlayers(teamId: string) {
-  return useQuery<Player[]>({
-    queryKey: ['/api/teams', teamId, 'players'],
+  return useQuery<any[]>({
+    queryKey: ['/api/team', teamId, 'users'],
     enabled: !!teamId
   });
 }

@@ -40,7 +40,7 @@ export default function Squad() {
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
-    queryKey: ["/api/team", currentTeam?.id, "players"],
+    queryKey: ["/api/team", currentTeam?.id, "users"],
     enabled: !!currentTeam?.id 
   });
   
