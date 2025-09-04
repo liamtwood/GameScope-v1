@@ -33,6 +33,68 @@ const createTeamSchema = z.object({
 
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
 
+// Team card statistics type
+type TeamCardStats = {
+  players: number;
+  matches: number;
+  processing: number;
+};
+
+// Hook to fetch team card statistics
+const useTeamCardStats = (teamId: string) => {
+  return useQuery<TeamCardStats>({
+    queryKey: ["/api/teams", teamId, "card-stats"],
+    enabled: !!teamId,
+  });
+};
+
+// Team statistics display component
+const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
+  const { data: stats, isLoading } = useTeamCardStats(teamId);
+  
+  if (isLoading) {
+    return (
+      <div className="mt-3 space-y-1">
+        <div className="flex justify-center items-center space-x-8">
+          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="flex justify-center items-center space-x-8">
+          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  return (
+    <div className="mt-3 space-y-1">
+      {/* Row 1: Numbers */}
+      <div className="flex justify-center items-center space-x-8">
+        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
+          {stats.players}
+        </span>
+        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
+          {stats.matches}
+        </span>
+        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
+          {stats.processing}
+        </span>
+      </div>
+      {/* Row 2: Labels */}
+      <div className="flex justify-center items-center space-x-8">
+        <span className="text-xs text-gray-600 font-medium">Players</span>
+        <span className="text-xs text-gray-600 font-medium">Matches</span>
+        <span className="text-xs text-gray-600 font-medium">Processing</span>
+      </div>
+    </div>
+  );
+};
+
 export default function Teams() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -419,6 +481,9 @@ export default function Teams() {
                                     >
                                       {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                     </Badge>
+                                    
+                                    {/* Team Statistics */}
+                                    <TeamStatsDisplay teamId={team.id} />
                                   </div>
                                 </div>
                                 

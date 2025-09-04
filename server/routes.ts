@@ -376,7 +376,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.addPlayerToTeam(
           player.id,
           teamId,
-          true, // Set as primary team
           jerseyNumber, // Use jerseyNumber as squadNumber
           position
         );
@@ -787,6 +786,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching team statistics:", error);
       res.status(500).json({ message: "Failed to fetch team statistics" });
+    }
+  });
+
+  // Team card statistics (for team overview cards)
+  app.get("/api/teams/:teamId/card-stats", async (req, res) => {
+    try {
+      const { teamId } = req.params;
+      
+      // Get player count via playerTeams junction table
+      const teamPlayers = await storage.getTeamPlayers(teamId);
+      const playerCount = teamPlayers.filter(tp => tp.status === 'active').length;
+      
+      // Get all fixtures for this team
+      const fixtures = await storage.getFixtures(teamId);
+      const matchCount = fixtures.length;
+      
+      // Get fixtures with videos
+      const processingCount = fixtures.filter(f => f.hasVideo === true).length;
+      
+      const cardStats = {
+        players: playerCount,
+        matches: matchCount,
+        processing: processingCount
+      };
+
+      res.json(cardStats);
+    } catch (error) {
+      console.error("Error fetching team card statistics:", error);
+      res.status(500).json({ message: "Failed to fetch team card statistics" });
     }
   });
 
