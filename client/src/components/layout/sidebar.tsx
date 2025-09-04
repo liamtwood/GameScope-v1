@@ -106,7 +106,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                   <div className="flex items-center justify-between">
                     <div className="text-left">
                       <h3 className="font-semibold text-xs" style={{ color: clubPrimaryColor }}>
-                        {selectedTeam ? selectedTeam.name.toUpperCase() : "NO TEAM SELECTED"}
+                        {selectedTeam ? selectedTeam.name : "No Team Selected"}
                       </h3>
                     </div>
                     <div className="flex items-center gap-2">
