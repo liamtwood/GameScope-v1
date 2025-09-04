@@ -54,16 +54,20 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   
   if (isLoading) {
     return (
-      <div className="mt-4 space-y-2">
-        <div className="flex justify-center items-center space-x-12">
-          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-        <div className="flex justify-center items-center space-x-12">
-          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+      <div className="mt-4">
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+          </div>
         </div>
       </div>
     );
@@ -72,24 +76,32 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   if (!stats) return null;
 
   return (
-    <div className="mt-4 space-y-2">
-      {/* Row 1: Numbers - larger text, centered */}
-      <div className="flex justify-center items-center space-x-12">
-        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
-          {stats.players}
-        </span>
-        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
-          {stats.matches}
-        </span>
-        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
-          {stats.processing}
-        </span>
-      </div>
-      {/* Row 2: Labels - smaller colored text */}
-      <div className="flex justify-center items-center space-x-12">
-        <span className="text-xs text-orange-500 font-medium">Players</span>
-        <span className="text-xs text-red-500 font-medium">Matches</span>
-        <span className="text-xs text-purple-500 font-medium">Processing</span>
+    <div className="mt-4">
+      {/* Grid layout for perfect alignment */}
+      <div className="grid grid-cols-3 gap-4 text-center">
+        {/* Column 1: Players */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
+            {stats.players}
+          </span>
+          <span className="text-xs text-orange-500 font-medium mt-1">Players</span>
+        </div>
+        
+        {/* Column 2: Matches */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
+            {stats.matches}
+          </span>
+          <span className="text-xs text-red-500 font-medium mt-1">Matches</span>
+        </div>
+        
+        {/* Column 3: Processing */}
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
+            {stats.processing}
+          </span>
+          <span className="text-xs text-purple-500 font-medium mt-1">Processing</span>
+        </div>
       </div>
     </div>
   );
