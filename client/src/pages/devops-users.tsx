@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type RoleFilter = 'all' | 'admin' | 'coach' | 'player';
-type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended';
+type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended' | 'Active' | 'Inactive' | 'Suspended' | 'Draft';
 type StarFilter = 'all' | 'star' | 'regular';
 
 export default function DevOpsUsers() {
