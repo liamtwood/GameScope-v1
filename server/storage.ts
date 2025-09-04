@@ -4,31 +4,31 @@ import { db } from "./db";
 import {
   clubs,
   teams,
-  players,
-  playerTeams,
+  users,
+  userTeams,
+  userParents,
   fixtures,
   oppositionTeams,
   competitions,
   matchStats,
-  users,
   type Club,
   type Team,
-  type Player,
-  type PlayerTeam,
+  type User,
+  type UserTeam,
+  type UserParent,
   type Fixture,
   type OppositionTeam,
   type Competition,
   type MatchStats,
-  type User,
   type InsertClub,
   type InsertTeam,
-  type InsertPlayer,
-  type InsertPlayerTeam,
+  type InsertUser,
+  type InsertUserTeam,
+  type InsertUserParent,
   type InsertFixture,
   type InsertOppositionTeam,
   type InsertCompetition,
   type InsertMatchStats,
-  type InsertUser,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -45,18 +45,23 @@ export interface IStorage {
   createTeam(team: InsertTeam): Promise<Team>;
   updateTeam(id: string, team: Partial<InsertTeam>): Promise<Team>;
   
-  // Player operations
-  getPlayers(teamId?: string): Promise<Player[]>;
-  getPlayer(id: string): Promise<Player | undefined>;
-  createPlayer(player: InsertPlayer): Promise<Player>;
-  updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player>;
-  deletePlayer(id: string): Promise<void>;
+  // User operations (replaces Player operations)
+  getUsers(teamId?: string): Promise<User[]>;
+  getUser(id: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<InsertUser>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
   
-  // Player-Team relationship operations
-  getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]>;
-  addPlayerToTeam(playerId: string, teamId: string, squadNumber?: number, position?: string): Promise<PlayerTeam>;
-  removePlayerFromTeam(playerId: string, teamId: string): Promise<void>;
-  getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]>;
+  // User-Team relationship operations (replaces Player-Team operations)
+  getUserTeams(userId: string): Promise<(UserTeam & { team: Team })[]>;
+  addUserToTeam(userId: string, teamId: string, assignment: InsertUserTeam): Promise<UserTeam>;
+  removeUserFromTeam(userId: string, teamId: string): Promise<void>;
+  getTeamUsers(teamId: string): Promise<(UserTeam & { user: User })[]>;
+  
+  // User-Parent relationship operations
+  getUserParents(userId: string): Promise<(UserParent & { parent: User })[]>;
+  addUserParent(userId: string, parentUserId: string, relationshipType?: string): Promise<UserParent>;
+  removeUserParent(userId: string, parentUserId: string): Promise<void>;
   
   // Opposition team operations
   getOppositionTeams(): Promise<OppositionTeam[]>;
@@ -343,135 +348,208 @@ export class DatabaseStorage implements IStorage {
     return updatedTeam;
   }
 
-  // Player operations
-  async getPlayers(teamId?: string): Promise<Player[]> {
+  // User operations (replaces Player operations)
+  async getUsers(teamId?: string): Promise<User[]> {
     if (teamId) {
-      return await db.select().from(players).where(eq(players.teamId, teamId));
+      // Get users through team assignments
+      return await db.select({
+        id: users.id,
+        username: users.username,
+        password: users.password,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        hometown: users.hometown,
+        height: users.height,
+        year: users.year,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      })
+      .from(users)
+      .innerJoin(userTeams, eq(users.id, userTeams.userId))
+      .where(eq(userTeams.teamId, teamId));
     }
-    return await db.select().from(players);
+    return await db.select().from(users);
   }
 
-  async getPlayer(id: string): Promise<Player | undefined> {
-    const [player] = await db.select().from(players).where(eq(players.id, id));
-    return player;
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
-  async createPlayer(player: InsertPlayer): Promise<Player> {
-    const newPlayerData = {
-      ...player,
+  async createUser(user: InsertUser): Promise<User> {
+    const newUserData = {
+      ...user,
       id: randomUUID(),
-      status: player.status || null,
-      keyPlayer: player.keyPlayer || false,
-      hometown: player.hometown || null,
-      year: player.year || null,
-      height: player.height || null,
-      appearances: player.appearances || 0,
-      goals: player.goals || 0,
-      assists: player.assists || 0,
-      email: player.email || null,
-      phone: player.phone || null,
-      emergencyContact: player.emergencyContact || null,
-      gender: player.gender || null,
-      dateOfBirth: player.dateOfBirth || null,
-      accountStatus: player.accountStatus || 'Draft',
+      username: user.username || null,
+      password: user.password || null,
+      shirtName: user.shirtName || null,
+      dateOfBirth: user.dateOfBirth || null,
+      gender: user.gender || null,
+      email: user.email || null,
+      phone: user.phone || null,
+      emergencyContact: user.emergencyContact || null,
+      emergencyContactPhone: user.emergencyContactPhone || null,
+      role: user.role || 'Player',
+      status: user.status || 'Draft',
+      hometown: user.hometown || null,
+      height: user.height || null,
+      year: user.year || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     
-    await db.insert(players).values(newPlayerData);
-    return newPlayerData as Player;
+    await db.insert(users).values(newUserData);
+    return newUserData as User;
   }
 
-  async updatePlayer(id: string, player: Partial<InsertPlayer>): Promise<Player> {
+  async updateUser(id: string, user: Partial<InsertUser>): Promise<User> {
     const updated = {
-      ...player,
+      ...user,
       updatedAt: new Date(),
     };
     
-    await db.update(players).set(updated).where(eq(players.id, id));
+    await db.update(users).set(updated).where(eq(users.id, id));
     
-    const [updatedPlayer] = await db.select().from(players).where(eq(players.id, id));
-    if (!updatedPlayer) throw new Error('Player not found');
+    const [updatedUser] = await db.select().from(users).where(eq(users.id, id));
+    if (!updatedUser) throw new Error('User not found');
     
-    return updatedPlayer;
+    return updatedUser;
   }
 
-  async deletePlayer(id: string): Promise<void> {
-    // First remove all team assignments for this player
-    await db.delete(playerTeams).where(eq(playerTeams.playerId, id));
-    // Then delete the player
-    await db.delete(players).where(eq(players.id, id));
+  async deleteUser(id: string): Promise<void> {
+    // First remove all team assignments for this user
+    await db.delete(userTeams).where(eq(userTeams.userId, id));
+    // Remove all parent relationships
+    await db.delete(userParents).where(eq(userParents.userId, id));
+    await db.delete(userParents).where(eq(userParents.parentUserId, id));
+    // Then delete the user
+    await db.delete(users).where(eq(users.id, id));
   }
 
-  // Player-Team relationship operations
-  async getPlayerTeams(playerId: string): Promise<(PlayerTeam & { team: Team })[]> {
+  // User-Team relationship operations (replaces Player-Team operations)
+  async getUserTeams(userId: string): Promise<(UserTeam & { team: Team })[]> {
     return await db.select({
-      id: playerTeams.id,
-      playerId: playerTeams.playerId,
-      teamId: playerTeams.teamId,
-
-      squadNumber: playerTeams.squadNumber,
-      position: playerTeams.position,
-      joinedAt: playerTeams.joinedAt,
-      leftAt: playerTeams.leftAt,
-      status: playerTeams.status,
-      createdAt: playerTeams.createdAt,
-      updatedAt: playerTeams.updatedAt,
+      id: userTeams.id,
+      userId: userTeams.userId,
+      teamId: userTeams.teamId,
+      jerseyNumber: userTeams.jerseyNumber,
+      position: userTeams.position,
+      starPlayer: userTeams.starPlayer,
+      fitnessStatus: userTeams.fitnessStatus,
+      appearances: userTeams.appearances,
+      goals: userTeams.goals,
+      assists: userTeams.assists,
+      joinedAt: userTeams.joinedAt,
+      leftAt: userTeams.leftAt,
+      assignmentStatus: userTeams.assignmentStatus,
+      createdAt: userTeams.createdAt,
+      updatedAt: userTeams.updatedAt,
       team: teams
     })
-    .from(playerTeams)
-    .innerJoin(teams, eq(playerTeams.teamId, teams.id))
-    .where(eq(playerTeams.playerId, playerId));
+    .from(userTeams)
+    .innerJoin(teams, eq(userTeams.teamId, teams.id))
+    .where(eq(userTeams.userId, userId));
   }
 
-  async addPlayerToTeam(
-    playerId: string, 
+  async addUserToTeam(
+    userId: string, 
     teamId: string, 
-    squadNumber?: number,
-    position?: string
-  ): Promise<PlayerTeam> {
+    assignment: InsertUserTeam
+  ): Promise<UserTeam> {
     const id = randomUUID();
-    const newPlayerTeam = {
+    const newUserTeam = {
+      ...assignment,
       id,
-      playerId,
+      userId,
       teamId,
-      squadNumber: squadNumber !== undefined ? squadNumber : null,
-      position: position || null,
-      status: 'active',
+      jerseyNumber: assignment.jerseyNumber || 0,
+      starPlayer: assignment.starPlayer || false,
+      fitnessStatus: assignment.fitnessStatus || 'Fit',
+      appearances: assignment.appearances || 0,
+      goals: assignment.goals || 0,
+      assists: assignment.assists || 0,
+      assignmentStatus: assignment.assignmentStatus || 'active',
       joinedAt: new Date(),
       leftAt: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
     
-    await db.insert(playerTeams).values(newPlayerTeam);
-    return newPlayerTeam as PlayerTeam;
+    await db.insert(userTeams).values(newUserTeam);
+    return newUserTeam as UserTeam;
   }
 
-  async removePlayerFromTeam(playerId: string, teamId: string): Promise<void> {
-    await db.delete(playerTeams)
-      .where(and(eq(playerTeams.playerId, playerId), eq(playerTeams.teamId, teamId)));
+  async removeUserFromTeam(userId: string, teamId: string): Promise<void> {
+    await db.delete(userTeams)
+      .where(and(eq(userTeams.userId, userId), eq(userTeams.teamId, teamId)));
   }
 
 
-  async getTeamPlayers(teamId: string): Promise<(PlayerTeam & { player: Player })[]> {
+  async getTeamUsers(teamId: string): Promise<(UserTeam & { user: User })[]> {
     return await db.select({
-      id: playerTeams.id,
-      playerId: playerTeams.playerId,
-      teamId: playerTeams.teamId,
-
-      squadNumber: playerTeams.squadNumber,
-      position: playerTeams.position,
-      joinedAt: playerTeams.joinedAt,
-      leftAt: playerTeams.leftAt,
-      status: playerTeams.status,
-      createdAt: playerTeams.createdAt,
-      updatedAt: playerTeams.updatedAt,
-      player: players
+      id: userTeams.id,
+      userId: userTeams.userId,
+      teamId: userTeams.teamId,
+      jerseyNumber: userTeams.jerseyNumber,
+      position: userTeams.position,
+      starPlayer: userTeams.starPlayer,
+      fitnessStatus: userTeams.fitnessStatus,
+      appearances: userTeams.appearances,
+      goals: userTeams.goals,
+      assists: userTeams.assists,
+      joinedAt: userTeams.joinedAt,
+      leftAt: userTeams.leftAt,
+      assignmentStatus: userTeams.assignmentStatus,
+      createdAt: userTeams.createdAt,
+      updatedAt: userTeams.updatedAt,
+      user: users
     })
-    .from(playerTeams)
-    .innerJoin(players, eq(playerTeams.playerId, players.id))
-    .where(eq(playerTeams.teamId, teamId));
+    .from(userTeams)
+    .innerJoin(users, eq(userTeams.userId, users.id))
+    .where(eq(userTeams.teamId, teamId));
+  }
+
+  // User-Parent relationship operations
+  async getUserParents(userId: string): Promise<(UserParent & { parent: User })[]> {
+    return await db.select({
+      id: userParents.id,
+      userId: userParents.userId,
+      parentUserId: userParents.parentUserId,
+      relationshipType: userParents.relationshipType,
+      createdAt: userParents.createdAt,
+      parent: users
+    })
+    .from(userParents)
+    .innerJoin(users, eq(userParents.parentUserId, users.id))
+    .where(eq(userParents.userId, userId));
+  }
+
+  async addUserParent(userId: string, parentUserId: string, relationshipType?: string): Promise<UserParent> {
+    const id = randomUUID();
+    const newUserParent = {
+      id,
+      userId,
+      parentUserId,
+      relationshipType: relationshipType || 'parent',
+      createdAt: new Date(),
+    };
+    
+    await db.insert(userParents).values(newUserParent);
+    return newUserParent as UserParent;
+  }
+
+  async removeUserParent(userId: string, parentUserId: string): Promise<void> {
+    await db.delete(userParents)
+      .where(and(eq(userParents.userId, userId), eq(userParents.parentUserId, parentUserId)));
   }
 
   // Fixture operations

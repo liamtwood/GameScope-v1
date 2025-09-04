@@ -187,8 +187,8 @@ export const userTeams = pgTable("user_teams", {
   teamId: varchar("team_id").references(() => teams.id).notNull(),
   
   // Team-specific assignments
-  jerseyNumber: integer("jersey_number"),
-  position: varchar("position", { length: 20 }),
+  jerseyNumber: integer("jersey_number").default(0),
+  position: varchar("position", { length: 20 }).notNull(),
   starPlayer: boolean("star_player").default(false),
   fitnessStatus: varchar("fitness_status", { length: 20 }).default("Fit"), // Fit, Injured, Retired
   
@@ -225,11 +225,12 @@ export const insertUserSchema = createInsertSchema(users)
     email: z.string().email().optional().or(z.literal("")),
     gender: z.enum(["Male", "Female", "Other"]).optional(),
     dateOfBirth: z.string().or(z.date()).transform((val) => val ? new Date(val) : undefined).optional(),
-    role: z.enum(["Player", "Coach", "Admin", "Parent"]).optional(),
-    status: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
+    role: z.enum(["player", "Player", "coach", "Coach", "admin", "Admin", "parent", "Parent"]).default("player"),
+    status: z.enum(["draft", "Draft", "active", "Active", "suspended", "Suspended", "retired", "Retired"]).default("draft"),
   });
 export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
+    position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"]),
     fitnessStatus: z.enum(["Fit", "Injured", "Retired"]).optional(),
     assignmentStatus: z.enum(["active", "inactive"]).optional(),
   });

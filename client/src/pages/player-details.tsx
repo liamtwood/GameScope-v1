@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Player, Team, PlayerTeam } from "@shared/schema";
+import { User, Team, UserTeam } from "@shared/schema";
 import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
@@ -24,7 +24,7 @@ export default function PlayerDetails() {
   const { selectedClub } = useClub();
   const { teams } = useTeam();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<Player>>({});
+  const [editData, setEditData] = useState<Partial<User>>({});
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
@@ -35,13 +35,13 @@ export default function PlayerDetails() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: player, isLoading } = useQuery<Player>({
+  const { data: player, isLoading } = useQuery<User>({
     queryKey: ["/api/player", playerId],
     enabled: !!playerId,
   });
 
-  // Get all teams for this player
-  const { data: playerTeams = [] } = useQuery<(PlayerTeam & { team: Team })[]>({
+  // Get all teams for this user
+  const { data: userTeams = [] } = useQuery<(UserTeam & { team: Team })[]>({
     queryKey: ["/api/player", player?.id, "teams"],
     enabled: !!player?.id
   });

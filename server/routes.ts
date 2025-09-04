@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertPlayerSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -285,25 +285,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Player routes
-  // Get single player by id
-  app.get("/api/player/:id", async (req, res) => {
+  // Get single user by id
+  app.get("/api/user/:id", async (req, res) => {
     try {
-      const player = await storage.getPlayer(req.params.id);
-      if (!player) {
-        return res.status(404).json({ message: "Player not found" });
+      const user = await storage.getUser(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
-      res.json(player);
+      res.json(user);
     } catch (error) {
-      console.error("Error fetching player:", error);
-      res.status(500).json({ message: "Failed to fetch player" });
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
-  // Update single player by id
-  app.patch("/api/player/:id", async (req, res) => {
+  // Update single user by id
+  app.patch("/api/user/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data with all the new fields
-      const validKeys = ['keyPlayer', 'status', 'firstName', 'lastName', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus', 'hometown', 'year', 'height', 'appearances', 'goals', 'assists', 'phone', 'emergencyContact', 'teamId'];
+      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
@@ -311,34 +311,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return acc;
       }, {} as any);
       
-      const player = await storage.updatePlayer(req.params.id, updates);
-      res.json(player);
+      const user = await storage.updateUser(req.params.id, updates);
+      res.json(user);
     } catch (error) {
-      console.error("Error updating player:", error);
-      res.status(400).json({ message: "Failed to update player" });
+      console.error("Error updating user:", error);
+      res.status(400).json({ message: "Failed to update user" });
     }
   });
 
-  app.get("/api/players", async (req, res) => {
+  app.get("/api/users", async (req, res) => {
     try {
       const teamId = req.query.teamId as string;
-      const players = await storage.getPlayers(teamId);
-      res.json(players);
+      const users = await storage.getUsers(teamId);
+      res.json(users);
     } catch (error) {
-      console.error("Error fetching players:", error);
-      res.status(500).json({ message: "Failed to fetch players" });
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
     }
   });
 
   // Route for getting players by team ID (expected by frontend)
-  app.get("/api/players/:teamId", async (req, res) => {
+  app.get("/api/users/:teamId", async (req, res) => {
     try {
       const teamId = req.params.teamId;
-      const players = await storage.getPlayers(teamId);
-      res.json(players);
+      const users = await storage.getUsers(teamId);
+      res.json(users);
     } catch (error) {
-      console.error("Error fetching players by team:", error);
-      res.status(500).json({ message: "Failed to fetch players" });
+      console.error("Error fetching users by team:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
     }
   });
 
@@ -355,54 +355,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/players", async (req, res) => {
+  app.post("/api/users", async (req, res) => {
     try {
-      const { teamId, jerseyNumber, position, ...restData } = req.body;
+      const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, ...userData } = req.body;
       
-      // For the new multi-team system, we need to handle team assignment separately
-      // Create player data - use the legacy fields for now but will assign via playerTeams
-      const playerData = {
-        ...restData,
-        teamId: teamId, // Keep for legacy compatibility
-        jerseyNumber: jerseyNumber || 0,
-        position: position || 'TBD'
-      };
+      // Create user first with personal information
+      const validatedUserData = insertUserSchema.parse(userData);
+      const user = await storage.createUser(validatedUserData);
       
-      const validatedData = insertPlayerSchema.parse(playerData);
-      const player = await storage.createPlayer(validatedData);
-      
-      // Always add to team via the new system if teamId is provided
-      if (teamId && jerseyNumber !== undefined && position) {
-        await storage.addPlayerToTeam(
-          player.id,
+      // Add to team if teamId and position are provided
+      if (teamId && position) {
+        const teamAssignment = {
+          userId: user.id,
           teamId,
-          jerseyNumber, // Use jerseyNumber as squadNumber
-          position
-        );
+          jerseyNumber: jerseyNumber || 0,
+          position,
+          starPlayer: starPlayer || false,
+          fitnessStatus: fitnessStatus || 'Fit'
+        };
+        
+        const validatedTeamData = insertUserTeamSchema.parse(teamAssignment);
+        await storage.addUserToTeam(user.id, teamId, validatedTeamData);
       }
       
-      res.status(201).json(player);
+      res.status(201).json(user);
     } catch (error) {
-      console.error("Error creating player:", error);
-      res.status(400).json({ message: "Failed to create player" });
+      console.error("Error creating user:", error);
+      res.status(400).json({ message: "Failed to create user" });
     }
   });
 
-  app.put("/api/players/:id", async (req, res) => {
+  app.put("/api/users/:id", async (req, res) => {
     try {
-      const playerData = insertPlayerSchema.partial().parse(req.body);
-      const player = await storage.updatePlayer(req.params.id, playerData);
-      res.json(player);
+      const userData = insertUserSchema.partial().parse(req.body);
+      const user = await storage.updateUser(req.params.id, userData);
+      res.json(user);
     } catch (error) {
-      console.error("Error updating player:", error);
-      res.status(400).json({ message: "Failed to update player" });
+      console.error("Error updating user:", error);
+      res.status(400).json({ message: "Failed to update user" });
     }
   });
 
-  app.patch("/api/players/:id", async (req, res) => {
+  app.patch("/api/users/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data
-      const validKeys = ['keyPlayer', 'status', 'name', 'position', 'jerseyNumber', 'email', 'gender', 'dateOfBirth', 'accountStatus'];
+      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
@@ -410,68 +407,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return acc;
       }, {} as any);
       
-      const player = await storage.updatePlayer(req.params.id, updates);
-      res.json(player);
+      const user = await storage.updateUser(req.params.id, updates);
+      res.json(user);
     } catch (error) {
-      console.error("Error updating player:", error);
-      res.status(400).json({ message: "Failed to update player" });
+      console.error("Error updating user:", error);
+      res.status(400).json({ message: "Failed to update user" });
     }
   });
 
-  app.delete("/api/players/:id", async (req, res) => {
+  app.delete("/api/users/:id", async (req, res) => {
     try {
-      await storage.deletePlayer(req.params.id);
+      await storage.deleteUser(req.params.id);
       res.status(204).send();
     } catch (error) {
-      console.error("Error deleting player:", error);
-      res.status(500).json({ message: "Failed to delete player" });
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
     }
   });
 
-  // Player-Team relationship routes
-  // Get all teams for a player
-  app.get("/api/player/:playerId/teams", async (req, res) => {
+  // User-Team relationship routes
+  // Get all teams for a user
+  app.get("/api/user/:userId/teams", async (req, res) => {
     try {
-      const playerTeams = await storage.getPlayerTeams(req.params.playerId);
-      res.json(playerTeams);
+      const userTeams = await storage.getUserTeams(req.params.userId);
+      res.json(userTeams);
     } catch (error) {
-      console.error("Error fetching player teams:", error);
-      res.status(500).json({ message: "Failed to fetch player teams" });
+      console.error("Error fetching user teams:", error);
+      res.status(500).json({ message: "Failed to fetch user teams" });
     }
   });
 
-  // Add player to a team
-  app.post("/api/player/:playerId/teams", async (req, res) => {
+  // Add user to a team
+  app.post("/api/user/:userId/teams", async (req, res) => {
     try {
-      const { teamId, squadNumber, position } = req.body;
-      const playerTeam = await storage.addPlayerToTeam(req.params.playerId, teamId, squadNumber, position);
-      res.status(201).json(playerTeam);
+      const { teamId, jerseyNumber, position, starPlayer, fitnessStatus } = req.body;
+      
+      const teamAssignment = {
+        userId: req.params.userId,
+        teamId,
+        jerseyNumber: jerseyNumber || 0,
+        position,
+        starPlayer: starPlayer || false,
+        fitnessStatus: fitnessStatus || 'Fit'
+      };
+      
+      const validatedTeamData = insertUserTeamSchema.parse(teamAssignment);
+      const userTeam = await storage.addUserToTeam(req.params.userId, teamId, validatedTeamData);
+      res.status(201).json(userTeam);
     } catch (error) {
-      console.error("Error adding player to team:", error);
-      res.status(400).json({ message: "Failed to add player to team" });
+      console.error("Error adding user to team:", error);
+      res.status(400).json({ message: "Failed to add user to team" });
     }
   });
 
-  // Remove player from a team
-  app.delete("/api/player/:playerId/teams/:teamId", async (req, res) => {
+  // Remove user from a team
+  app.delete("/api/user/:userId/teams/:teamId", async (req, res) => {
     try {
-      await storage.removePlayerFromTeam(req.params.playerId, req.params.teamId);
+      await storage.removeUserFromTeam(req.params.userId, req.params.teamId);
       res.status(204).send();
     } catch (error) {
-      console.error("Error removing player from team:", error);
+      console.error("Error removing user from team:", error);
       res.status(500).json({ message: "Failed to remove player from team" });
     }
   });
 
 
   // Get all players for a team
+  app.get("/api/team/:teamId/users", async (req, res) => {
+    try {
+      const teamUsers = await storage.getTeamUsers(req.params.teamId);
+      res.json(teamUsers);
+    } catch (error) {
+      console.error("Error fetching team users:", error);
+      res.status(500).json({ message: "Failed to fetch team users" });
+    }
+  });
+
+  // Backward compatibility - redirect old player routes to user routes
   app.get("/api/team/:teamId/players", async (req, res) => {
     try {
-      const teamPlayers = await storage.getTeamPlayers(req.params.teamId);
-      res.json(teamPlayers);
+      const teamUsers = await storage.getTeamUsers(req.params.teamId);
+      res.json(teamUsers);
     } catch (error) {
       console.error("Error fetching team players:", error);
       res.status(500).json({ message: "Failed to fetch team players" });
+    }
+  });
+
+  // Backward compatibility routes
+  app.get("/api/players", async (req, res) => {
+    try {
+      const teamId = req.query.teamId as string;
+      const users = await storage.getUsers(teamId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching players:", error);
+      res.status(500).json({ message: "Failed to fetch players" });
+    }
+  });
+
+  app.post("/api/players", async (req, res) => {
+    try {
+      const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, ...userData } = req.body;
+      
+      // Create user first with personal information
+      const validatedUserData = insertUserSchema.parse(userData);
+      const user = await storage.createUser(validatedUserData);
+      
+      // Add to team if teamId and position are provided
+      if (teamId && position) {
+        const teamAssignment = {
+          userId: user.id,
+          teamId,
+          jerseyNumber: jerseyNumber || 0,
+          position,
+          starPlayer: starPlayer || false,
+          fitnessStatus: fitnessStatus || 'Fit'
+        };
+        
+        const validatedTeamData = insertUserTeamSchema.parse(teamAssignment);
+        await storage.addUserToTeam(user.id, teamId, validatedTeamData);
+      }
+      
+      res.status(201).json(user);
+    } catch (error) {
+      console.error("Error creating player:", error);
+      res.status(400).json({ message: "Failed to create player" });
     }
   });
 

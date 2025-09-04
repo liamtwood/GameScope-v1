@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, MoreHorizontal, Star, User } from "lucide-react";
-import { Player } from "@shared/schema";
+import { Edit, Trash2, MoreHorizontal, Star, User as UserIcon } from "lucide-react";
+import { User } from "@shared/schema";
 import { useLocation } from "wouter";
 import {
   DropdownMenu,
@@ -15,11 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useClubTheme } from "@/hooks/use-club-theme";
 
 interface PlayerCardProps {
-  player: Player;
-  onEdit?: (player: Player) => void;
-  onDelete?: (player: Player) => void;
-  onToggleKeyPlayer?: (player: Player) => void;
-  onUpdateStatus?: (player: Player, newStatus: string) => void;
+  player: User;
+  onEdit?: (player: User) => void;
+  onDelete?: (player: User) => void;
+  onToggleKeyPlayer?: (player: User) => void;
+  onUpdateStatus?: (player: User, newStatus: string) => void;
 }
 
 export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {

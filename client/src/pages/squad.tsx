@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings } from "lucide-react";
-import { Player, Team, Fixture } from "@shared/schema";
+import { User, Team, Fixture } from "@shared/schema";
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
