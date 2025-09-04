@@ -16,7 +16,7 @@ import { useClub } from "@/contexts/club-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type RoleFilter = 'all' | 'admin' | 'coach' | 'player';
-type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended';
+type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended' | 'Active' | 'Inactive' | 'Suspended' | 'Draft';
 type StarFilter = 'all' | 'star' | 'regular';
 
 export default function Users() {
@@ -346,6 +346,7 @@ export default function Users() {
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="Draft">Draft</SelectItem>
                 </SelectContent>
               </Select>
             </div>
