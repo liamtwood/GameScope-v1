@@ -229,8 +229,8 @@ export const insertUserSchema = createInsertSchema(users)
     email: z.string().email().optional().or(z.literal("")),
     gender: z.enum(["Male", "Female", "Other"]).optional(),
     dateOfBirth: z.string().or(z.date()).transform((val) => val ? new Date(val) : undefined).optional(),
-    role: z.enum(["player", "Player", "coach", "Coach", "admin", "Admin", "parent", "Parent"]).default("player"),
-    status: z.enum(["draft", "Draft", "active", "Active", "suspended", "Suspended", "retired", "Retired"]).default("draft"),
+    role: z.enum(["player", "Player", "coach", "Coach", "admin", "Admin", "parent", "Parent"]).default("Player"),
+    status: z.enum(["draft", "Draft", "active", "Active", "suspended", "Suspended", "retired", "Retired"]).default("Draft"),
   });
 export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
