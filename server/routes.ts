@@ -423,6 +423,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Photo upload routes
+  // Get upload URL for player photo
+  app.post("/api/player/:playerId/photo/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting photo upload URL:", error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  // Update player avatar path after upload
+  app.put("/api/player/:playerId/photo", async (req, res) => {
+    try {
+      if (!req.body.photoURL) {
+        return res.status(400).json({ error: "photoURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const avatarPath = objectStorageService.normalizeObjectEntityPath(req.body.photoURL);
+
+      // Update the user's avatar path
+      const user = await storage.updateUser(req.params.playerId, { avatarPath });
+      res.json({ avatarPath, user });
+    } catch (error) {
+      console.error("Error updating player photo:", error);
+      res.status(500).json({ message: "Failed to update player photo" });
+    }
+  });
+
+  // Serve player photos
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error serving photo:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ error: "Photo not found" });
+      }
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.post("/api/users", async (req, res) => {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, clubId, ...userData } = req.body;

@@ -10,12 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
 import { useToast } from "@/hooks/use-toast";
+import type { UploadResult } from "@uppy/core";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 
 export default function PlayerDetails() {
@@ -31,7 +33,6 @@ export default function PlayerDetails() {
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
   const [position, setPosition] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("details");
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -145,6 +146,51 @@ export default function PlayerDetails() {
     },
   });
 
+  // Photo upload mutation
+  const photoUploadMutation = useMutation({
+    mutationFn: async (photoURL: string) => {
+      const response = await fetch(`/api/player/${playerId}/photo`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoURL }),
+      });
+      if (!response.ok) throw new Error('Failed to update player photo');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      toast({
+        title: "Photo Updated",
+        description: "Player photo has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player photo. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getPhotoUploadURL = async () => {
+    const response = await fetch(`/api/player/${playerId}/photo/upload`, {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to get upload URL');
+    const data = await response.json();
+    return { method: 'PUT' as const, url: data.uploadURL };
+  };
+
+  const handlePhotoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      if (uploadedFile.uploadURL) {
+        photoUploadMutation.mutate(uploadedFile.uploadURL);
+      }
+    }
+  };
+
   const handleAddTeam = () => {
     if (selectedTeamId && !userTeams.some(pt => pt.teamId === selectedTeamId)) {
       addPlayerToTeamMutation.mutate({
@@ -192,43 +238,6 @@ export default function PlayerDetails() {
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid File",
-          description: "Please select an image file.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create a local URL for preview
-      const photoUrl = URL.createObjectURL(file);
-      setUploadedPhoto(photoUrl);
-      
-      toast({
-        title: "Photo Updated",
-        description: "Photo has been updated locally. Note: This is just a preview - full upload functionality would need backend support.",
-      });
-    }
-  };
-
-  const handlePhotoClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const getStatusColor = () => {
     if (!player) return 'bg-blue-500 text-white';
@@ -419,7 +428,13 @@ export default function PlayerDetails() {
                     {/* Player Avatar with Upload */}
                     <div className="relative group">
                       <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                        {uploadedPhoto ? (
+                        {player?.avatarPath ? (
+                          <AvatarImage 
+                            src={player.avatarPath} 
+                            alt={`${player.firstName} ${player.lastName}`}
+                            className="object-cover"
+                          />
+                        ) : uploadedPhoto ? (
                           <AvatarImage 
                             src={uploadedPhoto} 
                             alt={`${player.firstName} ${player.lastName}`}
@@ -437,25 +452,18 @@ export default function PlayerDetails() {
                         </AvatarFallback>
                       </Avatar>
                       
-                      {/* Photo Upload Button */}
-                      <button
-                        onClick={handlePhotoClick}
-                        className="absolute -bottom-1 -right-1 bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg"
-                        data-testid="button-upload-photo"
-                        aria-label="Upload photo"
-                      >
-                        <Pencil className="h-3 w-3 text-gray-600" />
-                      </button>
-                      
-                      {/* Hidden File Input */}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                        data-testid="input-photo-upload"
-                      />
+                      {/* Photo Upload Button using ObjectUploader */}
+                      <div className="absolute -bottom-1 -right-1">
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={5242880} // 5MB
+                          onGetUploadParameters={getPhotoUploadURL}
+                          onComplete={handlePhotoUploadComplete}
+                          buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg"
+                        >
+                          <Camera className="h-3 w-3 text-gray-600" />
+                        </ObjectUploader>
+                      </div>
                     </div>
                     
                     {/* Player Info */}

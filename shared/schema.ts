@@ -160,6 +160,7 @@ export const users = pgTable("users", {
   // Personal Information
   dateOfBirth: timestamp("date_of_birth"),
   gender: varchar("gender", { length: 10 }), // Male, Female, Other
+  avatarPath: text("avatar_path"), // Path to profile photo
   
   // Contact Information
   email: text("email"),
