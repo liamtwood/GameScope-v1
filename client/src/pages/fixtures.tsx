@@ -381,7 +381,7 @@ export default function Fixtures() {
               title="FCSAA League"
               value={`${fcsaaStats.wins}-${fcsaaStats.draws}-${fcsaaStats.losses}`}
               icon={Trophy}
-              iconColor="text-border"
+              iconColor="text-club-primary"
               subtitle="W-D-L"
             />
 
@@ -390,7 +390,7 @@ export default function Fixtures() {
               title="Goals For"
               value={stats.goalsFor}
               icon={TrendingUp}
-              iconColor="text-border"
+              iconColor="text-club-primary"
               subtitle={`${stats.completed > 0 ? (stats.goalsFor / stats.completed).toFixed(1) : '0.0'} per game`}
             />
 
@@ -399,7 +399,7 @@ export default function Fixtures() {
               title="Goals Against"
               value={stats.goalsAgainst}
               icon={TrendingDown}
-              iconColor="text-border"
+              iconColor="text-club-primary"
               subtitle={`${stats.completed > 0 ? (stats.goalsAgainst / stats.completed).toFixed(1) : '0.0'} per game`}
             />
 
@@ -408,7 +408,7 @@ export default function Fixtures() {
               title="Goal Difference"
               value={`${stats.goalsFor - stats.goalsAgainst > 0 ? '+' : ''}${stats.goalsFor - stats.goalsAgainst}`}
               icon={TrendingUpDown}
-              iconColor="text-border"
+              iconColor="text-club-primary"
               subtitle={`${stats.completed} matches played`}
             />
         </div>
@@ -574,7 +574,7 @@ export default function Fixtures() {
 
                   return Object.entries(groupedFixtures).map(([competitionName, competitionFixtures]) => (
                     <div key={competitionName}>
-                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <h3 className="text-lg font-semibold text-club-primary mb-4 flex items-center">
                         <div className="w-3 h-3 rounded-full mr-2 bg-blue-500" />
                         {competitionName} ({competitionFixtures.length})
                       </h3>

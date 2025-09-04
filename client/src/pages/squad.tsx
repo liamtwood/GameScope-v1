@@ -294,7 +294,7 @@ export default function Squad() {
             title="Total Players"
             value={getPositionCount('all')}
             icon={Users}
-            iconColor="text-border"
+            iconColor="text-club-primary"
             subtitle="active squad members"
           />
           

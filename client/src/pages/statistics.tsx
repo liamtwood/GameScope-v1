@@ -50,7 +50,7 @@ export default function Statistics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Season Record</h3>
-              <Trophy className="text-border" />
+              <Trophy className="text-club-primary" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -81,7 +81,7 @@ export default function Statistics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Goals Statistics</h3>
-              <Target className="text-border" />
+              <Target className="text-club-primary" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ export default function Statistics() {
       {/* Top Scorers */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Top Scorers</CardTitle>
+          <CardTitle className="text-club-primary">Top Scorers</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -156,7 +156,7 @@ export default function Statistics() {
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">{player.name}</p>
+                    <p className="font-semibold text-foreground">{`${player.firstName} ${player.lastName}`}</p>
                     <p className="text-sm text-muted-foreground">{player.position} • #{player.jerseyNumber}</p>
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default function Statistics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Goals by Position</CardTitle>
+            <CardTitle className="text-club-primary">Goals by Position</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -206,7 +206,7 @@ export default function Statistics() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Player Appearances</CardTitle>
+            <CardTitle className="text-club-primary">Player Appearances</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {appearanceDistribution.map(({ appearances, count }) => (
