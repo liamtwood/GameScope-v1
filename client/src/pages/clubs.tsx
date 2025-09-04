@@ -726,6 +726,7 @@ export default function Clubs() {
                     )}
                   />
                   
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">ADDRESS</h4>
                   <FormField
                     control={editForm.control}
                     name="address"
@@ -803,6 +804,7 @@ export default function Clubs() {
                     )}
                   />
                   
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={editForm.control}
@@ -875,7 +877,7 @@ export default function Clubs() {
                   
                   {/* Club Colors */}
                   <div className="space-y-4">
-                    <FormLabel>Club Colors</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CLUB COLORS</FormLabel>
                     <FormField
                       control={editForm.control}
                       name="colors.primary"
