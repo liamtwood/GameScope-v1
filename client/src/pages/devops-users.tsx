@@ -209,7 +209,7 @@ export default function DevOpsUsers() {
 
   return (
     <MainLayout 
-      title="DevOps: User Management" 
+      title="All Users Management" 
       subtitle="System-wide user management across all clubs and teams"
     >
       {/* Summary Cards */}

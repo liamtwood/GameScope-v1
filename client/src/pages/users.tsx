@@ -222,8 +222,8 @@ export default function Users() {
 
   return (
     <MainLayout 
-      title="User Management" 
-      subtitle="Manage system users and access rights"
+      title="Club User Management" 
+      subtitle="Manage users and access rights for this club"
     >
       {/* Summary Cards */}
       <div className="mb-6">

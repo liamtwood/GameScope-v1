@@ -42,7 +42,7 @@ export const NAVIGATION_SECTIONS = [
     title: 'Club',
     items: [
       { id: 'teams', label: 'Teams', icon: 'Shield', tooltip: 'Teams Overview' },
-      { id: 'users', label: 'Users', icon: 'Users', tooltip: 'User Management' },
+      { id: 'users', label: 'Club Users', icon: 'Users', tooltip: 'Club User Management' },
       { id: 'club-management', label: 'Club Management', icon: 'Landmark', tooltip: 'Manage Club' },
       { id: 'settings', label: 'Settings', icon: 'Settings', tooltip: 'Club Settings' },
     ]
@@ -50,7 +50,7 @@ export const NAVIGATION_SECTIONS = [
   {
     title: 'DevOps',
     items: [
-      { id: 'devops-users', label: 'Users', icon: 'Users', tooltip: 'System-wide User Management' },
+      { id: 'devops-users', label: 'All Users', icon: 'Users', tooltip: 'System-wide User Management' },
       { id: 'clubs', label: 'Clubs', icon: 'Landmark', tooltip: 'Manage Clubs' },
     ]
   }
