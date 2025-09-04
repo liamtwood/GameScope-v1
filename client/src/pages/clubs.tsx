@@ -135,9 +135,10 @@ export default function Clubs() {
       owner: "",
       address: "",
       city: "",
+      state: "",
+      country: "",
       phone: "",
       email: "",
-      description: "",
       subscriptionStatus: "",
       colors: {
         primary: "#dc2626", // Default red
@@ -233,9 +234,10 @@ export default function Clubs() {
       owner: club.owner,
       address: club.address || "",
       city: club.city || "",
+      state: club.state || "",
+      country: club.country || "",
       phone: club.phone || "",
       email: club.email || "",
-      description: club.description || "",
       subscriptionStatus: club.subscriptionStatus || "active",
       colors: {
         primary: clubColors?.primary || "#dc2626",
@@ -634,270 +636,307 @@ export default function Clubs() {
 
       {/* Edit Club Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Edit Club</DialogTitle>
           </DialogHeader>
           <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Club Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter club name"
-                          data-testid="input-edit-club-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="shortName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., PSC"
-                          data-testid="input-edit-club-short-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={editForm.control}
-                name="owner"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Owner</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter club owner"
-                        data-testid="input-edit-club-owner"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editForm.control}
-                name="subscriptionStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Club Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-edit-club-status">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter address"
-                          data-testid="input-edit-club-address"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter city"
-                          data-testid="input-edit-club-city"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Phone number"
-                          data-testid="input-edit-club-phone"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="contact@club.com"
-                          data-testid="input-edit-club-email"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={editForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Brief description of the club"
-                        data-testid="input-edit-club-description"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Club Colors */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="colors.primary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Color</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center space-x-2">
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-8">
+                {/* Left Column - Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Club Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter club name"
+                              data-testid="input-edit-club-name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editForm.control}
+                      name="shortName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., PSC"
+                              data-testid="input-edit-club-short-name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="owner"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Owner</FormLabel>
+                        <FormControl>
                           <Input
-                            type="color"
-                            className="w-12 h-10 p-1 border rounded cursor-pointer"
-                            data-testid="input-edit-club-primary-color"
+                            placeholder="Enter club owner"
+                            data-testid="input-edit-club-owner"
                             {...field}
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="subscriptionStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Club Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-edit-club-status">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
                           <Input
-                            type="text"
-                            placeholder="#dc2626"
-                            className="flex-1"
-                            data-testid="input-edit-club-primary-color-text"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="colors.secondary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Secondary Color</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="color"
-                            className="w-12 h-10 p-1 border rounded cursor-pointer"
-                            data-testid="input-edit-club-secondary-color"
-                            {...field}
-                            value={field.value || "#000000"}
-                          />
-                          <Input
-                            type="text"
-                            placeholder="#000000"
-                            className="flex-1"
-                            data-testid="input-edit-club-secondary-color-text"
+                            placeholder="Enter address"
+                            data-testid="input-edit-club-address"
                             {...field}
                             value={field.value || ""}
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editForm.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter city"
+                              data-testid="input-edit-club-city"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editForm.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State/County</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter state or county"
+                              data-testid="input-edit-club-state"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter country"
+                            data-testid="input-edit-club-country"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Phone number"
+                              data-testid="input-edit-club-phone"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="contact@club.com"
+                              data-testid="input-edit-club-email"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* Right Column - Logo and Colors */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Branding</h3>
+                  
+                  {/* Logo Upload Section */}
+                  <div className="space-y-4">
+                    <FormLabel>Club Logo</FormLabel>
+                    <div className="flex flex-col items-center space-y-4">
+                      {editingClub?.logoPath && (
+                        <div className="h-24 w-24 bg-muted rounded-lg flex items-center justify-center overflow-hidden border-2 border-gray-200">
+                          <img 
+                            src={editingClub?.logoPath || ''} 
+                            alt="Current logo" 
+                            className="h-full w-full object-contain"
+                          />
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              {/* Logo Upload Section */}
-              <div className="border-t pt-4">
-                <FormLabel>Club Logo</FormLabel>
-                <div className="flex items-center space-x-4 mt-2">
-                  {editingClub?.logoPath && (
-                    <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={editingClub?.logoPath || ''} 
-                        alt="Current logo" 
-                        className="h-full w-full object-contain"
-                      />
+                      )}
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={5242880}
+                        onGetUploadParameters={handleLogoGetUploadParameters}
+                        onComplete={handleLogoUploadComplete}
+                        buttonClassName="w-full"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {editingClub?.logoPath ? "Change Logo" : "Upload Logo"}
+                      </ObjectUploader>
                     </div>
-                  )}
-                  <ObjectUploader
-                    maxNumberOfFiles={1}
-                    maxFileSize={5242880}
-                    onGetUploadParameters={handleLogoGetUploadParameters}
-                    onComplete={handleLogoUploadComplete}
-                    buttonClassName="flex-1"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {editingClub?.logoPath ? "Change Logo" : "Upload Logo"}
-                  </ObjectUploader>
+                  </div>
+                  
+                  {/* Club Colors */}
+                  <div className="space-y-4">
+                    <FormLabel>Club Colors</FormLabel>
+                    <FormField
+                      control={editForm.control}
+                      name="colors.primary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Primary Color</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type="color"
+                                className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                data-testid="input-edit-club-primary-color"
+                                {...field}
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#dc2626"
+                                className="flex-1"
+                                data-testid="input-edit-club-primary-color-text"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editForm.control}
+                      name="colors.secondary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Secondary Color</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type="color"
+                                className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                data-testid="input-edit-club-secondary-color"
+                                {...field}
+                                value={field.value || "#000000"}
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#000000"
+                                className="flex-1"
+                                data-testid="input-edit-club-secondary-color-text"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-2 pt-6 border-t">
                 <Button
                   type="button"
                   variant="outline"
