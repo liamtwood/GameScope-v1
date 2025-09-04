@@ -51,11 +51,13 @@ const useTeamCardStats = (teamId: string) => {
 // Team statistics display component
 const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   const { data: stats, isLoading } = useTeamCardStats(teamId);
+  const { selectedClub } = useClub();
+  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
   
   if (isLoading) {
     return (
-      <div className="mt-4">
-        <div className="grid grid-cols-3 gap-4 text-center">
+      <div className="mt-4 w-full flex justify-center">
+        <div className="grid grid-cols-3 gap-8 text-center max-w-xs">
           <div className="flex flex-col items-center">
             <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
             <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
@@ -76,15 +78,15 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   if (!stats) return null;
 
   return (
-    <div className="mt-4">
-      {/* Grid layout for perfect alignment */}
-      <div className="grid grid-cols-3 gap-4 text-center">
+    <div className="mt-4 w-full flex justify-center">
+      {/* Grid layout for perfect alignment - centered */}
+      <div className="grid grid-cols-3 gap-8 text-center max-w-xs">
         {/* Column 1: Players */}
         <div className="flex flex-col items-center">
           <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
             {stats.players}
           </span>
-          <span className="text-xs text-orange-500 font-medium mt-1">Players</span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
         </div>
         
         {/* Column 2: Matches */}
@@ -92,7 +94,7 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
           <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
             {stats.matches}
           </span>
-          <span className="text-xs text-red-500 font-medium mt-1">Matches</span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Matches</span>
         </div>
         
         {/* Column 3: Processing */}
@@ -100,7 +102,7 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
           <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
             {stats.processing}
           </span>
-          <span className="text-xs text-purple-500 font-medium mt-1">Processing</span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Processing</span>
         </div>
       </div>
     </div>
