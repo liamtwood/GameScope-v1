@@ -29,7 +29,7 @@ const createPlayerSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   position: z.string().min(1, "Position is required"),
   jerseyNumber: z.number().min(0),
-  status: z.string().default("Fit"),
+  fitnessStatus: z.string().default("Fit"), // Changed from status to fitnessStatus
   keyPlayer: z.boolean().optional(),
   // Personal info
   hometown: z.string().optional(),
@@ -41,7 +41,7 @@ const createPlayerSchema = z.object({
   emergencyContact: z.string().optional(),
   gender: z.enum(["Male", "Female"]).optional(),
   dateOfBirth: z.string().optional(),
-  accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).optional(),
+  accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).default("Active"), // Separate user account status
 });
 
 type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
@@ -63,7 +63,8 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       lastName: "",
       position: "",
       jerseyNumber: 0,
-      status: "Fit",
+      fitnessStatus: "Fit",
+      accountStatus: "Active",
       keyPlayer: false,
       hometown: "",
       year: "",
@@ -73,7 +74,6 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
       emergencyContact: "",
       gender: undefined,
       dateOfBirth: "",
-      accountStatus: "Draft",
     },
   });
 
@@ -181,19 +181,19 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="GK">Goalkeeper</SelectItem>
-                        <SelectItem value="CB">Center Back</SelectItem>
-                        <SelectItem value="LB">Left Back</SelectItem>
-                        <SelectItem value="RB">Right Back</SelectItem>
-                        <SelectItem value="CM">Center Midfield</SelectItem>
-                        <SelectItem value="CDM">Defensive Midfield</SelectItem>
-                        <SelectItem value="CAM">Attacking Midfield</SelectItem>
-                        <SelectItem value="LM">Left Midfield</SelectItem>
-                        <SelectItem value="RM">Right Midfield</SelectItem>
-                        <SelectItem value="ST">Striker</SelectItem>
-                        <SelectItem value="LW">Left Wing</SelectItem>
-                        <SelectItem value="RW">Right Wing</SelectItem>
-                        <SelectItem value="CF">Center Forward</SelectItem>
+                        <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                        <SelectItem value="Defender">Center Back</SelectItem>
+                        <SelectItem value="Defender">Left Back</SelectItem>
+                        <SelectItem value="Defender">Right Back</SelectItem>
+                        <SelectItem value="Midfield">Center Midfield</SelectItem>
+                        <SelectItem value="Midfield">Defensive Midfield</SelectItem>
+                        <SelectItem value="Midfield">Attacking Midfield</SelectItem>
+                        <SelectItem value="Midfield">Left Midfield</SelectItem>
+                        <SelectItem value="Midfield">Right Midfield</SelectItem>
+                        <SelectItem value="Forward">Striker</SelectItem>
+                        <SelectItem value="Forward">Left Wing</SelectItem>
+                        <SelectItem value="Forward">Right Wing</SelectItem>
+                        <SelectItem value="Forward">Center Forward</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -202,10 +202,10 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
               />
               <FormField
                 control={form.control}
-                name="status"
+                name="fitnessStatus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel>Fitness Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger data-testid="select-status">
