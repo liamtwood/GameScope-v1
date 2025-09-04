@@ -262,7 +262,8 @@ export default function ClubManagement() {
       subtitle="Manage club information, logo and status"
     >
       {/* Club Information Card - Team Card Style */}
-      <Card className="mb-8 border-2 hover:shadow-md transition-all">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <Card className="border-2 hover:shadow-md transition-all">
         <CardContent className="p-6">
           {/* Header with Club Circle, Club Info, and Edit Button */}
           <div className="flex items-start justify-between mb-4">
@@ -311,7 +312,8 @@ export default function ClubManagement() {
           {/* Club Statistics - Full Width Centered */}
           <ClubStatsDisplay clubId={selectedClub.id} />
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
       {/* Edit Club Dialog */}
       <Dialog open={isEditClubDialogOpen} onOpenChange={setIsEditClubDialogOpen}>
