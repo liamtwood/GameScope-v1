@@ -302,6 +302,8 @@ export default function Squad() {
           <StatsCard
             title="Star Players"
             value={players?.filter(p => p.keyPlayer).length || 0}
+            icon={Star}
+            iconColor="text-club-primary"
             subtitle="regular starters"
           />
 
@@ -340,6 +342,8 @@ export default function Squad() {
           <StatsCard
             title="Player Status"
             value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
+            icon={Users}
+            iconColor="text-club-primary"
             subtitle="fit-injured-retired"
           />
         </div>
