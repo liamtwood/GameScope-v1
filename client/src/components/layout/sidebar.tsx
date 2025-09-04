@@ -105,7 +105,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                       <h3 className="font-semibold text-sm text-foreground">
                         {selectedTeam ? selectedTeam.name.toUpperCase() : "NO TEAM SELECTED"}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs" style={{ color: clubPrimaryColor }}>
                         {currentClub ? `${currentClub.name} (${currentClub.shortName})` : "Loading..."}
                       </p>
                     </div>
