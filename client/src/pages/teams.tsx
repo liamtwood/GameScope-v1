@@ -54,16 +54,16 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   
   if (isLoading) {
     return (
-      <div className="mt-3 space-y-1">
-        <div className="flex justify-center items-center space-x-8">
-          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-4 w-6 bg-gray-200 rounded animate-pulse"></div>
+      <div className="mt-4 space-y-2">
+        <div className="flex justify-center items-center space-x-12">
+          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
         </div>
-        <div className="flex justify-center items-center space-x-8">
+        <div className="flex justify-center items-center space-x-12">
           <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
           <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
         </div>
       </div>
     );
@@ -72,24 +72,24 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   if (!stats) return null;
 
   return (
-    <div className="mt-3 space-y-1">
-      {/* Row 1: Numbers */}
-      <div className="flex justify-center items-center space-x-8">
-        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
+    <div className="mt-4 space-y-2">
+      {/* Row 1: Numbers - larger text, centered */}
+      <div className="flex justify-center items-center space-x-12">
+        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
           {stats.players}
         </span>
-        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
+        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
           {stats.matches}
         </span>
-        <span className="text-lg font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
+        <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
           {stats.processing}
         </span>
       </div>
-      {/* Row 2: Labels */}
-      <div className="flex justify-center items-center space-x-8">
-        <span className="text-xs text-gray-600 font-medium">Players</span>
-        <span className="text-xs text-gray-600 font-medium">Matches</span>
-        <span className="text-xs text-gray-600 font-medium">Processing</span>
+      {/* Row 2: Labels - smaller colored text */}
+      <div className="flex justify-center items-center space-x-12">
+        <span className="text-xs text-orange-500 font-medium">Players</span>
+        <span className="text-xs text-red-500 font-medium">Matches</span>
+        <span className="text-xs text-purple-500 font-medium">Processing</span>
       </div>
     </div>
   );
@@ -459,28 +459,30 @@ export default function Teams() {
                             onClick={() => handleTeamSelect(team)}
                             data-testid={`card-team-${team.id}`}
                           >
-                            <CardContent className="p-4">
+                            <CardContent className="p-6">
                               <div className="flex items-start justify-between">
-                                {/* Left side - Team Abbreviation */}
-                                <div className="flex items-center space-x-4">
-                                  <div className="h-12 w-12 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center text-sm font-bold">
+                                {/* Left side - Large Age Group Circle */}
+                                <div className="flex items-start space-x-4">
+                                  <div className="h-16 w-16 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-lg font-bold border-2 border-gray-300">
                                     {team.ageGroup || team.name.substring(0, 3).toUpperCase()}
                                   </div>
                                   
                                   {/* Team Information */}
                                   <div className="flex-1">
-                                    <h4 className="text-lg font-semibold text-gray-900 mb-1" data-testid={`text-team-name-${team.id}`}>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-2" data-testid={`text-team-name-${team.id}`}>
                                       {team.name}
                                     </h4>
-                                    <p className="text-sm text-gray-600 mb-2">
-                                      COACH {team.coach || 'Not assigned'}
-                                    </p>
-                                    <Badge 
-                                      className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
-                                      data-testid={`text-team-status-${team.id}`}
-                                    >
-                                      {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                                    </Badge>
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <p className="text-sm text-gray-600">
+                                        Coach: {team.coach || 'Not assigned'}
+                                      </p>
+                                      <Badge 
+                                        className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
+                                        data-testid={`text-team-status-${team.id}`}
+                                      >
+                                        {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                                      </Badge>
+                                    </div>
                                     
                                     {/* Team Statistics */}
                                     <TeamStatsDisplay teamId={team.id} />
