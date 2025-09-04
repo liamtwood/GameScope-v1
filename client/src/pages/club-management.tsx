@@ -32,6 +32,24 @@ const editClubSchema = insertClubSchema.extend({
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
 type EditClubFormData = z.infer<typeof editClubSchema>;
 
+// Common data for dropdowns
+const COMMON_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
+const COMMON_COUNTRIES = [
+  "United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Netherlands", "Belgium",
+  "Ireland", "Mexico", "Brazil", "Argentina", "Japan", "South Korea", "New Zealand", "South Africa", "India", "Other"
+];
+
+const SAMPLE_OWNERS = [
+  "John Smith", "Sarah Johnson", "Michael Brown", "Emma Davis", "David Wilson", "Lisa Garcia", "Robert Martinez", "Jennifer Anderson"
+];
+
 // Club card statistics type
 type ClubCardStats = {
   players: number;
@@ -112,6 +130,8 @@ export default function ClubManagement() {
   const [, setLocation] = useLocation();
   const [isCreateTeamDialogOpen, setIsCreateTeamDialogOpen] = useState(false);
   const [isEditClubDialogOpen, setIsEditClubDialogOpen] = useState(false);
+  const [isCreateOwnerDialogOpen, setIsCreateOwnerDialogOpen] = useState(false);
+  const [newOwnerName, setNewOwnerName] = useState("");
   const { toast } = useToast();
   const { selectTeam } = useTeam();
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
@@ -134,9 +154,10 @@ export default function ClubManagement() {
       owner: "",
       address: "",
       city: "",
+      state: "",
+      country: "",
       phone: "",
       email: "",
-      description: "",
       subscriptionStatus: "",
     },
   });
@@ -217,9 +238,10 @@ export default function ClubManagement() {
         owner: selectedClub.owner,
         address: selectedClub.address || "",
         city: selectedClub.city || "",
+        state: selectedClub.state || "",
+        country: selectedClub.country || "",
         phone: selectedClub.phone || "",
         email: selectedClub.email || "",
-        description: selectedClub.description || "",
         subscriptionStatus: selectedClub.subscriptionStatus || "active",
       });
       setIsEditClubDialogOpen(true);
@@ -328,183 +350,247 @@ export default function ClubManagement() {
 
       {/* Edit Club Dialog */}
       <Dialog open={isEditClubDialogOpen} onOpenChange={setIsEditClubDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Edit Club</DialogTitle>
           </DialogHeader>
           <Form {...editClubForm}>
-            <form onSubmit={editClubForm.handleSubmit(onEditClubSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editClubForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Club Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter club name"
-                          data-testid="input-edit-club-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editClubForm.control}
-                  name="shortName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., PSC"
-                          data-testid="input-edit-club-short-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <form onSubmit={editClubForm.handleSubmit(onEditClubSubmit)} className="space-y-6 text-sm">
+              <div className="grid grid-cols-2 gap-8">
+                {/* Left Column - Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">BASIC INFORMATION</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editClubForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Club Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter club name"
+                              data-testid="input-edit-club-name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editClubForm.control}
+                      name="shortName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., PSC"
+                              data-testid="input-edit-club-short-name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={editClubForm.control}
+                    name="owner"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Owner</FormLabel>
+                        <div className="flex gap-2">
+                          <FormControl className="flex-1">
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <SelectTrigger data-testid="select-edit-club-owner">
+                                <SelectValue placeholder="Select owner" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SAMPLE_OWNERS.map((owner) => (
+                                  <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setIsCreateOwnerDialogOpen(true)}
+                            data-testid="button-add-owner"
+                            className="shrink-0"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editClubForm.control}
+                    name="subscriptionStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Club Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-edit-club-status">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">ADDRESS</h4>
+                  <FormField
+                    control={editClubForm.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter address"
+                            data-testid="input-edit-club-address"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editClubForm.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter city"
+                              data-testid="input-edit-club-city"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editClubForm.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State/County</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <SelectTrigger data-testid="select-edit-club-state">
+                                <SelectValue placeholder="Select state/county" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COMMON_STATES.map((state) => (
+                                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={editClubForm.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                            <SelectTrigger data-testid="select-edit-club-country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COMMON_COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>{country}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editClubForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Phone number"
+                              data-testid="input-edit-club-phone"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editClubForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="contact@club.com"
+                              data-testid="input-edit-club-email"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* Right Column - Branding (minimal for this page) */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">CLUB SETTINGS</h3>
+                  <p className="text-sm text-gray-500">Additional branding options available in the main Clubs section.</p>
+                </div>
               </div>
-              <FormField
-                control={editClubForm.control}
-                name="owner"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Owner</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter club owner"
-                        data-testid="input-edit-club-owner"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editClubForm.control}
-                name="subscriptionStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Club Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-edit-club-status">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editClubForm.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter address"
-                          data-testid="input-edit-club-address"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editClubForm.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter city"
-                          data-testid="input-edit-club-city"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editClubForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Phone number"
-                          data-testid="input-edit-club-phone"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editClubForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="contact@club.com"
-                          data-testid="input-edit-club-email"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={editClubForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Brief description of the club"
-                        data-testid="input-edit-club-description"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-2 pt-6 border-t">
                 <Button
                   type="button"
                   variant="outline"
@@ -523,6 +609,56 @@ export default function ClubManagement() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Owner Dialog */}
+      <Dialog open={isCreateOwnerDialogOpen} onOpenChange={setIsCreateOwnerDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Add New Owner</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <FormLabel>Owner Name</FormLabel>
+              <Input
+                placeholder="Enter owner name"
+                value={newOwnerName}
+                onChange={(e) => setNewOwnerName(e.target.value)}
+                data-testid="input-new-owner-name"
+                className="mt-1"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsCreateOwnerDialogOpen(false);
+                  setNewOwnerName("");
+                }}
+                data-testid="button-cancel-new-owner"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (newOwnerName.trim()) {
+                    // Add to the list and select it
+                    SAMPLE_OWNERS.push(newOwnerName.trim());
+                    editClubForm.setValue("owner", newOwnerName.trim());
+                    setIsCreateOwnerDialogOpen(false);
+                    setNewOwnerName("");
+                  }
+                }}
+                disabled={!newOwnerName.trim()}
+                data-testid="button-add-new-owner"
+              >
+                Add Owner
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
