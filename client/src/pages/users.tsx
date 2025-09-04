@@ -178,9 +178,10 @@ export default function Users() {
   };
 
   const handleToggleKeyUser = (user: User) => {
-    toggleKeyUserMutation.mutate({
-      userId: user.id,
-      keyUser: !user.keyUser
+    // Key user functionality is managed at club level through user_clubs table
+    toast({
+      title: "Info",
+      description: "Key user designation is managed through club membership.",
     });
   };
 
@@ -210,12 +211,15 @@ export default function Users() {
   const usersByRole = filteredUsers.reduce((groups, user) => {
     const role = getRoleCategory(user.role || 'player');
     const roleDisplayName = role.charAt(0).toUpperCase() + role.slice(1) + 's';
+    console.log(`User: ${user.firstName} ${user.lastName}, Role: ${user.role}, Category: ${role}, Display: ${roleDisplayName}`);
     if (!groups[roleDisplayName]) {
       groups[roleDisplayName] = [];
     }
     groups[roleDisplayName].push(user);
     return groups;
   }, {} as Record<string, User[]>);
+  
+  console.log('Users by role:', usersByRole);
 
   const roleDisplayOrder = ['Admins', 'Coaches', 'Players'];
 
@@ -376,6 +380,15 @@ export default function Users() {
           </div>
         </div>
       )}
+
+      {/* Debug Info */}
+      <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded">
+        <p>Total users: {users?.length || 0}</p>
+        <p>Filtered users: {filteredUsers.length}</p>
+        <p>Users by role: {JSON.stringify(Object.keys(usersByRole))}</p>
+        <p>Status filter: {statusFilter}</p>
+        <p>Role filter: {activeFilter}</p>
+      </div>
 
       {/* User Cards View */}
       {isLoading ? (
