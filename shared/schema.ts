@@ -189,7 +189,6 @@ export const userTeams = pgTable("user_teams", {
   // Assignment tracking
   joinedAt: timestamp("joined_at").defaultNow(),
   leftAt: timestamp("left_at"),
-  assignmentStatus: varchar("assignment_status", { length: 20 }).default("active"), // active, inactive
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
