@@ -181,7 +181,7 @@ export const userTeams = pgTable("user_teams", {
   teamId: varchar("team_id").references(() => teams.id).notNull(),
   
   // Team-specific assignments
-  jerseyNumber: integer("jersey_number").default(0),
+  jerseyNumber: integer("jersey_number"),
   position: varchar("position", { length: 20 }).notNull(),
   starPlayer: boolean("star_player").default(false),
   fitnessStatus: varchar("fitness_status", { length: 20 }).default("Fit"), // Fit, Injured, Retired
