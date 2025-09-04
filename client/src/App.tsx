@@ -21,6 +21,8 @@ import Videos from "@/pages/videos";
 import Clubs from "@/pages/clubs";
 import Settings from "@/pages/settings";
 import PlayerDetails from "@/pages/player-details";
+import Users from "@/pages/users";
+import UserDetails from "@/pages/user-details";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +38,8 @@ function Router() {
       <Route path="/analysis/:fixtureId" component={Analysis} />
       <Route path="/squad" component={Squad} />
       <Route path="/players/:id" component={PlayerDetails} />
+      <Route path="/users" component={Users} />
+      <Route path="/users/:id" component={UserDetails} />
       <Route path="/statistics" component={Statistics} />
       <Route path="/teams" component={Teams} />
       <Route path="/videos" component={Videos} />

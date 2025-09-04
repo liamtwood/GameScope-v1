@@ -1,0 +1,420 @@
+import { useState, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRoute } from "wouter";
+import { MainLayout } from "@/components/layout/main-layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "@shared/schema";
+import { ArrowLeft, Star, Edit, Save, X, Pencil } from "lucide-react";
+import { format, differenceInYears } from "date-fns";
+import { useClub } from "@/contexts/club-context";
+import { useToast } from "@/hooks/use-toast";
+
+export default function UserDetails() {
+  const [, params] = useRoute("/users/:id");
+  const userId = params?.id;
+  const { selectedClub } = useClub();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<Partial<User>>({});
+  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: user, isLoading } = useQuery<User>({
+    queryKey: ["/api/user", userId],
+    enabled: !!userId,
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (updatedData: Partial<User>) => {
+      const response = await fetch(`/api/user/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      if (!response.ok) throw new Error('Failed to update user');
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      }
+      return {};
+    },
+    onSuccess: () => {
+      setIsEditing(false);
+      setEditData({});
+      queryClient.invalidateQueries({ queryKey: ["/api/user", userId] });
+      toast({
+        title: "User Updated",
+        description: "User information has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to update user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user information.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEdit = () => {
+    setEditData(user || {});
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditData({});
+  };
+
+  const handleSave = () => {
+    updateUserMutation.mutate(editData);
+  };
+
+  const handleInputChange = (field: keyof User, value: any) => {
+    setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const photoUrl = URL.createObjectURL(file);
+      setUploadedPhoto(photoUrl);
+      
+      toast({
+        title: "Photo Updated",
+        description: "Photo has been updated locally.",
+      });
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const getStatusColor = () => {
+    if (!user) return 'bg-blue-500 text-white';
+    const status = user.status || 'active';
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-500 text-white';
+      case 'inactive':
+        return 'bg-gray-500 text-white';
+      case 'suspended':
+        return 'bg-red-500 text-white';
+      default:
+        return 'bg-blue-500 text-white';
+    }
+  };
+
+  const getRoleCategory = (role: string): string => {
+    if (role?.toLowerCase().includes('admin')) return 'ADMIN';
+    if (role?.toLowerCase().includes('coach')) return 'COACH';
+    if (role?.toLowerCase().includes('player')) return 'PLAYER';
+    return 'USER';
+  };
+
+  const getRoleColor = () => {
+    if (!user) return 'bg-gray-100 text-gray-800';
+    const roleCategory = getRoleCategory(user.role || 'player');
+    switch (roleCategory) {
+      case 'ADMIN':
+        return 'bg-purple-100 text-purple-800';
+      case 'COACH':
+        return 'bg-blue-100 text-blue-800';
+      case 'PLAYER':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <MainLayout title="Loading..." subtitle="Loading user details...">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading user details...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <MainLayout title="User Not Found" subtitle="The requested user could not be found">
+        <div className="text-center py-8">
+          <p className="text-muted-foreground mb-4">The user you're looking for doesn't exist or has been deleted.</p>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back
+          </Button>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const getUserInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
+  
+  const isLightColor = (hexColor: string) => {
+    const color = hexColor.replace('#', '');
+    const r = parseInt(color.substr(0, 2), 16);
+    const g = parseInt(color.substr(2, 2), 16);
+    const b = parseInt(color.substr(4, 2), 16);
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return brightness > 155;
+  };
+
+  const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
+  
+  const solidStyle = {
+    background: `
+      radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
+      radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
+      ${clubPrimaryColor}
+    `,
+  };
+
+  return (
+    <MainLayout 
+      title="VIEW USER" 
+      subtitle={`${user.firstName} ${user.lastName}`}
+    >
+      <div className="space-y-6" data-testid={`user-details-${user.id}`}>
+        {/* User Header Card */}
+        <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl" style={{...solidStyle, borderColor: clubPrimaryColor}}>
+          <CardContent className="p-0">
+            {/* Back Button Row */}
+            <div className="px-6 py-1 flex justify-between items-center">
+              <Button 
+                variant="ghost" 
+                onClick={() => window.history.back()}
+                data-testid="button-back-to-users"
+                className="text-white hover:bg-white/10"
+                style={{ color: textColor }}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+              
+              {!isEditing ? (
+                <Button 
+                  variant="ghost" 
+                  onClick={handleEdit}
+                  data-testid="button-edit-user"
+                  className="text-white hover:bg-white/10"
+                  style={{ color: textColor }}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleSave}
+                    disabled={updateUserMutation.isPending}
+                    data-testid="button-save-user"
+                    className="text-white hover:bg-white/10"
+                    style={{ color: textColor }}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleCancel}
+                    data-testid="button-cancel-edit"
+                    className="text-white hover:bg-white/10"
+                    style={{ color: textColor }}
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            {/* User Info Section */}
+            <div className="px-6 pt-2 pb-6">
+              <div className="w-4/5 mx-auto">
+                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {/* User Avatar with Upload */}
+                  <div className="relative group">
+                    <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
+                      {uploadedPhoto ? (
+                        <AvatarImage 
+                          src={uploadedPhoto} 
+                          alt={`${user.firstName} ${user.lastName}`}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                        {getUserInitials(`${user.firstName} ${user.lastName}`)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* Photo Upload Button */}
+                    <button
+                      onClick={handlePhotoClick}
+                      className="absolute -bottom-1 -right-1 bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg"
+                      data-testid="button-upload-photo"
+                    >
+                      <Pencil className="h-3 w-3 text-gray-600" />
+                    </button>
+                    
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      data-testid="input-photo-upload"
+                    />
+                  </div>
+                  
+                  {/* User Info */}
+                  <div className="flex-1">
+                    <div className="mb-3">
+                      <div className="text-lg font-medium" style={{ color: textColor }}>{user.firstName}</div>
+                      <div className="text-3xl font-bold" style={{ color: textColor }}>{user.lastName}</div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className={`text-xs px-2 py-1 ${getRoleColor()}`}>
+                        {getRoleCategory(user.role || 'player')}
+                      </Badge>
+                      <Badge className={`text-xs px-2 py-1 ${getStatusColor()}`}>
+                        {user.status || 'Active'}
+                      </Badge>
+                      {user.keyUser && (
+                        <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Club Logo */}
+                <div className="flex-shrink-0 opacity-80">
+                  <img 
+                    src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                    alt={selectedClub?.name || "Club Logo"} 
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+              </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* User Details */}
+        <Card className="max-w-3xl">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">User Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                  {isEditing ? (
+                    <Input
+                      value={editData.email || ''}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      type="email"
+                    />
+                  ) : (
+                    <p className="text-foreground">{user.email || 'Not provided'}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Role</label>
+                  {isEditing ? (
+                    <Select
+                      value={editData.role || user.role || 'player'}
+                      onValueChange={(value) => handleInputChange('role', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="coach">Coach</SelectItem>
+                        <SelectItem value="player">Player</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-foreground">{getRoleCategory(user.role || 'player')}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Status</label>
+                  {isEditing ? (
+                    <Select
+                      value={editData.status || user.status || 'active'}
+                      onValueChange={(value) => handleInputChange('status', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="suspended">Suspended</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-foreground">{user.status || 'Active'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Key User</label>
+                  <p className="text-foreground">{user.keyUser ? 'Yes' : 'No'}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
+  );
+}
