@@ -158,7 +158,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {NAVIGATION_SECTIONS.map((section) => (
           <div key={section.title}>
             {!collapsed && (
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              <h3 
+                className="text-xs font-semibold uppercase tracking-wider mb-2"
+                style={{ color: clubPrimaryColor }}
+              >
                 {section.title}
               </h3>
             )}
