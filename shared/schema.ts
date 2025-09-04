@@ -195,6 +195,21 @@ export const userTeams = pgTable("user_teams", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User-club relationships (for club transfers and multi-club support)
+export const userClubs = pgTable("user_clubs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  clubId: varchar("club_id").references(() => clubs.id).notNull(),
+  
+  // Status tracking
+  status: varchar("status", { length: 20 }).default("active"), // active, inactive, transferred
+  joinedAt: timestamp("joined_at").defaultNow(),
+  leftAt: timestamp("left_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Parent-child relationships
 export const userParents = pgTable("user_parents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -221,7 +236,10 @@ export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: tru
   .extend({
     position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"]),
     fitnessStatus: z.enum(["Fit", "Injured", "Retired"]).default("Fit"),
-    assignmentStatus: z.enum(["active", "inactive"]).optional(),
+  });
+export const insertUserClubSchema = createInsertSchema(userClubs).omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    status: z.enum(["active", "inactive", "transferred"]).default("active"),
   });
 export const insertUserParentSchema = createInsertSchema(userParents).omit({ id: true, createdAt: true })
   .extend({
