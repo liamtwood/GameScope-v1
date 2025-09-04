@@ -166,9 +166,9 @@ export default function DevOpsUsers() {
   };
 
   const handleUpdateRole = (user: User, newRole: string) => {
-    updateRoleMutation.mutate({
+    updateUserMutation.mutate({
       userId: user.id,
-      role: newRole
+      data: { role: newRole }
     });
   };
 
@@ -194,16 +194,26 @@ export default function DevOpsUsers() {
     }
   };
 
-  // Group users by role for card view
-  const usersByRole = filteredUsers.reduce((groups, user) => {
+
+  // Group users by club, then by role for card view
+  const usersByClubAndRole = filteredUsers.reduce((groups, user) => {
+    // For DevOps view, assign all users to "Polk State College" as default
+    // since that appears to be the main club based on the previous data
+    const clubName = "Polk State College";
     const role = getRoleCategory(user.role || 'player');
-    const roleDisplayName = role.charAt(0).toUpperCase() + role.slice(1) + 's';
-    if (!groups[roleDisplayName]) {
-      groups[roleDisplayName] = [];
+    const roleDisplayName = role === 'coach' ? 'Coaches' : 
+                           role === 'admin' ? 'Admins' : 
+                           'Players';
+    
+    if (!groups[clubName]) {
+      groups[clubName] = {};
     }
-    groups[roleDisplayName].push(user);
+    if (!groups[clubName][roleDisplayName]) {
+      groups[clubName][roleDisplayName] = [];
+    }
+    groups[clubName][roleDisplayName].push(user);
     return groups;
-  }, {} as Record<string, User[]>);
+  }, {} as Record<string, Record<string, User[]>>);
 
   const roleDisplayOrder = ['Admins', 'Coaches', 'Players'];
 
@@ -363,43 +373,51 @@ export default function DevOpsUsers() {
         </div>
       )}
 
-      {/* User Cards View */}
+      {/* User Cards View - Grouped by Club then Role */}
       {isLoading ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">Loading users...</p>
         </div>
       ) : filteredUsers.length > 0 ? (
-        <div className="space-y-8">
-          {roleDisplayOrder.map(roleName => {
-            const usersInRole = usersByRole[roleName];
-            if (!usersInRole || usersInRole.length === 0) return null;
-            
-            return (
-              <div key={roleName} className="space-y-4">
-                <h3 className="text-xl font-semibold text-foreground">
-                  {roleName} ({usersInRole.length})
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {usersInRole.map((user) => (
-                    <div key={user.id} className="relative">
-                      <UserCard
-                        user={user}
-                        onDelete={handleDeleteUser}
-                        onToggleKeyUser={(user: User) => {
-                          // For DevOps, we can toggle between admin and player roles
-                          const newRole = getRoleCategory(user.role || 'player') === 'admin' ? 'Player' : 'Admin';
-                          handleUpdateRole(user, newRole);
-                        }}
-                        onUpdateStatus={(user: User, newStatus: string) => {
-                          handleUpdateUser(user.id, { status: newStatus });
-                        }}
-                      />
+        <div className="space-y-12">
+          {Object.entries(usersByClubAndRole).map(([clubName, roleGroups]) => (
+            <div key={clubName} className="space-y-6">
+              <h2 className="text-2xl font-bold text-foreground border-b pb-2">
+                {clubName}
+              </h2>
+              
+              {roleDisplayOrder.map(roleName => {
+                const usersInRole = roleGroups[roleName];
+                if (!usersInRole || usersInRole.length === 0) return null;
+                
+                return (
+                  <div key={`${clubName}-${roleName}`} className="space-y-4">
+                    <h3 className="text-xl font-semibold text-foreground ml-4">
+                      {roleName} ({usersInRole.length})
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {usersInRole.map((user) => (
+                        <div key={user.id} className="relative">
+                          <UserCard
+                            user={user}
+                            onDelete={handleDeleteUser}
+                            onToggleKeyUser={(user: User) => {
+                              // For DevOps, we can toggle between admin and player roles
+                              const newRole = getRoleCategory(user.role || 'player') === 'admin' ? 'Player' : 'Admin';
+                              handleUpdateRole(user, newRole);
+                            }}
+                            onUpdateStatus={(user: User, newStatus: string) => {
+                              handleUpdateUser(user.id, { status: newStatus });
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-8">
