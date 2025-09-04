@@ -398,51 +398,43 @@ export default function Teams() {
                             data-testid={`card-team-${team.id}`}
                           >
                             <CardContent className="p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <div>
-                                  <h4 className="font-semibold" data-testid={`text-team-name-${team.id}`}>
-                                    {team.name}
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground">{team.shortName}</p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleEditTeam(team);
-                                    }}
-                                    data-testid={`button-edit-team-${team.id}`}
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  {isSelected && (
-                                    <Badge variant="default" className="flex items-center gap-1">
-                                      <Check className="h-3 w-3" />
-                                      Active
+                              <div className="flex items-start justify-between">
+                                {/* Left side - Team Abbreviation */}
+                                <div className="flex items-start space-x-4">
+                                  <div className="text-xl font-bold text-gray-700 min-w-[50px]">
+                                    {team.shortName || team.name.substring(0, 3).toUpperCase()}
+                                  </div>
+                                  
+                                  {/* Team Information */}
+                                  <div className="flex-1">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-1" data-testid={`text-team-name-${team.id}`}>
+                                      {team.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                      Coach: {team.coach || 'Not assigned'}
+                                    </p>
+                                    <Badge 
+                                      className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
+                                      data-testid={`text-team-status-${team.id}`}
+                                    >
+                                      {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                     </Badge>
-                                  )}
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Coach:</span>
-                                  <span data-testid={`text-team-coach-${team.id}`}>{team.coach || "Not assigned"}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Season:</span>
-                                  <span data-testid={`text-team-season-${team.id}`}>{team.season || "Not set"}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Status:</span>
-                                  <span 
-                                    className={`font-medium ${team.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-600'}`}
-                                    data-testid={`text-team-status-${team.id}`}
-                                  >
-                                    {team.status}
-                                  </span>
-                                </div>
+                                
+                                {/* Right side - Edit button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditTeam(team);
+                                  }}
+                                  data-testid={`button-edit-team-${team.id}`}
+                                  className="p-1 h-8 w-8"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
                               </div>
                             </CardContent>
                           </Card>

@@ -986,46 +986,44 @@ export default function PlayerDetails() {
                             playerTeams.map((playerTeam) => (
                               <Card 
                                 key={playerTeam.id} 
-                                className="border-2 border-gray-200 bg-white" 
+                                className="border-2" 
                                 data-testid={`card-team-${playerTeam.team.id}`}
                               >
                                 <CardContent className="p-4">
-                                  <div className="flex items-start justify-between">
-                                    {/* Left side - Team Abbreviation */}
-                                    <div className="flex items-start space-x-4">
-                                      <div className="text-xl font-bold text-gray-700 min-w-[50px]">
-                                        {playerTeam.team.shortName || playerTeam.team.name.substring(0, 3).toUpperCase()}
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                      <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+                                        {playerTeam.squadNumber || '?'}
                                       </div>
-                                      
-                                      {/* Team Information */}
                                       <div className="flex-1">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-1" data-testid={`text-team-name-${playerTeam.team.id}`}>
-                                          {playerTeam.team.name}
-                                        </h4>
-                                        <p className="text-sm text-gray-600 mb-2">
-                                          Coach: {playerTeam.team.coach || 'Not assigned'}
-                                        </p>
-                                        <Badge 
-                                          className={playerTeam.team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
-                                          data-testid={`badge-team-status-${playerTeam.team.id}`}
-                                        >
-                                          {playerTeam.team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                                        </Badge>
+                                        <div className="flex items-center space-x-2">
+                                          <h4 className="text-lg font-semibold" data-testid={`text-team-name-${playerTeam.team.id}`}>
+                                            {playerTeam.team.name}
+                                          </h4>
+                                          <Badge 
+                                            className={playerTeam.team.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                                            data-testid={`badge-team-status-${playerTeam.team.id}`}
+                                          >
+                                            {playerTeam.team.status}
+                                          </Badge>
+                                        </div>
+                                        <div className="space-y-2">
+                                          <div className="flex items-center space-x-3">
+                                            <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${playerTeam.team.id}`}>
+                                              {playerTeam.position || 'Position not set'}
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
-                                    
-                                    {/* Right side - Edit button */}
                                     <Button
-                                      variant="ghost"
+                                      variant="outline"
                                       size="sm"
                                       onClick={() => handleRemoveTeam(playerTeam.team.id)}
                                       disabled={removePlayerFromTeamMutation.isPending}
                                       data-testid={`button-remove-team-${playerTeam.team.id}`}
-                                      className="p-1 h-8 w-8"
                                     >
-                                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                      </svg>
+                                      Remove
                                     </Button>
                                   </div>
                                 </CardContent>
