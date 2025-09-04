@@ -102,12 +102,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 <div className="bg-secondary rounded-lg p-3 w-full">
                   <div className="flex items-center justify-between">
                     <div className="text-left">
-                      <h3 className="font-semibold text-sm text-foreground">
+                      <h3 className="font-semibold text-sm" style={{ color: clubPrimaryColor }}>
                         {selectedTeam ? selectedTeam.name.toUpperCase() : "NO TEAM SELECTED"}
                       </h3>
-                      <p className="text-xs" style={{ color: clubPrimaryColor }}>
-                        {currentClub ? `${currentClub.name} (${currentClub.shortName})` : "Loading..."}
-                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${selectedTeam ? 'bg-green-500' : 'bg-gray-400'}`}></div>
