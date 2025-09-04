@@ -92,6 +92,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       {/* Team Selector */}
       {!collapsed && (
         <div className="p-4 border-b border-border">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+            Select Team
+          </label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
