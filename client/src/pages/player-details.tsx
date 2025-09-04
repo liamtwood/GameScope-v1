@@ -547,7 +547,7 @@ export default function PlayerDetails() {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
-                        color: ${clubPrimaryColor} !important;
+                        color: white !important;
                       }
                       /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
@@ -569,7 +569,7 @@ export default function PlayerDetails() {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
-                        color: ${clubPrimaryColor} !important;
+                        color: white !important;
                       }
                       button[role="tab"]:before, 
                       button[role="tab"]:after {
