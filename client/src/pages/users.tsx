@@ -127,9 +127,7 @@ export default function Users() {
   const filteredUsers = users?.filter(user => {
     const matchesFilter = activeFilter === 'all' || getRoleCategory(user.role || 'player') === activeFilter;
     const matchesStatus = statusFilter === 'all' || (user.status || 'active').toLowerCase() === statusFilter;
-    const matchesStar = starFilter === 'all' || 
-      (starFilter === 'star' && user.keyUser) ||
-      (starFilter === 'regular' && !user.keyUser);
+    const matchesStar = starFilter === 'all';
     const matchesSearch = searchTerm === '' || 
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.email || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -152,8 +150,9 @@ export default function Users() {
   };
 
   const getKeyUsersCount = () => {
+    // For club users, count admin/coach roles as key users
     if (!users) return 0;
-    return users.filter(user => user.keyUser).length;
+    return users.filter(user => getRoleCategory(user.role || 'player') !== 'player').length;
   };
 
   const handleCreateUser = (data: any) => {
