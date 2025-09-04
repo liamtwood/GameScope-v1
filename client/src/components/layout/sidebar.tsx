@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       {/* Team Selector */}
       {!collapsed && (
         <div className="p-4 border-b border-border">
-          <label className="text-[10px] font-semibold uppercase tracking-wide mb-2 block" style={{ color: clubPrimaryColor }}>
+          <label className="text-[10px] font-bold uppercase tracking-wide mb-2 block" style={{ color: clubPrimaryColor }}>
             Select Team
           </label>
           <DropdownMenu>
@@ -105,7 +105,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 <div className="bg-secondary rounded-lg p-3 w-full">
                   <div className="flex items-center justify-between">
                     <div className="text-left">
-                      <h3 className="font-semibold text-sm" style={{ color: clubPrimaryColor }}>
+                      <h3 className="font-semibold text-xs" style={{ color: clubPrimaryColor }}>
                         {selectedTeam ? selectedTeam.name.toUpperCase() : "NO TEAM SELECTED"}
                       </h3>
                     </div>
