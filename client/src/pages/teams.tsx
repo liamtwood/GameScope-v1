@@ -52,7 +52,7 @@ const useTeamCardStats = (teamId: string) => {
 const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   const { data: stats, isLoading } = useTeamCardStats(teamId);
   const { selectedClub } = useClub();
-  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
+  const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
   
   if (isLoading) {
     return (
@@ -119,7 +119,7 @@ export default function Teams() {
   const { selectedClub: currentClub, isLoading: clubsLoading } = useClub();
   
   // Get club primary color for styling
-  const clubPrimaryColor = currentClub?.colors?.primary || '#dc2626';
+  const clubPrimaryColor = (currentClub?.colors as any)?.primary || '#dc2626';
   
   // Filter teams by current club and group by gender
   const clubTeams = teams

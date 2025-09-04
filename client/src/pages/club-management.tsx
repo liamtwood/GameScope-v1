@@ -51,7 +51,7 @@ const useClubCardStats = (clubId: string) => {
 const ClubStatsDisplay = ({ clubId }: { clubId: string }) => {
   const { data: stats, isLoading } = useClubCardStats(clubId);
   const { selectedClub } = useClub();
-  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
+  const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
   
   if (isLoading) {
     return (
@@ -117,7 +117,7 @@ export default function ClubManagement() {
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
   
   // Get club primary color for styling
-  const clubPrimaryColor = selectedClub?.colors?.primary || '#dc2626';
+  const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
 
   // Fetch teams for the selected club
   const { data: allTeams = [], isLoading: teamsLoading } = useQuery<Team[]>({
