@@ -32,6 +32,75 @@ const createClubSchema = insertClubSchema.extend({
 
 type CreateClubFormData = z.infer<typeof createClubSchema>;
 
+// Club card statistics type
+type ClubCardStats = {
+  players: number;
+  matches: number;
+  processing: number;
+};
+
+// Hook to fetch club card statistics
+const useClubCardStats = (clubId: string) => {
+  return useQuery<ClubCardStats>({
+    queryKey: ["/api/clubs", clubId, "card-stats"],
+    enabled: !!clubId,
+  });
+};
+
+// Club statistics display component
+const ClubStatsDisplay = ({ clubId, club }: { clubId: string; club: Club }) => {
+  const { data: stats, isLoading } = useClubCardStats(clubId);
+  const clubPrimaryColor = (club?.colors as any)?.primary || '#dc2626';
+  
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
+            <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  return (
+    <div className="w-full">
+      <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-players-${clubId}`}>
+            {stats.players}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-teams-${clubId}`}>
+            {stats.matches}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Teams</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-fixtures-${clubId}`}>
+            {stats.processing}
+          </span>
+          <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Fixtures</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Clubs() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -460,13 +529,14 @@ export default function Clubs() {
         </CardHeader>
         <CardContent>
           {/* Clubs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {clubs?.map((club) => {
           const isSelected = selectedClub?.id === club.id;
+          const clubPrimaryColor = (club?.colors as any)?.primary || '#dc2626';
           return (
             <Card 
               key={club.id} 
-              className={`hover:shadow-md transition-shadow cursor-pointer border-2 ${
+              className={`hover:shadow-md transition-all cursor-pointer border-2 ${
                 isSelected 
                   ? 'border-primary bg-primary/5 shadow-md' 
                   : 'border-border hover:border-primary/50'
@@ -474,87 +544,67 @@ export default function Clubs() {
               onClick={() => selectClub(club)}
               data-testid={`card-club-${club.id}`}
             >
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Landmark className={`h-5 w-5 ${
-                    isSelected ? 'text-primary' : 'text-primary'
-                  }`} />
-                  <span className={isSelected ? 'font-bold' : ''}>{club.name}</span>
-                  {isSelected && (
-                    <Badge variant="default" className="ml-2 text-xs">
-                      Active
+            <CardContent className="p-6">
+              {/* Header with Club Circle, Club Info, and Edit Button */}
+              <div className="flex items-start justify-between mb-4">
+                {/* Left side - Large Club Logo Circle */}
+                <div className="flex items-start space-x-4">
+                  <div className="h-16 w-16 rounded-full overflow-hidden flex items-center justify-center">
+                    {club.logoPath ? (
+                      <img 
+                        src={club.logoPath} 
+                        alt={`${club.name} logo`}
+                        className="h-full w-full object-contain"
+                        data-testid={`img-club-logo-${club.id}`}
+                      />
+                    ) : (
+                      <div 
+                        className="h-full w-full flex items-center justify-center text-lg font-bold text-white"
+                        style={{ backgroundColor: clubPrimaryColor }}
+                      >
+                        {club.shortName || club.name.substring(0, 3).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Club Information */}
+                  <div className="flex-1">
+                    <h4 
+                      className="text-xl font-bold mb-2" 
+                      style={{ color: clubPrimaryColor }}
+                      data-testid={`text-club-name-${club.id}`}
+                    >
+                      {club.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Owner: {club.owner}
+                    </p>
+                    <Badge 
+                      className={club.subscriptionStatus === 'active' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
+                      data-testid={`text-club-status-${club.id}`}
+                    >
+                      {club.subscriptionStatus === 'active' ? 'Active' : club.subscriptionStatus || 'Active'}
                     </Badge>
-                  )}
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditClub(club);
-                    }}
-                    data-testid={`button-edit-club-${club.id}`}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                    data-testid={`button-delete-club-${club.id}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium bg-secondary px-2 py-1 rounded text-xs">
-                    {club.shortName}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">{club.owner}</span>
-                </div>
-                {club.address && (
-                  <div className="flex items-start space-x-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{club.address}{club.city && `, ${club.city}`}</span>
                   </div>
-                )}
-                {club.phone && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{club.phone}</span>
-                  </div>
-                )}
-                {club.email && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{club.email}</span>
-                  </div>
-                )}
-                <div className="text-xs text-muted-foreground">
-                  Created: {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : 'N/A'}
                 </div>
-                <div className="pt-2 border-t border-border">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => setLocation(`/club-management?clubId=${club.id}`)}
-                    data-testid={`button-manage-club-${club.id}`}
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2" />
-                    Manage Club
-                  </Button>
-                </div>
+                
+                {/* Right side - Edit button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditClub(club);
+                  }}
+                  data-testid={`button-edit-club-${club.id}`}
+                  className="p-1 h-8 w-8"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
               </div>
+              
+              {/* Club Statistics - Full Width Centered */}
+              <ClubStatsDisplay clubId={club.id} club={club} />
             </CardContent>
           </Card>
           );
