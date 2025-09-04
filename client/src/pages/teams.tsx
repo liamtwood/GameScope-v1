@@ -83,7 +83,7 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
       <div className="grid grid-cols-3 gap-4 text-center">
         {/* Column 1: Players */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-team-players-${teamId}`}>
             {stats.players}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
@@ -91,7 +91,7 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
         
         {/* Column 2: Matches */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-matches-${teamId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-team-matches-${teamId}`}>
             {stats.matches}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Matches</span>
@@ -99,7 +99,7 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
         
         {/* Column 3: Processing */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-processing-${teamId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-team-processing-${teamId}`}>
             {stats.processing}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Processing</span>

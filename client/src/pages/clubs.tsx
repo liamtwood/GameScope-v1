@@ -97,19 +97,19 @@ const ClubStatsDisplay = ({ clubId, club }: { clubId: string; club: Club }) => {
     <div className="w-full">
       <div className="grid grid-cols-3 gap-4 text-center">
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-players-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-players-${clubId}`}>
             {stats.players}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-teams-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-teams-${clubId}`}>
             {stats.matches}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Teams</span>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-fixtures-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-fixtures-${clubId}`}>
             {stats.processing}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Fixtures</span>

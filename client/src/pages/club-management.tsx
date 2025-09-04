@@ -106,7 +106,7 @@ const ClubStatsDisplay = ({ clubId }: { clubId: string }) => {
       <div className="grid grid-cols-3 gap-4 text-center">
         {/* Column 1: Players */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-players-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-players-${clubId}`}>
             {stats.players}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Players</span>
@@ -114,7 +114,7 @@ const ClubStatsDisplay = ({ clubId }: { clubId: string }) => {
         
         {/* Column 2: Teams (labeled as Matches per request) */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-teams-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-teams-${clubId}`}>
             {stats.matches}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Teams</span>
@@ -122,7 +122,7 @@ const ClubStatsDisplay = ({ clubId }: { clubId: string }) => {
         
         {/* Column 3: Total Fixtures (labeled as Processing) */}
         <div className="flex flex-col items-center">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`text-club-fixtures-${clubId}`}>
+          <span className="text-2xl font-bold text-foreground" data-testid={`text-club-fixtures-${clubId}`}>
             {stats.processing}
           </span>
           <span className="text-xs font-medium mt-1" style={{ color: clubPrimaryColor }}>Fixtures</span>
