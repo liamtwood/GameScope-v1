@@ -674,12 +674,6 @@ export default function Squad() {
                 return (
                   <div key={positionCategory}>
                     <h3 className="text-lg font-semibold text-club-primary mb-4 flex items-center">
-                      <div className={`w-3 h-3 rounded-full mr-2 ${
-                        positionCategory === 'GK' ? 'bg-purple-500' :
-                        positionCategory === 'DEF' ? 'bg-blue-500' :
-                        positionCategory === 'MID' ? 'bg-green-500' :
-                        'bg-red-500'
-                      }`} />
                       {positionName} ({playersInPosition.length})
                     </h3>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
