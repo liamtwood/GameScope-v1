@@ -137,9 +137,10 @@ export default function Clubs() {
       owner: "admin", // Default owner
       address: "",
       city: "",
+      state: "",
+      country: "",
       phone: "",
       email: "",
-      description: "",
       colors: {
         primary: "#dc2626", // Default red
         secondary: "#000000", // Default black
@@ -315,218 +316,283 @@ export default function Clubs() {
                   Create Club
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[800px]">
             <DialogHeader>
               <DialogTitle>Create New Club</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Club Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter club name"
-                          data-testid="input-club-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="shortName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., PSC"
-                          data-testid="input-club-short-name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="owner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Owner</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter club owner"
-                          data-testid="input-club-owner"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter address"
-                            data-testid="input-club-address"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter city"
-                            data-testid="input-club-city"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Phone number"
-                            data-testid="input-club-phone"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="contact@club.com"
-                            data-testid="input-club-email"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Brief description of the club"
-                          data-testid="input-club-description"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Club Colors */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="colors.primary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Primary Color</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center space-x-2">
-                            <Input
-                              type="color"
-                              className="w-12 h-10 p-1 border rounded cursor-pointer"
-                              data-testid="input-club-primary-color"
-                              {...field}
-                            />
-                            <Input
-                              type="text"
-                              placeholder="#dc2626"
-                              className="flex-1"
-                              data-testid="input-club-primary-color-text"
-                              {...field}
-                            />
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 text-sm">
+                <div className="grid grid-cols-2 gap-8">
+                  {/* Left Column - Basic Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">BASIC INFORMATION</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Club Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter club name"
+                                data-testid="input-club-name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="shortName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., PSC"
+                                data-testid="input-club-short-name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="owner"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Owner</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl className="flex-1">
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
+                                <SelectTrigger data-testid="select-club-owner">
+                                  <SelectValue placeholder="Select owner" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SAMPLE_OWNERS.map((owner) => (
+                                    <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setIsCreateOwnerDialogOpen(true)}
+                              data-testid="button-add-owner-create"
+                              className="shrink-0"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="colors.secondary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Secondary Color</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center space-x-2">
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">ADDRESS</h4>
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address</FormLabel>
+                          <FormControl>
                             <Input
-                              type="color"
-                              className="w-12 h-10 p-1 border rounded cursor-pointer"
-                              data-testid="input-club-secondary-color"
-                              {...field}
-                              value={field.value || "#000000"}
-                            />
-                            <Input
-                              type="text"
-                              placeholder="#000000"
-                              className="flex-1"
-                              data-testid="input-club-secondary-color-text"
+                              placeholder="Enter address"
+                              data-testid="input-club-address"
                               {...field}
                               value={field.value || ""}
                             />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>City</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter city"
+                                data-testid="input-club-city"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>State/County</FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
+                                <SelectTrigger data-testid="select-club-state">
+                                  <SelectValue placeholder="Select state/county" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {COMMON_STATES.map((state) => (
+                                    <SelectItem key={state} value={state}>{state}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <SelectTrigger data-testid="select-club-country">
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COMMON_COUNTRIES.map((country) => (
+                                  <SelectItem key={country} value={country}>{country}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Phone number"
+                                data-testid="input-club-phone"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="contact@club.com"
+                                data-testid="input-club-email"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Right Column - Branding */}
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">BRANDING</h3>
+                    
+                    {/* Club Colors */}
+                    <div className="space-y-4">
+                      <FormLabel className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CLUB COLORS</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="colors.primary"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Primary Color</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="color"
+                                  className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                  data-testid="input-club-primary-color"
+                                  {...field}
+                                />
+                                <Input
+                                  type="text"
+                                  placeholder="#dc2626"
+                                  className="flex-1"
+                                  data-testid="input-club-primary-color-text"
+                                  {...field}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="colors.secondary"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Secondary Color</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="color"
+                                  className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                  data-testid="input-club-secondary-color"
+                                  {...field}
+                                  value={field.value || "#000000"}
+                                />
+                                <Input
+                                  type="text"
+                                  placeholder="#000000"
+                                  className="flex-1"
+                                  data-testid="input-club-secondary-color-text"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-2 pt-4">
+                <div className="flex justify-end space-x-2 pt-6 border-t">
                   <Button
                     type="button"
                     variant="outline"
