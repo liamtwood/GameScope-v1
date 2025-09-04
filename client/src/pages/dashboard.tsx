@@ -127,7 +127,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-club-primary">Recent Results</CardTitle>
+            <CardTitle className="text-foreground">Recent Results</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentFixtures.length > 0 ? (
@@ -148,7 +148,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-club-primary">Upcoming Matches</CardTitle>
+            <CardTitle className="text-foreground">Upcoming Matches</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {upcomingFixtures.length > 0 ? (

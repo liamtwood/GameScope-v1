@@ -574,7 +574,7 @@ export default function Fixtures() {
 
                   return Object.entries(groupedFixtures).map(([competitionName, competitionFixtures]) => (
                     <div key={competitionName}>
-                      <h3 className="text-lg font-semibold text-club-primary mb-4 flex items-center">
+                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
                         {competitionName} ({competitionFixtures.length})
                       </h3>
                       <div className="space-y-4">

@@ -79,7 +79,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 />
               </div>
               <div>
-                <h1 className="text-3xl text-club-primary">
+                <h1 className="text-3xl text-foreground">
                   {currentClub ? currentClub.name : "Loading..."}
                 </h1>
               </div>
@@ -102,7 +102,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
               <div>
-                <h3 className="font-semibold text-base text-club-primary">{title.toUpperCase()}</h3>
+                <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
                 <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
               </div>
             </div>

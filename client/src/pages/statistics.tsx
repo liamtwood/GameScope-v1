@@ -138,7 +138,7 @@ export default function Statistics() {
       {/* Top Scorers */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-club-primary">Top Scorers</CardTitle>
+          <CardTitle className="text-foreground">Top Scorers</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -176,7 +176,7 @@ export default function Statistics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-club-primary">Goals by Position</CardTitle>
+            <CardTitle className="text-foreground">Goals by Position</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -206,7 +206,7 @@ export default function Statistics() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-club-primary">Player Appearances</CardTitle>
+            <CardTitle className="text-foreground">Player Appearances</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {appearanceDistribution.map(({ appearances, count }) => (
