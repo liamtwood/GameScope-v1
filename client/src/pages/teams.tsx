@@ -411,7 +411,7 @@ export default function Teams() {
                                       {team.name}
                                     </h4>
                                     <p className="text-sm text-gray-600 mb-2">
-                                      Coach: {team.coach || 'Not assigned'}
+                                      COACH {team.coach || 'Not assigned'}
                                     </p>
                                     <Badge 
                                       className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
