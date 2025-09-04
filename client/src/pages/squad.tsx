@@ -81,7 +81,7 @@ export default function Squad() {
       return apiRequest("PUT", `/api/players/${playerId}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
       toast({
         title: "Player Updated",
         description: "Player information has been updated successfully.",
@@ -101,7 +101,7 @@ export default function Squad() {
       return apiRequest("PATCH", `/api/players/${playerId}`, { keyPlayer });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
       toast({
         title: "Key Player Updated",
         description: "Player status has been updated successfully.",
@@ -121,7 +121,7 @@ export default function Squad() {
       return apiRequest("DELETE", `/api/players/${playerId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
       toast({
         title: "Player Deleted",
         description: "Player has been removed from the squad.",
