@@ -400,7 +400,7 @@ export default function Teams() {
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between">
                                 {/* Left side - Team Abbreviation */}
-                                <div className="flex items-start space-x-4">
+                                <div className="flex items-center space-x-4">
                                   <div className="h-12 w-12 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center text-sm font-bold">
                                     {team.shortName || team.name.substring(0, 3).toUpperCase()}
                                   </div>
