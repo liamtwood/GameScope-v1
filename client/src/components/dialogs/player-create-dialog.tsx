@@ -25,9 +25,12 @@ import { InsertPlayer } from "@shared/schema";
 
 const createPlayerSchema = z.object({
   teamId: z.string(),
+  clubId: z.string().optional(), // Add clubId to schema
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  position: z.string().min(1, "Position is required"),
+  position: z.enum(["goalkeeper", "defender", "midfield", "forward"], {
+    required_error: "Position is required",
+  }),
   jerseyNumber: z.number().min(0),
   fitnessStatus: z.string().default("Fit"), // Changed from status to fitnessStatus
   keyPlayer: z.boolean().optional(),
@@ -48,20 +51,22 @@ type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
 
 interface PlayerCreateDialogProps {
   teamId: string;
+  clubId?: string; // Add clubId prop
   onSave: (data: CreatePlayerFormData) => void;
   children: React.ReactNode;
 }
 
-export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDialogProps) {
+export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerCreateDialogProps) {
   const [open, setOpen] = useState(false);
 
   const form = useForm<CreatePlayerFormData>({
     resolver: zodResolver(createPlayerSchema),
     defaultValues: {
       teamId,
+      clubId,
       firstName: "",
       lastName: "",
-      position: "",
+      position: undefined,
       jerseyNumber: 0,
       fitnessStatus: "Fit",
       accountStatus: "Active",
@@ -181,19 +186,10 @@ export function PlayerCreateDialog({ teamId, onSave, children }: PlayerCreateDia
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
-                        <SelectItem value="Defender">Center Back</SelectItem>
-                        <SelectItem value="Defender">Left Back</SelectItem>
-                        <SelectItem value="Defender">Right Back</SelectItem>
-                        <SelectItem value="Midfield">Center Midfield</SelectItem>
-                        <SelectItem value="Midfield">Defensive Midfield</SelectItem>
-                        <SelectItem value="Midfield">Attacking Midfield</SelectItem>
-                        <SelectItem value="Midfield">Left Midfield</SelectItem>
-                        <SelectItem value="Midfield">Right Midfield</SelectItem>
-                        <SelectItem value="Forward">Striker</SelectItem>
-                        <SelectItem value="Forward">Left Wing</SelectItem>
-                        <SelectItem value="Forward">Right Wing</SelectItem>
-                        <SelectItem value="Forward">Center Forward</SelectItem>
+                        <SelectItem value="goalkeeper">Goalkeeper</SelectItem>
+                        <SelectItem value="defender">Defender</SelectItem>
+                        <SelectItem value="midfield">Midfield</SelectItem>
+                        <SelectItem value="forward">Forward</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

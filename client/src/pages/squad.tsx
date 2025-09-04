@@ -14,6 +14,14 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings } from "lucide-react";
 import { User, Team, Fixture } from "@shared/schema";
+
+// Define Player type for compatibility
+type Player = User & {
+  jerseyNumber?: number | null;
+  position?: string;
+  starPlayer?: boolean;
+  fitnessStatus?: string;
+};
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
@@ -61,8 +69,12 @@ export default function Squad() {
 
   const createPlayerMutation = useMutation({
     mutationFn: async (playerData: any) => {
-      // Add teamId to the data so user gets assigned to current team
-      const dataWithTeam = { ...playerData, teamId: currentTeam?.id };
+      // Add teamId and clubId to the data so user gets assigned to current team and club
+      const dataWithTeam = { 
+        ...playerData, 
+        teamId: currentTeam?.id,
+        clubId: currentTeam?.clubId // Add clubId from the team
+      };
       return apiRequest("POST", "/api/users", dataWithTeam);
     },
     onSuccess: () => {
@@ -142,10 +154,10 @@ export default function Squad() {
   });
 
   const getPositionCategory = (position: string): PositionFilter => {
-    if (['GK', 'Goalkeeper'].includes(position)) return 'GK';
-    if (['CB', 'LB', 'RB', 'DEF', 'Defender'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'MID', 'Midfielder'].includes(position)) return 'MID';
-    if (['ST', 'LW', 'RW', 'CF', 'FWD', 'Forward'].includes(position)) return 'FWD';
+    if (['GK', 'Goalkeeper', 'goalkeeper'].includes(position)) return 'GK';
+    if (['CB', 'LB', 'RB', 'DEF', 'Defender', 'defender'].includes(position)) return 'DEF';
+    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'MID', 'Midfielder', 'midfield'].includes(position)) return 'MID';
+    if (['ST', 'LW', 'RW', 'CF', 'FWD', 'Forward', 'forward'].includes(position)) return 'FWD';
     return 'DEF';
   };
 
@@ -370,6 +382,7 @@ export default function Squad() {
           <div className="flex items-center gap-2">
             <PlayerCreateDialog 
               teamId={currentTeam?.id || ""} 
+              clubId={currentTeam?.clubId || ""} 
               onSave={handleCreatePlayer}
             >
               <Button 
