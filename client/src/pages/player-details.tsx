@@ -556,7 +556,10 @@ export default function PlayerDetails() {
                       /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
-                      [data-testid="tab-parents"][data-state="active"] {
+                      [data-testid="tab-parents"][data-state="active"],
+                      button[role="tab"][data-testid="tab-details"][data-state="active"],
+                      button[role="tab"][data-testid="tab-teams"][data-state="active"],
+                      button[role="tab"][data-testid="tab-parents"][data-state="active"] {
                         opacity: 1 !important;
                         background: white !important;
                         background-color: white !important;
@@ -584,7 +587,7 @@ export default function PlayerDetails() {
                       data-testid="tab-details" 
                       className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
                       style={{ 
-                        color: activeTab === 'details' ? clubPrimaryColor : textColor,
+                        // color controlled by CSS now
                         '--club-primary': clubPrimaryColor,
 // Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
@@ -596,7 +599,7 @@ export default function PlayerDetails() {
                       data-testid="tab-teams" 
                       className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
                       style={{ 
-                        color: activeTab === 'teams' ? clubPrimaryColor : textColor,
+                        // color controlled by CSS now
                         '--club-primary': clubPrimaryColor,
 // Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
@@ -608,7 +611,7 @@ export default function PlayerDetails() {
                       data-testid="tab-parents" 
                       className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
                       style={{ 
-                        color: activeTab === 'parents' ? clubPrimaryColor : textColor,
+                        // color controlled by CSS now
                         '--club-primary': clubPrimaryColor,
 // Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
