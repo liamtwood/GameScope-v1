@@ -641,11 +641,11 @@ export default function Clubs() {
             <DialogTitle>Edit Club</DialogTitle>
           </DialogHeader>
           <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 text-sm">
               <div className="grid grid-cols-2 gap-8">
                 {/* Left Column - Basic Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Basic Information</h3>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -845,7 +845,7 @@ export default function Clubs() {
                 
                 {/* Right Column - Logo and Colors */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Branding</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Branding</h3>
                   
                   {/* Logo Upload Section */}
                   <div className="space-y-4">
