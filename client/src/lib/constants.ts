@@ -50,6 +50,7 @@ export const NAVIGATION_SECTIONS = [
   {
     title: 'DevOps',
     items: [
+      { id: 'devops-users', label: 'Users', icon: 'Users', tooltip: 'System-wide User Management' },
       { id: 'clubs', label: 'Clubs', icon: 'Landmark', tooltip: 'Manage Clubs' },
     ]
   }
