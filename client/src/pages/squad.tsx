@@ -669,7 +669,7 @@ export default function Squad() {
                 
                 return (
                   <div key={positionCategory}>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                    <h3 className="text-lg font-semibold text-club-primary mb-4 flex items-center">
                       <div className={`w-3 h-3 rounded-full mr-2 ${
                         positionCategory === 'GK' ? 'bg-purple-500' :
                         positionCategory === 'DEF' ? 'bg-blue-500' :
