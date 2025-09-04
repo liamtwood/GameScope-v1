@@ -73,7 +73,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
     const displayNumber = player.jerseyNumber || '?';
     return (
       <div 
-        className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg"
+        className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
         style={{ backgroundColor: clubPrimaryColor }}
       >
         {displayNumber}
@@ -84,7 +84,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   return (
     <Card 
       data-testid={`card-player-${player.id}`} 
-      className="border rounded-full cursor-pointer w-32 h-32 p-0 hover:shadow-lg transition-shadow"
+      className="border rounded-lg cursor-pointer"
       onClick={(e) => {
         // Only trigger navigation if not clicking on interactive elements
         if (!e.defaultPrevented) {
@@ -92,39 +92,73 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
         }
       }}
     >
-      <CardContent className="p-0 h-full w-full relative">
-        <div className="flex flex-col items-center justify-center h-full w-full">
-          {/* Central Jersey Number Circle */}
-          <div className="relative">
-            {getPlayerDisplay()}
-            {/* Star player indicator */}
-            {player.keyPlayer && (
-              <div className="absolute -top-1 -right-1">
-                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 bg-white rounded-full p-0.5" />
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between min-h-[50px]">
+          {/* Player Avatar */}
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 flex items-center justify-center">
+              {getPlayerDisplay()}
+            </div>
+            
+            {/* Main Content */}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-lg text-foreground">{player.firstName} {player.lastName}</h3>
+                {player.keyPlayer && (
+                  <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                )}
               </div>
-            )}
-          </div>
-          
-          {/* Player Name - positioned at bottom */}
-          <div className="absolute bottom-2 left-0 right-0 text-center px-2">
-            <p className="text-xs font-semibold text-foreground truncate">
-              {player.firstName.charAt(0)}. {player.lastName}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {player.position}
-            </p>
+              <p className="text-sm text-muted-foreground">
+                {player.position}
+              </p>
+            </div>
           </div>
 
-          {/* Actions Menu - positioned at top right */}
-          <div className="absolute top-1 right-1">
+          {/* Right side - Status and Stats */}
+          <div className="flex items-center space-x-3">
+            {/* Status */}
+            {isEditingStatus ? (
+              <Select
+                value={player.status || "Fit"}
+                onValueChange={(newStatus) => {
+                  if (onUpdateStatus) {
+                    onUpdateStatus(player, newStatus);
+                  }
+                  setIsEditingStatus(false);
+                }}
+              >
+                <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Fit">Fit</SelectItem>
+                  <SelectItem value="Injured">Injured</SelectItem>
+                  <SelectItem value="Retired">Retired</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge 
+                className={`text-xs px-3 py-1 cursor-pointer hover:opacity-80 ${getStatusColor()}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingStatus(true);
+                }}
+                title="Click to edit status"
+              >
+                {player.status}
+              </Badge>
+            )}
+            
+
+            {/* Actions Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="h-6 w-6 p-0 bg-white/80 hover:bg-white rounded-full"
+                  className="h-8 w-8 p-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="h-3 w-3" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -155,41 +189,6 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          {/* Status Badge - positioned at top left */}
-          <div className="absolute top-1 left-1">
-            {isEditingStatus ? (
-              <Select
-                value={player.status || "Fit"}
-                onValueChange={(newStatus) => {
-                  if (onUpdateStatus) {
-                    onUpdateStatus(player, newStatus);
-                  }
-                  setIsEditingStatus(false);
-                }}
-              >
-                <SelectTrigger className="w-16 h-6 text-xs bg-white/80">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Fit">Fit</SelectItem>
-                  <SelectItem value="Injured">Injured</SelectItem>
-                  <SelectItem value="Retired">Retired</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <Badge 
-                className={`text-xs px-2 py-0.5 cursor-pointer hover:opacity-80 ${getStatusColor()}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingStatus(true);
-                }}
-                title="Click to edit status"
-              >
-                {player.status?.charAt(0) || 'F'}
-              </Badge>
-            )}
           </div>
         </div>
       </CardContent>
