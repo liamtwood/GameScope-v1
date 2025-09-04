@@ -25,7 +25,7 @@ interface PlayerCardProps {
 export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
   const [, setLocation] = useLocation();
   const [isEditingStatus, setIsEditingStatus] = useState(false);
-  const { clubPrimaryColor } = useClubTheme();
+  const { clubPrimary } = useClubTheme();
   
   const getStatusColor = () => {
     switch (player.status) {
@@ -75,8 +75,8 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
       <div 
         className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2"
         style={{ 
-          backgroundColor: clubPrimaryColor,
-          borderColor: clubPrimaryColor
+          backgroundColor: clubPrimary,
+          borderColor: clubPrimary
         }}
       >
         {displayNumber}
