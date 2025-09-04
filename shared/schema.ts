@@ -192,6 +192,10 @@ export const users = pgTable("users", {
   teamId: varchar("team_id").references(() => teams.id),
   name: text("name"),
   email: text("email"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  status: varchar("status", { length: 20 }).default("active"), // active, inactive, suspended
+  keyUser: boolean("key_user").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

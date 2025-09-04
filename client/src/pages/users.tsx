@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Settings, Filter } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users as UsersIcon, Shield, Settings, Filter } from "lucide-react";
 import { User } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useClub } from "@/contexts/club-context";
@@ -137,7 +137,7 @@ export default function Users() {
     return matchesFilter && matchesStatus && matchesStar && matchesSearch;
   }).sort((a, b) => {
     // Sort by role first, then by name
-    const roleOrder = { admin: 1, coach: 2, player: 3 };
+    const roleOrder: Record<RoleFilter, number> = { all: 0, admin: 1, coach: 2, player: 3 };
     const aRole = getRoleCategory(a.role || 'player');
     const bRole = getRoleCategory(b.role || 'player');
     const roleDiff = roleOrder[aRole] - roleOrder[bRole];
@@ -232,7 +232,7 @@ export default function Users() {
           <StatsCard
             title="Total Users"
             value={getRoleCount('all')}
-            icon={Users}
+            icon={UsersIcon}
             iconColor="text-club-primary"
             subtitle="active system users"
           />
@@ -400,7 +400,7 @@ export default function Users() {
                         user={user}
                         onDelete={handleDeleteUser}
                         onToggleKeyUser={handleToggleKeyUser}
-                        onUpdateStatus={(user, newStatus) => {
+                        onUpdateStatus={(user: User, newStatus: string) => {
                           handleUpdateUser(user.id, { status: newStatus });
                         }}
                       />
