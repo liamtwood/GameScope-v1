@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       {/* Team Selector */}
       {!collapsed && (
         <div className="p-4 border-b border-border">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+          <label className="text-[10px] font-semibold uppercase tracking-wide mb-2 block" style={{ color: clubPrimaryColor }}>
             Select Team
           </label>
           <DropdownMenu>
