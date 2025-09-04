@@ -178,10 +178,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     key={item.id}
                     href={href}
                     className={cn(
-                      "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
+                      "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7 hover:text-accent-foreground",
                       isActive 
                         ? "text-white" 
-                        : "hover:bg-accent hover:text-accent-foreground",
+                        : "",
                       collapsed && "justify-center px-2 mx-0"
                     )}
                     style={isActive ? { 
@@ -191,6 +191,22 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                       width: 'calc(100% + 2rem)'
                     } : {
                       color: clubPrimaryColor
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.marginRight = '-2rem';
+                        e.currentTarget.style.paddingRight = '2rem';
+                        e.currentTarget.style.width = 'calc(100% + 2rem)';
+                        e.currentTarget.style.backgroundColor = '#f1f5f9'; // Light gray hover
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.marginRight = '';
+                        e.currentTarget.style.paddingRight = '';
+                        e.currentTarget.style.width = '';
+                        e.currentTarget.style.backgroundColor = '';
+                      }
                     }}
                     data-testid={`link-nav-${item.id}`}
                   >
