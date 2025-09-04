@@ -181,7 +181,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                       "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
                       isActive 
                         ? "text-white" 
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                        : "hover:bg-accent hover:text-accent-foreground",
                       collapsed && "justify-center px-2 mx-0"
                     )}
                     style={isActive ? { 
@@ -189,7 +189,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                       marginRight: '-2rem',
                       paddingRight: '2rem',
                       width: 'calc(100% + 2rem)'
-                    } : {}}
+                    } : {
+                      color: clubPrimaryColor
+                    }}
                     data-testid={`link-nav-${item.id}`}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
