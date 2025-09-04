@@ -106,7 +106,7 @@ export function UserCard({ user, onDelete, onToggleKeyUser, onUpdateStatus }: Us
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                {user.email}
+                {user.email || "Not Provided"}
               </p>
               <Badge className={`text-xs px-2 py-0.5 mt-1 ${getRoleColor()}`}>
                 {getRoleCategory(user.role || 'player')}
