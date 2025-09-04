@@ -30,25 +30,25 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
     // Handle exact matches first
     switch (titleLower) {
       case 'home':
-        return <Home className="h-10 w-10 text-foreground" />;
+        return <Home className="h-10 w-10 text-club-primary" />;
       case 'dashboard':
-        return <Home className="h-10 w-10 text-foreground" />;
+        return <Home className="h-10 w-10 text-club-primary" />;
       case 'fixtures':
-        return <Calendar className="h-10 w-10 text-foreground" />;
+        return <Calendar className="h-10 w-10 text-club-primary" />;
       case 'squad management':
-        return <Users className="h-10 w-10 text-foreground" />;
+        return <Users className="h-10 w-10 text-club-primary" />;
       case 'match videos':
-        return <Video className="h-10 w-10 text-foreground" />;
+        return <Video className="h-10 w-10 text-club-primary" />;
       case 'club management':
-        return <Landmark className="h-10 w-10 text-foreground" />;
+        return <Landmark className="h-10 w-10 text-club-primary" />;
       case 'settings':
-        return <Settings className="h-10 w-10 text-foreground" />;
+        return <Settings className="h-10 w-10 text-club-primary" />;
       case 'clubs':
-        return <Landmark className="h-10 w-10 text-foreground" />;
+        return <Landmark className="h-10 w-10 text-club-primary" />;
       default:
         // Handle pattern matches (like "Club Name - Teams")
         if (titleLower.includes('teams')) {
-          return <Shield className="h-10 w-10 text-foreground" />;
+          return <Shield className="h-10 w-10 text-club-primary" />;
         }
         return null;
     }
@@ -79,7 +79,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 />
               </div>
               <div>
-                <h1 className="text-3xl text-foreground">
+                <h1 className="text-3xl text-club-primary">
                   {currentClub ? currentClub.name : "Loading..."}
                 </h1>
               </div>
@@ -102,7 +102,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
               <div>
-                <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
+                <h3 className="font-semibold text-base text-club-primary">{title.toUpperCase()}</h3>
                 <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
               </div>
             </div>
