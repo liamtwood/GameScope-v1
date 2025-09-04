@@ -274,7 +274,7 @@ export default function ClubManagement() {
                   <img 
                     src={selectedClub.logoPath} 
                     alt={`${selectedClub.name} logo`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                     data-testid={`img-club-logo-${selectedClub.id}`}
                   />
                 ) : (
