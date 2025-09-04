@@ -165,25 +165,23 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {onEdit && (
+                {onToggleKeyPlayer && (
                   <DropdownMenuItem onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    onEdit(player);
+                    onToggleKeyPlayer(player);
                   }}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Player
-                  </DropdownMenuItem>
-                )}
-                {onToggleKeyPlayer && (
-                  <DropdownMenuItem onClick={() => onToggleKeyPlayer(player)}>
                     <Star className="mr-2 h-4 w-4" />
                     {player.keyPlayer ? 'Remove Star' : 'Make Star Player'}
                   </DropdownMenuItem>
                 )}
                 {onDelete && (
                   <DropdownMenuItem 
-                    onClick={() => onDelete(player)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDelete(player);
+                    }}
                     className="text-red-600"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
