@@ -175,11 +175,11 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     key={item.id}
                     href={href}
                     className={cn(
-                      "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors w-full",
+                      "flex items-center space-x-3 px-3 py-2 transition-colors w-full -mx-4 px-7",
                       isActive 
                         ? "text-white" 
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      collapsed && "justify-center px-2"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md mx-0 px-3",
+                      collapsed && "justify-center px-2 mx-0"
                     )}
                     style={isActive ? { backgroundColor: clubPrimaryColor } : {}}
                     data-testid={`link-nav-${item.id}`}
