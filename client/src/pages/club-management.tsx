@@ -269,7 +269,7 @@ export default function ClubManagement() {
           <div className="flex items-start justify-between mb-4">
             {/* Left side - Large Club Logo Circle */}
             <div className="flex items-start space-x-4">
-              <div className="h-16 w-16 rounded-full overflow-hidden flex items-center justify-center border-2 border-gray-200">
+              <div className="h-16 w-16 rounded-full overflow-hidden flex items-center justify-center">
                 {selectedClub.logoPath ? (
                   <img 
                     src={selectedClub.logoPath} 
