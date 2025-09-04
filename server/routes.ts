@@ -377,6 +377,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Player-Team relationship routes (aliases for user-team routes)
+  // Get all teams for a player
+  app.get("/api/player/:playerId/teams", async (req, res) => {
+    try {
+      const userTeams = await storage.getUserTeams(req.params.playerId);
+      res.json(userTeams);
+    } catch (error) {
+      console.error("Error fetching player teams:", error);
+      res.status(500).json({ message: "Failed to fetch player teams" });
+    }
+  });
+
+  // Add player to a team
+  app.post("/api/player/:playerId/teams", async (req, res) => {
+    try {
+      const { teamId, jerseyNumber, position, starPlayer, fitnessStatus } = req.body;
+      
+      const teamAssignment = {
+        userId: req.params.playerId,
+        teamId,
+        jerseyNumber: jerseyNumber || 0,
+        position,
+        starPlayer: starPlayer || false,
+        fitnessStatus: fitnessStatus || 'Fit'
+      };
+      
+      const validatedTeamData = insertUserTeamSchema.parse(teamAssignment);
+      const userTeam = await storage.addUserToTeam(req.params.playerId, teamId, validatedTeamData);
+      res.status(201).json(userTeam);
+    } catch (error) {
+      console.error("Error adding player to team:", error);
+      res.status(400).json({ message: "Failed to add player to team" });
+    }
+  });
+
+  // Remove player from a team
+  app.delete("/api/player/:playerId/teams/:teamId", async (req, res) => {
+    try {
+      await storage.removeUserFromTeam(req.params.playerId, req.params.teamId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing player from team:", error);
+      res.status(500).json({ message: "Failed to remove player from team" });
+    }
+  });
+
   app.post("/api/users", async (req, res) => {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, clubId, ...userData } = req.body;
