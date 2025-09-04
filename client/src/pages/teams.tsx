@@ -487,17 +487,15 @@ export default function Teams() {
                                     <h4 className="text-xl font-bold text-gray-900 mb-2" data-testid={`text-team-name-${team.id}`}>
                                       {team.name}
                                     </h4>
-                                    <div className="flex items-center space-x-2">
-                                      <p className="text-sm text-gray-600">
-                                        Coach: {team.coach || 'Not assigned'}
-                                      </p>
-                                      <Badge 
-                                        className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
-                                        data-testid={`text-team-status-${team.id}`}
-                                      >
-                                        {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                                      </Badge>
-                                    </div>
+                                    <p className="text-sm text-gray-600 mb-1">
+                                      Coach: {team.coach || 'Not assigned'}
+                                    </p>
+                                    <Badge 
+                                      className={team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
+                                      data-testid={`text-team-status-${team.id}`}
+                                    >
+                                      {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                                    </Badge>
                                   </div>
                                 </div>
                                 
