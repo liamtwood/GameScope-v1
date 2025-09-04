@@ -38,6 +38,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
 
   // Get primary team (for backwards compatibility)
   const primaryTeam = playerTeams[0]?.team;
+  const primaryUserTeam = playerTeams[0];
 
   const calculateAge = (dateOfBirth: string | Date | null) => {
     if (!dateOfBirth) return null;
@@ -53,7 +54,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       squadNumber?: number;
       position?: string;
     }) => {
-      const response = await fetch(`/api/player/${player.id}/teams`, {
+      const response = await fetch(`/api/user/${player.id}/teams`, {
         method: 'POST',
         body: JSON.stringify({ teamId, squadNumber, position }),
         headers: {
@@ -66,8 +67,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/player", player.id, "teams"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user", player.id, "teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
         title: "Team Added",
         description: "Player has been successfully added to the team.",
@@ -89,7 +90,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   // Mutation to remove player from team
   const removePlayerFromTeamMutation = useMutation({
     mutationFn: async (teamId: string) => {
-      const response = await fetch(`/api/player/${player.id}/teams/${teamId}`, {
+      const response = await fetch(`/api/user/${player.id}/teams/${teamId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -97,8 +98,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/player", player.id, "teams"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user", player.id, "teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
         title: "Team Removed",
         description: "Player has been successfully removed from the team.",
@@ -169,7 +170,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
   };
 
   const getPositionColor = () => {
-    const positionCategory = getPositionCategory(player.position);
+    const position = primaryUserTeam?.position || 'Unknown';
+    const positionCategory = getPositionCategory(position);
     switch (positionCategory) {
       case 'GK':
         return 'bg-purple-100 text-purple-800';
@@ -193,14 +195,14 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
             {/* Player Info */}
             <div className="flex items-center space-x-4">
               <div className="h-16 w-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold">
-                {player.jerseyNumber}
+                {primaryUserTeam?.jerseyNumber || '?'}
               </div>
               <div>
                 <div className="flex items-center space-x-3">
                   <h1 className="text-2xl font-bold text-foreground" data-testid={`text-player-name-${player.id}`}>
                     {player.firstName} {player.lastName}
                   </h1>
-                  {player.keyPlayer && (
+                  {primaryUserTeam?.starPlayer && (
                     <Star className="h-6 w-6 text-orange-500 fill-orange-500" />
                   )}
                 </div>
@@ -209,7 +211,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                     className={`text-sm px-3 py-1 ${getPositionColor()}`}
                     data-testid={`badge-position-${player.id}`}
                   >
-                    {player.position}
+                    {primaryUserTeam?.position || 'No Position'}
                   </Badge>
                   <Badge 
                     className={`text-sm px-3 py-1 ${getStatusColor()}`}
@@ -253,20 +255,20 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Jersey Number</label>
-                      <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{player.jerseyNumber}</p>
+                      <p className="text-lg" data-testid={`text-jersey-number-${player.id}`}>{primaryUserTeam?.jerseyNumber || 'No Number'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Position</label>
-                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{player.position}</p>
+                      <p className="text-lg" data-testid={`text-position-${player.id}`}>{primaryUserTeam?.position || 'No Position'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Player Status</label>
-                      <p className="text-lg" data-testid={`text-player-status-${player.id}`}>{player.status || 'Fit'}</p>
+                      <p className="text-lg" data-testid={`text-player-status-${player.id}`}>{primaryUserTeam?.fitnessStatus || 'Fit'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Key Player</label>
                       <p className="text-lg" data-testid={`text-key-player-${player.id}`}>
-                        {player.keyPlayer ? 'Yes' : 'No'}
+                        {primaryUserTeam?.starPlayer ? 'Yes' : 'No'}
                       </p>
                     </div>
                   </div>
@@ -304,10 +306,10 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                       <label className="text-sm font-medium text-muted-foreground">Account Status</label>
                       <div>
                         <Badge 
-                          className={`text-sm px-3 py-1 ${getAccountStatusColor(player.accountStatus || "Draft")}`}
+                          className={`text-sm px-3 py-1 ${getAccountStatusColor(player.status || "Draft")}`}
                           data-testid={`badge-account-status-${player.id}`}
                         >
-                          {player.accountStatus || "Draft"}
+                          {player.status || "Draft"}
                         </Badge>
                       </div>
                     </div>
@@ -413,7 +415,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                               <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
-                                {playerTeam.squadNumber || '?'}
+                                {playerTeam.jerseyNumber || '?'}
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2">
