@@ -986,7 +986,7 @@ export default function PlayerDetails() {
                             playerTeams.map((playerTeam) => (
                               <Card 
                                 key={playerTeam.id} 
-                                className="border-2 border-red-300 bg-white" 
+                                className="border-2 border-gray-200 bg-white" 
                                 data-testid={`card-team-${playerTeam.team.id}`}
                               >
                                 <CardContent className="p-4">
@@ -1003,7 +1003,7 @@ export default function PlayerDetails() {
                                           {playerTeam.team.name}
                                         </h4>
                                         <p className="text-sm text-gray-600 mb-2">
-                                          Coach: {playerTeam.team.coachName || 'Not assigned'}
+                                          Coach: {playerTeam.team.coach || 'Not assigned'}
                                         </p>
                                         <Badge 
                                           className={playerTeam.team.status === 'ACTIVE' ? 'bg-green-500 text-white text-xs px-2 py-1' : 'bg-gray-500 text-white text-xs px-2 py-1'}
