@@ -118,6 +118,9 @@ export default function Teams() {
   const { selectedTeam, selectTeam, teams, isLoading: teamsLoading } = useTeam();
   const { selectedClub: currentClub, isLoading: clubsLoading } = useClub();
   
+  // Get club primary color for styling
+  const clubPrimaryColor = currentClub?.colors?.primary || '#dc2626';
+  
   // Filter teams by current club and group by gender
   const clubTeams = teams
     .filter(team => team.clubId && team.clubId === currentClub?.id)
