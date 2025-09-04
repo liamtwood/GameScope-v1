@@ -204,11 +204,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/club/:clubId/users", async (req, res) => {
     try {
       console.log("Club users endpoint hit with clubId:", req.params.clubId);
-      // Simple approach: get all users for now
-      // TODO: Implement proper user_clubs relationship
-      const allUsers = await storage.getUsers();
-      console.log("Found users:", allUsers.length);
-      res.json(allUsers);
+      const clubUsers = await storage.getClubUsers(req.params.clubId);
+      console.log("Found users:", clubUsers.length);
+      // Extract just the user data for frontend compatibility
+      const users = clubUsers.map(cu => cu.user);
+      res.json(users);
     } catch (error) {
       console.error("Error fetching club users:", error);
       res.status(500).json({ message: "Failed to fetch club users" });
@@ -386,12 +386,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add to club if clubId is provided
       if (clubId) {
         const clubAssignment = {
-          userId: user.id,
-          clubId,
-          status: 'active'
+          status: 'Active',
+          keyUser: false
         };
-        // TODO: Add storage method for user-club assignment
-        // await storage.addUserToClub(user.id, clubId, clubAssignment);
+        await storage.addUserToClub(user.id, clubId, clubAssignment);
       }
       
       // Add to team if teamId and position are provided

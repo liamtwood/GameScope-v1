@@ -6,6 +6,7 @@ import {
   teams,
   users,
   userTeams,
+  userClubs,
   userParents,
   fixtures,
   oppositionTeams,
@@ -15,6 +16,7 @@ import {
   type Team,
   type User,
   type UserTeam,
+  type UserClub,
   type UserParent,
   type Fixture,
   type OppositionTeam,
@@ -57,6 +59,12 @@ export interface IStorage {
   addUserToTeam(userId: string, teamId: string, assignment: InsertUserTeam): Promise<UserTeam>;
   removeUserFromTeam(userId: string, teamId: string): Promise<void>;
   getTeamUsers(teamId: string): Promise<(UserTeam & { user: User })[]>;
+  
+  // User-Club relationship operations
+  getUserClubs(userId: string): Promise<(UserClub & { club: Club })[]>;
+  addUserToClub(userId: string, clubId: string, assignment: any): Promise<UserClub>;
+  removeUserFromClub(userId: string, clubId: string): Promise<void>;
+  getClubUsers(clubId: string): Promise<(UserClub & { user: User })[]>;
   
   // User-Parent relationship operations
   getUserParents(userId: string): Promise<(UserParent & { parent: User })[]>;
@@ -486,6 +494,60 @@ export class DatabaseStorage implements IStorage {
     
     await db.insert(userTeams).values(newUserTeam);
     return newUserTeam as UserTeam;
+  }
+
+  async addUserToClub(
+    userId: string, 
+    clubId: string, 
+    assignment: any
+  ): Promise<UserClub> {
+    const id = randomUUID();
+    const newUserClub = {
+      id,
+      userId,
+      clubId,
+      status: assignment.status || 'Active',
+      keyUser: assignment.keyUser || false,
+      joinedAt: new Date(),
+      leftAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await db.insert(userClubs).values(newUserClub);
+    return newUserClub as UserClub;
+  }
+
+  async getClubUsers(clubId: string): Promise<(UserClub & { user: User })[]> {
+    const result = await db
+      .select()
+      .from(userClubs)
+      .leftJoin(users, eq(userClubs.userId, users.id))
+      .where(eq(userClubs.clubId, clubId));
+      
+    return result.map(row => ({
+      ...row.user_clubs,
+      user: row.users!
+    })) as (UserClub & { user: User })[];
+  }
+
+  async getUserClubs(userId: string): Promise<(UserClub & { club: Club })[]> {
+    const result = await db
+      .select()
+      .from(userClubs)
+      .leftJoin(clubs, eq(userClubs.clubId, clubs.id))
+      .where(eq(userClubs.userId, userId));
+      
+    return result.map(row => ({
+      ...row.user_clubs,
+      club: row.clubs!
+    })) as (UserClub & { club: Club })[];
+  }
+
+  async removeUserFromClub(userId: string, clubId: string): Promise<void> {
+    await db
+      .delete(userClubs)
+      .where(and(eq(userClubs.userId, userId), eq(userClubs.clubId, clubId)));
   }
 
   async removeUserFromTeam(userId: string, teamId: string): Promise<void> {
