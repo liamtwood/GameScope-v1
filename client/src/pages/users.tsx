@@ -43,6 +43,7 @@ export default function Users() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
         title: "User Added",
         description: "New user has been added to the system.",
@@ -63,6 +64,7 @@ export default function Users() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
         title: "User Updated",
         description: "User information has been updated successfully.",
