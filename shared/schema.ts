@@ -168,7 +168,7 @@ export const users = pgTable("users", {
   emergencyContactPhone: text("emergency_contact_phone"),
   
   // Account Information
-  role: varchar("role", { length: 20 }).notNull().default("player"), // Player, Coach, Admin, Parent
+  role: varchar("role", { length: 20 }).notNull().default("Player"), // Player, Coach, Admin, Parent
   status: varchar("status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired
   
   createdAt: timestamp("created_at").defaultNow(),
