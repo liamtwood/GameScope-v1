@@ -482,16 +482,8 @@ export default function Teams() {
                                 {/* Left side - Large Age Group Circle */}
                                 <div className="flex items-start space-x-4">
                                   <div 
-                                    className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-white/30"
-                                    style={{
-                                      backgroundColor: clubPrimaryColor,
-                                      backgroundImage: `
-                                        radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 70%),
-                                        radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0) 75%),
-                                        radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 80%),
-                                        repeating-linear-gradient(45deg, rgba(255,255,255,0), rgba(255,255,255,0) 20px, rgba(255,255,255,0.04) 20px, rgba(255,255,255,0.04) 22px)
-                                      `
-                                    }}
+                                    className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white"
+                                    style={{ backgroundColor: clubPrimaryColor }}
                                   >
                                     {team.ageGroup || team.name.substring(0, 3).toUpperCase()}
                                   </div>
