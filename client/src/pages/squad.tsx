@@ -46,9 +46,12 @@ export default function Squad() {
   
   // Convert team players to legacy format for compatibility
   const players = teamPlayersData?.map(tp => ({
-    ...tp.player,
-    jerseyNumber: tp.squadNumber, // Map squad number to jersey number for display
-    position: tp.position // Use position from team assignment
+    ...tp.user,
+    id: tp.user.id, // Use user ID as player ID
+    jerseyNumber: tp.jerseyNumber, // Use jersey number from team assignment
+    position: tp.position, // Use position from team assignment
+    starPlayer: tp.starPlayer, // Use star player status from team assignment
+    fitnessStatus: tp.fitnessStatus // Use fitness status from team assignment
   })) || [];
 
   const { data: fixtures } = useQuery<Fixture[]>({ 
