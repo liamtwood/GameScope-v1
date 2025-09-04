@@ -203,6 +203,7 @@ export const userClubs = pgTable("user_clubs", {
   
   // Status tracking
   status: varchar("status", { length: 20 }).default("active"), // active, inactive, transferred
+  keyUser: boolean("key_user").default(false), // true for key users at club level
   joinedAt: timestamp("joined_at").defaultNow(),
   leftAt: timestamp("left_at"),
   
@@ -240,6 +241,7 @@ export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: tru
 export const insertUserClubSchema = createInsertSchema(userClubs).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     status: z.enum(["active", "inactive", "transferred"]).default("active"),
+    keyUser: z.boolean().default(false),
   });
 export const insertUserParentSchema = createInsertSchema(userParents).omit({ id: true, createdAt: true })
   .extend({
