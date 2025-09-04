@@ -155,7 +155,6 @@ export const users = pgTable("users", {
   // Name Information
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  shirtName: text("shirt_name"), // What appears on jersey
   
   // Personal Information
   dateOfBirth: timestamp("date_of_birth"),
@@ -170,11 +169,6 @@ export const users = pgTable("users", {
   // Account Information
   role: varchar("role", { length: 20 }).notNull().default("player"), // Player, Coach, Admin, Parent
   status: varchar("status", { length: 20 }).default("Draft"), // Draft, Active, Suspended, Retired
-  
-  // Additional Personal Info
-  hometown: text("hometown"),
-  height: text("height"),
-  year: text("year"), // Academic year or age group
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
