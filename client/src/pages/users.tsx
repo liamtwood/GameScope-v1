@@ -210,7 +210,10 @@ export default function Users() {
   // Group users by role for card view
   const usersByRole = filteredUsers.reduce((groups, user) => {
     const role = getRoleCategory(user.role || 'player');
-    const roleDisplayName = role.charAt(0).toUpperCase() + role.slice(1) + 's';
+    // Proper pluralization
+    const roleDisplayName = role === 'coach' ? 'Coaches' : 
+                           role === 'admin' ? 'Admins' : 
+                           'Players';
     console.log(`User: ${user.firstName} ${user.lastName}, Role: ${user.role}, Category: ${role}, Display: ${roleDisplayName}`);
     if (!groups[roleDisplayName]) {
       groups[roleDisplayName] = [];
