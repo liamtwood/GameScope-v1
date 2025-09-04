@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload, Landmark } from "lucide-react";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 import type { Club, Team } from "@shared/schema";
@@ -27,6 +29,10 @@ const createTeamSchema = insertTeamSchema.extend({
 
 const editClubSchema = insertClubSchema.extend({
   name: z.string().min(1, "Club name is required"),
+  colors: z.object({
+    primary: z.string().min(1, "Primary color is required"),
+    secondary: z.string().optional(),
+  }).optional(),
 });
 
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
@@ -132,6 +138,7 @@ export default function ClubManagement() {
   const [isEditClubDialogOpen, setIsEditClubDialogOpen] = useState(false);
   const [isCreateOwnerDialogOpen, setIsCreateOwnerDialogOpen] = useState(false);
   const [newOwnerName, setNewOwnerName] = useState("");
+  const [editingClub, setEditingClub] = useState<Club | null>(null);
   const { toast } = useToast();
   const { selectTeam } = useTeam();
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
@@ -159,6 +166,10 @@ export default function ClubManagement() {
       phone: "",
       email: "",
       subscriptionStatus: "",
+      colors: {
+        primary: "#dc2626", // Default red
+        secondary: "#000000", // Default black
+      },
     },
   });
 
@@ -232,6 +243,8 @@ export default function ClubManagement() {
 
   const handleEditClub = () => {
     if (selectedClub) {
+      setEditingClub(selectedClub);
+      const clubColors = selectedClub.colors as { primary?: string; secondary?: string } | null;
       editClubForm.reset({
         name: selectedClub.name,
         shortName: selectedClub.shortName,
@@ -243,8 +256,61 @@ export default function ClubManagement() {
         phone: selectedClub.phone || "",
         email: selectedClub.email || "",
         subscriptionStatus: selectedClub.subscriptionStatus || "active",
+        colors: {
+          primary: clubColors?.primary || "#dc2626",
+          secondary: clubColors?.secondary || "#000000",
+        },
       });
       setIsEditClubDialogOpen(true);
+    }
+  };
+
+  const logoUploadMutation = useMutation({
+    mutationFn: async (data: { id: string; logoURL: string }) => {
+      return apiRequest("PUT", `/api/clubs/${data.id}/logo`, { logoURL: data.logoURL });
+    },
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      
+      // Update the editingClub state so the UI immediately reflects the new logo
+      if (editingClub && response?.logoPath) {
+        setEditingClub({
+          ...editingClub,
+          logoPath: response.logoPath
+        });
+      }
+      
+      toast({
+        title: "Logo Updated",
+        description: "Club logo has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update club logo.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogoGetUploadParameters = async () => {
+    const response = await fetch("/api/objects/upload", {
+      method: "POST",
+    });
+    const { uploadURL } = await response.json();
+    return {
+      method: "PUT" as const,
+      url: uploadURL,
+    };
+  };
+
+  const handleLogoUploadComplete = (result: { successful: Array<{ uploadURL: string }> }) => {
+    if (result.successful && result.successful[0]?.uploadURL && editingClub) {
+      logoUploadMutation.mutate({
+        id: editingClub.id,
+        logoURL: result.successful[0].uploadURL,
+      });
     }
   };
 
@@ -584,10 +650,96 @@ export default function ClubManagement() {
                   </div>
                 </div>
                 
-                {/* Right Column - Branding (minimal for this page) */}
+                {/* Right Column - Logo and Colors */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">CLUB SETTINGS</h3>
-                  <p className="text-sm text-gray-500">Additional branding options available in the main Clubs section.</p>
+                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">BRANDING</h3>
+                  
+                  {/* Logo Upload Section */}
+                  <div className="space-y-4">
+                    <FormLabel>Club Logo</FormLabel>
+                    <div className="flex flex-col items-center space-y-4">
+                      {editingClub?.logoPath && (
+                        <div className="h-24 w-24 bg-muted rounded-lg flex items-center justify-center overflow-hidden border-2 border-gray-200">
+                          <img 
+                            src={editingClub?.logoPath || ''} 
+                            alt="Current logo" 
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      )}
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={5242880}
+                        onGetUploadParameters={handleLogoGetUploadParameters}
+                        onComplete={handleLogoUploadComplete}
+                        buttonClassName="w-full"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {editingClub?.logoPath ? "Change Logo" : "Upload Logo"}
+                      </ObjectUploader>
+                    </div>
+                  </div>
+                  
+                  {/* Club Colors */}
+                  <div className="space-y-4">
+                    <FormLabel className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CLUB COLORS</FormLabel>
+                    <FormField
+                      control={editClubForm.control}
+                      name="colors.primary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Primary Color</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type="color"
+                                className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                data-testid="input-edit-club-primary-color"
+                                {...field}
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#dc2626"
+                                className="flex-1"
+                                data-testid="input-edit-club-primary-color-text"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editClubForm.control}
+                      name="colors.secondary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Secondary Color</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type="color"
+                                className="w-12 h-10 p-1 border rounded cursor-pointer"
+                                data-testid="input-edit-club-secondary-color"
+                                {...field}
+                                value={field.value || "#000000"}
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#000000"
+                                className="flex-1"
+                                data-testid="input-edit-club-secondary-color-text"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end space-x-2 pt-6 border-t">

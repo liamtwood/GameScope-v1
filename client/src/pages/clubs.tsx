@@ -530,6 +530,27 @@ export default function Clubs() {
                   <div className="space-y-4">
                     <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">BRANDING</h3>
                     
+                    {/* Logo Upload Section */}
+                    <div className="space-y-4">
+                      <FormLabel>Club Logo</FormLabel>
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="h-24 w-24 bg-muted rounded-lg flex items-center justify-center border-2 border-gray-200">
+                          <div className="text-gray-400 text-center">
+                            <Upload className="h-8 w-8 mx-auto mb-1" />
+                            <span className="text-xs">No logo</span>
+                          </div>
+                        </div>
+                        <div className="w-full">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            className="w-full"
+                            data-testid="input-club-logo"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
                     {/* Club Colors */}
                     <div className="space-y-4">
                       <FormLabel className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CLUB COLORS</FormLabel>
