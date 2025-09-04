@@ -186,11 +186,6 @@ export const userTeams = pgTable("user_teams", {
   starPlayer: boolean("star_player").default(false),
   fitnessStatus: varchar("fitness_status", { length: 20 }).default("Fit"), // Fit, Injured, Retired
   
-  // Team-specific stats
-  appearances: integer("appearances").default(0),
-  goals: integer("goals").default(0),
-  assists: integer("assists").default(0),
-  
   // Assignment tracking
   joinedAt: timestamp("joined_at").defaultNow(),
   leftAt: timestamp("left_at"),
