@@ -189,9 +189,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                       marginRight: '-2rem',
                       paddingRight: '2rem',
                       width: 'calc(100% + 2rem)'
-                    } : {
-                      color: clubPrimaryColor
-                    }}
+                    } : {}}
                     onMouseEnter={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.marginRight = '-2rem';
