@@ -32,6 +32,24 @@ const createClubSchema = insertClubSchema.extend({
 
 type CreateClubFormData = z.infer<typeof createClubSchema>;
 
+// Common data for dropdowns
+const COMMON_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
+const COMMON_COUNTRIES = [
+  "United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Netherlands", "Belgium",
+  "Ireland", "Mexico", "Brazil", "Argentina", "Japan", "South Korea", "New Zealand", "South Africa", "India", "Other"
+];
+
+const SAMPLE_OWNERS = [
+  "John Smith", "Sarah Johnson", "Michael Brown", "Emma Davis", "David Wilson", "Lisa Garcia", "Robert Martinez", "Jennifer Anderson"
+];
+
 // Club card statistics type
 type ClubCardStats = {
   players: number;
@@ -105,6 +123,8 @@ export default function Clubs() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingClub, setEditingClub] = useState<Club | null>(null);
+  const [isCreateOwnerDialogOpen, setIsCreateOwnerDialogOpen] = useState(false);
+  const [newOwnerName, setNewOwnerName] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { clubs, isLoading, selectedClub, selectClub } = useClub();
@@ -690,13 +710,30 @@ export default function Clubs() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Owner</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter club owner"
-                            data-testid="input-edit-club-owner"
-                            {...field}
-                          />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <FormControl className="flex-1">
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <SelectTrigger data-testid="select-edit-club-owner">
+                                <SelectValue placeholder="Select owner" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SAMPLE_OWNERS.map((owner) => (
+                                  <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setIsCreateOwnerDialogOpen(true)}
+                            data-testid="button-add-owner"
+                            className="shrink-0"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -772,12 +809,16 @@ export default function Clubs() {
                         <FormItem>
                           <FormLabel>State/County</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="Enter state or county"
-                              data-testid="input-edit-club-state"
-                              {...field}
-                              value={field.value || ""}
-                            />
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <SelectTrigger data-testid="select-edit-club-state">
+                                <SelectValue placeholder="Select state/county" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COMMON_STATES.map((state) => (
+                                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -792,12 +833,16 @@ export default function Clubs() {
                       <FormItem>
                         <FormLabel>Country</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Enter country"
-                            data-testid="input-edit-club-country"
-                            {...field}
-                            value={field.value || ""}
-                          />
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                            <SelectTrigger data-testid="select-edit-club-country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COMMON_COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>{country}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -957,6 +1002,56 @@ export default function Clubs() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Owner Dialog */}
+      <Dialog open={isCreateOwnerDialogOpen} onOpenChange={setIsCreateOwnerDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Add New Owner</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <FormLabel>Owner Name</FormLabel>
+              <Input
+                placeholder="Enter owner name"
+                value={newOwnerName}
+                onChange={(e) => setNewOwnerName(e.target.value)}
+                data-testid="input-new-owner-name"
+                className="mt-1"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsCreateOwnerDialogOpen(false);
+                  setNewOwnerName("");
+                }}
+                data-testid="button-cancel-new-owner"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (newOwnerName.trim()) {
+                    // Add to the list and select it
+                    SAMPLE_OWNERS.push(newOwnerName.trim());
+                    editForm.setValue("owner", newOwnerName.trim());
+                    setIsCreateOwnerDialogOpen(false);
+                    setNewOwnerName("");
+                  }
+                }}
+                disabled={!newOwnerName.trim()}
+                data-testid="button-add-new-owner"
+              >
+                Add Owner
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </MainLayout>
