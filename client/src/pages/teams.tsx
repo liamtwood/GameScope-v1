@@ -56,8 +56,8 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   
   if (isLoading) {
     return (
-      <div className="mt-4 w-full flex justify-center">
-        <div className="grid grid-cols-3 gap-8 text-center max-w-xs">
+      <div className="w-full">
+        <div className="grid grid-cols-3 gap-4 text-center">
           <div className="flex flex-col items-center">
             <div className="h-6 w-8 bg-gray-200 rounded animate-pulse mb-1"></div>
             <div className="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
@@ -78,9 +78,9 @@ const TeamStatsDisplay = ({ teamId }: { teamId: string }) => {
   if (!stats) return null;
 
   return (
-    <div className="mt-4 w-full flex justify-center">
-      {/* Grid layout for perfect alignment - centered */}
-      <div className="grid grid-cols-3 gap-8 text-center max-w-xs">
+    <div className="w-full">
+      {/* Grid layout for perfect alignment - full width centered */}
+      <div className="grid grid-cols-3 gap-4 text-center">
         {/* Column 1: Players */}
         <div className="flex flex-col items-center">
           <span className="text-2xl font-bold text-gray-900" data-testid={`text-team-players-${teamId}`}>
@@ -474,7 +474,8 @@ export default function Teams() {
                             data-testid={`card-team-${team.id}`}
                           >
                             <CardContent className="p-6">
-                              <div className="flex items-start justify-between">
+                              {/* Header with Age Group Circle, Team Info, and Edit Button */}
+                              <div className="flex items-start justify-between mb-4">
                                 {/* Left side - Large Age Group Circle */}
                                 <div className="flex items-start space-x-4">
                                   <div className="h-16 w-16 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-lg font-bold border-2 border-gray-300">
@@ -486,7 +487,7 @@ export default function Teams() {
                                     <h4 className="text-xl font-bold text-gray-900 mb-2" data-testid={`text-team-name-${team.id}`}>
                                       {team.name}
                                     </h4>
-                                    <div className="flex items-center space-x-2 mb-2">
+                                    <div className="flex items-center space-x-2">
                                       <p className="text-sm text-gray-600">
                                         Coach: {team.coach || 'Not assigned'}
                                       </p>
@@ -497,9 +498,6 @@ export default function Teams() {
                                         {team.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                       </Badge>
                                     </div>
-                                    
-                                    {/* Team Statistics */}
-                                    <TeamStatsDisplay teamId={team.id} />
                                   </div>
                                 </div>
                                 
@@ -517,6 +515,9 @@ export default function Teams() {
                                   <Edit className="h-4 w-4" />
                                 </Button>
                               </div>
+                              
+                              {/* Team Statistics - Full Width Centered */}
+                              <TeamStatsDisplay teamId={team.id} />
                             </CardContent>
                           </Card>
                         );
