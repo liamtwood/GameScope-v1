@@ -539,19 +539,15 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
-                      /* COMPLETE OVERRIDE - INACTIVE TABS GET TEXTURED BACKGROUND */
+                      /* INACTIVE TABS - NO BACKGROUND */
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
                       [data-testid="tab-parents"]:not([data-state="active"]) {
                         opacity: 1 !important;
-                        background: ${clubPrimaryColor} !important;
-                        background-color: ${clubPrimaryColor} !important;
-                        background-image: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                                         radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                                         radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                                         radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                                         repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px) !important;
-                        color: white !important;
+                        background: none !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        color: ${clubPrimaryColor} !important;
                       }
                       /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
@@ -570,14 +566,10 @@ export default function PlayerDetails() {
                       button[role="tab"]:not([data-state="active"]),
                       button[role="tab"][data-state="inactive"] {
                         opacity: 1 !important;
-                        background: ${clubPrimaryColor} !important;
-                        background-color: ${clubPrimaryColor} !important;
-                        background-image: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                                         radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                                         radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                                         radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                                         repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px) !important;
-                        color: white !important;
+                        background: none !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        color: ${clubPrimaryColor} !important;
                       }
                       button[role="tab"]:before, 
                       button[role="tab"]:after {
