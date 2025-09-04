@@ -31,7 +31,7 @@ export default function DevOpsUsers() {
 
   // Fetch all users with club information (system-wide for DevOps)
   const { data: users = [], isLoading } = useQuery<(User & { clubId?: string | null; clubName?: string | null })[]>({ 
-    queryKey: ["/api/users-with-clubs"],
+    queryKey: ["/api/users-with-clubs", "v2"],
     queryFn: async () => {
       const response = await fetch('/api/users?includeClubs=true');
       if (!response.ok) throw new Error('Failed to fetch users');
@@ -216,6 +216,11 @@ export default function DevOpsUsers() {
     groups[clubName][roleDisplayName].push(user);
     return groups;
   }, {} as Record<string, Record<string, (User & { clubId?: string | null; clubName?: string | null })[]>>);
+
+  // Debug: Log the grouped data
+  console.log('Users by club and role:', usersByClubAndRole);
+  console.log('Total users:', users.length);
+  console.log('Users sample:', users.slice(0, 2));
 
   const roleDisplayOrder = ['Admins', 'Coaches', 'Players'];
 
