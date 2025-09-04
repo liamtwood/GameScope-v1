@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload, Landmark } from "lucide-react";
+import { Plus, Building2, Edit, Trash2, User, ArrowRight, MapPin, Phone, Mail, Upload, Landmark, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Club, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -123,6 +123,8 @@ export default function Clubs() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingClub, setEditingClub] = useState<Club | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [isCreateOwnerDialogOpen, setIsCreateOwnerDialogOpen] = useState(false);
   const [newOwnerName, setNewOwnerName] = useState("");
   const { toast } = useToast();
@@ -308,8 +310,20 @@ export default function Clubs() {
     <MainLayout title="Clubs" subtitle="Manage all clubs in the system">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-end">
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <div className="flex items-center justify-between">
+            {/* Filter Button */}
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-filters"
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </Button>
+            
+            <div className="flex items-center justify-end">
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-white text-black hover:bg-gray-100 border border-gray-300" data-testid="button-create-club">
                   <Landmark className="h-4 w-4 mr-2" />
@@ -634,21 +648,55 @@ export default function Clubs() {
             </Form>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </CardHeader>
+        
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="px-6 pb-4 border-b border-border">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-foreground">Country:</label>
+                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                  <SelectTrigger className="w-48" data-testid="select-country-filter">
+                    <SelectValue placeholder="All Countries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Countries</SelectItem>
+                    {(() => {
+                      // Get unique countries from clubs data
+                      const countries = Array.from(new Set(clubs?.map(club => club.country).filter((country): country is string => !!country))).sort();
+                      return countries.map((country) => (
+                        <SelectItem key={country} value={country}>{country}</SelectItem>
+                      ));
+                    })()}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <CardContent>
           {/* Clubs Grid */}
           <div className="space-y-8">
         {(() => {
+          // Filter clubs by selected country
+          let filteredClubs = clubs || [];
+          if (selectedCountry !== "all") {
+            filteredClubs = clubs?.filter(club => club.country === selectedCountry) || [];
+          }
+          
           // Group clubs by country
-          const groupedClubs = clubs?.reduce((acc, club) => {
+          const groupedClubs = filteredClubs.reduce((acc, club) => {
             const country = club.country || 'Other';
             if (!acc[country]) {
               acc[country] = [];
             }
             acc[country].push(club);
             return acc;
-          }, {} as Record<string, typeof clubs>);
+          }, {} as Record<string, typeof filteredClubs>);
 
           // Sort countries alphabetically
           const sortedCountries = Object.keys(groupedClubs || {}).sort();
