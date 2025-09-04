@@ -22,6 +22,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const currentPath = location === "/" ? "home" : location.slice(1);
   const { selectedTeam, selectTeam } = useTeam();
   const { selectedClub: currentClub, selectClub } = useClub();
+  
+  // Get club primary color for menu highlighting
+  const clubPrimaryColor = (currentClub?.colors as any)?.primary || '#dc2626';
 
   // Fetch all teams for the dropdown
   const { data: allTeams = [] } = useQuery<Team[]>({
@@ -174,10 +177,11 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     className={cn(
                       "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors w-full",
                       isActive 
-                        ? "bg-primary text-primary-foreground" 
+                        ? "text-white" 
                         : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                       collapsed && "justify-center px-2"
                     )}
+                    style={isActive ? { backgroundColor: clubPrimaryColor } : {}}
                     data-testid={`link-nav-${item.id}`}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
