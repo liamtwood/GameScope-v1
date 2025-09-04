@@ -359,6 +359,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, ...userData } = req.body;
       
+      // Set shirt_name to surname if not provided
+      if (!userData.shirtName && userData.lastName) {
+        userData.shirtName = userData.lastName;
+      }
+      
       // Create user first with personal information
       const validatedUserData = insertUserSchema.parse(userData);
       const user = await storage.createUser(validatedUserData);
@@ -368,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const teamAssignment = {
           userId: user.id,
           teamId,
-          jerseyNumber: jerseyNumber || 0,
+          jerseyNumber: jerseyNumber || null,
           position,
           starPlayer: starPlayer || false,
           fitnessStatus: fitnessStatus || 'Fit'

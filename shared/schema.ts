@@ -155,6 +155,7 @@ export const users = pgTable("users", {
   // Name Information
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
+  shirtName: text("shirt_name"), // What appears on jersey, defaults to surname
   
   // Personal Information
   dateOfBirth: timestamp("date_of_birth"),
