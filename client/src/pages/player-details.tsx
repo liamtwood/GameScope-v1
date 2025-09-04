@@ -47,7 +47,7 @@ export default function PlayerDetails() {
   });
 
   // Get primary team (for backwards compatibility)
-  const primaryTeam = playerTeams[0]?.team;
+  const primaryTeam = userTeams[0]?.team;
 
   const updatePlayerMutation = useMutation({
     mutationFn: async (updatedData: Partial<Player>) => {
@@ -146,7 +146,7 @@ export default function PlayerDetails() {
   });
 
   const handleAddTeam = () => {
-    if (selectedTeamId && !playerTeams.some(pt => pt.teamId === selectedTeamId)) {
+    if (selectedTeamId && !userTeams.some(pt => pt.teamId === selectedTeamId)) {
       addPlayerToTeamMutation.mutate({
         teamId: selectedTeamId,
         squadNumber,
@@ -163,7 +163,7 @@ export default function PlayerDetails() {
     // Filter teams to only those in the current club and not already assigned to player
     return teams.filter(team => 
       team.clubId === selectedClub?.id && 
-      !playerTeams.some(pt => pt.teamId === team.id)
+      !userTeams.some(pt => pt.teamId === team.id)
     );
   };
 
@@ -986,8 +986,8 @@ export default function PlayerDetails() {
 
                         {/* Team Cards */}
                         <div className="space-y-3">
-                          {playerTeams.length > 0 ? (
-                            playerTeams.map((playerTeam) => (
+                          {userTeams.length > 0 ? (
+                            userTeams.map((playerTeam) => (
                               <Card 
                                 key={playerTeam.id} 
                                 className="border-2" 
