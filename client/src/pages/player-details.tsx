@@ -566,14 +566,18 @@ export default function PlayerDetails() {
                         background-image: none !important;
                         color: ${clubPrimaryColor} !important;
                       }
-                      /* NUCLEAR OPTION - Override ALL Radix styles */
-                      button[role="tab"],
-                      button[role="tab"]:hover,
-                      button[role="tab"][data-state="active"],
+                      /* NUCLEAR OPTION - Override ALL Radix styles for inactive tabs */
+                      button[role="tab"]:not([data-state="active"]),
                       button[role="tab"][data-state="inactive"] {
                         opacity: 1 !important;
                         background: ${clubPrimaryColor} !important;
                         background-color: ${clubPrimaryColor} !important;
+                        background-image: radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
+                                         radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
+                                         radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
+                                         radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
+                                         repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px) !important;
+                        color: white !important;
                       }
                       button[role="tab"]:before, 
                       button[role="tab"]:after {
