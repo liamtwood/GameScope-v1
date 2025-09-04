@@ -539,13 +539,10 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
-                      /* COMPLETE OVERRIDE - DIFFERENT STYLES FOR ACTIVE VS INACTIVE */
+                      /* COMPLETE OVERRIDE - INACTIVE TABS GET TEXTURED BACKGROUND */
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]),
-                      [data-testid="tab-details"]:not([data-state="active"]):hover,
-                      [data-testid="tab-teams"]:not([data-state="active"]):hover,
-                      [data-testid="tab-parents"]:not([data-state="active"]):hover {
+                      [data-testid="tab-parents"]:not([data-state="active"]) {
                         opacity: 1 !important;
                         background: ${clubPrimaryColor} !important;
                         background-color: ${clubPrimaryColor} !important;
