@@ -482,15 +482,14 @@ export default function Teams() {
                                 {/* Left side - Large Age Group Circle */}
                                 <div className="flex items-start space-x-4">
                                   <div 
-                                    className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-white/20"
+                                    className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-white/30"
                                     style={{
-                                      background: clubPrimaryColor,
+                                      backgroundColor: clubPrimaryColor,
                                       backgroundImage: `
-                                        radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-                                        radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-                                        radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
-                                        radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
-                                        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px)
+                                        radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 70%),
+                                        radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0) 75%),
+                                        radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 80%),
+                                        repeating-linear-gradient(45deg, rgba(255,255,255,0), rgba(255,255,255,0) 20px, rgba(255,255,255,0.04) 20px, rgba(255,255,255,0.04) 22px)
                                       `
                                     }}
                                   >
