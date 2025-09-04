@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
 import { ClubProvider } from "@/contexts/club-context";
+import { ThemeInitializer } from "@/components/ThemeInitializer";
 
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
@@ -52,10 +53,11 @@ function App() {
         <ClubProvider>
           <TeamProvider>
             <TooltipProvider>
-            <div className="min-h-screen bg-background text-foreground">
-              <Toaster />
-              <Router />
-            </div>
+              <ThemeInitializer />
+              <div className="min-h-screen bg-background text-foreground">
+                <Toaster />
+                <Router />
+              </div>
             </TooltipProvider>
           </TeamProvider>
         </ClubProvider>

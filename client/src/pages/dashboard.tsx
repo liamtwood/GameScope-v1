@@ -90,7 +90,7 @@ export default function Dashboard() {
           title="Total Players"
           value={statistics?.totalPlayers || 0}
           icon={Users}
-          iconColor="text-border"
+          iconColor="text-club-primary"
           trend={{
             value: "+2",
             label: "from last season",
@@ -102,7 +102,7 @@ export default function Dashboard() {
           title="Matches Played"
           value={`${statistics?.wins || 0}-${statistics?.draws || 0}-${statistics?.losses || 0}`}
           icon={Trophy}
-          iconColor="text-border"
+          iconColor="text-club-primary"
           subtitle="W-D-L"
         />
         
@@ -110,7 +110,7 @@ export default function Dashboard() {
           title="Videos Analyzed"
           value={statistics?.totalGoals || 0}
           icon={Sparkles}
-          iconColor="text-border"
+          iconColor="text-club-primary"
           subtitle="GameScope AI"
         />
         
@@ -118,7 +118,7 @@ export default function Dashboard() {
           title="Next Match"
           value={daysUntilNext !== null ? `${daysUntilNext} days` : "None"}
           icon={Calendar}
-          iconColor="text-border"
+          iconColor="text-club-primary"
           subtitle={nextMatch ? `vs ${nextMatch.opponent}` : "No upcoming matches"}
         />
       </div>
@@ -127,7 +127,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Results</CardTitle>
+            <CardTitle className="text-club-primary">Recent Results</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentFixtures.length > 0 ? (
@@ -148,7 +148,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Upcoming Matches</CardTitle>
+            <CardTitle className="text-club-primary">Upcoming Matches</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {upcomingFixtures.length > 0 ? (

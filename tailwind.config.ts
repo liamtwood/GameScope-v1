@@ -61,6 +61,10 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        club: {
+          primary: "var(--club-primary)",
+          secondary: "var(--club-secondary)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
