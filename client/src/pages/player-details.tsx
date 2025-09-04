@@ -539,16 +539,13 @@ export default function PlayerDetails() {
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
                       }
-                      /* COMPLETE OVERRIDE - KILL ALL TRANSPARENCY */
-                      [data-testid="tab-details"],
-                      [data-testid="tab-teams"],
-                      [data-testid="tab-parents"],
-                      [data-testid="tab-details"]:hover,
-                      [data-testid="tab-teams"]:hover,
-                      [data-testid="tab-parents"]:hover,
-                      [data-testid="tab-details"][data-state="active"],
-                      [data-testid="tab-teams"][data-state="active"],
-                      [data-testid="tab-parents"][data-state="active"] {
+                      /* COMPLETE OVERRIDE - DIFFERENT STYLES FOR ACTIVE VS INACTIVE */
+                      [data-testid="tab-details"]:not([data-state="active"]),
+                      [data-testid="tab-teams"]:not([data-state="active"]),
+                      [data-testid="tab-parents"]:not([data-state="active"]),
+                      [data-testid="tab-details"]:not([data-state="active"]):hover,
+                      [data-testid="tab-teams"]:not([data-state="active"]):hover,
+                      [data-testid="tab-parents"]:not([data-state="active"]):hover {
                         opacity: 1 !important;
                         background: ${clubPrimaryColor} !important;
                         background-color: ${clubPrimaryColor} !important;
@@ -557,6 +554,17 @@ export default function PlayerDetails() {
                                          radial-gradient(circle 250px at 70% 90%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.06) 50%, transparent 80%),
                                          radial-gradient(circle 180px at 25% 15%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 42%, transparent 72%),
                                          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 22px) !important;
+                        color: white !important;
+                      }
+                      /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
+                      [data-testid="tab-details"][data-state="active"],
+                      [data-testid="tab-teams"][data-state="active"],
+                      [data-testid="tab-parents"][data-state="active"] {
+                        opacity: 1 !important;
+                        background: white !important;
+                        background-color: white !important;
+                        background-image: none !important;
+                        color: ${clubPrimaryColor} !important;
                       }
                       /* NUCLEAR OPTION - Override ALL Radix styles */
                       button[role="tab"],
