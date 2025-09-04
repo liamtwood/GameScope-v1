@@ -267,13 +267,24 @@ export default function ClubManagement() {
         <CardContent className="p-6">
           {/* Header with Club Circle, Club Info, and Edit Button */}
           <div className="flex items-start justify-between mb-4">
-            {/* Left side - Large Club Abbreviation Circle */}
+            {/* Left side - Large Club Logo Circle */}
             <div className="flex items-start space-x-4">
-              <div 
-                className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold text-white"
-                style={{ backgroundColor: clubPrimaryColor }}
-              >
-                {selectedClub.shortName || selectedClub.name.substring(0, 3).toUpperCase()}
+              <div className="h-16 w-16 rounded-full overflow-hidden flex items-center justify-center border-2 border-gray-200">
+                {selectedClub.logoPath ? (
+                  <img 
+                    src={selectedClub.logoPath} 
+                    alt={`${selectedClub.name} logo`}
+                    className="h-full w-full object-cover"
+                    data-testid={`img-club-logo-${selectedClub.id}`}
+                  />
+                ) : (
+                  <div 
+                    className="h-full w-full flex items-center justify-center text-lg font-bold text-white"
+                    style={{ backgroundColor: clubPrimaryColor }}
+                  >
+                    {selectedClub.shortName || selectedClub.name.substring(0, 3).toUpperCase()}
+                  </div>
+                )}
               </div>
               
               {/* Club Information */}
