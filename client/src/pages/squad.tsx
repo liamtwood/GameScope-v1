@@ -61,10 +61,12 @@ export default function Squad() {
 
   const createPlayerMutation = useMutation({
     mutationFn: async (playerData: any) => {
-      return apiRequest("POST", "/api/players", playerData);
+      // Add teamId to the data so user gets assigned to current team
+      const dataWithTeam = { ...playerData, teamId: currentTeam?.id };
+      return apiRequest("POST", "/api/users", dataWithTeam);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
       toast({
         title: "Player Added",
         description: "New player has been added to the squad.",
