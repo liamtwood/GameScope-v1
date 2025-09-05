@@ -42,6 +42,10 @@ export default function Settings() {
   const [replacementModalOpen, setReplacementModalOpen] = useState(false);
   const [replacingTeam, setReplacingTeam] = useState<any>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
+  
+  // Team edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingTeam, setEditingTeam] = useState<any>(null);
 
   // Opposition team management state
   const [isCreateOppositionDialogOpen, setIsCreateOppositionDialogOpen] = useState(false);
@@ -587,9 +591,8 @@ export default function Settings() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // Set this team for editing
-                        setSelectedClub(team.id);
-                        // Scroll to upload section or open modal
+                        setEditingTeam(team);
+                        setEditDialogOpen(true);
                       }}
                       data-testid={`button-edit-${team.id}`}
                     >
@@ -1436,6 +1439,123 @@ export default function Settings() {
                 </div>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Team Edit Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                Edit {editingTeam?.type === 'club' ? 'Club' : 'Opposition Team'}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {editingTeam && (
+              <div className="space-y-4">
+                {/* Team Name */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Team Name</label>
+                  <Input
+                    value={editingTeam.name}
+                    readOnly
+                    className="bg-muted"
+                  />
+                </div>
+
+                {/* Short Name - only for opposition teams */}
+                {editingTeam.type === 'opposition' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Short Name</label>
+                    <Input
+                      value={editingTeam.shortName || ''}
+                      placeholder="e.g., VC"
+                      readOnly
+                      className="bg-muted"
+                    />
+                  </div>
+                )}
+
+                {/* Website URL - only for opposition teams */}
+                {editingTeam.type === 'opposition' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Website URL (Optional)</label>
+                    <Input
+                      value={editingTeam.website || ''}
+                      placeholder="https://example.com"
+                      readOnly
+                      className="bg-muted"
+                    />
+                  </div>
+                )}
+
+                {/* Colors - only for opposition teams */}
+                {editingTeam.type === 'opposition' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Primary Color</label>
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-8 h-8 rounded border"
+                          style={{ backgroundColor: editingTeam.colors?.primary || '#6b7280' }}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {editingTeam.colors?.primary || '#6b7280'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Secondary Color (Optional)</label>
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-8 h-8 rounded border"
+                          style={{ backgroundColor: editingTeam.colors?.secondary || '#4b5563' }}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {editingTeam.colors?.secondary || '#4b5563'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Logo Upload Section */}
+                <div className="space-y-3 pt-4 border-t">
+                  <label className="text-sm font-medium">Team Logo</label>
+                  <ReliableLogoUpload
+                    entityType={editingTeam.type === 'club' ? 'club' : 'opposition-team'}
+                    entityId={editingTeam.id}
+                    entityName={editingTeam.name}
+                    currentLogo={editingTeam.logoPath || undefined}
+                    onUploadComplete={(logoPath) => {
+                      // Refresh the data and close dialog
+                      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+                      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                      setEditDialogOpen(false);
+                      toast({
+                        title: "Logo Updated",
+                        description: "Team logo has been updated successfully!",
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => setEditDialogOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
