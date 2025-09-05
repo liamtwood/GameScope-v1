@@ -100,8 +100,55 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* TEAM INFORMATION Section */}
+            {/* NAME INFORMATION Section */}
             <div className="space-y-4">
+              <h3 className="text-sm font-semibold">NAME INFORMATION</h3>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter first name" {...field} data-testid="input-first-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter last name" {...field} data-testid="input-last-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shirtName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Shirt Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter shirt name" {...field} data-testid="input-shirt-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* TEAM INFORMATION Section */}
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="text-sm font-semibold">TEAM INFORMATION</h3>
               
               <div className="grid grid-cols-3 gap-4">
@@ -165,53 +212,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                           <SelectItem value="Retired">Retired</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* NAME INFORMATION Section */}
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-sm font-semibold">NAME INFORMATION</h3>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter first name" {...field} data-testid="input-first-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter last name" {...field} data-testid="input-last-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="shirtName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Shirt Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter shirt name" {...field} data-testid="input-shirt-name" />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
