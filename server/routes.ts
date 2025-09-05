@@ -1125,26 +1125,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const lastName = playerData.name.split(' ').slice(1).join(' ') || '';
         
         // Check if player is already in the squad/team
+        const teamUsers = await storage.getTeamUsers(teamId);
+        const existingTeamMember = teamUsers.find(tu => 
+          tu.user.firstName?.toLowerCase() === firstName.toLowerCase() && 
+          tu.user.lastName?.toLowerCase() === lastName.toLowerCase()
+        );
+        
+        if (existingTeamMember) {
+          console.log(`Player ${firstName} ${lastName} already in squad - skipping`);
+          continue; // Skip this player as they're already in the team
+        }
+        
+        // Player not in squad, now check if user exists globally
+        const allUsers = await storage.getUsers();
+        const existingUser = allUsers.find(u => 
+          u.firstName?.toLowerCase() === firstName.toLowerCase() && 
+          u.lastName?.toLowerCase() === lastName.toLowerCase()
+        );
+        
+        let user;
         try {
-          const teamUsers = await storage.getTeamUsers(teamId);
-          const existingTeamMember = teamUsers.find(tu => 
-            tu.user.firstName?.toLowerCase() === firstName.toLowerCase() && 
-            tu.user.lastName?.toLowerCase() === lastName.toLowerCase()
-          );
-          
-          if (existingTeamMember) {
-            console.log(`Player ${firstName} ${lastName} already in squad - skipping`);
-            continue; // Skip this player as they're already in the team
-          }
-          
-          // Player not in squad, now check if user exists globally
-          const allUsers = await storage.getUsers();
-          const existingUser = allUsers.find(u => 
-            u.firstName?.toLowerCase() === firstName.toLowerCase() && 
-            u.lastName?.toLowerCase() === lastName.toLowerCase()
-          );
-          
-          let user;
           if (existingUser) {
             console.log(`Found existing user: ${existingUser.firstName} ${existingUser.lastName} (${existingUser.id}) - reusing for squad`);
             // Update age if provided and not already set
