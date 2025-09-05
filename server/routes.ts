@@ -1118,13 +1118,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const importedPlayers = [];
       
-      for (const playerData of players) {
-        if (!playerData.name) continue;
+      console.log(`Starting import of ${players.length} players to team ${teamId}`);
+      
+      for (let i = 0; i < players.length; i++) {
+        const playerData = players[i];
+        console.log(`Processing player ${i + 1}/${players.length}: ${playerData.name}`);
+        
+        if (!playerData.name) {
+          console.log(`Skipping player ${i + 1} - no name`);
+          continue;
+        }
         
         const firstName = playerData.name.split(' ')[0] || playerData.name;
         const lastName = playerData.name.split(' ').slice(1).join(' ') || '';
         
         // Check if player is already in the squad/team
+        console.log(`Checking if ${firstName} ${lastName} is already in team ${teamId}`);
         const teamUsers = await storage.getTeamUsers(teamId);
         const existingTeamMember = teamUsers.find(tu => 
           tu.user.firstName?.toLowerCase() === firstName.toLowerCase() && 
@@ -1135,6 +1144,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Player ${firstName} ${lastName} already in squad - skipping`);
           continue; // Skip this player as they're already in the team
         }
+        
+        console.log(`Player ${firstName} ${lastName} not in squad - proceeding with import`);
         
         // Player not in squad, now check if user exists globally
         const allUsers = await storage.getUsers();
