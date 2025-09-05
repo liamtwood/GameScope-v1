@@ -655,7 +655,7 @@ export default function Settings() {
               Squad Import (Beta)
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              Import player squads from external websites like Soccerway. Paste a URL to preview players before importing.
+              Import player squads from external websites. Paste a URL to preview players before importing.
             </p>
           </CardHeader>
           <CardContent>
@@ -1382,57 +1382,6 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="font-medium mb-2">Quick Add Players</h3>
-        <p className="text-sm text-muted-foreground">
-          Paste or type player names (one per line). Include position headers like "GOALKEEPER:" for organization.
-        </p>
-      </div>
-
-      {/* Team Selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Add to Team</label>
-        <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a team..." />
-          </SelectTrigger>
-          <SelectContent>
-            {teams?.map((team: any) => (
-              <SelectItem key={team.id} value={team.id}>
-                {team.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Player Names Input */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Player Names</label>
-        <textarea
-          className="w-full h-32 p-3 border rounded-md resize-none text-sm"
-          placeholder="Example:
-Goalkeeper
-Gospel-Eze
-Lukjanciks
-Patrick
-
-Defender
-Smith
-Jones"
-          value={quickText}
-          onChange={(e) => setQuickText(e.target.value)}
-        />
-      </div>
-
-      <Button 
-        onClick={handleQuickAdd}
-        disabled={!quickText.trim()}
-        className="w-full"
-      >
-        <Users className="mr-2 h-4 w-4" />
-        Review Players
-      </Button>
 
       {/* Review Modal */}
       <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
@@ -1754,13 +1703,13 @@ function SquadImportInterface() {
               ) : (
                 <>
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  Fetch Squad
+                  Review Players
                 </>
               )}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Try Soccerway URLs. Some sites with dynamic content may not work.
+            Some sites with dynamic content may not work.
           </p>
         </div>
       </div>
