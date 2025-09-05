@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import html2canvas from "html2canvas";
+import { format } from "date-fns";
 
 interface PageInfo {
   name: string;
