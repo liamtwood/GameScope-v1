@@ -9,19 +9,26 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { User, UserTeam, Team } from "@shared/schema";
 import { ArrowLeft, Star, Edit, Save, X, Pencil, Plus, Trash2 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
+import { useTeam } from "@/contexts/team-context";
 import { useToast } from "@/hooks/use-toast";
 
 export default function UserDetails() {
   const [, params] = useRoute("/users/:id");
   const userId = params?.id;
   const { selectedClub } = useClub();
+  const { teams } = useTeam();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<User>>({});
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
+  const [position, setPosition] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -71,6 +78,73 @@ export default function UserDetails() {
     },
   });
 
+  // Mutation to add user to a new team
+  const addUserToTeamMutation = useMutation({
+    mutationFn: async ({ teamId, squadNumber, position }: {
+      teamId: string;
+      squadNumber?: number;
+      position?: string;
+    }) => {
+      const response = await fetch(`/api/user/${userId}/teams`, {
+        method: 'POST',
+        body: JSON.stringify({ teamId, squadNumber, position }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add user to team');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user", userId, "teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/club", selectedClub?.id, "users"] });
+      toast({
+        title: "Team Added",
+        description: "User has been successfully added to the team.",
+      });
+      setIsTeamDialogOpen(false);
+      setSelectedTeamId("");
+      setSquadNumber(undefined);
+      setPosition("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add user to team. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation to remove user from team
+  const removeUserFromTeamMutation = useMutation({
+    mutationFn: async (teamId: string) => {
+      const response = await fetch(`/api/user/${userId}/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to remove user from team');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user", userId, "teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/club", selectedClub?.id, "users"] });
+      toast({
+        title: "Team Removed",
+        description: "User has been successfully removed from the team.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove user from team. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEdit = () => {
     setEditData(user || {});
     setIsEditing(true);
@@ -87,6 +161,30 @@ export default function UserDetails() {
 
   const handleInputChange = (field: keyof User, value: any) => {
     setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddTeam = () => {
+    if (selectedTeamId && !userTeams.some(ut => ut.teamId === selectedTeamId)) {
+      addUserToTeamMutation.mutate({
+        teamId: selectedTeamId,
+        squadNumber,
+        position: position || undefined
+      });
+    }
+  };
+
+  const handleRemoveTeam = (teamId: string) => {
+    if (window.confirm('Are you sure you want to remove this user from the team?')) {
+      removeUserFromTeamMutation.mutate(teamId);
+    }
+  };
+
+  const getAvailableTeams = () => {
+    // Filter teams to only those in the current club and not already assigned to user
+    return teams.filter(team => 
+      team.clubId === selectedClub?.id && 
+      !userTeams.some(ut => ut.teamId === team.id)
+    );
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -583,6 +681,84 @@ export default function UserDetails() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Team Assignments</h3>
+                    {getAvailableTeams().length > 0 && (
+                      <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            data-testid="button-add-team"
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Team
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Add to Team</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-sm font-medium">Select Team</label>
+                              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                                <SelectTrigger data-testid="select-team">
+                                  <SelectValue placeholder="Choose a team" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {getAvailableTeams().map((team) => (
+                                    <SelectItem key={team.id} value={team.id} data-testid={`option-team-${team.id}`}>
+                                      {team.name} ({team.shortName})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-sm font-medium">Squad Number</label>
+                                <Input
+                                  type="number"
+                                  placeholder="e.g. 1"
+                                  value={squadNumber || ""}
+                                  onChange={(e) => setSquadNumber(e.target.value ? parseInt(e.target.value) : undefined)}
+                                  data-testid="input-squad-number"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Position</label>
+                                <Select value={position} onValueChange={setPosition}>
+                                  <SelectTrigger data-testid="select-position">
+                                    <SelectValue placeholder="Select position" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                    <SelectItem value="Defender">Defender</SelectItem>
+                                    <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                    <SelectItem value="Forward">Forward</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setIsTeamDialogOpen(false)}
+                                data-testid="button-cancel-team"
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                onClick={handleAddTeam}
+                                disabled={!selectedTeamId || addUserToTeamMutation.isPending}
+                                data-testid="button-add-to-team"
+                              >
+                                {addUserToTeamMutation.isPending ? "Adding..." : "Add to Team"}
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
 
                   {/* Team Cards */}
@@ -627,6 +803,15 @@ export default function UserDetails() {
                                   </div>
                                 </div>
                               </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRemoveTeam(userTeam.team.id)}
+                                disabled={removeUserFromTeamMutation.isPending}
+                                data-testid={`button-remove-team-${userTeam.team.id}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
