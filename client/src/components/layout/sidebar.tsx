@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, ChevronDown, Landmark, Camera } from "lucide-react";
+import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, Landmark, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS } from "@/lib/constants";
 import { useTeam } from "@/contexts/team-context";
@@ -20,23 +19,13 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
   const currentPath = location === "/" ? "home" : location.slice(1);
-  const { selectedTeam, selectTeam } = useTeam();
-  const { selectedClub: currentClub, selectClub } = useClub();
+  const { selectedTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
   
   // Get club primary color for menu highlighting
   const clubPrimaryColor = (currentClub?.colors as any)?.primary || '#dc2626';
 
-  // Fetch all teams for the dropdown
-  const { data: allTeams = [] } = useQuery<Team[]>({
-    queryKey: ['/api/teams'],
-    enabled: !collapsed
-  });
-
-  // Fetch all clubs to show proper club names in dropdown
-  const { data: allClubs = [] } = useQuery<Club[]>({
-    queryKey: ['/api/clubs'],
-    enabled: !collapsed
-  });
+  // No need to fetch all teams/clubs since selection is hardcoded
 
   const iconMap = {
     Home,
@@ -90,67 +79,27 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         </Button>
       </div>
 
-      {/* Team Selector */}
+      {/* Team Display (Hardcoded) */}
       {!collapsed && (
         <div className="p-4 border-b border-border">
           <label className="text-[10px] font-bold uppercase tracking-wide mb-2 block text-muted-foreground">
-            Select Team
+            Current Team
           </label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="w-full p-0 h-auto hover:bg-accent/50"
-                data-testid="button-team-selector"
-              >
-                <div className="bg-secondary rounded-lg p-3 w-full">
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <h3 className="font-semibold text-xs text-foreground">
-                        {selectedTeam ? selectedTeam.name : "No Team Selected"}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${selectedTeam ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64" align="start">
-              {allTeams
-                .filter(team => team.clubId === currentClub?.id)
-                .map((team) => {
-                const teamClub = allClubs.find(club => club.id === team.clubId);
-                return (
-                  <DropdownMenuItem
-                    key={team.id}
-                    onClick={() => {
-                      selectTeam(team);
-                    }}
-                    className={cn(
-                      "cursor-pointer",
-                      selectedTeam?.id === team.id && "bg-accent"
-                    )}
-                    data-testid={`option-team-${team.id}`}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium">{team.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {teamClub ? `${teamClub.name} (${teamClub.shortName})` : 'Unknown Club'}
-                      </span>
-                    </div>
-                  </DropdownMenuItem>
-                );
-              })}
-              {allTeams.filter(team => team.clubId === currentClub?.id).length === 0 && (
-                <DropdownMenuItem disabled>
-                  <span className="text-muted-foreground">No teams available for this club</span>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="bg-secondary rounded-lg p-3 w-full">
+            <div className="flex items-center justify-between">
+              <div className="text-left">
+                <h3 className="font-semibold text-sm text-foreground">
+                  {selectedTeam ? selectedTeam.name : "WOMEN'S SOCCER"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {currentClub ? currentClub.name : "Polk State College"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -16,30 +16,18 @@ interface TeamProviderProps {
 }
 
 export function TeamProvider({ children }: TeamProviderProps) {
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
-
-  // Fetch all teams
+  // Fetch all teams to find WOMEN'S SOCCER
   const { data: teams = [], isLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
   });
 
-  // Get selected team from teams array
-  const selectedTeam = teams.find(team => team.id === selectedTeamId) || teams[0] || null;
+  // Hardcoded to always select WOMEN'S SOCCER team
+  const selectedTeam = teams.find(team => team.name === "WOMEN'S SOCCER") || null;
 
-  // Load selected team ID from localStorage on mount
-  useEffect(() => {
-    const storedTeamId = localStorage.getItem("selectedTeamId");
-    if (storedTeamId && teams.some(team => team.id === storedTeamId)) {
-      setSelectedTeamId(storedTeamId);
-    } else if (teams.length > 0 && !selectedTeamId) {
-      // Default to first team if none selected
-      setSelectedTeamId(teams[0].id);
-    }
-  }, [teams, selectedTeamId]);
-
+  // No-op function since selection is hardcoded
   const selectTeam = (team: Team) => {
-    setSelectedTeamId(team.id);
-    localStorage.setItem("selectedTeamId", team.id);
+    // Team selection is hardcoded to WOMEN'S SOCCER
+    // This function is kept for compatibility but does nothing
   };
 
   return (
