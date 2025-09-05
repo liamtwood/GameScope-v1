@@ -28,6 +28,7 @@ interface FileModifications {
 export default function Screenshots() {
   const [screenshots, setScreenshots] = useState<Record<string, string>>({});
   const [capturing, setCapturing] = useState<Record<string, boolean>>({});
+  const [readyStates, setReadyStates] = useState<Record<string, boolean>>({});
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -42,6 +43,16 @@ export default function Screenshots() {
     queryKey: ['/api/file-modifications'],
     refetchOnWindowFocus: false,
   });
+
+  // Initialize ready states from page definitions
+  const initializeReadyStates = (items: PageInfo[]) => {
+    const initialStates: Record<string, boolean> = {};
+    items.forEach(item => {
+      const key = `${item.type}-${item.name}`;
+      initialStates[key] = item.ready || false;
+    });
+    return initialStates;
+  };
 
   // Define all pages and modals in the app
   const pages: PageInfo[] = [
@@ -108,6 +119,22 @@ export default function Screenshots() {
 
   const allItems = [...pages, ...modals, ...tabs];
 
+  // Initialize ready states on mount
+  useEffect(() => {
+    if (Object.keys(readyStates).length === 0) {
+      setReadyStates(initializeReadyStates(allItems));
+    }
+  }, [allItems]);
+
+  // Toggle ready state for an item
+  const toggleReady = (item: PageInfo) => {
+    const key = `${item.type}-${item.name}`;
+    setReadyStates(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   // Function to render the table for any array of items
   const renderTable = (items: PageInfo[]) => (
     <Table>
@@ -142,9 +169,17 @@ export default function Screenshots() {
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={item.ready ? "default" : "secondary"}>
-                  {item.ready ? "Ready" : "Not Ready"}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={readyStates[key] || false}
+                    onChange={() => toggleReady(item)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <Badge variant={readyStates[key] ? "default" : "secondary"}>
+                    {readyStates[key] ? "Ready" : "Not Ready"}
+                  </Badge>
+                </div>
               </TableCell>
               <TableCell>
                 <div className="space-y-1">
