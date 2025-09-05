@@ -217,7 +217,7 @@ export default function FixtureDetails() {
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="details" data-testid="tab-details">Fixture Details</TabsTrigger>
+            <TabsTrigger value="details" data-testid="tab-fixture-details">Fixture Details</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Upload Video</TabsTrigger>
             <TabsTrigger value="lineups" data-testid="tab-lineups">Lineups</TabsTrigger>
             <TabsTrigger value="analysis" data-testid="tab-analysis">GameScope Analysis</TabsTrigger>
