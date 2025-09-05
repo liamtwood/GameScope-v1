@@ -1768,7 +1768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use object storage for system teams (production-ready cloud storage)
       const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
       
       // Upload directly to object storage
       const uploadResponse = await fetch(uploadURL, {
