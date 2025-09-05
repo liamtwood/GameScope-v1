@@ -357,7 +357,6 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                   <SelectContent>
                                     <SelectItem value="Fit">Fit</SelectItem>
                                     <SelectItem value="Injured">Injured</SelectItem>
-                                    <SelectItem value="Suspended">Suspended</SelectItem>
                                     <SelectItem value="Retired">Retired</SelectItem>
                                   </SelectContent>
                                 </Select>
