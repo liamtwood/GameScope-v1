@@ -87,6 +87,20 @@ export function ObjectUploader({
         open={showModal}
         onRequestClose={() => setShowModal(false)}
         proudlyDisplayPoweredByUppy={false}
+        note=""
+        hideUploadButton={false}
+        hideRetryButton={false}
+        hidePauseResumeButton={false}
+        hideCancelButton={false}
+        hideProgressAfterFinish={false}
+        doneButtonHandler={() => setShowModal(false)}
+        locale={{
+          strings: {
+            dropHereOr: '',
+            browse: 'Select files',
+            dropPaste: ''
+          }
+        }}
       />
     </div>
   );
