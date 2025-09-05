@@ -160,7 +160,7 @@ export default function Settings() {
         ? `/api/clubs/${teamId}` 
         : `/api/opposition-teams/${teamId}`;
       
-      return apiRequest(endpoint, {
+      return fetch(endpoint, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' }
@@ -630,9 +630,9 @@ export default function Settings() {
                         setEditingTeam(team);
                         setEditFormData({
                           shortName: team.shortName || '',
-                          website: team.website || '',
-                          primaryColor: team.colors?.primary || '#6b7280',
-                          secondaryColor: team.colors?.secondary || '#4b5563'
+                          website: team.websiteUrl || team.website || '',
+                          primaryColor: (team.colors as any)?.primary || '#6b7280',
+                          secondaryColor: (team.colors as any)?.secondary || '#4b5563'
                         });
                         setEditDialogOpen(true);
                       }}
@@ -1505,69 +1505,63 @@ export default function Settings() {
                   />
                 </div>
 
-                {/* Short Name - only for opposition teams */}
-                {editingTeam.type === 'opposition' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Short Name</label>
-                    <Input
-                      value={editFormData.shortName}
-                      onChange={(e) => setEditFormData({...editFormData, shortName: e.target.value})}
-                      placeholder="e.g., VC"
-                    />
-                  </div>
-                )}
+                {/* Short Name - for both clubs and opposition teams */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Short Name</label>
+                  <Input
+                    value={editFormData.shortName}
+                    onChange={(e) => setEditFormData({...editFormData, shortName: e.target.value})}
+                    placeholder="e.g., PSC, VC"
+                  />
+                </div>
 
-                {/* Website URL - only for opposition teams */}
-                {editingTeam.type === 'opposition' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Website URL (Optional)</label>
-                    <Input
-                      value={editFormData.website}
-                      onChange={(e) => setEditFormData({...editFormData, website: e.target.value})}
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                )}
+                {/* Website URL - for both clubs and opposition teams */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Website URL (Optional)</label>
+                  <Input
+                    value={editFormData.website}
+                    onChange={(e) => setEditFormData({...editFormData, website: e.target.value})}
+                    placeholder="https://example.com"
+                  />
+                </div>
 
-                {/* Colors - only for opposition teams */}
-                {editingTeam.type === 'opposition' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Primary Color</label>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="color"
-                          value={editFormData.primaryColor}
-                          onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
-                          className="w-8 h-8 rounded border cursor-pointer"
-                        />
-                        <Input
-                          value={editFormData.primaryColor}
-                          onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
-                          placeholder="#6b7280"
-                          className="flex-1"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Secondary Color (Optional)</label>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="color"
-                          value={editFormData.secondaryColor}
-                          onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
-                          className="w-8 h-8 rounded border cursor-pointer"
-                        />
-                        <Input
-                          value={editFormData.secondaryColor}
-                          onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
-                          placeholder="#4b5563"
-                          className="flex-1"
-                        />
-                      </div>
+                {/* Colors - for both clubs and opposition teams */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Primary Color</label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={editFormData.primaryColor}
+                        onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                        className="w-8 h-8 rounded border cursor-pointer"
+                      />
+                      <Input
+                        value={editFormData.primaryColor}
+                        onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                        placeholder="#6b7280"
+                        className="flex-1"
+                      />
                     </div>
                   </div>
-                )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Secondary Color (Optional)</label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={editFormData.secondaryColor}
+                        onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                        className="w-8 h-8 rounded border cursor-pointer"
+                      />
+                      <Input
+                        value={editFormData.secondaryColor}
+                        onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                        placeholder="#4b5563"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 {/* Logo Upload Section */}
                 <div className="space-y-3 pt-4 border-t">
@@ -1598,35 +1592,29 @@ export default function Settings() {
                   >
                     Cancel
                   </Button>
-                  {editingTeam.type === 'opposition' && (
-                    <Button
-                      onClick={() => {
-                        const updateData = {
-                          shortName: editFormData.shortName,
-                          website: editFormData.website,
-                          colors: {
-                            primary: editFormData.primaryColor,
-                            secondary: editFormData.secondaryColor
-                          }
-                        };
-                        updateTeamMutation.mutate({
-                          teamId: editingTeam.id,
-                          teamType: 'opposition',
-                          data: updateData
-                        });
-                      }}
-                      disabled={updateTeamMutation.isPending}
-                    >
-                      {updateTeamMutation.isPending ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                  )}
-                  {editingTeam.type === 'club' && (
-                    <Button
-                      onClick={() => setEditDialogOpen(false)}
-                    >
-                      Close
-                    </Button>
-                  )}
+                  <Button
+                    onClick={() => {
+                      const updateData = {
+                        shortName: editFormData.shortName,
+                        ...(editingTeam.type === 'opposition' 
+                          ? { website: editFormData.website } 
+                          : { websiteUrl: editFormData.website }
+                        ),
+                        colors: {
+                          primary: editFormData.primaryColor,
+                          secondary: editFormData.secondaryColor
+                        }
+                      };
+                      updateTeamMutation.mutate({
+                        teamId: editingTeam.id,
+                        teamType: editingTeam.type === 'club' ? 'club' : 'opposition',
+                        data: updateData
+                      });
+                    }}
+                    disabled={updateTeamMutation.isPending}
+                  >
+                    {updateTeamMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
                 </div>
               </div>
             )}
