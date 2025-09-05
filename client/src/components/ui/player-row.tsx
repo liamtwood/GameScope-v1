@@ -15,10 +15,10 @@ interface PlayerRowProps {
 export function PlayerRow({ player, onEdit, onView, onToggleKeyPlayer }: PlayerRowProps) {
   const getPositionCategory = (position: string) => {
     if (['GK'].includes(position)) return 'GK';
-    if (['CB', 'LB', 'RB'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM'].includes(position)) return 'MID';
+    if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(position)) return 'DEF';
+    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'DM', 'AM'].includes(position)) return 'MID';
     if (['ST', 'LW', 'RW', 'CF'].includes(position)) return 'FWD';
-    return 'DEF';
+    return 'MID'; // Default to midfield instead of defender
   };
 
   return (
