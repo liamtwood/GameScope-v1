@@ -251,16 +251,7 @@ export default function Videos() {
                             
                             {/* Row 2: Date and Time */}
                             <p className="text-xs text-muted-foreground">
-                              {new Date(fixture.date).toLocaleDateString('en-US', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                              })}, {new Date(fixture.date).toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true
-                              })}
+                              {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
                             </p>
                             
                             {/* Row 3: Result Pill */}

@@ -241,7 +241,7 @@ export default function Screenshots() {
               <TableCell>
                 {lastModified > 0 ? (
                   <div className="text-sm">
-                    <div>{new Date(lastModified).toLocaleDateString()}</div>
+                    <div>{format(new Date(lastModified), 'd MMM yyyy')}</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(lastModified).toLocaleTimeString()}
                     </div>
@@ -255,7 +255,7 @@ export default function Screenshots() {
                   <div className="text-sm text-muted-foreground italic">Capturing...</div>
                 ) : captureTimestamps[key] ? (
                   <div className="text-sm">
-                    <div>{new Date(captureTimestamps[key]).toLocaleDateString()}</div>
+                    <div>{format(new Date(captureTimestamps[key]), 'd MMM yyyy')}</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(captureTimestamps[key]).toLocaleTimeString()}
                     </div>
