@@ -14,7 +14,7 @@ import html2canvas from "html2canvas";
 interface PageInfo {
   name: string;
   path: string;
-  type: "page" | "modal";
+  type: "page" | "modal" | "tab";
   description: string;
   hasParams?: boolean;
   paramExample?: string;
@@ -66,7 +66,40 @@ export default function Screenshots() {
     { name: "User Create Dialog", path: "", type: "modal", description: "Add new user form" },
   ];
 
-  const allItems = [...pages, ...modals];
+  // Tab-level entries for pages with multiple tabs
+  const tabs: PageInfo[] = [
+    // Player Details tabs
+    { name: "Player Details > Details Tab", path: "/players/:id#details", type: "tab", description: "Player personal information tab" },
+    { name: "Player Details > Teams Tab", path: "/players/:id#teams", type: "tab", description: "Player team assignments tab" },
+    { name: "Player Details > Parents Tab", path: "/players/:id#parents", type: "tab", description: "Player parent information tab" },
+    
+    // Fixture Details tabs
+    { name: "Fixture Details > Details Tab", path: "/fixtures/:id#details", type: "tab", description: "Basic fixture information tab" },
+    { name: "Fixture Details > Upload Video Tab", path: "/fixtures/:id#videos", type: "tab", description: "Video upload and management tab" },
+    { name: "Fixture Details > Lineups Tab", path: "/fixtures/:id#lineups", type: "tab", description: "Team lineups and formations tab" },
+    { name: "Fixture Details > Analysis Tab", path: "/fixtures/:id#analysis", type: "tab", description: "GameScope analysis and statistics tab" },
+    
+    // Analysis page tabs (nested within Fixture Details > Analysis)
+    { name: "Analysis > Game Details Tab", path: "/analysis/:id#heatmaps", type: "tab", description: "Game details and heat maps tab" },
+    { name: "Analysis > Line-Ups Tab", path: "/analysis/:id#positions", type: "tab", description: "Position maps and lineup analysis tab" },
+    { name: "Analysis > Videos Tab", path: "/analysis/:id#videos", type: "tab", description: "Video analysis and highlights tab" },
+    { name: "Analysis > Upload Data Tab", path: "/analysis/:id#upload", type: "tab", description: "Data upload and statistics import tab" },
+    { name: "Analysis > Statistics Tab", path: "/analysis/:id#statistics", type: "tab", description: "Detailed match statistics tab" },
+    { name: "Analysis > Spider Charts Tab", path: "/analysis/:id#spider", type: "tab", description: "Performance spider charts tab" },
+    { name: "Analysis > AI Analysis Tab", path: "/analysis/:id#ai", type: "tab", description: "AI-powered analysis insights tab" },
+    
+    // Fixture Details Analysis nested tabs
+    { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/:id#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis" },
+    { name: "Fixture Analysis > Statistics Tab", path: "/fixtures/:id#analysis-statistics", type: "tab", description: "Nested statistics within analysis" },
+    { name: "Fixture Analysis > Spider Charts Tab", path: "/fixtures/:id#analysis-spider", type: "tab", description: "Nested spider charts within analysis" },
+    { name: "Fixture Analysis > Heat Maps Tab", path: "/fixtures/:id#analysis-heatmaps", type: "tab", description: "Nested heat maps within analysis" },
+    { name: "Fixture Analysis > Position Maps Tab", path: "/fixtures/:id#analysis-positions", type: "tab", description: "Nested position maps within analysis" },
+    { name: "Fixture Analysis > AI Analysis Tab", path: "/fixtures/:id#analysis-ai", type: "tab", description: "Nested AI analysis within analysis" },
+    { name: "Fixture Analysis > Videos Tab", path: "/fixtures/:id#analysis-videos", type: "tab", description: "Nested videos within analysis" },
+    { name: "Fixture Analysis > Upload Data Tab", path: "/fixtures/:id#analysis-upload", type: "tab", description: "Nested data upload within analysis" },
+  ];
+
+  const allItems = [...pages, ...modals, ...tabs];
 
   // Function to render the table for any array of items
   const renderTable = (items: PageInfo[]) => (
@@ -92,7 +125,11 @@ export default function Screenshots() {
             <TableRow key={index}>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell>
-                <Badge variant={item.type === "page" ? "default" : "secondary"}>
+                <Badge variant={
+                  item.type === "page" ? "default" : 
+                  item.type === "tab" ? "outline" : 
+                  "secondary"
+                }>
                   {item.type}
                 </Badge>
               </TableCell>
@@ -266,7 +303,7 @@ export default function Screenshots() {
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Monitor className="h-4 w-4" />
               All ({allItems.length})
@@ -274,6 +311,10 @@ export default function Screenshots() {
             <TabsTrigger value="pages" className="flex items-center gap-2">
               <Square className="h-4 w-4" />
               Pages ({pages.length})
+            </TabsTrigger>
+            <TabsTrigger value="tabs" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Tabs ({tabs.length})
             </TabsTrigger>
             <TabsTrigger value="modals" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -303,6 +344,17 @@ export default function Screenshots() {
               </CardHeader>
               <CardContent>
                 {renderTable(pages)}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="tabs" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Page Tabs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {renderTable(tabs)}
               </CardContent>
             </Card>
           </TabsContent>

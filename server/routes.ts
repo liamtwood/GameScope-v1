@@ -700,6 +700,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "Fixture Edit Dialog": "client/src/components/dialogs/fixture-edit-dialog.tsx",
         "Fixture Settings Dialog": "client/src/components/dialogs/fixture-settings-dialog.tsx",
         "User Create Dialog": "client/src/components/dialogs/user-create-dialog.tsx",
+        
+        // Tab components (track the parent page file for tab modifications)
+        "Player Details > Details Tab": "client/src/pages/player-details.tsx",
+        "Player Details > Teams Tab": "client/src/pages/player-details.tsx",
+        "Player Details > Parents Tab": "client/src/pages/player-details.tsx",
+        "Fixture Details > Details Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Details > Upload Video Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Details > Lineups Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Details > Analysis Tab": "client/src/pages/fixture-details.tsx",
+        "Analysis > Game Details Tab": "client/src/pages/analysis.tsx",
+        "Analysis > Line-Ups Tab": "client/src/pages/analysis.tsx",
+        "Analysis > Videos Tab": "client/src/pages/analysis.tsx",
+        "Analysis > Upload Data Tab": "client/src/pages/analysis.tsx",
+        "Analysis > Statistics Tab": "client/src/pages/analysis.tsx",
+        "Analysis > Spider Charts Tab": "client/src/pages/analysis.tsx",
+        "Analysis > AI Analysis Tab": "client/src/pages/analysis.tsx",
+        "Fixture Analysis > Fixture Details Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Statistics Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Spider Charts Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Heat Maps Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Position Maps Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > AI Analysis Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Videos Tab": "client/src/pages/fixture-details.tsx",
+        "Fixture Analysis > Upload Data Tab": "client/src/pages/fixture-details.tsx",
       };
 
       // Get modification times for all files
