@@ -82,6 +82,25 @@ export function ObjectUploader({
         {children}
       </Button>
 
+      <style>{`
+        .uppy-Dashboard-dropFilesHereHint,
+        .uppy-Dashboard-browse,
+        .uppy-DashboardAddFiles-info,
+        .uppy-DashboardAddFiles-title,
+        .uppy-Dashboard-dropFilesTitle,
+        .uppy-Dashboard-dropFilesIcon,
+        .uppy-Dashboard-AddFiles-title,
+        .uppy-Dashboard-AddFiles-info {
+          display: none !important;
+        }
+        .uppy-Dashboard-AddFiles {
+          padding: 20px !important;
+        }
+        .uppy-Dashboard-AddFiles-browse {
+          margin: 0 !important;
+        }
+      `}</style>
+
       <DashboardModal
         uppy={uppy}
         open={showModal}
@@ -94,11 +113,31 @@ export function ObjectUploader({
         hideCancelButton={false}
         hideProgressAfterFinish={false}
         doneButtonHandler={() => setShowModal(false)}
+        disableLocalFiles={false}
+        plugins={['webcam']}
         locale={{
           strings: {
             dropHereOr: '',
             browse: 'Select files',
-            dropPaste: ''
+            dropPaste: '',
+            dropHint: '',
+            browseFiles: 'Select files',
+            addMore: 'Add more files',
+            importFrom: 'Import from %{name}',
+            dashboardWindowTitle: 'Upload files',
+            dashboardTitle: 'Upload files',
+            copyLinkToClipboardSuccess: 'Link copied to clipboard.',
+            copyLinkToClipboardFallback: 'Copy the URL below',
+            fileSource: 'File source: %{name}',
+            done: 'Done',
+            localDisk: 'Local Disk',
+            myDevice: 'My Device',
+            dropPasteImport: '',
+            dropPasteFiles: '',
+            folderAdded: {
+              0: 'Added %{smart_count} file from %{folder}',
+              1: 'Added %{smart_count} files from %{folder}'
+            }
           }
         }}
       />
