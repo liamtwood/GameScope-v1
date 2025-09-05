@@ -18,6 +18,7 @@ interface PageInfo {
   description: string;
   hasParams?: boolean;
   paramExample?: string;
+  ready?: boolean;
 }
 
 interface FileModifications {
@@ -44,65 +45,65 @@ export default function Screenshots() {
 
   // Define all pages and modals in the app
   const pages: PageInfo[] = [
-    { name: "Home", path: "/", type: "page", description: "Landing page with team overview" },
-    { name: "Dashboard", path: "/dashboard", type: "page", description: "Main dashboard with key metrics" },
-    { name: "Club Management", path: "/club-management", type: "page", description: "Manage club information and settings" },
-    { name: "Fixtures", path: "/fixtures", type: "page", description: "View and manage match fixtures" },
-    { name: "Squad", path: "/squad", type: "page", description: "Team squad management" },
-    { name: "Statistics", path: "/statistics", type: "page", description: "Team performance statistics" },
-    { name: "Videos", path: "/videos", type: "page", description: "Match video management" },
-    { name: "Teams", path: "/teams", type: "page", description: "Team management interface" },
-    { name: "Clubs", path: "/clubs", type: "page", description: "Club overview and management" },
-    { name: "Users", path: "/users", type: "page", description: "User management interface" },
-    { name: "DevOps Users", path: "/devops-users", type: "page", description: "System user management" },
-    { name: "Settings", path: "/settings", type: "page", description: "Application settings" },
-    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46", type: "page", description: "Detailed fixture view with lineup and analysis" },
-    { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile and statistics" },
-    { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile and permissions" },
-    { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis with performance data" },
+    { name: "Home", path: "/", type: "page", description: "Landing page with team overview", ready: true },
+    { name: "Dashboard", path: "/dashboard", type: "page", description: "Main dashboard with key metrics", ready: true },
+    { name: "Club Management", path: "/club-management", type: "page", description: "Manage club information and settings", ready: false },
+    { name: "Fixtures", path: "/fixtures", type: "page", description: "View and manage match fixtures", ready: true },
+    { name: "Squad", path: "/squad", type: "page", description: "Team squad management", ready: true },
+    { name: "Statistics", path: "/statistics", type: "page", description: "Team performance statistics", ready: true },
+    { name: "Videos", path: "/videos", type: "page", description: "Match video management", ready: false },
+    { name: "Teams", path: "/teams", type: "page", description: "Team management interface", ready: false },
+    { name: "Clubs", path: "/clubs", type: "page", description: "Club overview and management", ready: false },
+    { name: "Users", path: "/users", type: "page", description: "User management interface", ready: false },
+    { name: "DevOps Users", path: "/devops-users", type: "page", description: "System user management", ready: false },
+    { name: "Settings", path: "/settings", type: "page", description: "Application settings", ready: false },
+    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46", type: "page", description: "Detailed fixture view with lineup and analysis", ready: true },
+    { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile and statistics", ready: true },
+    { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile and permissions", ready: true },
+    { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis with performance data", ready: true },
   ];
 
   const modals: PageInfo[] = [
-    { name: "Player Create Dialog", path: "", type: "modal", description: "Add new player form" },
-    { name: "Player Edit Dialog", path: "", type: "modal", description: "Edit player information" },
-    { name: "Player Details Modal", path: "", type: "modal", description: "Detailed player view modal" },
-    { name: "Fixture Create Dialog", path: "", type: "modal", description: "Create new fixture form" },
-    { name: "Fixture Edit Dialog", path: "", type: "modal", description: "Edit fixture information" },
-    { name: "Fixture Settings Dialog", path: "", type: "modal", description: "Fixture settings and configuration" },
-    { name: "User Create Dialog", path: "", type: "modal", description: "Add new user form" },
+    { name: "Player Create Dialog", path: "", type: "modal", description: "Add new player form", ready: false },
+    { name: "Player Edit Dialog", path: "", type: "modal", description: "Edit player information", ready: false },
+    { name: "Player Details Modal", path: "", type: "modal", description: "Detailed player view modal", ready: false },
+    { name: "Fixture Create Dialog", path: "", type: "modal", description: "Create new fixture form", ready: false },
+    { name: "Fixture Edit Dialog", path: "", type: "modal", description: "Edit fixture information", ready: false },
+    { name: "Fixture Settings Dialog", path: "", type: "modal", description: "Fixture settings and configuration", ready: false },
+    { name: "User Create Dialog", path: "", type: "modal", description: "Add new user form", ready: false },
   ];
 
   // Tab-level entries for pages with multiple tabs
   const tabs: PageInfo[] = [
     // Player Details tabs
-    { name: "Player Details > Details Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#details", type: "tab", description: "Player personal information tab" },
-    { name: "Player Details > Teams Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#teams", type: "tab", description: "Player team assignments tab" },
-    { name: "Player Details > Parents Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#parents", type: "tab", description: "Player parent information tab" },
+    { name: "Player Details > Details Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#details", type: "tab", description: "Player personal information tab", ready: true },
+    { name: "Player Details > Teams Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#teams", type: "tab", description: "Player team assignments tab", ready: true },
+    { name: "Player Details > Parents Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#parents", type: "tab", description: "Player parent information tab", ready: false },
     
     // Fixture Details tabs
-    { name: "Fixture Details > Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#details", type: "tab", description: "Basic fixture information tab" },
-    { name: "Fixture Details > Upload Video Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#videos", type: "tab", description: "Video upload and management tab" },
-    { name: "Fixture Details > Lineups Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#lineups", type: "tab", description: "Team lineups and formations tab" },
-    { name: "Fixture Details > Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis", type: "tab", description: "GameScope analysis and statistics tab" },
+    { name: "Fixture Details > Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#details", type: "tab", description: "Basic fixture information tab", ready: true },
+    { name: "Fixture Details > Upload Video Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#videos", type: "tab", description: "Video upload and management tab", ready: false },
+    { name: "Fixture Details > Lineups Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#lineups", type: "tab", description: "Team lineups and formations tab", ready: true },
+    { name: "Fixture Details > Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis", type: "tab", description: "GameScope analysis and statistics tab", ready: true },
     
     // Analysis page tabs (nested within Fixture Details > Analysis)
-    { name: "Analysis > Game Details Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#heatmaps", type: "tab", description: "Game details and heat maps tab" },
-    { name: "Analysis > Line-Ups Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#positions", type: "tab", description: "Position maps and lineup analysis tab" },
-    { name: "Analysis > Videos Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#videos", type: "tab", description: "Video analysis and highlights tab" },
-    { name: "Analysis > Upload Data Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#upload", type: "tab", description: "Data upload and statistics import tab" },
-    { name: "Analysis > Statistics Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#statistics", type: "tab", description: "Detailed match statistics tab" },
-    { name: "Analysis > Spider Charts Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#spider", type: "tab", description: "Performance spider charts tab" },
-    { name: "Analysis > AI Analysis Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#ai", type: "tab", description: "AI-powered analysis insights tab" },
+    { name: "Analysis > Game Details Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#heatmaps", type: "tab", description: "Game details and heat maps tab", ready: true },
+    { name: "Analysis > Line-Ups Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#positions", type: "tab", description: "Position maps and lineup analysis tab", ready: true },
+    { name: "Analysis > Videos Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#videos", type: "tab", description: "Video analysis and highlights tab", ready: false },
+    { name: "Analysis > Upload Data Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#upload", type: "tab", description: "Data upload and statistics import tab", ready: false },
+    { name: "Analysis > Statistics Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#statistics", type: "tab", description: "Detailed match statistics tab", ready: true },
+    { name: "Analysis > Spider Charts Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#spider", type: "tab", description: "Performance spider charts tab", ready: true },
+    { name: "Analysis > AI Analysis Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#ai", type: "tab", description: "AI-powered analysis insights tab", ready: false },
     
     // Fixture Details Analysis nested tabs
-    { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis" },
-    { name: "Fixture Analysis > Statistics Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-statistics", type: "tab", description: "Nested statistics within analysis" },
-    { name: "Fixture Analysis > Spider Charts Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-spider", type: "tab", description: "Nested spider charts within analysis" },
-    { name: "Fixture Analysis > Heat Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-heatmaps", type: "tab", description: "Nested heat maps within analysis" },
-    { name: "Fixture Analysis > Position Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-positions", type: "tab", description: "Nested position maps within analysis" },
-    { name: "Fixture Analysis > AI Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-ai", type: "tab", description: "Nested AI analysis within analysis" },
-    { name: "Fixture Analysis > Videos Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-videos", type: "tab", description: "Nested videos within analysis" },
-    { name: "Fixture Analysis > Upload Data Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-upload", type: "tab", description: "Nested data upload within analysis" },
+    { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis", ready: true },
+    { name: "Fixture Analysis > Statistics Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-statistics", type: "tab", description: "Nested statistics within analysis", ready: true },
+    { name: "Fixture Analysis > Spider Charts Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-spider", type: "tab", description: "Nested spider charts within analysis", ready: true },
+    { name: "Fixture Analysis > Heat Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-heatmaps", type: "tab", description: "Nested heat maps within analysis", ready: false },
+    { name: "Fixture Analysis > Position Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-positions", type: "tab", description: "Nested position maps within analysis", ready: false },
+    { name: "Fixture Analysis > AI Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-ai", type: "tab", description: "Nested AI analysis within analysis", ready: false },
+    { name: "Fixture Analysis > Videos Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-videos", type: "tab", description: "Nested videos within analysis", ready: false },
+    { name: "Fixture Analysis > Upload Data Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-upload", type: "tab", description: "Nested data upload within analysis", ready: false },
   ];
 
   const allItems = [...pages, ...modals, ...tabs];
@@ -114,6 +115,7 @@ export default function Screenshots() {
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Type</TableHead>
+          <TableHead>Ready</TableHead>
           <TableHead>Path/Description</TableHead>
           <TableHead>Last Modified</TableHead>
           <TableHead>Status</TableHead>
@@ -137,6 +139,11 @@ export default function Screenshots() {
                   "secondary"
                 }>
                   {item.type}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge variant={item.ready ? "default" : "secondary"}>
+                  {item.ready ? "Ready" : "Not Ready"}
                 </Badge>
               </TableCell>
               <TableCell>
