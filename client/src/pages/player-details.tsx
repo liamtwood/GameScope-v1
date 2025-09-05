@@ -636,7 +636,6 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="pt-2">
                         <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Name Information</h4>
-                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
                       </div>
                     </div>
 
@@ -692,7 +691,6 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="pt-8">
                         <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Personal Information</h4>
-                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
                       </div>
                     </div>
 
@@ -756,7 +754,6 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="pt-8">
                         <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Contact Information</h4>
-                        <div className="w-full h-px mb-0" style={{ backgroundColor: clubPrimaryColor }}></div>
                       </div>
                     </div>
 
