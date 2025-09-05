@@ -11,10 +11,14 @@ if (app.get("env") === "development") {
   // Development: serve from source directories
   app.use('/uploads', express.static('public/uploads'));
   app.use('/assets', express.static('client/public/assets'));
+  // Also serve uploads from assets path for consistency
+  app.use('/assets/uploads', express.static('public/uploads'));
 } else {
-  // Production: serve from build directories
+  // Production: serve from build directories and ensure uploads work
   app.use('/uploads', express.static('public/uploads'));
   app.use('/assets', express.static('dist/public/assets'));
+  // Serve uploads from assets path (which works in production)
+  app.use('/assets/uploads', express.static('public/uploads'));
 }
 
 app.use((req, res, next) => {

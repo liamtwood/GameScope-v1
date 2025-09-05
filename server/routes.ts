@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No logo file uploaded" });
       }
       
-      const logoPath = `/uploads/${Date.now()}-${req.file.originalname}`;
+      const logoPath = `/assets/uploads/${Date.now()}-${req.file.originalname}`;
       await fs.writeFile(`public${logoPath}`, req.file.buffer);
       
       const competition = await storage.updateCompetitionLogo(req.params.id, logoPath);
@@ -1504,7 +1504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await fs.writeFile(filepath, file.buffer);
 
       // Update the club with the logo path
-      const logoPath = `/uploads/${filename}`;
+      const logoPath = `/assets/uploads/${filename}`;
       await storage.updateClub(clubId, { logoPath });
 
       res.json({ 
@@ -1542,7 +1542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await fs.writeFile(filepath, file.buffer);
 
       // Update the opposition team with the logo path
-      const logoPath = `/uploads/${filename}`;
+      const logoPath = `/assets/uploads/${filename}`;
       await storage.updateOppositionTeam(teamId, { logoPath });
 
       res.json({ 
@@ -1572,7 +1572,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Delete the file if it exists
       try {
-        if (team.logoPath.startsWith('/uploads/')) {
+        if (team.logoPath.startsWith('/uploads/') || team.logoPath.startsWith('/assets/uploads/')) {
           const filePath = path.join(process.cwd(), 'public', team.logoPath);
           await fs.unlink(filePath);
         }
@@ -1618,7 +1618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await fs.writeFile(filepath, file.buffer);
 
       // Update the club with the logo path
-      const logoPath = `/uploads/${filename}`;
+      const logoPath = `/assets/uploads/${filename}`;
       await storage.updateClub(clubId, { logoPath });
 
       res.json({ 
@@ -1648,7 +1648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Delete the file if it exists
       try {
-        if (club.logoPath.startsWith('/uploads/')) {
+        if (club.logoPath.startsWith('/uploads/') || club.logoPath.startsWith('/assets/uploads/')) {
           const filePath = path.join(process.cwd(), 'public', club.logoPath);
           await fs.unlink(filePath);
         }
