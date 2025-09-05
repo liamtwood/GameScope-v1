@@ -46,10 +46,11 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
     if (position.includes('CB') || position.includes('LB') || position.includes('RB') || 
         position.includes('LWB') || position.includes('RWB') || position.includes('Defense')) return 'DEF';
     if (position.includes('CM') || position.includes('CDM') || position.includes('CAM') || 
-        position.includes('LM') || position.includes('RM') || position.includes('Midfield')) return 'MID';
+        position.includes('LM') || position.includes('RM') || position.includes('DM') || 
+        position.includes('AM') || position.includes('Midfield')) return 'MID';
     if (position.includes('ST') || position.includes('CF') || position.includes('LW') || 
         position.includes('RW') || position.includes('Forward')) return 'FWD';
-    return position;
+    return 'MID'; // Default to midfield instead of returning position
   };
 
   const getPositionColor = () => {
