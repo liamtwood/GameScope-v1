@@ -300,7 +300,11 @@ export default function Screenshots() {
           width: window.innerWidth,
           useCORS: true,
           allowTaint: true,
-          scale: 0.8,
+          scale: 1.0,
+          backgroundColor: '#ffffff',
+          removeContainer: false,
+          scrollX: 0,
+          scrollY: 0,
         });
         
         const dataUrl = canvas.toDataURL('image/png');
@@ -467,7 +471,11 @@ export default function Screenshots() {
                 width: window.innerWidth,
                 useCORS: true,
                 allowTaint: true,
-                scale: 0.8,
+                scale: 1.0,
+                backgroundColor: '#ffffff',
+                removeContainer: false,
+                scrollX: 0,
+                scrollY: 0,
               }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
                 const newScreenshots = { ...screenshots, [testKey]: dataUrl };
