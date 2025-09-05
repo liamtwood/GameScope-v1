@@ -222,28 +222,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         ))}
       </nav>
 
-      {/* User Profile */}
-      {!collapsed && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-background">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback 
-                className="text-white font-bold text-sm"
-                style={{ backgroundColor: clubPrimaryColor }}
-              >
-                DS
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <p className="font-semibold text-sm text-foreground">Dee Shivraman</p>
-              <p className="text-xs text-muted-foreground">Head Coach</p>
-            </div>
-            <Button variant="ghost" size="sm" data-testid="button-user-settings">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Bell, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings } from "lucide-react";
+import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
@@ -88,8 +88,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           
           <div className="flex items-center space-x-4">
             <ModeToggle />
-            <Button variant="ghost" size="sm" data-testid="button-notifications">
-              <Bell className="h-4 w-4" />
+            <Button variant="ghost" size="sm" data-testid="button-user">
+              <User className="h-4 w-4" />
             </Button>
           </div>
         </div>
