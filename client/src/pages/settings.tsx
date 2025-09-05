@@ -1019,7 +1019,7 @@ export default function Settings() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>
-                Edit {editingTeam?.type === 'club' ? 'Club' : 'Opposition Team'}
+                Edit {editingTeam?.type === 'club' ? 'Club' : 'Opponent'}
               </DialogTitle>
             </DialogHeader>
             
@@ -1102,10 +1102,9 @@ export default function Settings() {
                     entityName={editingTeam.name}
                     currentLogo={editingTeam.logoPath || undefined}
                     onUploadComplete={(logoPath) => {
-                      // Refresh the data and close dialog
+                      // Refresh the data but keep dialog open
                       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
                       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-                      setEditDialogOpen(false);
                       toast({
                         title: "Logo Updated",
                         description: "Team logo has been updated successfully!",
