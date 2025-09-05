@@ -146,7 +146,7 @@ export default function Screenshots() {
           <TableHead>Path/Description</TableHead>
           <TableHead>Last Modified</TableHead>
           <TableHead>Capture Date</TableHead>
-          <TableHead>Actions</TableHead>
+          <TableHead>Download</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -219,40 +219,18 @@ export default function Screenshots() {
                 )}
               </TableCell>
               <TableCell>
-                <div className="flex gap-2">
+                {hasScreenshot ? (
                   <Button
                     size="sm"
-                    variant="outline"
-                    onClick={() => captureScreenshot(item)}
-                    disabled={isCapturing || item.type === "modal"}
-                    className="gap-1"
+                    variant="ghost"
+                    onClick={() => downloadScreenshot(item)}
+                    className="p-2"
                   >
-                    <Camera className="h-3 w-3" />
-                    Capture
+                    <Download className="h-4 w-4" />
                   </Button>
-                  {hasScreenshot && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => viewScreenshot(item)}
-                        className="gap-1"
-                      >
-                        <Eye className="h-3 w-3" />
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadScreenshot(item)}
-                        className="gap-1"
-                      >
-                        <Download className="h-3 w-3" />
-                        Download
-                      </Button>
-                    </>
-                  )}
-                </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">-</span>
+                )}
               </TableCell>
             </TableRow>
           );
@@ -312,12 +290,31 @@ export default function Screenshots() {
   }, [setLocation, toast]);
 
   const captureAllPages = useCallback(async () => {
-    for (const page of pages) {
+    const readyPages = pages.filter(page => {
+      const key = `${page.type}-${page.name}`;
+      return readyStates[key];
+    });
+    
+    if (readyPages.length === 0) {
+      toast({
+        title: "No Pages Ready",
+        description: "Please mark at least one page as ready before capturing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    for (const page of readyPages) {
       await captureScreenshot(page);
       // Add delay between captures
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-  }, [pages, captureScreenshot]);
+    
+    toast({
+      title: "Capture Complete",
+      description: `Successfully captured ${readyPages.length} ready pages.`,
+    });
+  }, [pages, readyStates, captureScreenshot, toast]);
 
   const downloadScreenshot = (item: PageInfo) => {
     const key = `${item.type}-${item.name}`;
@@ -394,7 +391,7 @@ export default function Screenshots() {
         <div className="flex justify-end">
           <Button onClick={captureAllPages} className="gap-2">
             <RefreshCw className="h-4 w-4" />
-            Capture All Pages
+            Capture All Ready Pages
           </Button>
         </div>
 
