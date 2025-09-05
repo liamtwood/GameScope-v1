@@ -165,7 +165,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             <div className="flex-1">
               <h3 className="font-semibold text-lg text-foreground">{fixture.opponent}</h3>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(fixture.date), 'EEEE, d MMM yyyy, h:mm a')}
+                {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
               </p>
               {/* Competition display under date/time */}
               {fixture.competition && (

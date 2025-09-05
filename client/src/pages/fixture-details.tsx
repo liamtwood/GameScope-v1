@@ -162,7 +162,7 @@ export default function FixtureDetails() {
   return (
     <MainLayout 
       title={`${fixture.opponent}`}
-      subtitle={format(new Date(fixture.date), "EEEE, MMMM d, yyyy")}
+      subtitle={format(new Date(fixture.date), "d MMM yyyy")}
     >
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Header */}

@@ -141,7 +141,7 @@ export default function Analysis() {
   return (
     <MainLayout 
       title="View Fixture" 
-      subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'MMM d, yyyy')}`}
+      subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'd MMM yyyy')}`}
     >
       {/* Main Analysis Tabs */}
       <Tabs defaultValue="heatmaps" className="w-full">
