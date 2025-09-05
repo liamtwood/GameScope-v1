@@ -102,7 +102,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* TEAM INFORMATION Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">TEAM INFORMATION</h3>
+              <h3 className="text-sm font-semibold">TEAM INFORMATION</h3>
               
               <div className="grid grid-cols-3 gap-4">
                 <FormField
@@ -174,7 +174,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
 
             {/* NAME INFORMATION Section */}
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-semibold">NAME INFORMATION</h3>
+              <h3 className="text-sm font-semibold">NAME INFORMATION</h3>
               
               <div className="grid grid-cols-3 gap-4">
                 <FormField
@@ -221,7 +221,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
 
             {/* PERSONAL INFORMATION Section */}
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-semibold">PERSONAL INFORMATION</h3>
+              <h3 className="text-sm font-semibold">PERSONAL INFORMATION</h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <FormField
@@ -267,7 +267,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
 
             {/* CONTACT INFORMATION Section */}
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-semibold">CONTACT INFORMATION</h3>
+              <h3 className="text-sm font-semibold">CONTACT INFORMATION</h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <FormField
