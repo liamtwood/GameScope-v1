@@ -294,11 +294,11 @@ export default function Screenshots() {
         // Wait for navigation and rendering
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Capture screenshot with better quality settings
+        // Capture screenshot with proper aspect ratio
         const canvas = await html2canvas(document.documentElement, {
           useCORS: true,
           allowTaint: true,
-          scale: window.devicePixelRatio || 1,
+          scale: 1,
           backgroundColor: '#ffffff',
           logging: false,
           imageTimeout: 30000,
@@ -306,8 +306,8 @@ export default function Screenshots() {
           foreignObjectRendering: false,
           scrollX: 0,
           scrollY: 0,
-          windowWidth: window.innerWidth,
-          windowHeight: window.innerHeight,
+          width: window.innerWidth,
+          height: window.innerHeight,
           onclone: (clonedDoc) => {
             // Ensure all images are loaded in the cloned document
             const images = clonedDoc.querySelectorAll('img');
@@ -481,7 +481,7 @@ export default function Screenshots() {
               html2canvas(document.documentElement, {
                 useCORS: true,
                 allowTaint: true,
-                scale: window.devicePixelRatio || 1,
+                scale: 1,
                 backgroundColor: '#ffffff',
                 logging: false,
                 imageTimeout: 30000,
@@ -489,8 +489,8 @@ export default function Screenshots() {
                 foreignObjectRendering: false,
                 scrollX: 0,
                 scrollY: 0,
-                windowWidth: window.innerWidth,
-                windowHeight: window.innerHeight,
+                width: window.innerWidth,
+                height: window.innerHeight,
                 onclone: (clonedDoc) => {
                   // Ensure all images are loaded in the cloned document
                   const images = clonedDoc.querySelectorAll('img');
