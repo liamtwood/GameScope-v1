@@ -27,6 +27,7 @@ interface FileModifications {
 export default function Screenshots() {
   const [screenshots, setScreenshots] = useState<Record<string, string>>({});
   const [capturing, setCapturing] = useState<Record<string, boolean>>({});
+  const [captureTimestamps, setCaptureTimestamps] = useState<Record<string, number>>({});
   const [readyStates, setReadyStates] = useState<Record<string, boolean>>({});
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -144,7 +145,7 @@ export default function Screenshots() {
           <TableHead>Ready</TableHead>
           <TableHead>Path/Description</TableHead>
           <TableHead>Last Modified</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead>Capture Date</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -205,11 +206,16 @@ export default function Screenshots() {
               </TableCell>
               <TableCell>
                 {isCapturing ? (
-                  <Badge variant="outline">Capturing...</Badge>
-                ) : hasScreenshot ? (
-                  <Badge variant="default">Captured</Badge>
+                  <div className="text-sm text-muted-foreground italic">Capturing...</div>
+                ) : captureTimestamps[key] ? (
+                  <div className="text-sm">
+                    <div>{new Date(captureTimestamps[key]).toLocaleDateString()}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(captureTimestamps[key]).toLocaleTimeString()}
+                    </div>
+                  </div>
                 ) : (
-                  <Badge variant="secondary">Not captured</Badge>
+                  <span className="text-xs text-muted-foreground">Not captured</span>
                 )}
               </TableCell>
               <TableCell>
@@ -278,6 +284,7 @@ export default function Screenshots() {
         
         const dataUrl = canvas.toDataURL('image/png');
         setScreenshots(prev => ({ ...prev, [key]: dataUrl }));
+        setCaptureTimestamps(prev => ({ ...prev, [key]: Date.now() }));
         
         toast({
           title: "Screenshot Captured",
