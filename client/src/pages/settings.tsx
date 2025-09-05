@@ -1643,6 +1643,8 @@ function SquadImportInterface() {
         // Refresh the teams data
         queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
         queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+        // Invalidate team-specific squad queries
+        queryClient.invalidateQueries({ queryKey: ["/api/team"] });
       }
     } catch (error) {
       console.error("Bulk import error:", error);
