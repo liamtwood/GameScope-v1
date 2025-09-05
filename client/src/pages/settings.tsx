@@ -1211,25 +1211,35 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
 
     setIsAdding(true);
     try {
-      // Parse the text into players
+      // Parse the text into players with simpler logic
       const lines = quickText.split('\n').filter(line => line.trim());
       const players = [];
       let currentPosition = 'Unknown';
 
+      console.log('Parsing lines:', lines);
+
       for (const line of lines) {
         const trimmed = line.trim();
         
-        // Check if this line is a position header
-        if (trimmed.toLowerCase().includes('goalkeeper') || trimmed.toLowerCase().includes('keeper')) {
+        // Skip empty lines
+        if (!trimmed) continue;
+        
+        // Check if this line is a position header (contains position keywords)
+        const lowerLine = trimmed.toLowerCase();
+        if (lowerLine.includes('goalkeeper') || lowerLine.includes('keeper')) {
           currentPosition = 'Goalkeeper';
-        } else if (trimmed.toLowerCase().includes('defender') || trimmed.toLowerCase().includes('defence')) {
+          console.log('Set position to Goalkeeper');
+        } else if (lowerLine.includes('defender') || lowerLine.includes('defence')) {
           currentPosition = 'Defender';
-        } else if (trimmed.toLowerCase().includes('midfielder') || trimmed.toLowerCase().includes('midfield')) {
+          console.log('Set position to Defender');
+        } else if (lowerLine.includes('midfielder') || lowerLine.includes('midfield')) {
           currentPosition = 'Midfielder';
-        } else if (trimmed.toLowerCase().includes('forward') || trimmed.toLowerCase().includes('striker') || trimmed.toLowerCase().includes('attacker')) {
+          console.log('Set position to Midfielder');
+        } else if (lowerLine.includes('forward') || lowerLine.includes('striker') || lowerLine.includes('attacker')) {
           currentPosition = 'Forward';
-        } else if (trimmed && !trimmed.toLowerCase().includes('position') && trimmed.length > 2 && trimmed.length < 30) {
-          // This looks like a player name
+          console.log('Set position to Forward');
+        } else if (trimmed.length > 1 && trimmed.length < 50 && !lowerLine.includes('position')) {
+          // This looks like a player name - be more lenient
           players.push({
             name: trimmed,
             position: currentPosition,
@@ -1237,6 +1247,7 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
             appearances: 0,
             goals: 0
           });
+          console.log(`Added player: ${trimmed} (${currentPosition})`);
         }
       }
 
@@ -1307,14 +1318,14 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
         <textarea
           className="w-full h-32 p-3 border rounded-md resize-none text-sm"
           placeholder="Example:
-GOALKEEPER:
+Goalkeeper
 Gospel-Eze
 Lukjanciks
 Patrick
 
-DEFENDER:
-Player Name
-Another Player"
+Defender
+Smith
+Jones"
           value={quickText}
           onChange={(e) => setQuickText(e.target.value)}
         />
