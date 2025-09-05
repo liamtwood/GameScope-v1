@@ -498,6 +498,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log(`Processing ${lines.length} lines of text for fixtures...`);
         
+        // Show a sample of what we're reading
+        console.log("Sample lines from Flashscore page:");
+        for (let j = 0; j < Math.min(20, lines.length); j++) {
+          if (lines[j].length > 0) {
+            console.log(`Line ${j}: "${lines[j]}"`);
+          }
+        }
+        
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           
