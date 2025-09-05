@@ -1193,6 +1193,14 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
   const [quickText, setQuickText] = useState("");
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [parsedPlayers, setParsedPlayers] = useState<Array<{
+    name: string;
+    firstName: string;
+    lastName: string;
+    position: string;
+    jerseyNumber: string;
+  }>>([]);
 
   // Fetch teams for selection
   const { data: teams } = useQuery({
@@ -1200,10 +1208,78 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
   });
 
   const handleQuickAdd = async () => {
-    if (!quickText.trim() || !selectedTeamId) {
+    if (!quickText.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please enter player names and select a team.",
+        description: "Please enter player names.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Parse the text into players with simpler logic
+    const lines = quickText.split('\n').filter(line => line.trim());
+    const players = [];
+    let currentPosition = 'Unknown';
+
+    console.log('Parsing lines:', lines);
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Skip empty lines
+      if (!trimmed) continue;
+      
+      // Check if this line is a position header (contains position keywords)
+      const lowerLine = trimmed.toLowerCase();
+      if (lowerLine.includes('goalkeeper') || lowerLine.includes('keeper')) {
+        currentPosition = 'Goalkeeper';
+        console.log('Set position to Goalkeeper');
+      } else if (lowerLine.includes('defender') || lowerLine.includes('defence')) {
+        currentPosition = 'Defender';
+        console.log('Set position to Defender');
+      } else if (lowerLine.includes('midfielder') || lowerLine.includes('midfield')) {
+        currentPosition = 'Midfielder';
+        console.log('Set position to Midfielder');
+      } else if (lowerLine.includes('forward') || lowerLine.includes('striker') || lowerLine.includes('attacker')) {
+        currentPosition = 'Forward';
+        console.log('Set position to Forward');
+      } else if (trimmed.length > 1 && trimmed.length < 50 && !lowerLine.includes('position')) {
+        // This looks like a player name - parse into first/last name
+        const nameParts = trimmed.split(/\s+/);
+        const firstName = nameParts[0] || trimmed;
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        players.push({
+          name: trimmed,
+          firstName,
+          lastName,
+          position: currentPosition,
+          jerseyNumber: ''
+        });
+        console.log(`Added player: ${trimmed} (${currentPosition})`);
+      }
+    }
+
+    if (players.length === 0) {
+      toast({
+        title: "No Players Found",
+        description: "Please enter player names (one per line).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Show review modal instead of immediately importing
+    setParsedPlayers(players);
+    setShowReviewModal(true);
+  };
+
+  const handleConfirmImport = async () => {
+    if (!selectedTeamId) {
+      toast({
+        title: "Missing Team",
+        description: "Please select a team to add players to.",
         variant: "destructive",
       });
       return;
@@ -1211,56 +1287,16 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
 
     setIsAdding(true);
     try {
-      // Parse the text into players with simpler logic
-      const lines = quickText.split('\n').filter(line => line.trim());
-      const players = [];
-      let currentPosition = 'Unknown';
+      // Convert parsed players back to the expected format
+      const playersToImport = parsedPlayers.map(p => ({
+        name: `${p.firstName} ${p.lastName}`.trim(),
+        position: p.position,
+        age: null,
+        appearances: 0,
+        goals: 0,
+        jerseyNumber: p.jerseyNumber ? parseInt(p.jerseyNumber) : null
+      }));
 
-      console.log('Parsing lines:', lines);
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        
-        // Skip empty lines
-        if (!trimmed) continue;
-        
-        // Check if this line is a position header (contains position keywords)
-        const lowerLine = trimmed.toLowerCase();
-        if (lowerLine.includes('goalkeeper') || lowerLine.includes('keeper')) {
-          currentPosition = 'Goalkeeper';
-          console.log('Set position to Goalkeeper');
-        } else if (lowerLine.includes('defender') || lowerLine.includes('defence')) {
-          currentPosition = 'Defender';
-          console.log('Set position to Defender');
-        } else if (lowerLine.includes('midfielder') || lowerLine.includes('midfield')) {
-          currentPosition = 'Midfielder';
-          console.log('Set position to Midfielder');
-        } else if (lowerLine.includes('forward') || lowerLine.includes('striker') || lowerLine.includes('attacker')) {
-          currentPosition = 'Forward';
-          console.log('Set position to Forward');
-        } else if (trimmed.length > 1 && trimmed.length < 50 && !lowerLine.includes('position')) {
-          // This looks like a player name - be more lenient
-          players.push({
-            name: trimmed,
-            position: currentPosition,
-            age: null,
-            appearances: 0,
-            goals: 0
-          });
-          console.log(`Added player: ${trimmed} (${currentPosition})`);
-        }
-      }
-
-      if (players.length === 0) {
-        toast({
-          title: "No Players Found",
-          description: "Please enter player names (one per line).",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Import the players
       const response = await fetch("/api/squad/bulk-import", {
         method: "POST",
         headers: {
@@ -1268,7 +1304,7 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
         },
         body: JSON.stringify({
           teamId: selectedTeamId,
-          players
+          players: playersToImport
         }),
       });
 
@@ -1281,6 +1317,8 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
         });
         
         setQuickText("");
+        setShowReviewModal(false);
+        setParsedPlayers([]);
         onPlayersAdded();
       } else {
         throw new Error(result.message || "Import failed");
@@ -1343,21 +1381,140 @@ Jones"
 
       <Button 
         onClick={handleQuickAdd}
-        disabled={isAdding || !quickText.trim() || !selectedTeamId}
+        disabled={!quickText.trim()}
         className="w-full"
       >
-        {isAdding ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Adding Players...
-          </>
-        ) : (
-          <>
-            <Users className="mr-2 h-4 w-4" />
-            Add Players to Team
-          </>
-        )}
+        <Users className="mr-2 h-4 w-4" />
+        Review Players
       </Button>
+
+      {/* Review Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Review Players Before Adding</DialogTitle>
+            <DialogDescription>
+              Review and edit player details before adding them to your team.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Team Selection */}
+          <div className="space-y-2 mb-4">
+            <label className="text-sm font-medium">Add to Team</label>
+            <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a team..." />
+              </SelectTrigger>
+              <SelectContent>
+                {teams?.map((team: any) => (
+                  <SelectItem key={team.id} value={team.id}>
+                    {team.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Players Table */}
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="p-3 text-left text-sm font-medium">Jersey #</th>
+                  <th className="p-3 text-left text-sm font-medium">First Name</th>
+                  <th className="p-3 text-left text-sm font-medium">Last Name</th>
+                  <th className="p-3 text-left text-sm font-medium">Position</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parsedPlayers.map((player, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-3">
+                      <Input
+                        value={player.jerseyNumber}
+                        onChange={(e) => {
+                          const updated = [...parsedPlayers];
+                          updated[index].jerseyNumber = e.target.value;
+                          setParsedPlayers(updated);
+                        }}
+                        placeholder="#"
+                        className="w-16"
+                      />
+                    </td>
+                    <td className="p-3">
+                      <Input
+                        value={player.firstName}
+                        onChange={(e) => {
+                          const updated = [...parsedPlayers];
+                          updated[index].firstName = e.target.value;
+                          setParsedPlayers(updated);
+                        }}
+                        placeholder="First name"
+                      />
+                    </td>
+                    <td className="p-3">
+                      <Input
+                        value={player.lastName}
+                        onChange={(e) => {
+                          const updated = [...parsedPlayers];
+                          updated[index].lastName = e.target.value;
+                          setParsedPlayers(updated);
+                        }}
+                        placeholder="Last name"
+                      />
+                    </td>
+                    <td className="p-3">
+                      <Select
+                        value={player.position}
+                        onValueChange={(value) => {
+                          const updated = [...parsedPlayers];
+                          updated[index].position = value;
+                          setParsedPlayers(updated);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                          <SelectItem value="Defender">Defender</SelectItem>
+                          <SelectItem value="Midfielder">Midfielder</SelectItem>
+                          <SelectItem value="Forward">Forward</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowReviewModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmImport}
+              disabled={isAdding || !selectedTeamId}
+            >
+              {isAdding ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding Players...
+                </>
+              ) : (
+                <>
+                  <Users className="mr-2 h-4 w-4" />
+                  Add {parsedPlayers.length} Players to Team
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
