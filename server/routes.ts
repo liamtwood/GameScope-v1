@@ -1121,37 +1121,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const playerData of players) {
         if (!playerData.name) continue;
         
-        // Create user with parsed data
-        const userData = {
-          firstName: playerData.name.split(' ')[0] || playerData.name,
-          lastName: playerData.name.split(' ').slice(1).join(' ') || '',
-          shirtName: playerData.name.split(' ').slice(-1)[0] || playerData.name,
-          email: '',
-          phone: '',
-          role: 'Player' as const,
-          status: 'Active' as const,
-          age: playerData.age
-        };
+        const firstName = playerData.name.split(' ')[0] || playerData.name;
+        const lastName = playerData.name.split(' ').slice(1).join(' ') || '';
         
-        const user = await storage.createUser(userData);
-        
-        // Add to team with position
-        if (teamId && playerData.position) {
-          console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
-          const teamAssignment = {
-            userId: user.id,
-            teamId,
-            jerseyNumber: playerData.jerseyNumber || null,
-            position: playerData.position,
-            starPlayer: false,
-            fitnessStatus: 'Fit' as const
-          };
+        // Check if user already exists with same first and last name
+        let user;
+        try {
+          const existingUsers = await storage.getAllUsers();
+          const existingUser = existingUsers.find(u => 
+            u.firstName?.toLowerCase() === firstName.toLowerCase() && 
+            u.lastName?.toLowerCase() === lastName.toLowerCase()
+          );
           
+          if (existingUser) {
+            console.log(`Found existing user: ${existingUser.firstName} ${existingUser.lastName} (${existingUser.id})`);
+            // Update age if provided and not already set
+            if (playerData.age && !existingUser.age) {
+              user = await storage.updateUser(existingUser.id, { age: playerData.age });
+            } else {
+              user = existingUser;
+            }
+          } else {
+            // Create new user
+            const userData = {
+              firstName,
+              lastName,
+              shirtName: playerData.name.split(' ').slice(-1)[0] || playerData.name,
+              email: '',
+              phone: '',
+              role: 'Player' as const,
+              status: 'Active' as const,
+              age: playerData.age
+            };
+            
+            console.log(`Creating new user: ${firstName} ${lastName}`);
+            user = await storage.createUser(userData);
+          }
+        } catch (error) {
+          console.error(`Error checking/creating user for ${firstName} ${lastName}:`, error);
+          continue;
+        }
+        
+        // Add to team with position (or update if already on team)
+        if (teamId && playerData.position) {
           try {
-            await storage.addUserToTeam(user.id, teamId, teamAssignment);
-            console.log(`Successfully added user ${user.id} to team ${teamId}`);
+            // Check if user is already on this team
+            const teamUsers = await storage.getTeamUsers(teamId);
+            const existingTeamMember = teamUsers.find(tu => tu.userId === user.id);
+            
+            const teamAssignment = {
+              userId: user.id,
+              teamId,
+              jerseyNumber: playerData.jerseyNumber || null,
+              position: playerData.position,
+              starPlayer: false,
+              fitnessStatus: 'Fit' as const
+            };
+            
+            if (existingTeamMember) {
+              console.log(`Updating existing team member ${user.id} on team ${teamId}`);
+              // Update existing team assignment with new position/jersey if provided
+              await storage.updateUserTeam(user.id, teamId, {
+                position: playerData.position,
+                jerseyNumber: playerData.jerseyNumber || existingTeamMember.jerseyNumber,
+              });
+            } else {
+              console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
+              await storage.addUserToTeam(user.id, teamId, teamAssignment);
+            }
+            console.log(`Successfully processed team assignment for user ${user.id}`);
           } catch (error) {
-            console.error(`Error adding user ${user.id} to team ${teamId}:`, error);
+            console.error(`Error processing team assignment for user ${user.id} to team ${teamId}:`, error);
           }
         } else {
           console.log(`Skipping team assignment for user ${user.id} - teamId: ${teamId}, position: ${playerData.position}`);
