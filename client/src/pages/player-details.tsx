@@ -681,7 +681,7 @@ export default function PlayerDetails() {
                           <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt Name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
-                              {player.lastName || "Not provided"}
+                              {player.lastName ? player.lastName.toUpperCase() : "NOT PROVIDED"}
                             </span>
                           </div>
                         </div>
