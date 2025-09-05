@@ -1261,19 +1261,29 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
       }
 
       // Import the players
-      const response = await apiRequest("POST", "/api/squad/bulk-import", {
-        teamId: selectedTeamId,
-        players
+      const response = await fetch("/api/squad/bulk-import", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamId: selectedTeamId,
+          players
+        }),
       });
 
-      if (response.success) {
+      const result = await response.json();
+
+      if (result.success) {
         toast({
           title: "Players Added!",
-          description: `Successfully added ${response.imported} players to the team.`,
+          description: `Successfully added ${result.imported} players to the team.`,
         });
         
         setQuickText("");
         onPlayersAdded();
+      } else {
+        throw new Error(result.message || "Import failed");
       }
     } catch (error) {
       toast({
@@ -1389,17 +1399,25 @@ function SquadImportInterface() {
 
     setIsLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/squad/import-from-url", {
-        url: importUrl.trim()
+      const response = await fetch("/api/squad/import-from-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: importUrl.trim()
+        }),
       });
 
-      if (response.success && response.players.length > 0) {
-        setPreviewData(response);
+      const result = await response.json();
+
+      if (result.success && result.players.length > 0) {
+        setPreviewData(result);
         // Select all players by default
-        setSelectedPlayers(new Set(response.players.map((p: any) => p.name)));
+        setSelectedPlayers(new Set(result.players.map((p: any) => p.name)));
         toast({
           title: "Squad Found!",
-          description: `Found ${response.playersFound} players. Review and select which ones to import.`,
+          description: `Found ${result.playersFound} players. Review and select which ones to import.`,
         });
       } else {
         toast({
@@ -1445,15 +1463,23 @@ function SquadImportInterface() {
         selectedPlayers.has(p.name)
       );
 
-      const response = await apiRequest("POST", "/api/squad/bulk-import", {
-        teamId: selectedTeamId,
-        players: selectedPlayerData
+      const response = await fetch("/api/squad/bulk-import", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamId: selectedTeamId,
+          players: selectedPlayerData
+        }),
       });
 
-      if (response.success) {
+      const result = await response.json();
+
+      if (result.success) {
         toast({
           title: "Import Successful!",
-          description: `Successfully imported ${response.imported} players to the team.`,
+          description: `Successfully imported ${result.imported} players to the team.`,
         });
         
         // Reset the form
