@@ -1818,11 +1818,12 @@ function SquadImportInterface() {
             </p>
             
             {/* Headers */}
-            <div className="grid grid-cols-4 gap-2 px-2 py-1 text-xs font-medium text-muted-foreground border-b">
-              <div>Name</div>
+            <div className="grid grid-cols-5 gap-2 px-2 py-1 text-xs font-medium text-muted-foreground border-b">
+              <div>Number</div>
+              <div>First Name</div>
+              <div>Last Name</div>
               <div>Position</div>
               <div>Age</div>
-              <div>Jersey #</div>
             </div>
             
             <div className="grid gap-2">
@@ -1842,14 +1843,19 @@ function SquadImportInterface() {
                     )}
                   </div>
                   
-                  <div className="flex-1 grid grid-cols-4 gap-2 text-sm">
-                    <div className="font-medium">{player.name}</div>
-                    <div className="text-muted-foreground">{player.position}</div>
-                    <div className="text-muted-foreground">
-                      {player.age ? `${player.age}y` : 'N/A'}
-                    </div>
+                  <div className="flex-1 grid grid-cols-5 gap-2 text-sm">
                     <div className="text-muted-foreground">
                       #{player.jerseyNumber || 'N/A'}
+                    </div>
+                    <div className="font-medium">
+                      {player.name.split(' ')[0] || player.name}
+                    </div>
+                    <div className="font-medium">
+                      {player.name.split(' ').slice(1).join(' ') || ''}
+                    </div>
+                    <div className="text-muted-foreground">{player.position}</div>
+                    <div className="text-muted-foreground">
+                      {player.age ? `${player.age}` : 'N/A'}
                     </div>
                   </div>
                 </div>
