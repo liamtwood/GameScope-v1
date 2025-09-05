@@ -67,7 +67,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       firstName: "",
       lastName: "",
       shirtName: "",
-      dateOfBirth: "",
+      dateOfBirth: new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0],
       gender: undefined,
       email: "",
       phone: "",
