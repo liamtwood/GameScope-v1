@@ -46,6 +46,7 @@ export default function Settings() {
   // Team edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState<any>({});
 
   // Opposition team management state
   const [isCreateOppositionDialogOpen, setIsCreateOppositionDialogOpen] = useState(false);
@@ -146,6 +147,41 @@ export default function Settings() {
         variant: "destructive",
       });
       console.error('Save error:', error);
+    },
+  });
+
+  const updateTeamMutation = useMutation({
+    mutationFn: async ({ teamId, teamType, data }: { 
+      teamId: string; 
+      teamType: 'club' | 'opposition'; 
+      data: any 
+    }) => {
+      const endpoint = teamType === 'club' 
+        ? `/api/clubs/${teamId}` 
+        : `/api/opposition-teams/${teamId}`;
+      
+      return apiRequest(endpoint, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Team Updated",
+        description: "Team details have been updated successfully!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      setEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update team details. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Update error:', error);
     },
   });
 
@@ -592,6 +628,12 @@ export default function Settings() {
                       size="sm"
                       onClick={() => {
                         setEditingTeam(team);
+                        setEditFormData({
+                          shortName: team.shortName || '',
+                          website: team.website || '',
+                          primaryColor: team.colors?.primary || '#6b7280',
+                          secondaryColor: team.colors?.secondary || '#4b5563'
+                        });
                         setEditDialogOpen(true);
                       }}
                       data-testid={`button-edit-${team.id}`}
@@ -1468,10 +1510,9 @@ export default function Settings() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Short Name</label>
                     <Input
-                      value={editingTeam.shortName || ''}
+                      value={editFormData.shortName}
+                      onChange={(e) => setEditFormData({...editFormData, shortName: e.target.value})}
                       placeholder="e.g., VC"
-                      readOnly
-                      className="bg-muted"
                     />
                   </div>
                 )}
@@ -1481,10 +1522,9 @@ export default function Settings() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Website URL (Optional)</label>
                     <Input
-                      value={editingTeam.website || ''}
+                      value={editFormData.website}
+                      onChange={(e) => setEditFormData({...editFormData, website: e.target.value})}
                       placeholder="https://example.com"
-                      readOnly
-                      className="bg-muted"
                     />
                   </div>
                 )}
@@ -1495,25 +1535,35 @@ export default function Settings() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Primary Color</label>
                       <div className="flex items-center space-x-2">
-                        <div 
-                          className="w-8 h-8 rounded border"
-                          style={{ backgroundColor: editingTeam.colors?.primary || '#6b7280' }}
+                        <input
+                          type="color"
+                          value={editFormData.primaryColor}
+                          onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                          className="w-8 h-8 rounded border cursor-pointer"
                         />
-                        <span className="text-sm text-muted-foreground">
-                          {editingTeam.colors?.primary || '#6b7280'}
-                        </span>
+                        <Input
+                          value={editFormData.primaryColor}
+                          onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                          placeholder="#6b7280"
+                          className="flex-1"
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Secondary Color (Optional)</label>
                       <div className="flex items-center space-x-2">
-                        <div 
-                          className="w-8 h-8 rounded border"
-                          style={{ backgroundColor: editingTeam.colors?.secondary || '#4b5563' }}
+                        <input
+                          type="color"
+                          value={editFormData.secondaryColor}
+                          onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                          className="w-8 h-8 rounded border cursor-pointer"
                         />
-                        <span className="text-sm text-muted-foreground">
-                          {editingTeam.colors?.secondary || '#4b5563'}
-                        </span>
+                        <Input
+                          value={editFormData.secondaryColor}
+                          onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                          placeholder="#4b5563"
+                          className="flex-1"
+                        />
                       </div>
                     </div>
                   </div>
@@ -1548,11 +1598,35 @@ export default function Settings() {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onClick={() => setEditDialogOpen(false)}
-                  >
-                    Close
-                  </Button>
+                  {editingTeam.type === 'opposition' && (
+                    <Button
+                      onClick={() => {
+                        const updateData = {
+                          shortName: editFormData.shortName,
+                          website: editFormData.website,
+                          colors: {
+                            primary: editFormData.primaryColor,
+                            secondary: editFormData.secondaryColor
+                          }
+                        };
+                        updateTeamMutation.mutate({
+                          teamId: editingTeam.id,
+                          teamType: 'opposition',
+                          data: updateData
+                        });
+                      }}
+                      disabled={updateTeamMutation.isPending}
+                    >
+                      {updateTeamMutation.isPending ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  )}
+                  {editingTeam.type === 'club' && (
+                    <Button
+                      onClick={() => setEditDialogOpen(false)}
+                    >
+                      Close
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
