@@ -168,17 +168,12 @@ export default function Screenshots() {
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={readyStates[key] || false}
-                    onChange={() => toggleReady(item)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <Badge variant={readyStates[key] ? "default" : "secondary"}>
-                    {readyStates[key] ? "Ready" : "Not Ready"}
-                  </Badge>
-                </div>
+                <input
+                  type="checkbox"
+                  checked={readyStates[key] || false}
+                  onChange={() => toggleReady(item)}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
               </TableCell>
               <TableCell>
                 <div className="space-y-1">
