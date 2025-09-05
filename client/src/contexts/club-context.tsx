@@ -16,18 +16,30 @@ interface ClubProviderProps {
 }
 
 export function ClubProvider({ children }: ClubProviderProps) {
-  // Fetch all clubs to find Polk State College
+  const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
+
+  // Fetch all clubs
   const { data: clubs = [], isLoading } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
   });
 
-  // Hardcoded to always select Polk State College
-  const selectedClub = clubs.find(club => club.name === "Polk State College") || null;
+  // Get selected club from clubs array
+  const selectedClub = clubs.find(club => club.id === selectedClubId) || clubs[0] || null;
 
-  // No-op function since selection is hardcoded
+  // Load selected club ID from localStorage on mount
+  useEffect(() => {
+    const storedClubId = localStorage.getItem("selectedClubId");
+    if (storedClubId && clubs.some(club => club.id === storedClubId)) {
+      setSelectedClubId(storedClubId);
+    } else if (clubs.length > 0 && !selectedClubId) {
+      // Default to first club if none selected
+      setSelectedClubId(clubs[0].id);
+    }
+  }, [clubs, selectedClubId]);
+
   const selectClub = (club: Club) => {
-    // Club selection is hardcoded to Polk State College
-    // This function is kept for compatibility but does nothing
+    setSelectedClubId(club.id);
+    localStorage.setItem("selectedClubId", club.id);
   };
 
   return (

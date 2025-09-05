@@ -30,6 +30,12 @@ export default function Screenshots() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
+  // Hardcoded team information for Screenshots page only
+  const hardcodedTeam = {
+    name: "WOMEN'S SOCCER",
+    club: "Polk State College"
+  };
+
   // Fetch file modification times
   const { data: fileModifications } = useQuery<FileModifications>({
     queryKey: ['/api/file-modifications'],
@@ -295,6 +301,33 @@ export default function Screenshots() {
       subtitle="Capture and manage screenshots of all pages and modals"
     >
       <div className="container mx-auto space-y-6">
+        {/* Hardcoded Team Information Display */}
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-blue-800 dark:text-blue-200">
+              Team Context (Hardcoded for Screenshots)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                  {hardcodedTeam.name}
+                </h3>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  {hardcodedTeam.club}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <Badge variant="outline" className="text-blue-800 border-blue-300">
+                  Fixed Selection
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end">
           <Button onClick={captureAllPages} className="gap-2">
             <RefreshCw className="h-4 w-4" />
