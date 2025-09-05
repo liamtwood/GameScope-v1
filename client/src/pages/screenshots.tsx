@@ -294,13 +294,15 @@ export default function Screenshots() {
         // Wait for navigation and rendering
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Simple, reliable screenshot capture
+        // Simple html2canvas approach - focused on working rather than perfect quality
         const canvas = await html2canvas(document.body, {
           allowTaint: true,
+          useCORS: true,
           backgroundColor: '#ffffff',
-          scale: 0.75,
+          scale: 1,
           logging: false,
-          removeContainer: true,
+          width: window.innerWidth,
+          height: window.innerHeight,
         });
         
         const dataUrl = canvas.toDataURL('image/png');
