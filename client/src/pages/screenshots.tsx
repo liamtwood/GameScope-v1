@@ -56,7 +56,7 @@ export default function Screenshots() {
     { name: "Users", path: "/users", type: "page", description: "User management interface" },
     { name: "DevOps Users", path: "/devops-users", type: "page", description: "System user management" },
     { name: "Settings", path: "/settings", type: "page", description: "Application settings" },
-    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48db29e9a46", type: "page", description: "Detailed fixture view", hasParams: true, paramExample: "fixture ID" },
+    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46", type: "page", description: "Detailed fixture view", hasParams: true, paramExample: "fixture ID" },
     { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile", hasParams: true, paramExample: "player ID" },
     { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile", hasParams: true, paramExample: "user ID" },
     { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis view", hasParams: true, paramExample: "fixture ID" },
@@ -80,10 +80,10 @@ export default function Screenshots() {
     { name: "Player Details > Parents Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#parents", type: "tab", description: "Player parent information tab" },
     
     // Fixture Details tabs
-    { name: "Fixture Details > Details Tab", path: "/fixtures/:id#details", type: "tab", description: "Basic fixture information tab" },
-    { name: "Fixture Details > Upload Video Tab", path: "/fixtures/:id#videos", type: "tab", description: "Video upload and management tab" },
-    { name: "Fixture Details > Lineups Tab", path: "/fixtures/:id#lineups", type: "tab", description: "Team lineups and formations tab" },
-    { name: "Fixture Details > Analysis Tab", path: "/fixtures/:id#analysis", type: "tab", description: "GameScope analysis and statistics tab" },
+    { name: "Fixture Details > Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#details", type: "tab", description: "Basic fixture information tab" },
+    { name: "Fixture Details > Upload Video Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#videos", type: "tab", description: "Video upload and management tab" },
+    { name: "Fixture Details > Lineups Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#lineups", type: "tab", description: "Team lineups and formations tab" },
+    { name: "Fixture Details > Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis", type: "tab", description: "GameScope analysis and statistics tab" },
     
     // Analysis page tabs (nested within Fixture Details > Analysis)
     { name: "Analysis > Game Details Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#heatmaps", type: "tab", description: "Game details and heat maps tab" },
@@ -95,14 +95,14 @@ export default function Screenshots() {
     { name: "Analysis > AI Analysis Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#ai", type: "tab", description: "AI-powered analysis insights tab" },
     
     // Fixture Details Analysis nested tabs
-    { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/:id#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis" },
-    { name: "Fixture Analysis > Statistics Tab", path: "/fixtures/:id#analysis-statistics", type: "tab", description: "Nested statistics within analysis" },
-    { name: "Fixture Analysis > Spider Charts Tab", path: "/fixtures/:id#analysis-spider", type: "tab", description: "Nested spider charts within analysis" },
-    { name: "Fixture Analysis > Heat Maps Tab", path: "/fixtures/:id#analysis-heatmaps", type: "tab", description: "Nested heat maps within analysis" },
-    { name: "Fixture Analysis > Position Maps Tab", path: "/fixtures/:id#analysis-positions", type: "tab", description: "Nested position maps within analysis" },
-    { name: "Fixture Analysis > AI Analysis Tab", path: "/fixtures/:id#analysis-ai", type: "tab", description: "Nested AI analysis within analysis" },
-    { name: "Fixture Analysis > Videos Tab", path: "/fixtures/:id#analysis-videos", type: "tab", description: "Nested videos within analysis" },
-    { name: "Fixture Analysis > Upload Data Tab", path: "/fixtures/:id#analysis-upload", type: "tab", description: "Nested data upload within analysis" },
+    { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis" },
+    { name: "Fixture Analysis > Statistics Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-statistics", type: "tab", description: "Nested statistics within analysis" },
+    { name: "Fixture Analysis > Spider Charts Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-spider", type: "tab", description: "Nested spider charts within analysis" },
+    { name: "Fixture Analysis > Heat Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-heatmaps", type: "tab", description: "Nested heat maps within analysis" },
+    { name: "Fixture Analysis > Position Maps Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-positions", type: "tab", description: "Nested position maps within analysis" },
+    { name: "Fixture Analysis > AI Analysis Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-ai", type: "tab", description: "Nested AI analysis within analysis" },
+    { name: "Fixture Analysis > Videos Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-videos", type: "tab", description: "Nested videos within analysis" },
+    { name: "Fixture Analysis > Upload Data Tab", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46#analysis-upload", type: "tab", description: "Nested data upload within analysis" },
   ];
 
   const allItems = [...pages, ...modals, ...tabs];
