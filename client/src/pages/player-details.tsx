@@ -698,7 +698,7 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date Of Birth</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date of Birth</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
