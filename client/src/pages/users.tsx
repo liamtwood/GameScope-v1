@@ -326,7 +326,7 @@ export default function Users() {
       {/* Filters */}
       {showFilters && (
         <div className="mb-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Role</label>
               <Select value={activeFilter} onValueChange={(value: RoleFilter) => setActiveFilter(value)}>
@@ -353,19 +353,6 @@ export default function Users() {
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
                   <SelectItem value="Draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Key Users</label>
-              <Select value={starFilter} onValueChange={(value: StarFilter) => setStarFilter(value)}>
-                <SelectTrigger className="w-full" data-testid="select-star">
-                  <SelectValue placeholder="All Users" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Users</SelectItem>
-                  <SelectItem value="star">Key Users</SelectItem>
-                  <SelectItem value="regular">Regular Users</SelectItem>
                 </SelectContent>
               </Select>
             </div>
