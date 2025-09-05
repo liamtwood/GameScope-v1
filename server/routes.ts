@@ -614,9 +614,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     const jerseyMatch = rowText.match(/^(\d+)/);
                     const jerseyNumber = jerseyMatch ? parseInt(jerseyMatch[1]) : undefined;
                     
-                    // Extract age (number before the stats, often followed by other numbers)
-                    // Pattern: jersey# name age stats...
-                    const ageMatch = rowText.match(/(\d{1,2}|\?)(?:\s+0\s+0|$)/);
+                    // Better age extraction - look for age pattern after name
+                    // Pattern: "jersey# playerName age stats..." or "jersey# playerName ?"
+                    const cleanPlayerName = playerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex chars
+                    const namePattern = new RegExp(`${cleanPlayerName}\\s+(\\d{1,2}|\\?)`, 'i');
+                    const ageMatch = rowText.match(namePattern);
                     const age = ageMatch && ageMatch[1] !== '?' ? parseInt(ageMatch[1]) : null;
                     
                     // Map section to position
@@ -1109,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const teamAssignment = {
             userId: user.id,
             teamId,
-            jerseyNumber: null,
+            jerseyNumber: playerData.jerseyNumber || null,
             position: playerData.position,
             starPlayer: false,
             fitnessStatus: 'Fit' as const

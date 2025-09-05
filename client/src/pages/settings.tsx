@@ -1816,6 +1816,15 @@ function SquadImportInterface() {
             <p className="text-sm font-medium">
               Players ({selectedPlayers.size} of {previewData.players.length} selected)
             </p>
+            
+            {/* Headers */}
+            <div className="grid grid-cols-4 gap-2 px-2 py-1 text-xs font-medium text-muted-foreground border-b">
+              <div>Name</div>
+              <div>Position</div>
+              <div>Age</div>
+              <div>Jersey #</div>
+            </div>
+            
             <div className="grid gap-2">
               {previewData.players.map((player, index) => (
                 <div
@@ -1840,7 +1849,7 @@ function SquadImportInterface() {
                       {player.age ? `${player.age}y` : 'N/A'}
                     </div>
                     <div className="text-muted-foreground">
-                      {player.appearances}⚽ {player.goals}🥅
+                      #{player.jerseyNumber || 'N/A'}
                     </div>
                   </div>
                 </div>
