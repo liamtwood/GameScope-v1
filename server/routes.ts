@@ -510,8 +510,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Found player links:', $('a[href*="/players/"]').length);
       console.log('URL hostname:', new URL(url).hostname);
       
-      // Check if this is Everton FC official site (different structure)
-      if (url.includes('evertonfc.com')) {
+      // Check if this is Flashscore (clean table structure)
+      if (url.includes('flashscore.')) {
+        console.log('Detected Flashscore - using table parser');
+        
+        // Look for section headers and player table rows
+        const sections = ['Goalkeepers', 'Defenders', 'Midfielders', 'Forwards', 'Attackers'];
+        
+        sections.forEach(sectionName => {
+          // Find section header
+          $(`*:contains("${sectionName}")`).filter(function() {
+            return $(this).text().trim() === sectionName;
+          }).each((_: any, sectionEl: any) => {
+            console.log(`Found Flashscore section: ${sectionName}`);
+            
+            // Look for table rows after this section
+            const $section = $(sectionEl);
+            let container = $section.closest('div, section, table').next();
+            
+            // Also check siblings and parent containers
+            const possibleContainers = [
+              container,
+              $section.parent().next(),
+              $section.closest('table').find('tbody'),
+              $section.nextAll().first()
+            ];
+            
+            possibleContainers.forEach(cont => {
+              if (cont && cont.length) {
+                cont.find('tr, .player-row, [class*="player"], [class*="row"]').each((_: any, rowEl: any) => {
+                  const $row = $(rowEl);
+                  const rowText = $row.text().trim();
+                  
+                  // Look for player data pattern: number + name + age
+                  const playerMatch = rowText.match(/(\d+)\s+([A-Za-z\s\.\-\']+?)\s+(\d{2})/);
+                  if (playerMatch) {
+                    const [, number, name, age] = playerMatch;
+                    
+                    // Clean up the name
+                    const cleanName = name.trim().replace(/\s+/g, ' ');
+                    
+                    if (cleanName.length > 2 && cleanName.length < 40) {
+                      // Map section to position
+                      let position = sectionName;
+                      if (position === 'Goalkeepers') position = 'Goalkeeper';
+                      if (position === 'Defenders') position = 'Defender';
+                      if (position === 'Midfielders') position = 'Midfielder';
+                      if (position === 'Forwards' || position === 'Attackers') position = 'Forward';
+                      
+                      players.push({
+                        name: cleanName,
+                        position,
+                        age: parseInt(age),
+                        appearances: 0,
+                        goals: 0,
+                        jerseyNumber: parseInt(number)
+                      });
+                      
+                      console.log(`Found Flashscore player: ${cleanName} (#${number}, ${position}, age ${age})`);
+                    }
+                  }
+                });
+              }
+            });
+          });
+        });
+      }
+      // Check if this is Everton FC official site (different structure)  
+      else if (url.includes('evertonfc.com')) {
         console.log('Detected Everton FC official site - using specific parser');
         
         // Look for player cards with position sections
