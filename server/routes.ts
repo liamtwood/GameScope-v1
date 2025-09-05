@@ -501,6 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         age: number | null;
         appearances: number;
         goals: number;
+        jerseyNumber?: number;
       }> = [];
 
       console.log('Parsing HTML for squad data...');
@@ -515,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Detected Flashscore - using table parser');
         
         // Look for section headers and player table rows
-        const sections = ['Goalkeepers', 'Defenders', 'Midfielders', 'Forwards', 'Attackers'];
+        const flashscoreSections = ['Goalkeepers', 'Defenders', 'Midfielders', 'Forwards', 'Attackers'];
         
         // Try a different approach - parse the entire text and group by position headers
         const fullText = $('body').text();
@@ -553,7 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Look for player lines: number + name + age pattern
           const playerMatch = line.match(/^(\d+)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)\s+(\d{1,2}|\?)/);
           if (playerMatch) {
-            const [, number, name, ageStr] = playerMatch;
+            const [, number, name, ageStr] = playerMatch as RegExpMatchArray;
             const age = ageStr === '?' ? null : parseInt(ageStr);
             const cleanName = name.trim();
             
@@ -576,7 +577,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (players.length === 0) {
           console.log('Text parsing failed, trying section-based approach...');
           
-          sections.forEach(sectionName => {
+          flashscoreSections.forEach(sectionName => {
             // Find section header
             $(`*:contains("${sectionName}")`).filter(function() {
               return $(this).text().trim() === sectionName;
@@ -624,7 +625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                       players.push({
                         name: cleanName,
                         position,
-                        age: parseInt(age),
+                        age: age !== null ? parseInt(age.toString()) : null,
                         appearances: 0,
                         goals: 0,
                         jerseyNumber: parseInt(number)
@@ -666,6 +667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             });
           });
+        });
         }
       }
       // Check if this is Everton FC official site (different structure)  
