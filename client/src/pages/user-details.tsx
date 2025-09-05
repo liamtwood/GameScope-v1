@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { User, UserTeam, Team } from "@shared/schema";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Plus, Trash2 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,12 @@ export default function UserDetails() {
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/user", userId],
     enabled: !!userId,
+  });
+
+  // Get all teams for this user
+  const { data: userTeams = [] } = useQuery<(UserTeam & { team: Team })[]>({
+    queryKey: ["/api/user", userId, "teams"],
+    enabled: !!userId
   });
 
   const updateUserMutation = useMutation({
@@ -343,75 +350,296 @@ export default function UserDetails() {
           </CardContent>
         </Card>
 
-        {/* User Details */}
+        {/* User Details Tabs */}
         <Card className="max-w-3xl">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">User Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Email</label>
-                  {isEditing ? (
-                    <Input
-                      value={editData.email || ''}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      type="email"
-                    />
-                  ) : (
-                    <p className="text-foreground">{user.email || 'Not provided'}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Role</label>
-                  {isEditing ? (
-                    <Select
-                      value={editData.role || user.role || 'player'}
-                      onValueChange={(value) => handleInputChange('role', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="coach">Coach</SelectItem>
-                        <SelectItem value="player">Player</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-foreground">{getRoleCategory(user.role || 'player')}</p>
-                  )}
-                </div>
-              </div>
+          <CardContent className="p-0">
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid grid-cols-3 w-full rounded-none border-b">
+                <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
+                <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
+                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+              </TabsList>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Status</label>
-                  {isEditing ? (
-                    <Select
-                      value={editData.status || user.status || 'active'}
-                      onValueChange={(value) => handleInputChange('status', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-foreground">{user.status || 'Active'}</p>
-                  )}
-                </div>
+              <TabsContent value="details" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">User Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">First Name</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.firstName || ''}
+                              onChange={(e) => handleInputChange('firstName', e.target.value)}
+                              data-testid="input-first-name"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-first-name-${user.id}`}>
+                              {user.firstName || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Last Name</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.lastName || ''}
+                              onChange={(e) => handleInputChange('lastName', e.target.value)}
+                              data-testid="input-last-name"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-last-name-${user.id}`}>
+                              {user.lastName || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Shirt Name</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.shirtName || ''}
+                              onChange={(e) => handleInputChange('shirtName', e.target.value)}
+                              data-testid="input-shirt-name"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-shirt-name-${user.id}`}>
+                              {user.shirtName || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Key User</label>
-                  <p className="text-foreground">{user.keyUser ? 'Yes' : 'No'}</p>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Age</label>
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              value={editData.age || ''}
+                              onChange={(e) => handleInputChange('age', e.target.value ? parseInt(e.target.value) : null)}
+                              data-testid="input-age"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-age-${user.id}`}>
+                              {user.age || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Gender</label>
+                          {isEditing ? (
+                            <Select
+                              value={editData.gender || user.gender || ''}
+                              onValueChange={(value) => handleInputChange('gender', value)}
+                            >
+                              <SelectTrigger data-testid="select-gender">
+                                <SelectValue placeholder="Select gender" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Male">Male</SelectItem>
+                                <SelectItem value="Female">Female</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <p className="text-lg" data-testid={`text-gender-${user.id}`}>
+                              {user.gender || 'Not set'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                          {isEditing ? (
+                            <Input
+                              type="date"
+                              value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
+                              onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
+                              data-testid="input-date-of-birth"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
+                              {user.dateOfBirth 
+                                ? `${format(new Date(user.dateOfBirth), "d MMM yyyy")}`
+                                : "Not provided"
+                              }
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </TabsContent>
+
+              <TabsContent value="account" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Account Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.email || ''}
+                              onChange={(e) => handleInputChange('email', e.target.value)}
+                              type="email"
+                              data-testid="input-email"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-email-${user.id}`}>
+                              {user.email || "Not provided"}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.phone || ''}
+                              onChange={(e) => handleInputChange('phone', e.target.value)}
+                              type="tel"
+                              data-testid="input-phone"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-phone-${user.id}`}>
+                              {user.phone || "Not provided"}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Role</label>
+                          {isEditing ? (
+                            <Select
+                              value={editData.role || user.role || 'player'}
+                              onValueChange={(value) => handleInputChange('role', value)}
+                            >
+                              <SelectTrigger data-testid="select-role">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="coach">Coach</SelectItem>
+                                <SelectItem value="player">Player</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <p className="text-lg" data-testid={`text-role-${user.id}`}>
+                              {getRoleCategory(user.role || 'player')}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Account Status</label>
+                          {isEditing ? (
+                            <Select
+                              value={editData.status || user.status || 'active'}
+                              onValueChange={(value) => handleInputChange('status', value)}
+                            >
+                              <SelectTrigger data-testid="select-status">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="suspended">Suspended</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <div>
+                              <Badge 
+                                className={`text-sm px-3 py-1 ${getStatusColor()}`}
+                                data-testid={`badge-account-status-${user.id}`}
+                              >
+                                {user.status || "Active"}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Key User</label>
+                          <p className="text-lg" data-testid={`text-key-user-${user.id}`}>
+                            {user.keyUser ? 'Yes' : 'No'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="teams" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Team Assignments</h3>
+                  </div>
+
+                  {/* Team Cards */}
+                  <div className="space-y-3">
+                    {userTeams.length > 0 ? (
+                      userTeams.map((userTeam) => (
+                        <Card 
+                          key={userTeam.id} 
+                          className="border-2" 
+                          data-testid={`card-team-${userTeam.team.id}`}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+                                  {userTeam.jerseyNumber || '?'}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2">
+                                    <h4 className="text-lg font-semibold" data-testid={`text-team-name-${userTeam.team.id}`}>
+                                      {userTeam.team.name}
+                                    </h4>
+                                    <Badge 
+                                      className={userTeam.team.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                                      data-testid={`badge-team-status-${userTeam.team.id}`}
+                                    >
+                                      {userTeam.team.status}
+                                    </Badge>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${userTeam.team.id}`}>
+                                        {userTeam.position || 'Position not set'}
+                                      </div>
+                                      <Badge className="bg-blue-100 text-blue-800">
+                                        {userTeam.fitnessStatus || 'Fit'}
+                                      </Badge>
+                                      {userTeam.starPlayer && (
+                                        <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>This user is not assigned to any teams yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
