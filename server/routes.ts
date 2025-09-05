@@ -471,6 +471,271 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Flashscore fixtures parser function
+  function parseFlashscoreFixtures(html: string) {
+    const fixtures: any[] = [];
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+
+    console.log("Starting Flashscore fixtures parsing...");
+
+    try {
+      // Extract team name from page header
+      const teamName = $('h1 .participant__participantName').text().trim() || 
+                       $('.teamHeader__name').text().trim() || 
+                       $('.heading__name').text().trim() || 
+                       'Team';
+      
+      console.log(`Found team name: ${teamName}`);
+
+      // Find all fixture rows - they typically have specific classes or patterns
+      const fixtureElements = $('[class*="event__match"], .event-row, [data-testid*="match"], .fixture');
+      
+      if (fixtureElements.length === 0) {
+        console.log("No fixture elements found, trying alternative selectors...");
+        // Try alternative patterns
+        const alternativeElements = $('a[href*="/match/"], .match, .fixture, [class*="fixture"]');
+        console.log(`Found ${alternativeElements.length} alternative fixture elements`);
+      }
+
+      // Parse each fixture row
+      $('body').find('*').each((index, element) => {
+        const $element = $(element);
+        const text = $element.text();
+        
+        // Look for date patterns like "13.09. 07:00" or "20.09. 07:30"
+        const dateTimeMatch = text.match(/(\d{1,2}\.\d{2}\.)\s*(\d{2}:\d{2})/);
+        
+        if (dateTimeMatch && text.includes(teamName)) {
+          const [, dateStr, timeStr] = dateTimeMatch;
+          
+          // Extract team names from the surrounding text
+          const textLines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+          
+          let homeTeam = '';
+          let awayTeam = '';
+          let foundTeams = false;
+          
+          // Look for team names in the text
+          for (let i = 0; i < textLines.length; i++) {
+            const line = textLines[i];
+            
+            // Skip date/time lines
+            if (line.match(/\d{1,2}\.\d{2}\.\s*\d{2}:\d{2}/)) continue;
+            
+            // Look for "Team1 vs Team2" or "Team1 Team2" patterns
+            const vsMatch = line.match(/(.+?)\s+vs?\s+(.+?)$/i);
+            if (vsMatch) {
+              homeTeam = vsMatch[1].trim();
+              awayTeam = vsMatch[2].trim();
+              foundTeams = true;
+              break;
+            }
+            
+            // Look for two team names on separate lines or same line
+            if (line.includes(teamName)) {
+              const otherTeams = textLines.filter(l => 
+                l !== line && 
+                !l.match(/\d{1,2}\.\d{2}\.\s*\d{2}:\d{2}/) && 
+                l.length > 2 && 
+                l.length < 30
+              );
+              
+              if (otherTeams.length > 0) {
+                if (line.trim() === teamName) {
+                  // Team name is isolated, look for opponent
+                  const opponent = otherTeams.find(t => t !== teamName);
+                  if (opponent) {
+                    homeTeam = teamName;
+                    awayTeam = opponent;
+                    foundTeams = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          
+          // If we found teams, create fixture
+          if (foundTeams && homeTeam && awayTeam) {
+            // Convert date format (DD.MM. to full date)
+            const currentYear = new Date().getFullYear();
+            const [day, month] = dateStr.replace('.', '').split('.').map(n => parseInt(n));
+            
+            // If month is less than current month, assume next year
+            let year = currentYear;
+            const currentMonth = new Date().getMonth() + 1;
+            if (month < currentMonth) {
+              year = currentYear + 1;
+            }
+            
+            const fixtureDate = new Date(year, month - 1, day);
+            
+            const fixture = {
+              date: fixtureDate.toISOString(),
+              time: timeStr,
+              homeTeam: homeTeam.trim(),
+              awayTeam: awayTeam.trim(),
+              userTeam: teamName,
+              isHome: homeTeam.trim() === teamName
+            };
+            
+            // Check for duplicates
+            const isDuplicate = fixtures.some(f => 
+              f.date === fixture.date && 
+              f.homeTeam === fixture.homeTeam && 
+              f.awayTeam === fixture.awayTeam
+            );
+            
+            if (!isDuplicate) {
+              fixtures.push(fixture);
+              console.log(`Found fixture: ${fixture.homeTeam} vs ${fixture.awayTeam} on ${dateStr} at ${timeStr}`);
+            }
+          }
+        }
+      });
+
+      console.log(`Successfully parsed ${fixtures.length} fixtures`);
+      
+    } catch (error) {
+      console.error("Error parsing Flashscore fixtures:", error);
+    }
+
+    return fixtures;
+  }
+
+  // Fixtures import endpoints
+  app.post("/api/fixtures/import-from-url", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "URL is required" });
+      }
+
+      // Import node-fetch for web scraping
+      const fetch = (await import('node-fetch')).default;
+      
+      console.log(`Starting fixture import from URL: ${url}`);
+      
+      // Fetch the webpage
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(400).json({ 
+          message: `Failed to fetch URL: ${response.status} ${response.statusText}` 
+        });
+      }
+
+      const html = await response.text();
+      console.log(`Fetched HTML content, size: ${html.length} chars`);
+
+      // Parse fixtures using our Flashscore parser
+      const fixtures = parseFlashscoreFixtures(html);
+
+      res.json({
+        success: true,
+        url,
+        fixtures
+      });
+
+    } catch (error) {
+      console.error("Error importing fixtures from URL:", error);
+      res.status(500).json({ 
+        message: "Failed to import fixtures from URL",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Bulk import fixtures endpoint
+  app.post("/api/fixtures/bulk-import", async (req, res) => {
+    try {
+      const { teamId, fixtures } = req.body;
+      
+      if (!teamId || !fixtures || !Array.isArray(fixtures)) {
+        return res.status(400).json({ message: "teamId and fixtures array are required" });
+      }
+
+      console.log(`Starting import of ${fixtures.length} fixtures to team ${teamId}`);
+
+      // Get team to validate it exists
+      const team = await storage.getTeamById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      let importedCount = 0;
+      const errors: string[] = [];
+
+      for (const fixtureData of fixtures) {
+        try {
+          // Parse the fixture data
+          const { date, time, homeTeam, awayTeam, isHome } = fixtureData;
+          
+          // Combine date and time into a proper datetime
+          const fixtureDate = new Date(date);
+          const [hours, minutes] = time.split(':').map((n: string) => parseInt(n));
+          fixtureDate.setHours(hours, minutes, 0, 0);
+
+          // Check if fixture already exists (avoid duplicates)
+          const existingFixtures = await storage.getFixtures();
+          const isDuplicate = existingFixtures.some((f: any) => {
+            const existingDate = new Date(f.datetime);
+            return Math.abs(existingDate.getTime() - fixtureDate.getTime()) < 60000 && // Within 1 minute
+                   ((f.homeTeam === homeTeam && f.awayTeam === awayTeam) ||
+                    (f.homeTeam === awayTeam && f.awayTeam === homeTeam));
+          });
+
+          if (isDuplicate) {
+            console.log(`Fixture ${homeTeam} vs ${awayTeam} on ${fixtureDate.toISOString()} already exists - skipping`);
+            continue;
+          }
+
+          // Create the fixture
+          const fixture = await storage.createFixture({
+            datetime: fixtureDate.toISOString(),
+            homeTeam,
+            awayTeam,
+            competition: "League", // Default competition
+            homeScore: null,
+            awayScore: null,
+            status: "scheduled",
+            teamId // Associate with the selected team
+          });
+
+          console.log(`Created fixture: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
+          importedCount++;
+
+        } catch (error) {
+          const errorMsg = `Failed to import fixture ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
+        }
+      }
+
+      console.log(`Import completed: ${importedCount} fixtures imported, ${errors.length} errors`);
+
+      res.json({
+        success: true,
+        imported: importedCount,
+        errors: errors.length > 0 ? errors : undefined,
+        total: fixtures.length
+      });
+
+    } catch (error) {
+      console.error("Error in bulk fixture import:", error);
+      res.status(500).json({ 
+        message: "Failed to import fixtures",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Squad import endpoints
   // Scrape player data from URL
   app.post("/api/squad/import-from-url", async (req, res) => {
@@ -2236,6 +2501,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating fixture videos:", error);
       res.status(500).json({ error: "Failed to update videos" });
+    }
+  });
+
+  // Fixtures import from URL
+  app.post("/api/fixtures/import-from-url", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ error: "URL is required" });
+      }
+
+      console.log(`Fetching fixtures from: ${url}`);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const html = await response.text();
+      const fixtures = parseFlashscoreFixtures(html);
+      
+      console.log(`Found ${fixtures.length} fixtures`);
+      
+      res.json({
+        success: true,
+        url,
+        fixtures
+      });
+
+    } catch (error) {
+      console.error("Error fetching fixtures from URL:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch fixtures", 
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Bulk import fixtures
+  app.post("/api/fixtures/bulk-import", async (req, res) => {
+    try {
+      const { fixtures, teamId } = req.body;
+      
+      if (!fixtures || !Array.isArray(fixtures)) {
+        return res.status(400).json({ error: "Fixtures array is required" });
+      }
+      
+      if (!teamId) {
+        return res.status(400).json({ error: "Team ID is required" });
+      }
+      
+      console.log(`Starting import of ${fixtures.length} fixtures for team ${teamId}`);
+      
+      const importedFixtures = [];
+      
+      for (let i = 0; i < fixtures.length; i++) {
+        const fixtureData = fixtures[i];
+        console.log(`Processing fixture ${i + 1}/${fixtures.length}: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`);
+        
+        try {
+          // Check if fixture already exists (based on date and teams)
+          const existingFixtures = await storage.getFixtures(teamId);
+          const duplicate = existingFixtures.find(f => {
+            const fixtureDate = new Date(fixtureData.date).toDateString();
+            const existingDate = new Date(f.date).toDateString();
+            return (
+              existingDate === fixtureDate &&
+              ((f.homeTeam === fixtureData.homeTeam && f.awayTeam === fixtureData.awayTeam) ||
+               (f.homeTeam === fixtureData.awayTeam && f.awayTeam === fixtureData.homeTeam))
+            );
+          });
+          
+          if (duplicate) {
+            console.log(`Fixture already exists: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam} on ${fixtureData.date}`);
+            continue;
+          }
+          
+          // Create or get opposition team
+          let oppositionTeam;
+          const oppositionName = fixtureData.homeTeam === fixtureData.userTeam ? fixtureData.awayTeam : fixtureData.homeTeam;
+          
+          const existingOppositionTeams = await storage.getOppositionTeams();
+          oppositionTeam = existingOppositionTeams.find(t => 
+            t.name.toLowerCase().trim() === oppositionName.toLowerCase().trim()
+          );
+          
+          if (!oppositionTeam) {
+            console.log(`Creating new opposition team: ${oppositionName}`);
+            oppositionTeam = await storage.createOppositionTeam({
+              name: oppositionName,
+              shortName: oppositionName.length > 10 ? oppositionName.substring(0, 10) : oppositionName,
+              logoPath: null
+            });
+          }
+          
+          // Create the fixture
+          const newFixture = await storage.createFixture({
+            teamId,
+            oppositionTeamId: oppositionTeam.id,
+            date: new Date(fixtureData.date),
+            kickoffTime: fixtureData.time || "15:00",
+            venue: fixtureData.isHome ? "Home" : "Away",
+            homeTeam: fixtureData.homeTeam,
+            awayTeam: fixtureData.awayTeam,
+            homeScore: null,
+            awayScore: null,
+            status: "Scheduled",
+            matchType: "League",
+            competitionId: null,
+            season: new Date(fixtureData.date).getFullYear().toString()
+          });
+          
+          console.log(`Successfully imported fixture: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`);
+          importedFixtures.push(newFixture);
+          
+        } catch (error) {
+          console.error(`Error importing fixture ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}:`, error);
+          continue;
+        }
+      }
+      
+      res.json({
+        success: true,
+        imported: importedFixtures.length,
+        fixtures: importedFixtures
+      });
+
+    } catch (error) {
+      console.error("Error bulk importing fixtures:", error);
+      res.status(500).json({ 
+        message: "Failed to bulk import fixtures",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

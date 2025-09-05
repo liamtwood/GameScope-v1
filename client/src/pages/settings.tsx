@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2 } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2, Calendar } from "lucide-react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
@@ -660,6 +660,22 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <SquadImportInterface />
+          </CardContent>
+        </Card>
+
+        {/* Fixtures Import Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Calendar className="mr-2 h-5 w-5" />
+              Fixtures Import (Beta)
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Import fixture schedules from external websites. Paste a URL to preview fixtures before importing.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <FixturesImportInterface />
           </CardContent>
         </Card>
 
@@ -1833,6 +1849,311 @@ function SquadImportInterface() {
               </>
             )}
           </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Fixtures Import Interface Component
+function FixturesImportInterface() {
+  const { toast } = useToast();
+  const [importUrl, setImportUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<{
+    fixtures: Array<{
+      date: string;
+      time: string;
+      homeTeam: string;
+      awayTeam: string;
+      userTeam: string;
+      isHome: boolean;
+    }>;
+    url: string;
+  } | null>(null);
+  const [selectedFixtures, setSelectedFixtures] = useState<Set<string>>(new Set());
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  // Fetch teams for selection
+  const { data: teams } = useQuery({
+    queryKey: ["/api/teams"]
+  });
+
+  const handleFetchFixtures = async () => {
+    if (!importUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter a URL to import fixtures from.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/fixtures/import-from-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: importUrl.trim()
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.fixtures.length > 0) {
+        setPreviewData(result);
+        // Select all fixtures by default
+        const fixtureKeys = result.fixtures.map((f: any, index: number) => 
+          `${f.homeTeam}-${f.awayTeam}-${f.date}-${index}`
+        );
+        setSelectedFixtures(new Set(fixtureKeys));
+        toast({
+          title: "Fixtures Found!",
+          description: `Found ${result.fixtures.length} fixtures. Review and select which ones to import.`,
+        });
+      } else {
+        toast({
+          title: "No Fixtures Found",
+          description: "Could not find any fixture data on this page. Try a different URL or format.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      toast({
+        title: "Import Failed",
+        description: "Failed to import fixtures from URL. Please check the URL and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImportSelected = async () => {
+    if (!previewData || selectedFixtures.size === 0) {
+      toast({
+        title: "No Fixtures Selected",
+        description: "Please select at least one fixture to import.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedTeamId) {
+      toast({
+        title: "Team Required",
+        description: "Please select a team to import fixtures to.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const selectedFixtureData = previewData.fixtures.filter((f, index) => {
+        const key = `${f.homeTeam}-${f.awayTeam}-${f.date}-${index}`;
+        return selectedFixtures.has(key);
+      });
+
+      const response = await fetch("/api/fixtures/bulk-import", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamId: selectedTeamId,
+          fixtures: selectedFixtureData
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: "Import Successful!",
+          description: `Successfully imported ${result.imported} fixtures to the team.`,
+        });
+        
+        // Reset the form
+        setPreviewData(null);
+        setSelectedFixtures(new Set());
+        setImportUrl("");
+        setSelectedTeamId("");
+        
+        // Refresh the data
+        queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+      }
+    } catch (error) {
+      console.error("Bulk import error:", error);
+      toast({
+        title: "Import Failed",
+        description: "Failed to import fixtures. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const toggleFixtureSelection = (fixtureKey: string) => {
+    const newSelection = new Set(selectedFixtures);
+    if (newSelection.has(fixtureKey)) {
+      newSelection.delete(fixtureKey);
+    } else {
+      newSelection.add(fixtureKey);
+    }
+    setSelectedFixtures(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (!previewData) return;
+    
+    if (selectedFixtures.size === previewData.fixtures.length) {
+      // Unselect all
+      setSelectedFixtures(new Set());
+    } else {
+      // Select all
+      const allKeys = previewData.fixtures.map((f, index) => 
+        `${f.homeTeam}-${f.awayTeam}-${f.date}-${index}`
+      );
+      setSelectedFixtures(new Set(allKeys));
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* URL Input */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Fixture Schedule URL</label>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://www.flashscore.co.uk/team/everton/AFy0VIkt/fixtures/"
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            disabled={isLoading}
+            data-testid="input-fixture-url"
+          />
+          <Button 
+            onClick={handleFetchFixtures}
+            disabled={isLoading || !importUrl.trim()}
+            data-testid="button-fetch-fixtures"
+          >
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ExternalLink className="mr-2 h-4 w-4" />}
+            {isLoading ? "Fetching..." : "Preview"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Preview Results */}
+      {previewData && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-medium">Found {previewData.fixtures.length} fixtures</h4>
+              <p className="text-xs text-muted-foreground">Select fixtures to import</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleSelectAll}
+              data-testid="button-select-all-fixtures"
+            >
+              {selectedFixtures.size === previewData.fixtures.length ? "Unselect All" : "Select All"}
+            </Button>
+          </div>
+
+          {/* Fixtures Preview Table */}
+          <div className="border rounded-lg">
+            <div className="max-h-60 overflow-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 sticky top-0">
+                  <tr>
+                    <th className="w-8 p-2"></th>
+                    <th className="text-left p-2">Date</th>
+                    <th className="text-left p-2">Time</th>
+                    <th className="text-left p-2">Match</th>
+                    <th className="text-left p-2">Venue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewData.fixtures.map((fixture, index) => {
+                    const key = `${fixture.homeTeam}-${fixture.awayTeam}-${fixture.date}-${index}`;
+                    const isSelected = selectedFixtures.has(key);
+                    const date = new Date(fixture.date);
+                    
+                    return (
+                      <tr 
+                        key={key}
+                        className={`border-t cursor-pointer hover:bg-muted/30 ${isSelected ? 'bg-primary/10' : ''}`}
+                        onClick={() => toggleFixtureSelection(key)}
+                        data-testid={`fixture-row-${index}`}
+                      >
+                        <td className="p-2">
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={() => toggleFixtureSelection(key)}
+                            className="rounded"
+                            data-testid={`checkbox-fixture-${index}`}
+                          />
+                        </td>
+                        <td className="p-2 font-mono text-xs">
+                          {date.toLocaleDateString()}
+                        </td>
+                        <td className="p-2 font-mono text-xs">
+                          {fixture.time}
+                        </td>
+                        <td className="p-2">
+                          <div className="font-medium">
+                            {fixture.homeTeam} vs {fixture.awayTeam}
+                          </div>
+                        </td>
+                        <td className="p-2">
+                          <Badge variant={fixture.isHome ? "default" : "secondary"}>
+                            {fixture.isHome ? "Home" : "Away"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Team Selection and Import */}
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-2">
+              <label className="text-sm font-medium">Import to Team</label>
+              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                <SelectTrigger data-testid="select-team-fixtures">
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams?.map((team: any) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name} ({team.shortName})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              onClick={handleImportSelected}
+              disabled={importing || selectedFixtures.size === 0 || !selectedTeamId}
+              data-testid="button-import-fixtures"
+              className="px-6"
+            >
+              {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+              {importing ? "Importing..." : `Import ${selectedFixtures.size} Fixtures`}
+            </Button>
+          </div>
         </div>
       )}
     </div>
