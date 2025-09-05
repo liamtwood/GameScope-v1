@@ -501,13 +501,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           
-          // Look for date patterns with various formats
-          // Pattern 1: "DD.MM 15:00" or "DD.MM. 15:00"
-          let dateTimeMatch = line.match(/(\d{1,2}\.\d{1,2}\.?)\s+(\d{1,2}:\d{2})/);
+          // Look for UK date patterns: "DD/MM HH:MM"
+          let dateTimeMatch = line.match(/(\d{1,2}\/\d{1,2})\s+(\d{1,2}:\d{2})/);
           
           if (dateTimeMatch) {
             const [, dateStr, timeStr] = dateTimeMatch;
-            console.log(`Found potential fixture date/time: ${dateStr} ${timeStr} in line: "${line}"`);
+            console.log(`Found potential UK fixture date/time: ${dateStr} ${timeStr} in line: "${line}"`);
             
             // Look for team names in surrounding lines
             let homeTeam = '';
@@ -524,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // Look for team vs team pattern
             for (const searchLine of searchLines) {
-              const cleanLine = searchLine.replace(/\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}/, '').trim();
+              const cleanLine = searchLine.replace(/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}/, '').trim();
               
               // Try different separators
               const separators = [' - ', ' vs ', ' v ', ' VS '];
@@ -546,10 +545,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (!homeTeam || !awayTeam) {
               for (const searchLine of searchLines) {
                 // Skip lines with only date/time
-                if (searchLine.match(/^\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}$/)) continue;
+                if (searchLine.match(/^\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}$/)) continue;
                 
                 // Look for valid team names (2-30 chars, not just numbers)
-                const trimmed = searchLine.replace(/\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}/, '').trim();
+                const trimmed = searchLine.replace(/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}/, '').trim();
                 if (trimmed.length >= 2 && trimmed.length <= 30 && 
                     !trimmed.match(/^\d+$/) && 
                     !trimmed.match(/^(Home|Away|Neutral|WIN|LOSS|DRAW)$/i)) {
@@ -566,9 +565,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // If we found team names, create fixture
             if (homeTeam && awayTeam && homeTeam !== awayTeam) {
-              // Parse date
+              // Parse UK date format (DD/MM)
               const currentYear = new Date().getFullYear();
-              const [day, month] = dateStr.replace(/\./g, '').split('.').map(n => parseInt(n) || 1);
+              const [day, month] = dateStr.split('/').map(n => parseInt(n) || 1);
               
               // Assume next year if month is less than current month
               let year = currentYear;
@@ -597,7 +596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               if (!isDuplicate) {
                 fixtures.push(fixture);
-                console.log(`Found Flashscore fixture: ${fixture.homeTeam} vs ${fixture.awayTeam} on ${dateStr} at ${timeStr}`);
+                console.log(`Found UK Flashscore fixture: ${fixture.homeTeam} vs ${fixture.awayTeam} on ${dateStr} at ${timeStr}`);
               }
             }
           }
@@ -627,7 +626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             const containerText = $container.text();
-            const dateTimeMatch = containerText.match(/(\d{1,2}\.\d{1,2}\.?)\s+(\d{1,2}:\d{2})/);
+            const dateTimeMatch = containerText.match(/(\d{1,2}\/\d{1,2})\s+(\d{1,2}:\d{2})/);
             
             if (dateTimeMatch && linkText.length > 2) {
               const [, dateStr, timeStr] = dateTimeMatch;
@@ -640,7 +639,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 if (homeTeam.length > 1 && awayTeam.length > 1) {
                   const currentYear = new Date().getFullYear();
-                  const [day, month] = dateStr.replace(/\./g, '').split('.').map(n => parseInt(n) || 1);
+                  const [day, month] = dateStr.split('/').map(n => parseInt(n) || 1);
                   const fixtureDate = new Date(currentYear, month - 1, day);
                   
                   const fixture = {
