@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -1668,6 +1668,135 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Club logo deletion error:', error);
       res.status(500).json({ error: 'Failed to delete club logo' });
+    }
+  });
+
+  // =====================================
+  // SYSTEM TEAMS API (NEW - Global teams with object storage)
+  // =====================================
+  
+  // Get all system teams
+  app.get('/api/system-teams', async (req, res) => {
+    try {
+      const teams = await storage.getSystemTeams();
+      res.json(teams);
+    } catch (error) {
+      console.error('Get system teams error:', error);
+      res.status(500).json({ error: 'Failed to fetch system teams' });
+    }
+  });
+
+  // Search system teams by name
+  app.get('/api/system-teams/search', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        return res.status(400).json({ error: 'Search query is required' });
+      }
+      const teams = await storage.searchSystemTeams(query);
+      res.json(teams);
+    } catch (error) {
+      console.error('Search system teams error:', error);
+      res.status(500).json({ error: 'Failed to search system teams' });
+    }
+  });
+
+  // Get single system team
+  app.get('/api/system-teams/:id', async (req, res) => {
+    try {
+      const team = await storage.getSystemTeam(req.params.id);
+      if (!team) {
+        return res.status(404).json({ error: 'System team not found' });
+      }
+      res.json(team);
+    } catch (error) {
+      console.error('Get system team error:', error);
+      res.status(500).json({ error: 'Failed to fetch system team' });
+    }
+  });
+
+  // Create new system team
+  app.post('/api/system-teams', async (req, res) => {
+    try {
+      const validated = insertSystemTeamSchema.parse(req.body);
+      const team = await storage.createSystemTeam(validated);
+      res.status(201).json(team);
+    } catch (error) {
+      console.error('Create system team error:', error);
+      res.status(500).json({ error: 'Failed to create system team' });
+    }
+  });
+
+  // Update system team
+  app.put('/api/system-teams/:id', async (req, res) => {
+    try {
+      const validated = insertSystemTeamSchema.partial().parse(req.body);
+      const team = await storage.updateSystemTeam(req.params.id, validated);
+      res.json(team);
+    } catch (error) {
+      console.error('Update system team error:', error);
+      res.status(500).json({ error: 'Failed to update system team' });
+    }
+  });
+
+  // Delete system team
+  app.delete('/api/system-teams/:id', async (req, res) => {
+    try {
+      await storage.deleteSystemTeam(req.params.id);
+      res.json({ success: true, message: 'System team deleted successfully' });
+    } catch (error) {
+      console.error('Delete system team error:', error);
+      res.status(500).json({ error: 'Failed to delete system team' });
+    }
+  });
+
+  // Upload logo for system team (uses object storage)
+  app.post('/api/system-teams/:id/logo', upload.single('logo'), async (req, res) => {
+    try {
+      const teamId = req.params.id;
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ error: 'Logo file is required' });
+      }
+
+      // Verify team exists
+      const team = await storage.getSystemTeam(teamId);
+      if (!team) {
+        return res.status(404).json({ error: 'System team not found' });
+      }
+
+      // Use object storage service for upload
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      
+      // For now, we'll save to filesystem like other logos and provide object storage later
+      // This ensures the API works immediately while we build the object storage integration
+      const logoDir = path.join(process.cwd(), 'client', 'public', 'assets', 'team-logos');
+      await fs.mkdir(logoDir, { recursive: true });
+
+      const timestamp = Date.now();
+      const ext = path.extname(file.originalname) || '.png';
+      const filename = `system-${teamId}-logo-${timestamp}${ext}`;
+      const filepath = path.join(logoDir, filename);
+
+      // Save the file
+      await fs.writeFile(filepath, file.buffer);
+
+      // Update the system team with the logo URL
+      const logoUrl = `/assets/team-logos/${filename}`;
+      const updatedTeam = await storage.updateSystemTeam(teamId, { logoUrl });
+
+      res.json({ 
+        success: true, 
+        logoUrl,
+        team: updatedTeam,
+        message: 'System team logo uploaded successfully'
+      });
+
+    } catch (error) {
+      console.error('System team logo upload error:', error);
+      res.status(500).json({ error: 'Failed to upload system team logo' });
     }
   });
 

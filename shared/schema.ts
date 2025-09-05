@@ -134,6 +134,21 @@ export const oppositionTeams = pgTable("opposition_teams", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// System-wide shared teams table (NEW - stores logos in object storage)
+export const systemTeams = pgTable("system_teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  shortName: varchar("short_name", { length: 10 }),
+  logoUrl: text("logo_url"), // Object storage URL (different from logoPath)
+  websiteUrl: text("website_url"),
+  colors: jsonb("colors"), // Primary and secondary team colors
+  // Metadata for system management
+  isVerified: boolean("is_verified").default(false), // Admin-verified teams
+  usage_count: integer("usage_count").default(0), // Track how often used
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const competitions = pgTable("competitions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
@@ -256,6 +271,14 @@ export const insertOppositionTeamSchema = createInsertSchema(oppositionTeams).om
       secondary: z.string().optional(),
     }).optional(),
   });
+export const insertSystemTeamSchema = createInsertSchema(systemTeams).omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    websiteUrl: z.string().url().optional().or(z.literal("")),
+    colors: z.object({
+      primary: z.string().min(1, "Primary color is required"),
+      secondary: z.string().optional(),
+    }).optional(),
+  });
 export const insertCompetitionSchema = createInsertSchema(competitions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertFixtureSchema = createInsertSchema(fixtures)
   .omit({ id: true, createdAt: true, updatedAt: true })
@@ -271,6 +294,7 @@ export type UserTeam = typeof userTeams.$inferSelect;
 export type UserClub = typeof userClubs.$inferSelect;
 export type UserParent = typeof userParents.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
+export type SystemTeam = typeof systemTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
 export type MatchStats = typeof matchStats.$inferSelect;
@@ -281,6 +305,7 @@ export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type InsertUserTeam = z.infer<typeof insertUserTeamSchema>;
 export type InsertUserParent = z.infer<typeof insertUserParentSchema>;
 export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;
+export type InsertSystemTeam = z.infer<typeof insertSystemTeamSchema>;
 export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;

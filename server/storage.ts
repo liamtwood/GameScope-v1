@@ -10,6 +10,7 @@ import {
   userParents,
   fixtures,
   oppositionTeams,
+  systemTeams,
   competitions,
   matchStats,
   type Club,
@@ -20,6 +21,7 @@ import {
   type UserParent,
   type Fixture,
   type OppositionTeam,
+  type SystemTeam,
   type Competition,
   type MatchStats,
   type InsertClub,
@@ -29,6 +31,7 @@ import {
   type InsertUserParent,
   type InsertFixture,
   type InsertOppositionTeam,
+  type InsertSystemTeam,
   type InsertCompetition,
   type InsertMatchStats,
 } from '@shared/schema';
@@ -78,6 +81,15 @@ export interface IStorage {
   createOppositionTeam(team: InsertOppositionTeam): Promise<OppositionTeam>;
   updateOppositionTeam(id: string, team: Partial<InsertOppositionTeam>): Promise<OppositionTeam>;
   deleteOppositionTeam(id: string): Promise<void>;
+  
+  // System team operations (NEW - global shared teams with object storage)
+  getSystemTeams(): Promise<SystemTeam[]>;
+  getSystemTeam(id: string): Promise<SystemTeam | undefined>;
+  createSystemTeam(team: InsertSystemTeam): Promise<SystemTeam>;
+  updateSystemTeam(id: string, team: Partial<InsertSystemTeam>): Promise<SystemTeam>;
+  deleteSystemTeam(id: string): Promise<void>;
+  searchSystemTeams(query: string): Promise<SystemTeam[]>;
+  incrementSystemTeamUsage(id: string): Promise<void>;
   
   // Competition operations
   getCompetitions(): Promise<Competition[]>;
@@ -792,6 +804,41 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOppositionTeam(id: string): Promise<void> {
     await db.delete(oppositionTeams).where(eq(oppositionTeams.id, id));
+  }
+
+  // System team operations (NEW - global shared teams)
+  async getSystemTeams(): Promise<SystemTeam[]> {
+    return await db.select().from(systemTeams);
+  }
+
+  async getSystemTeam(id: string): Promise<SystemTeam | undefined> {
+    const [team] = await db.select().from(systemTeams).where(eq(systemTeams.id, id));
+    return team;
+  }
+
+  async createSystemTeam(team: InsertSystemTeam): Promise<SystemTeam> {
+    const [created] = await db.insert(systemTeams).values(team).returning();
+    return created;
+  }
+
+  async updateSystemTeam(id: string, team: Partial<InsertSystemTeam>): Promise<SystemTeam> {
+    const [updated] = await db.update(systemTeams).set(team).where(eq(systemTeams.id, id)).returning();
+    return updated;
+  }
+
+  async deleteSystemTeam(id: string): Promise<void> {
+    await db.delete(systemTeams).where(eq(systemTeams.id, id));
+  }
+
+  async searchSystemTeams(query: string): Promise<SystemTeam[]> {
+    return await db.select().from(systemTeams)
+      .where(eq(systemTeams.name, query)); // Simple exact match for now
+  }
+
+  async incrementSystemTeamUsage(id: string): Promise<void> {
+    await db.update(systemTeams)
+      .set({ usage_count: (systemTeams as any).usage_count + 1 })
+      .where(eq(systemTeams.id, id));
   }
 
   // Competition operations
