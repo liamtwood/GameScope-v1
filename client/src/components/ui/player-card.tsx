@@ -100,47 +100,8 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
         <div className="flex items-center justify-between min-h-[50px]">
           {/* Player Avatar */}
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Avatar className="h-12 w-12 bg-slate-600 text-white border-2 border-white/30">
-                {player?.avatarPath ? (
-                  <AvatarImage 
-                    src={player.avatarPath} 
-                    alt={`${player.firstName} ${player.lastName}`}
-                    className="object-cover"
-                  />
-                ) : null}
-                <AvatarFallback className="bg-slate-600 text-white text-sm font-semibold">
-                  {player.firstName?.[0]}{player.lastName?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              
-              {/* Photo Upload Pencil Icon */}
-              <div className="absolute -bottom-1 -right-1">
-                <Button
-                  size="sm" 
-                  className="bg-white border-2 border-white/30 rounded-full p-1 opacity-80 hover:opacity-100 transition-opacity shadow-lg h-6 w-6"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setLocation(`/players/${player.id}`);
-                  }}
-                >
-                  <Pencil className="h-3 w-3 text-gray-600" />
-                </Button>
-              </div>
-              
-              {/* Jersey Number Badge */}
-              <div className="absolute -top-1 -left-1">
-                <div 
-                  className="h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold border-2"
-                  style={{ 
-                    backgroundColor: clubPrimary,
-                    borderColor: clubPrimary
-                  }}
-                >
-                  {player.jerseyNumber || '?'}
-                </div>
-              </div>
+            <div className="w-12 h-12 flex items-center justify-center">
+              {getPlayerDisplay()}
             </div>
             
             {/* Main Content */}
