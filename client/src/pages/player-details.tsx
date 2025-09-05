@@ -596,7 +596,7 @@ export default function PlayerDetails() {
 // Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
-                      Player Details
+                      User Details
                     </TabsTrigger>
                     <TabsTrigger 
                       value="teams" 
