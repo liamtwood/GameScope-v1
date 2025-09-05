@@ -607,19 +607,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     }
                     
                     // Find the row containing this link to get jersey number and age
-                    const $row = $link.closest('tr, div');
+                    // Look for table row or parent container
+                    let $row = $link.closest('tr');
+                    if (!$row.length) {
+                      $row = $link.parent();
+                      // Keep going up until we find a container with more data
+                      let attempts = 0;
+                      while ($row.length && $row.text().trim().split(/\s+/).length < 4 && attempts < 5) {
+                        $row = $row.parent();
+                        attempts++;
+                      }
+                    }
+                    
                     const rowText = $row.text().trim();
+                    console.log(`Row text for ${playerName}: "${rowText}"`);
                     
                     // Extract jersey number (first number in the row)
                     const jerseyMatch = rowText.match(/^(\d+)/);
                     const jerseyNumber = jerseyMatch ? parseInt(jerseyMatch[1]) : undefined;
                     
-                    // Better age extraction - look for age pattern after name
-                    // Pattern: "jersey# playerName age stats..." or "jersey# playerName ?"
-                    const cleanPlayerName = playerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex chars
-                    const namePattern = new RegExp(`${cleanPlayerName}\\s+(\\d{1,2}|\\?)`, 'i');
-                    const ageMatch = rowText.match(namePattern);
-                    const age = ageMatch && ageMatch[1] !== '?' ? parseInt(ageMatch[1]) : null;
+                    // Better age extraction - look for two-digit number that's likely age
+                    // Pattern: Find numbers in the row, look for age-like values (14-25 typically)
+                    const numbers = rowText.match(/\d+/g) || [];
+                    let age = null;
+                    
+                    // Look for age pattern - typically after the name and before stats
+                    for (const num of numbers) {
+                      const numVal = parseInt(num);
+                      if (numVal >= 14 && numVal <= 25 && numVal !== jerseyNumber) {
+                        age = numVal;
+                        break;
+                      }
+                    }
+                    
+                    // Also try to find age pattern with ? for unknown age
+                    if (!age) {
+                      const agePatternMatch = rowText.match(/(\d{1,2}|\?)\s+(?:0\s+)*MIN|(\d{1,2}|\?)\s+\d+/);
+                      if (agePatternMatch) {
+                        const ageStr = agePatternMatch[1] || agePatternMatch[2];
+                        if (ageStr !== '?' && parseInt(ageStr) >= 14 && parseInt(ageStr) <= 25) {
+                          age = parseInt(ageStr);
+                        }
+                      }
+                    }
                     
                     // Map section to position
                     let position = sectionName;
