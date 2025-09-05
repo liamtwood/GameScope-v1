@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Download, Eye, RefreshCw } from "lucide-react";
+import { Camera, Download, Eye, RefreshCw, Upload, FileImage } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +29,9 @@ export default function Screenshots() {
   const [capturing, setCapturing] = useState<Record<string, boolean>>({});
   const [captureTimestamps, setCaptureTimestamps] = useState<Record<string, number>>({});
   const [readyStates, setReadyStates] = useState<Record<string, boolean>>({});
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [analyzing, setAnalyzing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -386,6 +389,123 @@ export default function Screenshots() {
     });
   }, [pages, modals, tabs, readyStates, captureScreenshot, toast]);
 
+  // Handle file uploads and analyze them
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const imageFiles = Array.from(files).filter(file => 
+      file.type.startsWith('image/')
+    );
+
+    if (imageFiles.length === 0) {
+      toast({
+        title: "No Images Found",
+        description: "Please upload image files only.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadedFiles(imageFiles);
+    setAnalyzing(true);
+
+    try {
+      await analyzeUploadedImages(imageFiles);
+      toast({
+        title: "Upload Complete",
+        description: `Successfully processed ${imageFiles.length} images.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: "Could not process the uploaded images.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // Analyze uploaded images and match them to pages
+  const analyzeUploadedImages = async (files: File[]) => {
+    const newScreenshots: Record<string, string> = {};
+    const newTimestamps: Record<string, number> = {};
+
+    for (const file of files) {
+      const dataUrl = await fileToDataUrl(file);
+      const matchedPage = matchImageToPage(file.name);
+      
+      if (matchedPage) {
+        const key = `${matchedPage.type}-${matchedPage.name}`;
+        newScreenshots[key] = dataUrl;
+        newTimestamps[key] = Date.now();
+      } else {
+        // Use filename as fallback
+        const pageName = file.name.replace(/\.[^/.]+$/, "");
+        newScreenshots[`upload-${pageName}`] = dataUrl;
+        newTimestamps[`upload-${pageName}`] = Date.now();
+      }
+    }
+
+    // Update state and localStorage
+    setScreenshots(prev => ({ ...prev, ...newScreenshots }));
+    setCaptureTimestamps(prev => ({ ...prev, ...newTimestamps }));
+    
+    localStorage.setItem('screenshot-data', JSON.stringify({ 
+      ...JSON.parse(localStorage.getItem('screenshot-data') || '{}'), 
+      ...newScreenshots 
+    }));
+    localStorage.setItem('screenshot-timestamps', JSON.stringify({ 
+      ...JSON.parse(localStorage.getItem('screenshot-timestamps') || '{}'), 
+      ...newTimestamps 
+    }));
+  };
+
+  // Convert file to data URL
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Smart matching of images to pages based on filename
+  const matchImageToPage = (filename: string): PageInfo | null => {
+    const cleanName = filename.toLowerCase().replace(/\.[^/.]+$/, "");
+    
+    // Try exact matches first
+    for (const item of allItems) {
+      const itemName = item.name.toLowerCase().replace(/\s+/g, "-");
+      if (cleanName.includes(itemName) || itemName.includes(cleanName)) {
+        return item;
+      }
+    }
+
+    // Try keyword matching
+    const keywordMatches = [
+      { keywords: ['dashboard', 'home', 'overview'], targetName: 'Dashboard' },
+      { keywords: ['squad', 'player', 'team-manage'], targetName: 'Squad' },
+      { keywords: ['fixture', 'match', 'game'], targetName: 'Fixtures' },
+      { keywords: ['stat', 'analytics', 'performance'], targetName: 'Statistics' },
+      { keywords: ['video', 'media'], targetName: 'Videos' },
+      { keywords: ['screenshot', 'capture'], targetName: 'Screenshots' },
+      { keywords: ['logo', 'badge'], targetName: 'Team Logos' },
+    ];
+
+    for (const match of keywordMatches) {
+      if (match.keywords.some(keyword => cleanName.includes(keyword))) {
+        const foundItem = allItems.find(item => 
+          item.name.toLowerCase().includes(match.targetName.toLowerCase())
+        );
+        if (foundItem) return foundItem;
+      }
+    }
+
+    return null;
+  };
+
   const downloadScreenshot = (item: PageInfo) => {
     const key = `${item.type}-${item.name}`;
     const dataUrl = screenshots[key];
@@ -463,7 +583,7 @@ export default function Screenshots() {
             onClick={() => {
               toast({
                 title: "Pro Tip",
-                description: "For highest quality: Use Alt+Print Screen, then paste. For automation: Use the button below.",
+                description: "For highest quality: Use Alt+Print Screen, then paste. For automation: Use the buttons below.",
               });
             }}
             variant="outline" 
@@ -472,11 +592,50 @@ export default function Screenshots() {
             <Camera className="h-4 w-4" />
             Manual Screenshot Tip
           </Button>
+          <Button 
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline"
+            className="gap-2"
+            disabled={analyzing}
+          >
+            <Upload className="h-4 w-4" />
+            {analyzing ? "Analyzing..." : "Upload Screenshots"}
+          </Button>
           <Button onClick={captureAllPages} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Capture All Ready Pages
           </Button>
         </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => handleFileUpload(e.target.files)}
+        />
+
+        {uploadedFiles.length > 0 && (
+          <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-green-800 dark:text-green-200 flex items-center gap-2">
+                <FileImage className="h-5 w-5" />
+                Uploaded Screenshots ({uploadedFiles.length} files)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="text-sm text-green-700 dark:text-green-300">
+                    {file.name}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
