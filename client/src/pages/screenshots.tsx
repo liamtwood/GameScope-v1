@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Download, Eye, RefreshCw, Monitor, Square, Settings, Users } from "lucide-react";
+import { Camera, Download, Eye, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -397,91 +396,14 @@ export default function Screenshots() {
           </Button>
         </div>
 
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <Monitor className="h-4 w-4" />
-              All ({allItems.length})
-            </TabsTrigger>
-            <TabsTrigger value="pages" className="flex items-center gap-2">
-              <Square className="h-4 w-4" />
-              Pages ({pages.length})
-            </TabsTrigger>
-            <TabsTrigger value="tabs" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Tabs ({tabs.length})
-            </TabsTrigger>
-            <TabsTrigger value="modals" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Modals ({modals.length})
-            </TabsTrigger>
-            <TabsTrigger value="management" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Management
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Pages & Modals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderTable(allItems)}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="pages" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Application Pages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderTable(pages)}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="tabs" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Page Tabs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderTable(tabs)}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="modals" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Modal Dialogs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderTable(modals)}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="management" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Management & Admin Pages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderTable(pages.filter(page => 
-                  page.name.includes('Management') || 
-                  page.name.includes('DevOps') ||
-                  page.name.includes('Users') ||
-                  page.name.includes('Clubs') ||
-                  page.name.includes('Settings')
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <Card>
+          <CardHeader>
+            <CardTitle>All Pages, Modals & Tabs ({allItems.length} items)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {renderTable(allItems)}
+          </CardContent>
+        </Card>
 
         {Object.keys(screenshots).length > 0 && (
           <Card>
