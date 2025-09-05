@@ -1187,6 +1187,160 @@ export default function Settings() {
   );
 }
 
+// Quick Player Add Component
+function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
+  const { toast } = useToast();
+  const [quickText, setQuickText] = useState("");
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+
+  // Fetch teams for selection
+  const { data: teams } = useQuery({
+    queryKey: ["/api/teams"]
+  });
+
+  const handleQuickAdd = async () => {
+    if (!quickText.trim() || !selectedTeamId) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter player names and select a team.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      // Parse the text into players
+      const lines = quickText.split('\n').filter(line => line.trim());
+      const players = [];
+      let currentPosition = 'Unknown';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        
+        // Check if this line is a position header
+        if (trimmed.toLowerCase().includes('goalkeeper') || trimmed.toLowerCase().includes('keeper')) {
+          currentPosition = 'Goalkeeper';
+        } else if (trimmed.toLowerCase().includes('defender') || trimmed.toLowerCase().includes('defence')) {
+          currentPosition = 'Defender';
+        } else if (trimmed.toLowerCase().includes('midfielder') || trimmed.toLowerCase().includes('midfield')) {
+          currentPosition = 'Midfielder';
+        } else if (trimmed.toLowerCase().includes('forward') || trimmed.toLowerCase().includes('striker') || trimmed.toLowerCase().includes('attacker')) {
+          currentPosition = 'Forward';
+        } else if (trimmed && !trimmed.toLowerCase().includes('position') && trimmed.length > 2 && trimmed.length < 30) {
+          // This looks like a player name
+          players.push({
+            name: trimmed,
+            position: currentPosition,
+            age: null,
+            appearances: 0,
+            goals: 0
+          });
+        }
+      }
+
+      if (players.length === 0) {
+        toast({
+          title: "No Players Found",
+          description: "Please enter player names (one per line).",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Import the players
+      const response = await apiRequest("POST", "/api/squad/bulk-import", {
+        teamId: selectedTeamId,
+        players
+      });
+
+      if (response.success) {
+        toast({
+          title: "Players Added!",
+          description: `Successfully added ${response.imported} players to the team.`,
+        });
+        
+        setQuickText("");
+        onPlayersAdded();
+      }
+    } catch (error) {
+      toast({
+        title: "Import Failed",
+        description: "Failed to add players. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-medium mb-2">Quick Add Players</h3>
+        <p className="text-sm text-muted-foreground">
+          Paste or type player names (one per line). Include position headers like "GOALKEEPER:" for organization.
+        </p>
+      </div>
+
+      {/* Team Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Add to Team</label>
+        <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a team..." />
+          </SelectTrigger>
+          <SelectContent>
+            {teams?.map((team: any) => (
+              <SelectItem key={team.id} value={team.id}>
+                {team.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Player Names Input */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Player Names</label>
+        <textarea
+          className="w-full h-32 p-3 border rounded-md resize-none text-sm"
+          placeholder="Example:
+GOALKEEPER:
+Gospel-Eze
+Lukjanciks
+Patrick
+
+DEFENDER:
+Player Name
+Another Player"
+          value={quickText}
+          onChange={(e) => setQuickText(e.target.value)}
+        />
+      </div>
+
+      <Button 
+        onClick={handleQuickAdd}
+        disabled={isAdding || !quickText.trim() || !selectedTeamId}
+        className="w-full"
+      >
+        {isAdding ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Adding Players...
+          </>
+        ) : (
+          <>
+            <Users className="mr-2 h-4 w-4" />
+            Add Players to Team
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
 // Squad Import Interface Component
 function SquadImportInterface() {
   const { toast } = useToast();
@@ -1334,39 +1488,50 @@ function SquadImportInterface() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* URL Input */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Squad URL</label>
-        <div className="flex space-x-2">
-          <Input
-            placeholder="Paste Soccerway squad URL here... (e.g. https://uk.soccerway.com/teams/.../squad/)"
-            value={importUrl}
-            onChange={(e) => setImportUrl(e.target.value)}
-            className="flex-1"
-            data-testid="input-import-url"
-          />
-          <Button 
-            onClick={handleFetchSquad}
-            disabled={isLoading || !importUrl.trim()}
-            data-testid="button-fetch-squad"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Fetching...
-              </>
-            ) : (
-              <>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Fetch Squad
-              </>
-            )}
-          </Button>
+    <div className="space-y-6">
+      {/* URL Import Section */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Import from URL</label>
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Paste squad URL here... (e.g. https://uk.soccerway.com/teams/.../squad/)"
+              value={importUrl}
+              onChange={(e) => setImportUrl(e.target.value)}
+              className="flex-1"
+              data-testid="input-import-url"
+            />
+            <Button 
+              onClick={handleFetchSquad}
+              disabled={isLoading || !importUrl.trim()}
+              data-testid="button-fetch-squad"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Fetching...
+                </>
+              ) : (
+                <>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Fetch Squad
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Try Soccerway URLs. Some sites with dynamic content may not work.
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Currently supports Soccerway team squad pages. More sources coming soon!
-        </p>
+      </div>
+
+      {/* Manual Quick Add Section */}
+      <div className="border-t pt-4">
+        <QuickPlayerAdd onPlayersAdded={() => {
+          // Refresh teams data
+          queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+        }} />
       </div>
 
       {/* Preview Section */}
