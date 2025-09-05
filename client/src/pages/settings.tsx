@@ -1093,8 +1093,27 @@ export default function Settings() {
                   </div>
                 </div>
 
+                {/* Logo Path Debug Info */}
+                <div className="space-y-2 pt-4 border-t">
+                  <label className="text-sm font-medium text-muted-foreground">Current Logo Path (Debug)</label>
+                  <Input
+                    value={editingTeam.logoPath || 'No logo uploaded'}
+                    readOnly
+                    className="bg-muted text-xs font-mono"
+                    placeholder="Logo path will appear here"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {editingTeam.logoPath?.startsWith('/objects/') 
+                      ? '✅ Using Object Storage (Production-ready)' 
+                      : editingTeam.logoPath?.startsWith('/assets/') 
+                        ? '⚠️ Using Filesystem (Will break in production)'
+                        : '📝 No logo uploaded yet'
+                    }
+                  </p>
+                </div>
+
                 {/* Logo Upload Section */}
-                <div className="space-y-3 pt-4 border-t">
+                <div className="space-y-3 pt-2">
                   <label className="text-sm font-medium">Team Logo</label>
                   <ReliableLogoUpload
                     entityType={editingTeam.type === 'club' ? 'club' : 'opposition-team'}
