@@ -471,6 +471,211 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Squad import endpoints
+  // Scrape player data from URL
+  app.post("/api/squad/import-from-url", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "URL is required" });
+      }
+
+      // Import cheerio and node-fetch for web scraping
+      const fetch = (await import('node-fetch')).default;
+      const cheerio = await import('cheerio');
+
+      // Fetch the webpage
+      const response = await fetch(url);
+      if (!response.ok) {
+        return res.status(400).json({ message: "Failed to fetch URL" });
+      }
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+
+      // Parse Soccerway squad page structure
+      const players: Array<{
+        name: string;
+        position: string;
+        age: number | null;
+        appearances: number;
+        goals: number;
+      }> = [];
+
+      // Look for player sections (Attackers, Midfielders, Defenders, Goalkeepers)
+      const sections = ['Attackers', 'Midfielders', 'Defenders', 'Goalkeepers'];
+      
+      sections.forEach(sectionName => {
+        // Find section heading and get players below it
+        $('h3, h4, strong, .section-title').each((_: any, element: any) => {
+          const text = $(element).text().trim();
+          if (text === sectionName) {
+            // Find all player links/cards after this section
+            let currentElement = $(element).next();
+            let attempts = 0;
+            
+            while (currentElement.length && attempts < 20) {
+              // Look for player data in various formats
+              const playerLinks = currentElement.find('a[href*="/players/"]');
+              
+              playerLinks.each((_: any, playerLink: any) => {
+                const $link = $(playerLink);
+                const href = $link.attr('href') || '';
+                
+                // Extract player name from link text or data
+                let name = $link.text().trim();
+                if (!name) {
+                  name = $link.find('img').attr('alt') || '';
+                }
+                
+                // Clean up name (remove extra whitespace and formatting)
+                name = name.replace(/\s+/g, ' ').trim();
+                
+                if (name && name.length > 1) {
+                  // Try to extract age, appearances, goals from surrounding elements
+                  const parentContainer = $link.closest('tr, .player-row, .player-card, div');
+                  const textContent = parentContainer.text();
+                  
+                  // Look for age pattern (X years old)
+                  const ageMatch = textContent.match(/(\d+)\s*years?\s*old/i);
+                  const age = ageMatch ? parseInt(ageMatch[1]) : null;
+                  
+                  // Look for stats patterns (appearances and goals)
+                  const statsMatches = textContent.match(/\d+/g) || [];
+                  let appearances = 0;
+                  let goals = 0;
+                  
+                  // Try to find appearances and goals in the stats
+                  if (statsMatches.length >= 2) {
+                    appearances = parseInt(statsMatches[statsMatches.length - 2]) || 0;
+                    goals = parseInt(statsMatches[statsMatches.length - 1]) || 0;
+                  }
+                  
+                  // Map section to position
+                  let position = sectionName.slice(0, -1); // Remove 's' from end
+                  if (position === 'Attacker') position = 'Forward';
+                  if (position === 'Midfielder') position = 'Midfielder';
+                  if (position === 'Defender') position = 'Defender';
+                  if (position === 'Goalkeeper') position = 'Goalkeeper';
+                  
+                  players.push({
+                    name,
+                    position,
+                    age,
+                    appearances,
+                    goals
+                  });
+                }
+              });
+              
+              currentElement = currentElement.next();
+              attempts++;
+            }
+          }
+        });
+      });
+
+      // Alternative parsing for different page structures
+      if (players.length === 0) {
+        // Try alternative selectors for player data
+        $('.player-name, .player-link, a[href*="/players/"]').each((_: any, element: any) => {
+          const $element = $(element);
+          const name = $element.text().trim();
+          
+          if (name && name.length > 1) {
+            players.push({
+              name,
+              position: 'Unknown',
+              age: null,
+              appearances: 0,
+              goals: 0
+            });
+          }
+        });
+      }
+
+      // Remove duplicates
+      const uniquePlayers = players.filter((player, index, self) => 
+        index === self.findIndex(p => p.name === player.name)
+      );
+
+      res.json({
+        success: true,
+        url,
+        playersFound: uniquePlayers.length,
+        players: uniquePlayers
+      });
+
+    } catch (error) {
+      console.error("Error importing squad from URL:", error);
+      res.status(500).json({ 
+        message: "Failed to import squad from URL",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Bulk import players endpoint
+  app.post("/api/squad/bulk-import", async (req, res) => {
+    try {
+      const { teamId, players } = req.body;
+      
+      if (!teamId || !players || !Array.isArray(players)) {
+        return res.status(400).json({ message: "teamId and players array are required" });
+      }
+
+      const importedPlayers = [];
+      
+      for (const playerData of players) {
+        if (!playerData.name) continue;
+        
+        // Create user with parsed data
+        const userData = {
+          firstName: playerData.name.split(' ')[0] || playerData.name,
+          lastName: playerData.name.split(' ').slice(1).join(' ') || '',
+          shirtName: playerData.name.split(' ').slice(-1)[0] || playerData.name,
+          email: '',
+          phone: '',
+          role: 'Player' as const,
+          status: 'Active' as const,
+          age: playerData.age
+        };
+        
+        const user = await storage.createUser(userData);
+        
+        // Add to team with position
+        if (teamId && playerData.position) {
+          const teamAssignment = {
+            userId: user.id,
+            teamId,
+            jerseyNumber: null,
+            position: playerData.position,
+            starPlayer: false,
+            fitnessStatus: 'Fit' as const
+          };
+          
+          await storage.addUserToTeam(user.id, teamId, teamAssignment);
+        }
+        
+        importedPlayers.push({ ...user, position: playerData.position });
+      }
+
+      res.json({
+        success: true,
+        imported: importedPlayers.length,
+        players: importedPlayers
+      });
+
+    } catch (error) {
+      console.error("Error bulk importing players:", error);
+      res.status(500).json({ 
+        message: "Failed to bulk import players",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.post("/api/users", async (req, res) => {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, clubId, ...userData } = req.body;

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
@@ -647,7 +647,21 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-
+        {/* Squad Import Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Users className="mr-2 h-5 w-5" />
+              Squad Import (Beta)
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Import player squads from external websites like Soccerway. Paste a URL to preview players before importing.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <SquadImportInterface />
+          </CardContent>
+        </Card>
 
         {/* Enhancement Modal */}
         <Dialog open={enhanceModalOpen} onOpenChange={setEnhanceModalOpen}>
@@ -1170,5 +1184,286 @@ export default function Settings() {
         </Dialog>
       </div>
     </MainLayout>
+  );
+}
+
+// Squad Import Interface Component
+function SquadImportInterface() {
+  const { toast } = useToast();
+  const [importUrl, setImportUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<{
+    players: Array<{
+      name: string;
+      position: string;
+      age: number | null;
+      appearances: number;
+      goals: number;
+    }>;
+    playersFound: number;
+    url: string;
+  } | null>(null);
+  const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  // Fetch teams for selection
+  const { data: teams } = useQuery({
+    queryKey: ["/api/teams"]
+  });
+
+  const handleFetchSquad = async () => {
+    if (!importUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter a URL to import squad from.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/squad/import-from-url", {
+        url: importUrl.trim()
+      });
+
+      if (response.success && response.players.length > 0) {
+        setPreviewData(response);
+        // Select all players by default
+        setSelectedPlayers(new Set(response.players.map((p: any) => p.name)));
+        toast({
+          title: "Squad Found!",
+          description: `Found ${response.playersFound} players. Review and select which ones to import.`,
+        });
+      } else {
+        toast({
+          title: "No Players Found",
+          description: "Could not find any player data on this page. Try a different URL or format.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      toast({
+        title: "Import Failed",
+        description: "Failed to import squad from URL. Please check the URL and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImportSelected = async () => {
+    if (!previewData || selectedPlayers.size === 0) {
+      toast({
+        title: "No Players Selected",
+        description: "Please select at least one player to import.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedTeamId) {
+      toast({
+        title: "Team Required",
+        description: "Please select a team to import players to.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const selectedPlayerData = previewData.players.filter(p => 
+        selectedPlayers.has(p.name)
+      );
+
+      const response = await apiRequest("POST", "/api/squad/bulk-import", {
+        teamId: selectedTeamId,
+        players: selectedPlayerData
+      });
+
+      if (response.success) {
+        toast({
+          title: "Import Successful!",
+          description: `Successfully imported ${response.imported} players to the team.`,
+        });
+        
+        // Reset the form
+        setPreviewData(null);
+        setSelectedPlayers(new Set());
+        setImportUrl("");
+        setSelectedTeamId("");
+        
+        // Refresh the teams data
+        queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      }
+    } catch (error) {
+      console.error("Bulk import error:", error);
+      toast({
+        title: "Import Failed",
+        description: "Failed to import players. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const togglePlayerSelection = (playerName: string) => {
+    const newSelection = new Set(selectedPlayers);
+    if (newSelection.has(playerName)) {
+      newSelection.delete(playerName);
+    } else {
+      newSelection.add(playerName);
+    }
+    setSelectedPlayers(newSelection);
+  };
+
+  const selectAll = () => {
+    if (previewData) {
+      setSelectedPlayers(new Set(previewData.players.map(p => p.name)));
+    }
+  };
+
+  const selectNone = () => {
+    setSelectedPlayers(new Set());
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* URL Input */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Squad URL</label>
+        <div className="flex space-x-2">
+          <Input
+            placeholder="Paste Soccerway squad URL here... (e.g. https://uk.soccerway.com/teams/.../squad/)"
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            className="flex-1"
+            data-testid="input-import-url"
+          />
+          <Button 
+            onClick={handleFetchSquad}
+            disabled={isLoading || !importUrl.trim()}
+            data-testid="button-fetch-squad"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Fetching...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Fetch Squad
+              </>
+            )}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Currently supports Soccerway team squad pages. More sources coming soon!
+        </p>
+      </div>
+
+      {/* Preview Section */}
+      {previewData && (
+        <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Squad Preview</h3>
+              <p className="text-sm text-muted-foreground">
+                Found {previewData.playersFound} players from {new URL(previewData.url).hostname}
+              </p>
+            </div>
+            <div className="space-x-2">
+              <Button variant="outline" size="sm" onClick={selectAll}>
+                Select All
+              </Button>
+              <Button variant="outline" size="sm" onClick={selectNone}>
+                Select None
+              </Button>
+            </div>
+          </div>
+
+          {/* Team Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Import to Team</label>
+            <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a team..." />
+              </SelectTrigger>
+              <SelectContent>
+                {teams?.map((team: any) => (
+                  <SelectItem key={team.id} value={team.id}>
+                    {team.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Players List */}
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            <p className="text-sm font-medium">
+              Players ({selectedPlayers.size} of {previewData.players.length} selected)
+            </p>
+            <div className="grid gap-2">
+              {previewData.players.map((player, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center space-x-3 p-2 rounded border cursor-pointer transition-colors ${
+                    selectedPlayers.has(player.name)
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-background hover:bg-muted/50'
+                  }`}
+                  onClick={() => togglePlayerSelection(player.name)}
+                >
+                  <div className="w-4 h-4 flex items-center justify-center">
+                    {selectedPlayers.has(player.name) && (
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 grid grid-cols-4 gap-2 text-sm">
+                    <div className="font-medium">{player.name}</div>
+                    <div className="text-muted-foreground">{player.position}</div>
+                    <div className="text-muted-foreground">
+                      {player.age ? `${player.age}y` : 'N/A'}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {player.appearances}⚽ {player.goals}🥅
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Import Button */}
+          <Button 
+            onClick={handleImportSelected}
+            disabled={importing || selectedPlayers.size === 0 || !selectedTeamId}
+            className="w-full"
+            data-testid="button-import-selected"
+          >
+            {importing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Importing {selectedPlayers.size} players...
+              </>
+            ) : (
+              <>
+                <Users className="mr-2 h-4 w-4" />
+                Import {selectedPlayers.size} Selected Players
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
