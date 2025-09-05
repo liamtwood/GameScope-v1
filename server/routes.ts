@@ -503,95 +503,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
         goals: number;
       }> = [];
 
-      // Look for player sections (Attackers, Midfielders, Defenders, Goalkeepers)
+      console.log('Parsing HTML for squad data...');
+
+      // Method 1: Look for position section headers and players below them
       const sections = ['Attackers', 'Midfielders', 'Defenders', 'Goalkeepers'];
       
       sections.forEach(sectionName => {
-        // Find section heading and get players below it
-        $('h3, h4, strong, .section-title').each((_: any, element: any) => {
-          const text = $(element).text().trim();
-          if (text === sectionName) {
-            // Find all player links/cards after this section
-            let currentElement = $(element).next();
-            let attempts = 0;
+        // Find the section header
+        const sectionHeader = $(`*:contains("${sectionName}")`).filter(function() {
+          return $(this).text().trim() === sectionName;
+        }).first();
+        
+        if (sectionHeader.length > 0) {
+          console.log(`Found section: ${sectionName}`);
+          
+          // Find all player links after this section
+          let nextElement = sectionHeader.parent().next();
+          let searchAttempts = 0;
+          
+          while (nextElement.length && searchAttempts < 10) {
+            const playerLinks = nextElement.find('a[href*="/players/"]');
             
-            while (currentElement.length && attempts < 20) {
-              // Look for player data in various formats
-              const playerLinks = currentElement.find('a[href*="/players/"]');
+            playerLinks.each((_: any, link: any) => {
+              const $link = $(link);
+              let playerName = $link.text().trim();
               
-              playerLinks.each((_: any, playerLink: any) => {
-                const $link = $(playerLink);
-                const href = $link.attr('href') || '';
+              // Clean up the name (remove numbers, extra whitespace)
+              playerName = playerName.replace(/^\d+\s*/, '').replace(/\s+/g, ' ').trim();
+              
+              if (playerName && playerName.length > 2 && !playerName.match(/^\d+$/)) {
+                // Extract age from surrounding text
+                const containerText = $link.closest('div, tr, li').text();
+                const ageMatch = containerText.match(/(\d+)\s*years?\s*old/i);
+                const age = ageMatch ? parseInt(ageMatch[1]) : null;
                 
-                // Extract player name from link text or data
-                let name = $link.text().trim();
-                if (!name) {
-                  name = $link.find('img').attr('alt') || '';
+                // Try to find stats (appearances and goals)
+                const numbers = containerText.match(/\b\d+\b/g) || [];
+                let appearances = 0;
+                let goals = 0;
+                
+                // Look for patterns like "2 1" (appearances goals)
+                if (numbers.length >= 2) {
+                  appearances = parseInt(numbers[numbers.length - 2]) || 0;
+                  goals = parseInt(numbers[numbers.length - 1]) || 0;
                 }
                 
-                // Clean up name (remove extra whitespace and formatting)
-                name = name.replace(/\s+/g, ' ').trim();
+                // Map section to position
+                let position = sectionName.slice(0, -1); // Remove 's'
+                if (position === 'Attacker') position = 'Forward';
                 
-                if (name && name.length > 1) {
-                  // Try to extract age, appearances, goals from surrounding elements
-                  const parentContainer = $link.closest('tr, .player-row, .player-card, div');
-                  const textContent = parentContainer.text();
-                  
-                  // Look for age pattern (X years old)
-                  const ageMatch = textContent.match(/(\d+)\s*years?\s*old/i);
-                  const age = ageMatch ? parseInt(ageMatch[1]) : null;
-                  
-                  // Look for stats patterns (appearances and goals)
-                  const statsMatches = textContent.match(/\d+/g) || [];
-                  let appearances = 0;
-                  let goals = 0;
-                  
-                  // Try to find appearances and goals in the stats
-                  if (statsMatches.length >= 2) {
-                    appearances = parseInt(statsMatches[statsMatches.length - 2]) || 0;
-                    goals = parseInt(statsMatches[statsMatches.length - 1]) || 0;
-                  }
-                  
-                  // Map section to position
-                  let position = sectionName.slice(0, -1); // Remove 's' from end
-                  if (position === 'Attacker') position = 'Forward';
-                  if (position === 'Midfielder') position = 'Midfielder';
-                  if (position === 'Defender') position = 'Defender';
-                  if (position === 'Goalkeeper') position = 'Goalkeeper';
-                  
-                  players.push({
-                    name,
-                    position,
-                    age,
-                    appearances,
-                    goals
-                  });
-                }
-              });
-              
-              currentElement = currentElement.next();
-              attempts++;
-            }
+                players.push({
+                  name: playerName,
+                  position,
+                  age,
+                  appearances,
+                  goals
+                });
+                
+                console.log(`Found player: ${playerName} (${position})`);
+              }
+            });
+            
+            nextElement = nextElement.next();
+            searchAttempts++;
           }
-        });
+        }
       });
 
-      // Alternative parsing for different page structures
+      // Method 2: Direct search for all player links if sections didn't work
       if (players.length === 0) {
-        // Try alternative selectors for player data
-        $('.player-name, .player-link, a[href*="/players/"]').each((_: any, element: any) => {
-          const $element = $(element);
-          const name = $element.text().trim();
+        console.log('Trying direct player link search...');
+        
+        $('a[href*="/players/"]').each((_: any, link: any) => {
+          const $link = $(link);
+          let playerName = $link.text().trim();
           
-          if (name && name.length > 1) {
+          // Clean up name
+          playerName = playerName.replace(/^\d+\s*/, '').replace(/\s+/g, ' ').trim();
+          
+          if (playerName && playerName.length > 2 && !playerName.match(/^\d+$/)) {
+            // Try to determine position from context
+            const containerText = $link.closest('div, section, article').text();
+            let position = 'Unknown';
+            
+            if (containerText.toLowerCase().includes('attack')) position = 'Forward';
+            else if (containerText.toLowerCase().includes('midfield')) position = 'Midfielder';
+            else if (containerText.toLowerCase().includes('defend')) position = 'Defender';
+            else if (containerText.toLowerCase().includes('goalkeeper') || containerText.toLowerCase().includes('keeper')) position = 'Goalkeeper';
+            
+            // Extract age
+            const ageMatch = containerText.match(/(\d+)\s*years?\s*old/i);
+            const age = ageMatch ? parseInt(ageMatch[1]) : null;
+            
             players.push({
-              name,
-              position: 'Unknown',
-              age: null,
+              name: playerName,
+              position,
+              age,
               appearances: 0,
               goals: 0
             });
+            
+            console.log(`Found player (direct): ${playerName}`);
           }
+        });
+      }
+
+      // Method 3: Look for specific Soccerway HTML patterns based on the content you shared
+      if (players.length === 0) {
+        console.log('Trying specific Soccerway patterns...');
+        
+        // Look for player containers with specific patterns
+        $('*').filter(function() {
+          const text = $(this).text();
+          return text.includes('years old') && !!text.match(/\d+\s+\d+/); // Has age and stats
+        }).each((_: any, element: any) => {
+          const $element = $(element);
+          const text = $element.text();
+          
+          // Extract player name (often the first meaningful text)
+          const playerLinks = $element.find('a[href*="/players/"]');
+          
+          playerLinks.each((_: any, link: any) => {
+            const $link = $(link);
+            const playerName = $link.text().trim();
+            
+            if (playerName && playerName.length > 2) {
+              const ageMatch = text.match(/(\d+)\s*years?\s*old/i);
+              const age = ageMatch ? parseInt(ageMatch[1]) : null;
+              
+              // Extract stats
+              const numbers = text.match(/\b\d+\b/g) || [];
+              let appearances = 0;
+              let goals = 0;
+              
+              if (numbers.length >= 2) {
+                appearances = parseInt(numbers[numbers.length - 2]) || 0;
+                goals = parseInt(numbers[numbers.length - 1]) || 0;
+              }
+              
+              players.push({
+                name: playerName,
+                position: 'Unknown',
+                age,
+                appearances,
+                goals
+              });
+              
+              console.log(`Found player (pattern): ${playerName}`);
+            }
+          });
         });
       }
 
