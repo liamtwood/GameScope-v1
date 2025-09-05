@@ -119,6 +119,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
           alt={fixture.opponent}
           fallbackText={fallbackText}
           size="lg"
+          noBorder={true}
         />
       </div>
     );

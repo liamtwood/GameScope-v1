@@ -7,6 +7,7 @@ interface LogoDisplayProps {
   fallbackText?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  noBorder?: boolean;
 }
 
 const sizeClasses = {
@@ -21,7 +22,8 @@ export function LogoDisplay({
   alt, 
   fallbackText, 
   size = 'md', 
-  className 
+  className,
+  noBorder = false
 }: LogoDisplayProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -47,7 +49,8 @@ export function LogoDisplay({
   if (!src || imageError) {
     return (
       <div className={cn(
-        "flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold border border-gray-200",
+        "flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold",
+        !noBorder && "border border-gray-200",
         sizeClasses[size],
         className
       )}>
@@ -60,7 +63,8 @@ export function LogoDisplay({
     <div className={cn("relative", sizeClasses[size], className)}>
       {imageLoading && (
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 font-semibold border border-gray-200",
+          "absolute inset-0 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 font-semibold",
+          !noBorder && "border border-gray-200",
           sizeClasses[size]
         )}>
           {fallback}
@@ -72,7 +76,8 @@ export function LogoDisplay({
         onLoad={handleImageLoad}
         onError={handleImageError}
         className={cn(
-          "w-full h-full object-contain rounded-lg border border-gray-200 bg-white",
+          "w-full h-full object-contain rounded-lg bg-white",
+          !noBorder && "border border-gray-200",
           imageLoading ? "opacity-0" : "opacity-100",
           "transition-opacity duration-200"
         )}
