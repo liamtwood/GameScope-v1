@@ -708,17 +708,11 @@ export default function Analysis() {
                   <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Trophy className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{fixture.competition}</p>
-                      </div>
+                      <p className="text-lg mt-1">{fixture.competition}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Match Type</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{fixture.type}</p>
-                      </div>
+                      <p className="text-lg mt-1">{fixture.type}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Opposition</label>
