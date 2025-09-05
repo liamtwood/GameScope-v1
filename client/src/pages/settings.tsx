@@ -560,49 +560,43 @@ export default function Settings() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {allTeams?.map((team) => (
-                <div key={team.id} className="space-y-3">
-                  <ThemedLogoContainer
-                    containerId={`team-logo-${team.id}`}
-                    className="border rounded-lg p-4 transition-all"
-                    showThemeToggle={true}
-                  >
-                    <div className="space-y-3">
-                      {/* Logo Display with Fallback */}
-                      <div className="flex justify-center">
-                        <LogoDisplay
-                          src={team.logoPath}
-                          alt={`${team.name} logo`}
-                          size="xl"
-                          className="border-0"
-                        />
-                      </div>
-                      
-                      {/* Team Info */}
-                      <div className="text-center space-y-1">
-                        <p className="text-sm font-medium truncate">{team.name}</p>
-                        <Badge variant="outline" className="text-xs">
-                          {team.type === 'club' ? 'Club' : 'Opposition'}
-                        </Badge>
-                      </div>
-                      
-                      {/* Upload Component */}
-                      <ReliableLogoUpload
-                        entityType={team.type === 'club' ? 'club' : 'opposition-team'}
-                        entityId={team.id}
-                        entityName={team.name}
-                        currentLogo={team.logoPath || undefined}
-                        onUploadComplete={(logoPath) => {
-                          // Refresh the data to show new logo
-                          queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
-                          queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-                        }}
-                        className="w-full"
-                      />
+                <Card key={team.id} className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center space-x-4">
+                    {/* Logo */}
+                    <LogoDisplay
+                      src={team.logoPath}
+                      alt={`${team.name} logo`}
+                      size="md"
+                    />
+                    
+                    {/* Team Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground truncate">{team.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {team.type === 'club' ? 'Club Team' : 'Opposition Team'}
+                      </p>
+                      <Badge variant="outline" className="text-xs mt-1">
+                        {team.logoPath ? 'Has Logo' : 'No Logo'}
+                      </Badge>
                     </div>
-                  </ThemedLogoContainer>
-                </div>
+                    
+                    {/* Edit Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        // Set this team for editing
+                        setSelectedClub(team.id);
+                        // Scroll to upload section or open modal
+                      }}
+                      data-testid={`button-edit-${team.id}`}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
               ))}
             </div>
           </CardContent>
