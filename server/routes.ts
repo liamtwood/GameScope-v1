@@ -511,8 +511,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Found player links:', $('a[href*="/players/"]').length);
       console.log('URL hostname:', new URL(url).hostname);
       
-      // Check if this is Flashscore (clean table structure) - temporarily disabled due to syntax error
-      if (false && url.includes('flashscore.')) {
+      // Check if this is Flashscore (clean table structure)
+      if (url.includes('flashscore.')) {
         console.log('Detected Flashscore - using table parser');
         
         // Look for section headers and player table rows
@@ -573,9 +573,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Fallback to original section-based approach if text parsing didn't work
+        // New approach: Parse player links directly from the Flashscore structure
         if (players.length === 0) {
-          console.log('Text parsing failed, trying section-based approach...');
+          console.log('Text parsing failed, trying direct link-based approach...');
+          
+          flashscoreSections.forEach(sectionName => {
+            // Find section header
+            $(`*:contains("${sectionName}")`).filter(function() {
+              return $(this).text().trim() === sectionName;
+            }).each((_: any, sectionEl: any) => {
+              console.log(`Processing Flashscore section: ${sectionName}`);
+              
+              const $section = $(sectionEl);
+              
+              // Look for player links after this section header
+              // Find the container that holds the player data
+              let container = $section.parent();
+              let searchAttempts = 0;
+              
+              while (container.length && searchAttempts < 5) {
+                const playerLinks = container.find('a[href*="/player/"]');
+                
+                if (playerLinks.length > 0) {
+                  console.log(`Found ${playerLinks.length} player links in ${sectionName} section`);
+                  
+                  playerLinks.each((_: any, linkEl: any) => {
+                    const $link = $(linkEl);
+                    const playerName = $link.text().trim();
+                    
+                    // Skip if not a valid player name
+                    if (!playerName || playerName.length < 3 || playerName.match(/^\d+$/)) {
+                      return;
+                    }
+                    
+                    // Find the row containing this link to get jersey number and age
+                    const $row = $link.closest('tr, div');
+                    const rowText = $row.text().trim();
+                    
+                    // Extract jersey number (first number in the row)
+                    const jerseyMatch = rowText.match(/^(\d+)/);
+                    const jerseyNumber = jerseyMatch ? parseInt(jerseyMatch[1]) : undefined;
+                    
+                    // Extract age (number before the stats, often followed by other numbers)
+                    // Pattern: jersey# name age stats...
+                    const ageMatch = rowText.match(/(\d{1,2}|\?)(?:\s+0\s+0|$)/);
+                    const age = ageMatch && ageMatch[1] !== '?' ? parseInt(ageMatch[1]) : null;
+                    
+                    // Map section to position
+                    let position = sectionName;
+                    if (position === 'Goalkeepers') position = 'Goalkeeper';
+                    if (position === 'Defenders') position = 'Defender';  
+                    if (position === 'Midfielders') position = 'Midfielder';
+                    if (position === 'Forwards' || position === 'Attackers') position = 'Forward';
+                    
+                    players.push({
+                      name: playerName,
+                      position,
+                      age,
+                      appearances: 0,
+                      goals: 0,
+                      jerseyNumber
+                    });
+                    
+                    console.log(`Found player: ${playerName} (#${jerseyNumber || '?'}, ${position}, age ${age || 'unknown'})`);
+                  });
+                  
+                  break; // Found players in this container, move to next section
+                }
+                
+                container = container.next();
+                searchAttempts++;
+              }
+            });
+          });
+        }
+        
+        // Fallback to original section-based approach if direct link parsing didn't work
+        if (players.length === 0) {
+          console.log('Direct link parsing failed, trying section-based approach...');
           
           flashscoreSections.forEach(sectionName => {
             // Find section header
