@@ -127,14 +127,33 @@ export default function Screenshots() {
   }, [allItems]);
 
   // Toggle ready state for an item
-  // Load ready states from localStorage on mount
+  // Load data from localStorage on mount
   useEffect(() => {
     const savedReadyStates = localStorage.getItem('screenshot-ready-states');
+    const savedScreenshots = localStorage.getItem('screenshot-data');
+    const savedTimestamps = localStorage.getItem('screenshot-timestamps');
+    
     if (savedReadyStates) {
       try {
         setReadyStates(JSON.parse(savedReadyStates));
       } catch (error) {
         console.error('Failed to parse saved ready states:', error);
+      }
+    }
+    
+    if (savedScreenshots) {
+      try {
+        setScreenshots(JSON.parse(savedScreenshots));
+      } catch (error) {
+        console.error('Failed to parse saved screenshots:', error);
+      }
+    }
+    
+    if (savedTimestamps) {
+      try {
+        setCaptureTimestamps(JSON.parse(savedTimestamps));
+      } catch (error) {
+        console.error('Failed to parse saved timestamps:', error);
       }
     }
   }, []);
@@ -283,9 +302,18 @@ export default function Screenshots() {
         // Wait a moment for navigation back
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Update state
-        setScreenshots(prev => ({ ...prev, [key]: dataUrl }));
-        setCaptureTimestamps(prev => ({ ...prev, [key]: Date.now() }));
+        // Update state and save to localStorage
+        const newScreenshots = { ...screenshots, [key]: dataUrl };
+        const newTimestamps = { ...captureTimestamps, [key]: Date.now() };
+        
+        setScreenshots(newScreenshots);
+        setCaptureTimestamps(newTimestamps);
+        
+        // Persist to localStorage
+        localStorage.setItem('screenshot-data', JSON.stringify(newScreenshots));
+        localStorage.setItem('screenshot-timestamps', JSON.stringify(newTimestamps));
+        
+        console.log('Screenshot saved for key:', key, 'Data length:', dataUrl.length);
         
         toast({
           title: "Screenshot Captured",
@@ -423,7 +451,44 @@ export default function Screenshots() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button 
+            onClick={() => {
+              // Simple test - capture current page without navigation
+              const testKey = "test-current-page";
+              console.log("Testing screenshot capture...");
+              html2canvas(document.body, {
+                height: window.innerHeight,
+                width: window.innerWidth,
+                useCORS: true,
+                allowTaint: true,
+                scale: 0.8,
+              }).then(canvas => {
+                const dataUrl = canvas.toDataURL('image/png');
+                const newScreenshots = { ...screenshots, [testKey]: dataUrl };
+                const newTimestamps = { ...captureTimestamps, [testKey]: Date.now() };
+                
+                setScreenshots(newScreenshots);
+                setCaptureTimestamps(newTimestamps);
+                
+                localStorage.setItem('screenshot-data', JSON.stringify(newScreenshots));
+                localStorage.setItem('screenshot-timestamps', JSON.stringify(newTimestamps));
+                
+                console.log("Test screenshot captured:", dataUrl.length);
+                toast({
+                  title: "Test Screenshot",
+                  description: "Current page captured for testing",
+                });
+              }).catch(error => {
+                console.error("Test capture failed:", error);
+              });
+            }}
+            variant="outline" 
+            className="gap-2"
+          >
+            <Camera className="h-4 w-4" />
+            Test Capture Current Page
+          </Button>
           <Button onClick={captureAllPages} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Capture All Ready Pages
