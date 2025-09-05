@@ -472,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Flashscore fixtures parser function
-  async function parseFlashscoreFixtures(html: string) {
+  async function parseFlashscoreFixtures(html: string, url: string) {
     const fixtures: any[] = [];
     const cheerio = await import('cheerio');
     const $ = cheerio.load(html);
@@ -488,129 +488,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Found team name: ${teamName}`);
 
-      // Find all fixture rows - they typically have specific classes or patterns
-      const fixtureElements = $('[class*="event__match"], .event-row, [data-testid*="match"], .fixture');
-      
-      if (fixtureElements.length === 0) {
-        console.log("No fixture elements found, trying alternative selectors...");
-        // Try alternative patterns
-        const alternativeElements = $('a[href*="/match/"], .match, .fixture, [class*="fixture"]');
-        console.log(`Found ${alternativeElements.length} alternative fixture elements`);
-      }
-
-      // Try different parsing approaches
-      console.log("Trying multiple parsing strategies...");
-      
-      // Strategy 1: Look for fixture containers with multiple selectors
-      const possibleSelectors = [
-        '[class*="event"], [data-testid*="event"], [class*="match"], [data-testid*="match"]',
-        '.event__match, .fixture, .match-item, [class*="fixture"]',
-        'div[class*="event"], div[class*="match"], div[class*="fixture"]',
-        '[role="row"], tr, .table-row'
-      ];
-
-      let foundFixtures = false;
-      
-      for (const selector of possibleSelectors) {
-        console.log(`Trying selector: ${selector}`);
-        const elements = $(selector);
-        console.log(`Found ${elements.length} elements with selector`);
+      // Use the same successful approach as player import
+      if (url.includes('flashscore.')) {
+        console.log('Detected Flashscore - using successful text parser approach');
         
-        if (elements.length > 0) {
-          elements.each((index, element) => {
-            const $element = $(element);
-            const text = $element.text();
+        // Parse the entire text like the player parser does
+        const fullText = $('body').text();
+        const lines = fullText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        
+        console.log(`Processing ${lines.length} lines of text for fixtures...`);
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Look for date patterns with various formats
+          // Pattern 1: "DD.MM 15:00" or "DD.MM. 15:00"
+          let dateTimeMatch = line.match(/(\d{1,2}\.\d{1,2}\.?)\s+(\d{1,2}:\d{2})/);
+          
+          if (dateTimeMatch) {
+            const [, dateStr, timeStr] = dateTimeMatch;
+            console.log(`Found potential fixture date/time: ${dateStr} ${timeStr} in line: "${line}"`);
             
-            // Debug: Log the actual text content we're examining
-            if (index < 5) { // Only log first 5 elements to avoid spam
-              console.log(`Element ${index} text: "${text.replace(/\s+/g, ' ').trim()}"`);
-            }
+            // Look for team names in surrounding lines
+            let homeTeam = '';
+            let awayTeam = '';
             
-            // Look for date patterns: various formats
-            const datePatterns = [
-              /(\d{1,2}[\./]\d{1,2}[\./]?\d{0,4})\s*(\d{1,2}:\d{2})/,  // DD.MM or DD.MM.YYYY with time
-              /(\d{1,2}[\./]\d{1,2})\s+(\d{1,2}:\d{2})/,               // DD/MM with time
-              /(\d{4}-\d{2}-\d{2})\s*(\d{1,2}:\d{2})/,                 // YYYY-MM-DD with time
-            ];
+            // Check current line and surrounding lines for team names
+            const searchLines = [
+              lines[i - 2] || '',
+              lines[i - 1] || '',
+              line,
+              lines[i + 1] || '',
+              lines[i + 2] || ''
+            ].filter(l => l.length > 0);
             
-            for (const pattern of datePatterns) {
-              const dateTimeMatch = text.match(pattern);
+            // Look for team vs team pattern
+            for (const searchLine of searchLines) {
+              const cleanLine = searchLine.replace(/\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}/, '').trim();
               
-              if (dateTimeMatch) {
-                const [, dateStr, timeStr] = dateTimeMatch;
-                console.log(`Found date/time: ${dateStr} ${timeStr} in text: ${text.substring(0, 100)}...`);
-                
-                // Look for team names in various ways
-                let homeTeam = '';
-                let awayTeam = '';
-                
-                // Clean the text and split by common separators
-                const cleanText = text.replace(/\s+/g, ' ').trim();
-                const parts = cleanText.split(/\s*[-–—vs\.]\s*/i);
-                
-                // Try to find two team names
-                const possibleTeams = parts.filter(part => {
-                  const trimmed = part.trim();
-                  return trimmed.length > 2 && 
-                         trimmed.length < 40 && 
-                         !trimmed.match(/^\d/) && // Not starting with number
-                         !trimmed.match(/\d{1,2}:\d{2}/) && // Not time
-                         !trimmed.match(/^\d{1,2}[\./]\d{1,2}/) && // Not date
-                         !trimmed.match(/^(Home|Away|Neutral)$/i); // Not venue
-                });
-                
-                console.log(`Possible teams found: ${possibleTeams.join(', ')}`);
-                
-                if (possibleTeams.length >= 2) {
-                  // Take first two as home and away
-                  homeTeam = possibleTeams[0].trim();
-                  awayTeam = possibleTeams[1].trim();
-                } else if (possibleTeams.length === 1 && teamName) {
-                  // One team found, use teamName as the other
-                  const foundTeam = possibleTeams[0].trim();
-                  if (foundTeam !== teamName) {
-                    if (text.toLowerCase().includes('home') || text.toLowerCase().includes('h')) {
-                      homeTeam = teamName;
-                      awayTeam = foundTeam;
-                    } else {
-                      homeTeam = foundTeam;
-                      awayTeam = teamName;
-                    }
+              // Try different separators
+              const separators = [' - ', ' vs ', ' v ', ' VS '];
+              for (const sep of separators) {
+                if (cleanLine.includes(sep)) {
+                  const parts = cleanLine.split(sep);
+                  if (parts.length === 2) {
+                    homeTeam = parts[0].trim();
+                    awayTeam = parts[1].trim();
+                    console.log(`Found teams via separator "${sep}": ${homeTeam} vs ${awayTeam}`);
+                    break;
                   }
                 }
+              }
+              if (homeTeam && awayTeam) break;
+            }
+            
+            // If no separator found, look for team names near the date/time
+            if (!homeTeam || !awayTeam) {
+              for (const searchLine of searchLines) {
+                // Skip lines with only date/time
+                if (searchLine.match(/^\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}$/)) continue;
                 
-                if (homeTeam && awayTeam && homeTeam !== awayTeam) {
-                  // Parse date
-                  let fixtureDate: Date;
-                  try {
-                    if (dateStr.includes('/') || dateStr.includes('.')) {
-                      const [day, month, year] = dateStr.split(/[\/\.]/).map(n => parseInt(n));
-                      const currentYear = new Date().getFullYear();
-                      const fullYear = year && year > 2000 ? year : (year ? 2000 + year : currentYear);
-                      fixtureDate = new Date(fullYear, (month || 1) - 1, day || 1);
-                    } else {
-                      fixtureDate = new Date(dateStr);
-                    }
-                    
-                    // If date is in the past, assume next year
-                    if (fixtureDate < new Date() && !year) {
-                      fixtureDate.setFullYear(fixtureDate.getFullYear() + 1);
-                    }
-                  } catch (e) {
-                    console.log(`Failed to parse date: ${dateStr}`);
-                    continue;
+                // Look for valid team names (2-30 chars, not just numbers)
+                const trimmed = searchLine.replace(/\d{1,2}\.\d{1,2}\.?\s+\d{1,2}:\d{2}/, '').trim();
+                if (trimmed.length >= 2 && trimmed.length <= 30 && 
+                    !trimmed.match(/^\d+$/) && 
+                    !trimmed.match(/^(Home|Away|Neutral|WIN|LOSS|DRAW)$/i)) {
+                  
+                  if (!homeTeam) {
+                    homeTeam = trimmed;
+                  } else if (!awayTeam && trimmed !== homeTeam) {
+                    awayTeam = trimmed;
+                    break;
                   }
+                }
+              }
+            }
+            
+            // If we found team names, create fixture
+            if (homeTeam && awayTeam && homeTeam !== awayTeam) {
+              // Parse date
+              const currentYear = new Date().getFullYear();
+              const [day, month] = dateStr.replace(/\./g, '').split('.').map(n => parseInt(n) || 1);
+              
+              // Assume next year if month is less than current month
+              let year = currentYear;
+              const currentMonth = new Date().getMonth() + 1;
+              if (month < currentMonth) {
+                year = currentYear + 1;
+              }
+              
+              const fixtureDate = new Date(year, month - 1, day);
+              
+              const fixture = {
+                date: fixtureDate.toISOString(),
+                time: timeStr,
+                homeTeam: homeTeam.trim(),
+                awayTeam: awayTeam.trim(),
+                userTeam: teamName,
+                isHome: homeTeam.trim().includes(teamName) || homeTeam.trim() === teamName
+              };
+              
+              // Check for duplicates
+              const isDuplicate = fixtures.some(f => 
+                f.date === fixture.date && 
+                f.homeTeam === fixture.homeTeam && 
+                f.awayTeam === fixture.awayTeam
+              );
+              
+              if (!isDuplicate) {
+                fixtures.push(fixture);
+                console.log(`Found Flashscore fixture: ${fixture.homeTeam} vs ${fixture.awayTeam} on ${dateStr} at ${timeStr}`);
+              }
+            }
+          }
+        }
+        
+        // Alternative approach: Look for match links like player parser does
+        if (fixtures.length === 0) {
+          console.log('Text parsing failed, trying match link approach...');
+          
+          $('a[href*="/match/"]').each((_, linkEl) => {
+            const $link = $(linkEl);
+            const linkText = $link.text().trim();
+            
+            // Look for parent container with date/time info
+            let $container = $link.closest('tr, .event, [class*="match"], [class*="fixture"]');
+            if (!$container.length) {
+              $container = $link.parent();
+              let attempts = 0;
+              while ($container.length && attempts < 3) {
+                const containerText = $container.text();
+                if (containerText.includes(':') && containerText.match(/\d{1,2}:\d{2}/)) {
+                  break;
+                }
+                $container = $container.parent();
+                attempts++;
+              }
+            }
+            
+            const containerText = $container.text();
+            const dateTimeMatch = containerText.match(/(\d{1,2}\.\d{1,2}\.?)\s+(\d{1,2}:\d{2})/);
+            
+            if (dateTimeMatch && linkText.length > 2) {
+              const [, dateStr, timeStr] = dateTimeMatch;
+              
+              // Try to extract team names from link text
+              const teams = linkText.split(/\s*[-–—vs\.]\s*/i);
+              if (teams.length >= 2) {
+                const homeTeam = teams[0].trim();
+                const awayTeam = teams[1].trim();
+                
+                if (homeTeam.length > 1 && awayTeam.length > 1) {
+                  const currentYear = new Date().getFullYear();
+                  const [day, month] = dateStr.replace(/\./g, '').split('.').map(n => parseInt(n) || 1);
+                  const fixtureDate = new Date(currentYear, month - 1, day);
                   
                   const fixture = {
                     date: fixtureDate.toISOString(),
                     time: timeStr,
-                    homeTeam: homeTeam.trim(),
-                    awayTeam: awayTeam.trim(),
+                    homeTeam: homeTeam,
+                    awayTeam: awayTeam,
                     userTeam: teamName,
-                    isHome: homeTeam.trim().includes(teamName) || homeTeam.trim() === teamName
+                    isHome: homeTeam.includes(teamName) || homeTeam === teamName
                   };
                   
-                  // Check for duplicates
                   const isDuplicate = fixtures.some(f => 
                     f.date === fixture.date && 
                     f.homeTeam === fixture.homeTeam && 
@@ -619,20 +660,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   
                   if (!isDuplicate) {
                     fixtures.push(fixture);
-                    foundFixtures = true;
-                    console.log(`Found fixture: ${fixture.homeTeam} vs ${fixture.awayTeam} on ${dateStr} at ${timeStr}`);
+                    console.log(`Found fixture via link: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
                   }
                 }
-                
-                break; // Found a date pattern, move to next element
               }
             }
           });
-        }
-        
-        if (foundFixtures && fixtures.length > 0) {
-          console.log(`Successfully found fixtures with selector: ${selector}`);
-          break; // Stop trying other selectors if we found fixtures
         }
       }
 
@@ -711,7 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Fetched HTML content, size: ${html.length} chars`);
 
       // Parse fixtures using our Flashscore parser
-      const fixtures = await parseFlashscoreFixtures(html);
+      const fixtures = await parseFlashscoreFixtures(html, url);
 
       res.json({
         success: true,
