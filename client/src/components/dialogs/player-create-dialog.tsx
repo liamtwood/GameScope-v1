@@ -100,8 +100,80 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* NAME INFORMATION Section */}
+            {/* TEAM INFORMATION Section */}
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold">TEAM INFORMATION</h3>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Position</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-position">
+                            <SelectValue placeholder="Select position" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                          <SelectItem value="Defender">Defender</SelectItem>
+                          <SelectItem value="Midfield">Midfield</SelectItem>
+                          <SelectItem value="Forward">Forward</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="jerseyNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jersey Number</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="0" 
+                          {...field} 
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          data-testid="input-jersey-number"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fitnessStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fitness Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-fitness-status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Fit">Fit</SelectItem>
+                          <SelectItem value="Injured">Injured</SelectItem>
+                          <SelectItem value="Retired">Retired</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* NAME INFORMATION Section */}
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="text-lg font-semibold">NAME INFORMATION</h3>
               
               <div className="grid grid-cols-3 gap-4">
@@ -254,78 +326,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   </FormItem>
                 )}
               />
-            </div>
-
-            {/* TEAM INFORMATION Section */}
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-semibold">TEAM INFORMATION</h3>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Position</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-position">
-                            <SelectValue placeholder="Select position" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
-                          <SelectItem value="Defender">Defender</SelectItem>
-                          <SelectItem value="Midfield">Midfield</SelectItem>
-                          <SelectItem value="Forward">Forward</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="jerseyNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Jersey Number</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                          data-testid="input-jersey-number"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fitnessStatus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fitness Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-fitness-status">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Fit">Fit</SelectItem>
-                          <SelectItem value="Injured">Injured</SelectItem>
-                          <SelectItem value="Retired">Retired</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
 
 
