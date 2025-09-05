@@ -25,26 +25,23 @@ import { InsertPlayer } from "@shared/schema";
 
 const createPlayerSchema = z.object({
   teamId: z.string(),
-  clubId: z.string().optional(), // Add clubId to schema
+  clubId: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  position: z.enum(["goalkeeper", "defender", "midfield", "forward"], {
+  position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"], {
     required_error: "Position is required",
   }),
   jerseyNumber: z.number().min(0),
-  fitnessStatus: z.string().default("Fit"), // Changed from status to fitnessStatus
-  keyPlayer: z.boolean().optional(),
-  // Personal info
-  hometown: z.string().optional(),
-  year: z.string().optional(),
-  height: z.string().optional(),
+  fitnessStatus: z.string().default("Fit"),
+  starPlayer: z.boolean().optional(),
   // Account fields
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
   emergencyContact: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
   gender: z.enum(["Male", "Female"]).optional(),
   dateOfBirth: z.string().optional(),
-  accountStatus: z.enum(["Draft", "Active", "Suspended", "Retired"]).default("Active"), // Separate user account status
+  status: z.enum(["Draft", "Active", "Suspended", "Retired"]).default("Active"),
 });
 
 type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
@@ -69,14 +66,12 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       position: undefined,
       jerseyNumber: 0,
       fitnessStatus: "Fit",
-      accountStatus: "Active",
-      keyPlayer: false,
-      hometown: "",
-      year: "",
-      height: "",
+      status: "Active",
+      starPlayer: false,
       email: "",
       phone: "",
       emergencyContact: "",
+      emergencyContactPhone: "",
       gender: undefined,
       dateOfBirth: "",
     },
@@ -153,18 +148,18 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
               />
               <FormField
                 control={form.control}
-                name="keyPlayer"
+                name="starPlayer"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>Key Player</FormLabel>
+                      <FormLabel>Star Player</FormLabel>
                     </div>
                     <FormControl>
                       <input 
                         type="checkbox" 
                         checked={field.value} 
                         onChange={field.onChange}
-                        data-testid="checkbox-key-player"
+                        data-testid="checkbox-star-player"
                       />
                     </FormControl>
                   </FormItem>
@@ -186,10 +181,10 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="goalkeeper">Goalkeeper</SelectItem>
-                        <SelectItem value="defender">Defender</SelectItem>
-                        <SelectItem value="midfield">Midfield</SelectItem>
-                        <SelectItem value="forward">Forward</SelectItem>
+                        <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                        <SelectItem value="Defender">Defender</SelectItem>
+                        <SelectItem value="Midfield">Midfield</SelectItem>
+                        <SelectItem value="Forward">Forward</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -224,47 +219,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
             <div className="space-y-4 pt-4 border-t">
               <h3 className="text-lg font-semibold">Personal Information</h3>
               
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="hometown"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Hometown</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter hometown" {...field} data-testid="input-hometown" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year/Age Group</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Freshman, U18" {...field} data-testid="input-year" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Height</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. 5'8&quot;" {...field} data-testid="input-height" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField
@@ -360,13 +314,13 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                 />
                 <FormField
                   control={form.control}
-                  name="accountStatus"
+                  name="status"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Account Status</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-account-status">
+                          <SelectTrigger data-testid="select-status">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
