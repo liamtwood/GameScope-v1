@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Download, Eye, RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Camera, Download, Eye, RefreshCw, Monitor, Square, Settings, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -66,6 +67,114 @@ export default function Screenshots() {
   ];
 
   const allItems = [...pages, ...modals];
+
+  // Function to render the table for any array of items
+  const renderTable = (items: PageInfo[]) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Path/Description</TableHead>
+          <TableHead>Last Modified</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map((item, index) => {
+          const key = `${item.type}-${item.name}`;
+          const hasScreenshot = screenshots[key];
+          const isCapturing = capturing[key];
+          const lastModified = fileModifications?.[item.name] || 0;
+
+          return (
+            <TableRow key={index}>
+              <TableCell className="font-medium">{item.name}</TableCell>
+              <TableCell>
+                <Badge variant={item.type === "page" ? "default" : "secondary"}>
+                  {item.type}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="space-y-1">
+                  {item.type === "page" ? (
+                    <code className="text-sm bg-muted px-2 py-1 rounded">
+                      {item.path}
+                    </code>
+                  ) : (
+                    <span className="text-sm">{item.description}</span>
+                  )}
+                  {item.hasParams && (
+                    <div className="text-xs text-muted-foreground">
+                      Requires: {item.paramExample}
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                {lastModified > 0 ? (
+                  <div className="text-sm">
+                    <div>{new Date(lastModified).toLocaleDateString()}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(lastModified).toLocaleTimeString()}
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">Unknown</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {isCapturing ? (
+                  <Badge variant="outline">Capturing...</Badge>
+                ) : hasScreenshot ? (
+                  <Badge variant="default">Captured</Badge>
+                ) : (
+                  <Badge variant="secondary">Not captured</Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => captureScreenshot(item)}
+                    disabled={isCapturing || item.type === "modal"}
+                    className="gap-1"
+                  >
+                    <Camera className="h-3 w-3" />
+                    Capture
+                  </Button>
+                  {hasScreenshot && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => viewScreenshot(item)}
+                        className="gap-1"
+                      >
+                        <Eye className="h-3 w-3" />
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => downloadScreenshot(item)}
+                        className="gap-1"
+                      >
+                        <Download className="h-3 w-3" />
+                        Download
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
 
   const captureScreenshot = useCallback(async (item: PageInfo) => {
     const key = `${item.type}-${item.name}`;
@@ -156,117 +265,76 @@ export default function Screenshots() {
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Application Pages & Modals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Path/Description</TableHead>
-                  <TableHead>Last Modified</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allItems.map((item, index) => {
-                  const key = `${item.type}-${item.name}`;
-                  const hasScreenshot = screenshots[key];
-                  const isCapturing = capturing[key];
-                  const lastModified = fileModifications?.[item.name] || 0;
-
-                  return (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>
-                        <Badge variant={item.type === "page" ? "default" : "secondary"}>
-                          {item.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {item.type === "page" ? (
-                            <code className="text-sm bg-muted px-2 py-1 rounded">
-                              {item.path}
-                            </code>
-                          ) : (
-                            <span className="text-sm">{item.description}</span>
-                          )}
-                          {item.hasParams && (
-                            <div className="text-xs text-muted-foreground">
-                              Requires: {item.paramExample}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {lastModified > 0 ? (
-                          <div className="text-sm">
-                            <div>{new Date(lastModified).toLocaleDateString()}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {new Date(lastModified).toLocaleTimeString()}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">Unknown</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {isCapturing ? (
-                          <Badge variant="outline">Capturing...</Badge>
-                        ) : hasScreenshot ? (
-                          <Badge variant="default">Captured</Badge>
-                        ) : (
-                          <Badge variant="secondary">Not captured</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => captureScreenshot(item)}
-                            disabled={isCapturing || item.type === "modal"}
-                            className="gap-1"
-                          >
-                            <Camera className="h-3 w-3" />
-                            Capture
-                          </Button>
-                          {hasScreenshot && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => viewScreenshot(item)}
-                                className="gap-1"
-                              >
-                                <Eye className="h-3 w-3" />
-                                View
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => downloadScreenshot(item)}
-                                className="gap-1"
-                              >
-                                <Download className="h-3 w-3" />
-                                Download
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all" className="flex items-center gap-2">
+              <Monitor className="h-4 w-4" />
+              All ({allItems.length})
+            </TabsTrigger>
+            <TabsTrigger value="pages" className="flex items-center gap-2">
+              <Square className="h-4 w-4" />
+              Pages ({pages.length})
+            </TabsTrigger>
+            <TabsTrigger value="modals" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Modals ({modals.length})
+            </TabsTrigger>
+            <TabsTrigger value="management" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Management
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Pages & Modals</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {renderTable(allItems)}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="pages" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Pages</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {renderTable(pages)}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="modals" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Modal Dialogs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {renderTable(modals)}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="management" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Management & Admin Pages</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {renderTable(pages.filter(page => 
+                  page.name.includes('Management') || 
+                  page.name.includes('DevOps') ||
+                  page.name.includes('Users') ||
+                  page.name.includes('Clubs') ||
+                  page.name.includes('Settings')
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {Object.keys(screenshots).length > 0 && (
           <Card>
