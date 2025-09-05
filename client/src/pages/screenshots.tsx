@@ -475,60 +475,16 @@ export default function Screenshots() {
         <div className="flex justify-end gap-2">
           <Button 
             onClick={() => {
-              // Simple test - capture current page without navigation
-              const testKey = "test-current-page";
-              console.log("Testing screenshot capture...");
-              html2canvas(document.documentElement, {
-                useCORS: true,
-                allowTaint: true,
-                scale: 1,
-                backgroundColor: '#ffffff',
-                logging: false,
-                imageTimeout: 30000,
-                removeContainer: false,
-                foreignObjectRendering: false,
-                scrollX: 0,
-                scrollY: 0,
-                width: window.innerWidth,
-                height: window.innerHeight,
-                onclone: (clonedDoc) => {
-                  // Ensure all images are loaded in the cloned document
-                  const images = clonedDoc.querySelectorAll('img');
-                  images.forEach(img => {
-                    if (img.src && !img.complete) {
-                      img.crossOrigin = 'anonymous';
-                    }
-                  });
-                }
-              }).then(canvas => {
-                const dataUrl = canvas.toDataURL('image/png');
-                const newScreenshots = { ...screenshots, [testKey]: dataUrl };
-                const newTimestamps = { ...captureTimestamps, [testKey]: Date.now() };
-                
-                setScreenshots(newScreenshots);
-                setCaptureTimestamps(newTimestamps);
-                
-                localStorage.setItem('screenshot-data', JSON.stringify(newScreenshots));
-                localStorage.setItem('screenshot-timestamps', JSON.stringify(newTimestamps));
-                
-                console.log("Test screenshot captured:", dataUrl.length);
-                toast({
-                  title: "Test Screenshot",
-                  description: "Current page captured for testing",
-                });
-              }).catch(error => {
-                console.error("Test capture failed:", error);
+              toast({
+                title: "Browser Screenshot Recommended",
+                description: "For best quality: Press F12 → Ctrl+Shift+P → Type 'screenshot' → Capture full size screenshot",
               });
             }}
             variant="outline" 
             className="gap-2"
           >
             <Camera className="h-4 w-4" />
-            Test Capture Current Page
-          </Button>
-          <Button onClick={captureAllPages} className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Capture All Ready Pages
+            How to Take Perfect Screenshots
           </Button>
         </div>
 
