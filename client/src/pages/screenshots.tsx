@@ -249,7 +249,7 @@ export default function Screenshots() {
         setLocation(item.path);
         
         // Wait for navigation and rendering
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Capture screenshot
         const canvas = await html2canvas(document.body, {
@@ -261,6 +261,14 @@ export default function Screenshots() {
         });
         
         const dataUrl = canvas.toDataURL('image/png');
+        
+        // Navigate back to screenshots page
+        setLocation('/screenshots');
+        
+        // Wait a moment for navigation back
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Update state
         setScreenshots(prev => ({ ...prev, [key]: dataUrl }));
         setCaptureTimestamps(prev => ({ ...prev, [key]: Date.now() }));
         
@@ -290,12 +298,12 @@ export default function Screenshots() {
   }, [setLocation, toast]);
 
   const captureAllPages = useCallback(async () => {
-    const readyPages = pages.filter(page => {
-      const key = `${page.type}-${page.name}`;
+    const allReadyItems = [...pages, ...modals, ...tabs].filter(item => {
+      const key = `${item.type}-${item.name}`;
       return readyStates[key];
     });
     
-    if (readyPages.length === 0) {
+    if (allReadyItems.length === 0) {
       toast({
         title: "No Pages Ready",
         description: "Please mark at least one page as ready before capturing.",
@@ -304,17 +312,29 @@ export default function Screenshots() {
       return;
     }
     
+    // Only capture pages (skip modals and tabs for now)
+    const readyPages = allReadyItems.filter(item => item.type === "page");
+    
+    if (readyPages.length === 0) {
+      toast({
+        title: "No Pages Ready",
+        description: "Only page screenshots are supported. Please mark at least one page as ready.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     for (const page of readyPages) {
       await captureScreenshot(page);
       // Add delay between captures
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
     
     toast({
       title: "Capture Complete",
       description: `Successfully captured ${readyPages.length} ready pages.`,
     });
-  }, [pages, readyStates, captureScreenshot, toast]);
+  }, [pages, modals, tabs, readyStates, captureScreenshot, toast]);
 
   const downloadScreenshot = (item: PageInfo) => {
     const key = `${item.type}-${item.name}`;
