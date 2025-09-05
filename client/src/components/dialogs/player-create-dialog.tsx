@@ -43,7 +43,7 @@ const createPlayerSchema = z.object({
   position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"], {
     required_error: "Position is required",
   }),
-  jerseyNumber: z.number().min(0),
+  jerseyNumber: z.number().min(0).nullable(),
   fitnessStatus: z.string().default("Fit"),
 });
 
@@ -75,7 +75,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       emergencyContactPhone: "",
       status: "Active",
       position: undefined,
-      jerseyNumber: 0,
+      jerseyNumber: null,
       fitnessStatus: "Fit",
     },
   });
@@ -184,9 +184,10 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="0" 
+                          placeholder="Enter jersey number" 
                           {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                           data-testid="input-jersey-number"
                         />
                       </FormControl>
