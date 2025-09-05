@@ -296,24 +296,20 @@ export default function Screenshots() {
         
         const dataUrl = canvas.toDataURL('image/png');
         
-        // Navigate back to screenshots page
-        setLocation('/screenshots');
+        // Save to localStorage immediately
+        const savedScreenshots = JSON.parse(localStorage.getItem('screenshot-data') || '{}');
+        const savedTimestamps = JSON.parse(localStorage.getItem('screenshot-timestamps') || '{}');
         
-        // Wait a moment for navigation back
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const newScreenshots = { ...savedScreenshots, [key]: dataUrl };
+        const newTimestamps = { ...savedTimestamps, [key]: Date.now() };
         
-        // Update state and save to localStorage
-        const newScreenshots = { ...screenshots, [key]: dataUrl };
-        const newTimestamps = { ...captureTimestamps, [key]: Date.now() };
-        
-        setScreenshots(newScreenshots);
-        setCaptureTimestamps(newTimestamps);
-        
-        // Persist to localStorage
         localStorage.setItem('screenshot-data', JSON.stringify(newScreenshots));
         localStorage.setItem('screenshot-timestamps', JSON.stringify(newTimestamps));
         
         console.log('Screenshot saved for key:', key, 'Data length:', dataUrl.length);
+        
+        // Navigate back to screenshots page
+        setLocation('/screenshots');
         
         toast({
           title: "Screenshot Captured",
