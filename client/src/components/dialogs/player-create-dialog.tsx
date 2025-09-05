@@ -45,7 +45,6 @@ const createPlayerSchema = z.object({
   }),
   jerseyNumber: z.number().min(0),
   fitnessStatus: z.string().default("Fit"),
-  starPlayer: z.boolean().optional(),
 });
 
 type CreatePlayerFormData = z.infer<typeof createPlayerSchema>;
@@ -78,7 +77,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       position: undefined,
       jerseyNumber: 0,
       fitnessStatus: "Fit",
-      starPlayer: false,
     },
   });
 
@@ -328,26 +326,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   )}
                 />
               </div>
-              
-              <FormField
-                control={form.control}
-                name="starPlayer"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Star Player</FormLabel>
-                    </div>
-                    <FormControl>
-                      <input 
-                        type="checkbox" 
-                        checked={field.value} 
-                        onChange={field.onChange}
-                        data-testid="checkbox-star-player"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
 
 
