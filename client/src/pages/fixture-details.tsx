@@ -217,7 +217,7 @@ export default function FixtureDetails() {
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="details" data-testid="tab-details">Details</TabsTrigger>
+            <TabsTrigger value="details" data-testid="tab-details">Fixture Details</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Upload Video</TabsTrigger>
             <TabsTrigger value="lineups" data-testid="tab-lineups">Lineups</TabsTrigger>
             <TabsTrigger value="analysis" data-testid="tab-analysis">GameScope Analysis</TabsTrigger>
@@ -248,17 +248,11 @@ export default function FixtureDetails() {
                   <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Trophy className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{fixture.competition}</p>
-                      </div>
+                      <p className="text-lg mt-1">{fixture.competition}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Match Type</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-lg">{fixture.type}</p>
-                      </div>
+                      <p className="text-lg mt-1">{fixture.type}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Opposition</label>
