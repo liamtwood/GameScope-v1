@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
 import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
+import { ReliableLogoUpload } from "@/components/reliable-logo-upload";
+import { LogoDisplay } from "@/components/logo-display";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -560,86 +562,46 @@ export default function Settings() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {allTeams?.map((team) => (
-                <div key={team.id} className="space-y-2">
+                <div key={team.id} className="space-y-3">
                   <ThemedLogoContainer
                     containerId={`team-logo-${team.id}`}
-                    className="border rounded-lg p-3 transition-all"
+                    className="border rounded-lg p-4 transition-all"
                     showThemeToggle={true}
                   >
-                    <div 
-                      onClick={() => handleEditExistingLogo(team)}
-                      className="cursor-pointer relative"
-                    >
-                      {team.logoPath ? (
-                        <img 
-                          src={team.logoPath} 
+                    <div className="space-y-3">
+                      {/* Logo Display with Fallback */}
+                      <div className="flex justify-center">
+                        <LogoDisplay
+                          src={team.logoPath}
                           alt={`${team.name} logo`}
-                          className="w-full h-32 object-contain rounded"
+                          size="xl"
+                          className="border-0"
                         />
-                      ) : (
-                        <div className="w-full h-32 bg-muted rounded flex items-center justify-center">
-                          <Image className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
+                      </div>
+                      
+                      {/* Team Info */}
+                      <div className="text-center space-y-1">
+                        <p className="text-sm font-medium truncate">{team.name}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {team.type === 'club' ? 'Club' : 'Opposition'}
+                        </Badge>
+                      </div>
+                      
+                      {/* Upload Component */}
+                      <ReliableLogoUpload
+                        entityType={team.type === 'club' ? 'club' : 'opposition-team'}
+                        entityId={team.id}
+                        entityName={team.name}
+                        currentLogo={team.logoPath || undefined}
+                        onUploadComplete={(logoPath) => {
+                          // Refresh the data to show new logo
+                          queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+                          queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                        }}
+                        className="w-full"
+                      />
                     </div>
                   </ThemedLogoContainer>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{team.name}</p>
-                    <Badge variant="outline" className="text-xs mt-1">
-                      {team.type === 'club' ? 'Club' : 'Opposition'}
-                    </Badge>
-                  </div>
-                  {team.logoPath ? (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEnhanceImage(team)}
-                        className="flex-1"
-                        disabled={processing}
-                        data-testid={`button-enhance-${team.id}`}
-                      >
-                        <Wand2 className="mr-1 h-3 w-3" />
-                        Enhance
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenReplacementModal(team)}
-                        className="flex-1"
-                        disabled={processing}
-                        data-testid={`button-replace-${team.id}`}
-                      >
-                        <UploadCloud className="mr-1 h-3 w-3" />
-                        Replace
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenReplacementModal(team)}
-                      className="w-full"
-                      disabled={processing}
-                      data-testid={`button-upload-${team.id}`}
-                    >
-                      <UploadCloud className="mr-1 h-3 w-3" />
-                      Upload Logo
-                    </Button>
-                  )}
-                  {team.logoPath && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteLogo(team)}
-                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                      disabled={processing}
-                      data-testid={`button-delete-${team.id}`}
-                    >
-                      <Trash2 className="mr-1 h-3 w-3" />
-                      Delete Logo
-                    </Button>
-                  )}
                 </div>
               ))}
             </div>

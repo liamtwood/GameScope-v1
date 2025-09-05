@@ -5,6 +5,7 @@ import { Edit, Trash2, MoreHorizontal, Video, ChartSpline } from "lucide-react";
 import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { LogoDisplay } from "@/components/logo-display";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,27 +109,17 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
 
   // Function to get opponent display info
   const getOpponentDisplay = () => {
-    if (oppositionTeam?.logoPath) {
-      return (
-        <img 
-          src={oppositionTeam.logoPath}
-          alt={fixture.opponent}
-          className="h-16 w-16 object-contain cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={handleLogoClick}
-        />
-      );
-    }
-    
-    // Show team initials if no logo
-    const initials = oppositionTeam?.shortName || 
+    const fallbackText = oppositionTeam?.shortName || 
       fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
-    
+
     return (
-      <div 
-        className="h-16 w-16 bg-muted rounded flex items-center justify-center text-sm font-medium text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors"
-        onClick={handleLogoClick}
-      >
-        {initials}
+      <div onClick={handleLogoClick} className="cursor-pointer hover:opacity-80 transition-opacity">
+        <LogoDisplay
+          src={oppositionTeam?.logoPath}
+          alt={fixture.opponent}
+          fallbackText={fallbackText}
+          size="lg"
+        />
       </div>
     );
   };
