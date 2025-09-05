@@ -294,17 +294,20 @@ export default function Screenshots() {
         // Wait for navigation and rendering
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Capture screenshot
-        const canvas = await html2canvas(document.body, {
-          height: window.innerHeight,
-          width: window.innerWidth,
+        // Capture screenshot with better quality settings
+        const canvas = await html2canvas(document.documentElement, {
           useCORS: true,
           allowTaint: true,
-          scale: 1.0,
+          scale: window.devicePixelRatio || 1,
           backgroundColor: '#ffffff',
+          logging: false,
+          imageTimeout: 15000,
           removeContainer: false,
+          foreignObjectRendering: true,
           scrollX: 0,
           scrollY: 0,
+          windowWidth: window.innerWidth,
+          windowHeight: window.innerHeight,
         });
         
         const dataUrl = canvas.toDataURL('image/png');
@@ -466,16 +469,19 @@ export default function Screenshots() {
               // Simple test - capture current page without navigation
               const testKey = "test-current-page";
               console.log("Testing screenshot capture...");
-              html2canvas(document.body, {
-                height: window.innerHeight,
-                width: window.innerWidth,
+              html2canvas(document.documentElement, {
                 useCORS: true,
                 allowTaint: true,
-                scale: 1.0,
+                scale: window.devicePixelRatio || 1,
                 backgroundColor: '#ffffff',
+                logging: false,
+                imageTimeout: 15000,
                 removeContainer: false,
+                foreignObjectRendering: true,
                 scrollX: 0,
                 scrollY: 0,
+                windowWidth: window.innerWidth,
+                windowHeight: window.innerHeight,
               }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
                 const newScreenshots = { ...screenshots, [testKey]: dataUrl };
