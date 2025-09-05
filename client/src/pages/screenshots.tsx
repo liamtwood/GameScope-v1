@@ -294,29 +294,13 @@ export default function Screenshots() {
         // Wait for navigation and rendering
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Capture screenshot with proper aspect ratio
-        const canvas = await html2canvas(document.documentElement, {
-          useCORS: true,
+        // Simple, reliable screenshot capture
+        const canvas = await html2canvas(document.body, {
           allowTaint: true,
-          scale: 1,
           backgroundColor: '#ffffff',
+          scale: 0.75,
           logging: false,
-          imageTimeout: 30000,
-          removeContainer: false,
-          foreignObjectRendering: false,
-          scrollX: 0,
-          scrollY: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-          onclone: (clonedDoc) => {
-            // Ensure all images are loaded in the cloned document
-            const images = clonedDoc.querySelectorAll('img');
-            images.forEach(img => {
-              if (img.src && !img.complete) {
-                img.crossOrigin = 'anonymous';
-              }
-            });
-          }
+          removeContainer: true,
         });
         
         const dataUrl = canvas.toDataURL('image/png');
@@ -476,15 +460,19 @@ export default function Screenshots() {
           <Button 
             onClick={() => {
               toast({
-                title: "Browser Screenshot Recommended",
-                description: "For best quality: Press F12 → Ctrl+Shift+P → Type 'screenshot' → Capture full size screenshot",
+                title: "Pro Tip",
+                description: "For highest quality: Use Alt+Print Screen, then paste. For automation: Use the button below.",
               });
             }}
             variant="outline" 
             className="gap-2"
           >
             <Camera className="h-4 w-4" />
-            How to Take Perfect Screenshots
+            Manual Screenshot Tip
+          </Button>
+          <Button onClick={captureAllPages} className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Capture All Ready Pages
           </Button>
         </div>
 
