@@ -1188,6 +1188,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Add to team with position (we already know they're not in the team)
         if (teamId && playerData.position) {
           try {
+            // Get team info to find the club
+            const team = await storage.getTeam(teamId);
+            
             const teamAssignment = {
               userId: user.id,
               teamId,
@@ -1200,6 +1203,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
             await storage.addUserToTeam(user.id, teamId, teamAssignment);
             console.log(`Successfully added user ${user.id} to team ${teamId}`);
+            
+            // Also add to club if team has a club
+            if (team?.clubId) {
+              try {
+                const clubAssignment = {
+                  status: 'Active' as const,
+                  joinedAt: new Date()
+                };
+                await storage.addUserToClub(user.id, team.clubId, clubAssignment);
+                console.log(`Successfully added user ${user.id} to club ${team.clubId}`);
+              } catch (clubError) {
+                console.error(`Error adding user ${user.id} to club ${team.clubId}:`, clubError);
+              }
+            } else {
+              console.log(`Team ${teamId} has no associated club - skipping club assignment`);
+            }
           } catch (error) {
             console.error(`Error adding user ${user.id} to team ${teamId}:`, error);
           }
