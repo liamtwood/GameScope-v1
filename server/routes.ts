@@ -1480,7 +1480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Club logo upload endpoint - filesystem-based for reliability
+  // Club logo upload endpoint - uses object storage for production reliability
   app.post('/api/clubs/logo', logoUpload.single('logo'), async (req, res) => {
     try {
       const clubId = req.body.clubId;
@@ -1490,27 +1490,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Club ID and logo file are required' });
       }
 
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      await fs.mkdir(uploadsDir, { recursive: true });
+      // Use object storage for production-ready logo storage
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
+      
+      // Upload directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file.buffer,
+        headers: {
+          'Content-Type': file.mimetype,
+        },
+      });
 
-      // Generate unique filename
-      const timestamp = Date.now();
-      const ext = path.extname(file.originalname) || '.png';
-      const filename = `club-${clubId}-logo-${timestamp}${ext}`;
-      const filepath = path.join(uploadsDir, filename);
+      if (!uploadResponse.ok) {
+        throw new Error(`Object storage upload failed: ${uploadResponse.status}`);
+      }
 
-      // Save the file
-      await fs.writeFile(filepath, file.buffer);
-
-      // Update the club with the logo path
-      const logoPath = `/assets/uploads/${filename}`;
+      // Get the normalized path for serving
+      const logoPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
       await storage.updateClub(clubId, { logoPath });
 
       res.json({ 
         success: true, 
         logoPath,
-        message: 'Club logo uploaded and saved successfully'
+        message: 'Club logo uploaded to cloud storage successfully'
       });
 
     } catch (error) {
@@ -1528,27 +1532,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Team ID and logo file are required' });
       }
 
-      // Create team-logos directory if it doesn't exist (this works in production)
-      const logoDir = path.join(process.cwd(), 'client', 'public', 'assets', 'team-logos');
-      await fs.mkdir(logoDir, { recursive: true });
+      // Use object storage for production-ready logo storage
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
+      
+      // Upload directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file.buffer,
+        headers: {
+          'Content-Type': file.mimetype,
+        },
+      });
 
-      // Generate unique filename
-      const timestamp = Date.now();
-      const ext = path.extname(file.originalname) || '.png';
-      const filename = `${teamId}-logo-${timestamp}${ext}`;
-      const filepath = path.join(logoDir, filename);
+      if (!uploadResponse.ok) {
+        throw new Error(`Object storage upload failed: ${uploadResponse.status}`);
+      }
 
-      // Save the file
-      await fs.writeFile(filepath, file.buffer);
-
-      // Update the opposition team with the logo path (this path works in production)
-      const logoPath = `/assets/team-logos/${filename}`;
+      // Get the normalized path for serving
+      const logoPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
       await storage.updateOppositionTeam(teamId, { logoPath });
 
       res.json({ 
         success: true, 
         logoPath,
-        message: 'Logo uploaded and saved successfully'
+        message: 'Opposition team logo uploaded to cloud storage successfully'
       });
 
     } catch (error) {
