@@ -881,19 +881,23 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Emergency contact</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">User status</label>
                           <div className="mt-0.5">
                             {isEditing ? (
-                              <Input
-                                value={editData.emergencyContact || ''}
-                                onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                                className="h-6 text-sm font-semibold"
-                                placeholder="Name and phone number"
-                                data-testid={`input-emergency-contact-${player.id}`}
-                              />
+                              <select
+                                value={editData.accountStatus || player.accountStatus || 'Draft'}
+                                onChange={(e) => handleInputChange('accountStatus', e.target.value)}
+                                className="h-6 text-sm font-semibold border border-gray-300 rounded px-2 bg-white"
+                                data-testid={`select-user-status-${player.id}`}
+                              >
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="Suspended">Suspended</option>
+                                <option value="Retired">Retired</option>
+                              </select>
                             ) : (
-                              <span className="text-sm font-semibold text-gray-900" data-testid={`text-emergency-contact-${player.id}`}>
-                                {player.emergencyContact || "Not provided"}
+                              <span className={`text-sm font-semibold px-2 py-1 rounded text-xs ${getAccountStatusColor(player.accountStatus || 'Draft')}`} data-testid={`text-user-status-${player.id}`}>
+                                {player.accountStatus || "Draft"}
                               </span>
                             )}
                           </div>
