@@ -140,7 +140,17 @@ export const systemTeams = pgTable("system_teams", {
   name: text("name").notNull().unique(),
   shortName: varchar("short_name", { length: 10 }),
   logoUrl: text("logo_url"), // Object storage URL (different from logoPath)
+  // Location and contact information (same as clubs table)
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  postalCode: text("postal_code"),
+  phone: text("phone"),
+  email: text("email"),
   websiteUrl: text("website_url"),
+  description: text("description"),
+  established: text("established"), // Year established
   colors: jsonb("colors"), // Primary and secondary team colors
   // Metadata for system management
   isVerified: boolean("is_verified").default(false), // Admin-verified teams
