@@ -1751,7 +1751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload logo for system team (uses object storage)
-  app.post('/api/system-teams/:id/logo', upload.single('logo'), async (req, res) => {
+  app.post('/api/system-teams/:id/logo', logoUpload.single('logo'), async (req, res) => {
     try {
       const teamId = req.params.id;
       const file = req.file;
@@ -1766,30 +1766,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'System team not found' });
       }
 
-      // Use object storage service for upload
+      // Use object storage for system teams (production-ready cloud storage)
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       
-      // For now, we'll save to filesystem like other logos and provide object storage later
-      // This ensures the API works immediately while we build the object storage integration
-      const logoDir = path.join(process.cwd(), 'client', 'public', 'assets', 'team-logos');
-      await fs.mkdir(logoDir, { recursive: true });
+      // Upload directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file.buffer,
+        headers: {
+          'Content-Type': file.mimetype,
+        },
+      });
 
-      const timestamp = Date.now();
-      const ext = path.extname(file.originalname) || '.png';
-      const filename = `system-${teamId}-logo-${timestamp}${ext}`;
-      const filepath = path.join(logoDir, filename);
+      if (!uploadResponse.ok) {
+        throw new Error(`Object storage upload failed: ${uploadResponse.status}`);
+      }
 
-      // Save the file
-      await fs.writeFile(filepath, file.buffer);
+      // Normalize the uploaded URL to get the entity path
+      const finalPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
-      // Update the system team with the logo URL
-      const logoUrl = `/assets/team-logos/${filename}`;
-      const updatedTeam = await storage.updateSystemTeam(teamId, { logoUrl });
+      // Update the system team with the object storage URL
+      const updatedTeam = await storage.updateSystemTeam(teamId, { logoUrl: finalPath });
 
       res.json({ 
         success: true, 
-        logoUrl,
+        logoUrl: finalPath,
         team: updatedTeam,
         message: 'System team logo uploaded successfully'
       });
