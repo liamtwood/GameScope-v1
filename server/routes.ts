@@ -472,9 +472,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Flashscore fixtures parser function
-  function parseFlashscoreFixtures(html: string) {
+  async function parseFlashscoreFixtures(html: string) {
     const fixtures: any[] = [];
-    const cheerio = require('cheerio');
+    const cheerio = await import('cheerio');
     const $ = cheerio.load(html);
 
     console.log("Starting Flashscore fixtures parsing...");
@@ -635,7 +635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Fetched HTML content, size: ${html.length} chars`);
 
       // Parse fixtures using our Flashscore parser
-      const fixtures = parseFlashscoreFixtures(html);
+      const fixtures = await parseFlashscoreFixtures(html);
 
       res.json({
         success: true,
