@@ -510,31 +510,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Found player links:', $('a[href*="/players/"]').length);
       console.log('URL hostname:', new URL(url).hostname);
       
-      // Check if this is Flashscore (clean table structure)
-      if (url.includes('flashscore.')) {
+      // Check if this is Flashscore (clean table structure) - temporarily disabled due to syntax error
+      if (false && url.includes('flashscore.')) {
         console.log('Detected Flashscore - using table parser');
         
         // Look for section headers and player table rows
         const sections = ['Goalkeepers', 'Defenders', 'Midfielders', 'Forwards', 'Attackers'];
         
-        sections.forEach(sectionName => {
-          // Find section header
-          $(`*:contains("${sectionName}")`).filter(function() {
-            return $(this).text().trim() === sectionName;
-          }).each((_: any, sectionEl: any) => {
-            console.log(`Found Flashscore section: ${sectionName}`);
+        // Try a different approach - parse the entire text and group by position headers
+        const fullText = $('body').text();
+        const lines = fullText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        
+        let currentPosition = 'Unknown';
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Check if this line is a position header
+          if (line === 'Goalkeepers') {
+            currentPosition = 'Goalkeeper';
+            console.log(`Found position section: Goalkeepers`);
+            continue;
+          } else if (line === 'Defenders') {
+            currentPosition = 'Defender';
+            console.log(`Found position section: Defenders`);
+            continue;
+          } else if (line === 'Midfielders') {
+            currentPosition = 'Midfielder';
+            console.log(`Found position section: Midfielders`);
+            continue;
+          } else if (line === 'Forwards' || line === 'Attackers') {
+            currentPosition = 'Forward';
+            console.log(`Found position section: ${line}`);
+            continue;
+          }
+          
+          // Skip header lines like "#", "Name", "Age", "MIN"
+          if (line === '#' || line === 'Name' || line === 'Age' || line === 'MIN') {
+            continue;
+          }
+          
+          // Look for player lines: number + name + age pattern
+          const playerMatch = line.match(/^(\d+)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)\s+(\d{1,2}|\?)/);
+          if (playerMatch) {
+            const [, number, name, ageStr] = playerMatch;
+            const age = ageStr === '?' ? null : parseInt(ageStr);
+            const cleanName = name.trim();
             
-            // Look for table rows after this section
-            const $section = $(sectionEl);
-            let container = $section.closest('div, section, table').next();
-            
-            // Also check siblings and parent containers
-            const possibleContainers = [
-              container,
-              $section.parent().next(),
-              $section.closest('table').find('tbody'),
-              $section.nextAll().first()
-            ];
+            if (cleanName.length > 3 && cleanName.length < 40) {
+              players.push({
+                name: cleanName,
+                position: currentPosition,
+                age,
+                appearances: 0,
+                goals: 0,
+                jerseyNumber: parseInt(number)
+              });
+              
+              console.log(`Found player: ${cleanName} (#${number}, ${currentPosition}, age ${age || 'unknown'})`);
+            }
+          }
+        }
+        
+        // Fallback to original section-based approach if text parsing didn't work
+        if (players.length === 0) {
+          console.log('Text parsing failed, trying section-based approach...');
+          
+          sections.forEach(sectionName => {
+            // Find section header
+            $(`*:contains("${sectionName}")`).filter(function() {
+              return $(this).text().trim() === sectionName;
+            }).each((_: any, sectionEl: any) => {
+              console.log(`Found Flashscore section: ${sectionName}`);
+              
+              // Look for table rows after this section
+              const $section = $(sectionEl);
+              let container = $section.closest('div, section, table').next();
+              
+              // Also check siblings and parent containers
+              const possibleContainers = [
+                container,
+                $section.parent().next(),
+                $section.closest('table').find('tbody'),
+                $section.nextAll().first()
+              ];
             
             possibleContainers.forEach(cont => {
               if (cont && cont.length) {
@@ -607,7 +666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             });
           });
-        });
+        }
       }
       // Check if this is Everton FC official site (different structure)  
       else if (url.includes('evertonfc.com')) {
