@@ -1124,17 +1124,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const firstName = playerData.name.split(' ')[0] || playerData.name;
         const lastName = playerData.name.split(' ').slice(1).join(' ') || '';
         
-        // Check if user already exists with same first and last name
-        let user;
+        // Check if player is already in the squad/team
         try {
-          const existingUsers = await storage.getAllUsers();
-          const existingUser = existingUsers.find(u => 
+          const teamUsers = await storage.getTeamUsers(teamId);
+          const existingTeamMember = teamUsers.find(tu => 
+            tu.user.firstName?.toLowerCase() === firstName.toLowerCase() && 
+            tu.user.lastName?.toLowerCase() === lastName.toLowerCase()
+          );
+          
+          if (existingTeamMember) {
+            console.log(`Player ${firstName} ${lastName} already in squad - skipping`);
+            continue; // Skip this player as they're already in the team
+          }
+          
+          // Player not in squad, now check if user exists globally
+          const allUsers = await storage.getUsers();
+          const existingUser = allUsers.find(u => 
             u.firstName?.toLowerCase() === firstName.toLowerCase() && 
             u.lastName?.toLowerCase() === lastName.toLowerCase()
           );
           
+          let user;
           if (existingUser) {
-            console.log(`Found existing user: ${existingUser.firstName} ${existingUser.lastName} (${existingUser.id})`);
+            console.log(`Found existing user: ${existingUser.firstName} ${existingUser.lastName} (${existingUser.id}) - reusing for squad`);
             // Update age if provided and not already set
             if (playerData.age && !existingUser.age) {
               user = await storage.updateUser(existingUser.id, { age: playerData.age });
@@ -1162,13 +1174,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
         
-        // Add to team with position (or update if already on team)
+        // Add to team with position (we already know they're not in the team)
         if (teamId && playerData.position) {
           try {
-            // Check if user is already on this team
-            const teamUsers = await storage.getTeamUsers(teamId);
-            const existingTeamMember = teamUsers.find(tu => tu.userId === user.id);
-            
             const teamAssignment = {
               userId: user.id,
               teamId,
@@ -1178,20 +1186,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               fitnessStatus: 'Fit' as const
             };
             
-            if (existingTeamMember) {
-              console.log(`Updating existing team member ${user.id} on team ${teamId}`);
-              // Update existing team assignment with new position/jersey if provided
-              await storage.updateUserTeam(user.id, teamId, {
-                position: playerData.position,
-                jerseyNumber: playerData.jerseyNumber || existingTeamMember.jerseyNumber,
-              });
-            } else {
-              console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
-              await storage.addUserToTeam(user.id, teamId, teamAssignment);
-            }
-            console.log(`Successfully processed team assignment for user ${user.id}`);
+            console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
+            await storage.addUserToTeam(user.id, teamId, teamAssignment);
+            console.log(`Successfully added user ${user.id} to team ${teamId}`);
           } catch (error) {
-            console.error(`Error processing team assignment for user ${user.id} to team ${teamId}:`, error);
+            console.error(`Error adding user ${user.id} to team ${teamId}:`, error);
           }
         } else {
           console.log(`Skipping team assignment for user ${user.id} - teamId: ${teamId}, position: ${playerData.position}`);
