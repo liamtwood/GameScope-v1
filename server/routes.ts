@@ -542,10 +542,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   const $row = $(rowEl);
                   const rowText = $row.text().trim();
                   
-                  // Look for player data pattern: number + name + age
-                  const playerMatch = rowText.match(/(\d+)\s+([A-Za-z\s\.\-\']+?)\s+(\d{2})/);
+                  // Look for player data pattern: number + name + age (with optional stats)
+                  // Pattern: jersey# + name + age + optional stats (0 0 0 0 0 0)
+                  const playerMatch = rowText.match(/(\d+)\s+([A-Za-z\s\.\-\']+?)\s+(\d{1,2}|\?)\s+(\d+\s+)*/) ||
+                                   rowText.match(/(\d+)\s+([A-Za-z\s\.\-\']+?)\s+(\d{1,2})/);
+                  
                   if (playerMatch) {
-                    const [, number, name, age] = playerMatch;
+                    const [, number, name, ageStr] = playerMatch;
+                    const age = ageStr === '?' ? null : parseInt(ageStr);
                     
                     // Clean up the name
                     const cleanName = name.trim().replace(/\s+/g, ' ');
@@ -567,7 +571,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
                         jerseyNumber: parseInt(number)
                       });
                       
-                      console.log(`Found Flashscore player: ${cleanName} (#${number}, ${position}, age ${age})`);
+                      console.log(`Found Flashscore player: ${cleanName} (#${number}, ${position}, age ${age || 'unknown'})`);
+                    }
+                  }
+                  
+                  // Also try a more direct approach for the exact format you showed
+                  // Lines like: "12 Eze Goodness 17 0 0 0 0 0 0"
+                  const directMatch = rowText.match(/^(\d+)\s+([A-Za-z]+\s+[A-Za-z]+)\s+(\d{1,2}|\?)/);
+                  if (directMatch && !playerMatch) {
+                    const [, number, name, ageStr] = directMatch;
+                    const age = ageStr === '?' ? null : parseInt(ageStr);
+                    const cleanName = name.trim();
+                    
+                    if (cleanName.length > 3 && cleanName.length < 40) {
+                      // Map section to position
+                      let position = sectionName;
+                      if (position === 'Goalkeepers') position = 'Goalkeeper';
+                      if (position === 'Defenders') position = 'Defender';
+                      if (position === 'Midfielders') position = 'Midfielder';
+                      if (position === 'Forwards' || position === 'Attackers') position = 'Forward';
+                      
+                      players.push({
+                        name: cleanName,
+                        position,
+                        age,
+                        appearances: 0,
+                        goals: 0,
+                        jerseyNumber: parseInt(number)
+                      });
+                      
+                      console.log(`Found Flashscore player (direct): ${cleanName} (#${number}, ${position}, age ${age || 'unknown'})`);
                     }
                   }
                 });
