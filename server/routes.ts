@@ -1528,21 +1528,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Team ID and logo file are required' });
       }
 
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      await fs.mkdir(uploadsDir, { recursive: true });
+      // Create team-logos directory if it doesn't exist (this works in production)
+      const logoDir = path.join(process.cwd(), 'client', 'public', 'assets', 'team-logos');
+      await fs.mkdir(logoDir, { recursive: true });
 
       // Generate unique filename
       const timestamp = Date.now();
       const ext = path.extname(file.originalname) || '.png';
       const filename = `${teamId}-logo-${timestamp}${ext}`;
-      const filepath = path.join(uploadsDir, filename);
+      const filepath = path.join(logoDir, filename);
 
       // Save the file
       await fs.writeFile(filepath, file.buffer);
 
-      // Update the opposition team with the logo path
-      const logoPath = `/assets/uploads/${filename}`;
+      // Update the opposition team with the logo path (this path works in production)
+      const logoPath = `/assets/team-logos/${filename}`;
       await storage.updateOppositionTeam(teamId, { logoPath });
 
       res.json({ 
@@ -1604,21 +1604,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Club ID and logo file are required' });
       }
 
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      await fs.mkdir(uploadsDir, { recursive: true });
+      // Create team-logos directory if it doesn't exist (this works in production)
+      const logoDir = path.join(process.cwd(), 'client', 'public', 'assets', 'team-logos');
+      await fs.mkdir(logoDir, { recursive: true });
 
       // Generate unique filename
       const timestamp = Date.now();
       const ext = path.extname(file.originalname) || '.png';
       const filename = `${clubId}-logo-${timestamp}${ext}`;
-      const filepath = path.join(uploadsDir, filename);
+      const filepath = path.join(logoDir, filename);
 
       // Save the file
       await fs.writeFile(filepath, file.buffer);
 
-      // Update the club with the logo path
-      const logoPath = `/assets/uploads/${filename}`;
+      // Update the club with the logo path (this path works in production)
+      const logoPath = `/assets/team-logos/${filename}`;
       await storage.updateClub(clubId, { logoPath });
 
       res.json({ 
