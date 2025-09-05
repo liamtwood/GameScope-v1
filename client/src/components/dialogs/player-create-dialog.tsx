@@ -67,7 +67,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       firstName: "",
       lastName: "",
       shirtName: "",
-      dateOfBirth: new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0],
+      dateOfBirth: "",
       gender: undefined,
       email: "",
       phone: "",
@@ -235,6 +235,12 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                         <Input 
                           type="date" 
                           {...field} 
+                          onFocus={(e) => {
+                            if (!field.value) {
+                              const defaultDate = new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0];
+                              field.onChange(defaultDate);
+                            }
+                          }}
                           data-testid="input-date-of-birth" 
                         />
                       </FormControl>
