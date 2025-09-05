@@ -56,10 +56,10 @@ export default function Screenshots() {
     { name: "Users", path: "/users", type: "page", description: "User management interface" },
     { name: "DevOps Users", path: "/devops-users", type: "page", description: "System user management" },
     { name: "Settings", path: "/settings", type: "page", description: "Application settings" },
-    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46", type: "page", description: "Detailed fixture view", hasParams: true, paramExample: "fixture ID" },
-    { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile", hasParams: true, paramExample: "player ID" },
-    { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile", hasParams: true, paramExample: "user ID" },
-    { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis view", hasParams: true, paramExample: "fixture ID" },
+    { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48dc29e9a46", type: "page", description: "Detailed fixture view with lineup and analysis" },
+    { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile and statistics" },
+    { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile and permissions" },
+    { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis with performance data" },
   ];
 
   const modals: PageInfo[] = [
@@ -305,24 +305,44 @@ export default function Screenshots() {
         <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg text-blue-800 dark:text-blue-200">
-              Team Context (Hardcoded for Screenshots)
+              Screenshots Configuration (Hardcoded for Testing)
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                  {hardcodedTeam.name}
-                </h3>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  {hardcodedTeam.club}
-                </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                    {hardcodedTeam.name}
+                  </h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    {hardcodedTeam.club}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <Badge variant="outline" className="text-blue-800 border-blue-300">
+                    Fixed Selection
+                  </Badge>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <Badge variant="outline" className="text-blue-800 border-blue-300">
-                  Fixed Selection
-                </Badge>
+              
+              <div className="border-t border-blue-200 dark:border-blue-700 pt-3">
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Working IDs for Screenshots:</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-blue-700 dark:text-blue-300">
+                    <strong>Fixture:</strong> cf7fef4a-8583-4423-96b6-b48dc29e9a46
+                  </div>
+                  <div className="text-blue-700 dark:text-blue-300">
+                    <strong>Player:</strong> 704e90f3-3a2a-45f5-a5b2-d4fab1ab7468
+                  </div>
+                  <div className="text-blue-700 dark:text-blue-300">
+                    <strong>User:</strong> 704e90f3-3a2a-45f5-a5b2-d4fab1ab7468
+                  </div>
+                  <div className="text-blue-700 dark:text-blue-300">
+                    <strong>Analysis:</strong> 86294596-50a7-40de-99c8-0de44c27f046
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
