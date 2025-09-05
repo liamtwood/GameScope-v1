@@ -599,7 +599,7 @@ export default function Screenshots() {
             disabled={analyzing}
           >
             <Upload className="h-4 w-4" />
-            {analyzing ? "Analyzing..." : "Upload Screenshots"}
+            {analyzing ? "Analyzing..." : "Upload Directory"}
           </Button>
           <Button onClick={captureAllPages} className="gap-2">
             <RefreshCw className="h-4 w-4" />
@@ -607,10 +607,11 @@ export default function Screenshots() {
           </Button>
         </div>
 
-        {/* Hidden file input */}
+        {/* Hidden file input for directory selection */}
         <input
           ref={fileInputRef}
           type="file"
+          webkitdirectory="true"
           multiple
           accept="image/*"
           style={{ display: 'none' }}
