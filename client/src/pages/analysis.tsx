@@ -154,7 +154,7 @@ export default function Analysis() {
           
           <div className="flex-1 flex justify-center">
             <TabsList className="grid max-w-[840px] grid-cols-7">
-              <TabsTrigger value="heatmaps">Game Details</TabsTrigger>
+              <TabsTrigger value="heatmaps">Fixture Details</TabsTrigger>
               <TabsTrigger value="positions">Line-Ups</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
