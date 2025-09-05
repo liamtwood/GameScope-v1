@@ -301,13 +301,22 @@ export default function Screenshots() {
           scale: window.devicePixelRatio || 1,
           backgroundColor: '#ffffff',
           logging: false,
-          imageTimeout: 15000,
+          imageTimeout: 30000,
           removeContainer: false,
-          foreignObjectRendering: true,
+          foreignObjectRendering: false,
           scrollX: 0,
           scrollY: 0,
           windowWidth: window.innerWidth,
           windowHeight: window.innerHeight,
+          onclone: (clonedDoc) => {
+            // Ensure all images are loaded in the cloned document
+            const images = clonedDoc.querySelectorAll('img');
+            images.forEach(img => {
+              if (img.src && !img.complete) {
+                img.crossOrigin = 'anonymous';
+              }
+            });
+          }
         });
         
         const dataUrl = canvas.toDataURL('image/png');
@@ -475,13 +484,22 @@ export default function Screenshots() {
                 scale: window.devicePixelRatio || 1,
                 backgroundColor: '#ffffff',
                 logging: false,
-                imageTimeout: 15000,
+                imageTimeout: 30000,
                 removeContainer: false,
-                foreignObjectRendering: true,
+                foreignObjectRendering: false,
                 scrollX: 0,
                 scrollY: 0,
                 windowWidth: window.innerWidth,
                 windowHeight: window.innerHeight,
+                onclone: (clonedDoc) => {
+                  // Ensure all images are loaded in the cloned document
+                  const images = clonedDoc.querySelectorAll('img');
+                  images.forEach(img => {
+                    if (img.src && !img.complete) {
+                      img.crossOrigin = 'anonymous';
+                    }
+                  });
+                }
               }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
                 const newScreenshots = { ...screenshots, [testKey]: dataUrl };
