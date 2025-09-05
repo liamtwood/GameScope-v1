@@ -135,7 +135,7 @@ export default function Squad() {
 
   const deletePlayerMutation = useMutation({
     mutationFn: async (playerId: string) => {
-      return apiRequest("DELETE", `/api/players/${playerId}`);
+      return apiRequest("DELETE", `/api/users/${playerId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
