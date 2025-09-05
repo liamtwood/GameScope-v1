@@ -508,6 +508,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Debug: Log some key elements to understand the structure
       console.log('Page title:', $('title').text());
       console.log('Found player links:', $('a[href*="/players/"]').length);
+      console.log('URL hostname:', new URL(url).hostname);
+      
+      // Check if this is Everton FC official site (different structure)
+      if (url.includes('evertonfc.com')) {
+        console.log('Detected Everton FC official site - using specific parser');
+        
+        // Look for player cards with position sections
+        const positionSections = ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD', 'STRIKER'];
+        
+        positionSections.forEach(sectionName => {
+          // Find section headers
+          $(`*:contains("${sectionName}")`).filter(function() {
+            return $(this).text().trim().toUpperCase() === sectionName;
+          }).each((_: any, sectionEl: any) => {
+            console.log(`Found section: ${sectionName}`);
+            
+            // Look for player cards after this section
+            const $section = $(sectionEl);
+            let container = $section.closest('div, section').next();
+            let attempts = 0;
+            
+            while (container.length && attempts < 5) {
+              // Look for player names in this container
+              container.find('*').each((_: any, el: any) => {
+                const $el = $(el);
+                const text = $el.text().trim();
+                
+                // Look for player names (typically names like "Gospel-Eze", "Lukjanciks")
+                if (text && 
+                    text.length > 2 && 
+                    text.length < 30 &&
+                    text.match(/^[A-Z][a-z-]/) && // Starts with capital, contains letters/hyphens
+                    !text.includes(' ') && // Single word (surname)
+                    !text.toUpperCase().includes('GOALKEEPER') &&
+                    !text.toUpperCase().includes('DEFENDER') &&
+                    !text.toUpperCase().includes('MIDFIELDER') &&
+                    !text.toUpperCase().includes('FORWARD')) {
+                  
+                  // Map section to position
+                  let position = sectionName;
+                  if (position === 'GOALKEEPER') position = 'Goalkeeper';
+                  if (position === 'DEFENDER') position = 'Defender';
+                  if (position === 'MIDFIELDER') position = 'Midfielder';
+                  if (position === 'FORWARD' || position === 'STRIKER') position = 'Forward';
+                  
+                  players.push({
+                    name: text,
+                    position,
+                    age: null, // Everton site might not show ages
+                    appearances: 0,
+                    goals: 0
+                  });
+                  
+                  console.log(`Found Everton player: ${text} (${position})`);
+                }
+              });
+              
+              container = container.next();
+              attempts++;
+            }
+          });
+        });
+        
+        // If still no players, try a more general approach for Everton site
+        if (players.length === 0) {
+          console.log('Trying general Everton player search...');
+          
+          // Look for any text that might be player names
+          $('*').each((_: any, el: any) => {
+            const $el = $(el);
+            const text = $el.text().trim();
+            
+            if (text && 
+                text.length > 3 && 
+                text.length < 25 &&
+                text.match(/^[A-Z][a-z-]+$/) && // Capital letter start, letters/hyphens only
+                !text.match(/^(GOALKEEPER|DEFENDER|MIDFIELDER|FORWARD|STRIKER|TEAMS|NEWS|MATCHES)$/)) {
+              
+              players.push({
+                name: text,
+                position: 'Unknown',
+                age: null,
+                appearances: 0,
+                goals: 0
+              });
+              
+              console.log(`Found Everton player (general): ${text}`);
+            }
+          });
+        }
+      }
       
       // Look for the specific pattern from your data: player containers with name, age, stats
       // Based on your example: "C. Loney\n2\n1\nC. Loney\n2\n1\n17 years old"
