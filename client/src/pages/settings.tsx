@@ -1217,47 +1217,93 @@ function QuickPlayerAdd({ onPlayersAdded }: { onPlayersAdded: () => void }) {
       return;
     }
 
-    // Parse the text into players with simpler logic
+    // Parse the text into players - handle scraped format
     const lines = quickText.split('\n').filter(line => line.trim());
     const players = [];
     let currentPosition = 'Unknown';
+    let i = 0;
 
     console.log('Parsing lines:', lines);
 
-    for (const line of lines) {
-      const trimmed = line.trim();
+    while (i < lines.length) {
+      const trimmed = lines[i].trim();
       
       // Skip empty lines
-      if (!trimmed) continue;
+      if (!trimmed) {
+        i++;
+        continue;
+      }
       
-      // Check if this line is a position header (contains position keywords)
+      // Check if this line is a position header
       const lowerLine = trimmed.toLowerCase();
       if (lowerLine.includes('goalkeeper') || lowerLine.includes('keeper')) {
         currentPosition = 'Goalkeeper';
         console.log('Set position to Goalkeeper');
+        i++;
+        continue;
       } else if (lowerLine.includes('defender') || lowerLine.includes('defence')) {
         currentPosition = 'Defender';
         console.log('Set position to Defender');
+        i++;
+        continue;
       } else if (lowerLine.includes('midfielder') || lowerLine.includes('midfield')) {
         currentPosition = 'Midfielder';
         console.log('Set position to Midfielder');
+        i++;
+        continue;
       } else if (lowerLine.includes('forward') || lowerLine.includes('striker') || lowerLine.includes('attacker')) {
         currentPosition = 'Forward';
         console.log('Set position to Forward');
-      } else if (trimmed.length > 1 && trimmed.length < 50 && !lowerLine.includes('position')) {
-        // This looks like a player name - parse into first/last name
-        const nameParts = trimmed.split(/\s+/);
-        const firstName = nameParts[0] || trimmed;
+        i++;
+        continue;
+      }
+      
+      // Check if this looks like a player name (contains letters and possibly dots/initials)
+      if (trimmed.match(/^[A-Za-z][A-Za-z\s\.\-\']+$/)) {
+        let playerName = trimmed;
+        let age = null;
+        
+        // Look ahead for age pattern
+        let j = i + 1;
+        while (j < lines.length && j < i + 4) { // Look ahead max 4 lines
+          const nextLine = lines[j].trim();
+          if (nextLine.includes('years old')) {
+            // Extract age
+            const ageMatch = nextLine.match(/(\d+)\s*years old/);
+            if (ageMatch) {
+              age = parseInt(ageMatch[1]);
+            }
+            break;
+          } else if (nextLine.toLowerCase().includes('goalkeeper') || 
+                     nextLine.toLowerCase().includes('defender') || 
+                     nextLine.toLowerCase().includes('midfielder') || 
+                     nextLine.toLowerCase().includes('forward') ||
+                     nextLine.toLowerCase().includes('striker')) {
+            // Hit next position, stop looking
+            break;
+          }
+          j++;
+        }
+        
+        // Parse name into first/last
+        const nameParts = playerName.split(/\s+/);
+        const firstName = nameParts[0] || playerName;
         const lastName = nameParts.slice(1).join(' ') || '';
         
         players.push({
-          name: trimmed,
+          name: playerName,
           firstName,
           lastName,
           position: currentPosition,
-          jerseyNumber: ''
+          jerseyNumber: '',
+          age
         });
-        console.log(`Added player: ${trimmed} (${currentPosition})`);
+        console.log(`Added player: ${playerName} (${currentPosition}, age: ${age})`);
+        
+        // Skip ahead past the stats/age lines we've processed
+        i = j;
+      } else {
+        i++;
       }
     }
 
