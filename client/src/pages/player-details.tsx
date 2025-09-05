@@ -644,7 +644,7 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3">
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">First Name</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
@@ -661,7 +661,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Last Name</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
@@ -678,7 +678,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt name</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Shirt Name</label>
                           <div className="mt-0.5">
                             <span className="text-sm font-semibold text-gray-900" data-testid={`text-shirt-name-${player.id}`}>
                               {player.lastName || "Not provided"}
@@ -700,7 +700,7 @@ export default function PlayerDetails() {
                     <div className="w-4/5 mx-auto">
                       <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-t border-white/20">
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date of birth</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Date Of Birth</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
@@ -782,7 +782,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Phone number</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Phone Number</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <Input
@@ -800,7 +800,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         <div className="px-2 py-1">
-                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">User status</label>
+                          <label className="text-[10px] font-medium text-muted-foreground tracking-wide">User Status</label>
                           <div className="mt-0.5">
                             {isEditing ? (
                               <select
