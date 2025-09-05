@@ -133,6 +133,11 @@ export default function Screenshots() {
     const savedScreenshots = localStorage.getItem('screenshot-data');
     const savedTimestamps = localStorage.getItem('screenshot-timestamps');
     
+    console.log('Loading from localStorage:');
+    console.log('Ready states:', savedReadyStates);
+    console.log('Screenshots:', savedScreenshots ? Object.keys(JSON.parse(savedScreenshots)) : 'none');
+    console.log('Timestamps:', savedTimestamps ? Object.keys(JSON.parse(savedTimestamps)) : 'none');
+    
     if (savedReadyStates) {
       try {
         setReadyStates(JSON.parse(savedReadyStates));
@@ -143,7 +148,9 @@ export default function Screenshots() {
     
     if (savedScreenshots) {
       try {
-        setScreenshots(JSON.parse(savedScreenshots));
+        const parsed = JSON.parse(savedScreenshots);
+        setScreenshots(parsed);
+        console.log('Loaded screenshots:', Object.keys(parsed));
       } catch (error) {
         console.error('Failed to parse saved screenshots:', error);
       }
@@ -151,7 +158,9 @@ export default function Screenshots() {
     
     if (savedTimestamps) {
       try {
-        setCaptureTimestamps(JSON.parse(savedTimestamps));
+        const parsed = JSON.parse(savedTimestamps);
+        setCaptureTimestamps(parsed);
+        console.log('Loaded timestamps:', Object.keys(parsed));
       } catch (error) {
         console.error('Failed to parse saved timestamps:', error);
       }
