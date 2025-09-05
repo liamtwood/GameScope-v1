@@ -870,6 +870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Add to team with position
         if (teamId && playerData.position) {
+          console.log(`Adding user ${user.id} to team ${teamId} with position ${playerData.position}`);
           const teamAssignment = {
             userId: user.id,
             teamId,
@@ -879,7 +880,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fitnessStatus: 'Fit' as const
           };
           
-          await storage.addUserToTeam(user.id, teamId, teamAssignment);
+          try {
+            await storage.addUserToTeam(user.id, teamId, teamAssignment);
+            console.log(`Successfully added user ${user.id} to team ${teamId}`);
+          } catch (error) {
+            console.error(`Error adding user ${user.id} to team ${teamId}:`, error);
+          }
+        } else {
+          console.log(`Skipping team assignment for user ${user.id} - teamId: ${teamId}, position: ${playerData.position}`);
         }
         
         importedPlayers.push({ ...user, position: playerData.position });
