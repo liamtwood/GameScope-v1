@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Camera, Download, Eye, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import html2canvas from "html2canvas";
 
 interface PageInfo {
@@ -18,11 +19,21 @@ interface PageInfo {
   paramExample?: string;
 }
 
+interface FileModifications {
+  [pageName: string]: number;
+}
+
 export default function Screenshots() {
   const [screenshots, setScreenshots] = useState<Record<string, string>>({});
   const [capturing, setCapturing] = useState<Record<string, boolean>>({});
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Fetch file modification times
+  const { data: fileModifications } = useQuery<FileModifications>({
+    queryKey: ['/api/file-modifications'],
+    refetchOnWindowFocus: false,
+  });
 
   // Define all pages and modals in the app
   const pages: PageInfo[] = [
@@ -156,6 +167,7 @@ export default function Screenshots() {
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Path/Description</TableHead>
+                  <TableHead>Last Modified</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -165,6 +177,7 @@ export default function Screenshots() {
                   const key = `${item.type}-${item.name}`;
                   const hasScreenshot = screenshots[key];
                   const isCapturing = capturing[key];
+                  const lastModified = fileModifications?.[item.name] || 0;
 
                   return (
                     <TableRow key={index}>
@@ -189,6 +202,18 @@ export default function Screenshots() {
                             </div>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {lastModified > 0 ? (
+                          <div className="text-sm">
+                            <div>{new Date(lastModified).toLocaleDateString()}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(lastModified).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Unknown</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {isCapturing ? (

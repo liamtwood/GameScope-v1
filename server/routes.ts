@@ -6,6 +6,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
+import { stat } from "fs/promises";
 import XLSX from "xlsx";
 
 // Helper function to parse statistics from Excel data
@@ -666,6 +667,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting opposition team:", error);
       res.status(500).json({ message: "Failed to delete opposition team" });
+    }
+  });
+
+  // Get file modification times for screenshots page
+  app.get("/api/file-modifications", async (req, res) => {
+    try {
+      const fileMap: Record<string, string> = {
+        // Pages
+        "Home": "client/src/pages/home.tsx",
+        "Dashboard": "client/src/pages/dashboard.tsx",
+        "Club Management": "client/src/pages/club-management.tsx",
+        "Fixtures": "client/src/pages/fixtures.tsx",
+        "Squad": "client/src/pages/squad.tsx",
+        "Statistics": "client/src/pages/statistics.tsx",
+        "Videos": "client/src/pages/videos.tsx",
+        "Teams": "client/src/pages/teams.tsx",
+        "Clubs": "client/src/pages/clubs.tsx",
+        "Users": "client/src/pages/users.tsx",
+        "DevOps Users": "client/src/pages/devops-users.tsx",
+        "Settings": "client/src/pages/settings.tsx",
+        "Fixture Details": "client/src/pages/fixture-details.tsx",
+        "Player Details": "client/src/pages/player-details.tsx",
+        "User Details": "client/src/pages/user-details.tsx",
+        "Analysis": "client/src/pages/analysis.tsx",
+        
+        // Modals/Dialogs
+        "Player Create Dialog": "client/src/components/dialogs/player-create-dialog.tsx",
+        "Player Edit Dialog": "client/src/components/dialogs/player-edit-dialog.tsx",
+        "Player Details Modal": "client/src/components/dialogs/player-details-modal.tsx",
+        "Fixture Create Dialog": "client/src/components/dialogs/fixture-create-dialog.tsx",
+        "Fixture Edit Dialog": "client/src/components/dialogs/fixture-edit-dialog.tsx",
+        "Fixture Settings Dialog": "client/src/components/dialogs/fixture-settings-dialog.tsx",
+        "User Create Dialog": "client/src/components/dialogs/user-create-dialog.tsx",
+      };
+
+      // Get modification times for all files
+      const results: Record<string, number> = {};
+      
+      for (const [name, filePath] of Object.entries(fileMap)) {
+        try {
+          const stats = await stat(filePath);
+          results[name] = stats.mtime.getTime();
+        } catch (error) {
+          // File doesn't exist or can't be accessed
+          results[name] = 0;
+        }
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching file modifications:", error);
+      res.status(500).json({ error: "Failed to fetch file modifications" });
     }
   });
 
