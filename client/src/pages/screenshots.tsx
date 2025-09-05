@@ -127,12 +127,27 @@ export default function Screenshots() {
   }, [allItems]);
 
   // Toggle ready state for an item
+  // Load ready states from localStorage on mount
+  useEffect(() => {
+    const savedReadyStates = localStorage.getItem('screenshot-ready-states');
+    if (savedReadyStates) {
+      try {
+        setReadyStates(JSON.parse(savedReadyStates));
+      } catch (error) {
+        console.error('Failed to parse saved ready states:', error);
+      }
+    }
+  }, []);
+
   const toggleReady = (item: PageInfo) => {
     const key = `${item.type}-${item.name}`;
-    setReadyStates(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    const newReadyStates = {
+      ...readyStates,
+      [key]: !readyStates[key]
+    };
+    setReadyStates(newReadyStates);
+    // Save to localStorage
+    localStorage.setItem('screenshot-ready-states', JSON.stringify(newReadyStates));
   };
 
   // Function to render the table for any array of items
