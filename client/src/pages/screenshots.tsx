@@ -59,7 +59,7 @@ export default function Screenshots() {
     { name: "Fixture Details", path: "/fixtures/cf7fef4a-8583-4423-96b6-b48db29e9a46", type: "page", description: "Detailed fixture view", hasParams: true, paramExample: "fixture ID" },
     { name: "Player Details", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual player profile", hasParams: true, paramExample: "player ID" },
     { name: "User Details", path: "/users/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468", type: "page", description: "Individual user profile", hasParams: true, paramExample: "user ID" },
-    { name: "Analysis", path: "/analysis/cf7fef4a-8583-4423-96b6-b48db29e9a46", type: "page", description: "Match analysis view", hasParams: true, paramExample: "fixture ID" },
+    { name: "Analysis", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046", type: "page", description: "Match analysis view", hasParams: true, paramExample: "fixture ID" },
   ];
 
   const modals: PageInfo[] = [
@@ -75,9 +75,9 @@ export default function Screenshots() {
   // Tab-level entries for pages with multiple tabs
   const tabs: PageInfo[] = [
     // Player Details tabs
-    { name: "Player Details > Details Tab", path: "/players/:id#details", type: "tab", description: "Player personal information tab" },
-    { name: "Player Details > Teams Tab", path: "/players/:id#teams", type: "tab", description: "Player team assignments tab" },
-    { name: "Player Details > Parents Tab", path: "/players/:id#parents", type: "tab", description: "Player parent information tab" },
+    { name: "Player Details > Details Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#details", type: "tab", description: "Player personal information tab" },
+    { name: "Player Details > Teams Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#teams", type: "tab", description: "Player team assignments tab" },
+    { name: "Player Details > Parents Tab", path: "/players/704e90f3-3a2a-45f5-a5b2-d4fab1ab7468#parents", type: "tab", description: "Player parent information tab" },
     
     // Fixture Details tabs
     { name: "Fixture Details > Details Tab", path: "/fixtures/:id#details", type: "tab", description: "Basic fixture information tab" },
@@ -86,13 +86,13 @@ export default function Screenshots() {
     { name: "Fixture Details > Analysis Tab", path: "/fixtures/:id#analysis", type: "tab", description: "GameScope analysis and statistics tab" },
     
     // Analysis page tabs (nested within Fixture Details > Analysis)
-    { name: "Analysis > Game Details Tab", path: "/analysis/:id#heatmaps", type: "tab", description: "Game details and heat maps tab" },
-    { name: "Analysis > Line-Ups Tab", path: "/analysis/:id#positions", type: "tab", description: "Position maps and lineup analysis tab" },
-    { name: "Analysis > Videos Tab", path: "/analysis/:id#videos", type: "tab", description: "Video analysis and highlights tab" },
-    { name: "Analysis > Upload Data Tab", path: "/analysis/:id#upload", type: "tab", description: "Data upload and statistics import tab" },
-    { name: "Analysis > Statistics Tab", path: "/analysis/:id#statistics", type: "tab", description: "Detailed match statistics tab" },
-    { name: "Analysis > Spider Charts Tab", path: "/analysis/:id#spider", type: "tab", description: "Performance spider charts tab" },
-    { name: "Analysis > AI Analysis Tab", path: "/analysis/:id#ai", type: "tab", description: "AI-powered analysis insights tab" },
+    { name: "Analysis > Game Details Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#heatmaps", type: "tab", description: "Game details and heat maps tab" },
+    { name: "Analysis > Line-Ups Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#positions", type: "tab", description: "Position maps and lineup analysis tab" },
+    { name: "Analysis > Videos Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#videos", type: "tab", description: "Video analysis and highlights tab" },
+    { name: "Analysis > Upload Data Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#upload", type: "tab", description: "Data upload and statistics import tab" },
+    { name: "Analysis > Statistics Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#statistics", type: "tab", description: "Detailed match statistics tab" },
+    { name: "Analysis > Spider Charts Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#spider", type: "tab", description: "Performance spider charts tab" },
+    { name: "Analysis > AI Analysis Tab", path: "/analysis/86294596-50a7-40de-99c8-0de44c27f046#ai", type: "tab", description: "AI-powered analysis insights tab" },
     
     // Fixture Details Analysis nested tabs
     { name: "Fixture Analysis > Fixture Details Tab", path: "/fixtures/:id#analysis-fixture-details", type: "tab", description: "Nested fixture details within analysis" },
