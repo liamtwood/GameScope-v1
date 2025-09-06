@@ -74,12 +74,17 @@ export default function PlayerDetails() {
       }
       return {}; // Return empty object if no JSON content
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Update successful:', data);
       // Exit editing mode immediately for better user experience
       setIsEditing(false);
       setEditData({});
       // Then invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      toast({
+        title: "Success",
+        description: "Player information has been updated.",
+      });
     },
     onError: (error) => {
       console.error('Failed to update player:', error);
@@ -302,6 +307,11 @@ export default function PlayerDetails() {
   };
 
   const handleSave = () => {
+    console.log('Saving data:', editData);
+    if (Object.keys(editData).length === 0) {
+      console.warn('No edit data to save');
+      return;
+    }
     updatePlayerMutation.mutate(editData);
   };
 
