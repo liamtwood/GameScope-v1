@@ -95,6 +95,8 @@ export default function PlayerDetails() {
       acc.penetratingDribblesSuccessful += stat.penetratingDribblesSuccessful || 0;
       acc.passesAttempted += stat.passesAttempted || 0;
       acc.passesSuccess += stat.passesSuccess || 0;
+      acc.passingTotalDistance += stat.passingTotalDistance || 0;
+      acc.passingAverageVelocity += stat.passingAverageVelocity || 0;
       acc.dangerousCrosses += stat.dangerousCrosses || 0;
       acc.shotsAttempted += stat.shotsAttempted || 0;
       acc.shotsOnTarget += stat.shotsOnTarget || 0;
@@ -114,6 +116,8 @@ export default function PlayerDetails() {
       penetratingDribblesSuccessful: 0,
       passesAttempted: 0,
       passesSuccess: 0,
+      passingTotalDistance: 0,
+      passingAverageVelocity: 0,
       dangerousCrosses: 0,
       shotsAttempted: 0,
       shotsOnTarget: 0,
@@ -168,7 +172,9 @@ export default function PlayerDetails() {
       redCards: 0,    // Not in current schema
       tackles: totals.tackles,
       tacklesWon: totals.tacklesWon,
-      takeOns: totals.takeOns
+      takeOns: totals.takeOns,
+      passingTotalDistance: totals.passingTotalDistance,
+      passingAverageVelocity: playerStats.length > 0 ? Math.round(totals.passingAverageVelocity / playerStats.length) : 0
     };
   };
 
@@ -1501,27 +1507,50 @@ export default function PlayerDetails() {
                           {/* Passing Tab */}
                           <TabsContent value="passing" className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {/* Passes */}
+                              {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
                                 <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
+                                  <div className="text-sm text-white/80">Total Attempts</div>
                                   <div className="text-sm text-white/60">
-                                    {playerStats.passes.successful} successful, {playerStats.passes.unsuccessful} unsuccessful
+                                    Across all matches played
                                   </div>
-                                  <div className="text-xs text-white/50">Total: {playerStats.passes.total}</div>
                                 </div>
                               </div>
 
-                              {/* First Touch Success */}
+                              {/* Passes Success */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
                                 <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
+                                  <div className="text-sm text-white/80">Successful Passes</div>
                                   <div className="text-sm text-white/60">
-                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                    {playerStats.passes.rate}% success rate
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Total Distance */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
+                                  <div className="text-sm text-white/80">Meters</div>
+                                  <div className="text-sm text-white/60">
+                                    Total distance of all passes
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Average Velocity */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
+                                  <div className="text-sm text-white/80">m/s</div>
+                                  <div className="text-sm text-white/60">
+                                    Average speed of passes
                                   </div>
                                 </div>
                               </div>
