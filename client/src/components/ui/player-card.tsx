@@ -15,12 +15,21 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
+// Define Player type for compatibility with team data
+type Player = User & {
+  jerseyNumber?: number | null;
+  position?: string;
+  starPlayer?: boolean;
+  keyPlayer?: boolean;
+  fitnessStatus?: string;
+};
+
 interface PlayerCardProps {
-  player: User;
-  onEdit?: (player: User) => void;
-  onDelete?: (player: User) => void;
-  onToggleKeyPlayer?: (player: User) => void;
-  onUpdateStatus?: (player: User, newStatus: string) => void;
+  player: Player;
+  onEdit?: (player: Player) => void;
+  onDelete?: (player: Player) => void;
+  onToggleKeyPlayer?: (player: Player) => void;
+  onUpdateStatus?: (player: Player, newStatus: string) => void;
 }
 
 export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
@@ -55,7 +64,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   };
 
   const getPositionColor = () => {
-    const positionCategory = getPositionCategory(player.position);
+    const positionCategory = getPositionCategory(player.position || 'MID');
     switch (positionCategory) {
       case 'GK':
         return 'bg-purple-100 text-purple-800';

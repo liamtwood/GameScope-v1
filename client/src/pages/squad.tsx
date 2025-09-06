@@ -21,6 +21,7 @@ type Player = User & {
   jerseyNumber?: number | null;
   position?: string;
   starPlayer?: boolean;
+  keyPlayer?: boolean;
   fitnessStatus?: string;
 };
 import { Position } from "@/lib/types";
@@ -60,6 +61,7 @@ export default function Squad() {
     jerseyNumber: tp.jerseyNumber, // Use jersey number from team assignment
     position: tp.position, // Use position from team assignment
     starPlayer: tp.starPlayer, // Use star player status from team assignment
+    keyPlayer: tp.starPlayer, // Use star player status for keyPlayer compatibility
     fitnessStatus: tp.fitnessStatus // Use fitness status from team assignment
   })) || [];
 
