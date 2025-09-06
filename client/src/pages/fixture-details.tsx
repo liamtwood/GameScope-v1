@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2, Star } from "lucide-react";
 import { Fixture, OppositionTeam, PlayerWithTeamData, MatchStats, Team, Club } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
@@ -157,6 +157,25 @@ export default function FixtureDetails() {
     if (fixture) {
       deleteFixtureMutation.mutate(fixture.id);
     }
+  };
+
+  // Helper function to get sorted lineup with star players prioritized
+  const getSortedLineup = (playersData: PlayerWithTeamData[]) => {
+    if (!playersData || playersData.length === 0) return [];
+    
+    return playersData
+      .filter(player => player.jerseyNumber !== null && player.jerseyNumber !== undefined)
+      .sort((a, b) => {
+        // First sort by star player status (star players first)
+        if (a.starPlayer && !b.starPlayer) return -1;
+        if (!a.starPlayer && b.starPlayer) return 1;
+        
+        // Then sort by jersey number
+        const aNumber = a.jerseyNumber || 999;
+        const bNumber = b.jerseyNumber || 999;
+        return aNumber - bNumber;
+      })
+      .slice(0, 11); // Take first 11 players
   };
 
   return (
@@ -320,13 +339,18 @@ export default function FixtureDetails() {
                 </h3>
                 {isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
-                    {players.slice(0, 11).map((player, index) => (
+                    {getSortedLineup(players).map((player, index) => (
                       <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
                         <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
                           {player.jerseyNumber}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
+                          <div className="flex items-center space-x-2">
+                            <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
+                            {player.starPlayer && (
+                              <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">{player.position}</p>
                         </div>
                       </div>
@@ -351,13 +375,18 @@ export default function FixtureDetails() {
                 </h3>
                 {!isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
-                    {players.slice(0, 11).map((player, index) => (
+                    {getSortedLineup(players).map((player, index) => (
                       <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
                         <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
                           {player.jerseyNumber}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
+                          <div className="flex items-center space-x-2">
+                            <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
+                            {player.starPlayer && (
+                              <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">{player.position}</p>
                         </div>
                       </div>
