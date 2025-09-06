@@ -838,7 +838,7 @@ export default function Analysis() {
               {/* Polk State College Lineups */}
               <div>
                 <h3 className="text-lg font-semibold mb-6">Polk State College Lineup</h3>
-                {fixture && players ? (
+                {fixture && players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (
                       <div key={player.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/30">

@@ -318,7 +318,7 @@ export default function FixtureDetails() {
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <span>Home Team - Polk State College</span>
                 </h3>
-                {isHomeMatch && players ? (
+                {isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (
                       <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
@@ -349,7 +349,7 @@ export default function FixtureDetails() {
                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                   <span>Away Team - {awayTeam}</span>
                 </h3>
-                {!isHomeMatch && players ? (
+                {!isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (
                       <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
