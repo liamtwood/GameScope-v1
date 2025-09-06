@@ -1087,9 +1087,9 @@ export default function PlayerDetails() {
 
               {/* Photo Tab Content */}
               <TabsContent value="photo" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-8 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
-                  <div className="pt-6">
-                    <div className="w-4/5 mx-auto space-y-12">
+                <div className="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="p-6">
+                    <div className="w-full">
                       
 
                       {/* Full Length Photo Section */}
