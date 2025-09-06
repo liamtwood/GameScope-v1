@@ -23,6 +23,11 @@ import ashleyMillerPhoto from "@assets/image_1756910395408.png";
 export default function PlayerDetails() {
   const [, params] = useRoute("/players/:id");
   const playerId = params?.id;
+  
+  // Check URL source parameter to determine tab display mode
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const source = urlSearchParams.get('source');
+  const isPhotoOnlyMode = source === 'profiles';
   const { selectedClub } = useClub();
   const { teams } = useTeam();
   const [isEditing, setIsEditing] = useState(false);
@@ -35,7 +40,7 @@ export default function PlayerDetails() {
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
   const [position, setPosition] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("details");
+  const [activeTab, setActiveTab] = useState<string>(isPhotoOnlyMode ? "photo" : "details");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -557,7 +562,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className="grid grid-cols-4 w-full rounded-none border-0 p-0 h-auto" style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-4'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
@@ -655,53 +660,59 @@ export default function PlayerDetails() {
                         opacity: 0 !important;
                       }
                     `}</style>
-                    <TabsTrigger 
-                      value="details" 
-                      data-testid="tab-details" 
-                      className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
-                      style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
-                      } as React.CSSProperties & { '--club-primary': string }}
-                    >
-                      User Details
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="teams" 
-                      data-testid="tab-teams" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                      style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
-                      } as React.CSSProperties & { '--club-primary': string }}
-                    >
-                      Teams
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="parents" 
-                      data-testid="tab-parents" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                      style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
-                      } as React.CSSProperties & { '--club-primary': string }}
-                    >
-                      Parents
-                    </TabsTrigger>
+                    {!isPhotoOnlyMode && (
+                      <>
+                        <TabsTrigger 
+                          value="details" 
+                          data-testid="tab-details" 
+                          className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
+                          style={{ 
+                            // color controlled by CSS now
+                            '--club-primary': clubPrimaryColor,
+    // Disable inline styles - let CSS handle everything
+                          } as React.CSSProperties & { '--club-primary': string }}
+                        >
+                          User Details
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="teams" 
+                          data-testid="tab-teams" 
+                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          style={{ 
+                            // color controlled by CSS now
+                            '--club-primary': clubPrimaryColor,
+    // Disable inline styles - let CSS handle everything
+                          } as React.CSSProperties & { '--club-primary': string }}
+                        >
+                          Teams
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="parents" 
+                          data-testid="tab-parents" 
+                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          style={{ 
+                            // color controlled by CSS now
+                            '--club-primary': clubPrimaryColor,
+    // Disable inline styles - let CSS handle everything
+                          } as React.CSSProperties & { '--club-primary': string }}
+                        >
+                          Parents
+                        </TabsTrigger>
+                      </>
+                    )}
                     <TabsTrigger 
                       value="photo" 
                       data-testid="tab-photo" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
+                      className={`relative py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold ${
+                        isPhotoOnlyMode ? 'px-0 w-full text-center' : 'px-4'
+                      }`}
                       style={{ 
                         // color controlled by CSS now
                         '--club-primary': clubPrimaryColor,
 // Disable inline styles - let CSS handle everything
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
-                      Photo
+                      {isPhotoOnlyMode ? 'Player Photo' : 'Photo'}
                     </TabsTrigger>
                   </TabsList>
                 </div>

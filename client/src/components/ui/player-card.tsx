@@ -103,7 +103,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
       onClick={(e) => {
         // Only trigger navigation if not clicking on interactive elements
         if (!e.defaultPrevented) {
-          setLocation(`/players/${player.id}`);
+          setLocation(`/players/${player.id}?source=squad`);
         }
       }}
     >

@@ -86,7 +86,7 @@ export default function PlayerProfiles() {
   };
 
   const handlePlayerClick = (playerId: string) => {
-    setLocation(`/players/${playerId}`);
+    setLocation(`/players/${playerId}?source=profiles`);
   };
 
   if (isLoading) {
