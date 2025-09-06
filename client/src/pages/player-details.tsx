@@ -912,7 +912,6 @@ export default function PlayerDetails() {
           </Card>
 
           {/* Player Details Content */}
-          <>
           <TabsContent value="details" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
                   <div className="pt-4">
@@ -1756,7 +1755,6 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
-          </>
 
         </Tabs>
       </div>
