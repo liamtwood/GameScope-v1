@@ -14,6 +14,7 @@ import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
 import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
 import { useToast } from "@/hooks/use-toast";
@@ -1287,10 +1288,83 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Stats Content */}
-                        <div className="space-y-6">
-                          <div className="text-center py-8">
-                            <h4 className="text-lg font-medium text-white mb-2">Performance Statistics</h4>
-                            <p className="text-sm text-white/80">Detailed match and season statistics for this player.</p>
+                        <div className="space-y-8">
+                          {/* First Touch Success */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
+                            <h4 className="text-lg font-medium text-white mb-4 text-center">First Touch Success</h4>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={[
+                                      { name: 'Successful', value: 72, color: '#22c55e' },
+                                      { name: 'Unsuccessful', value: 28, color: '#ef4444' }
+                                    ]}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    label={({ name, value }) => `${name}: ${value}%`}
+                                  >
+                                    <Cell fill="#22c55e" />
+                                    <Cell fill="#ef4444" />
+                                  </Pie>
+                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Dribbles */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
+                            <h4 className="text-lg font-medium text-white mb-4 text-center">Dribbles</h4>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={[
+                                      { name: 'Successful', value: 68, color: '#3b82f6' },
+                                      { name: 'Unsuccessful', value: 32, color: '#f59e0b' }
+                                    ]}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    label={({ name, value }) => `${name}: ${value}%`}
+                                  >
+                                    <Cell fill="#3b82f6" />
+                                    <Cell fill="#f59e0b" />
+                                  </Pie>
+                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Penetrating Dribbles */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
+                            <h4 className="text-lg font-medium text-white mb-4 text-center">Penetrating Dribbles</h4>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={[
+                                      { name: 'Successful', value: 58, color: '#8b5cf6' },
+                                      { name: 'Unsuccessful', value: 42, color: '#ec4899' }
+                                    ]}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    label={({ name, value }) => `${name}: ${value}%`}
+                                  >
+                                    <Cell fill="#8b5cf6" />
+                                    <Cell fill="#ec4899" />
+                                  </Pie>
+                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
                           </div>
                         </div>
                         
