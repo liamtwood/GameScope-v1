@@ -1114,9 +1114,6 @@ export default function PlayerDetails() {
                                 </div>
                               )}
                             </div>
-                            {pendingFullLengthPhoto && (
-                              <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
-                            )}
                           </div>
                           
                           {/* Upload Button and Text */}
