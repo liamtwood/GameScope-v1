@@ -413,26 +413,22 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create true honeycomb with ultra-thin lines
-  const s = '25px'; // honeycomb cell size
-  const c1 = 'rgba(255,255,255,0.15)'; // honeycomb line color - slightly more visible
-  const c2 = clubPrimaryColor; // background color
+  // Create SVG-based honeycomb with ultra-thin lines
+  const honeycombSvg = `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="30,2 52,15 52,37 30,50 8,37 8,15" 
+               fill="none" 
+               stroke="rgba(255,255,255,0.12)" 
+               stroke-width="0.8"/>
+    </svg>
+  `)}`;
   
   const solidStyle = {
-    '--s': s,
-    '--c1': c1,
-    '--c2': c2,
-    '--c': `#0000, var(--c1) .1deg 119.9deg, #0000 120deg`, // Much thinner lines
-    '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
-    '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
-    '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
-    background: `
-      var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
-      var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
-      var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
-      var(--c2)
-    `,
-    backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+    backgroundColor: clubPrimaryColor,
+    backgroundImage: `url("${honeycombSvg}")`,
+    backgroundSize: '30px 26px',
+    backgroundPosition: '0 0, 15px 13px',
+    backgroundRepeat: 'repeat'
   } as React.CSSProperties;
 
   return (
@@ -1084,20 +1080,11 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 pb-6 min-h-[400px]" 
                     style={{
-                      '--s': s,
-                      '--c1': c1,
-                      '--c2': c2,
-                      '--c': `#0000, var(--c1) .1deg 119.9deg, #0000 120deg`,
-                      '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
-                      '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
-                      '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
-                      background: `
-                        var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
-                        var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
-                        var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
-                        var(--c2)
-                      `,
-                      backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '30px 26px',
+                      backgroundPosition: '0 0, 15px 13px',
+                      backgroundRepeat: 'repeat'
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
