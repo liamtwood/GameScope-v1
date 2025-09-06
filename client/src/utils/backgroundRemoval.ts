@@ -727,18 +727,18 @@ export class BackgroundRemover {
           
           const transparentNeighbors = neighbors.filter(n => n).length;
           
-          // If 6 or more neighbors are transparent, and this pixel looks like background
-          if (transparentNeighbors >= 6) {
+          // If 5 or more neighbors are transparent, and this pixel looks like background artifact
+          if (transparentNeighbors >= 5) {
             const pixelIdx = idx * 4;
             const r = data[pixelIdx];
             const g = data[pixelIdx + 1];
             const b = data[pixelIdx + 2];
             
-            // More conservative: only remove very light gray/white artifacts
-            const isLightGray = Math.abs(r - g) < 10 && Math.abs(g - b) < 10 && r > 220;
+            // Target specific problematic gray tones
+            const isSpecificGray = this.isProblematicGray(r, g, b);
             const isWhitish = r > 245 && g > 245 && b > 245;
             
-            if (isLightGray || isWhitish) {
+            if (isSpecificGray || isWhitish) {
               toRemove[idx] = true;
             }
           }
@@ -766,12 +766,11 @@ export class BackgroundRemover {
           ].some(n => n);
           
           if (hasTransparentNeighbor) {
-            // More conservative edge cleanup - only very light backgrounds
-            const isVeryLightGray = r > 230 && g > 230 && b > 230 && 
-                                   Math.abs(r - g) < 15 && Math.abs(g - b) < 15;
+            // Target specific problematic gray and very light backgrounds
+            const isProblematicGray = this.isProblematicGray(r, g, b);
             const isBackgroundish = r > 250 && g > 250 && b > 250;
             
-            if (isVeryLightGray || isBackgroundish) {
+            if (isProblematicGray || isBackgroundish) {
               expansionMask[idx] = true;
             }
           }
@@ -785,5 +784,21 @@ export class BackgroundRemover {
     }
     
     console.log('Artifact cleanup completed');
+  }
+
+  private isProblematicGray(r: number, g: number, b: number): boolean {
+    // Target the specific light gray that appears as artifacts
+    // This targets the common light gray background remnants (RGB around 200-235)
+    // that have balanced color values but are clearly background artifacts
+    
+    // Check for neutral gray in the problematic range
+    const isNeutralGray = Math.abs(r - g) < 8 && Math.abs(g - b) < 8 && Math.abs(r - b) < 8;
+    const isInGrayRange = r >= 195 && r <= 240 && g >= 195 && g <= 240 && b >= 195 && b <= 240;
+    
+    // Also check for slightly cool or warm grays that are common artifacts
+    const isCoolGray = (b - r) > 0 && (b - r) < 15 && Math.abs(r - g) < 10 && r > 190 && r < 235;
+    const isWarmGray = (r - b) > 0 && (r - b) < 15 && Math.abs(g - b) < 10 && r > 190 && r < 235;
+    
+    return (isNeutralGray && isInGrayRange) || isCoolGray || isWarmGray;
   }
 }
