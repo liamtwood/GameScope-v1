@@ -614,8 +614,7 @@ export default function PlayerDetails() {
                       }
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]),
-                      [data-testid="tab-stats"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]) {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
@@ -623,8 +622,7 @@ export default function PlayerDetails() {
                       /* INACTIVE TABS - NO BACKGROUND */
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]),
-                      [data-testid="tab-stats"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]) {
                         opacity: 1 !important;
                         background: none !important;
                         background-color: transparent !important;
@@ -647,11 +645,9 @@ export default function PlayerDetails() {
                         color: ${clubPrimaryColor} !important;
                       }
                       
-                      /* Bio and Stats tabs styling */
+                      /* Bio tab styling */
                       [data-testid="tab-bio"],
-                      [data-testid="tab-stats"],
-                      button[role="tab"][data-testid="tab-bio"],
-                      button[role="tab"][data-testid="tab-stats"] {
+                      button[role="tab"][data-testid="tab-bio"] {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
@@ -663,9 +659,7 @@ export default function PlayerDetails() {
                       
                       /* Keep icon sizes consistent in both active and inactive states */
                       [data-testid="tab-bio"] svg,
-                      [data-testid="tab-stats"] svg,
-                      [data-testid="tab-bio"][data-state="active"] svg,
-                      [data-testid="tab-stats"][data-state="active"] svg {
+                      [data-testid="tab-bio"][data-state="active"] svg {
                         width: 32px !important;
                         height: 32px !important;
                         min-width: 32px !important;
@@ -675,9 +669,7 @@ export default function PlayerDetails() {
                       }
                       
                       [data-testid="tab-bio"][data-state="active"],
-                      [data-testid="tab-stats"][data-state="active"],
-                      button[role="tab"][data-testid="tab-bio"][data-state="active"],
-                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
+                      button[role="tab"][data-testid="tab-bio"][data-state="active"] {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
@@ -747,21 +739,6 @@ export default function PlayerDetails() {
                       >
                         <UserIcon size={32} />
                         <span className="text-xs font-medium text-white">Bio</span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="stats" 
-                        data-testid="tab-stats" 
-                        className="flex flex-col items-center gap-2"
-                        style={{
-                          background: 'none',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          boxShadow: 'none',
-                          padding: '8px'
-                        }}
-                      >
-                        <BarChart3 size={32} />
-                        <span className="text-xs font-medium text-white">Statistics</span>
                       </TabsTrigger>
                     </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
@@ -1216,66 +1193,6 @@ export default function PlayerDetails() {
               </TabsContent>
 
               {/* Stats Tab Content */}
-              <TabsContent value="stats" className="m-0">
-                <div className="bg-white px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
-                  <div className="pt-6">
-                    <div className="w-4/5 mx-auto space-y-8">
-                      
-                      {/* Season Stats */}
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h4>
-                        <div className="grid grid-cols-3 gap-6">
-                          <div className="text-center p-4 bg-gray-50 rounded-lg">
-                            <div className="text-2xl font-bold text-gray-900">0</div>
-                            <div className="text-sm text-gray-600">Games Played</div>
-                          </div>
-                          <div className="text-center p-4 bg-gray-50 rounded-lg">
-                            <div className="text-2xl font-bold text-gray-900">0</div>
-                            <div className="text-sm text-gray-600">Goals</div>
-                          </div>
-                          <div className="text-center p-4 bg-gray-50 rounded-lg">
-                            <div className="text-2xl font-bold text-gray-900">0</div>
-                            <div className="text-sm text-gray-600">Assists</div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Performance Metrics */}
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Performance</h4>
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium text-gray-600">Minutes Played</span>
-                              <span className="text-sm text-gray-900">0</span>
-                            </div>
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium text-gray-600">Shots on Target</span>
-                              <span className="text-sm text-gray-900">0</span>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium text-gray-600">Pass Accuracy</span>
-                              <span className="text-sm text-gray-900">0%</span>
-                            </div>
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium text-gray-600">Yellow Cards</span>
-                              <span className="text-sm text-gray-900">0</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* No stats message */}
-                      <div className="text-center py-8 border-t border-gray-200">
-                        <p className="text-sm text-gray-400 italic">Player statistics will appear here once match data is available</p>
-                      </div>
-                      
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
 
               {/* Photo Tab Content */}
               <TabsContent value="photo" className="m-0">
