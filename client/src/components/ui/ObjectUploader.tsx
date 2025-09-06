@@ -157,9 +157,9 @@ export function ObjectUploader({
                         console.log('BackgroundRemover instance created');
                         
                         const processedBlob = await backgroundRemover.removeBackground(file, {
-                          tolerance: 30,
-                          preserveInternalWhite: true,
-                          mode: 'smart'
+                          tolerance: 50,
+                          preserveInternalWhite: false,
+                          mode: 'color'
                         });
                         
                         console.log('Background removal completed successfully', {
