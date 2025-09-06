@@ -1080,56 +1080,63 @@ export default function PlayerDetails() {
                       
 
                       {/* Full Length Photo Section */}
-                      <div className="text-center">
-                        <h4 className="text-xl font-medium text-gray-900 mb-2">Full Length Photo</h4>
-                        <p className="text-sm text-muted-foreground mb-6">Full body photo for programs and media</p>
+                      <div>
+                        <h4 className="text-xl font-medium text-gray-900 mb-6 text-center">Full Length Photo</h4>
                         
-                        <div className="flex flex-col items-center space-y-6">
+                        <div className="flex items-center justify-center space-x-8">
                           {/* Current Full Length Photo Display */}
-                          <div 
-                            className="w-60 h-80 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center"
-                            style={{
-                              background: `
-                                repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 12px 12px,
-                                repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 12px 12px
-                              `,
-                              backgroundPosition: '0px 0px, 6px 6px'
-                            }}
-                          >
-                            {pendingFullLengthPhoto ? (
-                              <img 
-                                src={pendingFullLengthPhoto} 
-                                alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : player?.headshotPath ? (
-                              <img 
-                                src={player.headshotPath} 
-                                alt={`${player.firstName} ${player.lastName} Full Length`}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
+                          <div className="flex flex-col items-center space-y-4">
+                            <div 
+                              className="w-60 h-80 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center"
+                              style={{
+                                background: `
+                                  repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 12px 12px,
+                                  repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 12px 12px
+                                `,
+                                backgroundPosition: '0px 0px, 6px 6px'
+                              }}
+                            >
+                              {pendingFullLengthPhoto ? (
+                                <img 
+                                  src={pendingFullLengthPhoto} 
+                                  alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
+                                  className="w-full h-full object-contain"
+                                />
+                              ) : player?.headshotPath ? (
+                                <img 
+                                  src={player.headshotPath} 
+                                  alt={`${player.firstName} ${player.lastName} Full Length`}
+                                  className="w-full h-full object-contain"
+                                />
+                              ) : (
+                                <div className="text-white text-4xl font-semibold">
+                                  {player?.firstName?.[0]}{player?.lastName?.[0]}
+                                </div>
+                              )}
+                            </div>
+                            {pendingFullLengthPhoto && (
+                              <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
                             )}
                           </div>
-                          {pendingFullLengthPhoto && (
-                            <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
-                          )}
                           
-                          {/* Full Length Photo Upload Button */}
-                          <ObjectUploader
-                            maxNumberOfFiles={1}
-                            maxFileSize={5242880} // 5MB
-                            onGetUploadParameters={getPhotoUploadURL}
-                            onComplete={handleHeadshotUploadComplete}
-                            enableBackgroundRemoval={true}
-                            buttonClassName="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
-                          >
-                            <Pencil className="h-5 w-5 mr-2" />
-                            Upload Full Length Photo
-                          </ObjectUploader>
+                          {/* Upload Button and Text */}
+                          <div className="flex flex-col items-start space-y-4">
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5242880} // 5MB
+                              onGetUploadParameters={getPhotoUploadURL}
+                              onComplete={handleHeadshotUploadComplete}
+                              enableBackgroundRemoval={true}
+                              buttonClassName="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
+                            >
+                              <Pencil className="h-5 w-5 mr-2" />
+                              Upload Photo
+                            </ObjectUploader>
+                            <p className="text-sm text-muted-foreground">
+                              Upload photos up to 5MB in size<br />
+                              (JPG, PNG formats recommended)
+                            </p>
+                          </div>
                         </div>
                       </div>
 
