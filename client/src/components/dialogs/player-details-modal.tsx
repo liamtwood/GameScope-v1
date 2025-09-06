@@ -668,10 +668,10 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           </div>
                         </div>
 
-                        {/* Headshot Section */}
+                        {/* Full Length Photo Section */}
                         <div className="text-center">
-                          <h4 className="text-lg font-medium text-gray-900 mb-2">Headshot</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Professional headshot for programs and media</p>
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">Full Length Photo</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Full body photo for programs and media</p>
                           
                           <div className="flex flex-col items-center space-y-4">
                             {/* Current Headshot Display */}
@@ -679,7 +679,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                               {player?.headshotPath ? (
                                 <AvatarImage 
                                   src={player.headshotPath} 
-                                  alt={`${player.firstName} ${player.lastName} Headshot`}
+                                  alt={`${player.firstName} ${player.lastName} Full Length`}
                                   className="object-cover"
                                 />
                               ) : null}
@@ -688,7 +688,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                               </AvatarFallback>
                             </Avatar>
                             
-                            {/* Headshot Upload Button */}
+                            {/* Full Length Photo Upload Button */}
                             <ObjectUploader
                               maxNumberOfFiles={1}
                               maxFileSize={5242880} // 5MB
@@ -697,7 +697,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                               buttonClassName="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
                             >
                               <Pencil className="h-4 w-4 mr-2" />
-                              Upload Headshot
+                              Upload Full Length Photo
                             </ObjectUploader>
                           </div>
                         </div>

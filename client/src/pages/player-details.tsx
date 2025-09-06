@@ -1090,18 +1090,18 @@ export default function PlayerDetails() {
                         </div>
                       </div>
 
-                      {/* Headshot Section */}
+                      {/* Full Length Photo Section */}
                       <div className="text-center">
-                        <h4 className="text-xl font-medium text-gray-900 mb-2">Headshot</h4>
-                        <p className="text-sm text-muted-foreground mb-6">Professional headshot for programs and media</p>
+                        <h4 className="text-xl font-medium text-gray-900 mb-2">Full Length Photo</h4>
+                        <p className="text-sm text-muted-foreground mb-6">Full body photo for programs and media</p>
                         
                         <div className="flex flex-col items-center space-y-6">
-                          {/* Current Headshot Display */}
+                          {/* Current Full Length Photo Display */}
                           <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg">
                             {player?.headshotPath ? (
                               <AvatarImage 
                                 src={player.headshotPath} 
-                                alt={`${player.firstName} ${player.lastName} Headshot`}
+                                alt={`${player.firstName} ${player.lastName} Full Length`}
                                 className="object-cover"
                               />
                             ) : null}
@@ -1110,7 +1110,7 @@ export default function PlayerDetails() {
                             </AvatarFallback>
                           </Avatar>
                           
-                          {/* Headshot Upload Button */}
+                          {/* Full Length Photo Upload Button */}
                           <ObjectUploader
                             maxNumberOfFiles={1}
                             maxFileSize={5242880} // 5MB
@@ -1119,7 +1119,7 @@ export default function PlayerDetails() {
                             buttonClassName="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
                           >
                             <Pencil className="h-5 w-5 mr-2" />
-                            Upload Headshot
+                            Upload Full Length Photo
                           </ObjectUploader>
                         </div>
                       </div>
