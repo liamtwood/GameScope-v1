@@ -37,10 +37,20 @@ export default function Analysis() {
     queryKey: ["/api/opposition-teams"],
   });
 
-  const { data: players } = useQuery<PlayerWithTeamData[]>({
-    queryKey: ["/api/players", fixture?.teamId],
+  const { data: teamPlayersData } = useQuery<any[]>({
+    queryKey: ["/api/team", fixture?.teamId, "users"],
     enabled: !!fixture?.teamId,
   });
+
+  // Convert team players to the format expected and filter for star players
+  const players = teamPlayersData?.map(tp => ({
+    ...tp.user,
+    id: tp.user.id,
+    jerseyNumber: tp.jerseyNumber,
+    position: tp.position,
+    starPlayer: tp.starPlayer,
+    fitnessStatus: tp.fitnessStatus
+  })).filter(p => p.starPlayer).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)) || [];
 
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
@@ -52,7 +62,7 @@ export default function Analysis() {
     },
     onSuccess: () => {
       // Invalidate and refetch the players data
-      queryClient.invalidateQueries({ queryKey: ["/api/players", fixture?.teamId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", fixture?.teamId, "users"] });
     },
     onError: (error) => {
       console.error("Error updating star player status:", error);

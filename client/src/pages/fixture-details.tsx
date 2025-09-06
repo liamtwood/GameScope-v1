@@ -74,19 +74,14 @@ export default function FixtureDetails() {
   });
 
   // Convert team players to the format expected by the lineup
-  const players = teamPlayersData?.map(tp => {
-    console.log('LINEUP DEBUG: Converting team player data:', tp);
-    return {
-      ...tp.user,
-      id: tp.user.id,
-      jerseyNumber: tp.jerseyNumber,
-      position: tp.position,
-      starPlayer: tp.starPlayer,
-      fitnessStatus: tp.fitnessStatus
-    };
-  }) || [];
-  
-  console.log('LINEUP DEBUG: Final players array:', players);
+  const players = teamPlayersData?.map(tp => ({
+    ...tp.user,
+    id: tp.user.id,
+    jerseyNumber: tp.jerseyNumber,
+    position: tp.position,
+    starPlayer: tp.starPlayer,
+    fitnessStatus: tp.fitnessStatus
+  })) || [];
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
