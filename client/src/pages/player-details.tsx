@@ -524,7 +524,11 @@ export default function PlayerDetails() {
                           <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
                           {userTeams && userTeams.length > 0 && userTeams[0].position && (
                             <div className="text-lg font-medium uppercase tracking-wide" style={{ color: textColor, opacity: 0.8 }}>
-                              {userTeams[0].position}
+                              {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
+                               userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
+                               userTeams[0].position === 'FWD' ? 'FORWARD' : 
+                               userTeams[0].position === 'GK' ? 'GOALKEEPER' : 
+                               userTeams[0].position}
                             </div>
                           )}
                         </div>
