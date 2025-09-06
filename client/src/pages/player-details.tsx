@@ -1101,70 +1101,81 @@ export default function PlayerDetails() {
                       <div className="w-4/5 mx-auto space-y-8">
                         
                         {/* Player Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Weight</span>
-                            <span className="text-sm text-white">185 lbs</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                          {/* Left Column */}
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Weight</span>
+                              <span className="text-sm text-white">185 lbs</span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Position</span>
+                              <span className="text-sm text-white">Forward</span>
+                            </div>
                           </div>
                           
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Height</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.height || ''}
-                                onChange={(e) => handleInputChange('height', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Height"
-                              />
-                            ) : (
-                              <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Hometown</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.hometown || ''}
-                                onChange={(e) => handleInputChange('hometown', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Hometown"
-                              />
-                            ) : (
-                              <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Class</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.classYear || ''}
-                                onChange={(e) => handleInputChange('classYear', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Class Year"
-                              />
-                            ) : (
-                              <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">High School</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.highSchool || ''}
-                                onChange={(e) => handleInputChange('highSchool', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="High School"
-                              />
-                            ) : (
-                              <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
-                            )}
+                          {/* Right Column */}
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Height</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.height || ''}
+                                  onChange={(e) => handleInputChange('height', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Height"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
+                              )}
+                            </div>
+                            
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Hometown</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.hometown || ''}
+                                  onChange={(e) => handleInputChange('hometown', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Hometown"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
+                              )}
+                            </div>
+                            
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Class</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.classYear || ''}
+                                  onChange={(e) => handleInputChange('classYear', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Class Year"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
+                              )}
+                            </div>
+                            
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">High School</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.highSchool || ''}
+                                  onChange={(e) => handleInputChange('highSchool', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="High School"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         
