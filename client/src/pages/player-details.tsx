@@ -652,6 +652,14 @@ export default function PlayerDetails() {
                       [data-testid="tab-stats"],
                       button[role="tab"][data-testid="tab-bio"],
                       button[role="tab"][data-testid="tab-stats"] {
+                        background: linear-gradient(135deg, ${clubPrimaryColor} 0%, ${clubPrimaryColor}cc 50%, ${clubPrimaryColor} 100%) !important;
+                        background-image: repeating-linear-gradient(
+                          45deg,
+                          transparent,
+                          transparent 2px,
+                          rgba(255,255,255,0.1) 2px,
+                          rgba(255,255,255,0.1) 4px
+                        ) !important;
                         border: none !important;
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
