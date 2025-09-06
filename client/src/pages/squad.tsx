@@ -117,11 +117,11 @@ export default function Squad() {
   });
 
   const toggleKeyPlayerMutation = useMutation({
-    mutationFn: async ({ playerId, keyPlayer }: { playerId: string; keyPlayer: boolean }) => {
-      return apiRequest("PATCH", `/api/players/${playerId}`, { keyPlayer });
+    mutationFn: async ({ playerId, starPlayer }: { playerId: string; starPlayer: boolean }) => {
+      return apiRequest("PATCH", `/api/player/${playerId}/team/${currentTeam?.id}/star`, { starPlayer });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
       toast({
         title: "Key Player Updated",
         description: "Player status has been updated successfully.",
@@ -255,7 +255,7 @@ export default function Squad() {
   const handleToggleKeyPlayer = (player: Player) => {
     toggleKeyPlayerMutation.mutate({
       playerId: player.id,
-      keyPlayer: !player.keyPlayer
+      starPlayer: !player.keyPlayer
     });
   };
 
