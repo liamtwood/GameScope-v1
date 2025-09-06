@@ -5,6 +5,7 @@ import { PlayerRow } from "@/components/ui/player-row";
 import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { PlayerDetailsModal } from "@/components/dialogs/player-details-modal";
+import { ExcelImportDialog } from "@/components/dialogs/excel-import-dialog";
 import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +44,6 @@ export default function Squad() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPlayerForModal, setSelectedPlayerForModal] = useState<Player | null>(null);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -297,74 +297,9 @@ export default function Squad() {
     }
   };
 
-  const handleExcelImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !currentTeam?.id) return;
-
-    // Check file type
-    const validTypes = [
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
-    
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx?|xls)$/i)) {
-      toast({
-        title: "Invalid File Type",
-        description: "Please select an Excel file (.xls or .xlsx)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsImporting(true);
-
-    try {
-      // Create FormData and upload file
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // Upload file to server (we'll use a simple approach by creating a temporary file)
-      const uploadResponse = await fetch('/api/upload-temp', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file');
-      }
-
-      const { filePath } = await uploadResponse.json();
-
-      // Process Excel file
-      const importResponse = await apiRequest('POST', '/api/squad/import-excel', {
-        filePath,
-        teamId: currentTeam.id
-      });
-
-      if (importResponse.success) {
-        // Refresh the team players list
-        queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam.id, "users"] });
-        
-        toast({
-          title: "Import Successful",
-          description: `Successfully imported ${importResponse.imported} players from Excel file.`,
-        });
-      } else {
-        throw new Error('Import failed');
-      }
-
-    } catch (error) {
-      console.error('Excel import error:', error);
-      toast({
-        title: "Import Failed",
-        description: "Failed to import players from Excel file. Please check the file format.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsImporting(false);
-      // Reset the file input
-      event.target.value = '';
-    }
+  const handleImportComplete = () => {
+    // Refresh the team players list after import
+    queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
   };
 
 
@@ -466,25 +401,20 @@ export default function Squad() {
               </Button>
             </PlayerCreateDialog>
             
-            {/* Excel Import Button */}
-            <div className="relative">
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleExcelImport}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                disabled={!currentTeam?.id || isImporting}
-                data-testid="input-excel-import"
-              />
+            {/* Excel Import Modal */}
+            <ExcelImportDialog 
+              teamId={currentTeam?.id || ""} 
+              onImportComplete={handleImportComplete}
+            >
               <Button 
                 variant="outline" 
-                disabled={!currentTeam?.id || isImporting}
+                disabled={!currentTeam?.id}
                 data-testid="button-import-excel"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                {isImporting ? 'Importing...' : 'Import Excel'}
+                Import Excel
               </Button>
-            </div>
+            </ExcelImportDialog>
             
             <Button variant="ghost" data-testid="button-squad-settings">
               <Settings className="h-4 w-4" />

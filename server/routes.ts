@@ -1026,6 +1026,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Excel preview endpoint
+  app.post("/api/squad/preview-excel", async (req, res) => {
+    try {
+      const { filePath } = req.body;
+      
+      if (!filePath) {
+        return res.status(400).json({ message: "filePath is required" });
+      }
+
+      console.log(`Previewing Excel file: ${filePath}`);
+
+      // Read and process the Excel file
+      const workbook = XLSX.readFile(filePath);
+      const sheetName = workbook.SheetNames[0]; // Use first sheet
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log(`Found ${data.length} rows in Excel file for preview`);
+
+      const players: any[] = [];
+
+      for (const row of data) {
+        try {
+          // Extract player data from Excel row
+          const rowObj = row as any;
+          
+          // Name extraction
+          const firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['Name']?.split(' ')[0] || '';
+          const lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
+          
+          // If no first/last name, try to split full name
+          let finalFirstName = firstName;
+          let finalLastName = lastName;
+          if (!firstName && !lastName && rowObj['Name']) {
+            const nameParts = rowObj['Name'].split(' ');
+            finalFirstName = nameParts[0] || '';
+            finalLastName = nameParts.slice(1).join(' ') || '';
+          }
+
+          // Position
+          const position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
+          
+          // Jersey Number
+          const jerseyNumber = parseInt(rowObj['Number'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
+          
+          // Email and Phone
+          const email = rowObj['Email'] || rowObj['email'] || '';
+          const phone = rowObj['Phone'] || rowObj['phone'] || rowObj['Phone Number'] || '';
+
+          players.push({
+            firstName: finalFirstName,
+            lastName: finalLastName,
+            position,
+            jerseyNumber,
+            email,
+            phone
+          });
+
+        } catch (error) {
+          console.error('Error processing row for preview:', row, error);
+          // Continue processing other rows
+        }
+      }
+
+      console.log(`Preview processed: ${players.length} players`);
+
+      res.json({
+        success: true,
+        total: data.length,
+        players
+      });
+
+    } catch (error) {
+      console.error("Error previewing Excel file:", error);
+      res.status(500).json({ 
+        message: "Failed to preview Excel file",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Delete multiple users by IDs
   app.delete("/api/users/bulk", async (req, res) => {
     try {
