@@ -1113,8 +1113,29 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
+                        {/* Icon Container - Left of Bio */}
+                        <div className="flex-shrink-0">
+                          <div className="bg-white/10 rounded-lg p-2 border-2 border-white/50 inline-block">
+                            <div className="flex flex-col space-y-4">
+                              {/* Fingerprint Icon */}
+                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                onClick={() => setActiveTab('bio')}
+                              >
+                                <Fingerprint className="h-6 w-6 text-white" />
+                              </div>
+                              
+                              {/* Chart Column Icon */}
+                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                onClick={() => setActiveTab('stats')}
+                              >
+                                <ChartColumn className="h-6 w-6 text-white" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
                         {/* Middle - Bio Information */}
-                        <div className="w-1/2 space-y-8">
+                        <div className="flex-1 space-y-8">
                         
                         {/* Player Biography Header */}
                         <div className="mb-6">
@@ -1206,27 +1227,6 @@ export default function PlayerDetails() {
                         </div>
                         
                         </div>
-                        
-                        {/* Right Side - Icon Container */}
-                        <div className="flex-shrink-0">
-                          <div className="bg-white/10 rounded-lg p-2 border-2 border-white/50 inline-block">
-                            <div className="flex flex-col space-y-4">
-                              {/* Fingerprint Icon */}
-                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
-                                onClick={() => setActiveTab('bio')}
-                              >
-                                <Fingerprint className="h-6 w-6 text-white" />
-                              </div>
-                              
-                              {/* Chart Column Icon */}
-                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
-                                onClick={() => setActiveTab('stats')}
-                              >
-                                <ChartColumn className="h-6 w-6 text-white" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -1287,27 +1287,6 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         
-                        </div>
-                        
-                        {/* Right Side - Icon Container */}
-                        <div className="flex-shrink-0">
-                          <div className="bg-white/10 rounded-lg p-2 border-2 border-white/50 inline-block">
-                            <div className="flex flex-col space-y-4">
-                              {/* Fingerprint Icon */}
-                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
-                                onClick={() => setActiveTab('bio')}
-                              >
-                                <Fingerprint className="h-6 w-6 text-white" />
-                              </div>
-                              
-                              {/* Chart Column Icon */}
-                              <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
-                                onClick={() => setActiveTab('stats')}
-                              >
-                                <ChartColumn className="h-6 w-6 text-white" />
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>
