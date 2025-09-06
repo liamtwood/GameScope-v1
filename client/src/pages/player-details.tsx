@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MatchStats } from "@shared/schema";
 import { useRoute } from "wouter";
@@ -572,7 +572,7 @@ export default function PlayerDetails() {
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
-              <div>
+              <React.Fragment>
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
                 <Button 
@@ -799,8 +799,8 @@ export default function PlayerDetails() {
                         color: ${clubPrimaryColor} !important;
                       }
                     `}</style>
+                    <>
                     {!isPhotoOnlyMode && (
-                      <>
                         <TabsTrigger 
                           value="details" 
                           data-testid="tab-details" 
@@ -885,7 +885,6 @@ export default function PlayerDetails() {
                         >
                           Passing
                         </TabsTrigger>
-                      </>
                     )}
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
@@ -904,6 +903,7 @@ export default function PlayerDetails() {
                         {isPhotoOnlyMode ? 'Player Photo' : 'Photo'}
                       </TabsTrigger>
                     )}
+                    </>
                   </TabsList>
                 </div>
               </div>
@@ -1753,7 +1753,7 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
-              </div>
+              </React.Fragment>
             </CardContent>
           </Card>
 
