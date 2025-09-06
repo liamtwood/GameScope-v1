@@ -664,29 +664,21 @@ export default function PlayerDetails() {
                       [data-testid="tab-bio"][data-state="active"],
                       [data-testid="tab-stats"][data-state="active"],
                       button[role="tab"][data-testid="tab-bio"][data-state="active"],
-                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
-                        background: transparent !important;
-                        background-color: transparent !important;
-                        background-image: none !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        -webkit-box-shadow: none !important;
-                        -moz-box-shadow: none !important;
-                        color: white !important;
-                      }
-                      
+                      button[role="tab"][data-testid="tab-stats"][data-state="active"],
                       [data-testid="tab-bio"]:not([data-state="active"]),
                       [data-testid="tab-stats"]:not([data-state="active"]),
                       button[role="tab"][data-testid="tab-bio"]:not([data-state="active"]),
                       button[role="tab"][data-testid="tab-stats"]:not([data-state="active"]) {
-                        background: transparent !important;
-                        background-color: transparent !important;
+                        background: none !important;
+                        background-color: unset !important;
                         background-image: none !important;
                         border: none !important;
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
-                        color: rgb(75, 85, 99) !important; /* gray-600 */
+                        color: unset !important;
+                        opacity: 0 !important;
+                        visibility: hidden !important;
                       }
                       /* NUCLEAR OPTION - Override ALL Radix styles for inactive tabs */
                       button[role="tab"]:not([data-state="active"]),
