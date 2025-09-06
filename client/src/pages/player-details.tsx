@@ -562,7 +562,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-4'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-5'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
@@ -700,6 +700,18 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
+                    <TabsTrigger 
+                      value="bio" 
+                      data-testid="tab-bio" 
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                      style={{ 
+                        // color controlled by CSS now
+                        '--club-primary': clubPrimaryColor,
+// Disable inline styles - let CSS handle everything
+                      } as React.CSSProperties & { '--club-primary': string }}
+                    >
+                      Bio
+                    </TabsTrigger>
                     <TabsTrigger 
                       value="photo" 
                       data-testid="tab-photo" 
@@ -1079,6 +1091,20 @@ export default function PlayerDetails() {
                       <div className="text-center py-8">
                         <h4 className="text-lg font-medium text-gray-900 mb-2">Parents</h4>
                         <p className="text-sm text-muted-foreground">Parent and guardian information for this player.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Bio Tab Content */}
+              <TabsContent value="bio" className="m-0">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-4">
+                    <div className="w-4/5 mx-auto">
+                      <div className="text-center py-8">
+                        <h4 className="text-lg font-medium text-gray-900 mb-2">Player Bio</h4>
+                        <p className="text-sm text-muted-foreground">Player background, achievements, and personal information.</p>
                       </div>
                     </div>
                   </div>
