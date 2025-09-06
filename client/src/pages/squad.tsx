@@ -520,7 +520,7 @@ export default function Squad() {
                     >
                       <TableCell>
                         <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.jerseyNumber}
+                          {player.jerseyNumber !== undefined && player.jerseyNumber !== null ? player.jerseyNumber : '?'}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -578,13 +578,13 @@ export default function Squad() {
                         ) : (
                           <div 
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:bg-opacity-80 ${
-                              player.status === 'Fit' ? 'bg-green-100 text-green-800' :
-                              player.status === 'Injured' ? 'bg-red-100 text-red-800' :
+                              (player.fitnessStatus || player.status) === 'Fit' ? 'bg-green-100 text-green-800' :
+                              (player.fitnessStatus || player.status) === 'Injured' ? 'bg-red-100 text-red-800' :
                               'bg-gray-100 text-gray-800'
                             }`}
-                            onClick={() => handleStartEdit(player.id, 'status', player.status || 'Fit')}
+                            onClick={() => handleStartEdit(player.id, 'status', player.fitnessStatus || player.status || 'Fit')}
                           >
-                            {player.status || 'Fit'}
+                            {player.fitnessStatus || player.status || 'Fit'}
                           </div>
                         )}
                       </TableCell>

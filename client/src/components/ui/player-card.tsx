@@ -29,7 +29,8 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
   const { clubPrimary } = useClubTheme();
   
   const getStatusColor = () => {
-    switch (player.status) {
+    const status = player.fitnessStatus || player.status;
+    switch (status) {
       case 'Fit':
         return 'bg-green-500 text-white';
       case 'Injured':
@@ -71,8 +72,8 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
 
   // Function to get player display (jersey number)
   const getPlayerDisplay = () => {
-    // Show squad number if available, otherwise jersey number, otherwise ?
-    const displayNumber = player.jerseyNumber || '?';
+    // Show jersey number if available, otherwise ?
+    const displayNumber = player.jerseyNumber !== undefined && player.jerseyNumber !== null ? player.jerseyNumber : '?';
     return (
       <div 
         className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2"
@@ -124,7 +125,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             {/* Status */}
             {isEditingStatus ? (
               <Select
-                value={player.status || "Fit"}
+                value={player.fitnessStatus || player.status || "Fit"}
                 onValueChange={(newStatus) => {
                   if (onUpdateStatus) {
                     onUpdateStatus(player, newStatus);
@@ -150,7 +151,7 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
                 }}
                 title="Click to edit status"
               >
-                {player.status}
+                {player.fitnessStatus || player.status || "Fit"}
               </Badge>
             )}
             
