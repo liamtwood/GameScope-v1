@@ -1087,7 +1087,7 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="bio" className="m-0">
                   <div 
-                    className="px-6 pb-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px]" 
                     style={{
                       backgroundColor: clubPrimaryColor,
                       backgroundImage: `url("${honeycombSvg}")`,
