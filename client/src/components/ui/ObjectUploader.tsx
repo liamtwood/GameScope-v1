@@ -176,11 +176,13 @@ export function ObjectUploader({
                         
                         // Try multiple approaches for better background removal
                         let processedBlob;
-                        // Try the manual edge flood mode for better results
+                        // Use enhanced manual mode with better artifact cleanup
                         processedBlob = await backgroundRemover.removeBackground(file, {
-                          tolerance: 55,
+                          tolerance: 45,
                           preserveInternalWhite: true,
-                          mode: 'manual'
+                          mode: 'manual',
+                          autoCrop: true,
+                          cropPadding: 10
                         });
                         
                         console.log('Background removal completed successfully', {

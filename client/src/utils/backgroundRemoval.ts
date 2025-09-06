@@ -282,119 +282,26 @@ export class BackgroundRemover {
   }
 
   private processSimpleEdgeFlood(data: Uint8ClampedArray, width: number, height: number, tolerance: number): void {
-    console.log('Starting simple edge flood with tolerance:', tolerance);
+    console.log('Starting enhanced edge flood with tolerance:', tolerance);
     
-    // Get the most common edge color as background
-    const edgeColors = [];
+    // Phase 1: Detect multiple background colors from edges
+    const bgColors = this.detectMultipleBackgroundColors(data, width, height);
+    console.log('Detected background colors:', bgColors);
     
-    // Sample edges more thoroughly
-    for (let x = 0; x < width; x++) {
-      // Top and bottom rows
-      const topIdx = x * 4;
-      const bottomIdx = ((height - 1) * width + x) * 4;
-      edgeColors.push({r: data[topIdx], g: data[topIdx + 1], b: data[topIdx + 2]});
-      edgeColors.push({r: data[bottomIdx], g: data[bottomIdx + 1], b: data[bottomIdx + 2]});
-    }
-    
-    for (let y = 0; y < height; y++) {
-      // Left and right columns
-      const leftIdx = (y * width) * 4;
-      const rightIdx = (y * width + width - 1) * 4;
-      edgeColors.push({r: data[leftIdx], g: data[leftIdx + 1], b: data[leftIdx + 2]});
-      edgeColors.push({r: data[rightIdx], g: data[rightIdx + 1], b: data[rightIdx + 2]});
-    }
-    
-    // Find most common edge color
-    let bgColor = { r: 255, g: 255, b: 255 }; // default to white
-    if (edgeColors.length > 0) {
-      // Simple average of edge colors
-      const totalR = edgeColors.reduce((sum, c) => sum + c.r, 0);
-      const totalG = edgeColors.reduce((sum, c) => sum + c.g, 0);
-      const totalB = edgeColors.reduce((sum, c) => sum + c.b, 0);
-      bgColor = {
-        r: Math.round(totalR / edgeColors.length),
-        g: Math.round(totalG / edgeColors.length),  
-        b: Math.round(totalB / edgeColors.length)
-      };
-    }
-    
-    console.log('Detected background color:', bgColor);
-    
-    // Simple flood fill from edges
-    const visited = new Array(width * height).fill(false);
+    // Phase 2: Enhanced flood fill with multiple background detection
     const toRemove = new Array(width * height).fill(false);
+    this.enhancedFloodFill(data, width, height, bgColors, tolerance, toRemove);
     
-    // Start flood fill from all edge pixels that match background
-    const queue: Array<{x: number, y: number}> = [];
+    // Phase 3: Post-processing to clean up artifacts
+    this.cleanupArtifacts(data, width, height, toRemove, tolerance);
     
-    // Add edge pixels that match background color
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
-          const idx = y * width + x;
-          const pixelIdx = idx * 4;
-          const r = data[pixelIdx];
-          const g = data[pixelIdx + 1];  
-          const b = data[pixelIdx + 2];
-          
-          if (Math.abs(r - bgColor.r) <= tolerance && 
-              Math.abs(g - bgColor.g) <= tolerance && 
-              Math.abs(b - bgColor.b) <= tolerance) {
-            queue.push({x, y});
-            visited[idx] = true;
-            toRemove[idx] = true;
-          }
-        }
+    // Phase 4: Apply transparency
+    for (let i = 0; i < data.length; i += 4) {
+      const pixelIdx = i / 4;
+      if (toRemove[pixelIdx]) {
+        data[i + 3] = 0; // Make transparent
       }
     }
-    
-    console.log('Starting flood fill from', queue.length, 'edge pixels');
-    
-    // Flood fill
-    while (queue.length > 0) {
-      const {x, y} = queue.shift()!;
-      
-      // Check 4-connected neighbors
-      const neighbors = [
-        {x: x - 1, y: y},
-        {x: x + 1, y: y}, 
-        {x: x, y: y - 1},
-        {x: x, y: y + 1}
-      ];
-      
-      for (const neighbor of neighbors) {
-        if (neighbor.x >= 0 && neighbor.x < width && 
-            neighbor.y >= 0 && neighbor.y < height) {
-          
-          const nIdx = neighbor.y * width + neighbor.x;
-          if (visited[nIdx]) continue;
-          
-          const nPixelIdx = nIdx * 4;
-          const nr = data[nPixelIdx];
-          const ng = data[nPixelIdx + 1];
-          const nb = data[nPixelIdx + 2];
-          
-          if (Math.abs(nr - bgColor.r) <= tolerance && 
-              Math.abs(ng - bgColor.g) <= tolerance && 
-              Math.abs(nb - bgColor.b) <= tolerance) {
-            visited[nIdx] = true;
-            toRemove[nIdx] = true;
-            queue.push(neighbor);
-          }
-        }
-      }
-    }
-    
-    // Apply transparency to marked pixels
-    let removedCount = 0;
-    for (let i = 0; i < toRemove.length; i++) {
-      if (toRemove[i]) {
-        data[i * 4 + 3] = 0; // Make transparent
-        removedCount++;
-      }
-    }
-    
-    console.log('Removed', removedCount, 'background pixels out of', width * height, 'total pixels');
   }
 
   private detectBackgroundColor(
@@ -682,5 +589,201 @@ export class BackgroundRemover {
     
     // If mostly surrounded by external background, it's isolated
     return externalNeighbors > 12; // More than half of possible neighbors
+  }
+
+  private detectMultipleBackgroundColors(data: Uint8ClampedArray, width: number, height: number): Array<{r: number, g: number, b: number}> {
+    const edgeColors = [];
+    
+    // Sample edges more thoroughly
+    for (let x = 0; x < width; x++) {
+      // Top and bottom rows
+      const topIdx = x * 4;
+      const bottomIdx = ((height - 1) * width + x) * 4;
+      edgeColors.push({r: data[topIdx], g: data[topIdx + 1], b: data[topIdx + 2]});
+      edgeColors.push({r: data[bottomIdx], g: data[bottomIdx + 1], b: data[bottomIdx + 2]});
+    }
+    
+    for (let y = 0; y < height; y++) {
+      // Left and right columns
+      const leftIdx = (y * width) * 4;
+      const rightIdx = (y * width + width - 1) * 4;
+      edgeColors.push({r: data[leftIdx], g: data[leftIdx + 1], b: data[leftIdx + 2]});
+      edgeColors.push({r: data[rightIdx], g: data[rightIdx + 1], b: data[rightIdx + 2]});
+    }
+    
+    // Cluster similar edge colors
+    const colorClusters = [];
+    const tolerance = 30;
+    
+    for (const color of edgeColors) {
+      let foundCluster = false;
+      for (const cluster of colorClusters) {
+        if (Math.abs(color.r - cluster.r) < tolerance &&
+            Math.abs(color.g - cluster.g) < tolerance &&
+            Math.abs(color.b - cluster.b) < tolerance) {
+          // Add to existing cluster
+          cluster.count++;
+          cluster.r = Math.round((cluster.r * (cluster.count - 1) + color.r) / cluster.count);
+          cluster.g = Math.round((cluster.g * (cluster.count - 1) + color.g) / cluster.count);
+          cluster.b = Math.round((cluster.b * (cluster.count - 1) + color.b) / cluster.count);
+          foundCluster = true;
+          break;
+        }
+      }
+      if (!foundCluster) {
+        colorClusters.push({ ...color, count: 1 });
+      }
+    }
+    
+    // Return the most common background colors (sorted by frequency)
+    return colorClusters
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3) // Take top 3 most common edge colors
+      .map(cluster => ({ r: cluster.r, g: cluster.g, b: cluster.b }));
+  }
+
+  private enhancedFloodFill(data: Uint8ClampedArray, width: number, height: number, bgColors: Array<{r: number, g: number, b: number}>, tolerance: number, toRemove: boolean[]): void {
+    const visited = new Array(width * height).fill(false);
+    const queue: Array<{x: number, y: number}> = [];
+    
+    // Start flood fill from all edge pixels that match any background color
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+          const idx = y * width + x;
+          const pixelIdx = idx * 4;
+          const r = data[pixelIdx];
+          const g = data[pixelIdx + 1];  
+          const b = data[pixelIdx + 2];
+          
+          // Check if pixel matches any of the background colors
+          for (const bgColor of bgColors) {
+            if (Math.abs(r - bgColor.r) <= tolerance && 
+                Math.abs(g - bgColor.g) <= tolerance && 
+                Math.abs(b - bgColor.b) <= tolerance) {
+              queue.push({x, y});
+              visited[idx] = true;
+              toRemove[idx] = true;
+              break; // Found a match, no need to check other background colors
+            }
+          }
+        }
+      }
+    }
+    
+    // Flood fill using multiple background colors
+    while (queue.length > 0) {
+      const {x, y} = queue.shift()!;
+      
+      // Check 4-connected neighbors
+      const neighbors = [
+        {x: x - 1, y: y}, {x: x + 1, y: y}, 
+        {x: x, y: y - 1}, {x: x, y: y + 1}
+      ];
+      
+      for (const neighbor of neighbors) {
+        if (neighbor.x >= 0 && neighbor.x < width && 
+            neighbor.y >= 0 && neighbor.y < height) {
+          
+          const nIdx = neighbor.y * width + neighbor.x;
+          if (visited[nIdx]) continue;
+          
+          const nPixelIdx = nIdx * 4;
+          const nr = data[nPixelIdx];
+          const ng = data[nPixelIdx + 1];
+          const nb = data[nPixelIdx + 2];
+          
+          // Check against all background colors
+          for (const bgColor of bgColors) {
+            if (Math.abs(nr - bgColor.r) <= tolerance && 
+                Math.abs(ng - bgColor.g) <= tolerance && 
+                Math.abs(nb - bgColor.b) <= tolerance) {
+              visited[nIdx] = true;
+              toRemove[nIdx] = true;
+              queue.push(neighbor);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private cleanupArtifacts(data: Uint8ClampedArray, width: number, height: number, toRemove: boolean[], tolerance: number): void {
+    console.log('Starting artifact cleanup');
+    
+    // Phase 1: Remove isolated background pixels (noise cleanup)
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const idx = y * width + x;
+        
+        if (!toRemove[idx]) {
+          // Check if this pixel is surrounded mostly by transparent pixels
+          const neighbors = [
+            toRemove[(y-1) * width + (x-1)], toRemove[(y-1) * width + x], toRemove[(y-1) * width + (x+1)],
+            toRemove[y * width + (x-1)],                                    toRemove[y * width + (x+1)],
+            toRemove[(y+1) * width + (x-1)], toRemove[(y+1) * width + x], toRemove[(y+1) * width + (x+1)]
+          ];
+          
+          const transparentNeighbors = neighbors.filter(n => n).length;
+          
+          // If 6 or more neighbors are transparent, and this pixel looks like background
+          if (transparentNeighbors >= 6) {
+            const pixelIdx = idx * 4;
+            const r = data[pixelIdx];
+            const g = data[pixelIdx + 1];
+            const b = data[pixelIdx + 2];
+            
+            // Check if it's grayish or whitish (likely background artifact)
+            const isGrayish = Math.abs(r - g) < 15 && Math.abs(g - b) < 15 && r > 180;
+            const isWhitish = r > 220 && g > 220 && b > 220;
+            
+            if (isGrayish || isWhitish) {
+              toRemove[idx] = true;
+            }
+          }
+        }
+      }
+    }
+    
+    // Phase 2: Expand removal for edge artifacts using morphological operations
+    const expansionMask = [...toRemove];
+    
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const idx = y * width + x;
+        
+        if (!toRemove[idx]) {
+          const pixelIdx = idx * 4;
+          const r = data[pixelIdx];
+          const g = data[pixelIdx + 1];
+          const b = data[pixelIdx + 2];
+          
+          // Check if this pixel has similar color to background and has transparent neighbors
+          const hasTransparentNeighbor = [
+            toRemove[(y-1) * width + x], toRemove[y * width + (x-1)],
+            toRemove[y * width + (x+1)], toRemove[(y+1) * width + x]
+          ].some(n => n);
+          
+          if (hasTransparentNeighbor) {
+            // Check if pixel is grayish/whitish background artifact
+            const isLightGray = r > 200 && g > 200 && b > 200 && 
+                               Math.abs(r - g) < 20 && Math.abs(g - b) < 20;
+            const isBackgroundish = r > 240 || (r > 180 && Math.abs(r - g) < 30);
+            
+            if (isLightGray || isBackgroundish) {
+              expansionMask[idx] = true;
+            }
+          }
+        }
+      }
+    }
+    
+    // Apply the expansion
+    for (let i = 0; i < toRemove.length; i++) {
+      toRemove[i] = expansionMask[i];
+    }
+    
+    console.log('Artifact cleanup completed');
   }
 }
