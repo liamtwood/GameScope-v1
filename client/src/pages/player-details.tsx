@@ -1134,7 +1134,7 @@ export default function PlayerDetails() {
                                 placeholder="Height"
                               />
                             ) : (
-                              <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
+                              <span className="text-sm text-white font-normal">{player?.height || 'Not specified'}</span>
                             )}
                           </div>
                           
@@ -1149,7 +1149,7 @@ export default function PlayerDetails() {
                                 placeholder="Hometown"
                               />
                             ) : (
-                              <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
+                              <span className="text-sm text-white font-normal">{player?.hometown || 'Not specified'}</span>
                             )}
                           </div>
                           
@@ -1164,7 +1164,7 @@ export default function PlayerDetails() {
                                 placeholder="Class Year"
                               />
                             ) : (
-                              <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
+                              <span className="text-sm text-white font-normal">{player?.classYear || 'Not specified'}</span>
                             )}
                           </div>
                           
@@ -1179,7 +1179,7 @@ export default function PlayerDetails() {
                                 placeholder="High School"
                               />
                             ) : (
-                              <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
+                              <span className="text-sm text-white font-normal">{player?.highSchool || 'Not specified'}</span>
                             )}
                           </div>
                         </div>
@@ -1189,7 +1189,7 @@ export default function PlayerDetails() {
                           <div className="border-t border-white/20 pt-6">
                             <div className="py-2">
                               <span className="text-sm font-medium text-white block mb-1">Position</span>
-                              <span className="text-sm text-white">{userTeams[0].position}</span>
+                              <span className="text-sm text-white font-normal">{userTeams[0].position}</span>
                             </div>
                           </div>
                         )}
