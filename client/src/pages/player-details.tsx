@@ -1085,7 +1085,7 @@ export default function PlayerDetails() {
                         
                         <div className="flex flex-col items-center space-y-6">
                           {/* Current Profile Photo Display */}
-                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg">
+                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg" showTransparencyPattern={true}>
                             {pendingProfilePhoto ? (
                               <AvatarImage 
                                 src={pendingProfilePhoto} 

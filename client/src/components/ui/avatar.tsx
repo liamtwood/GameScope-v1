@@ -5,23 +5,27 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
 
+interface AvatarProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {
+  showTransparencyPattern?: boolean;
+}
+
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
+  AvatarProps
+>(({ className, showTransparencyPattern = false, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
     className={cn(
       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
       className
     )}
-    style={{
+    style={showTransparencyPattern ? {
       background: `
         repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 8px 8px,
         repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 8px 8px
       `,
       backgroundPosition: '0px 0px, 4px 4px'
-    }}
+    } : undefined}
     {...props}
   />
 ))

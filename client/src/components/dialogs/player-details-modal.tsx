@@ -663,7 +663,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           
                           <div className="flex flex-col items-center space-y-4">
                             {/* Current Profile Photo Display */}
-                            <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200">
+                            <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200" showTransparencyPattern={true}>
                               {pendingProfilePhoto ? (
                                 <AvatarImage 
                                   src={pendingProfilePhoto} 
