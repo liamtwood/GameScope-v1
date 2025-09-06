@@ -1098,7 +1098,7 @@ export default function PlayerDetails() {
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
-                      <div className="w-4/5 ml-[25%] space-y-8">
+                      <div className="w-1/2 ml-[25%] space-y-8">
                         
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
