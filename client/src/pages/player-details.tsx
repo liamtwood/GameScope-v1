@@ -515,31 +515,6 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                   
-                  {/* Tab Selector - Only show when from profiles */}
-                  {source === "profiles" && (
-                    <div className="flex items-center gap-4">
-                      {/* Bio Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'bio' ? 'text-white font-bold' : 'text-white/70'
-                        }`}
-                        onClick={() => setActiveTab('bio')}
-                      >
-                        Bio
-                      </span>
-                      
-                      {/* Stats Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'stats' ? 'text-white font-bold' : 'text-white/70'
-                        }`}
-                        onClick={() => setActiveTab('stats')}
-                      >
-                        Stats
-                      </span>
-                    </div>
-                  )}
-                  
                   <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 flex-1" style={{ backgroundColor: clubPrimaryColor }}>
                     <div className="flex items-center gap-4">
                       {/* Squad Number */}
@@ -584,6 +559,33 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
+                
+                {/* Tab Selector Below Container - Only show when from profiles */}
+                {source === "profiles" && (
+                  <div className="flex justify-center mt-4">
+                    <div className="flex items-center gap-4">
+                      {/* Bio Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'bio' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('bio')}
+                      >
+                        Bio
+                      </span>
+                      
+                      {/* Stats Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'stats' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('stats')}
+                      >
+                        Stats
+                      </span>
+                    </div>
+                  </div>
+                )}
                 </div>
                 </div>
               </div>
