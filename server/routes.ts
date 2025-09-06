@@ -482,6 +482,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PATCH route for updating player data
+  app.patch("/api/player/:id", async (req, res) => {
+    try {
+      // Allow all the bio-related fields
+      const validKeys = [
+        'firstName', 'lastName', 'shirtName', 'email', 'phone', 
+        'emergencyContact', 'emergencyContactPhone', 'gender', 
+        'dateOfBirth', 'status', 'role', 'avatarPath', 'headshotPath',
+        'height', 'hometown', 'highSchool', 'classYear', 'bio'
+      ];
+      
+      const updates = Object.keys(req.body).reduce((acc, key) => {
+        if (validKeys.includes(key)) {
+          acc[key] = req.body[key];
+        }
+        return acc;
+      }, {} as any);
+      
+      const player = await storage.updateUser(req.params.id, updates);
+      res.json(player);
+    } catch (error) {
+      console.error("Error updating player:", error);
+      res.status(400).json({ message: "Failed to update player" });
+    }
+  });
+
   // Player-Team relationship routes (aliases for user-team routes)
   // Get all teams for a player
   app.get("/api/player/:playerId/teams", async (req, res) => {
