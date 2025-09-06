@@ -279,6 +279,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User photo upload URL generation
+  app.post("/api/user-photos/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getUserPhotoUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating user photo upload URL:", error);
+      res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
+  // Serve user photos from object storage
+  app.get("/user-photos/:photoPath(*)", async (req, res) => {
+    try {
+      const photoPath = `/user-photos/${req.params.photoPath}`;
+      const objectStorageService = new ObjectStorageService();
+      const photoFile = await objectStorageService.getUserPhotoFile(photoPath);
+      await objectStorageService.downloadObject(photoFile, res);
+    } catch (error) {
+      console.error("Error serving user photo:", error);
+      res.status(404).json({ message: "User photo not found" });
+    }
+  });
+
+  // Update user photo path
+  app.put("/api/user/:id/photo", async (req, res) => {
+    try {
+      const { photoURL } = req.body;
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeUserPhotoPath(photoURL);
+      const user = await storage.updateUser(req.params.id, { avatarPath: normalizedPath });
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user photo:", error);
+      res.status(400).json({ message: "Failed to update user photo" });
+    }
+  });
+
   // Team routes
   app.get("/api/teams", async (req, res) => {
     try {
