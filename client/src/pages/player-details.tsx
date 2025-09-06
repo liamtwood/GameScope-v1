@@ -644,45 +644,6 @@ export default function PlayerDetails() {
                         background-image: none !important;
                         color: ${clubPrimaryColor} !important;
                       }
-                      
-                      /* Bio tab styling */
-                      [data-testid="tab-bio"],
-                      button[role="tab"][data-testid="tab-bio"] {
-                        background: none !important;
-                        background-color: transparent !important;
-                        background-image: none !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        -webkit-box-shadow: none !important;
-                        -moz-box-shadow: none !important;
-                      }
-                      
-                      /* Keep icon sizes consistent in both active and inactive states */
-                      [data-testid="tab-bio"] svg,
-                      [data-testid="tab-bio"][data-state="active"] svg {
-                        width: 32px !important;
-                        height: 32px !important;
-                        min-width: 32px !important;
-                        min-height: 32px !important;
-                        max-width: 32px !important;
-                        max-height: 32px !important;
-                      }
-                      
-                      [data-testid="tab-bio"][data-state="active"],
-                      button[role="tab"][data-testid="tab-bio"][data-state="active"] {
-                        background: none !important;
-                        background-color: transparent !important;
-                        background-image: none !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        -webkit-box-shadow: none !important;
-                        -moz-box-shadow: none !important;
-                        width: 48px !important;
-                        height: 48px !important;
-                        border-radius: 50% !important;
-                        padding: 0 !important;
-                        margin: 0 !important;
-                      }
                     `}</style>
                     {!isPhotoOnlyMode && (
                       <>
@@ -724,23 +685,6 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full justify-center items-center gap-8">
-                      <TabsTrigger 
-                        value="bio" 
-                        data-testid="tab-bio" 
-                        className="flex flex-col items-center gap-2"
-                        style={{
-                          background: 'none',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          boxShadow: 'none',
-                          padding: '8px'
-                        }}
-                      >
-                        <UserIcon size={32} />
-                        <span className="text-xs font-medium text-white">Bio</span>
-                      </TabsTrigger>
-                    </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
                       <TabsTrigger 
@@ -1129,68 +1073,6 @@ export default function PlayerDetails() {
                 </div>
               </TabsContent>
 
-              {/* Bio Tab Content */}
-              <TabsContent value="bio" className="m-0">
-                <div className="px-6 pb-6 min-h-[400px] bg-transparent">
-                  <div className="pt-6">
-                    <div className="w-4/5 mx-auto space-y-8">
-                      
-                      {/* Player Stats */}
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span className="text-sm font-medium text-gray-600">Height</span>
-                            <span className="text-sm text-gray-900">{player?.height || 'Not specified'}</span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span className="text-sm font-medium text-gray-600">Class</span>
-                            <span className="text-sm text-gray-900">{player?.classYear || 'Not specified'}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span className="text-sm font-medium text-gray-600">Hometown</span>
-                            <span className="text-sm text-gray-900">{player?.hometown || 'Not specified'}</span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span className="text-sm font-medium text-gray-600">High School</span>
-                            <span className="text-sm text-gray-900">{player?.highSchool || 'Not specified'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Position (from team assignment) */}
-                      {userTeams && userTeams.length > 0 && (
-                        <div className="border-t border-gray-200 pt-6">
-                          <div className="flex justify-between items-center py-2">
-                            <span className="text-sm font-medium text-gray-600">Position</span>
-                            <span className="text-sm text-gray-900">{userTeams[0].position}</span>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Bio Text */}
-                      {player?.bio && (
-                        <div className="border-t border-gray-200 pt-6">
-                          <h4 className="text-sm font-medium text-gray-600 mb-3">About</h4>
-                          <p className="text-sm text-gray-700 leading-relaxed">{player.bio}</p>
-                        </div>
-                      )}
-                      
-                      {/* Placeholder when no bio */}
-                      {!player?.bio && (
-                        <div className="border-t border-gray-200 pt-6 text-center">
-                          <p className="text-sm text-gray-400 italic">No biography available</p>
-                        </div>
-                      )}
-                      
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
 
               {/* Stats Tab Content */}
 
