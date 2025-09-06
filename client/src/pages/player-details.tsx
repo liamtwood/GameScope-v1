@@ -1103,7 +1103,7 @@ export default function PlayerDetails() {
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
                           <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Height</span>
+                            <span className="text-sm font-medium text-white">Bob</span>
                             {isEditing ? (
                               <input
                                 type="text"
