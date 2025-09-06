@@ -413,15 +413,15 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create honeycomb background style
+  // Create true hexagonal honeycomb background style
   const solidStyle = {
     background: `
-      radial-gradient(circle farthest-side at 0% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
-      radial-gradient(circle farthest-side at 50% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
+      linear-gradient(30deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+      linear-gradient(90deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+      linear-gradient(150deg, transparent 75%, rgba(255,255,255,0.08) 75%),
       ${clubPrimaryColor}
     `,
-    backgroundSize: '24px 24px, 24px 24px',
-    backgroundPosition: '0px 0px, 12px 12px'
+    backgroundSize: '20px 35px',
   };
 
   return (
@@ -1074,12 +1074,12 @@ export default function PlayerDetails() {
                     className="px-6 pb-6 min-h-[400px]" 
                     style={{
                       background: `
-                        radial-gradient(circle farthest-side at 0% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
-                        radial-gradient(circle farthest-side at 50% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
+                        linear-gradient(30deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+                        linear-gradient(90deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+                        linear-gradient(150deg, transparent 75%, rgba(255,255,255,0.08) 75%),
                         ${clubPrimaryColor}
                       `,
-                      backgroundSize: '24px 24px, 24px 24px',
-                      backgroundPosition: '0px 0px, 12px 12px'
+                      backgroundSize: '20px 35px',
                     }}
                   >
                     <div className="pt-6">
