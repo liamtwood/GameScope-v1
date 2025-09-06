@@ -631,22 +631,62 @@ export default function PlayerDetails() {
                         background-image: none !important;
                         color: white !important;
                       }
-                      /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
+                      /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT (excluding bio/stats) */
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
                       [data-testid="tab-photo"][data-state="active"],
-                      [data-testid="tab-stats"][data-state="active"],
                       button[role="tab"][data-testid="tab-details"][data-state="active"],
                       button[role="tab"][data-testid="tab-teams"][data-state="active"],
                       button[role="tab"][data-testid="tab-parents"][data-state="active"],
-                      button[role="tab"][data-testid="tab-photo"][data-state="active"],
-                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
+                      button[role="tab"][data-testid="tab-photo"][data-state="active"] {
                         opacity: 1 !important;
                         background: white !important;
                         background-color: white !important;
                         background-image: none !important;
                         color: ${clubPrimaryColor} !important;
+                      }
+                      
+                      /* BIO AND STATS TABS - TRANSPARENT WITH TEXT COLOR ONLY */
+                      [data-testid="tab-bio"],
+                      [data-testid="tab-stats"],
+                      button[role="tab"][data-testid="tab-bio"],
+                      button[role="tab"][data-testid="tab-stats"] {
+                        background: transparent !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
+                      }
+                      
+                      [data-testid="tab-bio"][data-state="active"],
+                      [data-testid="tab-stats"][data-state="active"],
+                      button[role="tab"][data-testid="tab-bio"][data-state="active"],
+                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
+                        background: transparent !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
+                        color: white !important;
+                      }
+                      
+                      [data-testid="tab-bio"]:not([data-state="active"]),
+                      [data-testid="tab-stats"]:not([data-state="active"]),
+                      button[role="tab"][data-testid="tab-bio"]:not([data-state="active"]),
+                      button[role="tab"][data-testid="tab-stats"]:not([data-state="active"]) {
+                        background: transparent !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
+                        color: rgb(75, 85, 99) !important; /* gray-600 */
                       }
                       /* NUCLEAR OPTION - Override ALL Radix styles for inactive tabs */
                       button[role="tab"]:not([data-state="active"]),
@@ -707,25 +747,26 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="bio" 
                       data-testid="tab-bio" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold bg-transparent"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
                       style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
                         background: 'transparent !important',
-                        backgroundColor: 'transparent !important'
-                      } as React.CSSProperties & { '--club-primary': string }}
+                        backgroundColor: 'transparent !important',
+                        border: 'none !important',
+                        boxShadow: 'none !important'
+                      }}
                     >
                       Bio
                     </TabsTrigger>
                     <TabsTrigger 
                       value="stats" 
                       data-testid="tab-stats" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
                       style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
-                      } as React.CSSProperties & { '--club-primary': string }}
+                        background: 'transparent !important',
+                        backgroundColor: 'transparent !important',
+                        border: 'none !important',
+                        boxShadow: 'none !important'
+                      }}
                     >
                       Stats
                     </TabsTrigger>
