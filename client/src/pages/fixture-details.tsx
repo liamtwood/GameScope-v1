@@ -216,10 +216,11 @@ export default function FixtureDetails() {
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details" data-testid="tab-fixture-details">Fixture Details</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Upload Video</TabsTrigger>
-            <TabsTrigger value="lineups" data-testid="tab-lineups">Lineups</TabsTrigger>
+            <TabsTrigger value="home-lineup" data-testid="tab-home-lineup">Home Lineup</TabsTrigger>
+            <TabsTrigger value="away-lineup" data-testid="tab-away-lineup">Away Lineup</TabsTrigger>
             <TabsTrigger value="analysis" data-testid="tab-analysis">GameScope Analysis</TabsTrigger>
           </TabsList>
 
@@ -310,63 +311,64 @@ export default function FixtureDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="lineups" className="mt-6">
+          <TabsContent value="home-lineup" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-6">Team Lineups</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
-                      {isHomeMatch && (
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      )}
-                      <span>Polk State College</span>
-                    </h4>
-                    {isHomeMatch && players ? (
-                      <div className="space-y-2">
-                        {players.slice(0, 11).map((player, index) => (
-                          <div key={player.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/30">
-                            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                              {player.jerseyNumber}
-                            </div>
-                            <div>
-                              <p className="font-medium text-foreground">{player.name}</p>
-                              <p className="text-xs text-muted-foreground">{player.position}</p>
-                            </div>
-                          </div>
-                        ))}
+                <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>Home Team - Polk State College</span>
+                </h3>
+                {isHomeMatch && players ? (
+                  <div className="space-y-2">
+                    {players.slice(0, 11).map((player, index) => (
+                      <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
+                        <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                          {player.jerseyNumber}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{player.name}</p>
+                          <p className="text-sm text-muted-foreground">{player.position}</p>
+                        </div>
                       </div>
-                    ) : (
-                      <p className="text-muted-foreground">Lineup not available</p>
-                    )}
+                    ))}
                   </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
-                      {!isHomeMatch && (
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      )}
-                      <span>{awayTeam}</span>
-                    </h4>
-                    {!isHomeMatch && players ? (
-                      <div className="space-y-2">
-                        {players.slice(0, 11).map((player, index) => (
-                          <div key={player.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/30">
-                            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                              {player.jerseyNumber}
-                            </div>
-                            <div>
-                              <p className="font-medium text-foreground">{player.name}</p>
-                              <p className="text-xs text-muted-foreground">{player.position}</p>
-                            </div>
-                          </div>
-                        ))}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Home team lineup not available</p>
+                    <p className="text-sm text-muted-foreground mt-2">Players will appear here when lineup is set</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="away-lineup" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span>Away Team - {awayTeam}</span>
+                </h3>
+                {!isHomeMatch && players ? (
+                  <div className="space-y-2">
+                    {players.slice(0, 11).map((player, index) => (
+                      <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
+                        <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                          {player.jerseyNumber}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{player.name}</p>
+                          <p className="text-sm text-muted-foreground">{player.position}</p>
+                        </div>
                       </div>
-                    ) : (
-                      <p className="text-muted-foreground">Lineup not available</p>
-                    )}
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Away team lineup not available</p>
+                    <p className="text-sm text-muted-foreground mt-2">Players will appear here when lineup is set</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
