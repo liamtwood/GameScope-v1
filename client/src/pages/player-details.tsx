@@ -504,7 +504,7 @@ export default function PlayerDetails() {
               {/* Player Info Section */}
               <div className="px-6 pt-2 pb-6">
                 <div className="w-full">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
                   
                   {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
                   <div className="flex items-center gap-2">
@@ -515,7 +515,7 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 w-1/2" style={{ backgroundColor: clubPrimaryColor, marginLeft: 'calc(25% + 3rem)' }}>
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 flex-1" style={{ backgroundColor: clubPrimaryColor }}>
                     <div className="flex items-center gap-4">
                       {/* Squad Number */}
                       {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
