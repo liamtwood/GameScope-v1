@@ -726,7 +726,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                 <img 
                                   src={pendingFullLengthPhoto} 
                                   alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-contain"
                                   style={{ 
                                     imageRendering: 'auto',
                                     backgroundColor: 'transparent'
@@ -736,7 +736,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                 <img 
                                   src={player.headshotPath} 
                                   alt={`${player.firstName} ${player.lastName} Full Length`}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-contain"
                                   style={{ 
                                     imageRendering: 'auto',
                                     backgroundColor: 'transparent'
