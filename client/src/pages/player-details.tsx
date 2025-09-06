@@ -414,7 +414,7 @@ export default function PlayerDetails() {
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
   // Create perfect honeycomb background style using advanced CSS
-  const s = '40px'; // honeycomb cell size
+  const s = '25px'; // honeycomb cell size
   const c1 = 'rgba(255,255,255,0.1)'; // honeycomb line color
   const c2 = clubPrimaryColor; // background color
   
