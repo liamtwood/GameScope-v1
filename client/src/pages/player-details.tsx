@@ -527,7 +527,7 @@ export default function PlayerDetails() {
                     {/* Position - Vertically centered with squad number */}
                     {userTeams && userTeams.length > 0 && userTeams[0].position && (
                       <div className="flex items-center justify-center">
-                        <div className="text-lg font-medium uppercase tracking-wide" style={{ color: textColor, opacity: 0.8 }}>
+                        <div className="text-sm font-medium uppercase tracking-wide text-black">
                           {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
                            userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
                            userTeams[0].position === 'FWD' ? 'FORWARD' : 
