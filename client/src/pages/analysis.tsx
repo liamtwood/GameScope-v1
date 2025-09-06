@@ -11,12 +11,13 @@ import { VideoManager } from "@/components/video-manager";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { ExcelUpload } from "@/components/excel-upload";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Trophy, MapPin, Edit } from "lucide-react";
+import { ArrowLeft, Trophy, MapPin, Edit, Star } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { Fixture, MatchStats, Player, Team, Club } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
@@ -43,6 +44,20 @@ export default function Analysis() {
 
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
+
+  // Mutation for toggling star player status
+  const toggleStarPlayerMutation = useMutation({
+    mutationFn: async ({ playerId, teamId, starPlayer }: { playerId: string; teamId: string; starPlayer: boolean }) => {
+      await apiRequest("PATCH", `/api/player/${playerId}/team/${teamId}/star`, { starPlayer });
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the players data
+      queryClient.invalidateQueries({ queryKey: ["/api/players", fixture?.teamId] });
+    },
+    onError: (error) => {
+      console.error("Error updating star player status:", error);
+    },
+  });
 
 
   // Spider Chart Data Transformation Functions - Normalized to percentages
@@ -845,9 +860,33 @@ export default function Analysis() {
                         <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
                           {player.jerseyNumber}
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
-                          <p className="text-xs text-muted-foreground">{player.position}</p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-xs text-muted-foreground">{player.position}</p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (fixture?.teamId) {
+                                  toggleStarPlayerMutation.mutate({
+                                    playerId: player.id,
+                                    teamId: fixture.teamId,
+                                    starPlayer: !player.starPlayer
+                                  });
+                                }
+                              }}
+                              className="p-1 hover:bg-muted/50 rounded transition-colors"
+                              disabled={toggleStarPlayerMutation.isPending}
+                            >
+                              <Star 
+                                className={`h-3 w-3 transition-colors ${
+                                  player.starPlayer 
+                                    ? 'text-yellow-500 fill-yellow-500' 
+                                    : 'text-gray-300 hover:text-yellow-300'
+                                }`} 
+                              />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -60,6 +60,7 @@ export interface IStorage {
   // User-Team relationship operations (replaces Player-Team operations)
   getUserTeams(userId: string): Promise<(UserTeam & { team: Team })[]>;
   addUserToTeam(userId: string, teamId: string, assignment: InsertUserTeam): Promise<UserTeam>;
+  updateUserTeam(userId: string, teamId: string, updates: Partial<InsertUserTeam>): Promise<UserTeam>;
   removeUserFromTeam(userId: string, teamId: string): Promise<void>;
   getTeamUsers(teamId: string): Promise<(UserTeam & { user: User })[]>;
   
@@ -562,6 +563,38 @@ export class DatabaseStorage implements IStorage {
     
     await db.insert(userTeams).values(newUserTeam);
     return newUserTeam as UserTeam;
+  }
+
+  async updateUserTeam(
+    userId: string, 
+    teamId: string, 
+    updates: Partial<InsertUserTeam>
+  ): Promise<UserTeam> {
+    const updatedData = {
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    await db.update(userTeams)
+      .set(updatedData)
+      .where(
+        and(
+          eq(userTeams.userId, userId),
+          eq(userTeams.teamId, teamId)
+        )
+      );
+    
+    const [updatedUserTeam] = await db.select()
+      .from(userTeams)
+      .where(
+        and(
+          eq(userTeams.userId, userId),
+          eq(userTeams.teamId, teamId)
+        )
+      );
+    
+    if (!updatedUserTeam) throw new Error('UserTeam not found');
+    return updatedUserTeam;
   }
 
   async addUserToClub(

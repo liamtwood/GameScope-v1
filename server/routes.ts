@@ -402,6 +402,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route for updating player star status in a team
+  app.patch("/api/player/:playerId/team/:teamId/star", async (req, res) => {
+    try {
+      const { playerId, teamId } = req.params;
+      const { starPlayer } = req.body;
+      
+      await storage.updateUserTeam(playerId, teamId, { starPlayer });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating player star status:", error);
+      res.status(500).json({ message: "Failed to update player star status" });
+    }
+  });
+
   app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);
