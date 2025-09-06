@@ -39,6 +39,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         return <Users className="h-10 w-10 text-club-primary" />;
       case 'match videos':
         return <Video className="h-10 w-10 text-club-primary" />;
+      case 'player profiles':
+        return <Users className="h-10 w-10 text-club-primary" />;
       case 'club management':
         return <Landmark className="h-10 w-10 text-club-primary" />;
       case 'settings':

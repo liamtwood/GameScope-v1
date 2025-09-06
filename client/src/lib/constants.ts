@@ -36,6 +36,7 @@ export const NAVIGATION_SECTIONS = [
       { id: 'fixtures', label: 'Fixtures', icon: 'Calendar', tooltip: 'Manage Fixtures' },
       { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
       { id: 'videos', label: 'Match Videos', icon: 'Video', tooltip: 'Match Videos' },
+      { id: 'player-profiles', label: 'Player Profiles', icon: 'Users', tooltip: 'Player Profiles' },
     ]
   },
   {
