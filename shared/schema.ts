@@ -188,6 +188,13 @@ export const users = pgTable("users", {
   avatarPath: text("avatar_path"), // Path to profile photo
   headshotPath: text("headshot_path"), // Path to headshot photo
   
+  // Bio Information
+  height: text("height"), // e.g., "5-7"
+  hometown: text("hometown"), // e.g., "Thornton, Colo."
+  highSchool: text("high_school"), // e.g., "Broomfield HS"
+  classYear: varchar("class_year", { length: 20 }), // Freshman, Sophomore, Junior, Senior
+  bio: text("bio"), // Personal bio text
+  
   // Contact Information
   email: text("email"),
   phone: text("phone"),

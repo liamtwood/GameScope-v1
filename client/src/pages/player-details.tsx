@@ -1099,13 +1099,62 @@ export default function PlayerDetails() {
 
               {/* Bio Tab Content */}
               <TabsContent value="bio" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
-                  <div className="pt-4">
-                    <div className="w-4/5 mx-auto">
-                      <div className="text-center py-8">
-                        <h4 className="text-lg font-medium text-gray-900 mb-2">Player Bio</h4>
-                        <p className="text-sm text-muted-foreground">Player background, achievements, and personal information.</p>
+                <div className="bg-white px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-6">
+                    <div className="w-4/5 mx-auto space-y-8">
+                      
+                      {/* Player Stats */}
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span className="text-sm font-medium text-gray-600">Height</span>
+                            <span className="text-sm text-gray-900">{player?.height || 'Not specified'}</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span className="text-sm font-medium text-gray-600">Class</span>
+                            <span className="text-sm text-gray-900">{player?.classYear || 'Not specified'}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span className="text-sm font-medium text-gray-600">Hometown</span>
+                            <span className="text-sm text-gray-900">{player?.hometown || 'Not specified'}</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span className="text-sm font-medium text-gray-600">High School</span>
+                            <span className="text-sm text-gray-900">{player?.highSchool || 'Not specified'}</span>
+                          </div>
+                        </div>
                       </div>
+                      
+                      {/* Position (from team assignment) */}
+                      {playerTeams && playerTeams.length > 0 && (
+                        <div className="border-t border-gray-200 pt-6">
+                          <div className="flex justify-between items-center py-2">
+                            <span className="text-sm font-medium text-gray-600">Position</span>
+                            <span className="text-sm text-gray-900">{playerTeams[0].position}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Bio Text */}
+                      {player?.bio && (
+                        <div className="border-t border-gray-200 pt-6">
+                          <h4 className="text-sm font-medium text-gray-600 mb-3">About</h4>
+                          <p className="text-sm text-gray-700 leading-relaxed">{player.bio}</p>
+                        </div>
+                      )}
+                      
+                      {/* Placeholder when no bio */}
+                      {!player?.bio && (
+                        <div className="border-t border-gray-200 pt-6 text-center">
+                          <p className="text-sm text-gray-400 italic">No biography available</p>
+                        </div>
+                      )}
+                      
                     </div>
                   </div>
                 </div>
