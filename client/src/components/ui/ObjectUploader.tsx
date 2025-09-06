@@ -57,8 +57,9 @@ export function ObjectUploader({
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
-  const [uppy] = useState(() =>
-    new Uppy({
+  const [uppy] = useState(() => {
+    console.log('Creating Uppy instance...');
+    return new Uppy({
       restrictions: {
         maxNumberOfFiles,
         maxFileSize,
@@ -68,13 +69,22 @@ export function ObjectUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: onGetUploadParameters,
+        getUploadParameters: async () => {
+          console.log('Getting upload parameters...');
+          const result = await onGetUploadParameters();
+          console.log('Upload parameters received:', result);
+          return result;
+        },
       })
       .on("complete", (result) => {
+        console.log('Upload complete:', result);
         onComplete?.(result);
         setShowModal(false); // Close modal after upload
       })
-  );
+      .on("error", (error) => {
+        console.error('Upload error:', error);
+      });
+  });
 
   return (
     <div>
