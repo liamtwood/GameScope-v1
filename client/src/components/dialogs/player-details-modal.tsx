@@ -727,12 +727,14 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                   src={pendingFullLengthPhoto} 
                                   alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
                                   className="w-full h-full object-cover"
+                                  style={{ imageRendering: 'auto' }}
                                 />
                               ) : player?.headshotPath ? (
                                 <img 
                                   src={player.headshotPath} 
                                   alt={`${player.firstName} ${player.lastName} Full Length`}
                                   className="w-full h-full object-cover"
+                                  style={{ imageRendering: 'auto' }}
                                 />
                               ) : (
                                 <div className="text-white text-2xl font-semibold">
