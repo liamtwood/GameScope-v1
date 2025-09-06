@@ -1097,7 +1097,29 @@ export default function PlayerDetails() {
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
-                      <div className="w-1/2 ml-[25%] space-y-8">
+                      <div className="flex gap-6">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto rounded-lg shadow-md object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 rounded-lg shadow-md flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Right Side - Bio Information */}
+                        <div className="w-1/2 space-y-8">
                         
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
@@ -1189,6 +1211,7 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
+                        </div>
                       </div>
                     </div>
                   </div>
