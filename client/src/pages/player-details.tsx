@@ -697,16 +697,6 @@ export default function PlayerDetails() {
                         Bio
                       </span>
                       
-                      {/* Stats Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'stats' ? 'text-white font-bold' : 'text-white/70'
-                        }`}
-                        onClick={() => setActiveTab('stats')}
-                      >
-                        Stats
-                      </span>
-                      
                       {/* Attack Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
@@ -1391,20 +1381,6 @@ export default function PlayerDetails() {
                   </div>
                 </TabsContent>
               )}
-
-              {/* Stats Tab Content - only when coming from Player Profiles */}
-              {source === "profiles" && (
-                <TabsContent value="stats" className="m-0">
-                  <div 
-                    className="px-6 min-h-[400px]" 
-                    style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
-                    } as React.CSSProperties}
-                  >
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
