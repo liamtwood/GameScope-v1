@@ -1001,6 +1001,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete multiple users by IDs
+  app.delete("/api/users/bulk", async (req, res) => {
+    try {
+      const { userIds } = req.body;
+      
+      if (!userIds || !Array.isArray(userIds)) {
+        return res.status(400).json({ message: "userIds array is required" });
+      }
+
+      console.log(`Deleting ${userIds.length} users:`, userIds);
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      for (const userId of userIds) {
+        try {
+          await storage.deleteUser(userId);
+          deletedCount++;
+          console.log(`Deleted user: ${userId}`);
+        } catch (error) {
+          const errorMsg = `Failed to delete user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
+        }
+      }
+
+      console.log(`Bulk delete completed: ${deletedCount} users deleted, ${errors.length} errors`);
+
+      res.json({
+        success: true,
+        deleted: deletedCount,
+        total: userIds.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+
+    } catch (error) {
+      console.error("Error in bulk delete:", error);
+      res.status(500).json({ 
+        message: "Failed to delete users",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Squad import endpoints
   // Scrape player data from URL
   app.post("/api/squad/import-from-url", async (req, res) => {
