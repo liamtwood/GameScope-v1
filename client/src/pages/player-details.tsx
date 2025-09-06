@@ -415,7 +415,7 @@ export default function PlayerDetails() {
   
   // Create perfect honeycomb background style using advanced CSS
   const s = '25px'; // honeycomb cell size
-  const c1 = 'rgba(255,255,255,0.2)'; // honeycomb line color
+  const c1 = 'rgba(255,255,255,0.1)'; // honeycomb line color
   const c2 = clubPrimaryColor; // background color
   
   const solidStyle = {
