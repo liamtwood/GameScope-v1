@@ -66,10 +66,20 @@ export default function FixtureDetails() {
     enabled: !!fixtureId,
   });
 
-  const { data: players } = useQuery<PlayerWithTeamData[]>({
-    queryKey: ["/api/players", fixture?.teamId],
+  const { data: teamPlayersData } = useQuery<any[]>({
+    queryKey: ["/api/team", fixture?.teamId, "users"],
     enabled: !!fixture?.teamId,
   });
+
+  // Convert team players to the format expected by the lineup
+  const players = teamPlayersData?.map(tp => ({
+    ...tp.user,
+    id: tp.user.id,
+    jerseyNumber: tp.jerseyNumber,
+    position: tp.position,
+    starPlayer: tp.starPlayer,
+    fitnessStatus: tp.fitnessStatus
+  })) || [];
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
