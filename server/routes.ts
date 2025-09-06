@@ -1004,6 +1004,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!existingTeamMember) {
             // Add to team
             await storage.addUserToTeam(user.id, teamId, {
+              userId: user.id,
+              teamId,
               position: playerData.position,
               jerseyNumber: playerData.jerseyNumber || undefined,
               fitnessStatus: 'Fit'
@@ -1852,12 +1854,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           if (existingUser) {
             console.log(`Found existing user: ${existingUser.firstName} ${existingUser.lastName} (${existingUser.id}) - reusing for squad`);
-            // Update age if provided and not already set
-            if (playerData.age && !existingUser.age) {
-              user = await storage.updateUser(existingUser.id, { age: playerData.age });
-            } else {
-              user = existingUser;
-            }
+            // Note: age field not in user schema, skip age update
+            user = existingUser;
           } else {
             // Create new user
             const userData = {
@@ -1867,8 +1865,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               email: '',
               phone: '',
               role: 'Player' as const,
-              status: 'Active' as const,
-              age: playerData.age
+              status: 'Active' as const
+              // Note: age field not in user schema
             };
             
             console.log(`Creating new user: ${firstName} ${lastName}`);
@@ -2950,7 +2948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const html = await response.text();
-      const fixtures = parseFlashscoreFixtures(html);
+      const fixtures = await parseFlashscoreFixtures(html, url);
       
       console.log(`Found ${fixtures.length} fixtures`);
       
@@ -2998,8 +2996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const existingDate = new Date(f.date).toDateString();
             return (
               existingDate === fixtureDate &&
-              ((f.homeTeam === fixtureData.homeTeam && f.awayTeam === fixtureData.awayTeam) ||
-               (f.homeTeam === fixtureData.awayTeam && f.awayTeam === fixtureData.homeTeam))
+              (f.opponent === fixtureData.homeTeam || f.opponent === fixtureData.awayTeam)
             );
           });
           
@@ -3031,16 +3028,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             teamId,
             oppositionTeamId: oppositionTeam.id,
             date: new Date(fixtureData.date),
-            kickoffTime: fixtureData.time || "15:00",
             venue: fixtureData.isHome ? "Home" : "Away",
-            homeTeam: fixtureData.homeTeam,
-            awayTeam: fixtureData.awayTeam,
+            opponent: fixtureData.homeTeam === fixtureData.userTeam ? fixtureData.awayTeam : fixtureData.homeTeam,
             homeScore: null,
             awayScore: null,
             status: "Scheduled",
-            matchType: "League",
-            competitionId: null,
-            season: new Date(fixtureData.date).getFullYear().toString()
+            type: "League"
           });
           
           console.log(`Successfully imported fixture: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`);
