@@ -123,6 +123,68 @@ export const matchStats = pgTable("match_stats", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const playerStats = pgTable("player_stats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  playerId: varchar("player_id").references(() => users.id).notNull(),
+  fixtureId: varchar("fixture_id").references(() => fixtures.id).notNull(),
+  period: varchar("period", { length: 20 }).notNull(), // FIRST_HALF, SECOND_HALF, FULL_GAME
+  
+  // Key stats (distance in km, stored as decimal with 2 places)
+  totalDistance: integer("total_distance"), // stored as meters, display as km
+  
+  // Attack stats
+  goals: integer("goals"),
+  assists: integer("assists"),
+  shotsAttempted: integer("shots_attempted"),
+  shotsOnTarget: integer("shots_on_target"),
+  runsIntoBoxes: integer("runs_into_boxes"),
+  dangerousCrosses: integer("dangerous_crosses"),
+  
+  // Possession stats
+  dribbles: integer("dribbles"),
+  dribblesSuccessful: integer("dribbles_successful"),
+  dribblesSuccessRate: integer("dribbles_success_rate"), // percentage
+  penetratingDribbles: integer("penetrating_dribbles"),
+  penetratingDribblesSuccessful: integer("penetrating_dribbles_successful"),
+  penetratingDribblesSuccessRate: integer("penetrating_dribbles_success_rate"), // percentage
+  takeOns: integer("take_ons"),
+  firstTouchSuccess: integer("first_touch_success"),
+  firstTouchAttempted: integer("first_touch_attempted"),
+  firstTouchSuccessRate: integer("first_touch_success_rate"), // percentage
+  
+  // Defence stats
+  tackles: integer("tackles"),
+  tacklesWon: integer("tackles_won"),
+  tacklesSuccessRate: integer("tackles_success_rate"), // percentage
+  interceptions: integer("interceptions"),
+  clearances: integer("clearances"),
+  foulsCommitted: integer("fouls_committed"),
+  foulsWon: integer("fouls_won"),
+  offsides: integer("offsides"),
+  
+  // Passing stats
+  passesAttempted: integer("passes_attempted"),
+  passesSuccess: integer("passes_success"),
+  passingSuccessRate: integer("passing_success_rate"), // percentage
+  passingTotalDistance: integer("passing_total_distance"), // stored as meters
+  passingAverageDistance: integer("passing_average_distance"), // stored as meters
+  passingAverageVelocity: integer("passing_average_velocity"), // km/h
+  
+  // Foot-specific passing stats
+  rightFootPassAttempted: integer("right_foot_pass_attempted"),
+  rightFootPassSuccess: integer("right_foot_pass_success"),
+  rightFootPassSuccessRate: integer("right_foot_pass_success_rate"), // percentage
+  leftFootPassAttempted: integer("left_foot_pass_attempted"),
+  leftFootPassSuccess: integer("left_foot_pass_success"),
+  leftFootPassSuccessRate: integer("left_foot_pass_success_rate"), // percentage
+  
+  // Physical stats
+  sprintsCompleted: integer("sprints_completed"),
+  highIntensityRuns: integer("high_intensity_runs"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const oppositionTeams = pgTable("opposition_teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
@@ -304,6 +366,10 @@ export const insertFixtureSchema = createInsertSchema(fixtures)
     date: z.string().or(z.date()).transform((val) => new Date(val))
   });
 export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: true, createdAt: true });
+export const insertPlayerStatsSchema = createInsertSchema(playerStats).omit({ id: true, createdAt: true })
+  .extend({
+    period: z.enum(["FIRST_HALF", "SECOND_HALF", "FULL_GAME"]).default("FULL_GAME"),
+  });
 
 // Types
 export type Club = typeof clubs.$inferSelect;
@@ -316,6 +382,7 @@ export type SystemTeam = typeof systemTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
 export type MatchStats = typeof matchStats.$inferSelect;
+export type PlayerStats = typeof playerStats.$inferSelect;
 export type User = typeof users.$inferSelect;
 
 export type InsertClub = z.infer<typeof insertClubSchema>;
@@ -327,6 +394,7 @@ export type InsertSystemTeam = z.infer<typeof insertSystemTeamSchema>;
 export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
+export type InsertPlayerStats = z.infer<typeof insertPlayerStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
 
