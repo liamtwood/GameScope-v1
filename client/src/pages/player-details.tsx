@@ -428,7 +428,7 @@ export default function PlayerDetails() {
 
   return (
     <MainLayout 
-      title="VIEW SQUAD MEMBER" 
+      title="XXXXXXX" 
       subtitle={`${player.firstName} ${player.lastName}`}
     >
       <div className="space-y-6" data-testid={`player-details-${player.id}`}>
