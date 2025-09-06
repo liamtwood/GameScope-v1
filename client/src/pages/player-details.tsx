@@ -1105,11 +1105,6 @@ export default function PlayerDetails() {
                           {/* Left Column */}
                           <div className="space-y-4">
                             <div className="flex justify-between items-center py-2 border-b border-white/20">
-                              <span className="text-sm font-medium text-white">Weight</span>
-                              <span className="text-sm text-white">185 lbs</span>
-                            </div>
-                            
-                            <div className="flex justify-between items-center py-2 border-b border-white/20">
                               <span className="text-sm font-medium text-white">Position</span>
                               <span className="text-sm text-white">Forward</span>
                             </div>
