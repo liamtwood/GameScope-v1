@@ -127,11 +127,47 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
     return { method: 'PUT' as const, url: data.uploadURL };
   };
 
+  // Headshot upload mutation
+  const headshotUploadMutation = useMutation({
+    mutationFn: async (photoURL: string) => {
+      const response = await fetch(`/api/user/${player?.id}/headshot`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoURL }),
+      });
+      if (!response.ok) throw new Error('Failed to update headshot');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", player?.id] });
+      toast({
+        title: "Headshot Updated",
+        description: "Player headshot has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player headshot. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handlePhotoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       if (uploadedFile.uploadURL) {
         photoUploadMutation.mutate(uploadedFile.uploadURL);
+      }
+    }
+  };
+
+  const handleHeadshotUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      if (uploadedFile.uploadURL) {
+        headshotUploadMutation.mutate(uploadedFile.uploadURL);
       }
     }
   };
@@ -250,6 +286,14 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                       style={{ color: textColor }}
                     >
                       <span className="relative z-10">Bob</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="photo" 
+                      data-testid="tab-photo" 
+                      className="relative bg-transparent border-none shadow-none border-b-3 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-3 data-[state=active]:border-white data-[state=active]:font-semibold hover:bg-transparent hover:border-b-3 hover:border-white/60 hover:font-medium transition-all duration-300 px-4 py-3 rounded-none group"
+                      style={{ color: textColor }}
+                    >
+                      <span className="relative z-10">Photo</span>
                     </TabsTrigger>
                   </TabsList>
                   
@@ -573,6 +617,91 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           <h4 className="text-lg font-medium text-gray-900 mb-2">Bob Tab</h4>
                           <p className="text-sm text-muted-foreground">This is a simplified tab without the detailed information sections.</p>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Photo Tab Content */}
+                <TabsContent value="photo" className="m-0">
+                  <div className="bg-white px-6 pb-6 space-y-6 border-t border-white/10 rounded-b-lg min-h-[400px]">
+                    <div className="pt-6">
+                      <div className="w-4/5 mx-auto space-y-8">
+                        
+                        {/* Profile Photo Section */}
+                        <div className="text-center">
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">Profile Photo</h4>
+                          <p className="text-sm text-muted-foreground mb-4">This appears in the player details and roster views</p>
+                          
+                          <div className="flex flex-col items-center space-y-4">
+                            {/* Current Profile Photo Display */}
+                            <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200">
+                              {player?.avatarPath ? (
+                                <AvatarImage 
+                                  src={player.avatarPath} 
+                                  alt={`${player.firstName} ${player.lastName} Profile`}
+                                  className="object-cover"
+                                />
+                              ) : player.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
+                                <AvatarImage 
+                                  src={ashleyMillerPhoto} 
+                                  alt={`${player.firstName} ${player.lastName} Profile`}
+                                  className="object-cover"
+                                />
+                              ) : null}
+                              <AvatarFallback className="bg-slate-600 text-white text-2xl font-semibold">
+                                {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
+                              </AvatarFallback>
+                            </Avatar>
+                            
+                            {/* Profile Photo Upload Button */}
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5242880} // 5MB
+                              onGetUploadParameters={getPhotoUploadURL}
+                              onComplete={handlePhotoUploadComplete}
+                              buttonClassName="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Upload Profile Photo
+                            </ObjectUploader>
+                          </div>
+                        </div>
+
+                        {/* Headshot Section */}
+                        <div className="text-center">
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">Headshot</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Professional headshot for programs and media</p>
+                          
+                          <div className="flex flex-col items-center space-y-4">
+                            {/* Current Headshot Display */}
+                            <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200">
+                              {player?.headshotPath ? (
+                                <AvatarImage 
+                                  src={player.headshotPath} 
+                                  alt={`${player.firstName} ${player.lastName} Headshot`}
+                                  className="object-cover"
+                                />
+                              ) : null}
+                              <AvatarFallback className="bg-slate-600 text-white text-2xl font-semibold">
+                                {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
+                              </AvatarFallback>
+                            </Avatar>
+                            
+                            {/* Headshot Upload Button */}
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5242880} // 5MB
+                              onGetUploadParameters={getPhotoUploadURL}
+                              onComplete={handleHeadshotUploadComplete}
+                              buttonClassName="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Upload Headshot
+                            </ObjectUploader>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   </div>
