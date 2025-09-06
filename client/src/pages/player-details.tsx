@@ -891,8 +891,8 @@ export default function PlayerDetails() {
                           <div className="mt-0.5">
                             {isEditing ? (
                               <select
-                                value={editData.accountStatus || player.accountStatus || 'Draft'}
-                                onChange={(e) => handleInputChange('accountStatus', e.target.value)}
+                                value={editData.status || player.status || 'Draft'}
+                                onChange={(e) => handleInputChange('status', e.target.value)}
                                 className="h-6 text-sm font-semibold border border-gray-300 rounded px-2 bg-white"
                                 data-testid={`select-user-status-${player.id}`}
                               >
@@ -902,8 +902,8 @@ export default function PlayerDetails() {
                                 <option value="Retired">Retired</option>
                               </select>
                             ) : (
-                              <span className={`text-sm font-semibold px-2 py-1 rounded text-xs ${getAccountStatusColor(player.accountStatus || 'Draft')}`} data-testid={`text-user-status-${player.id}`}>
-                                {player.accountStatus || "Draft"}
+                              <span className={`text-sm font-semibold px-2 py-1 rounded text-xs ${getAccountStatusColor(player.status || 'Draft')}`} data-testid={`text-user-status-${player.id}`}>
+                                {player.status || "Draft"}
                               </span>
                             )}
                           </div>
@@ -1015,7 +1015,7 @@ export default function PlayerDetails() {
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
                                       <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
-                                        {playerTeam.squadNumber || '?'}
+                                        {playerTeam.jerseyNumber || '?'}
                                       </div>
                                       <div className="flex-1">
                                         <div className="flex items-center space-x-2">
