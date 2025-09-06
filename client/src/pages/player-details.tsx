@@ -1213,14 +1213,108 @@ export default function PlayerDetails() {
                             <div className="flex flex-col space-y-4">
                               {/* Fingerprint Icon */}
                               <div className="flex justify-center">
-                                <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors">
+                                <div 
+                                  className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                  onClick={() => setActiveTab('bio')}
+                                >
                                   <Fingerprint className="h-6 w-6 text-white" />
                                 </div>
                               </div>
                               
                               {/* Chart Column Icon */}
                               <div className="flex justify-center">
-                                <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors">
+                                <div 
+                                  className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                  onClick={() => setActiveTab('stats')}
+                                >
+                                  <ChartColumn className="h-6 w-6 text-white" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Stats Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="stats" className="m-0">
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Middle - Stats Information */}
+                        <div className="w-1/2 space-y-8">
+                        
+                        {/* Player Statistics Header */}
+                        <div className="mb-6">
+                          <div className="flex items-center gap-3">
+                            <ChartColumn className="h-6 w-6 text-white" />
+                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Statistics</h3>
+                          </div>
+                        </div>
+                        
+                        {/* Stats Content */}
+                        <div className="space-y-6">
+                          <div className="text-center py-8">
+                            <h4 className="text-lg font-medium text-white mb-2">Performance Statistics</h4>
+                            <p className="text-sm text-white/80">Detailed match and season statistics for this player.</p>
+                          </div>
+                        </div>
+                        
+                        </div>
+                        
+                        {/* Right Side - Icon Container */}
+                        <div className="w-1/4 pr-6">
+                          <div className="bg-white/10 rounded-lg p-4 border-2 border-white/50">
+                            <div className="flex flex-col space-y-4">
+                              {/* Fingerprint Icon */}
+                              <div className="flex justify-center">
+                                <div 
+                                  className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                  onClick={() => setActiveTab('bio')}
+                                >
+                                  <Fingerprint className="h-6 w-6 text-white" />
+                                </div>
+                              </div>
+                              
+                              {/* Chart Column Icon */}
+                              <div className="flex justify-center">
+                                <div 
+                                  className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer"
+                                  onClick={() => setActiveTab('stats')}
+                                >
                                   <ChartColumn className="h-6 w-6 text-white" />
                                 </div>
                               </div>
