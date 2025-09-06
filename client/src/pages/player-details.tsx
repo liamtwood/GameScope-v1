@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3 } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
@@ -1195,10 +1195,14 @@ export default function PlayerDetails() {
                         
                         {/* Right Side - Icon Container */}
                         <div className="w-1/4 pr-6">
-                          <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                          <div className="bg-white/10 rounded-lg p-4 border-2 border-white/50">
                             <div className="flex flex-col space-y-4">
-                              {/* Placeholder for icons - you can add your icons here */}
-                              <div className="text-white text-center text-sm">Icons Container</div>
+                              {/* Fingerprint Icon */}
+                              <div className="flex justify-center">
+                                <div className="p-3 bg-white/20 rounded-full border border-white/30 hover:bg-white/30 transition-colors">
+                                  <Fingerprint className="h-6 w-6 text-white" />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
