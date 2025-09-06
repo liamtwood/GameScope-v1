@@ -1122,6 +1122,11 @@ export default function PlayerDetails() {
                         {/* Right Side - Bio Information */}
                         <div className="w-1/2 space-y-8">
                         
+                        {/* Player Biography Header */}
+                        <div className="mb-6">
+                          <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Biography</h3>
+                        </div>
+                        
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                           <div className="py-2 border-b border-white/20">
