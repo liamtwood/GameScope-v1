@@ -178,7 +178,7 @@ export function ObjectUploader({
                         let processedBlob;
                         // Use more conservative settings to preserve subject details
                         processedBlob = await backgroundRemover.removeBackground(file, {
-                          tolerance: 30,
+                          tolerance: 25,
                           preserveInternalWhite: true,
                           mode: 'manual',
                           autoCrop: true,

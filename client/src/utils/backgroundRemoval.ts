@@ -727,8 +727,8 @@ export class BackgroundRemover {
           
           const transparentNeighbors = neighbors.filter(n => n).length;
           
-          // If 5 or more neighbors are transparent, and this pixel looks like background artifact
-          if (transparentNeighbors >= 5) {
+          // If 6 or more neighbors are transparent, and this pixel looks like background artifact
+          if (transparentNeighbors >= 6) {
             const pixelIdx = idx * 4;
             const r = data[pixelIdx];
             const g = data[pixelIdx + 1];
@@ -787,18 +787,21 @@ export class BackgroundRemover {
   }
 
   private isProblematicGray(r: number, g: number, b: number): boolean {
-    // Target the specific light gray that appears as artifacts
-    // This targets the common light gray background remnants (RGB around 200-235)
-    // that have balanced color values but are clearly background artifacts
+    // Very specifically target the light gray artifacts that appear around edges
+    // More precise targeting to avoid removing legitimate gray areas
     
-    // Check for neutral gray in the problematic range
-    const isNeutralGray = Math.abs(r - g) < 8 && Math.abs(g - b) < 8 && Math.abs(r - b) < 8;
-    const isInGrayRange = r >= 195 && r <= 240 && g >= 195 && g <= 240 && b >= 195 && b <= 240;
+    // Target very specific neutral gray artifacts (tight color balance)
+    const isSpecificNeutralGray = Math.abs(r - g) < 5 && Math.abs(g - b) < 5 && Math.abs(r - b) < 5 &&
+                                  r >= 210 && r <= 235 && g >= 210 && g <= 235 && b >= 210 && b <= 235;
     
-    // Also check for slightly cool or warm grays that are common artifacts
-    const isCoolGray = (b - r) > 0 && (b - r) < 15 && Math.abs(r - g) < 10 && r > 190 && r < 235;
-    const isWarmGray = (r - b) > 0 && (r - b) < 15 && Math.abs(g - b) < 10 && r > 190 && r < 235;
+    // Target slightly cool grays (common in photo backgrounds)
+    const isSpecificCoolGray = (b - r) >= 2 && (b - r) <= 10 && Math.abs(r - g) < 6 && 
+                              r >= 205 && r <= 230 && b >= 210 && b <= 235;
     
-    return (isNeutralGray && isInGrayRange) || isCoolGray || isWarmGray;
+    // Target very light grays that are clearly background remnants
+    const isVeryLightGray = r >= 225 && g >= 225 && b >= 225 && r <= 245 && g <= 245 && b <= 245 &&
+                           Math.abs(r - g) < 8 && Math.abs(g - b) < 8;
+    
+    return isSpecificNeutralGray || isSpecificCoolGray || isVeryLightGray;
   }
 }
