@@ -1085,7 +1085,7 @@ export default function PlayerDetails() {
                       <div>
                         <div className="flex items-center justify-center space-x-8">
                           {/* Current Full Length Photo Display */}
-                          <div className="flex flex-col items-center space-y-4">
+                          <div className="flex flex-col items-center">
                             <div 
                               className="w-60 h-80 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center"
                               style={{
