@@ -275,7 +275,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                 </div>
 
                 {/* Bio Section with Full Length Photo */}
-                {player.bio && (
+                {(player.bio || player.avatarPath || player.height || player.hometown || player.highSchool || player.classYear) && (
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Biography</h3>
                     <div className="flex flex-col lg:flex-row gap-6">
@@ -291,14 +291,16 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                         </div>
                       )}
                       
-                      {/* Bio Text */}
+                      {/* Bio Text and Information */}
                       <div className="flex-1">
-                        <p className="text-lg leading-relaxed" data-testid={`text-bio-${player.id}`}>
-                          {player.bio}
-                        </p>
+                        {player.bio && (
+                          <p className="text-lg leading-relaxed mb-6" data-testid={`text-bio-${player.id}`}>
+                            {player.bio}
+                          </p>
+                        )}
                         
                         {/* Additional Bio Information */}
-                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {player.height && (
                             <div>
                               <label className="text-sm font-medium text-muted-foreground">Height</label>
