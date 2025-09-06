@@ -505,14 +505,6 @@ export default function PlayerDetails() {
               <div className="px-6 pt-2 pb-6">
                 <div className="w-full px-4">
                   <div className="flex items-center justify-between">
-                  {/* Club Logo */}
-                  <div className="flex-shrink-0 opacity-80 flex flex-col items-center justify-center h-30">
-                    <img 
-                      src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
-                      alt={selectedClub?.name || "Club Logo"} 
-                      className="h-24 w-auto object-contain"
-                    />
-                  </div>
                   
                   <div className="flex items-center gap-4">
                     {/* Player Avatar with Upload */}
@@ -563,6 +555,15 @@ export default function PlayerDetails() {
                         <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Club Logo */}
+                  <div className="flex-shrink-0 opacity-80 flex flex-col items-center justify-center h-30">
+                    <img 
+                      src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                      alt={selectedClub?.name || "Club Logo"} 
+                      className="h-24 w-auto object-contain"
+                    />
                   </div>
                 </div>
                 </div>
