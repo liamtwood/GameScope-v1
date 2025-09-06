@@ -1134,18 +1134,27 @@ export default function PlayerDetails() {
                         
                         <div className="flex flex-col items-center space-y-6">
                           {/* Current Full Length Photo Display */}
-                          <div className="w-60 h-80 bg-slate-600 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center">
+                          <div 
+                            className="w-60 h-80 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center"
+                            style={{
+                              background: `
+                                repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 12px 12px,
+                                repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 12px 12px
+                              `,
+                              backgroundPosition: '0px 0px, 6px 6px'
+                            }}
+                          >
                             {pendingFullLengthPhoto ? (
                               <img 
                                 src={pendingFullLengthPhoto} 
                                 alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             ) : player?.headshotPath ? (
                               <img 
                                 src={player.headshotPath} 
                                 alt={`${player.firstName} ${player.lastName} Full Length`}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             ) : (
                               <div className="text-white text-4xl font-semibold">
