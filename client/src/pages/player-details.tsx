@@ -1288,82 +1288,37 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Stats Content */}
-                        <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           {/* First Touch Success */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
-                            <h4 className="text-lg font-medium text-white mb-4 text-center">First Touch Success</h4>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={[
-                                      { name: 'Successful', value: 72, color: '#22c55e' },
-                                      { name: 'Unsuccessful', value: 28, color: '#ef4444' }
-                                    ]}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    dataKey="value"
-                                    label={({ name, value }) => `${name}: ${value}%`}
-                                  >
-                                    <Cell fill="#22c55e" />
-                                    <Cell fill="#ef4444" />
-                                  </Pie>
-                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
-                                </PieChart>
-                              </ResponsiveContainer>
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-green-400">72%</div>
+                              <div className="text-sm text-white/80">Successful</div>
+                              <div className="text-2xl font-semibold text-red-400">28%</div>
+                              <div className="text-sm text-white/80">Unsuccessful</div>
                             </div>
                           </div>
 
                           {/* Dribbles */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
-                            <h4 className="text-lg font-medium text-white mb-4 text-center">Dribbles</h4>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={[
-                                      { name: 'Successful', value: 68, color: '#3b82f6' },
-                                      { name: 'Unsuccessful', value: 32, color: '#f59e0b' }
-                                    ]}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    dataKey="value"
-                                    label={({ name, value }) => `${name}: ${value}%`}
-                                  >
-                                    <Cell fill="#3b82f6" />
-                                    <Cell fill="#f59e0b" />
-                                  </Pie>
-                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
-                                </PieChart>
-                              </ResponsiveContainer>
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-blue-400">68%</div>
+                              <div className="text-sm text-white/80">Successful</div>
+                              <div className="text-2xl font-semibold text-orange-400">32%</div>
+                              <div className="text-sm text-white/80">Unsuccessful</div>
                             </div>
                           </div>
 
                           {/* Penetrating Dribbles */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20">
-                            <h4 className="text-lg font-medium text-white mb-4 text-center">Penetrating Dribbles</h4>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={[
-                                      { name: 'Successful', value: 58, color: '#8b5cf6' },
-                                      { name: 'Unsuccessful', value: 42, color: '#ec4899' }
-                                    ]}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    dataKey="value"
-                                    label={({ name, value }) => `${name}: ${value}%`}
-                                  >
-                                    <Cell fill="#8b5cf6" />
-                                    <Cell fill="#ec4899" />
-                                  </Pie>
-                                  <Tooltip formatter={(value) => [`${value}%`, '']} />
-                                </PieChart>
-                              </ResponsiveContainer>
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-purple-400">58%</div>
+                              <div className="text-sm text-white/80">Successful</div>
+                              <div className="text-2xl font-semibold text-pink-400">42%</div>
+                              <div className="text-sm text-white/80">Unsuccessful</div>
                             </div>
                           </div>
                         </div>
