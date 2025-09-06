@@ -154,9 +154,10 @@ export default function PlayerProfiles() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">
-                        {player.firstName} {player.lastName}
-                      </h3>
+                      <div className="font-semibold text-lg leading-tight">
+                        <div>{player.firstName}</div>
+                        <div>{player.lastName}</div>
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge className={getPositionColor(player.position || 'MID')}>
                           {player.position || 'MID'}
