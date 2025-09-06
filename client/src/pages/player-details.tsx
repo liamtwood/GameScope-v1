@@ -1099,7 +1099,16 @@ export default function PlayerDetails() {
 
               {/* Bio Tab Content */}
               <TabsContent value="bio" className="m-0">
-                <div className="bg-gray-50 px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                <div 
+                  className="px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${clubPrimaryColor}15 0%, ${clubPrimaryColor}08 100%)`,
+                    backgroundImage: `
+                      radial-gradient(circle at 25% 25%, ${clubPrimaryColor}12 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, ${clubPrimaryColor}08 0%, transparent 50%)
+                    `
+                  }}
+                >
                   <div className="pt-6">
                     <div className="w-4/5 mx-auto space-y-8">
                       
