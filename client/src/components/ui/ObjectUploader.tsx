@@ -5,6 +5,7 @@ import { DashboardModal } from "@uppy/react";
 import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
+import { BackgroundRemover } from "@/utils/backgroundRemoval";
 
 // Note: Uppy CSS will be imported in the component that uses DashboardModal
 
@@ -20,6 +21,7 @@ interface ObjectUploaderProps {
   ) => void;
   buttonClassName?: string;
   children: ReactNode;
+  enableBackgroundRemoval?: boolean;
 }
 
 /**
@@ -57,6 +59,7 @@ export function ObjectUploader({
   onComplete,
   buttonClassName,
   children,
+  enableBackgroundRemoval = false,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
   const [uppy] = useState(() => {
@@ -129,17 +132,42 @@ export function ObjectUploader({
             <input 
               type="file" 
               accept="image/*" 
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   console.log('File selected:', file.name);
+                  
+                  let fileToUpload = file;
+                  
+                  // Apply background removal if enabled
+                  if (enableBackgroundRemoval) {
+                    try {
+                      console.log('Processing image with background removal...');
+                      const backgroundRemover = new BackgroundRemover();
+                      const processedBlob = await backgroundRemover.removeBackground(file, {
+                        tolerance: 30,
+                        preserveInternalWhite: true,
+                        mode: 'smart'
+                      });
+                      
+                      // Create processed file for upload
+                      fileToUpload = new File([processedBlob], file.name, {
+                        type: 'image/png'
+                      });
+                      console.log('Background removal completed');
+                    } catch (error) {
+                      console.error('Background removal failed:', error);
+                      // Continue with original file if background removal fails
+                    }
+                  }
+                  
                   onGetUploadParameters().then((params) => {
                     console.log('Got upload params:', params);
-                    // Simple upload for testing
+                    // Upload the processed file
                     fetch(params.url, {
                       method: 'PUT',
-                      body: file,
-                      headers: { 'Content-Type': file.type }
+                      body: fileToUpload,
+                      headers: { 'Content-Type': fileToUpload.type }
                     }).then(response => {
                       if (response.ok) {
                         console.log('Upload successful!');

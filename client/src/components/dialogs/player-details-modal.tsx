@@ -674,19 +674,20 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           <p className="text-sm text-muted-foreground mb-4">Full body photo for programs and media</p>
                           
                           <div className="flex flex-col items-center space-y-4">
-                            {/* Current Headshot Display */}
-                            <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200">
+                            {/* Current Full Length Photo Display */}
+                            <div className="w-48 h-64 bg-slate-600 border-4 border-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
                               {player?.headshotPath ? (
-                                <AvatarImage 
+                                <img 
                                   src={player.headshotPath} 
                                   alt={`${player.firstName} ${player.lastName} Full Length`}
-                                  className="object-cover"
+                                  className="w-full h-full object-cover"
                                 />
-                              ) : null}
-                              <AvatarFallback className="bg-slate-600 text-white text-2xl font-semibold">
-                                {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
-                              </AvatarFallback>
-                            </Avatar>
+                              ) : (
+                                <div className="text-white text-2xl font-semibold">
+                                  {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
+                                </div>
+                              )}
+                            </div>
                             
                             {/* Full Length Photo Upload Button */}
                             <ObjectUploader
@@ -694,6 +695,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                               maxFileSize={5242880} // 5MB
                               onGetUploadParameters={getPhotoUploadURL}
                               onComplete={handleHeadshotUploadComplete}
+                              enableBackgroundRemoval={true}
                               buttonClassName="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
                             >
                               <Pencil className="h-4 w-4 mr-2" />

@@ -1097,18 +1097,19 @@ export default function PlayerDetails() {
                         
                         <div className="flex flex-col items-center space-y-6">
                           {/* Current Full Length Photo Display */}
-                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg">
+                          <div className="w-60 h-80 bg-slate-600 border-4 border-gray-200 rounded-lg shadow-lg overflow-hidden flex items-center justify-center">
                             {player?.headshotPath ? (
-                              <AvatarImage 
+                              <img 
                                 src={player.headshotPath} 
                                 alt={`${player.firstName} ${player.lastName} Full Length`}
-                                className="object-cover"
+                                className="w-full h-full object-cover"
                               />
-                            ) : null}
-                            <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
-                              {player?.firstName?.[0]}{player?.lastName?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
+                            ) : (
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            )}
+                          </div>
                           
                           {/* Full Length Photo Upload Button */}
                           <ObjectUploader
@@ -1116,6 +1117,7 @@ export default function PlayerDetails() {
                             maxFileSize={5242880} // 5MB
                             onGetUploadParameters={getPhotoUploadURL}
                             onComplete={handleHeadshotUploadComplete}
+                            enableBackgroundRemoval={true}
                             buttonClassName="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
                           >
                             <Pencil className="h-5 w-5 mr-2" />
