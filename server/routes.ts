@@ -144,6 +144,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.log("Directories already exist");
   }
+
+  // Temporary file upload endpoint for Excel files
+  app.post("/api/upload-temp", excelUpload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      console.log(`Temporary file uploaded: ${req.file.filename}`);
+      
+      // Return the file path for processing
+      res.json({ 
+        filePath: req.file.path,
+        originalName: req.file.originalname
+      });
+
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ 
+        message: "Failed to upload file",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Club routes
   app.get("/api/clubs", async (req, res) => {
     try {
