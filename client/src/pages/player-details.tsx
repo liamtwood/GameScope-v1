@@ -1101,93 +1101,64 @@ export default function PlayerDetails() {
                       <div className="w-4/5 mx-auto space-y-8">
                         
                         {/* Player Stats */}
-                        <div className="flex flex-col lg:flex-row gap-6">
-                          {/* Full Length Photo on the Left */}
-                          {player?.avatarPath && (
-                            <div className="lg:w-1/4 flex-shrink-0">
-                              <img
-                                src={player.avatarPath}
-                                alt={`${player?.firstName} ${player?.lastName} full length photo`}
-                                className="w-full h-auto rounded-lg shadow-md object-cover"
-                                data-testid={`img-full-length-${player?.id}`}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                          <div className="flex justify-between items-center py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white">Height</span>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editData.height || ''}
+                                onChange={(e) => handleInputChange('height', e.target.value)}
+                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                placeholder="Height"
                               />
-                            </div>
-                          )}
+                            ) : (
+                              <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
+                            )}
+                          </div>
                           
-                          {/* Bio Information on the Right */}
-                          <div className="flex-1">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                              <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                <span className="text-sm font-medium text-white">Height</span>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={editData.height || ''}
-                                    onChange={(e) => handleInputChange('height', e.target.value)}
-                                    className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                    placeholder="Height"
-                                  />
-                                ) : (
-                                  <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
-                                )}
-                              </div>
-                              
-                              <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                <span className="text-sm font-medium text-white">Hometown</span>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={editData.hometown || ''}
-                                    onChange={(e) => handleInputChange('hometown', e.target.value)}
-                                    className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                    placeholder="Hometown"
-                                  />
-                                ) : (
-                                  <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
-                                )}
-                              </div>
-                              
-                              <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                <span className="text-sm font-medium text-white">Class</span>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={editData.classYear || ''}
-                                    onChange={(e) => handleInputChange('classYear', e.target.value)}
-                                    className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                    placeholder="Class Year"
-                                  />
-                                ) : (
-                                  <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
-                                )}
-                              </div>
-                              
-                              <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                <span className="text-sm font-medium text-white">High School</span>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={editData.highSchool || ''}
-                                    onChange={(e) => handleInputChange('highSchool', e.target.value)}
-                                    className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                    placeholder="High School"
-                                  />
-                                ) : (
-                                  <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
-                                )}
-                              </div>
-                            </div>
-                            
-                            {/* Full Length Photo at the Bottom */}
-                            {player?.avatarPath && (
-                              <div className="mt-6">
-                                <img
-                                  src={player.avatarPath}
-                                  alt={`${player?.firstName} ${player?.lastName} full length photo bottom`}
-                                  className="w-full max-w-md h-auto rounded-lg shadow-md object-cover mx-auto"
-                                  data-testid={`img-full-length-bottom-${player?.id}`}
-                                />
-                              </div>
+                          <div className="flex justify-between items-center py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white">Hometown</span>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editData.hometown || ''}
+                                onChange={(e) => handleInputChange('hometown', e.target.value)}
+                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                placeholder="Hometown"
+                              />
+                            ) : (
+                              <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
+                            )}
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white">Class</span>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editData.classYear || ''}
+                                onChange={(e) => handleInputChange('classYear', e.target.value)}
+                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                placeholder="Class Year"
+                              />
+                            ) : (
+                              <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
+                            )}
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white">High School</span>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editData.highSchool || ''}
+                                onChange={(e) => handleInputChange('highSchool', e.target.value)}
+                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                placeholder="High School"
+                              />
+                            ) : (
+                              <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
                             )}
                           </div>
                         </div>
