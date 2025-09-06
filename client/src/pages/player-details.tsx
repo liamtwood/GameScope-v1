@@ -507,47 +507,6 @@ export default function PlayerDetails() {
                   <div className="flex items-center justify-between">
                   
                   <div className="flex items-center gap-4">
-                    {/* Player Avatar with Upload */}
-                    <div className="relative group">
-                      <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                        {player?.avatarPath ? (
-                          <AvatarImage 
-                            src={player.avatarPath} 
-                            alt={`${player.firstName} ${player.lastName}`}
-                            className="object-cover"
-                          />
-                        ) : uploadedPhoto ? (
-                          <AvatarImage 
-                            src={uploadedPhoto} 
-                            alt={`${player.firstName} ${player.lastName}`}
-                            className="object-cover"
-                          />
-                        ) : player.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
-                          <AvatarImage 
-                            src={ashleyMillerPhoto} 
-                            alt={`${player.firstName} ${player.lastName}`}
-                            className="object-cover"
-                          />
-                        ) : null}
-                        <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                          {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      {/* Photo Upload Button using ObjectUploader */}
-                      <div className="absolute -bottom-1 -right-1 z-10">
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={5242880} // 5MB
-                          onGetUploadParameters={getPhotoUploadURL}
-                          onComplete={handlePhotoUploadComplete}
-                          buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4 text-gray-600" />
-                        </ObjectUploader>
-                      </div>
-                    </div>
-                    
                     {/* Squad Number */}
                     {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
                       <div className="flex items-center justify-center">
