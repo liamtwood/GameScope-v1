@@ -234,7 +234,7 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
               {/* Tabs integrated into the card */}
               <div className="px-6 pb-4">
                 <div className="pt-4 flex items-center justify-center relative">
-                  <TabsList className="grid grid-cols-2 w-auto bg-transparent border-none p-0 h-auto">
+                  <TabsList className="grid grid-cols-3 w-auto bg-transparent border-none p-0 h-auto">
                     <TabsTrigger 
                       value="details" 
                       data-testid="tab-details" 
