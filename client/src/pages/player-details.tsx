@@ -506,17 +506,17 @@ export default function PlayerDetails() {
                 <div className="w-full px-4">
                   <div className="flex items-center justify-between">
                   
+                  {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
+                  <div className="flex items-center gap-2">
+                    <Crosshair className="h-6 w-6 text-white" />
+                    <div className="flex flex-col justify-center text-left">
+                      <div className="text-sm font-bold text-white uppercase tracking-wider">GameScope</div>
+                      <div className="text-xs font-medium text-white/80 uppercase tracking-wide">Profile</div>
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 w-1/2" style={{ backgroundColor: clubPrimaryColor }}>
-                    <div className="flex items-center gap-2">
-                      {/* Crosshair Icon */}
-                      <Crosshair className="h-6 w-6 text-white" />
-                      
-                      {/* GameScope PROFILE Text */}
-                      <div className="flex flex-col justify-center text-left">
-                        <div className="text-sm font-bold text-white uppercase tracking-wider">GameScope</div>
-                        <div className="text-xs font-medium text-white/80 uppercase tracking-wide">Profile</div>
-                      </div>
-                      
+                    <div className="flex items-center gap-4">
                       {/* Squad Number */}
                       {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
                         <div className="flex items-center justify-center">
