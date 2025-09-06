@@ -652,9 +652,6 @@ export default function PlayerDetails() {
                       [data-testid="tab-stats"],
                       button[role="tab"][data-testid="tab-bio"],
                       button[role="tab"][data-testid="tab-stats"] {
-                        background: none !important;
-                        background-color: transparent !important;
-                        background-image: none !important;
                         border: none !important;
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
