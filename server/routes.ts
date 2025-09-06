@@ -852,6 +852,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Excel file processing for squad import
+  app.post("/api/squad/import-excel", async (req, res) => {
+    try {
+      const { filePath, teamId } = req.body;
+      
+      if (!filePath || !teamId) {
+        return res.status(400).json({ message: "filePath and teamId are required" });
+      }
+
+      // Check if team exists
+      const team = await storage.getTeam(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      console.log(`Processing Excel file: ${filePath} for team: ${team.name}`);
+
+      // Read and process the Excel file
+      const workbook = XLSX.readFile(filePath);
+      const sheetName = workbook.SheetNames[0]; // Use first sheet
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log(`Found ${data.length} rows in Excel file`);
+      console.log("Sample data:", data.slice(0, 3));
+
+      let importedCount = 0;
+      const errors: string[] = [];
+
+      for (const row of data) {
+        try {
+          // Extract player data from Excel row
+          // Common column names to look for
+          const playerData: any = {};
+          
+          // Try different column name variations
+          const rowObj = row as any;
+          
+          // Name extraction
+          playerData.firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['Name']?.split(' ')[0] || '';
+          playerData.lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
+          
+          // If no first/last name, try to split full name
+          if (!playerData.firstName && !playerData.lastName && rowObj['Name']) {
+            const nameParts = rowObj['Name'].split(' ');
+            playerData.firstName = nameParts[0] || '';
+            playerData.lastName = nameParts.slice(1).join(' ') || '';
+          }
+
+          // Position
+          playerData.position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
+          
+          // Jersey Number
+          playerData.jerseyNumber = parseInt(rowObj['Number'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
+          
+          // Age/Date of Birth
+          if (rowObj['Age']) {
+            playerData.age = parseInt(rowObj['Age']);
+          } else if (rowObj['DOB'] || rowObj['Date of Birth']) {
+            const dob = new Date(rowObj['DOB'] || rowObj['Date of Birth']);
+            if (!isNaN(dob.getTime())) {
+              playerData.dateOfBirth = dob.toISOString();
+              const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+              playerData.age = age;
+            }
+          }
+
+          // Email
+          playerData.email = rowObj['Email'] || rowObj['email'] || '';
+
+          // Phone
+          playerData.phone = rowObj['Phone'] || rowObj['phone'] || rowObj['Phone Number'] || '';
+
+          // Skip if no name
+          if (!playerData.firstName && !playerData.lastName) {
+            console.log('Skipping row with no name:', rowObj);
+            continue;
+          }
+
+          console.log(`Processing player: ${playerData.firstName} ${playerData.lastName}`);
+
+          // Check if user already exists
+          const allUsers = await storage.getUsers();
+          const existingUser = allUsers.find(u => 
+            u.firstName?.toLowerCase() === playerData.firstName?.toLowerCase() && 
+            u.lastName?.toLowerCase() === playerData.lastName?.toLowerCase()
+          );
+
+          let user;
+          if (existingUser) {
+            console.log(`User ${playerData.firstName} ${playerData.lastName} already exists - updating`);
+            user = existingUser;
+          } else {
+            // Create new user
+            console.log(`Creating new user: ${playerData.firstName} ${playerData.lastName}`);
+            user = await storage.createUser({
+              firstName: playerData.firstName,
+              lastName: playerData.lastName,
+              email: playerData.email || '',
+              phone: playerData.phone || '',
+              role: 'Player',
+              status: 'Active',
+              dateOfBirth: playerData.dateOfBirth ? new Date(playerData.dateOfBirth) : undefined
+            });
+          }
+
+          // Check if already in team
+          const teamUsers = await storage.getTeamUsers(teamId);
+          const existingTeamMember = teamUsers.find(tu => tu.userId === user.id);
+
+          if (!existingTeamMember) {
+            // Add to team
+            await storage.addUserToTeam(user.id, teamId, {
+              position: playerData.position,
+              jerseyNumber: playerData.jerseyNumber || undefined,
+              fitnessStatus: 'Fit'
+            });
+            console.log(`Added ${playerData.firstName} ${playerData.lastName} to team`);
+          } else {
+            console.log(`${playerData.firstName} ${playerData.lastName} already in team - skipping`);
+          }
+
+          importedCount++;
+
+        } catch (error) {
+          const errorMsg = `Failed to import player from row: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          console.error(errorMsg, row);
+          errors.push(errorMsg);
+        }
+      }
+
+      console.log(`Excel import completed: ${importedCount} players processed, ${errors.length} errors`);
+
+      res.json({
+        success: true,
+        imported: importedCount,
+        total: data.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+
+    } catch (error) {
+      console.error("Error processing Excel file:", error);
+      res.status(500).json({ 
+        message: "Failed to process Excel file",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Squad import endpoints
   // Scrape player data from URL
   app.post("/api/squad/import-from-url", async (req, res) => {
