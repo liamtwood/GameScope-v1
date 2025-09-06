@@ -15,6 +15,13 @@ const Avatar = React.forwardRef<
       "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
       className
     )}
+    style={{
+      background: `
+        repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 8px 8px,
+        repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 8px 8px
+      `,
+      backgroundPosition: '0px 0px, 4px 4px'
+    }}
     {...props}
   />
 ))
