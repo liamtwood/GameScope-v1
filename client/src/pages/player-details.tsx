@@ -413,10 +413,10 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create SVG-based soccer net pattern with ultra-thin lines
-  const soccerNetSvg = `data:image/svg+xml,${encodeURIComponent(`
-    <svg width="80" height="60" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="40,5 70,18 70,42 40,55 10,42 10,18" 
+  // Create SVG-based honeycomb with ultra-thin lines
+  const honeycombSvg = `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="30,2 52,15 52,37 30,50 8,37 8,15" 
                fill="none" 
                stroke="rgba(255,255,255,0.12)" 
                stroke-width="0.8"/>
@@ -425,9 +425,9 @@ export default function PlayerDetails() {
   
   const solidStyle = {
     backgroundColor: clubPrimaryColor,
-    backgroundImage: `url("${soccerNetSvg}")`,
-    backgroundSize: '50px 35px',
-    backgroundPosition: '0 0, 25px 17.5px',
+    backgroundImage: `url("${honeycombSvg}")`,
+    backgroundSize: '40px 52px',
+    backgroundPosition: '0 0, 20px 26px',
     backgroundRepeat: 'repeat'
   } as React.CSSProperties;
 
@@ -1081,9 +1081,9 @@ export default function PlayerDetails() {
                     className="px-6 pb-6 min-h-[400px]" 
                     style={{
                       backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${soccerNetSvg}")`,
-                      backgroundSize: '50px 35px',
-                      backgroundPosition: '0 0, 25px 17.5px',
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '40px 52px',
+                      backgroundPosition: '0 0, 20px 26px',
                       backgroundRepeat: 'repeat'
                     } as React.CSSProperties}
                   >
