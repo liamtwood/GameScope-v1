@@ -1102,7 +1102,7 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
-                        {/* Right Side - Bio Information */}
+                        {/* Middle - Bio Information */}
                         <div className="w-1/2 space-y-8">
                         
                         {/* Player Biography Header */}
@@ -1191,6 +1191,16 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
+                        </div>
+                        
+                        {/* Right Side - Icon Container */}
+                        <div className="w-1/4 pr-6">
+                          <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                            <div className="flex flex-col space-y-4">
+                              {/* Placeholder for icons - you can add your icons here */}
+                              <div className="text-white text-center text-sm">Icons Container</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
