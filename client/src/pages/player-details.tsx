@@ -732,58 +732,36 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full justify-center gap-4">
+                    <div className="flex col-span-2 w-full justify-center gap-8">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className=""
+                        className="flex flex-col items-center gap-2"
                         style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          padding: '0',
-                          margin: '0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                           background: 'none',
                           backgroundColor: 'transparent',
                           border: 'none',
                           boxShadow: 'none',
-                          minWidth: '48px',
-                          maxWidth: '48px',
-                          minHeight: '48px',
-                          maxHeight: '48px',
-                          overflow: 'hidden'
+                          padding: '8px'
                         }}
                       >
-                        <UserIcon size={20} />
+                        <UserIcon size={32} />
+                        <span className="text-xs font-medium text-white">Bio</span>
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className=""
+                        className="flex flex-col items-center gap-2"
                         style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          padding: '0',
-                          margin: '0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                           background: 'none',
                           backgroundColor: 'transparent',
                           border: 'none',
                           boxShadow: 'none',
-                          minWidth: '48px',
-                          maxWidth: '48px',
-                          minHeight: '48px',
-                          maxHeight: '48px',
-                          overflow: 'hidden'
+                          padding: '8px'
                         }}
                       >
-                        <BarChart3 size={20} />
+                        <BarChart3 size={32} />
+                        <span className="text-xs font-medium text-white">Statistics</span>
                       </TabsTrigger>
                     </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
