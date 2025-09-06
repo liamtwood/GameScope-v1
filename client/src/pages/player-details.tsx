@@ -88,48 +88,42 @@ export default function PlayerDetails() {
     // Aggregate all stats across fixtures
     const totals = playerStats.reduce((acc, stat) => {
       acc.firstTouchSuccess += stat.firstTouchSuccess || 0;
-      acc.firstTouchAttempts += stat.firstTouchAttempts || 0;
+      acc.firstTouchAttempted += stat.firstTouchAttempted || 0;
       acc.dribbles += stat.dribbles || 0;
       acc.dribblesSuccessful += stat.dribblesSuccessful || 0;
       acc.penetratingDribbles += stat.penetratingDribbles || 0;
       acc.penetratingDribblesSuccessful += stat.penetratingDribblesSuccessful || 0;
-      acc.passes += stat.passes || 0;
-      acc.passesSuccessful += stat.passesSuccessful || 0;
-      acc.crosses += stat.crosses || 0;
-      acc.crossesSuccessful += stat.crossesSuccessful || 0;
-      acc.shots += stat.shots || 0;
+      acc.passesAttempted += stat.passesAttempted || 0;
+      acc.passesSuccess += stat.passesSuccess || 0;
+      acc.dangerousCrosses += stat.dangerousCrosses || 0;
+      acc.shotsAttempted += stat.shotsAttempted || 0;
       acc.shotsOnTarget += stat.shotsOnTarget || 0;
       acc.goals += stat.goals || 0;
       acc.assists += stat.assists || 0;
-      acc.fouls += stat.fouls || 0;
-      acc.yellowCards += stat.yellowCards || 0;
-      acc.redCards += stat.redCards || 0;
+      acc.foulsCommitted += stat.foulsCommitted || 0;
       return acc;
     }, {
       firstTouchSuccess: 0,
-      firstTouchAttempts: 0,
+      firstTouchAttempted: 0,
       dribbles: 0,
       dribblesSuccessful: 0,
       penetratingDribbles: 0,
       penetratingDribblesSuccessful: 0,
-      passes: 0,
-      passesSuccessful: 0,
-      crosses: 0,
-      crossesSuccessful: 0,
-      shots: 0,
+      passesAttempted: 0,
+      passesSuccess: 0,
+      dangerousCrosses: 0,
+      shotsAttempted: 0,
       shotsOnTarget: 0,
       goals: 0,
       assists: 0,
-      fouls: 0,
-      yellowCards: 0,
-      redCards: 0
+      foulsCommitted: 0
     });
 
     return {
       firstTouchSuccess: {
         successful: totals.firstTouchSuccess,
-        total: totals.firstTouchAttempts,
-        rate: totals.firstTouchAttempts > 0 ? Math.round((totals.firstTouchSuccess / totals.firstTouchAttempts) * 100) : 0
+        total: totals.firstTouchAttempted,
+        rate: totals.firstTouchAttempted > 0 ? Math.round((totals.firstTouchSuccess / totals.firstTouchAttempted) * 100) : 0
       },
       dribbles: {
         successful: totals.dribblesSuccessful,
@@ -144,28 +138,28 @@ export default function PlayerDetails() {
         rate: totals.penetratingDribbles > 0 ? Math.round((totals.penetratingDribblesSuccessful / totals.penetratingDribbles) * 100) : 0
       },
       passes: {
-        successful: totals.passesSuccessful,
-        unsuccessful: totals.passes - totals.passesSuccessful,
-        total: totals.passes,
-        rate: totals.passes > 0 ? Math.round((totals.passesSuccessful / totals.passes) * 100) : 0
+        successful: totals.passesSuccess,
+        unsuccessful: totals.passesAttempted - totals.passesSuccess,
+        total: totals.passesAttempted,
+        rate: totals.passesAttempted > 0 ? Math.round((totals.passesSuccess / totals.passesAttempted) * 100) : 0
       },
       crosses: {
-        successful: totals.crossesSuccessful,
-        unsuccessful: totals.crosses - totals.crossesSuccessful,
-        total: totals.crosses,
-        rate: totals.crosses > 0 ? Math.round((totals.crossesSuccessful / totals.crosses) * 100) : 0
+        successful: totals.dangerousCrosses,
+        unsuccessful: 0, // Since we only track dangerous crosses
+        total: totals.dangerousCrosses,
+        rate: 100 // Assume all dangerous crosses are successful by definition
       },
       shots: {
         successful: totals.shotsOnTarget,
-        unsuccessful: totals.shots - totals.shotsOnTarget,
-        total: totals.shots,
-        rate: totals.shots > 0 ? Math.round((totals.shotsOnTarget / totals.shots) * 100) : 0
+        unsuccessful: totals.shotsAttempted - totals.shotsOnTarget,
+        total: totals.shotsAttempted,
+        rate: totals.shotsAttempted > 0 ? Math.round((totals.shotsOnTarget / totals.shotsAttempted) * 100) : 0
       },
       goals: totals.goals,
       assists: totals.assists,
-      fouls: totals.fouls,
-      yellowCards: totals.yellowCards,
-      redCards: totals.redCards
+      fouls: totals.foulsCommitted,
+      yellowCards: 0, // Not in current schema
+      redCards: 0     // Not in current schema
     };
   };
 
