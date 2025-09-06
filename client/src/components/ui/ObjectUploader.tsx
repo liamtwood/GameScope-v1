@@ -6,9 +6,7 @@ import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
 
-// Import required Uppy CSS
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
+// Note: Uppy CSS will be imported in the component that uses DashboardModal
 
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
@@ -128,41 +126,46 @@ export function ObjectUploader({
         }
       `}</style>
 
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-        note=""
-        hideUploadButton={false}
-        hideRetryButton={false}
-        hidePauseResumeButton={false}
-        hideCancelButton={false}
-        hideProgressAfterFinish={false}
-        doneButtonHandler={() => setShowModal(false)}
-        disableLocalFiles={false}
-        plugins={['webcam']}
-        locale={{
-          strings: {
-            browse: 'Select files',
-            browseFiles: 'Select files',
-            addMore: 'Add more files',
-            importFrom: 'Import from %{name}',
-            dashboardWindowTitle: 'Upload files',
-            dashboardTitle: 'Upload files',
-            copyLinkToClipboardSuccess: 'Link copied to clipboard.',
-            copyLinkToClipboardFallback: 'Copy the URL below',
-            fileSource: 'File source: %{name}',
-            done: 'Done',
-            localDisk: 'Local Disk',
-            myDevice: 'My Device',
-            folderAdded: {
-              0: 'Added %{smart_count} file from %{folder}',
-              1: 'Added %{smart_count} files from %{folder}'
-            }
-          }
-        }}
-      />
+      {showModal && (
+        <div style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)' }}>
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'white', padding: '20px', borderRadius: '8px', minWidth: '400px' }}>
+            <h3>Photo Upload</h3>
+            <p>Upload your photo here</p>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  console.log('File selected:', file.name);
+                  onGetUploadParameters().then((params) => {
+                    console.log('Got upload params:', params);
+                    // Simple upload for testing
+                    fetch(params.url, {
+                      method: 'PUT',
+                      body: file,
+                      headers: { 'Content-Type': file.type }
+                    }).then(response => {
+                      if (response.ok) {
+                        console.log('Upload successful!');
+                        const uploadURL = params.url.split('?')[0];
+                        onComplete?.({ successful: [{ uploadURL }] } as any);
+                        setShowModal(false);
+                      } else {
+                        console.error('Upload failed:', response.status);
+                      }
+                    }).catch(error => {
+                      console.error('Upload error:', error);
+                    });
+                  });
+                }
+              }}
+            />
+            <br />
+            <button onClick={() => setShowModal(false)} style={{ marginTop: '10px' }}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
