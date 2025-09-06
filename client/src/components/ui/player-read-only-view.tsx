@@ -281,7 +281,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                     <div className="flex flex-col lg:flex-row gap-6">
                       {/* Full Length Photo on the Left */}
                       {player.avatarPath && (
-                        <div className="lg:w-1/3 flex-shrink-0">
+                        <div className="lg:w-1/4 flex-shrink-0">
                           <img
                             src={player.avatarPath}
                             alt={`${player.firstName} ${player.lastName} full length photo`}
@@ -300,27 +300,27 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                         )}
                         
                         {/* Additional Bio Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
                           {player.height && (
-                            <div>
+                            <div className="flex justify-between items-center">
                               <label className="text-sm font-medium text-muted-foreground">Height</label>
                               <p className="text-lg" data-testid={`text-height-${player.id}`}>{player.height}</p>
                             </div>
                           )}
                           {player.hometown && (
-                            <div>
+                            <div className="flex justify-between items-center">
                               <label className="text-sm font-medium text-muted-foreground">Hometown</label>
                               <p className="text-lg" data-testid={`text-hometown-${player.id}`}>{player.hometown}</p>
                             </div>
                           )}
                           {player.highSchool && (
-                            <div>
+                            <div className="flex justify-between items-center">
                               <label className="text-sm font-medium text-muted-foreground">High School</label>
                               <p className="text-lg" data-testid={`text-high-school-${player.id}`}>{player.highSchool}</p>
                             </div>
                           )}
                           {player.classYear && (
-                            <div>
+                            <div className="flex justify-between items-center">
                               <label className="text-sm font-medium text-muted-foreground">Class Year</label>
                               <p className="text-lg" data-testid={`text-class-year-${player.id}`}>{player.classYear}</p>
                             </div>
