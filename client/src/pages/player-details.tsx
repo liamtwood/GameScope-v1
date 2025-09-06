@@ -1105,12 +1105,12 @@ export default function PlayerDetails() {
                               <img
                                 src={player.headshotPath}
                                 alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto rounded-lg shadow-md object-cover"
+                                className="w-full h-auto object-cover"
                                 data-testid={`img-headshot-${player?.id}`}
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 rounded-lg shadow-md flex items-center justify-center">
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
