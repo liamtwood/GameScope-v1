@@ -74,14 +74,19 @@ export default function FixtureDetails() {
   });
 
   // Convert team players to the format expected by the lineup
-  const players = teamPlayersData?.map(tp => ({
-    ...tp.user,
-    id: tp.user.id,
-    jerseyNumber: tp.jerseyNumber,
-    position: tp.position,
-    starPlayer: tp.starPlayer,
-    fitnessStatus: tp.fitnessStatus
-  })) || [];
+  const players = teamPlayersData?.map(tp => {
+    console.log('LINEUP DEBUG: Converting team player data:', tp);
+    return {
+      ...tp.user,
+      id: tp.user.id,
+      jerseyNumber: tp.jerseyNumber,
+      position: tp.position,
+      starPlayer: tp.starPlayer,
+      fitnessStatus: tp.fitnessStatus
+    };
+  }) || [];
+  
+  console.log('LINEUP DEBUG: Final players array:', players);
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -173,21 +178,24 @@ export default function FixtureDetails() {
 
   // Helper function to get star players only, sorted by jersey number
   const getSortedLineup = (playersData: any[]) => {
-    if (!playersData || playersData.length === 0) return [];
+    if (!playersData || playersData.length === 0) {
+      console.log('LINEUP DEBUG: No players data available');
+      return [];
+    }
     
-    console.log('Players data for lineup:', playersData);
+    console.log('LINEUP DEBUG: Original players data:', playersData.length, 'players');
+    console.log('LINEUP DEBUG: First player sample:', playersData[0]);
     
     const starPlayers = playersData.filter(player => {
-      console.log(`Player ${player.firstName} ${player.lastName}: starPlayer=${player.starPlayer}, jerseyNumber=${player.jerseyNumber}`);
-      return player.starPlayer && 
-        player.jerseyNumber !== null && 
-        player.jerseyNumber !== undefined;
+      const isStarPlayer = player.starPlayer === true;
+      const hasJerseyNumber = player.jerseyNumber !== null && player.jerseyNumber !== undefined;
+      console.log(`LINEUP DEBUG: ${player.firstName} ${player.lastName} - starPlayer: ${player.starPlayer}, jerseyNumber: ${player.jerseyNumber}, include: ${isStarPlayer && hasJerseyNumber}`);
+      return isStarPlayer && hasJerseyNumber;
     });
     
-    console.log('Filtered star players:', starPlayers);
+    console.log('LINEUP DEBUG: Filtered star players:', starPlayers.length, 'players');
     
     return starPlayers.sort((a, b) => {
-      // Sort by jersey number
       const aNumber = a.jerseyNumber || 999;
       const bNumber = b.jerseyNumber || 999;
       return aNumber - bNumber;
