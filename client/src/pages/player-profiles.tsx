@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 export default function PlayerProfiles() {
   const [positionFilter, setPositionFilter] = useState<PositionFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
@@ -83,6 +85,10 @@ export default function PlayerProfiles() {
     return `${player.firstName?.[0] || ''}${player.lastName?.[0] || ''}`;
   };
 
+  const handlePlayerClick = (playerId: string) => {
+    setLocation(`/players/${playerId}`);
+  };
+
   if (isLoading) {
     return (
       <MainLayout title="Player Profiles" subtitle="Loading player profiles...">
@@ -137,7 +143,12 @@ export default function PlayerProfiles() {
         {/* Player Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredPlayers.map((player) => (
-            <Card key={player.id} className="hover:shadow-lg transition-shadow duration-200" data-testid={`card-player-${player.id}`}>
+            <Card 
+              key={player.id} 
+              className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+              onClick={() => handlePlayerClick(player.id)}
+              data-testid={`card-player-${player.id}`}
+            >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
