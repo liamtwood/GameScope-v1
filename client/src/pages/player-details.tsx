@@ -1394,125 +1394,167 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Stats Content */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          {/* First Touch Success */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
-                              <div className="text-sm text-white/80">Success Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
-                              </div>
-                              {playerStatsData.length === 0 && (
-                                <div className="text-xs text-white/60 mt-2">No statistics available</div>
-                              )}
-                            </div>
-                          </div>
+                        <Tabs defaultValue="attack" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3 bg-white/10 mb-6">
+                            <TabsTrigger value="attack" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Attack</TabsTrigger>
+                            <TabsTrigger value="passing" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Passing</TabsTrigger>
+                            <TabsTrigger value="defense" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Defense</TabsTrigger>
+                          </TabsList>
 
-                          {/* Dribbles */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
-                              <div className="text-sm text-white/80">Success Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.dribbles.successful} successful, {playerStats.dribbles.unsuccessful} unsuccessful
-                              </div>
-                              <div className="text-xs text-white/50">Total: {playerStats.dribbles.total}</div>
-                            </div>
-                          </div>
-
-                          {/* Penetrating Dribbles */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
-                              <div className="text-sm text-white/80">Success Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
-                              </div>
-                              <div className="text-xs text-white/50">Total: {playerStats.penetratingDribbles.total}</div>
-                            </div>
-                          </div>
-
-                          {/* Passes */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.rate}%</div>
-                              <div className="text-sm text-white/80">Success Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.passes.successful} successful, {playerStats.passes.unsuccessful} unsuccessful
-                              </div>
-                              <div className="text-xs text-white/50">Total: {playerStats.passes.total}</div>
-                            </div>
-                          </div>
-
-                          {/* Crosses */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Crosses</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.rate}%</div>
-                              <div className="text-sm text-white/80">Success Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.crosses.successful} successful, {playerStats.crosses.unsuccessful} unsuccessful
-                              </div>
-                              <div className="text-xs text-white/50">Total: {playerStats.crosses.total}</div>
-                            </div>
-                          </div>
-
-                          {/* Shots */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
-                            <div className="space-y-3">
-                              <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
-                              <div className="text-sm text-white/80">On Target Rate</div>
-                              <div className="text-sm text-white/60">
-                                {playerStats.shots.successful} on target, {playerStats.shots.unsuccessful} off target
-                              </div>
-                              <div className="text-xs text-white/50">Total: {playerStats.shots.total}</div>
-                            </div>
-                          </div>
-
-                          {/* Goals & Assists */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-center space-x-6">
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-yellow-400">{playerStats.goals}</div>
-                                  <div className="text-xs text-white/80">Goals</div>
+                          {/* Attack Tab */}
+                          <TabsContent value="attack" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {/* First Touch Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                  </div>
+                                  {playerStatsData.length === 0 && (
+                                    <div className="text-xs text-white/60 mt-2">No statistics available</div>
+                                  )}
                                 </div>
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-cyan-400">{playerStats.assists}</div>
-                                  <div className="text-xs text-white/80">Assists</div>
+                              </div>
+
+                              {/* Dribbles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.dribbles.successful} successful, {playerStats.dribbles.unsuccessful} unsuccessful
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.dribbles.total}</div>
+                                </div>
+                              </div>
+
+                              {/* Penetrating Dribbles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.penetratingDribbles.total}</div>
+                                </div>
+                              </div>
+
+                              {/* Shots */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
+                                  <div className="text-sm text-white/80">On Target Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.shots.successful} on target, {playerStats.shots.unsuccessful} off target
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.shots.total}</div>
+                                </div>
+                              </div>
+
+                              {/* Goals & Assists */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
+                                <div className="space-y-3">
+                                  <div className="flex justify-center space-x-6">
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-yellow-400">{playerStats.goals}</div>
+                                      <div className="text-xs text-white/80">Goals</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-cyan-400">{playerStats.assists}</div>
+                                      <div className="text-xs text-white/80">Assists</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Crosses */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dangerous Crosses</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.total}</div>
+                                  <div className="text-sm text-white/80">Total Crosses</div>
+                                  <div className="text-sm text-white/60">
+                                    Quality crosses into dangerous areas
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          </TabsContent>
 
-                          {/* Disciplinary */}
-                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-center space-x-6">
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
-                                  <div className="text-xs text-white/80">Fouls</div>
+                          {/* Passing Tab */}
+                          <TabsContent value="passing" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Passes */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.passes.successful} successful, {playerStats.passes.unsuccessful} unsuccessful
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.passes.total}</div>
                                 </div>
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
-                                  <div className="text-xs text-white/80">Yellow</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
-                                  <div className="text-xs text-white/80">Red</div>
+                              </div>
+
+                              {/* First Touch Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
+                          </TabsContent>
+
+                          {/* Defense Tab */}
+                          <TabsContent value="defense" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Disciplinary */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
+                                <div className="space-y-3">
+                                  <div className="flex justify-center space-x-6">
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
+                                      <div className="text-xs text-white/80">Fouls</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
+                                      <div className="text-xs text-white/80">Yellow</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
+                                      <div className="text-xs text-white/80">Red</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Defensive Actions */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Defensive Actions</h4>
+                                <div className="space-y-3">
+                                  <div className="text-sm text-white/60">
+                                    Defensive statistics coming soon
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
                         
                         </div>
                       </div>
