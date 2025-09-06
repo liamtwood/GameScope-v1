@@ -140,6 +140,7 @@ export function ObjectUploader({
                   let fileToUpload = file;
                   
                   // Apply background removal if enabled
+                  console.log('Background removal check:', enableBackgroundRemoval);
                   if (enableBackgroundRemoval) {
                     try {
                       console.log('Starting background removal process...', {
@@ -148,22 +149,30 @@ export function ObjectUploader({
                         fileType: file.type
                       });
                       
-                      const backgroundRemover = new BackgroundRemover();
-                      const processedBlob = await backgroundRemover.removeBackground(file, {
-                        tolerance: 30,
-                        preserveInternalWhite: true,
-                        mode: 'smart'
-                      });
-                      
-                      console.log('Background removal completed successfully', {
-                        originalSize: file.size,
-                        processedSize: processedBlob.size
-                      });
-                      
-                      // Create processed file for upload
-                      fileToUpload = new File([processedBlob], file.name.replace(/\.[^.]+$/, '.png'), {
-                        type: 'image/png'
-                      });
+                      // Ensure the file is an image
+                      if (!file.type.startsWith('image/')) {
+                        console.warn('File is not an image, skipping background removal');
+                      } else {
+                        const backgroundRemover = new BackgroundRemover();
+                        console.log('BackgroundRemover instance created');
+                        
+                        const processedBlob = await backgroundRemover.removeBackground(file, {
+                          tolerance: 30,
+                          preserveInternalWhite: true,
+                          mode: 'smart'
+                        });
+                        
+                        console.log('Background removal completed successfully', {
+                          originalSize: file.size,
+                          processedSize: processedBlob.size
+                        });
+                        
+                        // Create processed file for upload
+                        fileToUpload = new File([processedBlob], file.name.replace(/\.[^.]+$/, '.png'), {
+                          type: 'image/png'
+                        });
+                        console.log('Processed file created for upload');
+                      }
                     } catch (error) {
                       console.error('Background removal failed:', error);
                       if (error instanceof Error) {
@@ -173,6 +182,7 @@ export function ObjectUploader({
                         });
                       }
                       // Continue with original file if background removal fails
+                      console.log('Continuing with original file due to background removal failure');
                     }
                   } else {
                     console.log('Background removal disabled for this upload');
