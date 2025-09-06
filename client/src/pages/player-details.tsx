@@ -1189,7 +1189,7 @@ export default function PlayerDetails() {
                         
                         
                         {/* Bio Text */}
-                        <div className="border-t border-white/20 pt-6">
+                        <div className="pt-6">
                           <h4 className="text-sm font-medium mb-3 text-white uppercase">About</h4>
                           {isEditing ? (
                             <textarea
