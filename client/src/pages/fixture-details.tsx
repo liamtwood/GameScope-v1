@@ -326,7 +326,7 @@ export default function FixtureDetails() {
                           {player.jerseyNumber}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{player.name}</p>
+                          <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
                           <p className="text-sm text-muted-foreground">{player.position}</p>
                         </div>
                       </div>
@@ -357,7 +357,7 @@ export default function FixtureDetails() {
                           {player.jerseyNumber}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{player.name}</p>
+                          <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
                           <p className="text-sm text-muted-foreground">{player.position}</p>
                         </div>
                       </div>
