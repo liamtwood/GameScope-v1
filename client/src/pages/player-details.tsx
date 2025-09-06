@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MatchStats } from "@shared/schema";
 import { useRoute } from "wouter";
@@ -715,7 +715,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-5'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
@@ -798,9 +798,8 @@ export default function PlayerDetails() {
                         color: ${clubPrimaryColor} !important;
                       }
                     `}</style>
-                    <>
                     {!isPhotoOnlyMode && (
-                        <>
+                      <>
                         <TabsTrigger 
                           value="details" 
                           data-testid="tab-details" 
@@ -837,55 +836,7 @@ export default function PlayerDetails() {
                         >
                           Parents
                         </TabsTrigger>
-                        <TabsTrigger 
-                          value="bio" 
-                          data-testid="tab-bio" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                          style={{ 
-                            // color controlled by CSS now
-                            '--club-primary': clubPrimaryColor,
-    // Disable inline styles - let CSS handle everything
-                          } as React.CSSProperties & { '--club-primary': string }}
-                        >
-                          Bio
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="attack" 
-                          data-testid="tab-attack" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                          style={{ 
-                            // color controlled by CSS now
-                            '--club-primary': clubPrimaryColor,
-    // Disable inline styles - let CSS handle everything
-                          } as React.CSSProperties & { '--club-primary': string }}
-                        >
-                          Attack
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="defense" 
-                          data-testid="tab-defense" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                          style={{ 
-                            // color controlled by CSS now
-                            '--club-primary': clubPrimaryColor,
-    // Disable inline styles - let CSS handle everything
-                          } as React.CSSProperties & { '--club-primary': string }}
-                        >
-                          Defense
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="passing" 
-                          data-testid="tab-passing" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                          style={{ 
-                            // color controlled by CSS now
-                            '--club-primary': clubPrimaryColor,
-    // Disable inline styles - let CSS handle everything
-                          } as React.CSSProperties & { '--club-primary': string }}
-                        >
-                          Passing
-                        </TabsTrigger>
-                        </>
+                      </>
                     )}
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
@@ -904,15 +855,13 @@ export default function PlayerDetails() {
                         {isPhotoOnlyMode ? 'Player Photo' : 'Photo'}
                       </TabsTrigger>
                     )}
-                    </>
                   </TabsList>
                 </div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Player Details Content */}
-          <TabsContent value="details" className="m-0">
+              
+              {/* Player Details Content */}
+              <TabsContent value="details" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
                   <div className="pt-4">
                     
@@ -1279,8 +1228,9 @@ export default function PlayerDetails() {
               </TabsContent>
 
 
-              {/* Bio Tab Content */}
-              <TabsContent value="bio" className="m-0">
+              {/* Bio Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="bio" className="m-0">
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
@@ -1410,260 +1360,262 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                 </TabsContent>
+              )}
 
-
-              {/* Attack Tab Content */}
-              <TabsContent value="attack" className="m-0">
-                <div 
-                  className="px-6 min-h-[400px]" 
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    backgroundImage: `url("${honeycombSvg}")`,
-                    backgroundSize: '52px 45px',
-                    backgroundPosition: '0 0, 26px 22.5px',
-                    backgroundRepeat: 'repeat'
-                  } as React.CSSProperties}
-                >
-                  <div className="pt-6">
-                    <div className="mb-6">
-                      <div className="flex items-center gap-3">
-                        <Crosshair className="h-6 w-6 text-white" />
-                        <h3 className="text-xl font-bold text-white uppercase tracking-wide">Attack Statistics</h3>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* First Touch Success */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
-                          <div className="text-sm text-white/80">Success Rate</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
-                          </div>
-                          {playerStatsData.length === 0 && (
-                            <div className="text-xs text-white/60 mt-2">No statistics available</div>
+              {/* Stats Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="stats" className="m-0">
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
                           )}
                         </div>
-                      </div>
-
-                      {/* Dribbles */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
-                          <div className="text-sm text-white/80">Success Rate</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.dribbles.successful} successful, {playerStats.dribbles.unsuccessful} unsuccessful
+                        
+                        {/* Middle - Stats Information */}
+                        <div className="w-1/2 space-y-8">
+                        
+                        {/* Player Statistics Header */}
+                        <div className="mb-6">
+                          <div className="flex items-center gap-3">
+                            <ChartColumn className="h-6 w-6 text-white" />
+                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Statistics</h3>
                           </div>
-                          <div className="text-xs text-white/50">Total: {playerStats.dribbles.total}</div>
                         </div>
-                      </div>
+                        
+                        {/* Stats Content */}
+                        <Tabs defaultValue="attack" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3 bg-white/10 mb-6">
+                            <TabsTrigger value="attack" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Attack</TabsTrigger>
+                            <TabsTrigger value="passing" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Passing</TabsTrigger>
+                            <TabsTrigger value="defense" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Defense</TabsTrigger>
+                          </TabsList>
 
-                      {/* Penetrating Dribbles */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
-                          <div className="text-sm text-white/80">Success Rate</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
-                          </div>
-                          <div className="text-xs text-white/50">Total: {playerStats.penetratingDribbles.total}</div>
-                        </div>
-                      </div>
+                          {/* Attack Tab */}
+                          <TabsContent value="attack" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {/* First Touch Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                  </div>
+                                  {playerStatsData.length === 0 && (
+                                    <div className="text-xs text-white/60 mt-2">No statistics available</div>
+                                  )}
+                                </div>
+                              </div>
 
-                      {/* Shots */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
-                          <div className="text-sm text-white/80">On Target Rate</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.shots.successful} on target, {playerStats.shots.unsuccessful} off target
-                          </div>
-                          <div className="text-xs text-white/50">Total: {playerStats.shots.total}</div>
-                        </div>
-                      </div>
+                              {/* Dribbles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.dribbles.successful} successful, {playerStats.dribbles.unsuccessful} unsuccessful
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.dribbles.total}</div>
+                                </div>
+                              </div>
 
-                      {/* Goals & Assists */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-center space-x-6">
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-yellow-400">{playerStats.goals}</div>
-                              <div className="text-xs text-white/80">Goals</div>
+                              {/* Penetrating Dribbles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.penetratingDribbles.total}</div>
+                                </div>
+                              </div>
+
+                              {/* Shots */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
+                                  <div className="text-sm text-white/80">On Target Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.shots.successful} on target, {playerStats.shots.unsuccessful} off target
+                                  </div>
+                                  <div className="text-xs text-white/50">Total: {playerStats.shots.total}</div>
+                                </div>
+                              </div>
+
+                              {/* Goals & Assists */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
+                                <div className="space-y-3">
+                                  <div className="flex justify-center space-x-6">
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-yellow-400">{playerStats.goals}</div>
+                                      <div className="text-xs text-white/80">Goals</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-cyan-400">{playerStats.assists}</div>
+                                      <div className="text-xs text-white/80">Assists</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Crosses */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dangerous Crosses</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.total}</div>
+                                  <div className="text-sm text-white/80">Total Crosses</div>
+                                  <div className="text-sm text-white/60">
+                                    Quality crosses into dangerous areas
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-cyan-400">{playerStats.assists}</div>
-                              <div className="text-xs text-white/80">Assists</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                          </TabsContent>
 
-                      {/* Crosses */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dangerous Crosses</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.total}</div>
-                          <div className="text-sm text-white/80">Total Crosses</div>
-                          <div className="text-sm text-white/60">
-                            Quality crosses into dangerous areas
-                          </div>
+                          {/* Passing Tab */}
+                          <TabsContent value="passing" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Passes Attempted */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
+                                  <div className="text-sm text-white/80">Total Attempts</div>
+                                  <div className="text-sm text-white/60">
+                                    Across all matches played
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passes Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
+                                  <div className="text-sm text-white/80">Successful Passes</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.passes.rate}% success rate
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Total Distance */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
+                                  <div className="text-sm text-white/80">Meters</div>
+                                  <div className="text-sm text-white/60">
+                                    Total distance of all passes
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Average Velocity */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
+                                  <div className="text-sm text-white/80">m/s</div>
+                                  <div className="text-sm text-white/60">
+                                    Average speed of passes
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          {/* Defense Tab */}
+                          <TabsContent value="defense" className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Tackles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.tackles}</div>
+                                  <div className="text-sm text-white/80">Total Tackles</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.tacklesWon} won, {playerStats.tackles - playerStats.tacklesWon} lost
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Take Ons */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.takeOns}</div>
+                                  <div className="text-sm text-white/80">Total Take Ons</div>
+                                  <div className="text-sm text-white/60">
+                                    Defensive take-on attempts
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Disciplinary */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
+                                <div className="space-y-3">
+                                  <div className="flex justify-center space-x-6">
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
+                                      <div className="text-xs text-white/80">Fouls</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
+                                      <div className="text-xs text-white/80">Yellow</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
+                                      <div className="text-xs text-white/80">Red</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                        
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
+                </TabsContent>
+              )}
 
-              {/* Defense Tab Content */}
-              <TabsContent value="defense" className="m-0">
-                <div 
-                  className="px-6 min-h-[400px]" 
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    backgroundImage: `url("${honeycombSvg}")`,
-                    backgroundSize: '52px 45px',
-                    backgroundPosition: '0 0, 26px 22.5px',
-                    backgroundRepeat: 'repeat'
-                  } as React.CSSProperties}
-                >
-                  <div className="pt-6">
-                    <div className="mb-6">
-                      <div className="flex items-center gap-3">
-                        <BarChart3 className="h-6 w-6 text-white" />
-                        <h3 className="text-xl font-bold text-white uppercase tracking-wide">Defense Statistics</h3>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Tackles */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-blue-400">{playerStats.tackles}</div>
-                          <div className="text-sm text-white/80">Total Tackles</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.tacklesWon} won, {playerStats.tackles - playerStats.tacklesWon} lost
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Take Ons */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-purple-400">{playerStats.takeOns}</div>
-                          <div className="text-sm text-white/80">Total Take Ons</div>
-                          <div className="text-sm text-white/60">
-                            Defensive take-on attempts
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Disciplinary */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-center space-x-6">
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
-                              <div className="text-xs text-white/80">Fouls</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
-                              <div className="text-xs text-white/80">Yellow</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
-                              <div className="text-xs text-white/80">Red</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Passing Tab Content */}
-              <TabsContent value="passing" className="m-0">
-                <div 
-                  className="px-6 min-h-[400px]" 
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    backgroundImage: `url("${honeycombSvg}")`,
-                    backgroundSize: '52px 45px',
-                    backgroundPosition: '0 0, 26px 22.5px',
-                    backgroundRepeat: 'repeat'
-                  } as React.CSSProperties}
-                >
-                  <div className="pt-6">
-                    <div className="mb-6">
-                      <div className="flex items-center gap-3">
-                        <ChartColumn className="h-6 w-6 text-white" />
-                        <h3 className="text-xl font-bold text-white uppercase tracking-wide">Passing Statistics</h3>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Passes Attempted */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
-                          <div className="text-sm text-white/80">Total Attempts</div>
-                          <div className="text-sm text-white/60">
-                            Across all matches played
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Passes Success */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
-                          <div className="text-sm text-white/80">Successful Passes</div>
-                          <div className="text-sm text-white/60">
-                            {playerStats.passes.rate}% success rate
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Passing Total Distance */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
-                          <div className="text-sm text-white/80">Meters</div>
-                          <div className="text-sm text-white/60">
-                            Total distance of all passes
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Passing Average Velocity */}
-                      <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                        <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
-                        <div className="space-y-3">
-                          <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
-                          <div className="text-sm text-white/80">m/s</div>
-                          <div className="text-sm text-white/60">
-                            Average speed of passes
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Photo Tab Content */
+              {/* Photo Tab Content */}
               <TabsContent value="photo" className="m-0">
                 <div className="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
                   <div className="p-6">
@@ -1755,6 +1707,8 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
+            </CardContent>
+          </Card>
 
         </Tabs>
       </div>
