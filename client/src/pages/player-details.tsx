@@ -413,16 +413,27 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create true hexagonal honeycomb background style
+  // Create perfect honeycomb background style using advanced CSS
+  const s = '25px'; // honeycomb cell size
+  const c1 = 'rgba(255,255,255,0.1)'; // honeycomb line color
+  const c2 = clubPrimaryColor; // background color
+  
   const solidStyle = {
+    '--s': s,
+    '--c1': c1,
+    '--c2': c2,
+    '--c': `#0000, var(--c1) .5deg 119.5deg, #0000 120deg`,
+    '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
+    '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
+    '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
     background: `
-      linear-gradient(30deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-      linear-gradient(90deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-      linear-gradient(150deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-      ${clubPrimaryColor}
+      var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
+      var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
+      var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
+      var(--c2)
     `,
-    backgroundSize: '20px 35px',
-  };
+    backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+  } as React.CSSProperties;
 
   return (
     <MainLayout 
@@ -1073,14 +1084,21 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 pb-6 min-h-[400px]" 
                     style={{
+                      '--s': s,
+                      '--c1': c1,
+                      '--c2': c2,
+                      '--c': `#0000, var(--c1) .5deg 119.5deg, #0000 120deg`,
+                      '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
+                      '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
+                      '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
                       background: `
-                        linear-gradient(30deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-                        linear-gradient(90deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-                        linear-gradient(150deg, transparent 75%, rgba(255,255,255,0.08) 75%),
-                        ${clubPrimaryColor}
+                        var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
+                        var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
+                        var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
+                        var(--c2)
                       `,
-                      backgroundSize: '20px 35px',
-                    }}
+                      backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+                    } as React.CSSProperties}
                   >
                     <div className="pt-6">
                       <div className="w-4/5 mx-auto space-y-8">
