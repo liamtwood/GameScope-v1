@@ -436,10 +436,10 @@ export default function PlayerDetails() {
       title="VIEW SQUAD MEMBER" 
       subtitle={`${player.firstName} ${player.lastName}`}
     >
-      <div className="space-y-6" data-testid={`player-details-${player.id}`}>
+      <div className="-m-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <Card className="w-full relative overflow-hidden border-2 shadow-2xl rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
+          <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
