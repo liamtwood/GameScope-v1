@@ -744,24 +744,18 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full">
+                    <div className="flex col-span-2 w-full gap-2">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="relative w-1/2 px-4 py-3 text-sm font-medium transition-all duration-200 border border-gray-300 border-r-0 bg-white data-[state=active]:bg-gray-100"
-                        style={{ 
-                          color: '#374151'
-                        }}
+                        className="relative w-1/2 px-4 py-2 text-sm font-medium transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-md cursor-pointer"
                       >
                         Bio
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="relative w-1/2 px-4 py-3 text-sm font-medium transition-all duration-200 border border-gray-300 bg-white data-[state=active]:bg-gray-100"
-                        style={{ 
-                          color: '#374151'
-                        }}
+                        className="relative w-1/2 px-4 py-2 text-sm font-medium transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-md cursor-pointer"
                       >
                         Stats
                       </TabsTrigger>
