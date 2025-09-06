@@ -535,27 +535,29 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                     
-                    {/* Position - Right side of container */}
-                    {userTeams && userTeams.length > 0 && userTeams[0].position && (
-                      <div className="flex items-center justify-center">
-                        <div className="text-sm font-medium uppercase tracking-wide text-black">
-                          {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
-                           userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
-                           userTeams[0].position === 'FWD' ? 'FORWARD' : 
-                           userTeams[0].position === 'GK' ? 'GOALKEEPER' : 
-                           userTeams[0].position}
+                    {/* Position and Club Logo - Right side of container */}
+                    <div className="flex items-center gap-4">
+                      {userTeams && userTeams.length > 0 && userTeams[0].position && (
+                        <div className="flex items-center justify-center">
+                          <div className="text-sm font-medium uppercase tracking-wide text-black">
+                            {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
+                             userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
+                             userTeams[0].position === 'FWD' ? 'FORWARD' : 
+                             userTeams[0].position === 'GK' ? 'GOALKEEPER' : 
+                             userTeams[0].position}
+                          </div>
                         </div>
+                      )}
+                      
+                      {/* Club Logo */}
+                      <div className="flex-shrink-0 opacity-80 flex items-center justify-center">
+                        <img 
+                          src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                          alt={selectedClub?.name || "Club Logo"} 
+                          className="h-12 w-auto object-contain"
+                        />
                       </div>
-                    )}
-                  </div>
-
-                  {/* Club Logo */}
-                  <div className="flex-shrink-0 opacity-80 flex flex-col items-center justify-center h-30">
-                    <img 
-                      src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
-                      alt={selectedClub?.name || "Club Logo"} 
-                      className="h-24 w-auto object-contain"
-                    />
+                    </div>
                   </div>
                 </div>
                 </div>
