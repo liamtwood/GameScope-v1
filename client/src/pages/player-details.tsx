@@ -1114,8 +1114,35 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
-                        {/* Bio Information */}
+                        {/* Icon Tab Selector and Bio Information */}
                         <div className="w-1/2 space-y-8">
+                        
+                        {/* Icon Tab Selector */}
+                        <div className="flex justify-center mb-6">
+                          <div className="bg-white/10 rounded-lg p-2 border-2 border-white/50 inline-block">
+                            <div className="flex space-x-4">
+                              {/* Fingerprint Icon - Bio Tab */}
+                              <div 
+                                className={`p-3 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
+                                  activeTab === 'bio' ? 'bg-white/30' : 'bg-white/20'
+                                }`}
+                                onClick={() => setActiveTab('bio')}
+                              >
+                                <Fingerprint className="h-6 w-6 text-white" />
+                              </div>
+                              
+                              {/* Chart Column Icon - Stats Tab */}
+                              <div 
+                                className={`p-3 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
+                                  activeTab === 'stats' ? 'bg-white/30' : 'bg-white/20'
+                                }`}
+                                onClick={() => setActiveTab('stats')}
+                              >
+                                <ChartColumn className="h-6 w-6 text-white" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         
                         {/* Player Biography Header */}
                         <div className="mb-6">
