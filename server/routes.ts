@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -2883,6 +2883,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(500).json({ message: "Failed to upload match statistics" });
+    }
+  });
+
+  // Player Statistics routes
+  app.get("/api/player-stats/:playerId", async (req, res) => {
+    try {
+      const { playerId } = req.params;
+      const playerStats = await storage.getPlayerStats(playerId);
+      res.json(playerStats);
+    } catch (error) {
+      console.error("Error fetching player statistics:", error);
+      res.status(500).json({ message: "Failed to fetch player statistics" });
+    }
+  });
+
+  app.get("/api/player-stats/:playerId/fixture/:fixtureId", async (req, res) => {
+    try {
+      const { playerId, fixtureId } = req.params;
+      const playerStats = await storage.getPlayerStatsByFixture(playerId, fixtureId);
+      res.json(playerStats);
+    } catch (error) {
+      console.error("Error fetching player statistics by fixture:", error);
+      res.status(500).json({ message: "Failed to fetch player statistics by fixture" });
+    }
+  });
+
+  app.post("/api/player-stats", async (req, res) => {
+    try {
+      const statsData = insertPlayerStatsSchema.parse(req.body);
+      const stats = await storage.createPlayerStats(statsData);
+      res.status(201).json(stats);
+    } catch (error) {
+      console.error("Error creating player statistics:", error);
+      res.status(400).json({ message: "Failed to create player statistics" });
+    }
+  });
+
+  app.put("/api/player-stats/:id", async (req, res) => {
+    try {
+      const statsData = insertPlayerStatsSchema.partial().parse(req.body);
+      const stats = await storage.updatePlayerStats(req.params.id, statsData);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error updating player statistics:", error);
+      res.status(400).json({ message: "Failed to update player statistics" });
+    }
+  });
+
+  app.delete("/api/player-stats/:id", async (req, res) => {
+    try {
+      await storage.deletePlayerStats(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting player statistics:", error);
+      res.status(500).json({ message: "Failed to delete player statistics" });
     }
   });
 
