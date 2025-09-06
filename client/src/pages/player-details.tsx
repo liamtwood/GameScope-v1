@@ -1131,11 +1131,11 @@ export default function PlayerDetails() {
                       </div>
                       
                       {/* Position (from team assignment) */}
-                      {playerTeams && playerTeams.length > 0 && (
+                      {userTeams && userTeams.length > 0 && (
                         <div className="border-t border-gray-200 pt-6">
                           <div className="flex justify-between items-center py-2">
                             <span className="text-sm font-medium text-gray-600">Position</span>
-                            <span className="text-sm text-gray-900">{playerTeams[0].position}</span>
+                            <span className="text-sm text-gray-900">{userTeams[0].position}</span>
                           </div>
                         </div>
                       )}
