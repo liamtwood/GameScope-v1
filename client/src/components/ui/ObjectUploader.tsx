@@ -176,9 +176,9 @@ export function ObjectUploader({
                         
                         // Try multiple approaches for better background removal
                         let processedBlob;
-                        // Use enhanced manual mode with better artifact cleanup
+                        // Use more conservative settings to preserve subject details
                         processedBlob = await backgroundRemover.removeBackground(file, {
-                          tolerance: 45,
+                          tolerance: 35,
                           preserveInternalWhite: true,
                           mode: 'manual',
                           autoCrop: true,

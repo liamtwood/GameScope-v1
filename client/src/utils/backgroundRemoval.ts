@@ -734,11 +734,11 @@ export class BackgroundRemover {
             const g = data[pixelIdx + 1];
             const b = data[pixelIdx + 2];
             
-            // Check if it's grayish or whitish (likely background artifact)
-            const isGrayish = Math.abs(r - g) < 15 && Math.abs(g - b) < 15 && r > 180;
-            const isWhitish = r > 220 && g > 220 && b > 220;
+            // More conservative: only remove very light gray/white artifacts
+            const isLightGray = Math.abs(r - g) < 10 && Math.abs(g - b) < 10 && r > 220;
+            const isWhitish = r > 245 && g > 245 && b > 245;
             
-            if (isGrayish || isWhitish) {
+            if (isLightGray || isWhitish) {
               toRemove[idx] = true;
             }
           }
@@ -766,12 +766,12 @@ export class BackgroundRemover {
           ].some(n => n);
           
           if (hasTransparentNeighbor) {
-            // Check if pixel is grayish/whitish background artifact
-            const isLightGray = r > 200 && g > 200 && b > 200 && 
-                               Math.abs(r - g) < 20 && Math.abs(g - b) < 20;
-            const isBackgroundish = r > 240 || (r > 180 && Math.abs(r - g) < 30);
+            // More conservative edge cleanup - only very light backgrounds
+            const isVeryLightGray = r > 230 && g > 230 && b > 230 && 
+                                   Math.abs(r - g) < 15 && Math.abs(g - b) < 15;
+            const isBackgroundish = r > 250 && g > 250 && b > 250;
             
-            if (isLightGray || isBackgroundish) {
+            if (isVeryLightGray || isBackgroundish) {
               expansionMask[idx] = true;
             }
           }
