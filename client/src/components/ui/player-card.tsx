@@ -119,9 +119,6 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             <div className="flex-1">
               <div className="flex items-center space-x-2">
                 <h3 className="font-semibold text-lg text-foreground">{player.firstName} {player.lastName}</h3>
-                {player.keyPlayer && (
-                  <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                )}
               </div>
               <p className="text-sm text-muted-foreground">
                 {player.position}
@@ -164,6 +161,28 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
               </Badge>
             )}
             
+            {/* Star Toggle */}
+            {onToggleKeyPlayer && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleKeyPlayer(player);
+                }}
+                className="h-8 w-8 p-0"
+                data-testid={`button-star-toggle-${player.id}`}
+                title={player.keyPlayer ? 'Remove star player status' : 'Make star player'}
+              >
+                <Star 
+                  className={`h-4 w-4 transition-colors ${
+                    player.keyPlayer 
+                      ? 'text-orange-500 fill-orange-500' 
+                      : 'text-gray-300 hover:text-orange-300'
+                  }`} 
+                />
+              </Button>
+            )}
 
             {/* Actions Menu */}
             <DropdownMenu>
