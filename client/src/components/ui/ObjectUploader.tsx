@@ -79,11 +79,14 @@ export function ObjectUploader({
   return (
     <div>
       <Button 
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('Photo upload button clicked!');
           setShowModal(true);
         }} 
         className={buttonClassName}
+        type="button"
       >
         {children}
       </Button>
