@@ -712,20 +712,23 @@ export default function PlayerDetails() {
                     >
                       Bio
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="photo" 
-                      data-testid="tab-photo" 
-                      className={`relative py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold ${
-                        isPhotoOnlyMode ? 'px-0 w-full text-center' : 'px-4'
-                      }`}
-                      style={{ 
-                        // color controlled by CSS now
-                        '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
-                      } as React.CSSProperties & { '--club-primary': string }}
-                    >
-                      {isPhotoOnlyMode ? 'Player Photo' : 'Photo'}
-                    </TabsTrigger>
+                    {/* Hide Photo tab when coming from Player Profiles */}
+                    {source !== "profiles" && (
+                      <TabsTrigger 
+                        value="photo" 
+                        data-testid="tab-photo" 
+                        className={`relative py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold ${
+                          isPhotoOnlyMode ? 'px-0 w-full text-center' : 'px-4'
+                        }`}
+                        style={{ 
+                          // color controlled by CSS now
+                          '--club-primary': clubPrimaryColor,
+  // Disable inline styles - let CSS handle everything
+                        } as React.CSSProperties & { '--club-primary': string }}
+                      >
+                        {isPhotoOnlyMode ? 'Player Photo' : 'Photo'}
+                      </TabsTrigger>
+                    )}
                   </TabsList>
                 </div>
               </div>
