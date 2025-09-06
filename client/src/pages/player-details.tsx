@@ -1081,8 +1081,6 @@ export default function PlayerDetails() {
 
                       {/* Full Length Photo Section */}
                       <div>
-                        <h4 className="text-xl font-medium text-gray-900 mb-6 text-center">Full Length Photo</h4>
-                        
                         <div className="flex items-center justify-center space-x-8">
                           {/* Current Full Length Photo Display */}
                           <div className="flex flex-col items-center space-y-4">
