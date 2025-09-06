@@ -983,7 +983,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
 
-          // Check if already in team
+          // First, add user to club (get club from team)
+          const clubUsers = await storage.getClubUsers(team.clubId);
+          const existingClubMember = clubUsers.find(cu => cu.userId === user.id);
+
+          if (!existingClubMember) {
+            await storage.addUserToClub(user.id, team.clubId, {
+              status: 'Active',
+              keyUser: false
+            });
+            console.log(`Added ${playerData.firstName} ${playerData.lastName} to club`);
+          } else {
+            console.log(`${playerData.firstName} ${playerData.lastName} already in club`);
+          }
+
+          // Then, check if already in team
           const teamUsers = await storage.getTeamUsers(teamId);
           const existingTeamMember = teamUsers.find(tu => tu.userId === user.id);
 
