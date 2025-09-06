@@ -614,7 +614,8 @@ export default function PlayerDetails() {
                       }
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]),
+                      [data-testid="tab-stats"]:not([data-state="active"]) {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
@@ -622,7 +623,8 @@ export default function PlayerDetails() {
                       /* INACTIVE TABS - NO BACKGROUND */
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]),
+                      [data-testid="tab-stats"]:not([data-state="active"]) {
                         opacity: 1 !important;
                         background: none !important;
                         background-color: transparent !important;
@@ -634,10 +636,12 @@ export default function PlayerDetails() {
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
                       [data-testid="tab-photo"][data-state="active"],
+                      [data-testid="tab-stats"][data-state="active"],
                       button[role="tab"][data-testid="tab-details"][data-state="active"],
                       button[role="tab"][data-testid="tab-teams"][data-state="active"],
                       button[role="tab"][data-testid="tab-parents"][data-state="active"],
-                      button[role="tab"][data-testid="tab-photo"][data-state="active"] {
+                      button[role="tab"][data-testid="tab-photo"][data-state="active"],
+                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
                         opacity: 1 !important;
                         background: white !important;
                         background-color: white !important;
@@ -712,6 +716,18 @@ export default function PlayerDetails() {
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Bio
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="stats" 
+                      data-testid="tab-stats" 
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                      style={{ 
+                        // color controlled by CSS now
+                        '--club-primary': clubPrimaryColor,
+// Disable inline styles - let CSS handle everything
+                      } as React.CSSProperties & { '--club-primary': string }}
+                    >
+                      Stats
                     </TabsTrigger>
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
@@ -1158,6 +1174,68 @@ export default function PlayerDetails() {
                           <p className="text-sm text-gray-400 italic">No biography available</p>
                         </div>
                       )}
+                      
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Stats Tab Content */}
+              <TabsContent value="stats" className="m-0">
+                <div className="bg-white px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-6">
+                    <div className="w-4/5 mx-auto space-y-8">
+                      
+                      {/* Season Stats */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h4>
+                        <div className="grid grid-cols-3 gap-6">
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <div className="text-2xl font-bold text-gray-900">0</div>
+                            <div className="text-sm text-gray-600">Games Played</div>
+                          </div>
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <div className="text-2xl font-bold text-gray-900">0</div>
+                            <div className="text-sm text-gray-600">Goals</div>
+                          </div>
+                          <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <div className="text-2xl font-bold text-gray-900">0</div>
+                            <div className="text-sm text-gray-600">Assists</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Performance Metrics */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Performance</h4>
+                        <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm font-medium text-gray-600">Minutes Played</span>
+                              <span className="text-sm text-gray-900">0</span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm font-medium text-gray-600">Shots on Target</span>
+                              <span className="text-sm text-gray-900">0</span>
+                            </div>
+                          </div>
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm font-medium text-gray-600">Pass Accuracy</span>
+                              <span className="text-sm text-gray-900">0%</span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm font-medium text-gray-600">Yellow Cards</span>
+                              <span className="text-sm text-gray-900">0</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* No stats message */}
+                      <div className="text-center py-8 border-t border-gray-200">
+                        <p className="text-sm text-gray-400 italic">Player statistics will appear here once match data is available</p>
+                      </div>
                       
                     </div>
                   </div>
