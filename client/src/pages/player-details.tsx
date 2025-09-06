@@ -1101,9 +1101,9 @@ export default function PlayerDetails() {
                       <div className="w-4/5 mx-auto space-y-8">
                         
                         {/* Player Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                           <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Bob</span>
+                            <span className="text-sm font-medium text-white">Height</span>
                             {isEditing ? (
                               <input
                                 type="text"
