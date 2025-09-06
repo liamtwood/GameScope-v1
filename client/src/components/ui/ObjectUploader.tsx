@@ -237,7 +237,6 @@ export function ObjectUploader({
                     }).catch(error => {
                       console.error('Upload error:', error);
                     });
-                    });
                   });
                 }
               }}
