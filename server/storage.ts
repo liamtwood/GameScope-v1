@@ -13,6 +13,7 @@ import {
   systemTeams,
   competitions,
   matchStats,
+  playerStats,
   type Club,
   type Team,
   type User,
@@ -24,6 +25,7 @@ import {
   type SystemTeam,
   type Competition,
   type MatchStats,
+  type PlayerStats,
   type InsertClub,
   type InsertTeam,
   type InsertUser,
@@ -34,6 +36,7 @@ import {
   type InsertSystemTeam,
   type InsertCompetition,
   type InsertMatchStats,
+  type InsertPlayerStats,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -114,6 +117,13 @@ export interface IStorage {
   createMatchStats(stats: InsertMatchStats): Promise<MatchStats>;
   updateMatchStats(id: string, stats: Partial<InsertMatchStats>): Promise<MatchStats>;
   deleteMatchStats(id: string): Promise<void>;
+  
+  // Player stats operations
+  getPlayerStats(playerId: string): Promise<PlayerStats[]>;
+  getPlayerStatsByFixture(playerId: string, fixtureId: string): Promise<PlayerStats[]>;
+  createPlayerStats(stats: InsertPlayerStats): Promise<PlayerStats>;
+  updatePlayerStats(id: string, stats: Partial<InsertPlayerStats>): Promise<PlayerStats>;
+  deletePlayerStats(id: string): Promise<void>;
   
   // User operations
   getUser(id: string): Promise<User | undefined>;
@@ -1058,6 +1068,87 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMatchStats(id: string): Promise<void> {
     await db.delete(matchStats).where(eq(matchStats.id, id));
+  }
+
+  // Player stats operations
+  async getPlayerStats(playerId: string): Promise<PlayerStats[]> {
+    return await db.select().from(playerStats).where(eq(playerStats.playerId, playerId));
+  }
+
+  async getPlayerStatsByFixture(playerId: string, fixtureId: string): Promise<PlayerStats[]> {
+    return await db.select().from(playerStats).where(
+      and(eq(playerStats.playerId, playerId), eq(playerStats.fixtureId, fixtureId))
+    );
+  }
+
+  async createPlayerStats(stats: InsertPlayerStats): Promise<PlayerStats> {
+    const id = randomUUID();
+    const newStats: PlayerStats = {
+      ...stats,
+      id,
+      createdAt: new Date(),
+      // Set defaults for optional fields
+      totalDistance: stats.totalDistance || null,
+      goals: stats.goals || null,
+      assists: stats.assists || null,
+      shotsAttempted: stats.shotsAttempted || null,
+      shotsOnTarget: stats.shotsOnTarget || null,
+      runsIntoBoxes: stats.runsIntoBoxes || null,
+      dangerousCrosses: stats.dangerousCrosses || null,
+      dribbles: stats.dribbles || null,
+      dribblesSuccessful: stats.dribblesSuccessful || null,
+      dribblesSuccessRate: stats.dribblesSuccessRate || null,
+      penetratingDribbles: stats.penetratingDribbles || null,
+      penetratingDribblesSuccessful: stats.penetratingDribblesSuccessful || null,
+      penetratingDribblesSuccessRate: stats.penetratingDribblesSuccessRate || null,
+      takeOns: stats.takeOns || null,
+      firstTouchSuccess: stats.firstTouchSuccess || null,
+      firstTouchAttempted: stats.firstTouchAttempted || null,
+      firstTouchSuccessRate: stats.firstTouchSuccessRate || null,
+      tackles: stats.tackles || null,
+      tacklesWon: stats.tacklesWon || null,
+      tacklesSuccessRate: stats.tacklesSuccessRate || null,
+      interceptions: stats.interceptions || null,
+      clearances: stats.clearances || null,
+      foulsCommitted: stats.foulsCommitted || null,
+      foulsWon: stats.foulsWon || null,
+      offsides: stats.offsides || null,
+      passesAttempted: stats.passesAttempted || null,
+      passesSuccess: stats.passesSuccess || null,
+      passingSuccessRate: stats.passingSuccessRate || null,
+      passingTotalDistance: stats.passingTotalDistance || null,
+      passingAverageDistance: stats.passingAverageDistance || null,
+      passingAverageVelocity: stats.passingAverageVelocity || null,
+      rightFootPassAttempted: stats.rightFootPassAttempted || null,
+      rightFootPassSuccess: stats.rightFootPassSuccess || null,
+      rightFootPassSuccessRate: stats.rightFootPassSuccessRate || null,
+      leftFootPassAttempted: stats.leftFootPassAttempted || null,
+      leftFootPassSuccess: stats.leftFootPassSuccess || null,
+      leftFootPassSuccessRate: stats.leftFootPassSuccessRate || null,
+      sprintsCompleted: stats.sprintsCompleted || null,
+      highIntensityRuns: stats.highIntensityRuns || null,
+    };
+    
+    await db.insert(playerStats).values(newStats);
+    return newStats;
+  }
+
+  async updatePlayerStats(id: string, stats: Partial<InsertPlayerStats>): Promise<PlayerStats> {
+    const [updatedStats] = await db
+      .update(playerStats)
+      .set(stats)
+      .where(eq(playerStats.id, id))
+      .returning();
+    
+    if (!updatedStats) {
+      throw new Error("Player statistics not found");
+    }
+    
+    return updatedStats;
+  }
+
+  async deletePlayerStats(id: string): Promise<void> {
+    await db.delete(playerStats).where(eq(playerStats.id, id));
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
