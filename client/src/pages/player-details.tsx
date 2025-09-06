@@ -517,28 +517,26 @@ export default function PlayerDetails() {
                   
                   {/* Tab Selector - Only show when from profiles */}
                   {source === "profiles" && (
-                    <div className="bg-white/10 rounded-lg p-1 border-2 border-white/50 inline-block">
-                      <div className="flex">
-                        {/* Bio Tab */}
-                        <div 
-                          className={`px-4 py-2 rounded border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
-                            activeTab === 'bio' ? 'bg-white/30' : 'bg-white/20'
-                          }`}
-                          onClick={() => setActiveTab('bio')}
-                        >
-                          <span className="text-sm font-medium text-white uppercase tracking-wide">Bio</span>
-                        </div>
-                        
-                        {/* Stats Tab */}
-                        <div 
-                          className={`px-4 py-2 rounded border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ml-1 ${
-                            activeTab === 'stats' ? 'bg-white/30' : 'bg-white/20'
-                          }`}
-                          onClick={() => setActiveTab('stats')}
-                        >
-                          <span className="text-sm font-medium text-white uppercase tracking-wide">Stats</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-4">
+                      {/* Bio Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'bio' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('bio')}
+                      >
+                        Bio
+                      </span>
+                      
+                      {/* Stats Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'stats' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('stats')}
+                      >
+                        Stats
+                      </span>
                     </div>
                   )}
                   
