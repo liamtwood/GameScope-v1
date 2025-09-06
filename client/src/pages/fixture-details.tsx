@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2 } from "lucide-react";
-import { Fixture, OppositionTeam, Player, MatchStats, Team, Club } from "@shared/schema";
+import { Fixture, OppositionTeam, PlayerWithTeamData, MatchStats, Team, Club } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { VideoManager } from "@/components/video-manager";
@@ -66,7 +66,7 @@ export default function FixtureDetails() {
     enabled: !!fixtureId,
   });
 
-  const { data: players } = useQuery<Player[]>({
+  const { data: players } = useQuery<PlayerWithTeamData[]>({
     queryKey: ["/api/players", fixture?.teamId],
     enabled: !!fixture?.teamId,
   });

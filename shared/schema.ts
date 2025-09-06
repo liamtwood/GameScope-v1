@@ -322,6 +322,15 @@ export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
 
+// Extended types for users with team data
+export type UserWithTeamData = User & {
+  jerseyNumber: number | null;
+  position: string | null;
+  starPlayer: boolean | null;
+  fitnessStatus: string | null;
+};
+
 // Legacy aliases for backward compatibility
 export type InsertPlayer = InsertUser;
 export type Player = User;
+export type PlayerWithTeamData = UserWithTeamData;
