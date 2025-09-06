@@ -62,7 +62,7 @@ export default function PlayerDetails() {
   const primaryTeam = userTeams[0]?.team;
 
   // Get player statistics directly from database
-  const { data: playerStatsData = [] } = useQuery({
+  const { data: playerStatsData = [] } = useQuery<any[]>({
     queryKey: ["/api/player-stats", playerId],
     enabled: !!playerId && source === "profiles" && activeTab === "stats"
   });
@@ -101,6 +101,9 @@ export default function PlayerDetails() {
       acc.goals += stat.goals || 0;
       acc.assists += stat.assists || 0;
       acc.foulsCommitted += stat.foulsCommitted || 0;
+      acc.tackles += stat.tackles || 0;
+      acc.tacklesWon += stat.tacklesWon || 0;
+      acc.takeOns += stat.takeOns || 0;
       return acc;
     }, {
       firstTouchSuccess: 0,
@@ -116,7 +119,10 @@ export default function PlayerDetails() {
       shotsOnTarget: 0,
       goals: 0,
       assists: 0,
-      foulsCommitted: 0
+      foulsCommitted: 0,
+      tackles: 0,
+      tacklesWon: 0,
+      takeOns: 0
     });
 
     return {
@@ -159,7 +165,10 @@ export default function PlayerDetails() {
       assists: totals.assists,
       fouls: totals.foulsCommitted,
       yellowCards: 0, // Not in current schema
-      redCards: 0     // Not in current schema
+      redCards: 0,    // Not in current schema
+      tackles: totals.tackles,
+      tacklesWon: totals.tacklesWon,
+      takeOns: totals.takeOns
     };
   };
 
@@ -1522,6 +1531,30 @@ export default function PlayerDetails() {
                           {/* Defense Tab */}
                           <TabsContent value="defense" className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Tackles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.tackles}</div>
+                                  <div className="text-sm text-white/80">Total Tackles</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.tacklesWon} won, {playerStats.tackles - playerStats.tacklesWon} lost
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Take Ons */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.takeOns}</div>
+                                  <div className="text-sm text-white/80">Total Take Ons</div>
+                                  <div className="text-sm text-white/60">
+                                    Defensive take-on attempts
+                                  </div>
+                                </div>
+                              </div>
+
                               {/* Disciplinary */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
@@ -1539,16 +1572,6 @@ export default function PlayerDetails() {
                                       <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
                                       <div className="text-xs text-white/80">Red</div>
                                     </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Defensive Actions */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Defensive Actions</h4>
-                                <div className="space-y-3">
-                                  <div className="text-sm text-white/60">
-                                    Defensive statistics coming soon
                                   </div>
                                 </div>
                               </div>
