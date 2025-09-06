@@ -562,9 +562,11 @@ export default function PlayerDetails() {
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
+                      [data-testid="tab-photo"][data-state="active"],
                       button[role="tab"][data-testid="tab-details"][data-state="active"],
                       button[role="tab"][data-testid="tab-teams"][data-state="active"],
-                      button[role="tab"][data-testid="tab-parents"][data-state="active"] {
+                      button[role="tab"][data-testid="tab-parents"][data-state="active"],
+                      button[role="tab"][data-testid="tab-photo"][data-state="active"] {
                         opacity: 1 !important;
                         background: white !important;
                         background-color: white !important;
@@ -622,6 +624,18 @@ export default function PlayerDetails() {
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Parents
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="photo" 
+                      data-testid="tab-photo" 
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
+                      style={{ 
+                        // color controlled by CSS now
+                        '--club-primary': clubPrimaryColor,
+// Disable inline styles - let CSS handle everything
+                      } as React.CSSProperties & { '--club-primary': string }}
+                    >
+                      Photo
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -988,6 +1002,55 @@ export default function PlayerDetails() {
                       <div className="text-center py-8">
                         <h4 className="text-lg font-medium text-gray-900 mb-2">Parents</h4>
                         <p className="text-sm text-muted-foreground">Parent and guardian information for this player.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Photo Tab Content */}
+              <TabsContent value="photo" className="m-0">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-4">
+                    <div className="w-4/5 mx-auto">
+                      <div className="text-center py-8">
+                        <h4 className="text-lg font-medium text-gray-900 mb-6">Player Photo</h4>
+                        <p className="text-sm text-muted-foreground mb-8">Upload and manage the player's profile photo.</p>
+                        
+                        {/* Large Avatar Display */}
+                        <div className="flex justify-center mb-8">
+                          <div className="relative">
+                            <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-white shadow-lg">
+                              {player?.avatarPath ? (
+                                <AvatarImage 
+                                  src={player.avatarPath} 
+                                  alt={`${player.firstName} ${player.lastName}`}
+                                  className="object-cover"
+                                />
+                              ) : null}
+                              <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            
+                            {/* Photo Upload Button */}
+                            <div className="absolute -bottom-2 -right-2">
+                              <ObjectUploader
+                                maxNumberOfFiles={1}
+                                maxFileSize={5242880} // 5MB
+                                onGetUploadParameters={getPhotoUploadURL}
+                                onComplete={handlePhotoUploadComplete}
+                                buttonClassName="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-colors"
+                              >
+                                <Pencil className="h-5 w-5" />
+                              </ObjectUploader>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <p className="text-xs text-muted-foreground">
+                          Click the pencil icon to upload a new photo (max 5MB, images only)
+                        </p>
                       </div>
                     </div>
                   </div>
