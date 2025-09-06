@@ -518,7 +518,7 @@ export default function PlayerDetails() {
                     
                     {/* Player Info */}
                     <div className="flex-1 flex items-center justify-center">
-                      <div className="text-center">
+                      <div className="text-left">
                         <div className="text-lg font-medium" style={{ color: textColor }}>{player.firstName}</div>
                         <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
                       </div>
