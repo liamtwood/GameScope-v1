@@ -454,13 +454,13 @@ export default function PlayerDetails() {
                       </Avatar>
                       
                       {/* Photo Upload Button using ObjectUploader */}
-                      <div className="absolute -bottom-1 -right-1">
+                      <div className="absolute -bottom-1 -right-1 z-10">
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880} // 5MB
                           onGetUploadParameters={getPhotoUploadURL}
                           onComplete={handlePhotoUploadComplete}
-                          buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg"
+                          buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer"
                         >
                           <Pencil className="h-4 w-4 text-gray-600" />
                         </ObjectUploader>
