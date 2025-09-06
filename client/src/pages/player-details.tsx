@@ -1077,7 +1077,18 @@ export default function PlayerDetails() {
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="bio" className="m-0">
-                  <div className="px-6 pb-6 min-h-[400px] bg-transparent">
+                  <div 
+                    className="px-6 pb-6 min-h-[400px]" 
+                    style={{
+                      background: `
+                        radial-gradient(circle farthest-side at 0% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
+                        radial-gradient(circle farthest-side at 50% 50%, rgba(255,255,255,0.08) 50%, transparent 50%),
+                        ${clubPrimaryColor}
+                      `,
+                      backgroundSize: '24px 24px, 24px 24px',
+                      backgroundPosition: '0px 0px, 12px 12px'
+                    }}
+                  >
                     <div className="pt-6">
                       <div className="w-4/5 mx-auto space-y-8">
                         
