@@ -14,7 +14,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit, Star } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { Fixture, MatchStats, Player, Team, Club } from "@shared/schema";
+import { Fixture, MatchStats, PlayerWithTeamData, Team, Club } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 import { useMutation } from "@tanstack/react-query";
@@ -37,7 +37,7 @@ export default function Analysis() {
     queryKey: ["/api/opposition-teams"],
   });
 
-  const { data: players } = useQuery<Player[]>({
+  const { data: players } = useQuery<PlayerWithTeamData[]>({
     queryKey: ["/api/players", fixture?.teamId],
     enabled: !!fixture?.teamId,
   });
