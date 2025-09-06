@@ -1187,15 +1187,6 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                         
-                        {/* Position (from team assignment) */}
-                        {userTeams && userTeams.length > 0 && (
-                          <div className="border-t border-white/20 pt-6">
-                            <div className="py-2">
-                              <span className="text-sm font-medium text-white block mb-1 uppercase">Position</span>
-                              <span className="text-sm text-white font-normal">{userTeams[0].position}</span>
-                            </div>
-                          </div>
-                        )}
                         
                         {/* Bio Text */}
                         <div className="border-t border-white/20 pt-6">
