@@ -67,10 +67,10 @@ export default function FixtureDetails() {
   });
 
   const { data: teamPlayersData } = useQuery<any[]>({
-    queryKey: ["/api/team", fixture?.teamId, "users"],
+    queryKey: ["/api/team", fixture?.teamId, "users", "lineup-v2"],
     enabled: !!fixture?.teamId,
-    staleTime: 0, // Force fresh data
-    cacheTime: 0, // Don't cache
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   // Convert team players to the format expected by the lineup
