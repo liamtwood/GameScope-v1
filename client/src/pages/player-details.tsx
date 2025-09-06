@@ -1160,7 +1160,7 @@ export default function PlayerDetails() {
 
               {/* Bio Tab Content */}
               <TabsContent value="bio" className="m-0">
-                <div className="px-6 pb-6 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px] bg-transparent">
+                <div className="px-6 pb-6 min-h-[400px] bg-transparent">
                   <div className="pt-6">
                     <div className="w-4/5 mx-auto space-y-8">
                       
