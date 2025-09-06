@@ -51,7 +51,7 @@ export default function PlayerDetails() {
   const primaryTeam = userTeams[0]?.team;
 
   const updatePlayerMutation = useMutation({
-    mutationFn: async (updatedData: Partial<Player>) => {
+    mutationFn: async (updatedData: Partial<User>) => {
       const response = await fetch(`/api/player/${playerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -149,7 +149,7 @@ export default function PlayerDetails() {
   // Photo upload mutation
   const photoUploadMutation = useMutation({
     mutationFn: async (photoURL: string) => {
-      const response = await fetch(`/api/player/${playerId}/photo`, {
+      const response = await fetch(`/api/user/${playerId}/photo`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photoURL }),
@@ -174,7 +174,7 @@ export default function PlayerDetails() {
   });
 
   const getPhotoUploadURL = async () => {
-    const response = await fetch(`/api/player/${playerId}/photo/upload`, {
+    const response = await fetch(`/api/user-photos/upload`, {
       method: 'POST',
     });
     if (!response.ok) throw new Error('Failed to get upload URL');
@@ -183,7 +183,7 @@ export default function PlayerDetails() {
   };
 
   const handlePhotoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful.length > 0) {
+    if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       if (uploadedFile.uploadURL) {
         photoUploadMutation.mutate(uploadedFile.uploadURL);
@@ -234,7 +234,7 @@ export default function PlayerDetails() {
     updatePlayerMutation.mutate(editData);
   };
 
-  const handleInputChange = (field: keyof Player, value: any) => {
+  const handleInputChange = (field: keyof User, value: any) => {
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -274,8 +274,9 @@ export default function PlayerDetails() {
   };
 
   const getPositionColor = () => {
-    if (!player) return 'bg-gray-100 text-gray-800';
-    const positionCategory = getPositionCategory(player.position);
+    if (!player || !primaryTeam) return 'bg-gray-100 text-gray-800';
+    const playerPosition = userTeams[0]?.position || 'Unknown';
+    const positionCategory = getPositionCategory(playerPosition);
     switch (positionCategory) {
       case 'GK':
         return 'bg-purple-100 text-purple-800';

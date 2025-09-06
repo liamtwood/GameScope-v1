@@ -117,10 +117,7 @@ export function ObjectUploader({
         plugins={['webcam']}
         locale={{
           strings: {
-            dropHereOr: '',
             browse: 'Select files',
-            dropPaste: '',
-            dropHint: '',
             browseFiles: 'Select files',
             addMore: 'Add more files',
             importFrom: 'Import from %{name}',
@@ -132,8 +129,6 @@ export function ObjectUploader({
             done: 'Done',
             localDisk: 'Local Disk',
             myDevice: 'My Device',
-            dropPasteImport: '',
-            dropPasteFiles: '',
             folderAdded: {
               0: 'Added %{smart_count} file from %{folder}',
               1: 'Added %{smart_count} files from %{folder}'
