@@ -744,32 +744,34 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <TabsTrigger 
-                      value="bio" 
-                      data-testid="tab-bio" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
-                      style={{ 
-                        background: 'transparent !important',
-                        backgroundColor: 'transparent !important',
-                        border: 'none !important',
-                        boxShadow: 'none !important'
-                      }}
-                    >
-                      Bio
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="stats" 
-                      data-testid="tab-stats" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
-                      style={{ 
-                        background: 'transparent !important',
-                        backgroundColor: 'transparent !important',
-                        border: 'none !important',
-                        boxShadow: 'none !important'
-                      }}
-                    >
-                      Stats
-                    </TabsTrigger>
+                    <div className="flex col-span-2">
+                      <TabsTrigger 
+                        value="bio" 
+                        data-testid="tab-bio" 
+                        className="relative flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                        style={{ 
+                          background: 'transparent !important',
+                          backgroundColor: 'transparent !important',
+                          border: 'none !important',
+                          boxShadow: 'none !important'
+                        }}
+                      >
+                        Bio
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="stats" 
+                        data-testid="tab-stats" 
+                        className="relative flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                        style={{ 
+                          background: 'transparent !important',
+                          backgroundColor: 'transparent !important',
+                          border: 'none !important',
+                          boxShadow: 'none !important'
+                        }}
+                      >
+                        Stats
+                      </TabsTrigger>
+                    </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
                       <TabsTrigger 
