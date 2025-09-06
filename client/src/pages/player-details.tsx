@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
@@ -705,6 +705,36 @@ export default function PlayerDetails() {
                         onClick={() => setActiveTab('stats')}
                       >
                         Stats
+                      </span>
+                      
+                      {/* Attack Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'attack' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('attack')}
+                      >
+                        Attack
+                      </span>
+                      
+                      {/* Passing Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'passing' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('passing')}
+                      >
+                        Passing
+                      </span>
+                      
+                      {/* Defense Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'defense' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('defense')}
+                      >
+                        Defense
                       </span>
                     </div>
                   </div>
@@ -1608,6 +1638,281 @@ export default function PlayerDetails() {
                           </TabsContent>
                         </Tabs>
                         
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Attack Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="attack" className="m-0">
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Attack Statistics */}
+                        <div className="w-1/2 space-y-8">
+                          <div className="mb-6">
+                            <div className="flex items-center gap-3">
+                              <Target className="h-6 w-6 text-white" />
+                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Attack Statistics</h3>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {/* First Touch Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Shots */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.shots.rate}%</div>
+                                  <div className="text-sm text-white/80">Accuracy</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.shots.successful} on target of {playerStats.shots.total} attempts
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Goals & Assists */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
+                                <div className="space-y-3">
+                                  <div className="flex justify-around">
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-green-500">{playerStats.goals}</div>
+                                      <div className="text-xs text-white/80">Goals</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-2xl font-bold text-blue-500">{playerStats.assists}</div>
+                                      <div className="text-xs text-white/80">Assists</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Passing Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="passing" className="m-0">
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Passing Statistics */}
+                        <div className="w-1/2 space-y-8">
+                          <div className="mb-6">
+                            <div className="flex items-center gap-3">
+                              <Navigation className="h-6 w-6 text-white" />
+                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Passing Statistics</h3>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Passes Attempted */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
+                                  <div className="text-sm text-white/80">Total Attempts</div>
+                                  <div className="text-sm text-white/60">
+                                    Across all matches played
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passes Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
+                                  <div className="text-sm text-white/80">Successful Passes</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.passes.rate}% success rate
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Total Distance */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
+                                  <div className="text-sm text-white/80">Meters</div>
+                                  <div className="text-sm text-white/60">
+                                    Total distance of all passes
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Passing Average Velocity */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
+                                  <div className="text-sm text-white/80">m/s</div>
+                                  <div className="text-sm text-white/60">
+                                    Average speed of passes
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Defense Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="defense" className="m-0">
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Defense Statistics */}
+                        <div className="w-1/2 space-y-8">
+                          <div className="mb-6">
+                            <div className="flex items-center gap-3">
+                              <Shield className="h-6 w-6 text-white" />
+                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Defense Statistics</h3>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Tackles */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-red-400">{playerStats.tackles}</div>
+                                  <div className="text-sm text-white/80">Total Tackles</div>
+                                  <div className="text-sm text-white/60">
+                                    Defensive actions completed
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Take Ons */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">{playerStats.takeOns}</div>
+                                  <div className="text-sm text-white/80">Total Take Ons</div>
+                                  <div className="text-sm text-white/60">
+                                    Defensive duels engaged
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
