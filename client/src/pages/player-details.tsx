@@ -105,8 +105,6 @@ export default function PlayerDetails() {
     };
   };
 
-  const playerStats = calculatePlayerStats(sampleMatchStats);
-
   const { data: player, isLoading } = useQuery<User>({
     queryKey: ["/api/player", playerId],
     enabled: !!playerId,
@@ -139,6 +137,8 @@ export default function PlayerDetails() {
     },
     enabled: source === "profiles" && activeTab === "stats"
   });
+
+  const playerStats = calculatePlayerStats(sampleMatchStats);
 
   const updatePlayerMutation = useMutation({
     mutationFn: async (updatedData: Partial<User>) => {
