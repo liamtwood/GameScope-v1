@@ -1103,6 +1103,11 @@ export default function PlayerDetails() {
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
                           <div className="flex justify-between items-center py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white">Weight</span>
+                            <span className="text-sm text-white">185 lbs</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-2 border-b border-white/20">
                             <span className="text-sm font-medium text-white">Height</span>
                             {isEditing ? (
                               <input
@@ -1115,11 +1120,6 @@ export default function PlayerDetails() {
                             ) : (
                               <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
                             )}
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Weight</span>
-                            <span className="text-sm text-white">185 lbs</span>
                           </div>
                           
                           <div className="flex justify-between items-center py-2 border-b border-white/20">
