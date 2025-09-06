@@ -273,6 +273,73 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                     </div>
                   </div>
                 </div>
+
+                {/* Bio Section with Full Length Photo */}
+                {player.bio && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Biography</h3>
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      {/* Full Length Photo on the Left */}
+                      {player.avatarPath && (
+                        <div className="lg:w-1/3 flex-shrink-0">
+                          <img
+                            src={player.avatarPath}
+                            alt={`${player.firstName} ${player.lastName} full length photo`}
+                            className="w-full h-auto rounded-lg shadow-md object-cover"
+                            data-testid={`img-full-length-${player.id}`}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Bio Text */}
+                      <div className="flex-1">
+                        <p className="text-lg leading-relaxed" data-testid={`text-bio-${player.id}`}>
+                          {player.bio}
+                        </p>
+                        
+                        {/* Additional Bio Information */}
+                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {player.height && (
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Height</label>
+                              <p className="text-lg" data-testid={`text-height-${player.id}`}>{player.height}</p>
+                            </div>
+                          )}
+                          {player.hometown && (
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Hometown</label>
+                              <p className="text-lg" data-testid={`text-hometown-${player.id}`}>{player.hometown}</p>
+                            </div>
+                          )}
+                          {player.highSchool && (
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">High School</label>
+                              <p className="text-lg" data-testid={`text-high-school-${player.id}`}>{player.highSchool}</p>
+                            </div>
+                          )}
+                          {player.classYear && (
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Class Year</label>
+                              <p className="text-lg" data-testid={`text-class-year-${player.id}`}>{player.classYear}</p>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Full Length Photo at the Bottom */}
+                        {player.avatarPath && (
+                          <div className="mt-6">
+                            <img
+                              src={player.avatarPath}
+                              alt={`${player.firstName} ${player.lastName} full length photo bottom`}
+                              className="w-full max-w-md h-auto rounded-lg shadow-md object-cover mx-auto"
+                              data-testid={`img-full-length-bottom-${player.id}`}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
