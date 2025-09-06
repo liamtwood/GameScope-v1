@@ -177,9 +177,9 @@ export function ObjectUploader({
                         // Try multiple approaches for better background removal
                         let processedBlob;
                         try {
-                          // First try smart mode with lower tolerance
+                          // First try smart mode with moderate tolerance
                           processedBlob = await backgroundRemover.removeBackground(file, {
-                            tolerance: 25,
+                            tolerance: 45,
                             preserveInternalWhite: true,
                             mode: 'smart'
                           });
