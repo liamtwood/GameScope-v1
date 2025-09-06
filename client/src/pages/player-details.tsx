@@ -801,6 +801,7 @@ export default function PlayerDetails() {
                     `}</style>
                     <>
                     {!isPhotoOnlyMode && (
+                        <>
                         <TabsTrigger 
                           value="details" 
                           data-testid="tab-details" 
@@ -885,6 +886,7 @@ export default function PlayerDetails() {
                         >
                           Passing
                         </TabsTrigger>
+                        </>
                     )}
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
@@ -910,6 +912,7 @@ export default function PlayerDetails() {
 
               
               {/* Player Details Content */}
+              <>
               <TabsContent value="details" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
                   <div className="pt-4">
@@ -1753,6 +1756,7 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
+              </>
               </React.Fragment>
             </CardContent>
           </Card>
