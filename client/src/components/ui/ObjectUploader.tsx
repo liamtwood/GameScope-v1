@@ -6,6 +6,10 @@ import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
 
+// Import required Uppy CSS
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
@@ -86,6 +90,8 @@ export function ObjectUploader({
       });
   });
 
+  console.log('ObjectUploader render - showModal:', showModal);
+  
   return (
     <div>
       <Button 
@@ -93,7 +99,9 @@ export function ObjectUploader({
           e.preventDefault();
           e.stopPropagation();
           console.log('Photo upload button clicked!');
+          console.log('Setting showModal to true...');
           setShowModal(true);
+          console.log('showModal set to true');
         }} 
         className={buttonClassName}
         type="button"
