@@ -426,8 +426,8 @@ export default function PlayerDetails() {
   const solidStyle = {
     backgroundColor: clubPrimaryColor,
     backgroundImage: `url("${honeycombSvg}")`,
-    backgroundSize: '60px 52px',
-    backgroundPosition: '0 0, 30px 26px',
+    backgroundSize: '45px 52px',
+    backgroundPosition: '0 0, 22.5px 26px',
     backgroundRepeat: 'repeat'
   } as React.CSSProperties;
 
@@ -1082,8 +1082,8 @@ export default function PlayerDetails() {
                     style={{
                       backgroundColor: clubPrimaryColor,
                       backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '60px 52px',
-                      backgroundPosition: '0 0, 30px 26px',
+                      backgroundSize: '45px 52px',
+                      backgroundPosition: '0 0, 22.5px 26px',
                       backgroundRepeat: 'repeat'
                     } as React.CSSProperties}
                   >
