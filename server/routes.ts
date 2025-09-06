@@ -304,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update user photo path
+  // Update user profile photo path
   app.put("/api/user/:id/photo", async (req, res) => {
     try {
       const { photoURL } = req.body;
@@ -315,6 +315,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user photo:", error);
       res.status(400).json({ message: "Failed to update user photo" });
+    }
+  });
+
+  // Update user headshot path
+  app.put("/api/user/:id/headshot", async (req, res) => {
+    try {
+      const { photoURL } = req.body;
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeUserPhotoPath(photoURL);
+      const user = await storage.updateUser(req.params.id, { headshotPath: normalizedPath });
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user headshot:", error);
+      res.status(400).json({ message: "Failed to update user headshot" });
     }
   });
 
