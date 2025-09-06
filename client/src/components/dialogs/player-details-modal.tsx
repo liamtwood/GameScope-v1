@@ -27,6 +27,9 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
   const { selectedClub } = useClub();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Player>>({});
+  const [pendingProfilePhoto, setPendingProfilePhoto] = useState<string | null>(null);
+  const [pendingFullLengthPhoto, setPendingFullLengthPhoto] = useState<string | null>(null);
+  const [hasPhotoChanges, setHasPhotoChanges] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -158,7 +161,8 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       if (uploadedFile.uploadURL) {
-        photoUploadMutation.mutate(uploadedFile.uploadURL);
+        setPendingProfilePhoto(uploadedFile.uploadURL);
+        setHasPhotoChanges(true);
       }
     }
   };
@@ -167,9 +171,33 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       if (uploadedFile.uploadURL) {
-        headshotUploadMutation.mutate(uploadedFile.uploadURL);
+        setPendingFullLengthPhoto(uploadedFile.uploadURL);
+        setHasPhotoChanges(true);
       }
     }
+  };
+
+  const handleSavePhotos = async () => {
+    try {
+      if (pendingProfilePhoto) {
+        await photoUploadMutation.mutateAsync(pendingProfilePhoto);
+      }
+      if (pendingFullLengthPhoto) {
+        await headshotUploadMutation.mutateAsync(pendingFullLengthPhoto);
+      }
+      // Reset pending states
+      setPendingProfilePhoto(null);
+      setPendingFullLengthPhoto(null);
+      setHasPhotoChanges(false);
+    } catch (error) {
+      console.error('Failed to save photos:', error);
+    }
+  };
+
+  const handleCancelPhotos = () => {
+    setPendingProfilePhoto(null);
+    setPendingFullLengthPhoto(null);
+    setHasPhotoChanges(false);
   };
 
   const getPlayerInitials = (name: string) => {
@@ -636,7 +664,13 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           <div className="flex flex-col items-center space-y-4">
                             {/* Current Profile Photo Display */}
                             <Avatar className="h-32 w-32 bg-slate-600 text-white border-4 border-gray-200">
-                              {player?.avatarPath ? (
+                              {pendingProfilePhoto ? (
+                                <AvatarImage 
+                                  src={pendingProfilePhoto} 
+                                  alt={`${player.firstName} ${player.lastName} Profile (Preview)`}
+                                  className="object-cover"
+                                />
+                              ) : player?.avatarPath ? (
                                 <AvatarImage 
                                   src={player.avatarPath} 
                                   alt={`${player.firstName} ${player.lastName} Profile`}
@@ -653,6 +687,9 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                 {getPlayerInitials(`${player.firstName} ${player.lastName}`)}
                               </AvatarFallback>
                             </Avatar>
+                            {pendingProfilePhoto && (
+                              <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
+                            )}
                             
                             {/* Profile Photo Upload Button */}
                             <ObjectUploader
@@ -676,7 +713,13 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                           <div className="flex flex-col items-center space-y-4">
                             {/* Current Full Length Photo Display */}
                             <div className="w-48 h-64 bg-slate-600 border-4 border-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-                              {player?.headshotPath ? (
+                              {pendingFullLengthPhoto ? (
+                                <img 
+                                  src={pendingFullLengthPhoto} 
+                                  alt={`${player.firstName} ${player.lastName} Full Length (Preview)`}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : player?.headshotPath ? (
                                 <img 
                                   src={player.headshotPath} 
                                   alt={`${player.firstName} ${player.lastName} Full Length`}
@@ -688,6 +731,9 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                                 </div>
                               )}
                             </div>
+                            {pendingFullLengthPhoto && (
+                              <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
+                            )}
                             
                             {/* Full Length Photo Upload Button */}
                             <ObjectUploader
@@ -703,6 +749,31 @@ export function PlayerDetailsModal({ player, open, onOpenChange, onPlayerUpdate 
                             </ObjectUploader>
                           </div>
                         </div>
+
+                        {/* Save/Cancel Buttons */}
+                        {hasPhotoChanges && (
+                          <div className="pt-6 border-t border-gray-200">
+                            <div className="flex justify-center space-x-3">
+                              <Button
+                                onClick={handleSavePhotos}
+                                disabled={photoUploadMutation.isPending || headshotUploadMutation.isPending}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                              >
+                                <Save className="h-4 w-4 mr-2" />
+                                {photoUploadMutation.isPending || headshotUploadMutation.isPending ? 'Saving...' : 'Save Changes'}
+                              </Button>
+                              <Button
+                                onClick={handleCancelPhotos}
+                                variant="outline"
+                                disabled={photoUploadMutation.isPending || headshotUploadMutation.isPending}
+                                className="px-6 py-2"
+                              >
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
 
                       </div>
                     </div>
