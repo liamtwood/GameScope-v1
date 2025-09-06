@@ -1084,52 +1084,52 @@ export default function PlayerDetails() {
                         {/* Player Stats */}
                         <div className="grid grid-cols-2 gap-6">
                           <div className="space-y-4">
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium" style={{ color: clubPrimaryColor }}>Height</span>
-                              <span className="text-sm" style={{ color: clubPrimaryColor }}>{player?.height || 'Not specified'}</span>
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Height</span>
+                              <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
                             </div>
                             
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium" style={{ color: clubPrimaryColor }}>Class</span>
-                              <span className="text-sm" style={{ color: clubPrimaryColor }}>{player?.classYear || 'Not specified'}</span>
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Class</span>
+                              <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
                             </div>
                           </div>
                           
                           <div className="space-y-4">
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium" style={{ color: clubPrimaryColor }}>Hometown</span>
-                              <span className="text-sm" style={{ color: clubPrimaryColor }}>{player?.hometown || 'Not specified'}</span>
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">Hometown</span>
+                              <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
                             </div>
                             
-                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium" style={{ color: clubPrimaryColor }}>High School</span>
-                              <span className="text-sm" style={{ color: clubPrimaryColor }}>{player?.highSchool || 'Not specified'}</span>
+                            <div className="flex justify-between items-center py-2 border-b border-white/20">
+                              <span className="text-sm font-medium text-white">High School</span>
+                              <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
                             </div>
                           </div>
                         </div>
                         
                         {/* Position (from team assignment) */}
                         {userTeams && userTeams.length > 0 && (
-                          <div className="border-t border-gray-200 pt-6">
+                          <div className="border-t border-white/20 pt-6">
                             <div className="flex justify-between items-center py-2">
-                              <span className="text-sm font-medium" style={{ color: clubPrimaryColor }}>Position</span>
-                              <span className="text-sm" style={{ color: clubPrimaryColor }}>{userTeams[0].position}</span>
+                              <span className="text-sm font-medium text-white">Position</span>
+                              <span className="text-sm text-white">{userTeams[0].position}</span>
                             </div>
                           </div>
                         )}
                         
                         {/* Bio Text */}
                         {player?.bio && (
-                          <div className="border-t border-gray-200 pt-6">
-                            <h4 className="text-sm font-medium mb-3" style={{ color: clubPrimaryColor }}>About</h4>
-                            <p className="text-sm leading-relaxed" style={{ color: clubPrimaryColor }}>{player.bio}</p>
+                          <div className="border-t border-white/20 pt-6">
+                            <h4 className="text-sm font-medium mb-3 text-white">About</h4>
+                            <p className="text-sm leading-relaxed text-white">{player.bio}</p>
                           </div>
                         )}
                         
                         {/* Placeholder when no bio */}
                         {!player?.bio && (
-                          <div className="border-t border-gray-200 pt-6 text-center">
-                            <p className="text-sm italic" style={{ color: clubPrimaryColor, opacity: 0.7 }}>No biography available</p>
+                          <div className="border-t border-white/20 pt-6 text-center">
+                            <p className="text-sm italic text-white/70">No biography available</p>
                           </div>
                         )}
                         
