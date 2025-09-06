@@ -1165,11 +1165,6 @@ export default function PlayerDetails() {
                         </div>
                       )}
 
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                          Upload photos up to 5MB in size (JPG, PNG formats recommended)
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
