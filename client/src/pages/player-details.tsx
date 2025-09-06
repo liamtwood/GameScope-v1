@@ -714,20 +714,20 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full">
+                    <div className="flex col-span-2 w-full justify-center gap-4">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="w-1/2 p-4"
+                        className="w-12 h-12 rounded-full p-0 flex items-center justify-center"
                       >
-                        <UserIcon size={24} />
+                        <UserIcon size={20} />
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="w-1/2 p-4"
+                        className="w-12 h-12 rounded-full p-0 flex items-center justify-center"
                       >
-                        <BarChart3 size={24} />
+                        <BarChart3 size={20} />
                       </TabsTrigger>
                     </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
