@@ -170,21 +170,26 @@ export default function FixtureDetails() {
   };
 
   // Helper function to get star players only, sorted by jersey number
-  const getSortedLineup = (playersData: PlayerWithTeamData[]) => {
+  const getSortedLineup = (playersData: any[]) => {
     if (!playersData || playersData.length === 0) return [];
     
-    return playersData
-      .filter(player => 
-        player.starPlayer && 
+    console.log('Players data for lineup:', playersData);
+    
+    const starPlayers = playersData.filter(player => {
+      console.log(`Player ${player.firstName} ${player.lastName}: starPlayer=${player.starPlayer}, jerseyNumber=${player.jerseyNumber}`);
+      return player.starPlayer && 
         player.jerseyNumber !== null && 
-        player.jerseyNumber !== undefined
-      )
-      .sort((a, b) => {
-        // Sort by jersey number
-        const aNumber = a.jerseyNumber || 999;
-        const bNumber = b.jerseyNumber || 999;
-        return aNumber - bNumber;
-      });
+        player.jerseyNumber !== undefined;
+    });
+    
+    console.log('Filtered star players:', starPlayers);
+    
+    return starPlayers.sort((a, b) => {
+      // Sort by jersey number
+      const aNumber = a.jerseyNumber || 999;
+      const bNumber = b.jerseyNumber || 999;
+      return aNumber - bNumber;
+    });
   };
 
   return (
