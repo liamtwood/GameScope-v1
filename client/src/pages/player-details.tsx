@@ -559,6 +559,7 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
+                </div>
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
@@ -586,7 +587,6 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                 )}
-                </div>
                 </div>
               </div>
               
