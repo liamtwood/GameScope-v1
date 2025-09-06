@@ -413,7 +413,7 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create perfect honeycomb background style using advanced CSS
+  // Create thin-line honeycomb background using pixel-perfect positioning
   const s = '25px'; // honeycomb cell size
   const c1 = 'rgba(255,255,255,0.1)'; // honeycomb line color
   const c2 = clubPrimaryColor; // background color
@@ -422,17 +422,14 @@ export default function PlayerDetails() {
     '--s': s,
     '--c1': c1,
     '--c2': c2,
-    '--c': `#0000, var(--c1) .05deg 119.95deg, #0000 120deg`,
-    '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
-    '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
-    '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
+    '--_g': `#0000 90deg, var(--c1) 0`,
     background: `
-      var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
-      var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
-      var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
+      conic-gradient(from 30deg at 1px 1px, var(--_g)),
+      conic-gradient(from 90deg at 1px 1px, var(--_g)),
+      conic-gradient(from 150deg at 1px 1px, var(--_g)),
       var(--c2)
     `,
-    backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+    backgroundSize: `var(--s) var(--s), var(--s) var(--s), var(--s) var(--s)`
   } as React.CSSProperties;
 
   return (
@@ -1087,17 +1084,14 @@ export default function PlayerDetails() {
                       '--s': s,
                       '--c1': c1,
                       '--c2': c2,
-                      '--c': `#0000, var(--c1) .05deg 119.95deg, #0000 120deg`,
-                      '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
-                      '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
-                      '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
+                      '--_g': `#0000 90deg, var(--c1) 0`,
                       background: `
-                        var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
-                        var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
-                        var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)),
+                        conic-gradient(from 30deg at 1px 1px, var(--_g)),
+                        conic-gradient(from 90deg at 1px 1px, var(--_g)),
+                        conic-gradient(from 150deg at 1px 1px, var(--_g)),
                         var(--c2)
                       `,
-                      backgroundSize: `calc(2*var(--s)) calc(3.46*var(--s))`
+                      backgroundSize: `var(--s) var(--s), var(--s) var(--s), var(--s) var(--s)`
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
