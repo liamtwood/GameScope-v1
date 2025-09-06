@@ -142,7 +142,12 @@ export function ObjectUploader({
                   // Apply background removal if enabled
                   if (enableBackgroundRemoval) {
                     try {
-                      console.log('Processing image with background removal...');
+                      console.log('Starting background removal process...', {
+                        fileName: file.name,
+                        fileSize: file.size,
+                        fileType: file.type
+                      });
+                      
                       const backgroundRemover = new BackgroundRemover();
                       const processedBlob = await backgroundRemover.removeBackground(file, {
                         tolerance: 30,
@@ -150,15 +155,27 @@ export function ObjectUploader({
                         mode: 'smart'
                       });
                       
+                      console.log('Background removal completed successfully', {
+                        originalSize: file.size,
+                        processedSize: processedBlob.size
+                      });
+                      
                       // Create processed file for upload
-                      fileToUpload = new File([processedBlob], file.name, {
+                      fileToUpload = new File([processedBlob], file.name.replace(/\.[^.]+$/, '.png'), {
                         type: 'image/png'
                       });
-                      console.log('Background removal completed');
                     } catch (error) {
                       console.error('Background removal failed:', error);
+                      if (error instanceof Error) {
+                        console.error('Error details:', {
+                          message: error.message,
+                          stack: error.stack
+                        });
+                      }
                       // Continue with original file if background removal fails
                     }
+                  } else {
+                    console.log('Background removal disabled for this upload');
                   }
                   
                   onGetUploadParameters().then((params) => {
