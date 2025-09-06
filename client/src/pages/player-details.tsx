@@ -572,6 +572,7 @@ export default function PlayerDetails() {
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
+              <>
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
                 <Button 
@@ -1408,137 +1409,6 @@ export default function PlayerDetails() {
                   </div>
                 </TabsContent>
 
-              {/* Attack Tab Content */}
-              <TabsContent value="attack" className="m-0">
-                  <div 
-                    className="px-6 min-h-[400px]" 
-                    style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
-                    } as React.CSSProperties}
-                  >
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Middle - Stats Information */}
-                        <div className="w-1/2 space-y-8">
-                        
-                        {/* Player Biography Header */}
-                        <div className="mb-6">
-                          <div className="flex items-center gap-3">
-                            <Fingerprint className="h-6 w-6 text-white" />
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Biography</h3>
-                          </div>
-                        </div>
-                        
-                        {/* Player Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                          <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Height</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.height || ''}
-                                onChange={(e) => handleInputChange('height', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Height"
-                              />
-                            ) : (
-                              <span className="text-sm text-white font-normal">{player?.height || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Hometown</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.hometown || ''}
-                                onChange={(e) => handleInputChange('hometown', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Hometown"
-                              />
-                            ) : (
-                              <span className="text-sm text-white font-normal">{player?.hometown || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Class</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.classYear || ''}
-                                onChange={(e) => handleInputChange('classYear', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="Class Year"
-                              />
-                            ) : (
-                              <span className="text-sm text-white font-normal">{player?.classYear || 'Not specified'}</span>
-                            )}
-                          </div>
-                          
-                          <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">High School</span>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editData.highSchool || ''}
-                                onChange={(e) => handleInputChange('highSchool', e.target.value)}
-                                className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
-                                placeholder="High School"
-                              />
-                            ) : (
-                              <span className="text-sm text-white font-normal">{player?.highSchool || 'Not specified'}</span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        
-                        {/* Bio Text */}
-                        <div className="pt-6">
-                          <h4 className="text-sm font-medium mb-3 text-white uppercase">About</h4>
-                          {isEditing ? (
-                            <textarea
-                              value={editData.bio || ''}
-                              onChange={(e) => handleInputChange('bio', e.target.value)}
-                              className="w-full h-24 text-sm bg-white/10 border border-white/20 rounded px-3 py-2 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50 resize-none"
-                              placeholder="Enter player biography..."
-                            />
-                          ) : player?.bio ? (
-                            <p className="text-sm leading-relaxed text-white">{player.bio}</p>
-                          ) : (
-                            <p className="text-sm italic text-white/70 text-center">No biography available</p>
-                          )}
-                        </div>
-                        
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
 
               {/* Attack Tab Content */}
               <TabsContent value="attack" className="m-0">
@@ -1883,6 +1753,7 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
+              </>
             </CardContent>
           </Card>
 
