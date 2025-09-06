@@ -520,20 +520,22 @@ export default function PlayerDetails() {
                     <div className="flex-1">
                       <div className="mb-3">
                         <div className="text-lg font-medium" style={{ color: textColor }}>{player.firstName}</div>
-                        <div className="flex items-center gap-6">
-                          <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
-                          {userTeams && userTeams.length > 0 && userTeams[0].position && (
-                            <div className="text-lg font-medium uppercase tracking-wide" style={{ color: textColor, opacity: 0.8 }}>
-                              {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
-                               userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
-                               userTeams[0].position === 'FWD' ? 'FORWARD' : 
-                               userTeams[0].position === 'GK' ? 'GOALKEEPER' : 
-                               userTeams[0].position}
-                            </div>
-                          )}
-                        </div>
+                        <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
                       </div>
                     </div>
+                    
+                    {/* Position - Vertically centered with squad number */}
+                    {userTeams && userTeams.length > 0 && userTeams[0].position && (
+                      <div className="flex items-center justify-center">
+                        <div className="text-lg font-medium uppercase tracking-wide" style={{ color: textColor, opacity: 0.8 }}>
+                          {userTeams[0].position === 'DEF' ? 'DEFENDER' : 
+                           userTeams[0].position === 'MID' ? 'MIDFIELDER' : 
+                           userTeams[0].position === 'FWD' ? 'FORWARD' : 
+                           userTeams[0].position === 'GK' ? 'GOALKEEPER' : 
+                           userTeams[0].position}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Club Logo */}
