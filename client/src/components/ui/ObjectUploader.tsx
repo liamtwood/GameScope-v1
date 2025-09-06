@@ -176,21 +176,12 @@ export function ObjectUploader({
                         
                         // Try multiple approaches for better background removal
                         let processedBlob;
-                        try {
-                          // First try smart mode with moderate tolerance
-                          processedBlob = await backgroundRemover.removeBackground(file, {
-                            tolerance: 45,
-                            preserveInternalWhite: true,
-                            mode: 'smart'
-                          });
-                        } catch (error) {
-                          console.log('Manual mode failed, trying color mode');
-                          processedBlob = await backgroundRemover.removeBackground(file, {
-                            tolerance: 35,
-                            preserveInternalWhite: true,
-                            mode: 'color'
-                          });
-                        }
+                        // Try the manual edge flood mode for better results
+                        processedBlob = await backgroundRemover.removeBackground(file, {
+                          tolerance: 55,
+                          preserveInternalWhite: true,
+                          mode: 'manual'
+                        });
                         
                         console.log('Background removal completed successfully', {
                           originalSize: file.size,
