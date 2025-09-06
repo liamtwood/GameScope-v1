@@ -1095,24 +1095,64 @@ export default function PlayerDetails() {
                           <div className="space-y-4">
                             <div className="flex justify-between items-center py-2 border-b border-white/20">
                               <span className="text-sm font-medium text-white">Height</span>
-                              <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.height || ''}
+                                  onChange={(e) => handleInputChange('height', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Height"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.height || 'Not specified'}</span>
+                              )}
                             </div>
                             
                             <div className="flex justify-between items-center py-2 border-b border-white/20">
                               <span className="text-sm font-medium text-white">Class</span>
-                              <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.classYear || ''}
+                                  onChange={(e) => handleInputChange('classYear', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Class Year"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.classYear || 'Not specified'}</span>
+                              )}
                             </div>
                           </div>
                           
                           <div className="space-y-4">
                             <div className="flex justify-between items-center py-2 border-b border-white/20">
                               <span className="text-sm font-medium text-white">Hometown</span>
-                              <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.hometown || ''}
+                                  onChange={(e) => handleInputChange('hometown', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="Hometown"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.hometown || 'Not specified'}</span>
+                              )}
                             </div>
                             
                             <div className="flex justify-between items-center py-2 border-b border-white/20">
                               <span className="text-sm font-medium text-white">High School</span>
-                              <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editData.highSchool || ''}
+                                  onChange={(e) => handleInputChange('highSchool', e.target.value)}
+                                  className="text-sm bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                  placeholder="High School"
+                                />
+                              ) : (
+                                <span className="text-sm text-white">{player?.highSchool || 'Not specified'}</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1128,19 +1168,21 @@ export default function PlayerDetails() {
                         )}
                         
                         {/* Bio Text */}
-                        {player?.bio && (
-                          <div className="border-t border-white/20 pt-6">
-                            <h4 className="text-sm font-medium mb-3 text-white">About</h4>
+                        <div className="border-t border-white/20 pt-6">
+                          <h4 className="text-sm font-medium mb-3 text-white">About</h4>
+                          {isEditing ? (
+                            <textarea
+                              value={editData.bio || ''}
+                              onChange={(e) => handleInputChange('bio', e.target.value)}
+                              className="w-full h-24 text-sm bg-white/10 border border-white/20 rounded px-3 py-2 text-white placeholder-white/70 focus:outline-none focus:ring-1 focus:ring-white/50 resize-none"
+                              placeholder="Enter player biography..."
+                            />
+                          ) : player?.bio ? (
                             <p className="text-sm leading-relaxed text-white">{player.bio}</p>
-                          </div>
-                        )}
-                        
-                        {/* Placeholder when no bio */}
-                        {!player?.bio && (
-                          <div className="border-t border-white/20 pt-6 text-center">
-                            <p className="text-sm italic text-white/70">No biography available</p>
-                          </div>
-                        )}
+                          ) : (
+                            <p className="text-sm italic text-white/70 text-center">No biography available</p>
+                          )}
+                        </div>
                         
                       </div>
                     </div>
