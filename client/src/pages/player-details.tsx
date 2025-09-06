@@ -693,20 +693,20 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full gap-2">
+                    <div className="flex col-span-2 w-full gap-0 mx-4 my-2">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="relative w-1/2 px-4 py-2 text-sm font-medium transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-md cursor-pointer"
+                        className="relative w-1/2 px-6 py-3 text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 border-r-0 rounded-l-xl shadow-lg hover:from-gray-200 hover:to-gray-300 hover:shadow-xl hover:scale-105 data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-2xl data-[state=active]:scale-105 cursor-pointer transform active:scale-95"
                       >
-                        Bio
+                        📊 Bio
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="relative w-1/2 px-4 py-2 text-sm font-medium transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-md cursor-pointer"
+                        className="relative w-1/2 px-6 py-3 text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 rounded-r-xl shadow-lg hover:from-gray-200 hover:to-gray-300 hover:shadow-xl hover:scale-105 data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-2xl data-[state=active]:scale-105 cursor-pointer transform active:scale-95"
                       >
-                        Stats
+                        📈 Stats
                       </TabsTrigger>
                     </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
