@@ -838,6 +838,9 @@ export default function Analysis() {
               {/* Polk State College Lineups */}
               <div>
                 <h3 className="text-lg font-semibold mb-6">Polk State College Lineup</h3>
+                <div className="text-sm text-muted-foreground mb-4">
+                  Players loaded: {players?.length || 0} | First player: {players?.[0]?.firstName || 'none'}
+                </div>
                 {players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (
