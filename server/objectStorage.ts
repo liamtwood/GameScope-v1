@@ -95,6 +95,30 @@ export class ObjectStorageService {
     });
   }
 
+  // Gets the upload URL for a user photo.
+  async getUserPhotoUploadURL(): Promise<string> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    if (!privateObjectDir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
+          "tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+
+    const photoId = randomUUID();
+    const fullPath = `${privateObjectDir}/user-photos/${photoId}`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+
+    // Sign URL for PUT method with TTL
+    return signObjectURL({
+      bucketName,
+      objectName,
+      method: "PUT",
+      ttlSec: 900,
+    });
+  }
+
   // Gets the object entity file from the object path.
   async getObjectEntityFile(objectPath: string): Promise<File> {
     if (!objectPath.startsWith("/objects/")) {
@@ -256,6 +280,62 @@ export class ObjectStorageService {
       throw new ObjectNotFoundError();
     }
     return uploadFile;
+  }
+
+  // Normalize user photo path from upload URL to serve path
+  normalizeUserPhotoPath(rawPath: string): string {
+    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
+      return rawPath;
+    }
+  
+    // Extract the path from the URL by removing query parameters and domain
+    const url = new URL(rawPath);
+    const rawObjectPath = url.pathname;
+  
+    let photoDir = this.getPrivateObjectDir();
+    if (!photoDir.endsWith("/")) {
+      photoDir = `${photoDir}/`;
+    }
+  
+    if (!rawObjectPath.startsWith(photoDir)) {
+      return rawObjectPath;
+    }
+  
+    // Extract the entity ID from the path
+    const entityId = rawObjectPath.slice(photoDir.length);
+    return `/user-photos/${entityId}`;
+  }
+
+  // Gets the user photo file from the photo path.
+  async getUserPhotoFile(photoPath: string): Promise<File> {
+    if (!photoPath.startsWith("/user-photos/")) {
+      throw new ObjectNotFoundError();
+    }
+
+    const parts = photoPath.slice(1).split("/");
+    if (parts.length < 2) {
+      throw new ObjectNotFoundError();
+    }
+
+    const photoId = parts.slice(1).join("/");
+    let photoDir = this.getPrivateObjectDir();
+    if (!photoDir.endsWith("/")) {
+      photoDir = `${photoDir}/`;
+    }
+    
+    // Check if photoId already includes user-photos/ prefix
+    const finalPhotoId = photoId.startsWith('user-photos/') ? photoId : `user-photos/${photoId}`;
+    const photoObjectPath = `${photoDir}${finalPhotoId}`;
+    
+    const { bucketName, objectName } = parseObjectPath(photoObjectPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const photoFile = bucket.file(objectName);
+    const [exists] = await photoFile.exists();
+    
+    if (!exists) {
+      throw new ObjectNotFoundError();
+    }
+    return photoFile;
   }
 }
 
