@@ -46,64 +46,6 @@ export default function PlayerDetails() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Helper function to calculate statistics from match data
-  const calculatePlayerStats = (matchStats: MatchStats[]) => {
-    const teamStats = matchStats.filter(stat => stat.isTeamStats);
-    
-    if (teamStats.length === 0) {
-      return {
-        firstTouchSuccess: { successful: 0, total: 0, rate: 0 },
-        dribbles: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
-        penetratingDribbles: { successful: 0, unsuccessful: 0, total: 0, rate: 0 }
-      };
-    }
-
-    // Aggregate stats across all matches for this player
-    const totals = teamStats.reduce((acc, stat) => {
-      acc.firstTouchSuccess += stat.firstTouchSuccess || 0;
-      acc.firstTouchSuccessRate += stat.firstTouchSuccessRate || 0;
-      acc.dribbles += stat.dribbles || 0;
-      acc.penetratingDribbles += stat.penetratingDribbles || 0;
-      return acc;
-    }, {
-      firstTouchSuccess: 0,
-      firstTouchSuccessRate: 0,
-      dribbles: 0,
-      penetratingDribbles: 0
-    });
-
-    const avgFirstTouchRate = teamStats.length > 0 ? Math.round(totals.firstTouchSuccessRate / teamStats.length) : 0;
-    
-    // For dribbles, calculate success rates (assuming 70% average success rate for demo)
-    const dribblesSuccess = Math.round((totals.dribbles * 70) / 100);
-    const dribblesUnsuccessful = totals.dribbles - dribblesSuccess;
-    const dribblesRate = totals.dribbles > 0 ? Math.round((dribblesSuccess / totals.dribbles) * 100) : 0;
-
-    // For penetrating dribbles (assuming 60% average success rate)  
-    const penDribblesSuccess = Math.round((totals.penetratingDribbles * 60) / 100);
-    const penDribblesUnsuccessful = totals.penetratingDribbles - penDribblesSuccess;
-    const penDribblesRate = totals.penetratingDribbles > 0 ? Math.round((penDribblesSuccess / totals.penetratingDribbles) * 100) : 0;
-
-    return {
-      firstTouchSuccess: {
-        successful: avgFirstTouchRate,
-        total: 100,
-        rate: avgFirstTouchRate
-      },
-      dribbles: {
-        successful: dribblesSuccess,
-        unsuccessful: dribblesUnsuccessful,
-        total: totals.dribbles,
-        rate: dribblesRate
-      },
-      penetratingDribbles: {
-        successful: penDribblesSuccess,
-        unsuccessful: penDribblesUnsuccessful, 
-        total: totals.penetratingDribbles,
-        rate: penDribblesRate
-      }
-    };
-  };
 
   const { data: player, isLoading } = useQuery<User>({
     queryKey: ["/api/player", playerId],
@@ -119,26 +61,115 @@ export default function PlayerDetails() {
   // Get primary team (for backwards compatibility)
   const primaryTeam = userTeams[0]?.team;
 
-  // Get sample match statistics (using a hypothetical recent fixture)
-  const { data: sampleMatchStats = [] } = useQuery<MatchStats[]>({
-    queryKey: ["/api/match-stats", "sample"],
-    queryFn: async () => {
-      // Try to get match stats for any available fixture
-      // In a real implementation, you would aggregate stats across multiple fixtures for this player
-      const response = await fetch("/api/fixture/86294596-50a7-40de-99c8-0de44c27f046"); // Using a sample fixture ID
-      if (response.ok) {
-        const fixture = await response.json();
-        const statsResponse = await fetch(`/api/match-stats/${fixture.id}`);
-        if (statsResponse.ok) {
-          return statsResponse.json();
-        }
-      }
-      return [];
-    },
-    enabled: source === "profiles" && activeTab === "stats"
+  // Get player statistics directly from database
+  const { data: playerStatsData = [] } = useQuery({
+    queryKey: ["/api/player-stats", playerId],
+    enabled: !!playerId && source === "profiles" && activeTab === "stats"
   });
 
-  const playerStats = calculatePlayerStats(sampleMatchStats);
+  // Calculate aggregated stats from player statistics data
+  const calculateAggregatedPlayerStats = (playerStats: any[]) => {
+    if (playerStats.length === 0) {
+      return {
+        firstTouchSuccess: { successful: 0, total: 0, rate: 0 },
+        dribbles: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
+        penetratingDribbles: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
+        passes: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
+        crosses: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
+        shots: { successful: 0, unsuccessful: 0, total: 0, rate: 0 },
+        goals: 0,
+        assists: 0,
+        fouls: 0,
+        yellowCards: 0,
+        redCards: 0
+      };
+    }
+
+    // Aggregate all stats across fixtures
+    const totals = playerStats.reduce((acc, stat) => {
+      acc.firstTouchSuccess += stat.firstTouchSuccess || 0;
+      acc.firstTouchAttempts += stat.firstTouchAttempts || 0;
+      acc.dribbles += stat.dribbles || 0;
+      acc.dribblesSuccessful += stat.dribblesSuccessful || 0;
+      acc.penetratingDribbles += stat.penetratingDribbles || 0;
+      acc.penetratingDribblesSuccessful += stat.penetratingDribblesSuccessful || 0;
+      acc.passes += stat.passes || 0;
+      acc.passesSuccessful += stat.passesSuccessful || 0;
+      acc.crosses += stat.crosses || 0;
+      acc.crossesSuccessful += stat.crossesSuccessful || 0;
+      acc.shots += stat.shots || 0;
+      acc.shotsOnTarget += stat.shotsOnTarget || 0;
+      acc.goals += stat.goals || 0;
+      acc.assists += stat.assists || 0;
+      acc.fouls += stat.fouls || 0;
+      acc.yellowCards += stat.yellowCards || 0;
+      acc.redCards += stat.redCards || 0;
+      return acc;
+    }, {
+      firstTouchSuccess: 0,
+      firstTouchAttempts: 0,
+      dribbles: 0,
+      dribblesSuccessful: 0,
+      penetratingDribbles: 0,
+      penetratingDribblesSuccessful: 0,
+      passes: 0,
+      passesSuccessful: 0,
+      crosses: 0,
+      crossesSuccessful: 0,
+      shots: 0,
+      shotsOnTarget: 0,
+      goals: 0,
+      assists: 0,
+      fouls: 0,
+      yellowCards: 0,
+      redCards: 0
+    });
+
+    return {
+      firstTouchSuccess: {
+        successful: totals.firstTouchSuccess,
+        total: totals.firstTouchAttempts,
+        rate: totals.firstTouchAttempts > 0 ? Math.round((totals.firstTouchSuccess / totals.firstTouchAttempts) * 100) : 0
+      },
+      dribbles: {
+        successful: totals.dribblesSuccessful,
+        unsuccessful: totals.dribbles - totals.dribblesSuccessful,
+        total: totals.dribbles,
+        rate: totals.dribbles > 0 ? Math.round((totals.dribblesSuccessful / totals.dribbles) * 100) : 0
+      },
+      penetratingDribbles: {
+        successful: totals.penetratingDribblesSuccessful,
+        unsuccessful: totals.penetratingDribbles - totals.penetratingDribblesSuccessful,
+        total: totals.penetratingDribbles,
+        rate: totals.penetratingDribbles > 0 ? Math.round((totals.penetratingDribblesSuccessful / totals.penetratingDribbles) * 100) : 0
+      },
+      passes: {
+        successful: totals.passesSuccessful,
+        unsuccessful: totals.passes - totals.passesSuccessful,
+        total: totals.passes,
+        rate: totals.passes > 0 ? Math.round((totals.passesSuccessful / totals.passes) * 100) : 0
+      },
+      crosses: {
+        successful: totals.crossesSuccessful,
+        unsuccessful: totals.crosses - totals.crossesSuccessful,
+        total: totals.crosses,
+        rate: totals.crosses > 0 ? Math.round((totals.crossesSuccessful / totals.crosses) * 100) : 0
+      },
+      shots: {
+        successful: totals.shotsOnTarget,
+        unsuccessful: totals.shots - totals.shotsOnTarget,
+        total: totals.shots,
+        rate: totals.shots > 0 ? Math.round((totals.shotsOnTarget / totals.shots) * 100) : 0
+      },
+      goals: totals.goals,
+      assists: totals.assists,
+      fouls: totals.fouls,
+      yellowCards: totals.yellowCards,
+      redCards: totals.redCards
+    };
+  };
+
+  const playerStats = calculateAggregatedPlayerStats(playerStatsData);
 
   const updatePlayerMutation = useMutation({
     mutationFn: async (updatedData: Partial<User>) => {
@@ -1376,8 +1407,11 @@ export default function PlayerDetails() {
                             <div className="space-y-3">
                               <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
                               <div className="text-sm text-white/80">Success Rate</div>
-                              {sampleMatchStats.length === 0 && (
-                                <div className="text-xs text-white/60 mt-2">No match data available</div>
+                              <div className="text-sm text-white/60">
+                                {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                              </div>
+                              {playerStatsData.length === 0 && (
+                                <div className="text-xs text-white/60 mt-2">No statistics available</div>
                               )}
                             </div>
                           </div>
@@ -1405,6 +1439,83 @@ export default function PlayerDetails() {
                                 {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
                               </div>
                               <div className="text-xs text-white/50">Total: {playerStats.penetratingDribbles.total}</div>
+                            </div>
+                          </div>
+
+                          {/* Passes */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.rate}%</div>
+                              <div className="text-sm text-white/80">Success Rate</div>
+                              <div className="text-sm text-white/60">
+                                {playerStats.passes.successful} successful, {playerStats.passes.unsuccessful} unsuccessful
+                              </div>
+                              <div className="text-xs text-white/50">Total: {playerStats.passes.total}</div>
+                            </div>
+                          </div>
+
+                          {/* Crosses */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Crosses</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.rate}%</div>
+                              <div className="text-sm text-white/80">Success Rate</div>
+                              <div className="text-sm text-white/60">
+                                {playerStats.crosses.successful} successful, {playerStats.crosses.unsuccessful} unsuccessful
+                              </div>
+                              <div className="text-xs text-white/50">Total: {playerStats.crosses.total}</div>
+                            </div>
+                          </div>
+
+                          {/* Shots */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                            <div className="space-y-3">
+                              <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
+                              <div className="text-sm text-white/80">On Target Rate</div>
+                              <div className="text-sm text-white/60">
+                                {playerStats.shots.successful} on target, {playerStats.shots.unsuccessful} off target
+                              </div>
+                              <div className="text-xs text-white/50">Total: {playerStats.shots.total}</div>
+                            </div>
+                          </div>
+
+                          {/* Goals & Assists */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-center space-x-6">
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-yellow-400">{playerStats.goals}</div>
+                                  <div className="text-xs text-white/80">Goals</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-cyan-400">{playerStats.assists}</div>
+                                  <div className="text-xs text-white/80">Assists</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Disciplinary */}
+                          <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                            <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-center space-x-6">
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
+                                  <div className="text-xs text-white/80">Fouls</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
+                                  <div className="text-xs text-white/80">Yellow</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
+                                  <div className="text-xs text-white/80">Red</div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
