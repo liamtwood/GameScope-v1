@@ -647,10 +647,31 @@ export default function PlayerDetails() {
                         color: ${clubPrimaryColor} !important;
                       }
                       
-                      /* Allow Bio and Stats tabs to use their custom button styles */
+                      /* Remove all backgrounds from Bio and Stats tabs */
                       [data-testid="tab-bio"],
-                      [data-testid="tab-stats"] {
-                        /* Remove any overrides - let the button classes work */
+                      [data-testid="tab-stats"],
+                      button[role="tab"][data-testid="tab-bio"],
+                      button[role="tab"][data-testid="tab-stats"] {
+                        background: none !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
+                      }
+                      
+                      [data-testid="tab-bio"][data-state="active"],
+                      [data-testid="tab-stats"][data-state="active"],
+                      button[role="tab"][data-testid="tab-bio"][data-state="active"],
+                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
+                        background: none !important;
+                        background-color: transparent !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
                       }
                     `}</style>
                     {!isPhotoOnlyMode && (
