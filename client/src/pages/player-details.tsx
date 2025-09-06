@@ -1100,7 +1100,7 @@ export default function PlayerDetails() {
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
-                      <div className="flex gap-6">
+                      <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
                         <div className="w-1/4 pl-6">
                           {player?.headshotPath ? (
