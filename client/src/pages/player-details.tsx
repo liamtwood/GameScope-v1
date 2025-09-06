@@ -40,7 +40,7 @@ export default function PlayerDetails() {
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
   const [position, setPosition] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>(isPhotoOnlyMode ? "photo" : "details");
+  const [activeTab, setActiveTab] = useState<string>("details");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
