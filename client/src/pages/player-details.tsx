@@ -504,7 +504,7 @@ export default function PlayerDetails() {
               {/* Player Info Section */}
               <div className="px-6 pt-2 pb-6">
                 <div className="w-full px-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between" style={{ marginTop: '8rem' }}>
                   
                   {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
                   <div className="flex items-center gap-2">
