@@ -572,7 +572,6 @@ export default function PlayerDetails() {
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
-              <React.Fragment>
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
                 <Button 
@@ -909,11 +908,12 @@ export default function PlayerDetails() {
                   </TabsList>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              
-              {/* Player Details Content */}
-              <>
-              <TabsContent value="details" className="m-0">
+          {/* Player Details Content */}
+          <>
+          <TabsContent value="details" className="m-0">
                 <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
                   <div className="pt-4">
                     
@@ -1756,10 +1756,7 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
-              </>
-              </React.Fragment>
-            </CardContent>
-          </Card>
+          </>
 
         </Tabs>
       </div>
