@@ -548,6 +548,15 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                     
+                    {/* Squad Number */}
+                    {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
+                      <div className="flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white/20 text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/30">
+                          {userTeams[0].jerseyNumber}
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Player Info */}
                     <div className="flex-1">
                       <div className="mb-3">
