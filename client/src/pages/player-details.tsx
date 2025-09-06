@@ -506,11 +506,11 @@ export default function PlayerDetails() {
                 <div className="w-full px-4">
                   <div className="flex items-center justify-between">
                   {/* Club Logo and Name */}
-                  <div className="flex-shrink-0 opacity-80 flex flex-col items-center">
+                  <div className="flex-shrink-0 opacity-80 flex flex-col items-center justify-center">
                     <img 
                       src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
                       alt={selectedClub?.name || "Club Logo"} 
-                      className="h-16 w-auto object-contain mb-2"
+                      className="h-20 w-auto object-contain mb-2"
                     />
                     <div className="text-xs font-medium text-center" style={{ color: textColor }}>
                       {selectedClub?.name || "Polk State College"}
