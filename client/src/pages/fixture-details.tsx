@@ -69,6 +69,8 @@ export default function FixtureDetails() {
   const { data: teamPlayersData } = useQuery<any[]>({
     queryKey: ["/api/team", fixture?.teamId, "users"],
     enabled: !!fixture?.teamId,
+    staleTime: 0, // Force fresh data
+    cacheTime: 0, // Don't cache
   });
 
   // Convert team players to the format expected by the lineup
