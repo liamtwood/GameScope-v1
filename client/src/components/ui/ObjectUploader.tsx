@@ -62,6 +62,7 @@ export function ObjectUploader({
   enableBackgroundRemoval = false,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
+  const [backgroundRemovalEnabled, setBackgroundRemovalEnabled] = useState(enableBackgroundRemoval || false);
   const [uppy] = useState(() => {
     console.log('Creating Uppy instance...');
     return new Uppy({
@@ -137,6 +138,24 @@ export function ObjectUploader({
               </button>
             </div>
             
+            {/* Background Removal Option */}
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={backgroundRemovalEnabled}
+                  onChange={(e) => setBackgroundRemovalEnabled(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Remove background automatically
+                </span>
+              </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
+                Automatically removes background from photos for cleaner display
+              </p>
+            </div>
+
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
               <div className="mb-4">
                 <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -158,8 +177,8 @@ export function ObjectUploader({
                   let fileToUpload = file;
                   
                   // Apply background removal if enabled
-                  console.log('Background removal check:', enableBackgroundRemoval);
-                  if (enableBackgroundRemoval) {
+                  console.log('Background removal check:', backgroundRemovalEnabled);
+                  if (backgroundRemovalEnabled) {
                     try {
                       console.log('Starting background removal process...', {
                         fileName: file.name,
