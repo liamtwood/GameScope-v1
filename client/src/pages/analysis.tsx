@@ -838,7 +838,6 @@ export default function Analysis() {
               {/* Polk State College Lineups */}
               <div>
                 <h3 className="text-lg font-semibold mb-6">Polk State College Lineup</h3>
-                <p className="text-xs text-muted-foreground mb-2">Debug: players={JSON.stringify(players?.slice(0,2))}</p>
                 {players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (

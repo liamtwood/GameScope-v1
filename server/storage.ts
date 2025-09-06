@@ -404,7 +404,7 @@ export class DatabaseStorage implements IStorage {
   // User operations (replaces Player operations)
   async getUsers(teamId?: string): Promise<User[]> {
     if (teamId) {
-      // Get users through team assignments
+      // Get users through team assignments with team-specific fields
       return await db.select({
         id: users.id,
         username: users.username,
@@ -422,6 +422,11 @@ export class DatabaseStorage implements IStorage {
         status: users.status,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
+        // Add team-specific fields
+        jerseyNumber: userTeams.jerseyNumber,
+        position: userTeams.position,
+        starPlayer: userTeams.starPlayer,
+        fitnessStatus: userTeams.fitnessStatus,
       })
       .from(users)
       .innerJoin(userTeams, eq(users.id, userTeams.userId))
