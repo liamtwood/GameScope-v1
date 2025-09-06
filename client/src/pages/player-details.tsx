@@ -1078,54 +1078,6 @@ export default function PlayerDetails() {
                   <div className="pt-6">
                     <div className="w-4/5 mx-auto space-y-12">
                       
-                      {/* Profile Photo Section */}
-                      <div className="text-center">
-                        <h4 className="text-xl font-medium text-gray-900 mb-2">Profile Photo</h4>
-                        <p className="text-sm text-muted-foreground mb-6">This appears in the player details and roster views</p>
-                        
-                        <div className="flex flex-col items-center space-y-6">
-                          {/* Current Profile Photo Display */}
-                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg" showTransparencyPattern={true}>
-                            {pendingProfilePhoto ? (
-                              <AvatarImage 
-                                src={pendingProfilePhoto} 
-                                alt={`${player.firstName} ${player.lastName} Profile (Preview)`}
-                                className="object-cover"
-                              />
-                            ) : player?.avatarPath ? (
-                              <AvatarImage 
-                                src={player.avatarPath} 
-                                alt={`${player.firstName} ${player.lastName} Profile`}
-                                className="object-cover"
-                              />
-                            ) : player?.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
-                              <AvatarImage 
-                                src={ashleyMillerPhoto} 
-                                alt={`${player.firstName} ${player.lastName} Profile`}
-                                className="object-cover"
-                              />
-                            ) : null}
-                            <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
-                              {player?.firstName?.[0]}{player?.lastName?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          {pendingProfilePhoto && (
-                            <div className="text-xs text-blue-600 font-medium">Preview - Click Save to apply</div>
-                          )}
-                          
-                          {/* Profile Photo Upload Button */}
-                          <ObjectUploader
-                            maxNumberOfFiles={1}
-                            maxFileSize={5242880} // 5MB
-                            onGetUploadParameters={getPhotoUploadURL}
-                            onComplete={handlePhotoUploadComplete}
-                            buttonClassName="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
-                          >
-                            <Pencil className="h-5 w-5 mr-2" />
-                            Upload Profile Photo
-                          </ObjectUploader>
-                        </div>
-                      </div>
 
                       {/* Full Length Photo Section */}
                       <div className="text-center">
