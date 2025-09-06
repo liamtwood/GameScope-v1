@@ -685,20 +685,6 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    {/* Bio tab - only show when coming from Player Profiles */}
-                    {source === "profiles" && (
-                      <TabsTrigger 
-                        value="bio" 
-                        data-testid="tab-bio" 
-                        className="flex flex-col items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
-                        style={{ 
-                          '--club-primary': clubPrimaryColor,
-                        } as React.CSSProperties & { '--club-primary': string }}
-                      >
-                        <UserIcon size={32} />
-                        <span className="text-xs font-medium text-white">Bio</span>
-                      </TabsTrigger>
-                    )}
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
                       <TabsTrigger 
