@@ -732,7 +732,7 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full justify-center gap-8 bg-transparent opacity-100">
+                    <div className="flex col-span-2 w-full justify-center items-center gap-8">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
