@@ -171,17 +171,6 @@ export default function PlayerProfiles() {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Year</p>
-                    <p className="font-medium">{player.year || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Height</p>
-                    <p className="font-medium">{player.height || 'N/A'}</p>
-                  </div>
-                </div>
 
                 {/* Hometown */}
                 {player.hometown && (
@@ -192,24 +181,32 @@ export default function PlayerProfiles() {
                   </div>
                 )}
 
-                {/* Stats */}
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Trophy className="h-4 w-4 text-yellow-600" />
-                    <span className="font-bold text-foreground">{player.goals || 0}</span>
-                    <span className="text-muted-foreground">goals</span>
+                {/* Stats - Only show if player has any stats */}
+                {((player.goals && player.goals > 0) || (player.assists && player.assists > 0) || (player.appearances && player.appearances > 0)) && (
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    {player.goals && player.goals > 0 && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Trophy className="h-4 w-4 text-yellow-600" />
+                        <span className="font-bold text-foreground">{player.goals}</span>
+                        <span className="text-muted-foreground">goals</span>
+                      </div>
+                    )}
+                    {player.assists && player.assists > 0 && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Target className="h-4 w-4 text-blue-600" />
+                        <span className="font-bold text-foreground">{player.assists}</span>
+                        <span className="text-muted-foreground">assists</span>
+                      </div>
+                    )}
+                    {player.appearances && player.appearances > 0 && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Activity className="h-4 w-4 text-green-600" />
+                        <span className="font-bold text-foreground">{player.appearances}</span>
+                        <span className="text-muted-foreground">apps</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1 text-sm">
-                    <Target className="h-4 w-4 text-blue-600" />
-                    <span className="font-bold text-foreground">{player.assists || 0}</span>
-                    <span className="text-muted-foreground">assists</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm">
-                    <Activity className="h-4 w-4 text-green-600" />
-                    <span className="font-bold text-foreground">{player.appearances || 0}</span>
-                    <span className="text-muted-foreground">apps</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Fitness Status */}
                 <div className="flex items-center justify-between">
