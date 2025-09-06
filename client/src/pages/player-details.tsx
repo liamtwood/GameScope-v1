@@ -647,7 +647,7 @@ export default function PlayerDetails() {
                         color: ${clubPrimaryColor} !important;
                       }
                       
-                      /* Remove all backgrounds from Bio and Stats tabs */
+                      /* Force Bio and Stats tabs to be circular */
                       [data-testid="tab-bio"],
                       [data-testid="tab-stats"],
                       button[role="tab"][data-testid="tab-bio"],
@@ -659,6 +659,19 @@ export default function PlayerDetails() {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
+                        width: 48px !important;
+                        height: 48px !important;
+                        border-radius: 50% !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        min-width: 48px !important;
+                        max-width: 48px !important;
+                        min-height: 48px !important;
+                        max-height: 48px !important;
+                        overflow: hidden !important;
                       }
                       
                       [data-testid="tab-bio"][data-state="active"],
@@ -672,6 +685,11 @@ export default function PlayerDetails() {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
+                        width: 48px !important;
+                        height: 48px !important;
+                        border-radius: 50% !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
                       }
                     `}</style>
                     {!isPhotoOnlyMode && (
