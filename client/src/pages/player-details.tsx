@@ -1123,8 +1123,8 @@ export default function PlayerDetails() {
                         
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Height</span>
+                          <div className="py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white block mb-1">Height</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1138,8 +1138,8 @@ export default function PlayerDetails() {
                             )}
                           </div>
                           
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Hometown</span>
+                          <div className="py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white block mb-1">Hometown</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1153,8 +1153,8 @@ export default function PlayerDetails() {
                             )}
                           </div>
                           
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">Class</span>
+                          <div className="py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white block mb-1">Class</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1168,8 +1168,8 @@ export default function PlayerDetails() {
                             )}
                           </div>
                           
-                          <div className="flex justify-between items-center py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white">High School</span>
+                          <div className="py-2 border-b border-white/20">
+                            <span className="text-sm font-medium text-white block mb-1">High School</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1187,8 +1187,8 @@ export default function PlayerDetails() {
                         {/* Position (from team assignment) */}
                         {userTeams && userTeams.length > 0 && (
                           <div className="border-t border-white/20 pt-6">
-                            <div className="flex justify-between items-center py-2">
-                              <span className="text-sm font-medium text-white">Position</span>
+                            <div className="py-2">
+                              <span className="text-sm font-medium text-white block mb-1">Position</span>
                               <span className="text-sm text-white">{userTeams[0].position}</span>
                             </div>
                           </div>
