@@ -744,16 +744,13 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2">
+                    <div className="flex col-span-2 w-full">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="relative flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                        className="relative w-1/2 px-4 py-3 text-sm font-medium transition-all duration-200 border border-gray-300 border-r-0 bg-white data-[state=active]:bg-gray-100"
                         style={{ 
-                          background: 'transparent !important',
-                          backgroundColor: 'transparent !important',
-                          border: 'none !important',
-                          boxShadow: 'none !important'
+                          color: '#374151'
                         }}
                       >
                         Bio
@@ -761,12 +758,9 @@ export default function PlayerDetails() {
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="relative flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-0 bg-transparent data-[state=active]:text-white data-[state=inactive]:text-gray-600"
+                        className="relative w-1/2 px-4 py-3 text-sm font-medium transition-all duration-200 border border-gray-300 bg-white data-[state=active]:bg-gray-100"
                         style={{ 
-                          background: 'transparent !important',
-                          backgroundColor: 'transparent !important',
-                          border: 'none !important',
-                          boxShadow: 'none !important'
+                          color: '#374151'
                         }}
                       >
                         Stats
