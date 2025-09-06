@@ -515,28 +515,28 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                   
-                  {/* Icon Tab Selector - Only show when from profiles */}
+                  {/* Tab Selector - Only show when from profiles */}
                   {source === "profiles" && (
-                    <div className="bg-white/10 rounded-lg p-2 border-2 border-white/50 inline-block">
-                      <div className="flex space-x-4">
-                        {/* Fingerprint Icon - Bio Tab */}
+                    <div className="bg-white/10 rounded-lg p-1 border-2 border-white/50 inline-block">
+                      <div className="flex">
+                        {/* Bio Tab */}
                         <div 
-                          className={`p-3 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
+                          className={`px-4 py-2 rounded border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
                             activeTab === 'bio' ? 'bg-white/30' : 'bg-white/20'
                           }`}
                           onClick={() => setActiveTab('bio')}
                         >
-                          <Fingerprint className="h-6 w-6 text-white" />
+                          <span className="text-sm font-medium text-white uppercase tracking-wide">Bio</span>
                         </div>
                         
-                        {/* Chart Column Icon - Stats Tab */}
+                        {/* Stats Tab */}
                         <div 
-                          className={`p-3 rounded-full border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ${
+                          className={`px-4 py-2 rounded border border-white/30 hover:bg-white/30 transition-colors cursor-pointer ml-1 ${
                             activeTab === 'stats' ? 'bg-white/30' : 'bg-white/20'
                           }`}
                           onClick={() => setActiveTab('stats')}
                         >
-                          <ChartColumn className="h-6 w-6 text-white" />
+                          <span className="text-sm font-medium text-white uppercase tracking-wide">Stats</span>
                         </div>
                       </div>
                     </div>
