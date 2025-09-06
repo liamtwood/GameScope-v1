@@ -21,6 +21,7 @@ import Videos from "@/pages/videos";
 import Clubs from "@/pages/clubs";
 import Settings from "@/pages/settings";
 import PlayerDetails from "@/pages/player-details";
+import PlayerProfiles from "@/pages/player-profiles";
 import Users from "@/pages/users";
 import DevOpsUsers from "@/pages/devops-users";
 import UserDetails from "@/pages/user-details";
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/analysis/:fixtureId" component={Analysis} />
       <Route path="/squad" component={Squad} />
       <Route path="/players/:id" component={PlayerDetails} />
+      <Route path="/player-profiles" component={PlayerProfiles} />
       <Route path="/users" component={Users} />
       <Route path="/devops-users" component={DevOpsUsers} />
       <Route path="/users/:id" component={UserDetails} />
