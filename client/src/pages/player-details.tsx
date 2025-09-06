@@ -703,11 +703,12 @@ export default function PlayerDetails() {
                     <TabsTrigger 
                       value="bio" 
                       data-testid="tab-bio" 
-                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold bg-transparent"
                       style={{ 
                         // color controlled by CSS now
                         '--club-primary': clubPrimaryColor,
-// Disable inline styles - let CSS handle everything
+                        background: 'transparent !important',
+                        backgroundColor: 'transparent !important'
                       } as React.CSSProperties & { '--club-primary': string }}
                     >
                       Bio
