@@ -225,8 +225,10 @@ export default function PlayerDetails() {
   const handleHeadshotUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      if (uploadedFile.uploadURL) {
-        setPendingFullLengthPhoto(uploadedFile.uploadURL);
+      // Use previewURL for immediate display, fallback to uploadURL
+      const displayURL = (uploadedFile as any).previewURL || uploadedFile.uploadURL;
+      if (displayURL) {
+        setPendingFullLengthPhoto(displayURL);
         setHasPhotoChanges(true);
       }
     }

@@ -220,7 +220,14 @@ export function ObjectUploader({
                       if (response.ok) {
                         console.log('Upload successful!');
                         const uploadURL = params.url.split('?')[0];
-                        onComplete?.({ successful: [{ uploadURL }] } as any);
+                        // Create a blob URL for immediate preview
+                        const previewURL = URL.createObjectURL(fileToUpload);
+                        onComplete?.({ 
+                          successful: [{ 
+                            uploadURL, 
+                            previewURL // Add preview URL for immediate display
+                          }] 
+                        } as any);
                         setShowModal(false);
                       } else {
                         console.error('Upload failed:', response.status);
