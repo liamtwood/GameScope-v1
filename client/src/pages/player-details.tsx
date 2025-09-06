@@ -1107,7 +1107,10 @@ export default function PlayerDetails() {
                         
                         {/* Player Biography Header */}
                         <div className="mb-6">
-                          <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Biography</h3>
+                          <div className="flex items-center gap-3">
+                            <Fingerprint className="h-6 w-6 text-white" />
+                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Biography</h3>
+                          </div>
                         </div>
                         
                         {/* Player Stats */}
