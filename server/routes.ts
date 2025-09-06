@@ -390,6 +390,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route for getting players by team ID (alias for /api/users/:teamId)
+  app.get("/api/players/:teamId", async (req, res) => {
+    try {
+      const teamId = req.params.teamId;
+      const users = await storage.getUsers(teamId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching players by team:", error);
+      res.status(500).json({ message: "Failed to fetch players" });
+    }
+  });
+
   app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);
