@@ -156,11 +156,23 @@ export function ObjectUploader({
                         const backgroundRemover = new BackgroundRemover();
                         console.log('BackgroundRemover instance created');
                         
-                        const processedBlob = await backgroundRemover.removeBackground(file, {
-                          tolerance: 50,
-                          preserveInternalWhite: false,
-                          mode: 'color'
-                        });
+                        // Try multiple approaches for better background removal
+                        let processedBlob;
+                        try {
+                          // First try manual mode with high tolerance
+                          processedBlob = await backgroundRemover.removeBackground(file, {
+                            tolerance: 80,
+                            preserveInternalWhite: false,
+                            mode: 'manual'
+                          });
+                        } catch (error) {
+                          console.log('Manual mode failed, trying color mode');
+                          processedBlob = await backgroundRemover.removeBackground(file, {
+                            tolerance: 60,
+                            preserveInternalWhite: false,
+                            mode: 'color'
+                          });
+                        }
                         
                         console.log('Background removal completed successfully', {
                           originalSize: file.size,

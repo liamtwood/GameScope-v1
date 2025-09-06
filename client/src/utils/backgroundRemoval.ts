@@ -36,6 +36,8 @@ export class BackgroundRemover {
       zoomLevel = 100
     } = options;
 
+    console.log('Background removal starting with options:', options);
+
     return new Promise((resolve, reject) => {
       const img = new Image();
       
@@ -63,7 +65,7 @@ export class BackgroundRemover {
           } else if (mode === 'color') {
             this.processColorMode(data, scaledWidth, scaledHeight);
           } else if (mode === 'manual') {
-            this.processManualMode(data, scaledWidth, scaledHeight, tolerance);
+            this.processSimpleEdgeFlood(data, scaledWidth, scaledHeight, tolerance);
           }
           
           // Update canvas with processed data
@@ -277,6 +279,122 @@ export class BackgroundRemover {
         data[i + 3] = 0; // Make transparent
       }
     }
+  }
+
+  private processSimpleEdgeFlood(data: Uint8ClampedArray, width: number, height: number, tolerance: number): void {
+    console.log('Starting simple edge flood with tolerance:', tolerance);
+    
+    // Get the most common edge color as background
+    const edgeColors = [];
+    
+    // Sample edges more thoroughly
+    for (let x = 0; x < width; x++) {
+      // Top and bottom rows
+      const topIdx = x * 4;
+      const bottomIdx = ((height - 1) * width + x) * 4;
+      edgeColors.push({r: data[topIdx], g: data[topIdx + 1], b: data[topIdx + 2]});
+      edgeColors.push({r: data[bottomIdx], g: data[bottomIdx + 1], b: data[bottomIdx + 2]});
+    }
+    
+    for (let y = 0; y < height; y++) {
+      // Left and right columns
+      const leftIdx = (y * width) * 4;
+      const rightIdx = (y * width + width - 1) * 4;
+      edgeColors.push({r: data[leftIdx], g: data[leftIdx + 1], b: data[leftIdx + 2]});
+      edgeColors.push({r: data[rightIdx], g: data[rightIdx + 1], b: data[rightIdx + 2]});
+    }
+    
+    // Find most common edge color
+    let bgColor = { r: 255, g: 255, b: 255 }; // default to white
+    if (edgeColors.length > 0) {
+      // Simple average of edge colors
+      const totalR = edgeColors.reduce((sum, c) => sum + c.r, 0);
+      const totalG = edgeColors.reduce((sum, c) => sum + c.g, 0);
+      const totalB = edgeColors.reduce((sum, c) => sum + c.b, 0);
+      bgColor = {
+        r: Math.round(totalR / edgeColors.length),
+        g: Math.round(totalG / edgeColors.length),  
+        b: Math.round(totalB / edgeColors.length)
+      };
+    }
+    
+    console.log('Detected background color:', bgColor);
+    
+    // Simple flood fill from edges
+    const visited = new Array(width * height).fill(false);
+    const toRemove = new Array(width * height).fill(false);
+    
+    // Start flood fill from all edge pixels that match background
+    const queue: Array<{x: number, y: number}> = [];
+    
+    // Add edge pixels that match background color
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+          const idx = y * width + x;
+          const pixelIdx = idx * 4;
+          const r = data[pixelIdx];
+          const g = data[pixelIdx + 1];  
+          const b = data[pixelIdx + 2];
+          
+          if (Math.abs(r - bgColor.r) <= tolerance && 
+              Math.abs(g - bgColor.g) <= tolerance && 
+              Math.abs(b - bgColor.b) <= tolerance) {
+            queue.push({x, y});
+            visited[idx] = true;
+            toRemove[idx] = true;
+          }
+        }
+      }
+    }
+    
+    console.log('Starting flood fill from', queue.length, 'edge pixels');
+    
+    // Flood fill
+    while (queue.length > 0) {
+      const {x, y} = queue.shift()!;
+      
+      // Check 4-connected neighbors
+      const neighbors = [
+        {x: x - 1, y: y},
+        {x: x + 1, y: y}, 
+        {x: x, y: y - 1},
+        {x: x, y: y + 1}
+      ];
+      
+      for (const neighbor of neighbors) {
+        if (neighbor.x >= 0 && neighbor.x < width && 
+            neighbor.y >= 0 && neighbor.y < height) {
+          
+          const nIdx = neighbor.y * width + neighbor.x;
+          if (visited[nIdx]) continue;
+          
+          const nPixelIdx = nIdx * 4;
+          const nr = data[nPixelIdx];
+          const ng = data[nPixelIdx + 1];
+          const nb = data[nPixelIdx + 2];
+          
+          if (Math.abs(nr - bgColor.r) <= tolerance && 
+              Math.abs(ng - bgColor.g) <= tolerance && 
+              Math.abs(nb - bgColor.b) <= tolerance) {
+            visited[nIdx] = true;
+            toRemove[nIdx] = true;
+            queue.push(neighbor);
+          }
+        }
+      }
+    }
+    
+    // Apply transparency to marked pixels
+    let removedCount = 0;
+    for (let i = 0; i < toRemove.length; i++) {
+      if (toRemove[i]) {
+        data[i * 4 + 3] = 0; // Make transparent
+        removedCount++;
+      }
+    }
+    
+    console.log('Removed', removedCount, 'background pixels out of', width * height, 'total pixels');
   }
 
   private detectBackgroundColor(
