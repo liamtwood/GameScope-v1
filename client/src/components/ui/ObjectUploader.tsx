@@ -125,14 +125,32 @@ export function ObjectUploader({
       `}</style>
 
       {showModal && (
-        <div style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)' }}>
-          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'white', padding: '20px', borderRadius: '8px', minWidth: '400px' }}>
-            <h3>Photo Upload</h3>
-            <p>Upload your photo here</p>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={async (e) => {
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Upload Photo</h3>
+              <button 
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Choose a photo to upload</p>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                id="photo-upload"
+                onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   console.log('File selected:', file.name);
@@ -159,17 +177,17 @@ export function ObjectUploader({
                         // Try multiple approaches for better background removal
                         let processedBlob;
                         try {
-                          // First try manual mode with high tolerance
+                          // First try smart mode with lower tolerance
                           processedBlob = await backgroundRemover.removeBackground(file, {
-                            tolerance: 80,
-                            preserveInternalWhite: false,
-                            mode: 'manual'
+                            tolerance: 25,
+                            preserveInternalWhite: true,
+                            mode: 'smart'
                           });
                         } catch (error) {
                           console.log('Manual mode failed, trying color mode');
                           processedBlob = await backgroundRemover.removeBackground(file, {
-                            tolerance: 60,
-                            preserveInternalWhite: false,
+                            tolerance: 35,
+                            preserveInternalWhite: true,
                             mode: 'color'
                           });
                         }
@@ -219,12 +237,26 @@ export function ObjectUploader({
                     }).catch(error => {
                       console.error('Upload error:', error);
                     });
+                    });
                   });
                 }
               }}
-            />
-            <br />
-            <button onClick={() => setShowModal(false)} style={{ marginTop: '10px' }}>Close</button>
+              />
+              
+              <label 
+                htmlFor="photo-upload"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Choose File
+              </label>
+            </div>
+            
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
+              Maximum file size: 10MB. Only image files are allowed.
+            </p>
           </div>
         </div>
       )}
