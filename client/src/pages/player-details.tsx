@@ -506,25 +506,27 @@ export default function PlayerDetails() {
                 <div className="w-full px-4">
                   <div className="flex items-center justify-between">
                   
-                  <div className="flex items-center gap-4 px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 w-1/2" style={{ backgroundColor: clubPrimaryColor }}>
-                    {/* Squad Number */}
-                    {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
-                      <div className="flex items-center justify-center">
-                        <div className="w-16 h-16 bg-white/20 text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/30">
-                          {userTeams[0].jerseyNumber}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 w-1/2" style={{ backgroundColor: clubPrimaryColor }}>
+                    <div className="flex items-center gap-4">
+                      {/* Squad Number */}
+                      {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
+                        <div className="flex items-center justify-center">
+                          <div className="w-16 h-16 bg-white/20 text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/30">
+                            {userTeams[0].jerseyNumber}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    
-                    {/* Player Info */}
-                    <div className="flex items-center">
-                      <div className="text-left">
-                        <div className="text-lg font-medium" style={{ color: textColor }}>{player.firstName}</div>
-                        <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
+                      )}
+                      
+                      {/* Player Info */}
+                      <div className="flex items-center">
+                        <div className="text-left">
+                          <div className="text-lg font-medium" style={{ color: textColor }}>{player.firstName}</div>
+                          <div className="text-3xl font-bold" style={{ color: textColor }}>{player.lastName}</div>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Position - Vertically centered with squad number */}
+                    {/* Position - Right side of container */}
                     {userTeams && userTeams.length > 0 && userTeams[0].position && (
                       <div className="flex items-center justify-center">
                         <div className="text-sm font-medium uppercase tracking-wide text-black">
