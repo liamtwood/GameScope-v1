@@ -661,6 +661,19 @@ export default function PlayerDetails() {
                         -moz-box-shadow: none !important;
                       }
                       
+                      /* Keep icon sizes consistent in both active and inactive states */
+                      [data-testid="tab-bio"] svg,
+                      [data-testid="tab-stats"] svg,
+                      [data-testid="tab-bio"][data-state="active"] svg,
+                      [data-testid="tab-stats"][data-state="active"] svg {
+                        width: 32px !important;
+                        height: 32px !important;
+                        min-width: 32px !important;
+                        min-height: 32px !important;
+                        max-width: 32px !important;
+                        max-height: 32px !important;
+                      }
+                      
                       [data-testid="tab-bio"][data-state="active"],
                       [data-testid="tab-stats"][data-state="active"],
                       button[role="tab"][data-testid="tab-bio"][data-state="active"],
