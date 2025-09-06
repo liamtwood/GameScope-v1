@@ -88,18 +88,13 @@ export function ObjectUploader({
       });
   });
 
-  console.log('ObjectUploader render - showModal:', showModal);
-  
   return (
     <div>
       <Button 
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          console.log('Photo upload button clicked!');
-          console.log('Setting showModal to true...');
           setShowModal(true);
-          console.log('showModal set to true');
         }} 
         className={buttonClassName}
         type="button"

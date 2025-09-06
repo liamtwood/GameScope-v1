@@ -182,11 +182,47 @@ export default function PlayerDetails() {
     return { method: 'PUT' as const, url: data.uploadURL };
   };
 
+  // Headshot upload mutation
+  const headshotUploadMutation = useMutation({
+    mutationFn: async (photoURL: string) => {
+      const response = await fetch(`/api/user/${playerId}/headshot`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoURL }),
+      });
+      if (!response.ok) throw new Error('Failed to update headshot');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/player", playerId] });
+      toast({
+        title: "Headshot Updated",
+        description: "Player headshot has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player headshot. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handlePhotoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       if (uploadedFile.uploadURL) {
         photoUploadMutation.mutate(uploadedFile.uploadURL);
+      }
+    }
+  };
+
+  const handleHeadshotUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      if (uploadedFile.uploadURL) {
+        headshotUploadMutation.mutate(uploadedFile.uploadURL);
       }
     }
   };
@@ -1010,46 +1046,87 @@ export default function PlayerDetails() {
 
               {/* Photo Tab Content */}
               <TabsContent value="photo" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
-                  <div className="pt-4">
-                    <div className="w-4/5 mx-auto">
-                      <div className="text-center py-8">
-                        <h4 className="text-lg font-medium text-gray-900 mb-6">Player Photo</h4>
-                        <p className="text-sm text-muted-foreground mb-8">Upload and manage the player's profile photo.</p>
+                <div className="bg-white px-6 pb-6 space-y-8 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-6">
+                    <div className="w-4/5 mx-auto space-y-12">
+                      
+                      {/* Profile Photo Section */}
+                      <div className="text-center">
+                        <h4 className="text-xl font-medium text-gray-900 mb-2">Profile Photo</h4>
+                        <p className="text-sm text-muted-foreground mb-6">This appears in the player details and roster views</p>
                         
-                        {/* Large Avatar Display */}
-                        <div className="flex justify-center mb-8">
-                          <div className="relative">
-                            <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-white shadow-lg">
-                              {player?.avatarPath ? (
-                                <AvatarImage 
-                                  src={player.avatarPath} 
-                                  alt={`${player.firstName} ${player.lastName}`}
-                                  className="object-cover"
-                                />
-                              ) : null}
-                              <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            
-                            {/* Photo Upload Button */}
-                            <div className="absolute -bottom-2 -right-2">
-                              <ObjectUploader
-                                maxNumberOfFiles={1}
-                                maxFileSize={5242880} // 5MB
-                                onGetUploadParameters={getPhotoUploadURL}
-                                onComplete={handlePhotoUploadComplete}
-                                buttonClassName="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-colors"
-                              >
-                                <Pencil className="h-5 w-5" />
-                              </ObjectUploader>
-                            </div>
-                          </div>
+                        <div className="flex flex-col items-center space-y-6">
+                          {/* Current Profile Photo Display */}
+                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg">
+                            {player?.avatarPath ? (
+                              <AvatarImage 
+                                src={player.avatarPath} 
+                                alt={`${player.firstName} ${player.lastName} Profile`}
+                                className="object-cover"
+                              />
+                            ) : player?.id === "56dcc07f-3534-43fd-8f46-a6c6209c40fa" ? (
+                              <AvatarImage 
+                                src={ashleyMillerPhoto} 
+                                alt={`${player.firstName} ${player.lastName} Profile`}
+                                className="object-cover"
+                              />
+                            ) : null}
+                            <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          
+                          {/* Profile Photo Upload Button */}
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880} // 5MB
+                            onGetUploadParameters={getPhotoUploadURL}
+                            onComplete={handlePhotoUploadComplete}
+                            buttonClassName="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
+                          >
+                            <Pencil className="h-5 w-5 mr-2" />
+                            Upload Profile Photo
+                          </ObjectUploader>
                         </div>
+                      </div>
+
+                      {/* Headshot Section */}
+                      <div className="text-center">
+                        <h4 className="text-xl font-medium text-gray-900 mb-2">Headshot</h4>
+                        <p className="text-sm text-muted-foreground mb-6">Professional headshot for programs and media</p>
                         
+                        <div className="flex flex-col items-center space-y-6">
+                          {/* Current Headshot Display */}
+                          <Avatar className="h-40 w-40 bg-slate-600 text-white border-4 border-gray-200 shadow-lg">
+                            {player?.headshotPath ? (
+                              <AvatarImage 
+                                src={player.headshotPath} 
+                                alt={`${player.firstName} ${player.lastName} Headshot`}
+                                className="object-cover"
+                              />
+                            ) : null}
+                            <AvatarFallback className="bg-slate-600 text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          
+                          {/* Headshot Upload Button */}
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880} // 5MB
+                            onGetUploadParameters={getPhotoUploadURL}
+                            onComplete={handleHeadshotUploadComplete}
+                            buttonClassName="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors font-medium"
+                          >
+                            <Pencil className="h-5 w-5 mr-2" />
+                            Upload Headshot
+                          </ObjectUploader>
+                        </div>
+                      </div>
+
+                      <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                          Click the pencil icon to upload a new photo (max 5MB, images only)
+                          Upload photos up to 5MB in size (JPG, PNG formats recommended)
                         </p>
                       </div>
                     </div>
