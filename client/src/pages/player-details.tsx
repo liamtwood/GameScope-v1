@@ -415,14 +415,14 @@ export default function PlayerDetails() {
   
   // Create perfect honeycomb background style using advanced CSS
   const s = '25px'; // honeycomb cell size
-  const c1 = clubPrimaryColor; // honeycomb cell color (darker)
-  const c2 = 'rgba(255,255,255,0.15)'; // line color (lighter)
+  const c1 = 'rgba(255,255,255,0.1)'; // honeycomb line color
+  const c2 = clubPrimaryColor; // background color
   
   const solidStyle = {
     '--s': s,
     '--c1': c1,
     '--c2': c2,
-    '--c': `#0000, var(--c1) .1deg 119.9deg, #0000 120deg`,
+    '--c': `#0000, var(--c1) .5deg 119.5deg, #0000 120deg`,
     '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
     '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
     '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
@@ -1087,7 +1087,7 @@ export default function PlayerDetails() {
                       '--s': s,
                       '--c1': c1,
                       '--c2': c2,
-                      '--c': `#0000, var(--c1) .1deg 119.9deg, #0000 120deg`,
+                      '--c': `#0000, var(--c1) .5deg 119.5deg, #0000 120deg`,
                       '--g1': `conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c))`,
                       '--g2': `conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c))`,
                       '--g3': `conic-gradient(from -60deg at 50% calc(175%/12), var(--c))`,
