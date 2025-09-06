@@ -736,14 +736,52 @@ export default function PlayerDetails() {
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="w-12 h-12 rounded-full p-0 flex items-center justify-center"
+                        className=""
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          padding: '0',
+                          margin: '0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'none',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          boxShadow: 'none',
+                          minWidth: '48px',
+                          maxWidth: '48px',
+                          minHeight: '48px',
+                          maxHeight: '48px',
+                          overflow: 'hidden'
+                        }}
                       >
                         <UserIcon size={20} />
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="w-12 h-12 rounded-full p-0 flex items-center justify-center"
+                        className=""
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          padding: '0',
+                          margin: '0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'none',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          boxShadow: 'none',
+                          minWidth: '48px',
+                          maxWidth: '48px',
+                          minHeight: '48px',
+                          maxHeight: '48px',
+                          overflow: 'hidden'
+                        }}
                       >
                         <BarChart3 size={20} />
                       </TabsTrigger>
