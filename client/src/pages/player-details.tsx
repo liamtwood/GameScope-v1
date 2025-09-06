@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
@@ -693,20 +693,20 @@ export default function PlayerDetails() {
                         </TabsTrigger>
                       </>
                     )}
-                    <div className="flex col-span-2 w-full gap-0 mx-4 my-2">
+                    <div className="flex col-span-2 w-full">
                       <TabsTrigger 
                         value="bio" 
                         data-testid="tab-bio" 
-                        className="relative w-1/2 px-6 py-3 text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 border-r-0 rounded-l-xl shadow-lg hover:from-gray-200 hover:to-gray-300 hover:shadow-xl hover:scale-105 data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-2xl data-[state=active]:scale-105 cursor-pointer transform active:scale-95"
+                        className="w-1/2 p-4"
                       >
-                        📊 Bio
+                        <UserIcon size={24} />
                       </TabsTrigger>
                       <TabsTrigger 
                         value="stats" 
                         data-testid="tab-stats" 
-                        className="relative w-1/2 px-6 py-3 text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 rounded-r-xl shadow-lg hover:from-gray-200 hover:to-gray-300 hover:shadow-xl hover:scale-105 data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-500 data-[state=active]:shadow-2xl data-[state=active]:scale-105 cursor-pointer transform active:scale-95"
+                        className="w-1/2 p-4"
                       >
-                        📈 Stats
+                        <BarChart3 size={24} />
                       </TabsTrigger>
                     </div>
                     {/* Hide Photo tab when coming from Player Profiles */}
