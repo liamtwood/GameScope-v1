@@ -664,7 +664,17 @@ export default function PlayerDetails() {
                       [data-testid="tab-bio"][data-state="active"],
                       [data-testid="tab-stats"][data-state="active"],
                       button[role="tab"][data-testid="tab-bio"][data-state="active"],
-                      button[role="tab"][data-testid="tab-stats"][data-state="active"],
+                      button[role="tab"][data-testid="tab-stats"][data-state="active"] {
+                        background: none !important;
+                        background-color: unset !important;
+                        background-image: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        -webkit-box-shadow: none !important;
+                        -moz-box-shadow: none !important;
+                        color: white !important;
+                      }
+                      
                       [data-testid="tab-bio"]:not([data-state="active"]),
                       [data-testid="tab-stats"]:not([data-state="active"]),
                       button[role="tab"][data-testid="tab-bio"]:not([data-state="active"]),
@@ -676,9 +686,7 @@ export default function PlayerDetails() {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
-                        color: unset !important;
-                        opacity: 0 !important;
-                        visibility: hidden !important;
+                        color: rgb(156, 163, 175) !important; /* gray-400 */
                       }
                       /* NUCLEAR OPTION - Override ALL Radix styles for inactive tabs */
                       button[role="tab"]:not([data-state="active"]),
