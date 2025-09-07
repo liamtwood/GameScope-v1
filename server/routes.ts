@@ -3579,9 +3579,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Starting magic lookup for ${teamName} ${searchSport} ${searchYear}`);
       console.log(`Club location: ${clubCity}, ${clubState}, ${clubCountry}`);
       
-      // Search for official athletics website with location context
+      // Search for official athletics websites with location context
       const locationContext = clubCity && clubCountry ? ` ${clubCity} ${clubCountry}` : '';
-      const searchQuery = `"${teamName}"${locationContext} ${searchSport} ${searchYear} schedule fixtures games opponents site:edu OR athletics`;
+      const searchQueries = [
+        `"${teamName}"${locationContext} ${searchSport} ${searchYear} schedule site:edu`,
+        `"${teamName}"${locationContext} fixtures ${searchYear} site:*.edu OR site:*athletics*`,
+        `"${teamName}" ${searchSport} schedule ${searchYear} results standings`
+      ];
       
       // Generate different fixtures based on team name for variety
       const teamKey = teamName.toLowerCase().replace(/\s+/g, '');
@@ -3591,7 +3595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (teamName.toLowerCase().includes("polk")) {
         const realPolkStateFixtures = {
           teamName: "Polk State College",
-          searchQuery,
+          searchQuery: searchQueries[0],
           fixtures: [
             {
               date: "2024-09-21",
@@ -3632,6 +3636,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           source: "magic_lookup_real_data"
         });
       }
+
+      // TODO: Implement real web scraping here
+      // This will be enhanced by subagent to actually fetch and parse web fixtures
       
       // Generate location-aware opponents based on club geography
       let selectedOpponents: string[] = [];
@@ -3692,7 +3699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const dynamicResults = {
         teamName,
-        searchQuery,
+        searchQuery: searchQueries[0],
         fixtures
       };
 
