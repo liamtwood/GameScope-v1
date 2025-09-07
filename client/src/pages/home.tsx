@@ -45,43 +45,28 @@ export default function Home() {
 
       {/* Honeycomb Test Container */}
       <div className="mt-12 border-t pt-8">
-        <h3 className="text-2xl font-bold text-center mb-6 text-foreground">Honeycomb Layout Test</h3>
-        <div 
-          className="honeycomb-grid mx-auto"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gridAutoRows: '140px',
-            gap: '15px',
-            maxWidth: '1000px',
-            transform: 'translate(-30px)'
-          }}
-        >
-          {/* Test hexagons */}
-          {Array.from({ length: 9 }, (_, index) => (
-            <Card
-              key={index}
-              className="honeycomb-cell hover:shadow-lg transition-all duration-200 cursor-pointer"
-              style={{
-                width: '180px',
-                height: '200px',
-                backgroundColor: 'white',
-                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-                border: `2px solid ${(currentClub?.colors as any)?.primary || '#dc2626'}`,
-                marginLeft: (Math.floor(index / 3) % 2 === 1) ? '60px' : '0px'
-              }}
-            >
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-                <div className="text-lg font-bold mb-2">Cell {index + 1}</div>
-                <div className="text-sm text-muted-foreground">Test content here</div>
-              </CardContent>
-            </Card>
-          ))}
+        <h3 className="text-2xl font-bold text-center mb-6 text-foreground">Honeycomb Test</h3>
+        <div className="flex justify-center">
+          <Card
+            className="honeycomb-cell hover:shadow-lg transition-all duration-200 cursor-pointer"
+            style={{
+              width: '200px',
+              height: '230px',
+              backgroundColor: 'white',
+              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              border: `2px solid ${(currentClub?.colors as any)?.primary || '#dc2626'}`
+            }}
+          >
+            <CardContent className="p-4 flex flex-col items-center justify-center h-full">
+              <div className="text-xl font-bold mb-2">Honeycomb</div>
+              <div className="text-sm text-muted-foreground">Test Container</div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </MainLayout>
