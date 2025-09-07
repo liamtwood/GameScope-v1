@@ -1028,9 +1028,9 @@ export default function PlayerDetails() {
                   <div 
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      '--cell-size': '8vw',
-                      '--columns': '8',
-                      '--gap': '0.2vw',
+                      '--cell-size': '12vw',
+                      '--columns': '6',
+                      '--gap': '0.3vw',
                       '--cell-height': 'calc(var(--cell-size) * 1.15)',
                       '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
                       '--row-height': 'calc(var(--cell-size) * 0.8666)',
@@ -1044,14 +1044,14 @@ export default function PlayerDetails() {
                         width: 'var(--container-width)',
                         margin: '0 auto',
                         transform: 'translateX(calc(var(--margin-offset) / -2))',
-                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                         gridAutoRows: 'var(--row-height)',
                         gap: 'var(--gap)',
-                        opacity: 0.15
+                        opacity: 0.3
                       }}
                     >
                       {/* Generate honeycomb cells */}
-                      {Array.from({ length: 48 }, (_, index) => (
+                      {Array.from({ length: 36 }, (_, index) => (
                         <div
                           key={index}
                           className="cell"
@@ -1059,15 +1059,15 @@ export default function PlayerDetails() {
                             width: 'var(--cell-size)',
                             height: 'var(--cell-height)',
                             margin: '0',
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
                             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                             overflow: 'hidden',
                             textAlign: 'center',
-                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                            marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
                           }}
                         />
                       ))}
@@ -1282,9 +1282,9 @@ export default function PlayerDetails() {
                   <div 
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      '--cell-size': '8vw',
-                      '--columns': '8',
-                      '--gap': '0.2vw',
+                      '--cell-size': '12vw',
+                      '--columns': '6',
+                      '--gap': '0.3vw',
                       '--cell-height': 'calc(var(--cell-size) * 1.15)',
                       '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
                       '--row-height': 'calc(var(--cell-size) * 0.8666)',
@@ -1298,14 +1298,14 @@ export default function PlayerDetails() {
                         width: 'var(--container-width)',
                         margin: '0 auto',
                         transform: 'translateX(calc(var(--margin-offset) / -2))',
-                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                         gridAutoRows: 'var(--row-height)',
                         gap: 'var(--gap)',
-                        opacity: 0.15
+                        opacity: 0.3
                       }}
                     >
                       {/* Generate honeycomb cells */}
-                      {Array.from({ length: 48 }, (_, index) => (
+                      {Array.from({ length: 36 }, (_, index) => (
                         <div
                           key={index}
                           className="cell"
@@ -1313,15 +1313,15 @@ export default function PlayerDetails() {
                             width: 'var(--cell-size)',
                             height: 'var(--cell-height)',
                             margin: '0',
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
                             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                             overflow: 'hidden',
                             textAlign: 'center',
-                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                            marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
                           }}
                         />
                       ))}
@@ -1493,9 +1493,9 @@ export default function PlayerDetails() {
                   <div 
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      '--cell-size': '8vw',
-                      '--columns': '8',
-                      '--gap': '0.2vw',
+                      '--cell-size': '12vw',
+                      '--columns': '6',
+                      '--gap': '0.3vw',
                       '--cell-height': 'calc(var(--cell-size) * 1.15)',
                       '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
                       '--row-height': 'calc(var(--cell-size) * 0.8666)',
@@ -1509,14 +1509,14 @@ export default function PlayerDetails() {
                         width: 'var(--container-width)',
                         margin: '0 auto',
                         transform: 'translateX(calc(var(--margin-offset) / -2))',
-                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                         gridAutoRows: 'var(--row-height)',
                         gap: 'var(--gap)',
-                        opacity: 0.15
+                        opacity: 0.3
                       }}
                     >
                       {/* Generate honeycomb cells */}
-                      {Array.from({ length: 48 }, (_, index) => (
+                      {Array.from({ length: 36 }, (_, index) => (
                         <div
                           key={index}
                           className="cell"
@@ -1524,15 +1524,15 @@ export default function PlayerDetails() {
                             width: 'var(--cell-size)',
                             height: 'var(--cell-height)',
                             margin: '0',
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
                             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                             overflow: 'hidden',
                             textAlign: 'center',
-                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                            marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
                           }}
                         />
                       ))}
