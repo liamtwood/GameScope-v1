@@ -322,11 +322,9 @@ export default function UserDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   
   const solidStyle = {
-    background: `
-      radial-gradient(circle 200px at 15% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%),
-      radial-gradient(circle 150px at 85% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 45%, transparent 75%),
-      ${clubPrimaryColor}
-    `,
+    backgroundColor: clubPrimaryColor,
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
   };
 
   return (
@@ -338,6 +336,54 @@ export default function UserDetails() {
         {/* User Header Card */}
         <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl" style={{...solidStyle, borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
+            {/* Honeycomb Background Pattern */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                '--cell-size': '40px',
+                '--columns': '15',
+                '--gap': '1px',
+                '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+              } as React.CSSProperties}
+            >
+              <div 
+                className="honeycomb absolute inset-0"
+                style={{
+                  display: 'grid',
+                  width: '100%',
+                  height: '100%',
+                  transform: 'translateX(calc(var(--margin-offset) / -2)) scale(1.1)',
+                  transformOrigin: 'center center',
+                  gridTemplateColumns: 'repeat(15, 1fr)',
+                  gridAutoRows: 'var(--row-height)',
+                  gap: 'var(--gap)',
+                  opacity: 0.15
+                }}
+              >
+                {/* Generate honeycomb cells */}
+                {Array.from({ length: 90 }, (_, index) => (
+                  <div
+                    key={index}
+                    className="cell"
+                    style={{
+                      width: 'var(--cell-size)',
+                      height: 'var(--cell-height)',
+                      margin: '0',
+                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                      clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      overflow: 'hidden',
+                      textAlign: 'center',
+                      marginLeft: (Math.floor(index / 15) % 2 === 1 && (index % 15) >= 0) ? 'var(--margin-offset)' : '0'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
             {/* Back Button Row */}
             <div className="px-6 py-1 flex justify-between items-center">
               <Button 
