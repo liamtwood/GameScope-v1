@@ -3583,7 +3583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate different fixtures based on team name for variety
       const teamKey = teamName.toLowerCase().replace(/\s+/g, '');
-      const hash = teamKey.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+      const hash = teamKey.split('').reduce((a: number, b: string) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
       
       // For Polk State College specifically, return real data
       if (teamName.toLowerCase().includes("polk")) {
@@ -3648,9 +3648,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fixtures = selectedOpponents.map((opponent, index) => {
         const dayOffset = (index + 1) * 7; // Weekly games
         const date = new Date(searchYear, 8, 1 + dayOffset); // Start from September
-        const isHome = (hash + index) % 2 === 0;
-        const resultType = results[(hash + index) % results.length];
-        const score = scores[(hash + index) % scores.length];
+        const seedValue = Math.abs(hash) + index; // Always positive
+        const isHome = seedValue % 2 === 0;
+        const resultIndex = seedValue % results.length;
+        const scoreIndex = (seedValue + 1) % scores.length;
+        const resultType = results[resultIndex];
+        const score = scores[scoreIndex];
         
         return {
           date: date.toISOString().split('T')[0],
