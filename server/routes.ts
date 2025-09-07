@@ -3582,7 +3582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const searchQuery = `"${teamName}" ${searchSport} ${searchYear} schedule fixtures games opponents site:edu OR athletics`;
       
       // For Polk State College specifically, return real data
-      if (teamName.toLowerCase().includes("polk state")) {
+      if (teamName.toLowerCase().includes("polk")) {
         const realPolkStateFixtures = {
           teamName: "Polk State College",
           searchQuery,

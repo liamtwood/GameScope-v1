@@ -142,7 +142,7 @@ export default function Fixtures() {
   const magicLookupMutation = useMutation({
     mutationFn: async (data: { teamName: string; sport?: string; year?: number }) => {
       const response = await apiRequest("POST", '/api/magic-lookup', data);
-      return response;
+      return response.json();
     },
     onSuccess: (data) => {
       setMagicResults(data.results.fixtures || []);
