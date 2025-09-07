@@ -23,15 +23,6 @@ export default function PlayerProfiles() {
   const { selectedTeam: currentTeam } = useTeam();
   const { clubPrimary } = useClubTheme();
 
-  // Create SVG-based honeycomb with ultra-thin lines (existing implementation)
-  const honeycombSvg = `data:image/svg+xml,${encodeURIComponent(`
-    <svg width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="30,2 52,15 52,37 30,50 8,37 8,15" 
-               fill="none" 
-               stroke="rgba(0,0,0,0.08)" 
-               stroke-width="0.8"/>
-    </svg>
-  `)}`;
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
     queryKey: ["/api/team", currentTeam?.id, "users"],
@@ -195,71 +186,52 @@ export default function PlayerProfiles() {
                   </Badge>
                 </div>
                 
-                <div 
-                  className="honeycomb-grid mx-auto"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gridAutoRows: '160px',
-                    gap: '10px',
-                    maxWidth: '1200px',
-                    transform: 'translate(-25px)'
-                  }}
-                >
-                  {players.map((player, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {players.map((player) => (
                     <Card 
                       key={player.id} 
-                      className="honeycomb-cell hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden" 
+                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
                       onClick={() => handlePlayerClick(player.id)}
                       data-testid={`card-player-${player.id}`}
-                      style={{
-                        width: '200px',
-                        height: '230px',
-                        backgroundColor: 'white',
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        border: `2px solid ${clubPrimary}`,
-                        marginLeft: (Math.floor(index / 4) % 2 === 1) ? '50px' : '0px'
-                      }}
                     >
-                      <div className="p-3 flex flex-col items-center justify-center h-full">
-                        <div className="relative mb-2">
-                          <Avatar className="h-10 w-10 border border-gray-300">
-                            {player.avatarPath && (
-                              <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
-                            )}
-                            <AvatarFallback className="text-sm">
-                              {getPlayerInitials(player)}
-                            </AvatarFallback>
-                          </Avatar>
-                          {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
-                            <div 
-                              className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs border border-gray-300"
-                              style={{ backgroundColor: clubPrimary }}
-                            >
-                              {player.jerseyNumber}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-center mb-1">
-                          <div className="font-semibold text-xs leading-tight">
-                            <div>{player.firstName}</div>
-                            <div className="flex items-center justify-center gap-1">
-                              <span>{player.lastName}</span>
-                              {player.starPlayer && (
-                                <Star className="h-3 w-3 text-orange-500 fill-orange-500" />
+                      <CardHeader className="py-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar className="h-16 w-16 border border-gray-300">
+                                {player.avatarPath && (
+                                  <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
+                                )}
+                                <AvatarFallback className="text-lg font-bold">
+                                  {getPlayerInitials(player)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
+                                <div 
+                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-gray-300"
+                                  style={{ backgroundColor: clubPrimary }}
+                                >
+                                  {player.jerseyNumber}
+                                </div>
                               )}
                             </div>
+                            <div className="flex-1">
+                              <div className="font-semibold leading-tight">
+                                <div className="text-sm">{player.firstName}</div>
+                                <div className="text-lg flex items-center gap-2">
+                                  <span>{player.lastName}</span>
+                                  {player.starPlayer && (
+                                    <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
+                          <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
+                            {player.position || 'MID'}
+                          </Badge>
                         </div>
-                        <Badge className={`${getPositionColor(player.position || 'MID')} text-xs px-1.5 py-0.5`}>
-                          {player.position || 'MID'}
-                        </Badge>
-                      </div>
+                      </CardHeader>
                     </Card>
                   ))}
                 </div>
