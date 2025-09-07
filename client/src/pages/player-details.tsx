@@ -2136,6 +2136,116 @@ export default function PlayerDetails() {
                 </TabsContent>
               )}
 
+              {/* Passing Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="passing" className="m-0 flex-1 min-h-0">
+                  <div 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
+                  >
+
+                    <div className="relative z-10">
+                    <div className="pt-6">
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Passing Statistics */}
+                        <div className="w-1/2 space-y-8">
+                          <div className="mb-6">
+                            <div className="flex items-center gap-3">
+                              <Navigation className="h-6 w-6 text-white" />
+                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Passing Statistics</h3>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            {/* PASS SUCCESS Card */}
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">{player?.firstName} {player?.lastName}</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                {/* Attempted */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-blue-400">77</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                </div>
+                                
+                                {/* Success Rate Sign */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                    <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                    <span className="text-xl font-bold text-black mt-1">82%</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Success */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-emerald-400">63</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Success</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* FOOT Card */}
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                {/* Left Foot */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-purple-400">12</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Left Foot</span>
+                                </div>
+                                
+                                {/* Dominant Foot Sign */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
+                                    <span className="text-xs font-bold text-black leading-tight">FOOT</span>
+                                    <span className="text-xl font-bold text-black mt-1">81%</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Right Foot */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-orange-400">51</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
 
               {/* Defense Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
