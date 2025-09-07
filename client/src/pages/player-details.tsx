@@ -1361,11 +1361,26 @@ export default function PlayerDetails() {
               <TabsContent value="video" className="m-0">
                 {source === "profiles" ? (
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -1471,11 +1486,26 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="bio" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -1601,11 +1631,26 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="stats" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -1850,11 +1895,26 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="attack" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -1929,11 +1989,26 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="passing" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -2027,11 +2102,26 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="defense" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px]" 
+                    className="px-6 min-h-[400px] relative overflow-hidden" 
                     style={{
                       backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
+                    {/* Lightning/Streak Texture Overlay */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                        `,
+                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                      }}
+                    />
+                    <div className="relative z-10">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
