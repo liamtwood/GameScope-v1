@@ -1350,14 +1350,42 @@ export default function PlayerDetails() {
                             </div>
                           </div>
                           
-                          <div className="text-center py-8">
-                            <p className="text-sm text-white/80 mb-6">Training sessions, match highlights, and player analysis videos.</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {/* Placeholder for future video content */}
-                              <Card className="border-dashed border-2 border-white/30 bg-white/10">
-                                <CardContent className="p-6 text-center">
-                                  <Video className="h-8 w-8 text-white/70 mx-auto mb-2" />
-                                  <p className="text-sm text-white/70">No videos available</p>
+                          <div className="py-8">
+                            <p className="text-sm text-white/80 mb-6 text-center">Training sessions, match highlights, and player analysis videos.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {/* Game 1 Highlights */}
+                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                                <CardContent className="p-4">
+                                  <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
+                                    <Video className="h-8 w-8 text-white/60" />
+                                  </div>
+                                  <h4 className="text-sm font-semibold text-white mb-1">vs Arsenal Academy</h4>
+                                  <p className="text-xs text-white/70 mb-2">Match Highlights • 3:24</p>
+                                  <p className="text-xs text-white/60">Sep 15, 2024</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Game 2 Highlights */}
+                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                                <CardContent className="p-4">
+                                  <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
+                                    <Video className="h-8 w-8 text-white/60" />
+                                  </div>
+                                  <h4 className="text-sm font-semibold text-white mb-1">vs Manchester City U18</h4>
+                                  <p className="text-xs text-white/70 mb-2">Player Focus • 2:47</p>
+                                  <p className="text-xs text-white/60">Aug 28, 2024</p>
+                                </CardContent>
+                              </Card>
+
+                              {/* Game 3 Highlights */}
+                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                                <CardContent className="p-4">
+                                  <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
+                                    <Video className="h-8 w-8 text-white/60" />
+                                  </div>
+                                  <h4 className="text-sm font-semibold text-white mb-1">vs Liverpool Academy</h4>
+                                  <p className="text-xs text-white/70 mb-2">Season Highlights • 4:12</p>
+                                  <p className="text-xs text-white/60">Aug 14, 2024</p>
                                 </CardContent>
                               </Card>
                             </div>
