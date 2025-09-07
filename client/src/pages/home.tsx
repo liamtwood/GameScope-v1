@@ -47,11 +47,25 @@ export default function Home() {
       <div className="mt-12 flex justify-center">
         <Card className="w-full max-w-4xl overflow-hidden">
           <CardContent 
-            className="p-8 text-white"
+            className="p-8 text-white relative overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${(currentClub?.colors as any)?.primary || '#dc2626'} 0%, ${(currentClub?.colors as any)?.secondary || '#b91c1c'} 100%)`
             }}
           >
+            {/* Lightning/Streak Texture Overlay */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: `
+                  linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                  linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                  linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                  linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                  linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                `,
+                backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+              }}
+            />
             <div className="flex items-center justify-between">
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold">GameScope Dashboard</h3>
