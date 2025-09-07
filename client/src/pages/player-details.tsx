@@ -615,7 +615,7 @@ export default function PlayerDetails() {
                 </div>
               </div>
               {/* Back Button Row */}
-              <div className="px-6 py-1 flex justify-between items-center">
+<div className="py-1 flex justify-between items-center">
                 <Button 
                   variant="ghost" 
                   onClick={() => window.history.back()}
@@ -666,7 +666,7 @@ export default function PlayerDetails() {
               </div>
               
               {/* Player Info Section */}
-              <div className="px-6 pt-2 pb-6">
+              <div className="pt-2 pb-6">
                 <div className="w-full">
                   <div className="flex items-center gap-6">
                   
