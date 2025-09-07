@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield, Video } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
@@ -735,11 +735,12 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-5'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-6'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
-                      [data-testid="tab-parents"][data-state="active"] {
+                      [data-testid="tab-parents"][data-state="active"],
+                      [data-testid="tab-video"][data-state="active"] {
                         color: ${clubPrimaryColor} !important;
                         border: none !important;
                         outline: none !important;
@@ -748,7 +749,8 @@ export default function PlayerDetails() {
                       }
                       [data-testid="tab-details"],
                       [data-testid="tab-teams"],
-                      [data-testid="tab-parents"] {
+                      [data-testid="tab-parents"],
+                      [data-testid="tab-video"] {
                         border: none !important;
                         outline: none !important;
                         margin: 0 !important;
@@ -756,7 +758,8 @@ export default function PlayerDetails() {
                       }
                       [data-testid="tab-details"],
                       [data-testid="tab-teams"],
-                      [data-testid="tab-parents"] {
+                      [data-testid="tab-parents"],
+                      [data-testid="tab-video"] {
                         border-left: none !important;
                         margin-left: 0 !important;
                         padding-left: 0 !important;
@@ -770,9 +773,11 @@ export default function PlayerDetails() {
                       [data-testid="tab-details"]::before,
                       [data-testid="tab-teams"]::before,
                       [data-testid="tab-parents"]::before,
+                      [data-testid="tab-video"]::before,
                       [data-testid="tab-details"]::after,
                       [data-testid="tab-teams"]::after,
-                      [data-testid="tab-parents"]::after {
+                      [data-testid="tab-parents"]::after,
+                      [data-testid="tab-video"]::after {
                         display: none !important;
                         content: none !important;
                         background: none !important;
@@ -780,14 +785,16 @@ export default function PlayerDetails() {
                       }
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
-                      [data-testid="tab-parents"][data-state="active"] {
+                      [data-testid="tab-parents"][data-state="active"],
+                      [data-testid="tab-video"][data-state="active"] {
                         box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
                         -webkit-box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
                         -moz-box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
                       }
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]),
+                      [data-testid="tab-video"]:not([data-state="active"]) {
                         box-shadow: none !important;
                         -webkit-box-shadow: none !important;
                         -moz-box-shadow: none !important;
@@ -795,7 +802,8 @@ export default function PlayerDetails() {
                       /* INACTIVE TABS - NO BACKGROUND */
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
-                      [data-testid="tab-parents"]:not([data-state="active"]) {
+                      [data-testid="tab-parents"]:not([data-state="active"]),
+                      [data-testid="tab-video"]:not([data-state="active"]) {
                         opacity: 1 !important;
                         background: none !important;
                         background-color: transparent !important;
@@ -806,10 +814,12 @@ export default function PlayerDetails() {
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
+                      [data-testid="tab-video"][data-state="active"],
                       [data-testid="tab-photo"][data-state="active"],
                       button[role="tab"][data-testid="tab-details"][data-state="active"],
                       button[role="tab"][data-testid="tab-teams"][data-state="active"],
                       button[role="tab"][data-testid="tab-parents"][data-state="active"],
+                      button[role="tab"][data-testid="tab-video"][data-state="active"],
                       button[role="tab"][data-testid="tab-photo"][data-state="active"] {
                         opacity: 1 !important;
                         background: white !important;
@@ -855,6 +865,19 @@ export default function PlayerDetails() {
                           } as React.CSSProperties & { '--club-primary': string }}
                         >
                           Parents
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="video" 
+                          data-testid="tab-video" 
+                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          style={{ 
+                            // color controlled by CSS now
+                            '--club-primary': clubPrimaryColor,
+    // Disable inline styles - let CSS handle everything
+                          } as React.CSSProperties & { '--club-primary': string }}
+                        >
+                          <Video className="mr-2 h-4 w-4" />
+                          Video
                         </TabsTrigger>
                       </>
                     )}
@@ -1247,6 +1270,31 @@ export default function PlayerDetails() {
                 </div>
               </TabsContent>
 
+              {/* Video Tab Content */}
+              <TabsContent value="video" className="m-0">
+                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="pt-4">
+                    <div className="w-4/5 mx-auto">
+                      <div className="text-center py-8">
+                        <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h4 className="text-lg font-medium text-gray-900 mb-2">Player Videos</h4>
+                        <p className="text-sm text-muted-foreground">Training sessions, match highlights, and player analysis videos.</p>
+                        <div className="mt-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {/* Placeholder for future video content */}
+                            <Card className="border-dashed border-2 border-gray-300">
+                              <CardContent className="p-6 text-center">
+                                <Video className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-500">No videos available</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
 
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
