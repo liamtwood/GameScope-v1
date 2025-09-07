@@ -1441,7 +1441,7 @@ export default function PlayerDetails() {
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Height</span>
+                            <span className="text-xs font-medium text-white block mb-1 uppercase">Height</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1456,7 +1456,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Hometown</span>
+                            <span className="text-xs font-medium text-white block mb-1 uppercase">Hometown</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1471,7 +1471,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">Class</span>
+                            <span className="text-xs font-medium text-white block mb-1 uppercase">Class</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1486,7 +1486,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-sm font-medium text-white block mb-1 uppercase">High School</span>
+                            <span className="text-xs font-medium text-white block mb-1 uppercase">High School</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1504,7 +1504,7 @@ export default function PlayerDetails() {
                         
                         {/* Bio Text */}
                         <div className="pt-6">
-                          <h4 className="text-sm font-medium mb-3 text-white uppercase">About</h4>
+                          <h4 className="text-xs font-medium mb-3 text-white uppercase">About</h4>
                           {isEditing ? (
                             <textarea
                               value={editData.bio || ''}
