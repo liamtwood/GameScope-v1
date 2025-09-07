@@ -58,18 +58,6 @@ export default function PlayerProfiles() {
     }
   };
 
-  const getFitnessColor = (status: string) => {
-    switch (status) {
-      case 'Fit':
-        return 'bg-green-500 text-white';
-      case 'Injured':
-        return 'bg-red-500 text-white';
-      case 'Retired':
-        return 'bg-gray-500 text-white';
-      default:
-        return 'bg-blue-500 text-white';
-    }
-  };
 
   // Filter players
   const filteredPlayers = allPlayers.filter(player => {
@@ -220,13 +208,6 @@ export default function PlayerProfiles() {
                   </div>
                 )}
 
-                {/* Fitness Status */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <Badge className={getFitnessColor(player.fitnessStatus || 'Fit')}>
-                    {player.fitnessStatus || 'Fit'}
-                  </Badge>
-                </div>
               </CardContent>
             </Card>
           ))}
