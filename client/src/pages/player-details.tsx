@@ -1348,11 +1348,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
@@ -1462,11 +1458,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
@@ -1596,11 +1588,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
@@ -1849,11 +1837,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
@@ -1932,11 +1916,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
@@ -2034,11 +2014,7 @@ export default function PlayerDetails() {
                   <div 
                     className="px-6 min-h-[400px]" 
                     style={{
-                      backgroundColor: clubPrimaryColor,
-                      backgroundImage: `url("${honeycombSvg}")`,
-                      backgroundSize: '52px 45px',
-                      backgroundPosition: '0 0, 26px 22.5px',
-                      backgroundRepeat: 'repeat'
+                      backgroundColor: clubPrimaryColor
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
