@@ -1824,19 +1824,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              {/* First Touch Success */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
-                                  <div className="text-sm text-white/60">
-                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
-                                  </div>
-                                </div>
-                              </div>
-
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               {/* Shots */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
@@ -2021,7 +2009,19 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {/* First Touch Success */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
+                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-white/60">
+                                    {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
+                                  </div>
+                                </div>
+                              </div>
+
                               {/* Tackles */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
