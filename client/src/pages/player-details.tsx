@@ -588,7 +588,7 @@ export default function PlayerDetails() {
                     gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                     gridAutoRows: 'var(--row-height)',
                     gap: 'var(--gap)',
-                    opacity: 0.3
+                    opacity: 0.6
                   }}
                 >
                   {/* Generate honeycomb cells */}
