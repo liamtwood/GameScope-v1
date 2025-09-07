@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Search, Trophy, Target, Activity, MapPin } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import { useClubTheme } from "@/hooks/use-club-theme";
@@ -144,6 +144,9 @@ export default function PlayerProfiles() {
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Avatar className="h-16 w-16">
+                        {player.profilePicture && (
+                          <AvatarImage src={player.profilePicture} alt={`${player.firstName} ${player.lastName}`} />
+                        )}
                         <AvatarFallback className="text-lg font-bold">
                           {getPlayerInitials(player)}
                         </AvatarFallback>
