@@ -866,21 +866,22 @@ export default function PlayerDetails() {
                         >
                           Parents
                         </TabsTrigger>
-                        <TabsTrigger 
-                          value="video" 
-                          data-testid="tab-video" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
-                          style={{ 
-                            // color controlled by CSS now
-                            '--club-primary': clubPrimaryColor,
-    // Disable inline styles - let CSS handle everything
-                          } as React.CSSProperties & { '--club-primary': string }}
-                        >
-                          <Video className="mr-2 h-4 w-4" />
-                          Video
-                        </TabsTrigger>
                       </>
                     )}
+                    {/* Video tab - always visible */}
+                    <TabsTrigger 
+                      value="video" 
+                      data-testid="tab-video" 
+                      className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                      style={{ 
+                        // color controlled by CSS now
+                        '--club-primary': clubPrimaryColor,
+// Disable inline styles - let CSS handle everything
+                      } as React.CSSProperties & { '--club-primary': string }}
+                    >
+                      <Video className="mr-2 h-4 w-4" />
+                      Video
+                    </TabsTrigger>
                     {/* Hide Photo tab when coming from Player Profiles */}
                     {source !== "profiles" && (
                       <TabsTrigger 
