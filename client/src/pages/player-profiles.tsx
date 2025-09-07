@@ -197,7 +197,7 @@ export default function PlayerProfiles() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
-                              <Avatar className="h-16 w-16">
+                              <Avatar className="h-16 w-16 border border-white">
                                 {player.avatarPath && (
                                   <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
                                 )}
@@ -207,7 +207,7 @@ export default function PlayerProfiles() {
                               </Avatar>
                               {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
                                 <div 
-                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold border border-white"
+                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold border-[0.5px] border-white"
                                   style={{ backgroundColor: clubPrimary }}
                                 >
                                   {player.jerseyNumber}
