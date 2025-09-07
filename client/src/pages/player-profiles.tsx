@@ -200,12 +200,7 @@ export default function PlayerProfiles() {
                             </div>
                             <div className="flex-1">
                               <div className="font-semibold leading-tight">
-                                <div className="text-sm flex items-center justify-between">
-                                  <span>{player.firstName}</span>
-                                  <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
-                                    {player.position || 'MID'}
-                                  </Badge>
-                                </div>
+                                <div className="text-sm">{player.firstName}</div>
                                 <div className="text-lg flex items-center gap-2">
                                   <span>{player.lastName}</span>
                                   {player.starPlayer && (
@@ -215,6 +210,9 @@ export default function PlayerProfiles() {
                               </div>
                             </div>
                           </div>
+                          <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
+                            {player.position || 'MID'}
+                          </Badge>
                         </div>
                       </CardHeader>
                     </Card>
