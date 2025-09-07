@@ -585,8 +585,8 @@ export default function PlayerDetails() {
                     width: 'var(--container-width)',
                     margin: '0 auto',
                     transform: 'translateX(calc(var(--margin-offset) / -2)) translateX(-120px) translateY(-150px)',
-                    gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
-                    gridTemplateRows: 'repeat(12, var(--row-height))',
+                    gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
+                    gridAutoRows: 'var(--row-height)',
                     gap: 'var(--gap)',
                     opacity: 0.3
                   }}
