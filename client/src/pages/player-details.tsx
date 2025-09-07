@@ -822,7 +822,47 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-6'} w-full rounded-none border-0 p-0 h-auto`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-6'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`} style={{ backgroundColor: clubPrimaryColor }}>
+                    {/* Honeycomb Background Pattern for Tabs */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        '--cell-size': '8vw',
+                        '--columns': '8',
+                        '--gap': '0.2vw',
+                        '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                        '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
+                        '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                        '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+                      } as React.CSSProperties}
+                    >
+                      <div 
+                        className="honeycomb absolute inset-0"
+                        style={{
+                          display: 'grid',
+                          width: 'var(--container-width)',
+                          margin: '0 auto',
+                          transform: 'translateX(calc(var(--margin-offset) / -2))',
+                          gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                          gridAutoRows: 'var(--row-height)',
+                          gap: 'var(--gap)',
+                          opacity: 0.2
+                        }}
+                      >
+                        {/* Generate honeycomb cells for tabs */}
+                        {Array.from({ length: 16 }, (_, index) => (
+                          <div
+                            key={index}
+                            className="cell"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+                              transform: index % 2 === 0 ? 'translateY(0)' : 'translateY(calc(var(--row-height) * 0.5))',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                     <style>{`
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
