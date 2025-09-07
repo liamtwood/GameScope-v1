@@ -745,7 +745,7 @@ export default function PlayerDetails() {
                     
                     {/* Fixture Selector - Absolute positioned to the right */}
                     <div className="absolute right-0 flex items-center gap-2">
-                      <span className="text-sm text-white/70 uppercase tracking-wide">Data for:</span>
+                      <span className="text-sm text-white/70 uppercase tracking-wide">Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
                         <SelectTrigger className="w-48 h-8 text-xs bg-white/10 border-white/20 text-white">
                           <SelectValue />
