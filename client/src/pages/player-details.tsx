@@ -1932,7 +1932,7 @@ export default function PlayerDetails() {
 
                           {/* Passing Tab */}
                           <TabsContent value="passing" className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="max-w-md mx-auto">
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
@@ -1971,47 +1971,13 @@ export default function PlayerDetails() {
                                 </div>
                               </div>
 
-                              {/* Passes Success */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Successful</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
-                                  <div className="text-sm text-white/80">Successful Passes</div>
-                                  <div className="text-sm text-white/60">
-                                    {playerStats.passes.rate}% success rate
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Passing Total Distance */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Total Distance</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
-                                  <div className="text-sm text-white/80">Meters</div>
-                                  <div className="text-sm text-white/60">
-                                    Total distance of all passes
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Passing Average Velocity */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Average Velocity</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
-                                  <div className="text-sm text-white/80">m/s</div>
-                                  <div className="text-sm text-white/60">
-                                    Average speed of passes
-                                  </div>
-                                </div>
-                              </div>
                             </div>
                           </TabsContent>
 
                           {/* Defense Tab */}
                           <TabsContent value="defense" className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="max-w-md mx-auto">
                               {/* Tackles */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
@@ -2109,7 +2075,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="max-w-md mx-auto">
                               {/* Shots */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
@@ -2189,7 +2155,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="max-w-md mx-auto">
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
@@ -2228,41 +2194,7 @@ export default function PlayerDetails() {
                                 </div>
                               </div>
 
-                              {/* Passes Success */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Successful</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
-                                  <div className="text-sm text-white/80">Successful Passes</div>
-                                  <div className="text-sm text-white/60">
-                                    {playerStats.passes.rate}% success rate
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Passing Total Distance */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Total Distance</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
-                                  <div className="text-sm text-white/80">Meters</div>
-                                  <div className="text-sm text-white/60">
-                                    Total distance of all passes
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Passing Average Velocity */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Average Velocity</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
-                                  <div className="text-sm text-white/80">m/s</div>
-                                  <div className="text-sm text-white/60">
-                                    Average speed of passes
-                                  </div>
-                                </div>
-                              </div>
                             </div>
                           </div>
                         </div>
