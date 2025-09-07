@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, Club } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -38,6 +38,8 @@ export default function Fixtures() {
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const [editingCompetition, setEditingCompetition] = useState<string | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState<string>("");
+  const [magicLookupOpen, setMagicLookupOpen] = useState(false);
+  const [magicResults, setMagicResults] = useState<any[]>([]);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -131,6 +133,28 @@ export default function Fixtures() {
       toast({
         title: "Error",
         description: "Failed to delete fixture",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for magic lookup
+  const magicLookupMutation = useMutation({
+    mutationFn: async (data: { teamName: string; sport?: string; year?: number }) => {
+      const response = await apiRequest("POST", '/api/magic-lookup', data);
+      return response;
+    },
+    onSuccess: (data) => {
+      setMagicResults(data.results.fixtures || []);
+      toast({ 
+        title: "Success", 
+        description: `Found ${data.results.fixtures?.length || 0} fixtures for ${data.results.teamName}` 
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to perform magic lookup",
         variant: "destructive",
       });
     },
@@ -428,6 +452,15 @@ export default function Fixtures() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setMagicLookupOpen(true)}
+              data-testid="button-magic-lookup"
+              className="text-purple-600 border-purple-200 hover:bg-purple-50"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Magic Lookup
+            </Button>
             <FixtureCreateDialog 
               teamId={currentTeam?.id || ""} 
               onSave={(data) => createFixtureMutation.mutate(data)}
@@ -625,6 +658,86 @@ export default function Fixtures() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* Magic Lookup Dialog */}
+          <Dialog open={magicLookupOpen} onOpenChange={setMagicLookupOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  Magic Lookup - Find Fixtures & Rosters
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Automatically search for team schedules and player rosters from official athletics websites.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter team name (e.g., Polk State College)"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const teamName = (e.target as HTMLInputElement).value;
+                          if (teamName.trim()) {
+                            magicLookupMutation.mutate({ teamName: teamName.trim(), sport: 'soccer', year: 2024 });
+                          }
+                        }
+                      }}
+                    />
+                    <Button 
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="team name"]') as HTMLInputElement;
+                        const teamName = input?.value?.trim();
+                        if (teamName) {
+                          magicLookupMutation.mutate({ teamName, sport: 'soccer', year: 2024 });
+                        }
+                      }}
+                      disabled={magicLookupMutation.isPending}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      {magicLookupMutation.isPending ? 'Searching...' : 'Search'}
+                    </Button>
+                  </div>
+                </div>
+                
+                {magicResults.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="font-medium mb-3">Found Fixtures ({magicResults.length})</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {magicResults.map((fixture, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <p className="font-medium">{fixture.opponent}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(fixture.date).toLocaleDateString()} •
+                              {fixture.isHome ? 'Home' : 'Away'} •
+                              {fixture.score || 'No score'}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {fixture.isHome ? <Home className="h-4 w-4" /> : <Plane className="h-4 w-4" />}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button className="flex-1" onClick={() => {
+                        toast({ title: "Import Started", description: "This will be implemented in the next step" });
+                        setMagicLookupOpen(false);
+                      }}>
+                        Import All Fixtures
+                      </Button>
+                      <Button variant="outline" onClick={() => setMagicLookupOpen(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
 
         </>
     </MainLayout>
