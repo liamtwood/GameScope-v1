@@ -43,14 +43,56 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Simple Test Container */}
+      {/* Honeycomb Background Container */}
       <div className="mt-12 flex justify-center">
         <div 
-          className="w-64 h-32 border-2 border-gray-400"
+          className="honeycomb-container relative overflow-hidden rounded-lg"
           style={{
-            borderColor: (currentClub?.colors as any)?.primary || '#dc2626'
-          }}
+            width: '600px',
+            height: '400px',
+            '--cell-size': '4vw',
+            '--columns': '8',
+            '--gap': '0.2vw',
+            '--cell-height': 'calc(var(--cell-size) * 1.15)',
+            '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
+            '--row-height': 'calc(var(--cell-size) * 0.8666)',
+            '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+            backgroundColor: (currentClub?.colors as any)?.primary || '#dc2626'
+          } as React.CSSProperties}
         >
+          <div 
+            className="honeycomb absolute inset-0"
+            style={{
+              display: 'grid',
+              width: 'var(--container-width)',
+              margin: '0 auto',
+              transform: 'translateX(calc(var(--margin-offset) / -2))',
+              gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+              gridAutoRows: 'var(--row-height)',
+              gap: 'var(--gap)'
+            }}
+          >
+            {/* Generate honeycomb cells */}
+            {Array.from({ length: 48 }, (_, index) => (
+              <div
+                key={index}
+                className="cell"
+                style={{
+                  width: 'var(--cell-size)',
+                  height: 'var(--cell-height)',
+                  margin: '0',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  overflow: 'hidden',
+                  textAlign: 'center',
+                  marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </MainLayout>
