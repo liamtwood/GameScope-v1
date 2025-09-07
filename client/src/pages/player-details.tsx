@@ -727,14 +727,14 @@ export default function PlayerDetails() {
                         Defense
                       </span>
                       
-                      {/* Video Tab */}
+                      {/* Videos Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
                           activeTab === 'video' ? 'text-white font-bold' : 'text-white/70'
                         }`}
                         onClick={() => setActiveTab('video')}
                       >
-                        Video
+                        Videos
                       </span>
                     </div>
                   </div>
@@ -1282,20 +1282,29 @@ export default function PlayerDetails() {
 
               {/* Video Tab Content */}
               <TabsContent value="video" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
-                  <div className="pt-4">
-                    <div className="w-4/5 mx-auto">
+                {source === "profiles" ? (
+                  <div 
+                    className="px-6 min-h-[400px]" 
+                    style={{
+                      backgroundColor: clubPrimaryColor,
+                      backgroundImage: `url("${honeycombSvg}")`,
+                      backgroundSize: '52px 45px',
+                      backgroundPosition: '0 0, 26px 22.5px',
+                      backgroundRepeat: 'repeat'
+                    } as React.CSSProperties}
+                  >
+                    <div className="pt-6">
                       <div className="text-center py-8">
-                        <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h4 className="text-lg font-medium text-gray-900 mb-2">Player Videos</h4>
-                        <p className="text-sm text-muted-foreground">Training sessions, match highlights, and player analysis videos.</p>
+                        <Video className="h-12 w-12 text-white mx-auto mb-4" />
+                        <h4 className="text-lg font-medium text-white mb-2">Player Videos</h4>
+                        <p className="text-sm text-white/80">Training sessions, match highlights, and player analysis videos.</p>
                         <div className="mt-6">
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {/* Placeholder for future video content */}
-                            <Card className="border-dashed border-2 border-gray-300">
+                            <Card className="border-dashed border-2 border-white/30 bg-white/10">
                               <CardContent className="p-6 text-center">
-                                <Video className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm text-gray-500">No videos available</p>
+                                <Video className="h-8 w-8 text-white/70 mx-auto mb-2" />
+                                <p className="text-sm text-white/70">No videos available</p>
                               </CardContent>
                             </Card>
                           </div>
@@ -1303,7 +1312,30 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                    <div className="pt-4">
+                      <div className="w-4/5 mx-auto">
+                        <div className="text-center py-8">
+                          <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">Player Videos</h4>
+                          <p className="text-sm text-muted-foreground">Training sessions, match highlights, and player analysis videos.</p>
+                          <div className="mt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {/* Placeholder for future video content */}
+                              <Card className="border-dashed border-2 border-gray-300">
+                                <CardContent className="p-6 text-center">
+                                  <Video className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                  <p className="text-sm text-gray-500">No videos available</p>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Bio Tab Content - only when coming from Player Profiles */}
