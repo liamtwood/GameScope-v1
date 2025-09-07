@@ -2179,7 +2179,7 @@ export default function PlayerDetails() {
                           <div className="space-y-4">
                             {/* PASS SUCCESS Card */}
                             <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Pass Success</h4>
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">{player?.firstName} {player?.lastName}</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Attempted */}
                                 <div className="flex flex-col items-center space-y-2">
