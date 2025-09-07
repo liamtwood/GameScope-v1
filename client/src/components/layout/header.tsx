@@ -99,7 +99,15 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       
       {/* Container below Polk State College - displays current page */}
       <div className="px-6 bg-muted border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
-        <div className="bg-muted p-3">
+        <div 
+          className="bg-muted p-3"
+          style={title === "VIEW SQUAD MEMBER" ? {
+            background: `
+              repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 12px 12px,
+              repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 12px 12px
+            `
+          } : {}}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
