@@ -69,7 +69,7 @@ export default function PlayerDetails() {
   // Get player statistics directly from database
   const { data: playerStatsData = [] } = useQuery<any[]>({
     queryKey: ["/api/player-stats", playerId],
-    enabled: !!playerId && source === "profiles" && activeTab === "stats"
+    enabled: !!playerId && source === "profiles" && (activeTab === "stats" || activeTab === "defense" || activeTab === "attack" || activeTab === "passing")
   });
 
   // Calculate aggregated stats from player statistics data
