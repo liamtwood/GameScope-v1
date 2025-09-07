@@ -565,55 +565,20 @@ export default function PlayerDetails() {
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
-              {/* Honeycomb Background Pattern */}
+              {/* Lightning/Streak Texture Overlay */}
               <div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  '--cell-size': '12vw',
-                  '--columns': '6',
-                  '--gap': '0.3vw',
-                  '--cell-height': 'calc(var(--cell-size) * 1.15)',
-                  '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
-                  '--row-height': 'calc(var(--cell-size) * 0.8666)',
-                  '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
-                } as React.CSSProperties}
-              >
-                <div 
-                  className="honeycomb absolute inset-0"
-                  style={{
-                    display: 'grid',
-                    width: 'var(--container-width)',
-                    margin: '0 auto',
-                    transform: 'translateX(calc(var(--margin-offset) / -2))',
-                    gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
-                    gridAutoRows: 'var(--row-height)',
-                    gap: 'var(--gap)',
-                    opacity: 0.3
-                  }}
-                >
-                  {/* Generate honeycomb cells */}
-                  {Array.from({ length: 36 }, (_, index) => (
-                    <div
-                      key={index}
-                      className="cell"
-                      style={{
-                        width: 'var(--cell-size)',
-                        height: 'var(--cell-height)',
-                        margin: '0',
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        overflow: 'hidden',
-                        textAlign: 'center',
-                        marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+                  backgroundImage: `
+                    linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
+                    linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
+                    linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
+                    linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
+                    linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
+                  `,
+                  backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
+                }}
+              />
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
                 <Button 
@@ -679,21 +644,7 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 flex-1 relative overflow-hidden" style={{ backgroundColor: clubPrimaryColor }}>
-                    {/* Lightning/Streak Texture Overlay */}
-                    <div 
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
-                          linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
-                          linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
-                          linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
-                          linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
-                        `,
-                        backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
-                      }}
-                    />
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 flex-1 relative" style={{ backgroundColor: clubPrimaryColor }}>
                     <div className="flex items-center gap-4">
                       {/* Squad Number */}
                       {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
