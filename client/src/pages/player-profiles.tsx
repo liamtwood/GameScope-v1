@@ -37,11 +37,12 @@ export default function PlayerProfiles() {
   })) || [];
 
   const getPositionCategory = (position: string): string => {
-    if (['GK'].includes(position)) return 'GK';
-    if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'DM', 'AM'].includes(position)) return 'MID';
-    if (['ST', 'LW', 'RW', 'CF'].includes(position)) return 'FWD';
-    return 'MID';
+    // Now that we have clean data, positions are already in the correct format
+    if (position === 'GK') return 'GK';
+    if (position === 'DEF') return 'DEF';
+    if (position === 'MID') return 'MID';
+    if (position === 'FWD') return 'FWD';
+    return 'MID'; // Default fallback
   };
 
   const getPositionColor = (position: string) => {
