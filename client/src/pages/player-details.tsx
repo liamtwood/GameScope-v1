@@ -1962,10 +1962,11 @@ export default function PlayerDetails() {
                                     
                                     {/* Speed Limit Sign - Center */}
                                     <div className="flex flex-col items-center space-y-2">
-                                      <div className="w-16 h-16 bg-white border-4 border-black rounded-lg flex items-center justify-center">
-                                        <span className="text-lg font-bold text-black">82%</span>
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                        <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                        <span className="text-xl font-bold text-black mt-1">82%</span>
                                       </div>
-                                      <span className="text-xs text-white/80 font-medium">Success Rate</span>
                                     </div>
                                     
                                     {/* Right Foot */}
@@ -2207,10 +2208,11 @@ export default function PlayerDetails() {
                                     
                                     {/* Speed Limit Sign - Center */}
                                     <div className="flex flex-col items-center space-y-2">
-                                      <div className="w-16 h-16 bg-white border-4 border-black rounded-lg flex items-center justify-center">
-                                        <span className="text-lg font-bold text-black">82%</span>
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                        <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                        <span className="text-xl font-bold text-black mt-1">82%</span>
                                       </div>
-                                      <span className="text-xs text-white/80 font-medium">Success Rate</span>
                                     </div>
                                     
                                     {/* Right Foot */}
