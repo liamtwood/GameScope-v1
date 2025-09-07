@@ -200,16 +200,18 @@ export default function PlayerProfiles() {
                             </div>
                             <div className="flex-1">
                               <div className="font-semibold leading-tight">
-                                <div className="text-sm">{player.firstName}</div>
-                                <div className="text-lg">{player.lastName}</div>
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge className={getPositionColor(player.position || 'MID')}>
-                                  {player.position || 'MID'}
-                                </Badge>
-                                {player.starPlayer && (
-                                  <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                                )}
+                                <div className="text-sm flex items-center justify-between">
+                                  <span>{player.firstName}</span>
+                                  <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
+                                    {player.position || 'MID'}
+                                  </Badge>
+                                </div>
+                                <div className="text-lg flex items-center gap-2">
+                                  <span>{player.lastName}</span>
+                                  {player.starPlayer && (
+                                    <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
