@@ -227,8 +227,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
       </Card>
 
       {/* Player Details Tabs */}
-      <Card>
-        <CardContent className="p-0">
+      <Card className="bg-white">
+        <CardContent className="p-0 bg-white">
           <Tabs defaultValue="player" className="w-full">
             {/* Back Button and Tabs on same row */}
             <div className="flex items-center justify-between gap-4 p-4 border-b">
@@ -248,7 +248,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
               </TabsList>
             </div>
 
-            <TabsContent value="player" className="p-6 mt-0">
+            <TabsContent value="player" className="p-6 mt-0 bg-white">
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Player Information</h3>
@@ -345,7 +345,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
               </div>
             </TabsContent>
 
-            <TabsContent value="account" className="p-6 mt-0">
+            <TabsContent value="account" className="p-6 mt-0 bg-white">
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Account Information</h3>
@@ -387,7 +387,7 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
               </div>
             </TabsContent>
 
-            <TabsContent value="teams" className="p-6 mt-0">
+            <TabsContent value="teams" className="p-6 mt-0 bg-white">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Team Assignments</h3>
@@ -477,10 +477,10 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                     playerTeams.map((playerTeam) => (
                       <Card 
                         key={playerTeam.id} 
-                        className="border-2" 
+                        className="border-2 bg-white" 
                         data-testid={`card-team-${playerTeam.team.id}`}
                       >
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 bg-white">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                               <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
@@ -521,8 +521,8 @@ export function PlayerReadOnlyView({ player, onBack }: PlayerReadOnlyViewProps) 
                       </Card>
                     ))
                   ) : (
-                    <Card className="border-dashed border-2 border-gray-300">
-                      <CardContent className="p-6 text-center">
+                    <Card className="border-dashed border-2 border-gray-300 bg-white">
+                      <CardContent className="p-6 text-center bg-white">
                         <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-500">No teams assigned</p>
                         <p className="text-sm text-gray-400 mt-2">
