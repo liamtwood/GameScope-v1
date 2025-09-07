@@ -1671,30 +1671,9 @@ export default function PlayerDetails() {
                   >
 
                     <div className="relative z-10">
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
+                    <div className="pt-6 space-y-8">
                         {/* Bio Information */}
-                        <div className="w-1/2 space-y-8">
+                        <div className="w-full space-y-8">
                         
                         {/* Player Biography Header */}
                         <div className="mb-6">
@@ -1785,8 +1764,27 @@ export default function PlayerDetails() {
                           )}
                         </div>
                         
+                        {/* Player Photo - Moved to Bottom */}
+                        <div className="flex justify-center pt-8">
+                          {player?.headshotPath ? (
+                            <div className="w-64">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover rounded-lg"
+                                data-testid={`img-headshot-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-64 h-80 bg-white/10 flex items-center justify-center rounded-lg">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
+                        
+                        </div>
                     </div>
                     </div>
                   </div>
