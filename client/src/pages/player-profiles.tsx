@@ -197,7 +197,7 @@ export default function PlayerProfiles() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
-                              <Avatar className="h-16 w-16 border border-white">
+                              <Avatar className="h-16 w-16" style={{ boxShadow: '0 0 0 1px white' }}>
                                 {player.avatarPath && (
                                   <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
                                 )}
