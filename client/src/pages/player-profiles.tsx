@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, Search, Trophy, Target, Activity, MapPin } from "lucide-react";
+import { Star, Search } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
@@ -161,9 +161,9 @@ export default function PlayerProfiles() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-lg leading-tight">
-                        <div>{player.firstName}</div>
-                        <div>{player.lastName}</div>
+                      <div className="font-semibold leading-tight">
+                        <div className="text-sm">{player.firstName}</div>
+                        <div className="text-lg">{player.lastName}</div>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge className={getPositionColor(player.position || 'MID')}>
@@ -177,46 +177,6 @@ export default function PlayerProfiles() {
                   </div>
                 </div>
               </CardHeader>
-              
-              <CardContent className="space-y-4">
-
-                {/* Hometown */}
-                {player.hometown && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">From</span>
-                    <span className="font-medium">{player.hometown}</span>
-                  </div>
-                )}
-
-                {/* Stats - Only show if player has any stats */}
-                {((player.goals && player.goals > 0) || (player.assists && player.assists > 0) || (player.appearances && player.appearances > 0)) && (
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    {player.goals && player.goals > 0 && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <Trophy className="h-4 w-4 text-yellow-600" />
-                        <span className="font-bold text-foreground">{player.goals}</span>
-                        <span className="text-muted-foreground">goals</span>
-                      </div>
-                    )}
-                    {player.assists && player.assists > 0 && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <Target className="h-4 w-4 text-blue-600" />
-                        <span className="font-bold text-foreground">{player.assists}</span>
-                        <span className="text-muted-foreground">assists</span>
-                      </div>
-                    )}
-                    {player.appearances && player.appearances > 0 && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <Activity className="h-4 w-4 text-green-600" />
-                        <span className="font-bold text-foreground">{player.appearances}</span>
-                        <span className="text-muted-foreground">apps</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-              </CardContent>
             </Card>
           ))}
         </div>
