@@ -191,7 +191,7 @@ export default function PlayerProfiles() {
                               </Avatar>
                               {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
                                 <div 
-                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold border-2 border-white"
+                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold border border-white"
                                   style={{ backgroundColor: clubPrimary }}
                                 >
                                   {player.jerseyNumber}
