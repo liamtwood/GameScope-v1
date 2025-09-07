@@ -569,12 +569,12 @@ export default function PlayerDetails() {
               <div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  '--cell-size': '12vw',
+                  '--cell-size': '14vw',
                   '--columns': '6',
-                  '--gap': '0.3vw',
+                  '--gap': '0vw',
                   '--cell-height': 'calc(var(--cell-size) * 1.15)',
                   '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
-                  '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                  '--row-height': 'calc(var(--cell-size) * 0.7)',
                   '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
                 } as React.CSSProperties}
               >
@@ -592,7 +592,7 @@ export default function PlayerDetails() {
                   }}
                 >
                   {/* Generate honeycomb cells */}
-                  {Array.from({ length: 60 }, (_, index) => (
+                  {Array.from({ length: 72 }, (_, index) => (
                     <div
                       key={index}
                       className="cell"
