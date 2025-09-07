@@ -1935,19 +1935,17 @@ export default function PlayerDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Attempted Passes</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
                                   <div className="text-sm text-white/80">Total Attempts</div>
-                                  <div className="text-sm text-white/60">
-                                    Across all matches played
-                                  </div>
+
                                 </div>
                               </div>
 
                               {/* Passes Success */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Successful</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
                                   <div className="text-sm text-white/80">Successful Passes</div>
@@ -1959,7 +1957,7 @@ export default function PlayerDetails() {
 
                               {/* Passing Total Distance */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Total Distance</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
                                   <div className="text-sm text-white/80">Meters</div>
@@ -1971,7 +1969,7 @@ export default function PlayerDetails() {
 
                               {/* Passing Average Velocity */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Average Velocity</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
                                   <div className="text-sm text-white/80">m/s</div>
@@ -2166,19 +2164,17 @@ export default function PlayerDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Attempted</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Attempted Passes</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.passes.total}</div>
                                   <div className="text-sm text-white/80">Total Attempts</div>
-                                  <div className="text-sm text-white/60">
-                                    Across all matches played
-                                  </div>
+
                                 </div>
                               </div>
 
                               {/* Passes Success */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes Success</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Successful</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-emerald-400">{playerStats.passes.successful}</div>
                                   <div className="text-sm text-white/80">Successful Passes</div>
@@ -2190,7 +2186,7 @@ export default function PlayerDetails() {
 
                               {/* Passing Total Distance */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Total Distance</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Total Distance</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-purple-400">{playerStats.passingTotalDistance}</div>
                                   <div className="text-sm text-white/80">Meters</div>
@@ -2202,7 +2198,7 @@ export default function PlayerDetails() {
 
                               {/* Passing Average Velocity */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passing Average Velocity</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Average Velocity</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-orange-400">{playerStats.passingAverageVelocity}</div>
                                   <div className="text-sm text-white/80">m/s</div>
