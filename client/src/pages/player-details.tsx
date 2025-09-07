@@ -1936,28 +1936,27 @@ export default function PlayerDetails() {
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="space-y-4">
-                                  {/* Attempted - Top */}
-                                  <div className="flex justify-center">
+                                <div className="space-y-6">
+                                  {/* Row 1: Attempted, Success Rate, Success */}
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Attempted */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
                                         <span className="text-xl font-bold text-blue-400">77</span>
                                       </div>
                                       <span className="text-xs text-white/80 font-medium">Attempted</span>
                                     </div>
-                                  </div>
-                                  
-                                  {/* Success Rate Sign - Center */}
-                                  <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                      <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
-                                      <span className="text-xs font-bold text-black leading-tight">RATE</span>
-                                      <span className="text-xl font-bold text-black mt-1">82%</span>
+                                    
+                                    {/* Success Rate Sign */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                        <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                        <span className="text-xl font-bold text-black mt-1">82%</span>
+                                      </div>
                                     </div>
-                                  </div>
-                                  
-                                  {/* Success - Middle */}
-                                  <div className="flex justify-center">
+                                    
+                                    {/* Success */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
                                         <span className="text-xl font-bold text-emerald-400">63</span>
@@ -1966,7 +1965,7 @@ export default function PlayerDetails() {
                                     </div>
                                   </div>
                                   
-                                  {/* Bottom Row - Left Foot, Dominant Foot, Right Foot */}
+                                  {/* Row 2: Left Foot, Dominant Foot, Right Foot */}
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Left Foot */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -1976,7 +1975,7 @@ export default function PlayerDetails() {
                                       <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                     </div>
                                     
-                                    {/* Dominant Foot Sign - Center */}
+                                    {/* Dominant Foot Sign */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                         <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
@@ -2184,28 +2183,27 @@ export default function PlayerDetails() {
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="space-y-4">
-                                  {/* Attempted - Top */}
-                                  <div className="flex justify-center">
+                                <div className="space-y-6">
+                                  {/* Row 1: Attempted, Success Rate, Success */}
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Attempted */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
                                         <span className="text-xl font-bold text-blue-400">77</span>
                                       </div>
                                       <span className="text-xs text-white/80 font-medium">Attempted</span>
                                     </div>
-                                  </div>
-                                  
-                                  {/* Success Rate Sign - Center */}
-                                  <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                      <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
-                                      <span className="text-xs font-bold text-black leading-tight">RATE</span>
-                                      <span className="text-xl font-bold text-black mt-1">82%</span>
+                                    
+                                    {/* Success Rate Sign */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                        <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                        <span className="text-xl font-bold text-black mt-1">82%</span>
+                                      </div>
                                     </div>
-                                  </div>
-                                  
-                                  {/* Success - Middle */}
-                                  <div className="flex justify-center">
+                                    
+                                    {/* Success */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
                                         <span className="text-xl font-bold text-emerald-400">63</span>
@@ -2214,7 +2212,7 @@ export default function PlayerDetails() {
                                     </div>
                                   </div>
                                   
-                                  {/* Bottom Row - Left Foot, Dominant Foot, Right Foot */}
+                                  {/* Row 2: Left Foot, Dominant Foot, Right Foot */}
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Left Foot */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -2224,7 +2222,7 @@ export default function PlayerDetails() {
                                       <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                     </div>
                                     
-                                    {/* Dominant Foot Sign - Center */}
+                                    {/* Dominant Foot Sign */}
                                     <div className="flex flex-col items-center space-y-2">
                                       <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                         <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
