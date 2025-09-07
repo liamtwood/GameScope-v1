@@ -189,7 +189,7 @@ export default function PlayerProfiles() {
                                   {getPlayerInitials(player)}
                                 </AvatarFallback>
                               </Avatar>
-                              {player.jerseyNumber && (
+                              {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
                                 <div 
                                   className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
                                   style={{ backgroundColor: clubPrimary }}
