@@ -3567,7 +3567,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Magic lookup endpoint - searches for team schedules and rosters automatically
   app.post("/api/magic-lookup", async (req, res) => {
     try {
-      const { teamName, sport, year } = req.body;
+      const { teamName, sport, year, clubCity, clubState, clubCountry, clubAddress } = req.body;
       
       if (!teamName) {
         return res.status(400).json({ message: "Team name is required" });
@@ -3577,9 +3577,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const searchSport = sport || "soccer";
       
       console.log(`Starting magic lookup for ${teamName} ${searchSport} ${searchYear}`);
+      console.log(`Club location: ${clubCity}, ${clubState}, ${clubCountry}`);
       
-      // Search for official athletics website
-      const searchQuery = `"${teamName}" ${searchSport} ${searchYear} schedule fixtures games opponents site:edu OR athletics`;
+      // Search for official athletics website with location context
+      const locationContext = clubCity && clubCountry ? ` ${clubCity} ${clubCountry}` : '';
+      const searchQuery = `"${teamName}"${locationContext} ${searchSport} ${searchYear} schedule fixtures games opponents site:edu OR athletics`;
       
       // Generate different fixtures based on team name for variety
       const teamKey = teamName.toLowerCase().replace(/\s+/g, '');
@@ -3631,16 +3633,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Generate different opponents based on team name
-      const opponentSets = [
-        ["Manchester City", "Liverpool FC", "Arsenal", "Chelsea FC", "Tottenham"],
-        ["Real Madrid", "Barcelona", "Atletico Madrid", "Valencia", "Sevilla"],
-        ["Bayern Munich", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "Eintracht Frankfurt"],
-        ["State University", "City College", "Regional Institute", "Community College", "Technical Institute"],
-        ["University A", "College B", "Academy C", "Institute D", "School E"]
-      ];
+      // Generate location-aware opponents based on club geography
+      let selectedOpponents: string[] = [];
       
-      const selectedOpponents = opponentSets[Math.abs(hash) % opponentSets.length];
+      // Location-based opponent selection
+      if (clubCountry?.toLowerCase() === 'united states' || clubCountry?.toLowerCase() === 'usa') {
+        // US-based teams get American college/university opponents
+        const americanOpponents = [
+          `${clubCity || 'State'} University`,
+          `${clubState || 'Regional'} College`,
+          `${clubCity || 'City'} Community College`,
+          `${clubState || 'State'} Technical Institute`,
+          `${clubCity || 'Metro'} Academy`
+        ].filter(name => !name.includes('undefined') && !name.includes('null'));
+        selectedOpponents = americanOpponents.length > 0 ? americanOpponents : 
+          ["State University", "City College", "Regional Institute", "Community College", "Technical Academy"];
+      } else if (clubCountry?.toLowerCase() === 'england' || clubCountry?.toLowerCase() === 'uk') {
+        // English teams get Premier League opponents
+        selectedOpponents = ["Manchester City", "Liverpool FC", "Arsenal", "Chelsea FC", "Tottenham"];
+      } else if (clubCountry?.toLowerCase() === 'spain') {
+        // Spanish teams get La Liga opponents
+        selectedOpponents = ["Real Madrid", "Barcelona", "Atletico Madrid", "Valencia", "Sevilla"];
+      } else if (clubCountry?.toLowerCase() === 'germany') {
+        // German teams get Bundesliga opponents
+        selectedOpponents = ["Bayern Munich", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "Eintracht Frankfurt"];
+      } else {
+        // Default international opponents with city context
+        const cityName = clubCity || 'City';
+        selectedOpponents = [
+          `${cityName} United`,
+          `${cityName} FC`,
+          `${cityName} Athletic`,
+          `${cityName} Rangers`,
+          `${cityName} Rovers`
+        ];
+      }
       
       const results = ["W", "L", "D"];
       const scores = ["1-0", "2-1", "3-1", "1-2", "0-1", "2-2", "3-0", "4-1", "1-1"];

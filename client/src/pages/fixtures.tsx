@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { StatsCard } from "@/components/ui/stats-card";
@@ -45,6 +46,7 @@ export default function Fixtures() {
 
 
   const { selectedTeam: currentTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
 
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
@@ -83,7 +85,6 @@ export default function Fixtures() {
   }, [fixtures]);
 
   const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
-  const currentClub = clubs.find((club: any) => club.id === currentTeam?.clubId);
   
   // Set default season when team/club data loads
   useEffect(() => {
@@ -141,7 +142,15 @@ export default function Fixtures() {
   // Mutation for magic lookup
   const magicLookupMutation = useMutation({
     mutationFn: async (data: { teamName: string; sport?: string; year?: number }) => {
-      const response = await apiRequest("POST", '/api/magic-lookup', data);
+      // Include club location data for more accurate searches
+      const enhancedData = {
+        ...data,
+        clubCity: currentClub?.city,
+        clubState: currentClub?.state,
+        clubCountry: currentClub?.country,
+        clubAddress: currentClub?.address
+      };
+      const response = await apiRequest("POST", '/api/magic-lookup', enhancedData);
       return response.json();
     },
     onSuccess: (data) => {
