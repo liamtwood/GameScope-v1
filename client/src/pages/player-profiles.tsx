@@ -189,9 +189,20 @@ export default function PlayerProfiles() {
                   {players.map((player) => (
                     <Card 
                       key={player.id} 
-                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer relative overflow-hidden" 
                       onClick={() => handlePlayerClick(player.id)}
                       data-testid={`card-player-${player.id}`}
+                      style={{
+                        backgroundImage: `
+                          radial-gradient(circle at 50% 50%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
+                          radial-gradient(circle at 25% 25%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
+                          radial-gradient(circle at 75% 25%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
+                          radial-gradient(circle at 25% 75%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
+                          radial-gradient(circle at 75% 75%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px)
+                        `,
+                        backgroundSize: '20px 20px',
+                        backgroundPosition: '0 0, 10px 10px, -10px 10px, 10px -10px, -10px -10px'
+                      }}
                     >
                       <CardHeader className="py-4">
                         <div className="flex items-center justify-between">
