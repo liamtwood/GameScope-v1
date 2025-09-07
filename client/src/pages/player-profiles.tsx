@@ -23,6 +23,16 @@ export default function PlayerProfiles() {
   const { selectedTeam: currentTeam } = useTeam();
   const { clubPrimary } = useClubTheme();
 
+  // Create SVG-based honeycomb with ultra-thin lines (existing implementation)
+  const honeycombSvg = `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="30,2 52,15 52,37 30,50 8,37 8,15" 
+               fill="none" 
+               stroke="rgba(0,0,0,0.08)" 
+               stroke-width="0.8"/>
+    </svg>
+  `)}`;
+
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
     queryKey: ["/api/team", currentTeam?.id, "users"],
     enabled: !!currentTeam?.id
@@ -193,15 +203,10 @@ export default function PlayerProfiles() {
                       onClick={() => handlePlayerClick(player.id)}
                       data-testid={`card-player-${player.id}`}
                       style={{
-                        backgroundImage: `
-                          radial-gradient(circle at 50% 50%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
-                          radial-gradient(circle at 25% 25%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
-                          radial-gradient(circle at 75% 25%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
-                          radial-gradient(circle at 25% 75%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px),
-                          radial-gradient(circle at 75% 75%, transparent 7px, rgba(0,0,0,0.02) 7px, rgba(0,0,0,0.02) 10px, transparent 10px)
-                        `,
-                        backgroundSize: '20px 20px',
-                        backgroundPosition: '0 0, 10px 10px, -10px 10px, 10px -10px, -10px -10px'
+                        backgroundImage: `url("${honeycombSvg}")`,
+                        backgroundSize: '52px 45px',
+                        backgroundPosition: '0 0, 26px 22.5px',
+                        backgroundRepeat: 'repeat'
                       }}
                     >
                       <CardHeader className="py-4">
