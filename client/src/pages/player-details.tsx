@@ -1455,6 +1455,7 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
@@ -1622,6 +1623,7 @@ export default function PlayerDetails() {
                         
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -1887,6 +1889,7 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    </div>
                   </div>
                 </TabsContent>
               )}
@@ -1980,6 +1983,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2094,6 +2098,7 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    </div>
                   </div>
                 </TabsContent>
               )}
@@ -2194,6 +2199,7 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </TabsContent>
