@@ -1018,7 +1018,62 @@ export default function PlayerDetails() {
               
               {/* Player Details Content */}
               <TabsContent value="details" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
+                <div 
+                  className="px-6 pb-6 space-y-3 min-h-[400px] relative overflow-hidden" 
+                  style={{
+                    backgroundColor: clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  {/* Honeycomb Background Pattern */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      '--cell-size': '8vw',
+                      '--columns': '8',
+                      '--gap': '0.2vw',
+                      '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                      '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
+                      '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                      '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+                    } as React.CSSProperties}
+                  >
+                    <div 
+                      className="honeycomb absolute inset-0"
+                      style={{
+                        display: 'grid',
+                        width: 'var(--container-width)',
+                        margin: '0 auto',
+                        transform: 'translateX(calc(var(--margin-offset) / -2))',
+                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridAutoRows: 'var(--row-height)',
+                        gap: 'var(--gap)',
+                        opacity: 0.15
+                      }}
+                    >
+                      {/* Generate honeycomb cells */}
+                      {Array.from({ length: 48 }, (_, index) => (
+                        <div
+                          key={index}
+                          className="cell"
+                          style={{
+                            width: 'var(--cell-size)',
+                            height: 'var(--cell-height)',
+                            margin: '0',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            overflow: 'hidden',
+                            textAlign: 'center',
+                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative z-10">
                   <div className="pt-4">
                     
 
@@ -1211,12 +1266,68 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
+                  </div>
                 </div>
               </TabsContent>
 
               {/* Teams Tab Content */}
               <TabsContent value="teams" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                <div 
+                  className="px-6 pb-6 space-y-3 min-h-[400px] relative overflow-hidden" 
+                  style={{
+                    backgroundColor: clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  {/* Honeycomb Background Pattern */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      '--cell-size': '8vw',
+                      '--columns': '8',
+                      '--gap': '0.2vw',
+                      '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                      '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
+                      '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                      '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+                    } as React.CSSProperties}
+                  >
+                    <div 
+                      className="honeycomb absolute inset-0"
+                      style={{
+                        display: 'grid',
+                        width: 'var(--container-width)',
+                        margin: '0 auto',
+                        transform: 'translateX(calc(var(--margin-offset) / -2))',
+                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridAutoRows: 'var(--row-height)',
+                        gap: 'var(--gap)',
+                        opacity: 0.15
+                      }}
+                    >
+                      {/* Generate honeycomb cells */}
+                      {Array.from({ length: 48 }, (_, index) => (
+                        <div
+                          key={index}
+                          className="cell"
+                          style={{
+                            width: 'var(--cell-size)',
+                            height: 'var(--cell-height)',
+                            margin: '0',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            overflow: 'hidden',
+                            textAlign: 'center',
+                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative z-10">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="space-y-6">
@@ -1366,12 +1477,68 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
+                  </div>
                 </div>
               </TabsContent>
 
               {/* Parents Tab Content */}
               <TabsContent value="parents" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                <div 
+                  className="px-6 pb-6 space-y-3 min-h-[400px] relative overflow-hidden" 
+                  style={{
+                    backgroundColor: clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  {/* Honeycomb Background Pattern */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      '--cell-size': '8vw',
+                      '--columns': '8',
+                      '--gap': '0.2vw',
+                      '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                      '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
+                      '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                      '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+                    } as React.CSSProperties}
+                  >
+                    <div 
+                      className="honeycomb absolute inset-0"
+                      style={{
+                        display: 'grid',
+                        width: 'var(--container-width)',
+                        margin: '0 auto',
+                        transform: 'translateX(calc(var(--margin-offset) / -2))',
+                        gridTemplateColumns: 'repeat(8, minmax(var(--cell-size), 1fr))',
+                        gridAutoRows: 'var(--row-height)',
+                        gap: 'var(--gap)',
+                        opacity: 0.15
+                      }}
+                    >
+                      {/* Generate honeycomb cells */}
+                      {Array.from({ length: 48 }, (_, index) => (
+                        <div
+                          key={index}
+                          className="cell"
+                          style={{
+                            width: 'var(--cell-size)',
+                            height: 'var(--cell-height)',
+                            margin: '0',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            overflow: 'hidden',
+                            textAlign: 'center',
+                            marginLeft: (Math.floor(index / 8) % 2 === 1 && (index % 8) >= 0) ? 'var(--margin-offset)' : '0'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative z-10">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="text-center py-8">
@@ -1379,6 +1546,7 @@ export default function PlayerDetails() {
                         <p className="text-sm text-muted-foreground">Parent and guardian information for this player.</p>
                       </div>
                     </div>
+                  </div>
                   </div>
                 </div>
               </TabsContent>
