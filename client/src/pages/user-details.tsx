@@ -354,7 +354,7 @@ export default function UserDetails() {
                   display: 'grid',
                   width: '100%',
                   height: '100%',
-                  transform: 'translateX(calc(var(--margin-offset) / -2)) scale(1.1)',
+                  transform: 'translateY(-150px) translateX(-120px) scale(1.1)',
                   transformOrigin: 'center center',
                   gridTemplateColumns: 'repeat(15, 1fr)',
                   gridAutoRows: 'var(--row-height)',
