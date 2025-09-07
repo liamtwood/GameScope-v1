@@ -549,22 +549,10 @@ export default function PlayerDetails() {
   const textColor = isLightColor(clubPrimaryColor) ? '#000000' : '#ffffff';
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // Create SVG-based honeycomb with ultra-thin lines
-  const honeycombSvg = `data:image/svg+xml,${encodeURIComponent(`
-    <svg width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="30,2 52,15 52,37 30,50 8,37 8,15" 
-               fill="none" 
-               stroke="rgba(255,255,255,0.12)" 
-               stroke-width="0.8"/>
-    </svg>
-  `)}`;
-  
   const solidStyle = {
     backgroundColor: clubPrimaryColor,
-    backgroundImage: `url("${honeycombSvg}")`,
-    backgroundSize: '52px 45px',
-    backgroundPosition: '0 0, 26px 22.5px',
-    backgroundRepeat: 'repeat'
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
   } as React.CSSProperties;
 
   return (
@@ -577,6 +565,54 @@ export default function PlayerDetails() {
         <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
+              {/* Honeycomb Background Pattern */}
+              <div 
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  '--cell-size': '35px',
+                  '--columns': '18',
+                  '--gap': '1px',
+                  '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                  '--row-height': 'calc(var(--cell-size) * 0.8666)',
+                  '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
+                } as React.CSSProperties}
+              >
+                <div 
+                  className="honeycomb absolute inset-0"
+                  style={{
+                    display: 'grid',
+                    width: '100%',
+                    height: '100%',
+                    transform: 'translateX(calc(var(--margin-offset) / -2)) scale(1.1)',
+                    transformOrigin: 'center center',
+                    gridTemplateColumns: 'repeat(18, 1fr)',
+                    gridAutoRows: 'var(--row-height)',
+                    gap: 'var(--gap)',
+                    opacity: 0.1
+                  }}
+                >
+                  {/* Generate honeycomb cells */}
+                  {Array.from({ length: 144 }, (_, index) => (
+                    <div
+                      key={index}
+                      className="cell"
+                      style={{
+                        width: 'var(--cell-size)',
+                        height: 'var(--cell-height)',
+                        margin: '0',
+                        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                        textAlign: 'center',
+                        marginLeft: (Math.floor(index / 18) % 2 === 1 && (index % 18) >= 0) ? 'var(--margin-offset)' : '0'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
               {/* Back Button Row */}
               <div className="px-6 py-1 flex justify-between items-center">
                 <Button 

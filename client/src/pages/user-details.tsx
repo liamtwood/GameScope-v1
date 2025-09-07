@@ -482,9 +482,6 @@ export default function UserDetails() {
                       <Badge className={`text-xs px-2 py-1 ${getStatusColor()}`}>
                         {user.status || 'Active'}
                       </Badge>
-                      {user.keyUser && (
-                        <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                      )}
                     </div>
                   </div>
                 </div>
@@ -568,18 +565,11 @@ export default function UserDetails() {
                       <div className="space-y-4">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Age</label>
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              value={editData.age || ''}
-                              onChange={(e) => handleInputChange('age', e.target.value ? parseInt(e.target.value) : null)}
-                              data-testid="input-age"
-                            />
-                          ) : (
-                            <p className="text-lg" data-testid={`text-age-${user.id}`}>
-                              {user.age || 'Not provided'}
-                            </p>
-                          )}
+                          <p className="text-lg" data-testid={`text-age-${user.id}`}>
+                            {user.dateOfBirth 
+                              ? differenceInYears(new Date(), new Date(user.dateOfBirth))
+                              : 'Not provided'}
+                          </p>
                         </div>
                         
                         <div>
