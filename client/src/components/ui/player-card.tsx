@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
 // Define Player type for compatibility with team data
@@ -33,8 +34,22 @@ interface PlayerCardProps {
 
 export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
   const [, setLocation] = useLocation();
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
   const { clubPrimary } = useClubTheme();
   
+  const getStatusColor = () => {
+    const status = player.fitnessStatus || player.status;
+    switch (status) {
+      case 'Fit':
+        return 'bg-green-500 text-white';
+      case 'Injured':
+        return 'bg-red-500 text-white';
+      case 'Retired':
+        return 'bg-gray-500 text-white';
+      default:
+        return 'bg-blue-500 text-white';
+    }
+  };
 
   const getPositionCategory = (position: string): string => {
     if (position.includes('GK') || position.includes('Goalkeeper')) return 'GK';
@@ -111,8 +126,41 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
             </div>
           </div>
 
-          {/* Right side - Actions */}
+          {/* Right side - Status and Actions */}
           <div className="flex items-center space-x-3">
+            {/* Status */}
+            {isEditingStatus ? (
+              <Select
+                value={player.fitnessStatus || player.status || "Fit"}
+                onValueChange={(newStatus) => {
+                  if (onUpdateStatus) {
+                    onUpdateStatus(player, newStatus);
+                  }
+                  setIsEditingStatus(false);
+                }}
+              >
+                <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Fit">Fit</SelectItem>
+                  <SelectItem value="Injured">Injured</SelectItem>
+                  <SelectItem value="Retired">Retired</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge 
+                className={`text-xs px-3 py-1 cursor-pointer hover:opacity-80 ${getStatusColor()}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingStatus(true);
+                }}
+                title="Click to edit status"
+              >
+                {player.fitnessStatus || player.status || "Fit"}
+              </Badge>
+            )}
+            
             {/* Star Toggle */}
             {onToggleKeyPlayer && (
               <Button
