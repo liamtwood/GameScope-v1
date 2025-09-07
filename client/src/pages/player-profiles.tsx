@@ -71,6 +71,29 @@ export default function PlayerProfiles() {
     return matchesPosition && matchesSearch;
   });
 
+  // Group players by position and sort by jersey number
+  const groupedPlayers = {
+    GK: filteredPlayers
+      .filter(p => getPositionCategory(p.position || 'MID') === 'GK')
+      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    DEF: filteredPlayers
+      .filter(p => getPositionCategory(p.position || 'MID') === 'DEF')
+      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    MID: filteredPlayers
+      .filter(p => getPositionCategory(p.position || 'MID') === 'MID')
+      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    FWD: filteredPlayers
+      .filter(p => getPositionCategory(p.position || 'MID') === 'FWD')
+      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999))
+  };
+
+  const positionLabels = {
+    GK: 'Goalkeepers',
+    DEF: 'Defenders', 
+    MID: 'Midfielders',
+    FWD: 'Forwards'
+  };
+
   const getPlayerInitials = (player: any) => {
     return `${player.firstName?.[0] || ''}${player.lastName?.[0] || ''}`;
   };
@@ -130,55 +153,73 @@ export default function PlayerProfiles() {
           </div>
         </div>
 
-        {/* Player Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPlayers.map((player) => (
-            <Card 
-              key={player.id} 
-              className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
-              onClick={() => handlePlayerClick(player.id)}
-              data-testid={`card-player-${player.id}`}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Avatar className="h-16 w-16">
-                        {player.avatarPath && (
-                          <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
-                        )}
-                        <AvatarFallback className="text-lg font-bold">
-                          {getPlayerInitials(player)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {player.jerseyNumber && (
-                        <div 
-                          className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
-                          style={{ backgroundColor: clubPrimary }}
-                        >
-                          {player.jerseyNumber}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold leading-tight">
-                        <div className="text-sm">{player.firstName}</div>
-                        <div className="text-lg">{player.lastName}</div>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={getPositionColor(player.position || 'MID')}>
-                          {player.position || 'MID'}
-                        </Badge>
-                        {player.starPlayer && (
-                          <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
+        {/* Players Grouped by Position */}
+        <div className="space-y-8">
+          {(['GK', 'DEF', 'MID', 'FWD'] as const).map(position => {
+            const players = groupedPlayers[position];
+            if (players.length === 0) return null;
+            
+            return (
+              <div key={position} className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-xl font-semibold">{positionLabels[position]}</h3>
+                  <Badge variant="outline" className="px-3">
+                    {players.length}
+                  </Badge>
                 </div>
-              </CardHeader>
-            </Card>
-          ))}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {players.map((player) => (
+                    <Card 
+                      key={player.id} 
+                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                      onClick={() => handlePlayerClick(player.id)}
+                      data-testid={`card-player-${player.id}`}
+                    >
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar className="h-16 w-16">
+                                {player.avatarPath && (
+                                  <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
+                                )}
+                                <AvatarFallback className="text-lg font-bold">
+                                  {getPlayerInitials(player)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {player.jerseyNumber && (
+                                <div 
+                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
+                                  style={{ backgroundColor: clubPrimary }}
+                                >
+                                  {player.jerseyNumber}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold leading-tight">
+                                <div className="text-sm">{player.firstName}</div>
+                                <div className="text-lg">{player.lastName}</div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge className={getPositionColor(player.position || 'MID')}>
+                                  {player.position || 'MID'}
+                                </Badge>
+                                {player.starPlayer && (
+                                  <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {filteredPlayers.length === 0 && (
