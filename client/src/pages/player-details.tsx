@@ -45,6 +45,7 @@ export default function PlayerDetails() {
   const [position, setPosition] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>(source === "profiles" ? "bio" : "details");
   const [selectedFixture, setSelectedFixture] = useState<string>("all-season");
+  const [activePassingCard, setActivePassingCard] = useState('success');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -1932,112 +1933,106 @@ export default function PlayerDetails() {
 
                           {/* Passing Tab */}
                           <TabsContent value="passing" className="space-y-6">
-                            {(() => {
-                              const [activeCard, setActiveCard] = useState('success');
-                              
-                              return (
-                                <div className="space-y-4">
-                                  {/* Card Selector Pills */}
-                                  <div className="flex justify-center gap-2">
-                                    <button 
-                                      onClick={() => setActiveCard('success')}
-                                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                                        activeCard === 'success' 
-                                          ? 'bg-white text-black' 
-                                          : 'bg-white/20 text-white hover:bg-white/30'
-                                      }`}
-                                      data-testid="button-pass-success"
-                                    >
-                                      Pass Success
-                                    </button>
-                                    <button 
-                                      onClick={() => setActiveCard('foot')}
-                                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                                        activeCard === 'foot' 
-                                          ? 'bg-white text-black' 
-                                          : 'bg-white/20 text-white hover:bg-white/30'
-                                      }`}
-                                      data-testid="button-foot"
-                                    >
-                                      Foot
-                                    </button>
-                                  </div>
+                            <div className="space-y-4">
+                              {/* Card Selector Pills */}
+                              <div className="flex justify-center gap-2">
+                                <button 
+                                  onClick={() => setActivePassingCard('success')}
+                                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                                    activePassingCard === 'success' 
+                                      ? 'bg-white text-black' 
+                                      : 'bg-white/20 text-white hover:bg-white/30'
+                                  }`}
+                                  data-testid="button-pass-success"
+                                >
+                                  Pass Success
+                                </button>
+                                <button 
+                                  onClick={() => setActivePassingCard('foot')}
+                                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                                    activePassingCard === 'foot' 
+                                      ? 'bg-white text-black' 
+                                      : 'bg-white/20 text-white hover:bg-white/30'
+                                  }`}
+                                  data-testid="button-foot"
+                                >
+                                  Foot
+                                </button>
+                              </div>
 
-                                  {/* Single Card Display */}
-                                  {activeCard === 'success' ? (
-                                    /* PASS SUCCESS Card */
-                                    <div 
-                                      className="bg-white/10 rounded-lg p-6 border border-white/20 text-center cursor-pointer hover:bg-white/15 transition-colors"
-                                      onClick={() => setActiveCard('foot')}
-                                      data-testid="card-pass-success"
-                                    >
-                                      <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
-                                      <div className="grid grid-cols-3 gap-4 items-center">
-                                        {/* Attempted */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                            <span className="text-xl font-bold text-blue-400">77</span>
-                                          </div>
-                                          <span className="text-xs text-white/80 font-medium">Attempted</span>
-                                        </div>
-                                        
-                                        {/* Success Rate Sign */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                            <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
-                                            <span className="text-xs font-bold text-black leading-tight">RATE</span>
-                                            <span className="text-xl font-bold text-black mt-1">82%</span>
-                                          </div>
-                                        </div>
-                                        
-                                        {/* Success */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                            <span className="text-xl font-bold text-emerald-400">63</span>
-                                          </div>
-                                          <span className="text-xs text-white/80 font-medium">Success</span>
-                                        </div>
+                              {/* Single Card Display */}
+                              {activePassingCard === 'success' ? (
+                                /* PASS SUCCESS Card */
+                                <div 
+                                  className="bg-white/10 rounded-lg p-6 border border-white/20 text-center cursor-pointer hover:bg-white/15 transition-colors"
+                                  onClick={() => setActivePassingCard('foot')}
+                                  data-testid="card-pass-success"
+                                >
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Attempted */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-blue-400">77</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                    </div>
+                                    
+                                    {/* Success Rate Sign */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                        <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                        <span className="text-xl font-bold text-black mt-1">82%</span>
                                       </div>
                                     </div>
-                                  ) : (
-                                    /* FOOT Card */
-                                    <div 
-                                      className="bg-white/10 rounded-lg p-6 border border-white/20 text-center cursor-pointer hover:bg-white/15 transition-colors"
-                                      onClick={() => setActiveCard('success')}
-                                      data-testid="card-foot"
-                                    >
-                                      <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
-                                      <div className="grid grid-cols-3 gap-4 items-center">
-                                        {/* Left Foot */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                            <span className="text-xl font-bold text-purple-400">12</span>
-                                          </div>
-                                          <span className="text-xs text-white/80 font-medium">Left Foot</span>
-                                        </div>
-                                        
-                                        {/* Dominant Foot Sign */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                            <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
-                                            <span className="text-xs font-bold text-black leading-tight">FOOT</span>
-                                            <span className="text-xl font-bold text-black mt-1">81%</span>
-                                          </div>
-                                        </div>
-                                        
-                                        {/* Right Foot */}
-                                        <div className="flex flex-col items-center space-y-2">
-                                          <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                            <span className="text-xl font-bold text-orange-400">51</span>
-                                          </div>
-                                          <span className="text-xs text-white/80 font-medium">Right Foot</span>
-                                        </div>
+                                    
+                                    {/* Success */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-emerald-400">63</span>
                                       </div>
+                                      <span className="text-xs text-white/80 font-medium">Success</span>
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
-                              );
-                            })()}
+                              ) : (
+                                /* FOOT Card */
+                                <div 
+                                  className="bg-white/10 rounded-lg p-6 border border-white/20 text-center cursor-pointer hover:bg-white/15 transition-colors"
+                                  onClick={() => setActivePassingCard('success')}
+                                  data-testid="card-foot"
+                                >
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Left Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-purple-400">12</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Left Foot</span>
+                                    </div>
+                                    
+                                    {/* Dominant Foot Sign */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                        <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
+                                        <span className="text-xs font-bold text-black leading-tight">FOOT</span>
+                                        <span className="text-xl font-bold text-black mt-1">81%</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Right Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-orange-400">51</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </TabsContent>
 
                           {/* Defense Tab */}
