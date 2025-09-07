@@ -354,16 +354,16 @@ export default function UserDetails() {
                   display: 'grid',
                   width: '100%',
                   height: '100%',
-                  transform: 'translateY(-150px) translateX(-120px) scale(1.1)',
+                  transform: 'translateX(calc(var(--margin-offset) / -2)) translateX(-120px) translateY(-150px)',
                   transformOrigin: 'center center',
-                  gridTemplateColumns: 'repeat(15, 1fr)',
+                  gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                   gridAutoRows: 'var(--row-height)',
                   gap: 'var(--gap)',
                   opacity: 0.15
                 }}
               >
                 {/* Generate honeycomb cells */}
-                {Array.from({ length: 90 }, (_, index) => (
+                {Array.from({ length: 60 }, (_, index) => (
                   <div
                     key={index}
                     className="cell"
@@ -371,14 +371,15 @@ export default function UserDetails() {
                       width: 'var(--cell-size)',
                       height: 'var(--cell-height)',
                       margin: '0',
-                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
                       clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
                       overflow: 'hidden',
                       textAlign: 'center',
-                      marginLeft: (Math.floor(index / 15) % 2 === 1 && (index % 15) >= 0) ? 'var(--margin-offset)' : '0'
+                      marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
                     }}
                   />
                 ))}
