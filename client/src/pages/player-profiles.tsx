@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Star, Search, Trophy, Target, Activity, MapPin } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
+import { useClubTheme } from "@/hooks/use-club-theme";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 
@@ -18,6 +19,7 @@ export default function PlayerProfiles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
+  const { clubPrimary } = useClubTheme();
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
     queryKey: ["/api/team", currentTeam?.id, "users"],
@@ -147,7 +149,10 @@ export default function PlayerProfiles() {
                         </AvatarFallback>
                       </Avatar>
                       {player.jerseyNumber && (
-                        <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                        <div 
+                          className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
+                          style={{ backgroundColor: clubPrimary }}
+                        >
                           {player.jerseyNumber}
                         </div>
                       )}
