@@ -178,7 +178,7 @@ export default function PlayerProfiles() {
                       data-testid={`card-player-${player.id}`}
                     >
                       <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
                               <Avatar className="h-16 w-16">
