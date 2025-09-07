@@ -177,7 +177,7 @@ export default function PlayerProfiles() {
                       onClick={() => handlePlayerClick(player.id)}
                       data-testid={`card-player-${player.id}`}
                     >
-                      <CardHeader className="pb-4">
+                      <CardHeader className="py-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
