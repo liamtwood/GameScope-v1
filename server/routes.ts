@@ -3648,8 +3648,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ].filter(name => !name.includes('undefined') && !name.includes('null'));
         selectedOpponents = americanOpponents.length > 0 ? americanOpponents : 
           ["State University", "City College", "Regional Institute", "Community College", "Technical Academy"];
-      } else if (clubCountry?.toLowerCase() === 'england' || clubCountry?.toLowerCase() === 'uk') {
-        // English teams get Premier League opponents
+      } else if (clubCountry?.toLowerCase().includes('england') || clubCountry?.toLowerCase().includes('uk') || clubCountry?.toLowerCase().includes('kingdom')) {
+        // English/UK teams get Premier League opponents
         selectedOpponents = ["Manchester City", "Liverpool FC", "Arsenal", "Chelsea FC", "Tottenham"];
       } else if (clubCountry?.toLowerCase() === 'spain') {
         // Spanish teams get La Liga opponents
