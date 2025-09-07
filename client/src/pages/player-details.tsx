@@ -562,7 +562,7 @@ export default function PlayerDetails() {
     >
       <div className="-m-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
-        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col min-h-screen">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
               {/* Honeycomb Background Pattern */}
@@ -1552,10 +1552,11 @@ export default function PlayerDetails() {
               </TabsContent>
 
               {/* Video Tab Content */}
-              <TabsContent value="video" className="m-0">
+              <TabsContent value="video" className="m-0 flex-1 min-h-0">
                 {source === "profiles" ? (
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
                     <div className="relative z-10">
@@ -1663,9 +1664,10 @@ export default function PlayerDetails() {
 
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="bio" className="m-0">
+                <TabsContent value="bio" className="m-0 flex-1 min-h-0">
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
                     <div className="relative z-10">
@@ -2042,9 +2044,10 @@ export default function PlayerDetails() {
 
               {/* Attack Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="attack" className="m-0">
+                <TabsContent value="attack" className="m-0 flex-1 min-h-0">
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
                     <div className="relative z-10">
@@ -2121,9 +2124,10 @@ export default function PlayerDetails() {
 
               {/* Passing Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="passing" className="m-0">
+                <TabsContent value="passing" className="m-0 flex-1 min-h-0">
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
                     <div className="relative z-10">
@@ -2219,9 +2223,10 @@ export default function PlayerDetails() {
 
               {/* Defense Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="defense" className="m-0">
+                <TabsContent value="defense" className="m-0 flex-1 min-h-0">
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 h-full flex flex-col relative" 
+                    style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
                     <div className="relative z-10">
