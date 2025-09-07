@@ -1932,12 +1932,12 @@ export default function PlayerDetails() {
 
                           {/* Passing Tab */}
                           <TabsContent value="passing" className="space-y-6">
-                            <div className="max-w-md mx-auto">
-                              {/* Passes Attempted */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="space-y-6">
-                                  {/* Row 1: Attempted, Success Rate, Success */}
+                            {/* Horizontal scroll container */}
+                            <div className="overflow-x-auto">
+                              <div className="flex gap-4" style={{ width: 'calc(200% + 1rem)' }}>
+                                {/* PASS SUCCESS Card */}
+                                <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center flex-shrink-0 w-full">
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Attempted */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -1964,8 +1964,11 @@ export default function PlayerDetails() {
                                       <span className="text-xs text-white/80 font-medium">Success</span>
                                     </div>
                                   </div>
-                                  
-                                  {/* Row 2: Left Foot, Dominant Foot, Right Foot */}
+                                </div>
+
+                                {/* FOOT Card - extends off screen */}
+                                <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center flex-shrink-0 w-full">
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Left Foot */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -1994,8 +1997,6 @@ export default function PlayerDetails() {
                                   </div>
                                 </div>
                               </div>
-
-
                             </div>
                           </TabsContent>
 
@@ -2179,12 +2180,12 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="max-w-md mx-auto">
-                              {/* Passes Attempted */}
-                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="space-y-6">
-                                  {/* Row 1: Attempted, Success Rate, Success */}
+                            {/* Horizontal scroll container */}
+                            <div className="overflow-x-auto">
+                              <div className="flex gap-4" style={{ width: 'calc(200% + 1rem)' }}>
+                                {/* PASS SUCCESS Card */}
+                                <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center flex-shrink-0 w-full">
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Attempted */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -2211,8 +2212,11 @@ export default function PlayerDetails() {
                                       <span className="text-xs text-white/80 font-medium">Success</span>
                                     </div>
                                   </div>
-                                  
-                                  {/* Row 2: Left Foot, Dominant Foot, Right Foot */}
+                                </div>
+
+                                {/* FOOT Card - extends off screen */}
+                                <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center flex-shrink-0 w-full">
+                                  <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
                                   <div className="grid grid-cols-3 gap-4 items-center">
                                     {/* Left Foot */}
                                     <div className="flex flex-col items-center space-y-2">
@@ -2241,8 +2245,6 @@ export default function PlayerDetails() {
                                   </div>
                                 </div>
                               </div>
-
-
                             </div>
                           </div>
                         </div>
