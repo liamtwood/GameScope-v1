@@ -1936,37 +1936,59 @@ export default function PlayerDetails() {
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                  {/* Attempted */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-blue-400">77</span>
+                                <div className="relative">
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Attempted - Top */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-blue-400">77</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Attempted</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Attempted</span>
-                                  </div>
-                                  
-                                  {/* Success */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-emerald-400">63</span>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Left Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-purple-400">12</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Success</span>
-                                  </div>
-                                  
-                                  {/* Left Foot */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-purple-400">12</span>
+                                    
+                                    {/* Speed Limit Sign - Center */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-white border-4 border-black rounded-lg flex items-center justify-center">
+                                        <span className="text-lg font-bold text-black">82%</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Success Rate</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Left Foot</span>
-                                  </div>
-                                  
-                                  {/* Right Foot */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-orange-400">51</span>
+                                    
+                                    {/* Right Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-orange-400">51</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Right Foot</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Success - Bottom */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-emerald-400">63</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Success</span>
+                                    </div>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
                                   </div>
                                 </div>
                               </div>
@@ -2159,37 +2181,59 @@ export default function PlayerDetails() {
                               {/* Passes Attempted */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Attempted Passes</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                  {/* Attempted */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-blue-400">77</span>
+                                <div className="relative">
+                                  <div className="grid grid-cols-3 gap-4 items-center">
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Attempted - Top */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-blue-400">77</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Attempted</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Attempted</span>
-                                  </div>
-                                  
-                                  {/* Success */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-emerald-400">63</span>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Left Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-purple-400">12</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Success</span>
-                                  </div>
-                                  
-                                  {/* Left Foot */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-purple-400">12</span>
+                                    
+                                    {/* Speed Limit Sign - Center */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-white border-4 border-black rounded-lg flex items-center justify-center">
+                                        <span className="text-lg font-bold text-black">82%</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Success Rate</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Left Foot</span>
-                                  </div>
-                                  
-                                  {/* Right Foot */}
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-orange-400">51</span>
+                                    
+                                    {/* Right Foot */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-orange-400">51</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Right Foot</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
+                                    
+                                    {/* Success - Bottom */}
+                                    <div className="flex flex-col items-center space-y-2">
+                                      <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                        <span className="text-xl font-bold text-emerald-400">63</span>
+                                      </div>
+                                      <span className="text-xs text-white/80 font-medium">Success</span>
+                                    </div>
+                                    
+                                    {/* Empty space */}
+                                    <div></div>
                                   </div>
                                 </div>
                               </div>
