@@ -18,6 +18,7 @@ import { format, differenceInYears } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
+import { useFixtures } from "@/hooks/use-team";
 import { useToast } from "@/hooks/use-toast";
 import type { UploadResult } from "@uppy/core";
 import ashleyMillerPhoto from "@assets/image_1756910395408.png";
@@ -43,6 +44,7 @@ export default function PlayerDetails() {
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
   const [position, setPosition] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>(source === "profiles" ? "bio" : "details");
+  const [selectedFixture, setSelectedFixture] = useState<string>("all-season");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -60,6 +62,9 @@ export default function PlayerDetails() {
 
   // Get primary team (for backwards compatibility)
   const primaryTeam = userTeams[0]?.team;
+
+  // Get fixtures for the primary team
+  const { data: fixtures = [] } = useFixtures(primaryTeam?.id || '');
 
   // Get player statistics directly from database
   const { data: playerStatsData = [] } = useQuery<any[]>({
@@ -685,7 +690,7 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="flex justify-center mt-4">
+                  <div className="flex justify-between items-center mt-4">
                     <div className="flex items-center gap-4">
                       {/* Bio Tab */}
                       <span 
@@ -736,6 +741,27 @@ export default function PlayerDetails() {
                       >
                         Videos
                       </span>
+                    </div>
+                    
+                    {/* Fixture Selector */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-white/70 uppercase tracking-wide">Data for:</span>
+                      <Select value={selectedFixture} onValueChange={setSelectedFixture}>
+                        <SelectTrigger className="w-48 h-8 text-xs bg-white/10 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all-season">All Season</SelectItem>
+                          {fixtures
+                            .filter(f => f.status === 'COMPLETED')
+                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                            .map((fixture) => (
+                            <SelectItem key={fixture.id} value={fixture.id}>
+                              vs {fixture.opponent} ({new Date(fixture.date).toLocaleDateString()})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 )}
