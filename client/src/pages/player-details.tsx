@@ -588,7 +588,7 @@ export default function PlayerDetails() {
                     gridTemplateColumns: 'repeat(18, 1fr)',
                     gridAutoRows: 'var(--row-height)',
                     gap: 'var(--gap)',
-                    opacity: 0.1
+                    opacity: 0.3
                   }}
                 >
                   {/* Generate honeycomb cells */}
@@ -600,7 +600,8 @@ export default function PlayerDetails() {
                         width: 'var(--cell-size)',
                         height: 'var(--cell-height)',
                         margin: '0',
-                        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
                         clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                         display: 'flex',
                         justifyContent: 'center',
