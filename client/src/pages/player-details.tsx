@@ -1294,19 +1294,47 @@ export default function PlayerDetails() {
                     } as React.CSSProperties}
                   >
                     <div className="pt-6">
-                      <div className="text-center py-8">
-                        <Video className="h-12 w-12 text-white mx-auto mb-4" />
-                        <h4 className="text-lg font-medium text-white mb-2">Player Videos</h4>
-                        <p className="text-sm text-white/80">Training sessions, match highlights, and player analysis videos.</p>
-                        <div className="mt-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {/* Placeholder for future video content */}
-                            <Card className="border-dashed border-2 border-white/30 bg-white/10">
-                              <CardContent className="p-6 text-center">
-                                <Video className="h-8 w-8 text-white/70 mx-auto mb-2" />
-                                <p className="text-sm text-white/70">No videos available</p>
-                              </CardContent>
-                            </Card>
+                      <div className="flex gap-6 items-start">
+                        {/* Left Side - Headshot Photo */}
+                        <div className="w-1/4 pl-6">
+                          {player?.headshotPath ? (
+                            <div className="sticky top-6">
+                              <img
+                                src={player.headshotPath}
+                                alt={`${player?.firstName} ${player?.lastName} headshot`}
+                                className="w-full h-auto object-cover"
+                                data-testid={`img-headshot-videos-${player?.id}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                              <div className="text-white text-4xl font-semibold">
+                                {player?.firstName?.[0]}{player?.lastName?.[0]}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Video Content */}
+                        <div className="w-1/2 space-y-8">
+                          <div className="mb-6">
+                            <div className="flex items-center gap-3">
+                              <Video className="h-6 w-6 text-white" />
+                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Videos</h3>
+                            </div>
+                          </div>
+                          
+                          <div className="text-center py-8">
+                            <p className="text-sm text-white/80 mb-6">Training sessions, match highlights, and player analysis videos.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Placeholder for future video content */}
+                              <Card className="border-dashed border-2 border-white/30 bg-white/10">
+                                <CardContent className="p-6 text-center">
+                                  <Video className="h-8 w-8 text-white/70 mx-auto mb-2" />
+                                  <p className="text-sm text-white/70">No videos available</p>
+                                </CardContent>
+                              </Card>
+                            </div>
                           </div>
                         </div>
                       </div>
