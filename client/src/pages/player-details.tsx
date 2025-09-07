@@ -2176,10 +2176,10 @@ export default function PlayerDetails() {
                             </div>
                           </div>
                           
-                          <div className="space-y-6">
+                          <div className="space-y-4">
                             {/* PASS SUCCESS Card */}
-                            <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                              <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
+                            <div className="bg-white/10 rounded-lg p-4 border border-white/20 text-center">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Pass Success</h4>
                               <div className="grid grid-cols-3 gap-4 items-center">
                                 {/* Attempted */}
                                 <div className="flex flex-col items-center space-y-2">
@@ -2209,8 +2209,8 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* FOOT Card */}
-                            <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                              <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
+                            <div className="bg-white/10 rounded-lg p-4 border border-white/20 text-center">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
                               <div className="grid grid-cols-3 gap-4 items-center">
                                 {/* Left Foot */}
                                 <div className="flex flex-col items-center space-y-2">
