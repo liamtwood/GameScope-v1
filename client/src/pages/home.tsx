@@ -43,30 +43,14 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Honeycomb Test Container */}
-      <div className="mt-12 border-t pt-8">
-        <h3 className="text-2xl font-bold text-center mb-6 text-foreground">Honeycomb Test</h3>
-        <div className="flex justify-center">
-          <Card
-            className="honeycomb-cell hover:shadow-lg transition-all duration-200 cursor-pointer"
-            style={{
-              width: '200px',
-              height: '230px',
-              backgroundColor: 'white',
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              textAlign: 'center',
-              border: `2px solid ${(currentClub?.colors as any)?.primary || '#dc2626'}`
-            }}
-          >
-            <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-              <div className="text-xl font-bold mb-2">Honeycomb</div>
-              <div className="text-sm text-muted-foreground">Test Container</div>
-            </CardContent>
-          </Card>
+      {/* Simple Test Container */}
+      <div className="mt-12 flex justify-center">
+        <div 
+          className="w-64 h-32 border-2 border-gray-400"
+          style={{
+            borderColor: (currentClub?.colors as any)?.primary || '#dc2626'
+          }}
+        >
         </div>
       </div>
     </MainLayout>
