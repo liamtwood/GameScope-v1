@@ -569,10 +569,11 @@ export default function PlayerDetails() {
               <div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  '--cell-size': '35px',
-                  '--columns': '18',
-                  '--gap': '1px',
+                  '--cell-size': '12vw',
+                  '--columns': '6',
+                  '--gap': '0.3vw',
                   '--cell-height': 'calc(var(--cell-size) * 1.15)',
+                  '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
                   '--row-height': 'calc(var(--cell-size) * 0.8666)',
                   '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
                 } as React.CSSProperties}
@@ -581,18 +582,17 @@ export default function PlayerDetails() {
                   className="honeycomb absolute inset-0"
                   style={{
                     display: 'grid',
-                    width: '100%',
-                    height: '100%',
-                    transform: 'translateX(calc(var(--margin-offset) / -2)) scale(1.1)',
-                    transformOrigin: 'center center',
-                    gridTemplateColumns: 'repeat(18, 1fr)',
+                    width: 'var(--container-width)',
+                    margin: '0 auto',
+                    transform: 'translateX(calc(var(--margin-offset) / -2))',
+                    gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
                     gridAutoRows: 'var(--row-height)',
                     gap: 'var(--gap)',
                     opacity: 0.3
                   }}
                 >
                   {/* Generate honeycomb cells */}
-                  {Array.from({ length: 144 }, (_, index) => (
+                  {Array.from({ length: 36 }, (_, index) => (
                     <div
                       key={index}
                       className="cell"
@@ -608,7 +608,7 @@ export default function PlayerDetails() {
                         alignItems: 'center',
                         overflow: 'hidden',
                         textAlign: 'center',
-                        marginLeft: (Math.floor(index / 18) % 2 === 1 && (index % 18) >= 0) ? 'var(--margin-offset)' : '0'
+                        marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
                       }}
                     />
                   ))}
