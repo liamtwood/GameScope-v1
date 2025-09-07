@@ -13,9 +13,11 @@ import { useTeam } from "@/contexts/team-context";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
+type StarPlayerFilter = 'all' | 'yes' | 'no';
 
 export default function PlayerProfiles() {
   const [positionFilter, setPositionFilter] = useState<PositionFilter>('all');
+  const [starPlayerFilter, setStarPlayerFilter] = useState<StarPlayerFilter>('yes');
   const [searchTerm, setSearchTerm] = useState('');
   const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
@@ -65,11 +67,14 @@ export default function PlayerProfiles() {
   // Filter players
   const filteredPlayers = allPlayers.filter(player => {
     const matchesPosition = positionFilter === 'all' || getPositionCategory(player.position || 'MID') === positionFilter;
+    const matchesStarPlayer = starPlayerFilter === 'all' || 
+      (starPlayerFilter === 'yes' && player.starPlayer) ||
+      (starPlayerFilter === 'no' && !player.starPlayer);
     const matchesSearch = !searchTerm || 
       player.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.hometown?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesPosition && matchesSearch;
+    return matchesPosition && matchesStarPlayer && matchesSearch;
   });
 
   // Group players by position and sort by jersey number
@@ -143,6 +148,17 @@ export default function PlayerProfiles() {
                 <SelectItem value="DEF">Defenders</SelectItem>
                 <SelectItem value="MID">Midfielders</SelectItem>
                 <SelectItem value="FWD">Forwards</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={starPlayerFilter} onValueChange={(value) => setStarPlayerFilter(value as StarPlayerFilter)}>
+              <SelectTrigger className="w-48" data-testid="select-star-player-filter">
+                <SelectValue placeholder="Filter by star players" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Players</SelectItem>
+                <SelectItem value="yes">Star Players Only</SelectItem>
+                <SelectItem value="no">Non-Star Players</SelectItem>
               </SelectContent>
             </Select>
           </div>
