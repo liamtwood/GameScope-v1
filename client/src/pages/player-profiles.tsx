@@ -190,11 +190,28 @@ export default function PlayerProfiles() {
                   {players.map((player) => (
                     <Card 
                       key={player.id} 
-                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer overflow-hidden relative" 
                       onClick={() => handlePlayerClick(player.id)}
                       data-testid={`card-player-${player.id}`}
                     >
-                      <CardHeader className="py-4">
+                      {/* Honeycomb Background */}
+                      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.3 }}>
+                        <div className="grid grid-cols-4 gap-0 h-full w-full">
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-center"
+                              style={{
+                                clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                                backgroundColor: clubPrimary,
+                                transform: i % 2 === 1 ? 'translateY(25%)' : 'translateY(0%)'
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <CardHeader className="py-4 relative z-10">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="relative">
