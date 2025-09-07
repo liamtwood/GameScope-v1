@@ -43,58 +43,39 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Honeycomb Background Container */}
+      {/* Gradient Background Container */}
       <div className="mt-12 flex justify-center">
-        <div 
-          className="honeycomb-container relative overflow-hidden rounded-lg"
-          style={{
-            width: '600px',
-            height: '400px',
-            '--cell-size': '60px',
-            '--columns': '12',
-            '--gap': '2px',
-            '--cell-height': 'calc(var(--cell-size) * 1.15)',
-            '--row-height': 'calc(var(--cell-size) * 0.8666)',
-            '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
-            backgroundColor: (currentClub?.colors as any)?.primary || '#dc2626'
-          } as React.CSSProperties}
-        >
-          <div 
-            className="honeycomb absolute inset-0"
+        <Card className="w-full max-w-4xl overflow-hidden">
+          <CardContent 
+            className="p-8 text-white"
             style={{
-              display: 'grid',
-              width: '100%',
-              height: '100%',
-              transform: 'translateX(calc(var(--margin-offset) / -2)) scale(1.2)',
-              transformOrigin: 'center center',
-              gridTemplateColumns: 'repeat(12, 1fr)',
-              gridAutoRows: 'var(--row-height)',
-              gap: 'var(--gap)',
-              paddingTop: '20px'
+              background: `linear-gradient(135deg, ${(currentClub?.colors as any)?.primary || '#dc2626'} 0%, ${(currentClub?.colors as any)?.secondary || '#b91c1c'} 100%)`
             }}
           >
-            {/* Generate honeycomb cells */}
-            {Array.from({ length: 84 }, (_, index) => (
-              <div
-                key={index}
-                className="cell"
-                style={{
-                  width: 'var(--cell-size)',
-                  height: 'var(--cell-height)',
-                  margin: '0',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  overflow: 'hidden',
-                  textAlign: 'center',
-                  marginLeft: (Math.floor(index / 12) % 2 === 1 && (index % 12) >= 0) ? 'var(--margin-offset)' : '0'
-                }}
-              />
-            ))}
-          </div>
-        </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold">GameScope Dashboard</h3>
+                <p className="text-white/90 max-w-md">
+                  Manage your team with comprehensive tools for fixtures, squad management, statistics tracking, and performance analysis.
+                </p>
+                <div className="flex gap-4 text-sm">
+                  <span className="bg-white/20 px-3 py-1 rounded-full">Team Management</span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full">Statistics</span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full">Performance</span>
+                </div>
+              </div>
+              {currentClub?.logoPath && (
+                <div className="flex-shrink-0 ml-8">
+                  <img 
+                    src={currentClub.logoPath}
+                    alt={`${currentClub.name} Logo`}
+                    className="h-24 w-24 object-contain opacity-80"
+                  />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );
