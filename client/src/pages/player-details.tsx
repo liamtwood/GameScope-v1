@@ -726,6 +726,16 @@ export default function PlayerDetails() {
                       >
                         Defense
                       </span>
+                      
+                      {/* Video Tab */}
+                      <span 
+                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                          activeTab === 'video' ? 'text-white font-bold' : 'text-white/70'
+                        }`}
+                        onClick={() => setActiveTab('video')}
+                      >
+                        Video
+                      </span>
                     </div>
                   </div>
                 )}
