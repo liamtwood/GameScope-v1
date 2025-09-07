@@ -144,8 +144,8 @@ export default function PlayerProfiles() {
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Avatar className="h-16 w-16">
-                        {player.profilePicture && (
-                          <AvatarImage src={player.profilePicture} alt={`${player.firstName} ${player.lastName}`} />
+                        {player.avatarPath && (
+                          <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
                         )}
                         <AvatarFallback className="text-lg font-bold">
                           {getPlayerInitials(player)}
