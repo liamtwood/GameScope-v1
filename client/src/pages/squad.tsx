@@ -265,7 +265,7 @@ export default function Squad() {
   const [, navigate] = useLocation();
 
   const handleViewPlayer = (player: Player) => {
-    navigate(`/players/${player.id}?source=squad`);
+    navigate(`/users/${player.id}`);
   };
 
   const handleSaveEdit = (playerId: string, field: string) => {
