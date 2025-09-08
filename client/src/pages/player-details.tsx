@@ -916,22 +916,26 @@ export default function PlayerDetails() {
                       [data-testid="tab-details"]:not([data-state="active"]),
                       [data-testid="tab-teams"]:not([data-state="active"]),
                       [data-testid="tab-parents"]:not([data-state="active"]),
-                      [data-testid="tab-video"]:not([data-state="active"]) {
+                      [data-testid="tab-bio"]:not([data-state="active"]),
+                      [data-testid="tab-video"]:not([data-state="active"]),
+                      [data-testid="tab-photo"]:not([data-state="active"]) {
                         opacity: 1 !important;
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
                         color: white !important;
                       }
-                      /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT (excluding bio/stats) */
+                      /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
+                      [data-testid="tab-bio"][data-state="active"],
                       [data-testid="tab-video"][data-state="active"],
                       [data-testid="tab-photo"][data-state="active"],
                       button[role="tab"][data-testid="tab-details"][data-state="active"],
                       button[role="tab"][data-testid="tab-teams"][data-state="active"],
                       button[role="tab"][data-testid="tab-parents"][data-state="active"],
+                      button[role="tab"][data-testid="tab-bio"][data-state="active"],
                       button[role="tab"][data-testid="tab-video"][data-state="active"],
                       button[role="tab"][data-testid="tab-photo"][data-state="active"] {
                         opacity: 1 !important;
