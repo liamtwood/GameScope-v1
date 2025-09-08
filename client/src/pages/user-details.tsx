@@ -1053,9 +1053,9 @@ export default function UserDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
                     <div className="space-y-6">
-                      {/* Profile Photo Section */}
+                      {/* Avatar Photo Section */}
                       <div>
-                        <h4 className="text-md font-medium mb-3">Profile Photo</h4>
+                        <h4 className="text-md font-medium mb-3">Avatar Photo</h4>
                         <div className="flex items-center space-x-6">
                           <div className="flex-shrink-0">
                             <Avatar className="h-24 w-24 border-2 border-gray-200">
@@ -1071,7 +1071,7 @@ export default function UserDetails() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm text-muted-foreground mb-3">
-                              Upload a profile photo for {user.firstName} {user.lastName}. This will be displayed in their user profile and team rosters.
+                              Upload an avatar photo for {user.firstName} {user.lastName}. This will be displayed in their user profile and team rosters.
                             </p>
                             <ObjectUploader
                               onUploadComplete={(result: UploadResult) => {
@@ -1097,29 +1097,29 @@ export default function UserDetails() {
                         </div>
                       </div>
 
-                      {/* Headshot Photo Section */}
+                      {/* Player Profile Photo Section */}
                       <div>
-                        <h4 className="text-md font-medium mb-3">Headshot Photo</h4>
+                        <h4 className="text-md font-medium mb-3">Player Profile Photo</h4>
                         <div className="flex items-center space-x-6">
                           <div className="flex-shrink-0">
-                            <div className="h-24 w-24 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <div className="h-32 w-24 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                               {user.headshotPath ? (
                                 <img 
                                   src={user.headshotPath} 
-                                  alt={`${user.firstName} ${user.lastName} headshot`}
+                                  alt={`${user.firstName} ${user.lastName} full length photo`}
                                   className="h-full w-full object-cover"
-                                  data-testid={`headshot-${user.id}`}
+                                  data-testid={`player-profile-photo-${user.id}`}
                                 />
                               ) : (
                                 <div className="h-full w-full flex items-center justify-center text-gray-400">
-                                  <span className="text-xs">No headshot</span>
+                                  <span className="text-xs text-center">No player photo</span>
                                 </div>
                               )}
                             </div>
                           </div>
                           <div className="flex-1">
                             <p className="text-sm text-muted-foreground mb-3">
-                              Upload a professional headshot photo. This is typically used for official team materials, websites, and media guides.
+                              Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
                             </p>
                             <ObjectUploader
                               onUploadComplete={(result: UploadResult) => {
@@ -1140,7 +1140,7 @@ export default function UserDetails() {
                               allowedFileTypes={['image/*']}
                               maxFileSize={5 * 1024 * 1024}
                               containerClass="w-full"
-                              bucketPrefix="headshots"
+                              bucketPrefix="player-photos"
                               data-testid="uploader-headshot"
                             />
                           </div>
@@ -1151,8 +1151,8 @@ export default function UserDetails() {
                       <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                          <li>• <strong>Profile Photo:</strong> Casual or action shots work well</li>
-                          <li>• <strong>Headshot:</strong> Professional, well-lit portrait style photo</li>
+                          <li>• <strong>Avatar Photo:</strong> Casual or action shots work well</li>
+                          <li>• <strong>Player Profile Photo:</strong> Full-length photo showing the player, typically in uniform</li>
                           <li>• <strong>File Size:</strong> Maximum 5MB per image</li>
                           <li>• <strong>Format:</strong> JPG, PNG, or WebP recommended</li>
                           <li>• <strong>Resolution:</strong> Minimum 400x400 pixels for best quality</li>
