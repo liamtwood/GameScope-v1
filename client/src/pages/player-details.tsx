@@ -732,7 +732,7 @@ export default function PlayerDetails() {
                       {/* Bio Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'bio' ? 'text-white font-bold' : 'text-white/70'
+                          activeTab === 'bio' ? 'text-foreground font-bold' : 'text-foreground/70'
                         }`}
                         onClick={() => setActiveTab('bio')}
                       >
@@ -742,7 +742,7 @@ export default function PlayerDetails() {
                       {/* Attack Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'attack' ? 'text-white font-bold' : 'text-white/70'
+                          activeTab === 'attack' ? 'text-foreground font-bold' : 'text-foreground/70'
                         }`}
                         onClick={() => setActiveTab('attack')}
                       >
@@ -752,7 +752,7 @@ export default function PlayerDetails() {
                       {/* Passing Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'passing' ? 'text-white font-bold' : 'text-white/70'
+                          activeTab === 'passing' ? 'text-foreground font-bold' : 'text-foreground/70'
                         }`}
                         onClick={() => setActiveTab('passing')}
                       >
@@ -762,7 +762,7 @@ export default function PlayerDetails() {
                       {/* Defense Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'defense' ? 'text-white font-bold' : 'text-white/70'
+                          activeTab === 'defense' ? 'text-foreground font-bold' : 'text-foreground/70'
                         }`}
                         onClick={() => setActiveTab('defense')}
                       >
@@ -772,7 +772,7 @@ export default function PlayerDetails() {
                       {/* Videos Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'video' ? 'text-white font-bold' : 'text-white/70'
+                          activeTab === 'video' ? 'text-foreground font-bold' : 'text-foreground/70'
                         }`}
                         onClick={() => setActiveTab('video')}
                       >
