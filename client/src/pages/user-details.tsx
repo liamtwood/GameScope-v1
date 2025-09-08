@@ -171,19 +171,25 @@ export default function UserDetails() {
     // Only include allowed fields that exist in editData
     allowedFields.forEach(field => {
       if (editData[field as keyof User] !== undefined) {
-        dataToSave[field as keyof User] = editData[field as keyof User];
+        const value = editData[field as keyof User];
+        if (field === 'dateOfBirth' && value) {
+          // Handle dateOfBirth specially - always convert to ISO string
+          if (value instanceof Date) {
+            (dataToSave as any).dateOfBirth = value.toISOString();
+          } else if (typeof value === 'string') {
+            // Convert date string to ISO string
+            try {
+              const date = new Date(value);
+              (dataToSave as any).dateOfBirth = date.toISOString();
+            } catch (e) {
+              console.error('Invalid date format:', value);
+            }
+          }
+        } else {
+          (dataToSave as any)[field] = value;
+        }
       }
     });
-    
-    // Ensure dateOfBirth is properly formatted as ISO string
-    if (dataToSave.dateOfBirth) {
-      if (dataToSave.dateOfBirth instanceof Date) {
-        dataToSave.dateOfBirth = dataToSave.dateOfBirth.toISOString();
-      } else if (typeof dataToSave.dateOfBirth === 'string' && !dataToSave.dateOfBirth.includes('T')) {
-        // If it's just a date string (YYYY-MM-DD), convert to full ISO string
-        dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth + 'T00:00:00.000Z').toISOString();
-      }
-    }
     
     console.log('Saving user data:', dataToSave);
     updateUserMutation.mutate(dataToSave);
@@ -745,9 +751,9 @@ export default function UserDetails() {
                         </div>
                         
                         <div>
-                          <label className="text-sm font-medium text-muted-foreground">Key User</label>
-                          <p className="text-lg" data-testid={`text-key-user-${user.id}`}>
-                            {user.keyUser ? 'Yes' : 'No'}
+                          <label className="text-sm font-medium text-muted-foreground">Created</label>
+                          <p className="text-lg" data-testid={`text-created-${user.id}`}>
+                            {user.createdAt ? format(new Date(user.createdAt), 'PPP') : 'N/A'}
                           </p>
                         </div>
                       </div>
