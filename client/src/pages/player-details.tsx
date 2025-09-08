@@ -1519,57 +1519,7 @@ export default function PlayerDetails() {
               {/* Video Tab Content */}
               <TabsContent value="video" className="m-0">
                 {source === "profiles" ? (
-                  <div className="px-6 relative" style={{...solidStyle}}>
-                    {/* Honeycomb Background Pattern */}
-                    <div 
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        '--cell-size': '12vw',
-                        '--columns': '6',
-                        '--gap': '0.3vw',
-                        '--cell-height': 'calc(var(--cell-size) * 1.15)',
-                        '--container-width': 'calc((var(--cell-size) + var(--gap)) * var(--columns))',
-                        '--row-height': 'calc(var(--cell-size) * 0.8666)',
-                        '--margin-offset': 'calc(var(--cell-size) / 2 + var(--gap) / 2)',
-                      } as React.CSSProperties}
-                    >
-                      <div 
-                        className="honeycomb absolute inset-0"
-                        style={{
-                          display: 'grid',
-                          width: 'var(--container-width)',
-                          margin: '0 auto',
-                          transform: 'translateX(calc(var(--margin-offset) / -2)) translateX(-120px) translateY(-150px)',
-                          gridTemplateColumns: 'repeat(6, minmax(var(--cell-size), 1fr))',
-                          gridAutoRows: 'var(--row-height)',
-                          gap: 'var(--gap)',
-                          opacity: 0.15
-                        }}
-                      >
-                        {Array.from({ length: 60 }, (_, index) => (
-                          <div
-                            key={index}
-                            className="cell"
-                            style={{
-                              width: 'var(--cell-size)',
-                              height: 'var(--cell-height)',
-                              margin: '0',
-                              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                              border: '1px solid rgba(255, 255, 255, 0.15)',
-                              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              overflow: 'hidden',
-                              textAlign: 'center',
-                              marginLeft: (Math.floor(index / 6) % 2 === 1 && (index % 6) >= 0) ? 'var(--margin-offset)' : '0'
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="relative z-10">
+                  <div className="px-6 relative">
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -1642,7 +1592,6 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 ) : (
