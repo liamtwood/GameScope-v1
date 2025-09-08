@@ -1732,7 +1732,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Goals</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
                                       <span className="text-xs font-bold text-black leading-tight">GOALS</span>
                                       <span className="text-xl font-bold text-black mt-1">0</span>
@@ -1749,7 +1749,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Assists</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
                                       <span className="text-xs font-bold text-black leading-tight">ASSISTS</span>
                                       <span className="text-xl font-bold text-black mt-1">1</span>
@@ -1766,7 +1766,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Shots</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">SHOT</span>
                                       <span className="text-xs font-bold text-black leading-tight">ACCURACY</span>
                                       <span className="text-xl font-bold text-black mt-1">60%</span>
@@ -1783,7 +1783,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Big Chances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">BIG</span>
                                       <span className="text-xs font-bold text-black leading-tight">CHANCES</span>
                                       <span className="text-xl font-bold text-black mt-1">0</span>
@@ -2011,11 +2011,11 @@ export default function PlayerDetails() {
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* 1st Touch */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
+                              <div className="rounded-lg p-6 border border-border text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">1st Touch</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
                                       <span className="text-xs font-bold text-black leading-tight">RATE</span>
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
@@ -2029,11 +2029,11 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Tackles */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
+                              <div className="rounded-lg p-6 border border-border text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Tackles</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
                                       <span className="text-xs font-bold text-black leading-tight">TACKLES</span>
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.tackles}</span>
@@ -2046,11 +2046,11 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Clearances */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
+                              <div className="rounded-lg p-6 border border-border text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Clearances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
                                       <span className="text-xs font-bold text-black leading-tight">CLEARANCES</span>
                                       <span className="text-xl font-bold text-black mt-1">11</span>
@@ -2063,11 +2063,11 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Duels */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
+                              <div className="rounded-lg p-6 border border-border text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Duels</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
-                                    <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                       <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
                                       <span className="text-xs font-bold text-black leading-tight">DUELS</span>
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.takeOns}</span>
