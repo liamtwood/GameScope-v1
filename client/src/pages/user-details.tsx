@@ -1026,7 +1026,7 @@ export default function UserDetails() {
                             data-testid="textarea-bio"
                           />
                         ) : (
-                          <div className="text-lg whitespace-pre-wrap" data-testid={`text-bio-${user.id}`}>
+                          <div className="text-sm whitespace-pre-wrap" data-testid={`text-bio-${user.id}`}>
                             {user.bio || 'No bio provided'}
                           </div>
                         )}
