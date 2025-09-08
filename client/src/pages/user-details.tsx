@@ -492,7 +492,7 @@ export default function UserDetails() {
         <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-4 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
+              <TabsList className="grid grid-cols-5 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
                 <TabsTrigger 
                   value="details" 
                   data-testid="tab-user-details"
@@ -556,6 +556,22 @@ export default function UserDetails() {
                   } as React.CSSProperties}
                 >
                   Bio
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="photos" 
+                  data-testid="tab-photos"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
+                  style={{
+                    backgroundColor: clubPrimaryColor,
+                    boxShadow: 'none !important',
+                    backgroundImage: 'none !important',
+                    background: clubPrimaryColor + ' !important',
+                    filter: 'none !important',
+                    border: 'none !important',
+                    outline: 'none !important'
+                  } as React.CSSProperties}
+                >
+                  Photos
                 </TabsTrigger>
               </TabsList>
 
@@ -1026,6 +1042,121 @@ export default function UserDetails() {
                             {user.bio || 'No bio provided'}
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="photos" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
+                    <div className="space-y-6">
+                      {/* Profile Photo Section */}
+                      <div>
+                        <h4 className="text-md font-medium mb-3">Profile Photo</h4>
+                        <div className="flex items-center space-x-6">
+                          <div className="flex-shrink-0">
+                            <Avatar className="h-24 w-24 border-2 border-gray-200">
+                              <AvatarImage 
+                                src={pendingProfilePhoto || user.avatarPath || ''} 
+                                alt={`${user.firstName} ${user.lastName}`}
+                                data-testid={`avatar-${user.id}`}
+                              />
+                              <AvatarFallback className="text-2xl font-bold bg-gray-100">
+                                {user.firstName?.[0]}{user.lastName?.[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Upload a profile photo for {user.firstName} {user.lastName}. This will be displayed in their user profile and team rosters.
+                            </p>
+                            <ObjectUploader
+                              onUploadComplete={(result: UploadResult) => {
+                                if (result.successful && result.successful.length > 0) {
+                                  const uploadedFile = result.successful[0];
+                                  const photoURL = uploadedFile.uploadURL;
+                                  if (photoURL) {
+                                    setPendingProfilePhoto(photoURL);
+                                    photoUploadMutation.mutate(photoURL);
+                                  }
+                                }
+                              }}
+                              onUploadError={(error: any) => {
+                                console.error('Photo upload failed:', error);
+                              }}
+                              allowedFileTypes={['image/*']}
+                              maxFileSize={5 * 1024 * 1024}
+                              containerClass="w-full"
+                              bucketPrefix="avatars"
+                              data-testid="uploader-profile-photo"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Headshot Photo Section */}
+                      <div>
+                        <h4 className="text-md font-medium mb-3">Headshot Photo</h4>
+                        <div className="flex items-center space-x-6">
+                          <div className="flex-shrink-0">
+                            <div className="h-24 w-24 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                              {user.headshotPath ? (
+                                <img 
+                                  src={user.headshotPath} 
+                                  alt={`${user.firstName} ${user.lastName} headshot`}
+                                  className="h-full w-full object-cover"
+                                  data-testid={`headshot-${user.id}`}
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center text-gray-400">
+                                  <span className="text-xs">No headshot</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Upload a professional headshot photo. This is typically used for official team materials, websites, and media guides.
+                            </p>
+                            <ObjectUploader
+                              onUploadComplete={(result: UploadResult) => {
+                                if (result.successful && result.successful.length > 0) {
+                                  const uploadedFile = result.successful[0];
+                                  const photoURL = uploadedFile.uploadURL;
+                                  if (photoURL) {
+                                    // Update headshot directly
+                                    updateUserMutation.mutate({
+                                      headshotPath: photoURL
+                                    });
+                                  }
+                                }
+                              }}
+                              onUploadError={(error: any) => {
+                                console.error('Headshot upload failed:', error);
+                              }}
+                              allowedFileTypes={['image/*']}
+                              maxFileSize={5 * 1024 * 1024}
+                              containerClass="w-full"
+                              bucketPrefix="headshots"
+                              data-testid="uploader-headshot"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Photo Guidelines */}
+                      <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
+                        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                          <li>• <strong>Profile Photo:</strong> Casual or action shots work well</li>
+                          <li>• <strong>Headshot:</strong> Professional, well-lit portrait style photo</li>
+                          <li>• <strong>File Size:</strong> Maximum 5MB per image</li>
+                          <li>• <strong>Format:</strong> JPG, PNG, or WebP recommended</li>
+                          <li>• <strong>Resolution:</strong> Minimum 400x400 pixels for best quality</li>
+                        </ul>
                       </div>
                     </div>
                   </div>
