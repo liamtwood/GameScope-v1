@@ -1418,7 +1418,6 @@ export default function PlayerDetails() {
                         <div className="w-1/2 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
-                              <Video className="h-6 w-6 text-white" />
                               <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Videos</h3>
                             </div>
                           </div>
