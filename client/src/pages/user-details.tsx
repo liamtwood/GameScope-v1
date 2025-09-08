@@ -1077,34 +1077,18 @@ export default function UserDetails() {
                             <p className="text-sm text-muted-foreground mb-3">
                               Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
                             </p>
-                            <ObjectUploader
-                              maxNumberOfFiles={1}
-                              maxFileSize={5242880} // 5MB
-                              onGetUploadParameters={getPhotoUploadURL}
-                              onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-                                if (result.successful && result.successful.length > 0) {
-                                  const uploadedFile = result.successful[0];
-                                  const photoURL = uploadedFile.uploadURL;
-                                  if (photoURL) {
-                                    // Update headshot directly
-                                    updateUserMutation.mutate({
-                                      headshotPath: photoURL
-                                    });
-                                  }
-                                }
-                              }}
-                              buttonClassName="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                            >
+                            <Button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
                               <span className="flex items-center gap-2">
                                 <Edit className="h-4 w-4" />
                                 Upload Player Photo
                               </span>
-                            </ObjectUploader>
+                            </Button>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Photo Guidelines */}
+                    {/* Photo Guidelines */}
                       <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
