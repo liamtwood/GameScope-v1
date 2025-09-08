@@ -456,7 +456,7 @@ export default function UserDetails() {
         <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-3 w-full rounded-none border-b bg-transparent p-0">
+              <TabsList className="grid grid-cols-3 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
                 <TabsTrigger 
                   value="details" 
                   data-testid="tab-user-details"
