@@ -1799,8 +1799,8 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-muted-foreground">Success Rate</div>
+                                  <div className="text-sm text-muted-foreground">
                                     {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
                                   </div>
                                   {playerStatsData.length === 0 && (
@@ -1814,7 +1814,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-muted-foreground">Success Rate</div>
                                   <div className="text-sm text-white/60">
                                     {playerStats.dribbles.successful} successful, {playerStats.dribbles.unsuccessful} unsuccessful
                                   </div>
@@ -1827,7 +1827,7 @@ export default function PlayerDetails() {
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
+                                  <div className="text-sm text-muted-foreground">Success Rate</div>
                                   <div className="text-sm text-white/60">
                                     {playerStats.penetratingDribbles.successful} successful, {playerStats.penetratingDribbles.unsuccessful} unsuccessful
                                   </div>
@@ -2335,8 +2335,8 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Success Rate</div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-muted-foreground">Success Rate</div>
+                                  <div className="text-sm text-muted-foreground">
                                     {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
                                   </div>
                                 </div>
@@ -2353,7 +2353,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.tackles}</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-muted-foreground">
                                     Defensive actions completed
                                   </div>
                                 </div>
@@ -2370,7 +2370,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">11</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-muted-foreground">
                                     Defensive clearances made
                                   </div>
                                 </div>
@@ -2387,7 +2387,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.takeOns}</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-muted-foreground">
                                     Defensive duels engaged
                                   </div>
                                 </div>
