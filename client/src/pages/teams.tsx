@@ -122,22 +122,6 @@ export default function Teams() {
   const clubPrimaryColor = (currentClub?.colors as any)?.primary || '#dc2626';
   
   // Filter teams by current club and group by gender
-  console.log('Teams Page Debug:', {
-    currentClubId: currentClub?.id,
-    currentClubName: currentClub?.name,
-    allTeams: teams.map(t => ({ 
-      name: t.name, 
-      clubId: t.clubId, 
-      gender: t.gender,
-      status: t.status 
-    })),
-    filteredTeams: teams.filter(team => team.clubId && team.clubId === currentClub?.id).map(t => ({
-      name: t.name,
-      gender: t.gender,
-      status: t.status
-    }))
-  });
-  
   const clubTeams = teams
     .filter(team => team.clubId && team.clubId === currentClub?.id)
     .sort((a, b) => a.name.localeCompare(b.name));

@@ -16,24 +16,14 @@ type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 type StarPlayerFilter = 'all' | 'yes' | 'no';
 
 export default function PlayerProfiles() {
-  console.log('Player Profiles: Component mounting...');
-  
   const [positionFilter, setPositionFilter] = useState<PositionFilter>('all');
-  const [starPlayerFilter, setStarPlayerFilter] = useState<StarPlayerFilter>('yes');
+  const [starPlayerFilter, setStarPlayerFilter] = useState<StarPlayerFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [, setLocation] = useLocation();
-  
-  console.log('Player Profiles: About to call useTeam...');
   const { selectedTeam: currentTeam } = useTeam();
-  console.log('Player Profiles: useTeam result:', currentTeam);
   
   const { clubPrimary } = useClubTheme();
 
-  console.log('Player Profiles Debug:', {
-    currentTeamId: currentTeam?.id,
-    currentTeamName: currentTeam?.name,
-    isQueryEnabled: !!currentTeam?.id
-  });
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
     queryKey: ["/api/team", currentTeam?.id, "users"],
