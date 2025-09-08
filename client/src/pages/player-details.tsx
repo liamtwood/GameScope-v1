@@ -1626,7 +1626,7 @@ export default function PlayerDetails() {
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="bio" className="m-0">
-                  <div className="px-6 relative">
+                  <div className="px-6 relative bg-background">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -1657,8 +1657,8 @@ export default function PlayerDetails() {
                         {/* Player Biography Header */}
                         <div className="mb-6">
                           <div className="flex items-center gap-3">
-                            <Fingerprint className="h-6 w-6 text-black" />
-                            <h3 className="text-xl font-bold text-black uppercase tracking-wide">Player Biography</h3>
+                            <Fingerprint className="h-6 w-6 text-foreground" />
+                            <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Player Biography</h3>
                           </div>
                         </div>
                         
@@ -1737,9 +1737,9 @@ export default function PlayerDetails() {
                               placeholder="Enter player biography..."
                             />
                           ) : player?.bio ? (
-                            <p className="text-sm leading-relaxed text-black">{player.bio}</p>
+                            <p className="text-sm leading-relaxed text-foreground">{player.bio}</p>
                           ) : (
-                            <p className="text-sm italic text-black/70 text-center">No biography available</p>
+                            <p className="text-sm italic text-foreground/70 text-center">No biography available</p>
                           )}
                         </div>
                         
@@ -1755,7 +1755,7 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="stats" className="m-0">
                   <div 
-                    className="px-6 min-h-[400px] relative" 
+                    className="px-6 min-h-[400px] relative bg-background" 
                   >
 
                     <div className="relative z-10">
@@ -1787,8 +1787,8 @@ export default function PlayerDetails() {
                         {/* Player Statistics Header */}
                         <div className="mb-6">
                           <div className="flex items-center gap-3">
-                            <ChartColumn className="h-6 w-6 text-white" />
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Statistics</h3>
+                            <ChartColumn className="h-6 w-6 text-foreground" />
+                            <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Player Statistics</h3>
                           </div>
                         </div>
                         
@@ -2017,7 +2017,7 @@ export default function PlayerDetails() {
               {/* Attack Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="attack" className="m-0">
-                  <div className="px-6 relative">
+                  <div className="px-6 relative bg-background">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2133,7 +2133,7 @@ export default function PlayerDetails() {
               {/* Passing Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="passing" className="m-0">
-                  <div className="px-6 relative">
+                  <div className="px-6 relative bg-background">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2162,8 +2162,8 @@ export default function PlayerDetails() {
                         <div className="w-3/4 space-y-4">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
-                              <Navigation className="h-6 w-6 text-white" />
-                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Passing Statistics</h3>
+                              <Navigation className="h-6 w-6 text-foreground" />
+                              <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Passing Statistics</h3>
                             </div>
                           </div>
                           
@@ -2306,7 +2306,7 @@ export default function PlayerDetails() {
               {/* Defense Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="defense" className="m-0">
-                  <div className="px-6 relative">
+                  <div className="px-6 relative bg-background">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2335,8 +2335,8 @@ export default function PlayerDetails() {
                         <div className="w-3/4 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
-                              <Shield className="h-6 w-6 text-white" />
-                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Defense Statistics</h3>
+                              <Shield className="h-6 w-6 text-foreground" />
+                              <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Defense Statistics</h3>
                             </div>
                           </div>
                           
