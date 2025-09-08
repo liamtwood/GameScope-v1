@@ -2317,9 +2317,9 @@ export default function PlayerDetails() {
                           
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              {/* First Touch Success */}
+                              {/* 1st Touch */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">1st Touch</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
                                   <div className="text-sm text-white/80">Success Rate</div>
