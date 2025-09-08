@@ -448,6 +448,9 @@ export default function FixtureDetails() {
                   </TabsList>
                 </div>
 
+                {/* Fixed height container to prevent layout shift */}
+                <div className="min-h-[600px]">
+
                 {/* Fixture Details Tab */}
                 <TabsContent value="fixture-details">
                   <Card>
@@ -674,6 +677,7 @@ export default function FixtureDetails() {
                     </CardContent>
                   </Card>
                 </TabsContent>
+                </div>
               </Tabs>
             </div>
           </TabsContent>
