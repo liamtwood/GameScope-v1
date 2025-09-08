@@ -2155,7 +2155,7 @@ export default function PlayerDetails() {
                           <div className="flex gap-8">
                             {/* PASS SUCCESS Card */}
                             <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                              <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Passes</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Attempted */}
                                 <div className="flex flex-col items-center space-y-2">
@@ -2186,7 +2186,7 @@ export default function PlayerDetails() {
 
                             {/* FOOT Card */}
                             <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
+                              <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Foot</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Left Foot */}
                                 <div className="flex flex-col items-center space-y-2">
@@ -2220,7 +2220,7 @@ export default function PlayerDetails() {
                           <div className="flex gap-8">
                             {/* DISTANCE Card - Duplicate */}
                             <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Distance</h4>
+                              <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Distance</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Total */}
                                 <div className="flex flex-col items-center space-y-2">
@@ -2251,7 +2251,7 @@ export default function PlayerDetails() {
 
                             {/* VELOCITY Card - Duplicate */}
                             <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Velocity</h4>
+                              <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Velocity</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Max MPH */}
                                 <div className="flex flex-col items-center space-y-2">
