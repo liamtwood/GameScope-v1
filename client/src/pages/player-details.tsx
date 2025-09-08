@@ -1554,10 +1554,10 @@ export default function PlayerDetails() {
                             <p className="text-sm text-muted-foreground mb-6 text-center">Training sessions, match highlights, and player analysis videos.</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
                               {/* Game 1 Highlights - Win vs Trinity Baptist */}
-                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                              <Card className="border border-border bg-muted hover:bg-muted/80 transition-all cursor-pointer">
                                 <CardContent className="p-4">
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
-                                    <Video className="h-8 w-8 text-white/60" />
+                                    <Video className="h-8 w-8 text-muted-foreground" />
                                   </div>
                                   <h4 className="text-sm font-semibold text-foreground mb-1">vs Trinity Baptist College JV</h4>
                                   <p className="text-xs text-muted-foreground mb-2">Match Highlights • W 5-0 • 4:32</p>
@@ -1566,10 +1566,10 @@ export default function PlayerDetails() {
                               </Card>
 
                               {/* Game 2 Highlights - Win vs Pasco-Hernando */}
-                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                              <Card className="border border-border bg-muted hover:bg-muted/80 transition-all cursor-pointer">
                                 <CardContent className="p-4">
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
-                                    <Video className="h-8 w-8 text-white/60" />
+                                    <Video className="h-8 w-8 text-muted-foreground" />
                                   </div>
                                   <h4 className="text-sm font-semibold text-foreground mb-1">vs Pasco-Hernando State</h4>
                                   <p className="text-xs text-muted-foreground mb-2">Player Focus • W 5-0 • 3:18</p>
@@ -1578,10 +1578,10 @@ export default function PlayerDetails() {
                               </Card>
 
                               {/* Game 3 Highlights - Win vs Millennia Atlantic */}
-                              <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                              <Card className="border border-border bg-muted hover:bg-muted/80 transition-all cursor-pointer">
                                 <CardContent className="p-4">
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
-                                    <Video className="h-8 w-8 text-white/60" />
+                                    <Video className="h-8 w-8 text-muted-foreground" />
                                   </div>
                                   <h4 className="text-sm font-semibold text-foreground mb-1">vs Millennia Atlantic University</h4>
                                   <p className="text-xs text-muted-foreground mb-2">Sophomore Day • W 6-1 • 5:07</p>
