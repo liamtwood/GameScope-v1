@@ -2347,8 +2347,8 @@ export default function PlayerDetails() {
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                      <span className="text-xs font-bold text-black leading-tight">1ST</span>
-                                      <span className="text-xs font-bold text-black leading-tight">TOUCH</span>
+                                      <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                      <span className="text-xs font-bold text-black leading-tight">RATE</span>
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
                                     </div>
                                   </div>
