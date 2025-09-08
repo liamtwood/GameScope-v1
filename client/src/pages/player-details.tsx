@@ -745,8 +745,9 @@ export default function PlayerDetails() {
                           {/* Bio Tab */}
                           <span 
                             className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              activeTab === 'bio' ? 'text-foreground font-bold' : 'text-foreground/70'
+                              activeTab === 'bio' ? 'font-bold' : 'text-foreground/70'
                             }`}
+                            style={activeTab === 'bio' ? { color: clubPrimaryColor } : {}}
                             onClick={() => setActiveTab('bio')}
                           >
                             Bio
@@ -755,8 +756,9 @@ export default function PlayerDetails() {
                           {/* Attack Tab */}
                           <span 
                             className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              activeTab === 'attack' ? 'text-foreground font-bold' : 'text-foreground/70'
+                              activeTab === 'attack' ? 'font-bold' : 'text-foreground/70'
                             }`}
+                            style={activeTab === 'attack' ? { color: clubPrimaryColor } : {}}
                             onClick={() => setActiveTab('attack')}
                           >
                             Attack
@@ -765,8 +767,9 @@ export default function PlayerDetails() {
                           {/* Passing Tab */}
                           <span 
                             className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              activeTab === 'passing' ? 'text-foreground font-bold' : 'text-foreground/70'
+                              activeTab === 'passing' ? 'font-bold' : 'text-foreground/70'
                             }`}
+                            style={activeTab === 'passing' ? { color: clubPrimaryColor } : {}}
                             onClick={() => setActiveTab('passing')}
                           >
                             Passing
@@ -775,8 +778,9 @@ export default function PlayerDetails() {
                           {/* Defense Tab */}
                           <span 
                             className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              activeTab === 'defense' ? 'text-foreground font-bold' : 'text-foreground/70'
+                              activeTab === 'defense' ? 'font-bold' : 'text-foreground/70'
                             }`}
+                            style={activeTab === 'defense' ? { color: clubPrimaryColor } : {}}
                             onClick={() => setActiveTab('defense')}
                           >
                             Defense
@@ -785,8 +789,9 @@ export default function PlayerDetails() {
                           {/* Videos Tab */}
                           <span 
                             className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              activeTab === 'video' ? 'text-foreground font-bold' : 'text-foreground/70'
+                              activeTab === 'video' ? 'font-bold' : 'text-foreground/70'
                             }`}
+                            style={activeTab === 'video' ? { color: clubPrimaryColor } : {}}
                             onClick={() => setActiveTab('video')}
                           >
                             Videos
