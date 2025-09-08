@@ -252,10 +252,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 
@@ -346,10 +346,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 
@@ -450,10 +450,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 
@@ -694,10 +694,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 
@@ -845,10 +845,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 
@@ -971,10 +971,10 @@ export default function Analysis() {
                     </div>
                     
                     {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
+                    <div className="flex items-center space-x-4 text-white flex-1 justify-end">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
                       </div>
                       {opponentLogoPath ? (
                         <img 

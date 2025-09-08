@@ -65,10 +65,10 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         <span className="text-muted-foreground">{label}</span>
       </div>
       
-      <div className="relative w-3/4 h-8 bg-muted rounded-lg overflow-hidden mx-auto">
+      <div className="relative w-3/4 h-8 bg-muted rounded-lg overflow-hidden mx-auto border border-border">
         {/* Team bar (from left) - Team color */}
         <div 
-          className="absolute left-0 top-0 h-full transition-all duration-500 ease-out"
+          className="absolute left-0 top-0 h-full transition-all duration-500 ease-out border-r border-white/20"
           style={{ 
             width: `${normalizedTeamValue}%`,
             background: `linear-gradient(to right, ${teamColor}, ${teamColor}dd)`
@@ -77,7 +77,7 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
         
         {/* Opponent bar (from right) - Opposition color */}
         <div 
-          className="absolute right-0 top-0 h-full transition-all duration-500 ease-out"
+          className="absolute right-0 top-0 h-full transition-all duration-500 ease-out border-l border-white/20"
           style={{ 
             width: `${normalizedOpponentValue}%`,
             background: `linear-gradient(to left, ${opponentColor}, ${opponentColor}dd)`
