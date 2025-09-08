@@ -25,7 +25,6 @@ import PlayerProfiles from "@/pages/player-profiles";
 import Users from "@/pages/users";
 import DevOpsUsers from "@/pages/devops-users";
 import UserDetails from "@/pages/user-details";
-import Screenshots from "@/pages/screenshots";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -50,7 +49,6 @@ function Router() {
       <Route path="/videos" component={Videos} />
       <Route path="/clubs" component={Clubs} />
       <Route path="/settings" component={Settings} />
-      <Route path="/screenshots" component={Screenshots} />
       <Route component={NotFound} />
     </Switch>
   );
