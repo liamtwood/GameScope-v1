@@ -163,7 +163,8 @@ export default function UserDetails() {
     // Only send the fields we actually allow editing, excluding system timestamps
     const allowedFields = [
       'firstName', 'lastName', 'shirtName', 'dateOfBirth', 'gender', 
-      'email', 'phone', 'role', 'status', 'avatarPath', 'headshotPath'
+      'email', 'phone', 'role', 'status', 'avatarPath', 'headshotPath',
+      'height', 'hometown', 'highSchool', 'classYear', 'bio'
     ];
     
     const dataToSave: Partial<User> = {};
@@ -491,7 +492,7 @@ export default function UserDetails() {
         <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-3 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
+              <TabsList className="grid grid-cols-4 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
                 <TabsTrigger 
                   value="details" 
                   data-testid="tab-user-details"
@@ -539,6 +540,22 @@ export default function UserDetails() {
                   } as React.CSSProperties}
                 >
                   Teams
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="bio" 
+                  data-testid="tab-bio"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
+                  style={{
+                    backgroundColor: clubPrimaryColor,
+                    boxShadow: 'none !important',
+                    backgroundImage: 'none !important',
+                    background: clubPrimaryColor + ' !important',
+                    filter: 'none !important',
+                    border: 'none !important',
+                    outline: 'none !important'
+                  } as React.CSSProperties}
+                >
+                  Bio
                 </TabsTrigger>
               </TabsList>
 
@@ -906,6 +923,111 @@ export default function UserDetails() {
                         <p>This user is not assigned to any teams yet.</p>
                       </div>
                     )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="bio" className="p-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Player Bio</h3>
+                    <div className="space-y-6">
+                      {/* Row 1: Height, Hometown, High School */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Height</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.height || ''}
+                              onChange={(e) => handleInputChange('height', e.target.value)}
+                              placeholder="e.g., 5-7"
+                              data-testid="input-height"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-height-${user.id}`}>
+                              {user.height || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Hometown</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.hometown || ''}
+                              onChange={(e) => handleInputChange('hometown', e.target.value)}
+                              placeholder="e.g., Thornton, Colo."
+                              data-testid="input-hometown"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-hometown-${user.id}`}>
+                              {user.hometown || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">High School</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.highSchool || ''}
+                              onChange={(e) => handleInputChange('highSchool', e.target.value)}
+                              placeholder="e.g., Broomfield HS"
+                              data-testid="input-high-school"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-high-school-${user.id}`}>
+                              {user.highSchool || 'Not provided'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Row 2: Class Year */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Class Year</label>
+                          {isEditing ? (
+                            <Select
+                              value={editData.classYear || user.classYear || ''}
+                              onValueChange={(value) => handleInputChange('classYear', value)}
+                            >
+                              <SelectTrigger data-testid="select-class-year">
+                                <SelectValue placeholder="Select class year" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Freshman">Freshman</SelectItem>
+                                <SelectItem value="Sophomore">Sophomore</SelectItem>
+                                <SelectItem value="Junior">Junior</SelectItem>
+                                <SelectItem value="Senior">Senior</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <p className="text-lg" data-testid={`text-class-year-${user.id}`}>
+                              {user.classYear || 'Not set'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Personal Bio - Full Width */}
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Personal Bio</label>
+                        {isEditing ? (
+                          <textarea
+                            value={editData.bio || ''}
+                            onChange={(e) => handleInputChange('bio', e.target.value)}
+                            placeholder="Enter personal bio..."
+                            className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            data-testid="textarea-bio"
+                          />
+                        ) : (
+                          <div className="text-lg whitespace-pre-wrap" data-testid={`text-bio-${user.id}`}>
+                            {user.bio || 'No bio provided'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
