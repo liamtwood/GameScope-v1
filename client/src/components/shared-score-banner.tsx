@@ -53,7 +53,7 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
     <div className="w-full h-16 relative overflow-hidden rounded-lg" style={{ 
       background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${primaryColor} 100%)`
     }}>
-      {/* Vertical Lines Pattern */}
+      {/* Vertical Lines Pattern - Texture (disabled for now, may use later)
       <div className="absolute inset-0">
         <div className="absolute right-0 top-0 bottom-0 w-3/5" style={{
           background: `repeating-linear-gradient(
@@ -65,6 +65,7 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
           )`
         }} />
       </div>
+      */}
       
       {/* Dark Gradient Overlay on Left */}
       <div 
