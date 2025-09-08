@@ -179,7 +179,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     key={item.id}
                     href={href}
                     className={cn(
-                      "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7 hover:text-accent-foreground",
+                      "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
                       isActive 
                         ? "text-white" 
                         : "",
@@ -193,18 +193,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     } : {}}
                     onMouseEnter={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.marginRight = '-2rem';
-                        e.currentTarget.style.paddingRight = '2rem';
-                        e.currentTarget.style.width = 'calc(100% + 2rem)';
-                        e.currentTarget.style.backgroundColor = '#f1f5f9'; // Light gray hover
+                        e.currentTarget.style.color = clubPrimaryColor;
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.marginRight = '';
-                        e.currentTarget.style.paddingRight = '';
-                        e.currentTarget.style.width = '';
-                        e.currentTarget.style.backgroundColor = '';
+                        e.currentTarget.style.color = '';
                       }
                     }}
                     data-testid={`link-nav-${item.id}`}
