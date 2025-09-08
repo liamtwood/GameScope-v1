@@ -924,7 +924,7 @@ export default function PlayerDetails() {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
-                        color: hsl(var(--foreground)) !important;
+                        color: ${clubPrimaryColor} !important;
                       }
                       /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
