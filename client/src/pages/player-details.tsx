@@ -2139,32 +2139,32 @@ export default function PlayerDetails() {
                             </div>
                           </div>
                           
-                          <div className="flex gap-3">
+                          <div className="flex gap-4">
                             {/* PASS SUCCESS Card */}
-                            <div className="bg-white/10 rounded-lg px-1 py-3 border border-white/20 text-center flex-1">
-                              <h4 className="text-base font-medium text-white mb-3 uppercase tracking-wide">Passes</h4>
-                              <div className="grid grid-cols-3 gap-1 items-center">
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Attempted */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-blue-400">77</span>
+                                  <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-blue-400">77</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Attempted</span>
                                 </div>
                                 
                                 {/* Success Rate Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-18 h-20 bg-white border-3 border-black rounded-lg flex flex-col items-center justify-center py-1">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                     <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
                                     <span className="text-xs font-bold text-black leading-tight">RATE</span>
-                                    <span className="text-lg font-bold text-black mt-1">82%</span>
+                                    <span className="text-xl font-bold text-black mt-1">82%</span>
                                   </div>
                                 </div>
                                 
                                 {/* Success */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-emerald-400">63</span>
+                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-emerald-400">63</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Success</span>
                                 </div>
@@ -2172,30 +2172,30 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* FOOT Card */}
-                            <div className="bg-white/10 rounded-lg px-1 py-3 border border-white/20 text-center flex-1">
-                              <h4 className="text-base font-medium text-white mb-3 uppercase tracking-wide">Foot</h4>
-                              <div className="grid grid-cols-3 gap-1 items-center">
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Left Foot */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-purple-400">12</span>
+                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-purple-400">12</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                 </div>
                                 
                                 {/* Dominant Foot Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-18 h-20 bg-white border-3 border-black rounded-lg flex flex-col items-center justify-center py-1">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                     <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
                                     <span className="text-xs font-bold text-black leading-tight">FOOT</span>
-                                    <span className="text-lg font-bold text-black mt-1">81%</span>
+                                    <span className="text-xl font-bold text-black mt-1">81%</span>
                                   </div>
                                 </div>
                                 
                                 {/* Right Foot */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-orange-400">51</span>
+                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-orange-400">51</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Right Foot</span>
                                 </div>
@@ -2204,32 +2204,32 @@ export default function PlayerDetails() {
                           </div>
 
                           {/* Duplicated Row */}
-                          <div className="flex gap-3">
+                          <div className="flex gap-4">
                             {/* DISTANCE Card - Duplicate */}
-                            <div className="bg-white/10 rounded-lg px-1 py-3 border border-white/20 text-center flex-1">
-                              <h4 className="text-base font-medium text-white mb-3 uppercase tracking-wide">Distance</h4>
-                              <div className="grid grid-cols-3 gap-1 items-center">
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Distance</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Total */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-blue-400">672</span>
+                                  <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-blue-400">672</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Total (m)</span>
                                 </div>
                                 
                                 {/* Game Average Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-18 h-20 bg-white border-3 border-black rounded-lg flex flex-col items-center justify-center py-1">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                     <span className="text-xs font-bold text-black leading-tight">GAME</span>
                                     <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
-                                    <span className="text-lg font-bold text-black mt-1">242</span>
+                                    <span className="text-xl font-bold text-black mt-1">242</span>
                                   </div>
                                 </div>
                                 
                                 {/* Max */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-emerald-400">42</span>
+                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-emerald-400">42</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (m)</span>
                                 </div>
@@ -2237,30 +2237,30 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* VELOCITY Card - Duplicate */}
-                            <div className="bg-white/10 rounded-lg px-1 py-3 border border-white/20 text-center flex-1">
-                              <h4 className="text-base font-medium text-white mb-3 uppercase tracking-wide">Velocity</h4>
-                              <div className="grid grid-cols-3 gap-1 items-center">
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Velocity</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Max MPH */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-purple-400">42</span>
+                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-purple-400">42</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (mph)</span>
                                 </div>
                                 
                                 {/* Average MPH Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-18 h-20 bg-white border-3 border-black rounded-lg flex flex-col items-center justify-center py-1">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                     <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
                                     <span className="text-xs font-bold text-black leading-tight">MPH</span>
-                                    <span className="text-lg font-bold text-black mt-1">27</span>
+                                    <span className="text-xl font-bold text-black mt-1">27</span>
                                   </div>
                                 </div>
                                 
                                 {/* Max M/S */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-14 h-14 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                    <span className="text-lg font-bold text-orange-400">17</span>
+                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-orange-400">17</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (m/s)</span>
                                 </div>
