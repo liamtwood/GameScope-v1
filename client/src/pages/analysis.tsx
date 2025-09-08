@@ -195,14 +195,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
               {fullGameStats ? (
@@ -224,14 +226,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               <h3 className="text-lg font-semibold mb-4">AI-Powered Analysis</h3>
               <div className="p-6 rounded-lg border">
@@ -265,14 +269,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               <h3 className="text-lg font-semibold mb-4">Spider Charts</h3>
               <Tabs defaultValue="attack" className="w-full">
@@ -446,14 +452,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               {/* Fixture Details Container */}
               <div className="mb-6">
@@ -534,14 +542,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               {/* Polk State College Lineups */}
               <div>
@@ -597,14 +607,16 @@ export default function Analysis() {
           <Card>
             <CardContent className="p-6">
               {/* Team Header */}
-              <div className="mb-6">
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={selectedTeam}
-                  club={selectedClub}
-                  oppositionTeam={opponentTeam}
-                />
-              </div>
+              {selectedTeam && selectedClub && (
+                <div className="mb-6">
+                  <SharedScoreBanner 
+                    fixture={fixture}
+                    team={selectedTeam}
+                    club={selectedClub}
+                    oppositionTeam={opponentTeam}
+                  />
+                </div>
+              )}
               
               <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
               <VideoManager 
