@@ -154,8 +154,8 @@ export default function Analysis() {
   );
 
   // Split color scheme: Polk State on left, Opposition on right
-  const polkStateColor = selectedTeam?.colors?.primary || selectedClub?.colors?.primary || '#CC4125';
-  const oppositionColor = opponentTeam?.colors?.primary || '#6b7280';
+  const polkStateColor = (selectedTeam?.colors as any)?.primary || (selectedClub?.colors as any)?.primary || '#CC4125';
+  const oppositionColor = (opponentTeam?.colors as any)?.primary || '#6b7280';
   
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
