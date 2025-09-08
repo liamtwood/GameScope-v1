@@ -710,9 +710,6 @@ export default function UserDetails() {
                         </div>
                       </div>
 
-                      {/* Separator */}
-                      <div className="border-t border-gray-200 dark:border-gray-700"></div>
-
                       {/* Account Information */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -766,9 +763,6 @@ export default function UserDetails() {
                           )}
                         </div>
                       </div>
-
-                      {/* Separator */}
-                      <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
                       {/* System Information */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
