@@ -160,7 +160,12 @@ export default function UserDetails() {
   };
 
   const handleSave = () => {
-    updateUserMutation.mutate(editData);
+    // Ensure dates are properly formatted before saving
+    const dataToSave = { ...editData };
+    if (dataToSave.dateOfBirth && typeof dataToSave.dateOfBirth !== 'string') {
+      dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth).toISOString();
+    }
+    updateUserMutation.mutate(dataToSave);
   };
 
   const handleInputChange = (field: keyof User, value: any) => {
