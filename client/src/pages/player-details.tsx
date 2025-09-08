@@ -1840,7 +1840,7 @@ export default function PlayerDetails() {
                           
                           <div className="flex gap-8">
                             {/* PASS SUCCESS Card */}
-                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1">
+                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                               <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Passes</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Attempted */}
@@ -1871,7 +1871,7 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* FOOT Card */}
-                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1">
+                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                               <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Foot</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Left Foot */}
@@ -1905,7 +1905,7 @@ export default function PlayerDetails() {
                           {/* Duplicated Row */}
                           <div className="flex gap-8">
                             {/* DISTANCE Card - Duplicate */}
-                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1">
+                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                               <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Distance</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Total */}
@@ -1936,7 +1936,7 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* VELOCITY Card - Duplicate */}
-                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1">
+                            <div className="rounded-lg px-2 py-4 border border-border text-center flex-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                               <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Velocity</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Max MPH */}
