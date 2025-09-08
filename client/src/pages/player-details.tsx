@@ -784,7 +784,7 @@ export default function PlayerDetails() {
                     <div className="absolute right-0 flex items-center gap-2">
                       <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className={source === "profiles" ? "w-48 h-8 text-xs bg-foreground/10 border-foreground/20 text-foreground" : "w-48 h-8 text-xs bg-white/10 border-white/20 text-white"}>
+                        <SelectTrigger className={source === "profiles" ? "w-48 h-8 text-xs bg-muted border-border text-foreground" : "w-48 h-8 text-xs bg-white/10 border-white/20 text-white"}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -806,7 +806,7 @@ export default function PlayerDetails() {
               </div>
               
               {/* Modern Tab Navigation */}
-              <div className="px-0 bg-background/90 backdrop-blur-sm">
+              <div className="px-0 bg-background backdrop-blur-sm">
                 <div className="px-0">
                   <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden bg-muted`}>
                     {/* Honeycomb Background Pattern for Tabs */}
@@ -1536,7 +1536,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
@@ -1691,7 +1691,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-foreground text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
@@ -1870,7 +1870,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
@@ -2179,7 +2179,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
@@ -2343,7 +2343,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
@@ -2362,7 +2362,7 @@ export default function PlayerDetails() {
                           
                           <div className="flex gap-8">
                             {/* PASS SUCCESS Card */}
-                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                            <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Attempted */}
@@ -2393,7 +2393,7 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* FOOT Card */}
-                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                            <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Left Foot */}
@@ -2427,7 +2427,7 @@ export default function PlayerDetails() {
                           {/* Duplicated Row */}
                           <div className="flex gap-8">
                             {/* DISTANCE Card - Duplicate */}
-                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                            <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Distance</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Total */}
@@ -2458,7 +2458,7 @@ export default function PlayerDetails() {
                             </div>
 
                             {/* VELOCITY Card - Duplicate */}
-                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                            <div className="bg-muted rounded-lg px-2 py-4 border border-border text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Velocity</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Max MPH */}
@@ -2564,7 +2564,7 @@ export default function PlayerDetails() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
+                            <div className="w-full h-64 bg-muted flex items-center justify-center">
                               <div className="text-white text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
