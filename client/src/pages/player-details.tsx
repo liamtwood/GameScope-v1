@@ -1626,7 +1626,7 @@ export default function PlayerDetails() {
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="bio" className="m-0">
-                  <div className="px-6 relative" style={{...solidStyle}}>
+                  <div className="px-6 relative">
                     {/* Honeycomb Background Pattern */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
@@ -1804,7 +1804,6 @@ export default function PlayerDetails() {
                 <TabsContent value="stats" className="m-0">
                   <div 
                     className="px-6 min-h-[400px] relative" 
-                    style={{...solidStyle}}
                   >
                     {/* Honeycomb Background Pattern */}
                     <div 
@@ -2114,7 +2113,7 @@ export default function PlayerDetails() {
               {/* Attack Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="attack" className="m-0">
-                  <div className="px-6 relative" style={{...solidStyle}}>
+                  <div className="px-6 relative">
                     {/* Honeycomb Background Pattern */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
@@ -2278,7 +2277,7 @@ export default function PlayerDetails() {
               {/* Passing Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="passing" className="m-0">
-                  <div className="px-6 relative" style={{...solidStyle}}>
+                  <div className="px-6 relative">
                     {/* Honeycomb Background Pattern */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
@@ -2499,7 +2498,7 @@ export default function PlayerDetails() {
               {/* Defense Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
                 <TabsContent value="defense" className="m-0">
-                  <div className="px-6 relative" style={{...solidStyle}}>
+                  <div className="px-6 relative">
                     {/* Honeycomb Background Pattern */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
