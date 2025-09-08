@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -420,6 +420,105 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   // Video Player Component for embedded playback
+  // Video Thumbnail Component
+  const VideoThumbnail = ({ video }: { video: VideoData }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+      if (isVideoFile(video.url!, video.filename)) {
+        generateThumbnail();
+      }
+    }, [video.url]);
+
+    const generateThumbnail = async () => {
+      setIsLoading(true);
+      const videoElement = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      if (!videoElement || !canvas) return;
+
+      const handleLoadedMetadata = () => {
+        // Seek to 1 second to get a better frame than the first frame
+        videoElement.currentTime = Math.min(1, videoElement.duration * 0.1);
+      };
+
+      const handleSeeked = () => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            setThumbnailUrl(url);
+          }
+          setIsLoading(false);
+        });
+
+        // Clean up event listeners
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        videoElement.removeEventListener('seeked', handleSeeked);
+      };
+
+      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.addEventListener('seeked', handleSeeked);
+      videoElement.src = getVideoPlaybackUrl(video);
+    };
+
+    // Cleanup function
+    useEffect(() => {
+      return () => {
+        if (thumbnailUrl) {
+          URL.revokeObjectURL(thumbnailUrl);
+        }
+      };
+    }, [thumbnailUrl]);
+
+    if (!isVideoFile(video.url!, video.filename)) {
+      return null;
+    }
+
+    return (
+      <div className="w-32 h-20 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden relative">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+          </div>
+        )}
+        {thumbnailUrl && (
+          <img 
+            src={thumbnailUrl} 
+            alt="Video thumbnail"
+            className="w-full h-full object-cover"
+          />
+        )}
+        {!isLoading && !thumbnailUrl && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Play className="h-8 w-8 text-gray-400" />
+          </div>
+        )}
+        {/* Hidden video element for thumbnail generation */}
+        <video
+          ref={videoRef}
+          style={{ display: 'none' }}
+          muted
+          preload="metadata"
+        />
+        {/* Hidden canvas for thumbnail generation */}
+        <canvas
+          ref={canvasRef}
+          style={{ display: 'none' }}
+        />
+      </div>
+    );
+  };
+
   const VideoPlayer = ({ video }: { video: VideoData }) => (
     <Dialog>
       <DialogTrigger asChild>
@@ -532,6 +631,10 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 />
               ) : (
                 <div className="flex items-center gap-4">
+                  {/* Show thumbnail for first video only */}
+                  {videos.indexOf(video) === 0 && (
+                    <VideoThumbnail video={video} />
+                  )}
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
                     <div className="flex flex-col min-w-0">
