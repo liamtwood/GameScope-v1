@@ -581,7 +581,7 @@ export default function Squad() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => handleOpenPlayerModal(player)}
+                            onClick={() => handleViewPlayer(player)}
                             data-testid={`button-edit-player-${player.id}`}
                           >
                             <Edit className="h-4 w-4 text-blue-600" />
@@ -709,7 +709,7 @@ export default function Squad() {
                         <div key={player.id} className="relative">
                           <PlayerCard
                             player={player}
-                            onEdit={handleOpenPlayerModal}
+                            onEdit={handleViewPlayer}
                             onDelete={handleDeletePlayer}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
                             onUpdateStatus={(player, newStatus) => {
