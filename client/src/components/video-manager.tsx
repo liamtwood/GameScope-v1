@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -420,101 +420,35 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   // Video Player Component for embedded playback
-  // Video Thumbnail Component
+  // Video Thumbnail Component - Women's Soccer Placeholder
   const VideoThumbnail = ({ video }: { video: VideoData }) => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-      if (isVideoFile(video.url!, video.filename)) {
-        generateThumbnail();
-      }
-    }, [video.url]);
-
-    const generateThumbnail = async () => {
-      setIsLoading(true);
-      const videoElement = videoRef.current;
-      const canvas = canvasRef.current;
-      
-      if (!videoElement || !canvas) return;
-
-      const handleLoadedMetadata = () => {
-        // Seek to 1 second to get a better frame than the first frame
-        videoElement.currentTime = Math.min(1, videoElement.duration * 0.1);
-      };
-
-      const handleSeeked = () => {
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = videoElement.videoWidth;
-        canvas.height = videoElement.videoHeight;
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            setThumbnailUrl(url);
-          }
-          setIsLoading(false);
-        });
-
-        // Clean up event listeners
-        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        videoElement.removeEventListener('seeked', handleSeeked);
-      };
-
-      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-      videoElement.addEventListener('seeked', handleSeeked);
-      videoElement.src = getVideoPlaybackUrl(video);
-    };
-
-    // Cleanup function
-    useEffect(() => {
-      return () => {
-        if (thumbnailUrl) {
-          URL.revokeObjectURL(thumbnailUrl);
-        }
-      };
-    }, [thumbnailUrl]);
-
     if (!isVideoFile(video.url!, video.filename)) {
       return null;
     }
 
     return (
-      <div className="w-32 h-20 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden relative">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+      <div className="w-32 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-lg overflow-hidden relative">
+        {/* Soccer field background with women's soccer theme */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-400 via-green-500 to-green-600">
+          {/* Field lines */}
+          <div className="absolute inset-2 border border-white/30 rounded-sm">
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-white/30 transform -translate-y-1/2"></div>
+            <div className="absolute top-1/2 left-1/2 w-4 h-4 border border-white/30 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
           </div>
-        )}
-        {thumbnailUrl && (
-          <img 
-            src={thumbnailUrl} 
-            alt="Video thumbnail"
-            className="w-full h-full object-cover"
-          />
-        )}
-        {!isLoading && !thumbnailUrl && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Play className="h-8 w-8 text-gray-400" />
+          {/* Goal posts */}
+          <div className="absolute top-2 left-0 w-1 h-3 bg-white/40"></div>
+          <div className="absolute top-2 right-0 w-1 h-3 bg-white/40"></div>
+        </div>
+        {/* Play button overlay */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+            <Play className="h-4 w-4 text-green-600 ml-0.5" />
           </div>
-        )}
-        {/* Hidden video element for thumbnail generation */}
-        <video
-          ref={videoRef}
-          style={{ display: 'none' }}
-          muted
-          preload="metadata"
-        />
-        {/* Hidden canvas for thumbnail generation */}
-        <canvas
-          ref={canvasRef}
-          style={{ display: 'none' }}
-        />
+        </div>
+        {/* Women's soccer indicator */}
+        <div className="absolute bottom-1 right-1 text-xs text-white/80 font-medium bg-black/20 px-1 rounded">
+          ⚽
+        </div>
       </div>
     );
   };
