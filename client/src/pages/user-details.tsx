@@ -1086,9 +1086,8 @@ export default function UserDetails() {
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Photo Guidelines */}
+                      {/* Photo Guidelines */}
                       <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
@@ -1099,6 +1098,7 @@ export default function UserDetails() {
                         </ul>
                       </div>
                     </div>
+                  </div>
                   </div>
                 </div>
               </TabsContent>
