@@ -164,10 +164,6 @@ export default function UserDetails() {
   };
 
   const handleInputChange = (field: keyof User, value: any) => {
-    // Convert Date objects to ISO strings for dateOfBirth
-    if (field === 'dateOfBirth' && value instanceof Date) {
-      value = value.toISOString();
-    }
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -572,36 +568,15 @@ export default function UserDetails() {
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                           {isEditing ? (
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !editData.dateOfBirth && "text-muted-foreground"
-                                  )}
-                                  data-testid="button-date-picker"
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {editData.dateOfBirth ? (
-                                    format(new Date(editData.dateOfBirth), "d MMM yyyy")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={editData.dateOfBirth ? new Date(editData.dateOfBirth) : undefined}
-                                  onSelect={(date) => handleInputChange('dateOfBirth', date || null)}
-                                  disabled={(date) =>
-                                    date > new Date() || date < new Date("1900-01-01")
-                                  }
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
+                            <Input
+                              type="date"
+                              value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
+                              onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value).toISOString() : null)}
+                              max={format(new Date(), 'yyyy-MM-dd')}
+                              min="1900-01-01"
+                              className="[&::-webkit-calendar-picker-indicator]:dark:invert"
+                              data-testid="input-date-of-birth"
+                            />
                           ) : (
                             <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
                               {user.dateOfBirth 
