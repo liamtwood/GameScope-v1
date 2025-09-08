@@ -484,7 +484,7 @@ export default function UserDetails() {
                 <TabsTrigger 
                   value="teams" 
                   data-testid="tab-teams"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-black data-[state=active]:text-white rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
                   style={{
                     backgroundColor: clubPrimaryColor,
                     boxShadow: 'none',
