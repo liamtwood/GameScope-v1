@@ -2341,6 +2341,18 @@ export default function PlayerDetails() {
                                 </div>
                               </div>
 
+                              {/* Clearances */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Clearances</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">11</div>
+                                  <div className="text-sm text-white/80">Total Clearances</div>
+                                  <div className="text-sm text-white/60">
+                                    Defensive clearances made
+                                  </div>
+                                </div>
+                              </div>
+
                               {/* Duels */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Duels</h4>
