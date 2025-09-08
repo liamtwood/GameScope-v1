@@ -2063,7 +2063,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">0</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Goals</div>
                                   <div className="text-sm text-white/60">
                                     xG: 0.02
                                   </div>
@@ -2081,7 +2080,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">1</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Assists</div>
                                   <div className="text-sm text-white/60">
                                     xA: 0.04
                                   </div>
@@ -2099,7 +2097,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">60%</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Accuracy</div>
                                   <div className="text-sm text-white/60">
                                     3 on target of 5 total
                                   </div>
@@ -2117,7 +2114,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">0</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Chances</div>
                                   <div className="text-sm text-white/60">
                                     High-quality opportunities
                                   </div>
