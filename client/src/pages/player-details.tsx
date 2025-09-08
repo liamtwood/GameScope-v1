@@ -672,10 +672,10 @@ export default function PlayerDetails() {
                   
                   {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
                   <div className="flex items-center gap-2">
-                    <Crosshair className="h-6 w-6" style={{ color: clubPrimaryColor }} />
+                    <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
                     <div className="flex flex-col justify-center text-left">
-                      <div className="text-sm font-bold uppercase tracking-wider" style={{ color: clubPrimaryColor }}>GameScope</div>
-                      <div className="text-xs font-medium uppercase tracking-wide" style={{ color: clubPrimaryColor, opacity: 0.8 }}>Profile</div>
+                      <div className="text-sm font-bold uppercase tracking-wider" style={{ color: '#486D8D' }}>GameScope</div>
+                      <div className="text-xs font-medium uppercase tracking-wide" style={{ color: '#486D8D', opacity: 0.8 }}>Profile</div>
                     </div>
                   </div>
                   
@@ -854,7 +854,7 @@ export default function PlayerDetails() {
                       [data-testid="tab-teams"][data-state="active"],
                       [data-testid="tab-parents"][data-state="active"],
                       [data-testid="tab-video"][data-state="active"] {
-                        color: ${clubPrimaryColor} !important;
+                        color: #486D8D !important;
                         border: none !important;
                         outline: none !important;
                         box-shadow: none !important;
@@ -924,7 +924,7 @@ export default function PlayerDetails() {
                         background: none !important;
                         background-color: transparent !important;
                         background-image: none !important;
-                        color: ${clubPrimaryColor} !important;
+                        color: #486D8D !important;
                       }
                       /* ACTIVE TABS - WHITE BACKGROUND WITH CLUB COLOR TEXT */
                       [data-testid="tab-details"][data-state="active"],
@@ -943,7 +943,7 @@ export default function PlayerDetails() {
                         background: white !important;
                         background-color: white !important;
                         background-image: none !important;
-                        color: ${clubPrimaryColor} !important;
+                        color: #486D8D !important;
                       }
                     `}</style>
                     {!isPhotoOnlyMode && (
@@ -1006,7 +1006,7 @@ export default function PlayerDetails() {
     // Disable inline styles - let CSS handle everything
                           } as React.CSSProperties & { '--club-primary': string }}
                         >
-                          <Video className="mr-2 h-4 w-4" style={{ color: clubPrimaryColor }} />
+                          <Video className="mr-2 h-4 w-4" style={{ color: '#486D8D' }} />
                           Video
                         </TabsTrigger>
                       </>
