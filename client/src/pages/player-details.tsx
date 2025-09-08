@@ -808,7 +808,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-6'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`} style={{ backgroundColor: clubPrimaryColor }}>
                     {/* Honeycomb Background Pattern for Tabs */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
@@ -978,6 +978,18 @@ export default function PlayerDetails() {
                           } as React.CSSProperties & { '--club-primary': string }}
                         >
                           Parents
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="bio" 
+                          data-testid="tab-bio" 
+                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          style={{ 
+                            // color controlled by CSS now
+                            '--club-primary': clubPrimaryColor,
+    // Disable inline styles - let CSS handle everything
+                          } as React.CSSProperties & { '--club-primary': string }}
+                        >
+                          Bio
                         </TabsTrigger>
                         <TabsTrigger 
                           value="video" 
@@ -1382,6 +1394,122 @@ export default function PlayerDetails() {
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Bio Tab Content - only for VIEW SQUAD MEMBER */}
+              {source !== "profiles" && (
+                <TabsContent value="bio" className="m-0">
+                  <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                    <div className="pt-4">
+                      
+                      {/* Section Header */}
+                      <div className="w-4/5 mx-auto">
+                        <div className="pt-8">
+                          <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Player Biography</h4>
+                        </div>
+                      </div>
+
+                      {/* Bio Information */}
+                      <div className="w-4/5 mx-auto">
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-6">
+                          <div className="px-2 py-1">
+                            <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Height</label>
+                            <div className="mt-0.5">
+                              {isEditing ? (
+                                <Input
+                                  value={editData.height || ''}
+                                  onChange={(e) => handleInputChange('height', e.target.value)}
+                                  className="h-6 text-sm font-semibold"
+                                  data-testid={`input-height-${player.id}`}
+                                />
+                              ) : (
+                                <div className="h-6 flex items-center text-sm font-semibold">{player?.height || 'Not specified'}</div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="px-2 py-1">
+                            <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Hometown</label>
+                            <div className="mt-0.5">
+                              {isEditing ? (
+                                <Input
+                                  value={editData.hometown || ''}
+                                  onChange={(e) => handleInputChange('hometown', e.target.value)}
+                                  className="h-6 text-sm font-semibold"
+                                  data-testid={`input-hometown-${player.id}`}
+                                />
+                              ) : (
+                                <div className="h-6 flex items-center text-sm font-semibold">{player?.hometown || 'Not specified'}</div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="px-2 py-1">
+                            <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Class Year</label>
+                            <div className="mt-0.5">
+                              {isEditing ? (
+                                <Input
+                                  value={editData.classYear || ''}
+                                  onChange={(e) => handleInputChange('classYear', e.target.value)}
+                                  className="h-6 text-sm font-semibold"
+                                  data-testid={`input-class-year-${player.id}`}
+                                />
+                              ) : (
+                                <div className="h-6 flex items-center text-sm font-semibold">{player?.classYear || 'Not specified'}</div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="px-2 py-1">
+                            <label className="text-[10px] font-medium text-muted-foreground tracking-wide">High School</label>
+                            <div className="mt-0.5">
+                              {isEditing ? (
+                                <Input
+                                  value={editData.highSchool || ''}
+                                  onChange={(e) => handleInputChange('highSchool', e.target.value)}
+                                  className="h-6 text-sm font-semibold"
+                                  data-testid={`input-high-school-${player.id}`}
+                                />
+                              ) : (
+                                <div className="h-6 flex items-center text-sm font-semibold">{player?.highSchool || 'Not specified'}</div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Biography Section */}
+                        <div className="pt-4">
+                          <div className="pt-4">
+                            <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>About</h4>
+                          </div>
+                          <div className="px-2 py-1">
+                            <label className="text-[10px] font-medium text-muted-foreground tracking-wide">Biography</label>
+                            <div className="mt-0.5">
+                              {isEditing ? (
+                                <textarea
+                                  value={editData.bio || ''}
+                                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                                  className="w-full h-24 text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 resize-none"
+                                  style={{ focusRingColor: clubPrimaryColor }}
+                                  placeholder="Enter player biography..."
+                                  data-testid={`textarea-bio-${player.id}`}
+                                />
+                              ) : player?.bio ? (
+                                <div className="text-sm leading-relaxed text-gray-700 bg-gray-50 p-3 rounded border">
+                                  {player.bio}
+                                </div>
+                              ) : (
+                                <div className="text-sm italic text-muted-foreground text-center bg-gray-50 p-3 rounded border">
+                                  No biography available
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
 
               {/* Video Tab Content */}
               <TabsContent value="video" className="m-0 flex-1 min-h-0">
