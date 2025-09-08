@@ -675,8 +675,8 @@ export default function UserDetails() {
                       {/* Separator */}
                       <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-                      {/* Contact Information */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Row 1: Email, Role, Account Status */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                           {isEditing ? (
@@ -693,25 +693,6 @@ export default function UserDetails() {
                           )}
                         </div>
                         
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                          {isEditing ? (
-                            <Input
-                              value={editData.phone || ''}
-                              onChange={(e) => handleInputChange('phone', e.target.value)}
-                              type="tel"
-                              data-testid="input-phone"
-                            />
-                          ) : (
-                            <p className="text-lg" data-testid={`text-phone-${user.id}`}>
-                              {user.phone || "Not provided"}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Account Information */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Role</label>
                           {isEditing ? (
@@ -764,12 +745,35 @@ export default function UserDetails() {
                         </div>
                       </div>
 
-                      {/* System Information */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Row 2: Phone, Created, Last Update */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                          {isEditing ? (
+                            <Input
+                              value={editData.phone || ''}
+                              onChange={(e) => handleInputChange('phone', e.target.value)}
+                              type="tel"
+                              data-testid="input-phone"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-phone-${user.id}`}>
+                              {user.phone || "Not provided"}
+                            </p>
+                          )}
+                        </div>
+                        
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Created</label>
                           <p className="text-lg" data-testid={`text-created-${user.id}`}>
-                            {user.createdAt ? format(new Date(user.createdAt), 'PPP') : 'N/A'}
+                            {user.createdAt ? format(new Date(user.createdAt), 'd MMM yyyy') : 'N/A'}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Last Update</label>
+                          <p className="text-lg" data-testid={`text-updated-${user.id}`}>
+                            {user.updatedAt ? format(new Date(user.updatedAt), 'd MMM yyyy') : 'N/A'}
                           </p>
                         </div>
                       </div>
