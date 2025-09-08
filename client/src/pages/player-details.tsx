@@ -794,7 +794,7 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Fixture Dropdown - Right aligned */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 -mr-4">
                           <span className="text-sm text-foreground/70 uppercase tracking-wide">
                             Fixture:
                           </span>
