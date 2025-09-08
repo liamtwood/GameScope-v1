@@ -1534,7 +1534,7 @@ export default function PlayerDetails() {
                             </div>
                           ) : (
                             <div className="w-full h-64 bg-muted flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
+                              <div className="text-foreground text-4xl font-semibold">
                                 {player?.firstName?.[0]}{player?.lastName?.[0]}
                               </div>
                             </div>
@@ -1545,12 +1545,12 @@ export default function PlayerDetails() {
                         <div className="w-1/2 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
-                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Videos</h3>
+                              <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Player Videos</h3>
                             </div>
                           </div>
                           
                           <div className="py-8">
-                            <p className="text-sm text-white/80 mb-6 text-center">Training sessions, match highlights, and player analysis videos.</p>
+                            <p className="text-sm text-muted-foreground mb-6 text-center">Training sessions, match highlights, and player analysis videos.</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {/* Game 1 Highlights - Win vs Trinity Baptist */}
                               <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
@@ -1558,9 +1558,9 @@ export default function PlayerDetails() {
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
                                     <Video className="h-8 w-8 text-white/60" />
                                   </div>
-                                  <h4 className="text-sm font-semibold text-white mb-1">vs Trinity Baptist College JV</h4>
-                                  <p className="text-xs text-white/70 mb-2">Match Highlights • W 5-0 • 4:32</p>
-                                  <p className="text-xs text-white/60">Sep 21, 2024</p>
+                                  <h4 className="text-sm font-semibold text-foreground mb-1">vs Trinity Baptist College JV</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">Match Highlights • W 5-0 • 4:32</p>
+                                  <p className="text-xs text-muted-foreground">Sep 21, 2024</p>
                                 </CardContent>
                               </Card>
 
@@ -1570,9 +1570,9 @@ export default function PlayerDetails() {
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
                                     <Video className="h-8 w-8 text-white/60" />
                                   </div>
-                                  <h4 className="text-sm font-semibold text-white mb-1">vs Pasco-Hernando State</h4>
-                                  <p className="text-xs text-white/70 mb-2">Player Focus • W 5-0 • 3:18</p>
-                                  <p className="text-xs text-white/60">Oct 1, 2024</p>
+                                  <h4 className="text-sm font-semibold text-foreground mb-1">vs Pasco-Hernando State</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">Player Focus • W 5-0 • 3:18</p>
+                                  <p className="text-xs text-muted-foreground">Oct 1, 2024</p>
                                 </CardContent>
                               </Card>
 
@@ -1582,9 +1582,9 @@ export default function PlayerDetails() {
                                   <div className="aspect-video bg-black/30 rounded mb-3 flex items-center justify-center">
                                     <Video className="h-8 w-8 text-white/60" />
                                   </div>
-                                  <h4 className="text-sm font-semibold text-white mb-1">vs Millennia Atlantic University</h4>
-                                  <p className="text-xs text-white/70 mb-2">Sophomore Day • W 6-1 • 5:07</p>
-                                  <p className="text-xs text-white/60">Oct 5, 2024</p>
+                                  <h4 className="text-sm font-semibold text-foreground mb-1">vs Millennia Atlantic University</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">Sophomore Day • W 6-1 • 5:07</p>
+                                  <p className="text-xs text-muted-foreground">Oct 5, 2024</p>
                                 </CardContent>
                               </Card>
                             </div>
