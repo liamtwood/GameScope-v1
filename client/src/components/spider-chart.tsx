@@ -28,7 +28,7 @@ export function SpiderChart({
     <div className="w-full h-96 flex flex-col items-center">
       <h4 className="text-lg font-semibold mb-4 text-center">{title}</h4>
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart data={data} margin={{ top: 60, right: 120, bottom: 60, left: 120 }}>
+        <RadarChart data={data} margin={{ top: 40, right: 80, bottom: 40, left: 80 }}>
           <PolarGrid />
           <PolarAngleAxis 
             dataKey="metric" 

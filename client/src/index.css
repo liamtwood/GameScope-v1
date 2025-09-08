@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force consistent scrollbar gutter to prevent layout shift */
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(224 71.4% 4.1%);

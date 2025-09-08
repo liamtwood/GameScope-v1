@@ -436,7 +436,7 @@ export default function FixtureDetails() {
               {/* Comprehensive Analysis Tabs */}
               <Tabs defaultValue="fixture-details" className="w-full">
                 <div className="flex justify-center mb-6">
-                  <TabsList className="grid max-w-[900px] grid-cols-8 gap-0">
+                  <TabsList className="grid w-[900px] grid-cols-8 gap-0">
                     <TabsTrigger value="fixture-details" className="min-w-[100px] px-4 py-3 text-center">Fixture Details</TabsTrigger>
                     <TabsTrigger value="statistics" className="min-w-[100px] px-4 py-3 text-center">Statistics</TabsTrigger>
                     <TabsTrigger value="spider" className="min-w-[100px] px-4 py-3 text-center">Spider Charts</TabsTrigger>
@@ -448,8 +448,8 @@ export default function FixtureDetails() {
                   </TabsList>
                 </div>
 
-                {/* Fixed height container to prevent layout shift */}
-                <div className="min-h-[600px]">
+                {/* Fixed container to prevent horizontal and vertical layout shifts */}
+                <div className="min-h-[600px] w-full overflow-x-hidden">
 
                 {/* Fixture Details Tab */}
                 <TabsContent value="fixture-details">
