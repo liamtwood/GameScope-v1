@@ -785,7 +785,7 @@ export default function PlayerDetails() {
                     <div className="flex items-center gap-2">
                       <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className={source === "profiles" ? "w-64 h-8 text-xs bg-muted border-border text-foreground" : "w-64 h-8 text-xs bg-white/10 border-white/20 text-white"}>
+                        <SelectTrigger className={source === "profiles" ? "w-80 h-8 text-xs bg-muted border-border text-foreground" : "w-80 h-8 text-xs bg-white/10 border-white/20 text-white"}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -796,10 +796,7 @@ export default function PlayerDetails() {
                               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                               .map((fixture) => (
                               <SelectItem key={fixture.id} value={fixture.id}>
-                                vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
-                                {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
-                                  ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
-                                  : ''}
+                                {new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} vs {fixture.opponent}
                               </SelectItem>
                             ))
                           ) : (
