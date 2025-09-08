@@ -2021,7 +2021,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-muted-foreground">
+                                  <div className="text-sm" style={{ color: '#19f7a5' }}>
                                     {playerStats.firstTouchSuccess.successful} successful of {playerStats.firstTouchSuccess.total} attempts
                                   </div>
                                 </div>
