@@ -789,17 +789,20 @@ export default function PlayerDetails() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures
-                            .filter(f => f.status === 'COMPLETED')
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map((fixture) => (
-                            <SelectItem key={fixture.id} value={fixture.id}>
-                              vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
-                              {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
-                                ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
-                                : ''}
-                            </SelectItem>
-                          ))}
+                          {fixtures.length > 0 ? (
+                            fixtures
+                              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                              .map((fixture) => (
+                              <SelectItem key={fixture.id} value={fixture.id}>
+                                vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
+                                {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
+                                  ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
+                                  : ''}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-fixtures" disabled>No Fixtures</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
