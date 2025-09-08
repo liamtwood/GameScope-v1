@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { PlayerRow } from "@/components/ui/player-row";
 import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
-import { PlayerDetailsModal } from "@/components/dialogs/player-details-modal";
 import { ExcelImportDialog } from "@/components/dialogs/excel-import-dialog";
 import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
 import { Button } from "@/components/ui/button";
@@ -43,8 +43,6 @@ export default function Squad() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedPlayerForModal, setSelectedPlayerForModal] = useState<Player | null>(null);
-  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
 
@@ -264,22 +262,10 @@ export default function Squad() {
     setEditValue(currentValue);
   };
 
-  const handleOpenPlayerModal = (player: Player) => {
-    setSelectedPlayerForModal(player);
-    setIsPlayerModalOpen(true);
-  };
+  const [, navigate] = useLocation();
 
-  const handleClosePlayerModal = () => {
-    setIsPlayerModalOpen(false);
-    setSelectedPlayerForModal(null);
-  };
-
-  const handlePlayerUpdate = (updatedPlayer: Player) => {
-    queryClient.invalidateQueries({ queryKey: ["/api/players", currentTeam?.id] });
-    toast({
-      title: "Player Updated",
-      description: "Player information has been updated successfully.",
-    });
+  const handleViewPlayer = (player: Player) => {
+    navigate(`/players/${player.id}?source=squad`);
   };
 
   const handleSaveEdit = (playerId: string, field: string) => {
@@ -749,13 +735,6 @@ export default function Squad() {
         </>
       )}
 
-      {/* Player Details Modal */}
-      <PlayerDetailsModal
-        player={selectedPlayerForModal}
-        open={isPlayerModalOpen}
-        onOpenChange={setIsPlayerModalOpen}
-        onPlayerUpdate={handlePlayerUpdate}
-      />
 
     </MainLayout>
   );
