@@ -1494,7 +1494,6 @@ export default function PlayerDetails() {
                                   value={editData.bio || ''}
                                   onChange={(e) => handleInputChange('bio', e.target.value)}
                                   className="w-full h-24 text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 resize-none"
-                                  style={{ focusRingColor: clubPrimaryColor }}
                                   placeholder="Enter player biography..."
                                   data-testid={`textarea-bio-${player.id}`}
                                 />
@@ -2001,7 +2000,6 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
-                    </div>
                   </div>
                 </TabsContent>
               )}
@@ -2285,7 +2283,6 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
-                    </div>
                   </div>
                 </TabsContent>
               )}
@@ -2399,7 +2396,6 @@ export default function PlayerDetails() {
                           </div>
                         </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </TabsContent>
