@@ -2307,7 +2307,7 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Defense Statistics */}
-                        <div className="w-1/2 space-y-8">
+                        <div className="w-3/4 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Shield className="h-6 w-6 text-white" />
