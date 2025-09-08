@@ -463,8 +463,12 @@ export default function UserDetails() {
                   className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0"
                   style={{
                     backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none',
-                    backgroundImage: 'none'
+                    boxShadow: 'none !important',
+                    backgroundImage: 'none !important',
+                    background: clubPrimaryColor + ' !important',
+                    filter: 'none !important',
+                    border: 'none !important',
+                    outline: 'none !important'
                   } as React.CSSProperties}
                 >
                   User Details
@@ -475,8 +479,12 @@ export default function UserDetails() {
                   className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0"
                   style={{
                     backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none',
-                    backgroundImage: 'none'
+                    boxShadow: 'none !important',
+                    backgroundImage: 'none !important',
+                    background: clubPrimaryColor + ' !important',
+                    filter: 'none !important',
+                    border: 'none !important',
+                    outline: 'none !important'
                   } as React.CSSProperties}
                 >
                   Account
@@ -487,8 +495,12 @@ export default function UserDetails() {
                   className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
                   style={{
                     backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none',
-                    backgroundImage: 'none'
+                    boxShadow: 'none !important',
+                    backgroundImage: 'none !important',
+                    background: clubPrimaryColor + ' !important',
+                    filter: 'none !important',
+                    border: 'none !important',
+                    outline: 'none !important'
                   } as React.CSSProperties}
                 >
                   Teams
