@@ -63,7 +63,7 @@ export function LogoDisplay({
     <div className={cn("relative", sizeClasses[size], className)}>
       {imageLoading && (
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 font-semibold",
+          "absolute inset-0 flex items-center justify-center rounded-lg text-gray-400 font-semibold",
           !noBorder && "border border-gray-200",
           sizeClasses[size]
         )}>
@@ -76,7 +76,7 @@ export function LogoDisplay({
         onLoad={handleImageLoad}
         onError={handleImageError}
         className={cn(
-          "w-full h-full object-contain rounded-lg bg-white",
+          "w-full h-full object-contain rounded-lg",
           !noBorder && "border border-gray-200",
           imageLoading ? "opacity-0" : "opacity-100",
           "transition-opacity duration-200"
