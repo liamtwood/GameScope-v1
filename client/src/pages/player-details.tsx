@@ -2248,12 +2248,12 @@ export default function PlayerDetails() {
                                   <span className="text-xs text-white/80 font-medium">Max (mph)</span>
                                 </div>
                                 
-                                {/* Average Speed Sign */}
+                                {/* Average MPH Sign */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
                                     <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
-                                    <span className="text-xs font-bold text-black leading-tight">SPEED</span>
-                                    <span className="text-xl font-bold text-black mt-1">27 MPH</span>
+                                    <span className="text-xs font-bold text-black leading-tight">MPH</span>
+                                    <span className="text-xl font-bold text-black mt-1">27</span>
                                   </div>
                                 </div>
                                 
