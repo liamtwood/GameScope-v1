@@ -2316,7 +2316,7 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* 1st Touch */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">1st Touch</h4>
