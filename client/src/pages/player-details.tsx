@@ -1795,9 +1795,9 @@ export default function PlayerDetails() {
                         {/* Stats Content */}
                         <Tabs defaultValue="attack" className="w-full">
                           <TabsList className="grid w-full grid-cols-3 bg-white/10 mb-6">
-                            <TabsTrigger value="attack" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Attack</TabsTrigger>
-                            <TabsTrigger value="passing" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Passing</TabsTrigger>
-                            <TabsTrigger value="defense" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">Defense</TabsTrigger>
+                            <TabsTrigger value="attack" className={source === "profiles" ? "text-foreground data-[state=active]:bg-foreground/20 data-[state=active]:text-foreground" : "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"}>Attack</TabsTrigger>
+                            <TabsTrigger value="passing" className={source === "profiles" ? "text-foreground data-[state=active]:bg-foreground/20 data-[state=active]:text-foreground" : "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"}>Passing</TabsTrigger>
+                            <TabsTrigger value="defense" className={source === "profiles" ? "text-foreground data-[state=active]:bg-foreground/20 data-[state=active]:text-foreground" : "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"}>Defense</TabsTrigger>
                           </TabsList>
 
                           {/* Attack Tab */}
