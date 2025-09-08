@@ -727,7 +727,7 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="flex justify-between items-center mt-4 px-4">
+                  <div className="flex justify-between items-center mt-4 px-6">
                     {/* Tab Navigation - Left side */}
                     <div className="flex items-center gap-4">
                       {/* Bio Tab */}
