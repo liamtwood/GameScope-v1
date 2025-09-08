@@ -788,7 +788,7 @@ export default function PlayerDetails() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all-season">All Season</SelectItem>
+                          <SelectItem value="all-season">This Season</SelectItem>
                           {fixtures
                             .sort((a, b) => {
                               // Sort upcoming fixtures first, then completed ones by date
