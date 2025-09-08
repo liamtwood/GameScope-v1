@@ -550,7 +550,6 @@ export default function PlayerDetails() {
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
   const solidStyle = {
-    backgroundColor: clubPrimaryColor,
     position: 'relative' as const,
     overflow: 'hidden' as const,
   } as React.CSSProperties;
@@ -808,7 +807,7 @@ export default function PlayerDetails() {
               {/* Modern Tab Navigation */}
               <div className="px-0 bg-white/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`} style={{ backgroundColor: clubPrimaryColor }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`}>
                     {/* Honeycomb Background Pattern for Tabs */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
