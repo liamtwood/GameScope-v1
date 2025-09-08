@@ -672,10 +672,10 @@ export default function PlayerDetails() {
                   
                   {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
                   <div className="flex items-center gap-2">
-                    <Crosshair className="h-6 w-6 text-white" />
+                    <Crosshair className="h-6 w-6" style={{ color: clubPrimaryColor }} />
                     <div className="flex flex-col justify-center text-left">
-                      <div className="text-sm font-bold text-white uppercase tracking-wider">GameScope</div>
-                      <div className="text-xs font-medium text-white/80 uppercase tracking-wide">Profile</div>
+                      <div className="text-sm font-bold uppercase tracking-wider" style={{ color: clubPrimaryColor }}>GameScope</div>
+                      <div className="text-xs font-medium uppercase tracking-wide" style={{ color: clubPrimaryColor, opacity: 0.8 }}>Profile</div>
                     </div>
                   </div>
                   
@@ -1006,7 +1006,7 @@ export default function PlayerDetails() {
     // Disable inline styles - let CSS handle everything
                           } as React.CSSProperties & { '--club-primary': string }}
                         >
-                          <Video className="mr-2 h-4 w-4" />
+                          <Video className="mr-2 h-4 w-4" style={{ color: clubPrimaryColor }} />
                           Video
                         </TabsTrigger>
                       </>
