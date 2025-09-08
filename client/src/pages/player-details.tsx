@@ -1542,9 +1542,9 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Video Content */}
-                        <div className="w-1/2 space-y-8">
-                          <div className="mb-6">
-                            <div className="flex items-center gap-3">
+                        <div className="w-3/4 mx-auto space-y-8">
+                          <div className="mb-6 text-center">
+                            <div className="flex items-center justify-center gap-3">
                               <Video className="h-6 w-6 text-foreground" />
                               <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Player Videos</h3>
                             </div>
@@ -1552,7 +1552,7 @@ export default function PlayerDetails() {
                           
                           <div className="py-8">
                             <p className="text-sm text-muted-foreground mb-6 text-center">Training sessions, match highlights, and player analysis videos.</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
                               {/* Game 1 Highlights - Win vs Trinity Baptist */}
                               <Card className="border border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
                                 <CardContent className="p-4">
