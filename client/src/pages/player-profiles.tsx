@@ -23,6 +23,11 @@ export default function PlayerProfiles() {
   const { selectedTeam: currentTeam } = useTeam();
   const { clubPrimary } = useClubTheme();
 
+  console.log('Player Profiles Debug:', {
+    currentTeamId: currentTeam?.id,
+    currentTeamName: currentTeam?.name,
+    isQueryEnabled: !!currentTeam?.id
+  });
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
     queryKey: ["/api/team", currentTeam?.id, "users"],
