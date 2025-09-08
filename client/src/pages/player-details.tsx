@@ -958,7 +958,7 @@ export default function PlayerDetails() {
                         <TabsTrigger 
                           value="teams" 
                           data-testid="tab-teams" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
                           style={{ 
                             // color controlled by CSS now
                             '--club-primary': clubPrimaryColor,
@@ -970,7 +970,7 @@ export default function PlayerDetails() {
                         <TabsTrigger 
                           value="parents" 
                           data-testid="tab-parents" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
                           style={{ 
                             // color controlled by CSS now
                             '--club-primary': clubPrimaryColor,
@@ -982,7 +982,7 @@ export default function PlayerDetails() {
                         <TabsTrigger 
                           value="bio" 
                           data-testid="tab-bio" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
                           style={{ 
                             // color controlled by CSS now
                             '--club-primary': clubPrimaryColor,
@@ -994,7 +994,7 @@ export default function PlayerDetails() {
                         <TabsTrigger 
                           value="video" 
                           data-testid="tab-video" 
-                          className="relative px-4 py-3 text-sm font-medium transition-all duration-200 rounded-none border-0 data-[state=active]:font-semibold"
+                          className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
                           style={{ 
                             // color controlled by CSS now
                             '--club-primary': clubPrimaryColor,
@@ -1012,7 +1012,7 @@ export default function PlayerDetails() {
                         value="photo" 
                         data-testid="tab-photo" 
                         className={`relative py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold ${
-                          isPhotoOnlyMode ? 'px-0 w-full text-center' : 'px-4'
+                          isPhotoOnlyMode ? 'px-0 w-full text-center' : 'pl-0 pr-4'
                         }`}
                         style={{ 
                           // color controlled by CSS now
