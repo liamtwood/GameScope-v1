@@ -456,10 +456,40 @@ export default function UserDetails() {
         <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-3 w-full rounded-none border-b">
-                <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
-                <TabsTrigger value="account" data-testid="tab-account">Account</TabsTrigger>
-                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+              <TabsList className="grid grid-cols-3 w-full rounded-none border-b bg-transparent p-0">
+                <TabsTrigger 
+                  value="details" 
+                  data-testid="tab-user-details"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-background data-[state=active]:text-foreground rounded-none border-r"
+                  style={{
+                    backgroundColor: 'var(--tab-inactive-bg, ' + clubPrimaryColor + ')',
+                    '--tab-inactive-bg': clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  User Details
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="account" 
+                  data-testid="tab-account"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-background data-[state=active]:text-foreground rounded-none border-r"
+                  style={{
+                    backgroundColor: 'var(--tab-inactive-bg, ' + clubPrimaryColor + ')',
+                    '--tab-inactive-bg': clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  Account
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="teams" 
+                  data-testid="tab-teams"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-background data-[state=active]:text-foreground rounded-none"
+                  style={{
+                    backgroundColor: 'var(--tab-inactive-bg, ' + clubPrimaryColor + ')',
+                    '--tab-inactive-bg': clubPrimaryColor
+                  } as React.CSSProperties}
+                >
+                  Teams
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="p-6 mt-0">
