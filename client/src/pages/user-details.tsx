@@ -511,8 +511,9 @@ export default function UserDetails() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">User Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
+                    <div className="space-y-6">
+                      {/* Row 1: First Name, Last Name, Shirt Name */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">First Name</label>
                           {isEditing ? (
@@ -559,7 +560,27 @@ export default function UserDetails() {
                         </div>
                       </div>
 
-                      <div className="space-y-4">
+                      {/* Row 2: Date of Birth, Age, Gender */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                          {isEditing ? (
+                            <Input
+                              type="date"
+                              value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
+                              onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
+                              data-testid="input-date-of-birth"
+                            />
+                          ) : (
+                            <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
+                              {user.dateOfBirth 
+                                ? `${format(new Date(user.dateOfBirth), "d MMM yyyy")}`
+                                : "Not provided"
+                              }
+                            </p>
+                          )}
+                        </div>
+
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Age</label>
                           <p className="text-lg" data-testid={`text-age-${user.id}`}>
@@ -588,25 +609,6 @@ export default function UserDetails() {
                           ) : (
                             <p className="text-lg" data-testid={`text-gender-${user.id}`}>
                               {user.gender || 'Not set'}
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                          {isEditing ? (
-                            <Input
-                              type="date"
-                              value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
-                              onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
-                              data-testid="input-date-of-birth"
-                            />
-                          ) : (
-                            <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
-                              {user.dateOfBirth 
-                                ? `${format(new Date(user.dateOfBirth), "d MMM yyyy")}`
-                                : "Not provided"
-                              }
                             </p>
                           )}
                         </div>
