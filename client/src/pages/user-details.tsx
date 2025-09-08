@@ -332,7 +332,7 @@ export default function UserDetails() {
       title="VIEW USER" 
       subtitle={`${user.firstName} ${user.lastName}`}
     >
-      <div className="space-y-6" data-testid={`user-details-${user.id}`}>
+      <div className="space-y-0" data-testid={`user-details-${user.id}`}>
         {/* User Header Card */}
         <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl rounded-t-lg rounded-b-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
