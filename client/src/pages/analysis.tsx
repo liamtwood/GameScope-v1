@@ -152,6 +152,10 @@ export default function Analysis() {
   const opponentTeam = oppositionTeams?.find((team: any) => 
     fixture?.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture?.opponent
   );
+
+  // Split color scheme: Polk State on left, Opposition on right
+  const polkStateColor = selectedTeam?.colors?.primary || selectedClub?.colors?.primary || '#CC4125';
+  const oppositionColor = opponentTeam?.colors?.primary || '#6b7280';
   
   const teamLogoPath = polkTeam?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
@@ -204,15 +208,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
@@ -296,15 +300,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
@@ -400,15 +404,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
@@ -644,15 +648,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
@@ -795,15 +799,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
@@ -921,15 +925,15 @@ export default function Analysis() {
                   <div className="absolute inset-0 to-black" 
                        style={{ 
                          clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd, #000000)`
+                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
                        }}>
                   </div>
                   
-                  {/* Opponent side - white with club color pinstripes */}
-                  <div className="absolute inset-0 bg-white" 
+                  {/* Opponent side - opposition color */}
+                  <div className="absolute inset-0" 
                        style={{ 
                          clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         backgroundImage: `repeating-linear-gradient(90deg, ${primaryColor} 0px, ${primaryColor} 2px, transparent 2px, transparent 12px, ${primaryColor} 12px, ${primaryColor} 14px, transparent 14px, transparent 44px, ${primaryColor} 44px, ${primaryColor} 46px, transparent 46px, transparent 56px, ${primaryColor} 56px, ${primaryColor} 58px, transparent 58px, transparent 88px)`
+                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
                        }}>
                   </div>
                   
