@@ -2046,8 +2046,8 @@ export default function PlayerDetails() {
                         <div className="w-3/4 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
-                              <Target className="h-6 w-6 text-white" />
-                              <h3 className="text-xl font-bold text-white uppercase tracking-wide">Attack Statistics</h3>
+                              <Target className="h-6 w-6 text-foreground" />
+                              <h3 className="text-xl font-bold text-foreground uppercase tracking-wide">Attack Statistics</h3>
                             </div>
                           </div>
                           
@@ -2055,7 +2055,7 @@ export default function PlayerDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* Goals */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Goals</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2064,7 +2064,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">0</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-foreground/60">
                                     xG: 0.02
                                   </div>
                                 </div>
@@ -2072,7 +2072,7 @@ export default function PlayerDetails() {
 
                               {/* Assists */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Assists</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Assists</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2081,7 +2081,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">1</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-foreground/60">
                                     xA: 0.04
                                   </div>
                                 </div>
@@ -2089,7 +2089,7 @@ export default function PlayerDetails() {
 
                               {/* Shots */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Shots</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2098,7 +2098,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">60%</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-foreground/60">
                                     3 on target of 5 total
                                   </div>
                                 </div>
@@ -2106,7 +2106,7 @@ export default function PlayerDetails() {
 
                               {/* Big Chances */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Big Chances</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Big Chances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2115,7 +2115,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">0</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/60">
+                                  <div className="text-sm text-foreground/60">
                                     High-quality opportunities
                                   </div>
                                 </div>
