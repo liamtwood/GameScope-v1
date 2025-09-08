@@ -40,6 +40,8 @@ export default function Squad() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{playerId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [editingJersey, setEditingJersey] = useState<string | null>(null);
+  const [jerseyEditValue, setJerseyEditValue] = useState("");
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
   const [showFilters, setShowFilters] = useState(false);
@@ -129,6 +131,26 @@ export default function Squad() {
       toast({
         title: "Error",
         description: "Failed to update player status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateJerseyNumberMutation = useMutation({
+    mutationFn: async ({ playerId, teamId, jerseyNumber }: { playerId: string; teamId: string; jerseyNumber: number }) => {
+      return apiRequest("PATCH", `/api/player/${playerId}/team/${teamId}/jersey`, { jerseyNumber });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
+      toast({
+        title: "Jersey Number Updated",
+        description: "Player's jersey number has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update jersey number.",
         variant: "destructive",
       });
     },
@@ -255,6 +277,29 @@ export default function Squad() {
       playerId: player.id,
       starPlayer: !player.keyPlayer
     });
+  };
+
+  const handleUpdateJerseyNumber = (playerId: string, teamId: string, jerseyNumber: number) => {
+    updateJerseyNumberMutation.mutate({ playerId, teamId, jerseyNumber });
+  };
+
+  const handleStartJerseyEdit = (playerId: string, currentJersey: number | null) => {
+    setEditingJersey(playerId);
+    setJerseyEditValue(currentJersey?.toString() || '');
+  };
+
+  const handleSaveJerseyEdit = (playerId: string) => {
+    const newJerseyNumber = parseInt(jerseyEditValue);
+    if (!isNaN(newJerseyNumber) && currentTeam?.id) {
+      handleUpdateJerseyNumber(playerId, currentTeam.id, newJerseyNumber);
+    }
+    setEditingJersey(null);
+    setJerseyEditValue('');
+  };
+
+  const handleCancelJerseyEdit = () => {
+    setEditingJersey(null);
+    setJerseyEditValue('');
   };
 
   const handleStartEdit = (playerId: string, field: string, currentValue: string) => {
@@ -507,9 +552,42 @@ export default function Squad() {
                       data-testid={`row-player-${player.id}`}
                     >
                       <TableCell>
-                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.jerseyNumber !== undefined && player.jerseyNumber !== null ? player.jerseyNumber : '?'}
-                        </div>
+                        {editingJersey === player.id ? (
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="number"
+                              value={jerseyEditValue}
+                              onChange={(e) => setJerseyEditValue(e.target.value)}
+                              className="w-16 h-8 text-center"
+                              min="1"
+                              max="99"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSaveJerseyEdit(player.id)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Check className="h-3 w-3 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCancelJerseyEdit}
+                              className="h-6 w-6 p-0"
+                            >
+                              <X className="h-3 w-3 text-red-600" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div 
+                            className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold cursor-pointer hover:bg-primary/80"
+                            onClick={() => handleStartJerseyEdit(player.id, player.jerseyNumber)}
+                            title="Click to edit jersey number"
+                          >
+                            {player.jerseyNumber !== undefined && player.jerseyNumber !== null ? player.jerseyNumber : '?'}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div>
