@@ -727,7 +727,8 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="relative flex justify-center items-center mt-4">
+                  <div className="flex justify-between items-center mt-4 px-4">
+                    {/* Tab Navigation - Left side */}
                     <div className="flex items-center gap-4">
                       {/* Bio Tab */}
                       <span 
@@ -780,11 +781,11 @@ export default function PlayerDetails() {
                       </span>
                     </div>
                     
-                    {/* Fixture Selector - Absolute positioned to the right */}
-                    <div className="absolute right-0 flex items-center gap-2">
+                    {/* Fixture Selector - Right side with more space */}
+                    <div className="flex items-center gap-2">
                       <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className={source === "profiles" ? "w-48 h-8 text-xs bg-muted border-border text-foreground" : "w-48 h-8 text-xs bg-white/10 border-white/20 text-white"}>
+                        <SelectTrigger className={source === "profiles" ? "w-64 h-8 text-xs bg-muted border-border text-foreground" : "w-64 h-8 text-xs bg-white/10 border-white/20 text-white"}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
