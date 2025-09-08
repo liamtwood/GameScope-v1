@@ -1865,7 +1865,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>63</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Success</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Success</span>
                                 </div>
                               </div>
                             </div>
@@ -1879,7 +1879,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>12</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Left Foot</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Left Foot</span>
                                 </div>
                                 
                                 {/* Dominant Foot Sign */}
@@ -1896,7 +1896,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>51</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Right Foot</span>
                                 </div>
                               </div>
                             </div>
@@ -1913,7 +1913,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>672</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Total (m)</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Total (m)</span>
                                 </div>
                                 
                                 {/* Game Average Sign */}
@@ -1930,7 +1930,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>42</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Max (m)</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Max (m)</span>
                                 </div>
                               </div>
                             </div>
@@ -1944,7 +1944,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>42</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Max (mph)</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Max (mph)</span>
                                 </div>
                                 
                                 {/* Average MPH Sign */}
@@ -1961,7 +1961,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>17</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Max (m/s)</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Max (m/s)</span>
                                 </div>
                               </div>
                             </div>
