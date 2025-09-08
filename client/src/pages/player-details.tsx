@@ -2205,33 +2205,33 @@ export default function PlayerDetails() {
 
                           {/* Duplicated Row */}
                           <div className="flex gap-4">
-                            {/* PASS SUCCESS Card - Duplicate */}
+                            {/* DISTANCE Card - Duplicate */}
                             <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Distance</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
-                                {/* Attempted */}
+                                {/* Total */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-blue-400">77</span>
+                                    <span className="text-xl font-bold text-blue-400">672</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                  <span className="text-xs text-white/80 font-medium">Total (m)</span>
                                 </div>
                                 
-                                {/* Success Rate Sign */}
+                                {/* Game Average Sign */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                    <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
-                                    <span className="text-xs font-bold text-black leading-tight">RATE</span>
-                                    <span className="text-xl font-bold text-black mt-1">82%</span>
+                                    <span className="text-xs font-bold text-black leading-tight">GAME</span>
+                                    <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
+                                    <span className="text-xl font-bold text-black mt-1">242</span>
                                   </div>
                                 </div>
                                 
-                                {/* Success */}
+                                {/* Max */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-emerald-400">63</span>
+                                    <span className="text-xl font-bold text-emerald-400">42</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Success</span>
+                                  <span className="text-xs text-white/80 font-medium">Max (m)</span>
                                 </div>
                               </div>
                             </div>
