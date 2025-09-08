@@ -2053,43 +2053,51 @@ export default function PlayerDetails() {
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* Goals */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
-                                  <span className="text-xs font-bold text-black leading-tight">GOALS</span>
-                                  <span className="text-xl font-bold text-black mt-1">0</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
+                                    <span className="text-xs font-bold text-black leading-tight">GOALS</span>
+                                    <span className="text-xl font-bold text-black mt-1">0</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">xG: 0.02</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">xG: 0.02</span>
                               </div>
 
                               {/* Assists */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
-                                  <span className="text-xs font-bold text-black leading-tight">ASSISTS</span>
-                                  <span className="text-xl font-bold text-black mt-1">1</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
+                                    <span className="text-xs font-bold text-black leading-tight">ASSISTS</span>
+                                    <span className="text-xl font-bold text-black mt-1">1</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">xA: 0.04</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">xA: 0.04</span>
                               </div>
 
                               {/* Shots */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">SHOT</span>
-                                  <span className="text-xs font-bold text-black leading-tight">ACCURACY</span>
-                                  <span className="text-xl font-bold text-black mt-1">60%</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">SHOT</span>
+                                    <span className="text-xs font-bold text-black leading-tight">ACCURACY</span>
+                                    <span className="text-xl font-bold text-black mt-1">60%</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">3 of 5 shots</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">3 of 5 shots</span>
                               </div>
 
                               {/* Big Chances */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">BIG</span>
-                                  <span className="text-xs font-bold text-black leading-tight">CHANCES</span>
-                                  <span className="text-xl font-bold text-black mt-1">0</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">BIG</span>
+                                    <span className="text-xs font-bold text-black leading-tight">CHANCES</span>
+                                    <span className="text-xl font-bold text-black mt-1">0</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Created</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">Created</span>
                               </div>
                             </div>
                           </div>
@@ -2314,43 +2322,51 @@ export default function PlayerDetails() {
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* 1st Touch */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">1ST</span>
-                                  <span className="text-xs font-bold text-black leading-tight">TOUCH</span>
-                                  <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">1ST</span>
+                                    <span className="text-xs font-bold text-black leading-tight">TOUCH</span>
+                                    <span className="text-xl font-bold text-black mt-1">{playerStats.firstTouchSuccess.rate}%</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">{playerStats.firstTouchSuccess.successful} of {playerStats.firstTouchSuccess.total}</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">{playerStats.firstTouchSuccess.successful} of {playerStats.firstTouchSuccess.total}</span>
                               </div>
 
                               {/* Tackles */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
-                                  <span className="text-xs font-bold text-black leading-tight">TACKLES</span>
-                                  <span className="text-xl font-bold text-black mt-1">{playerStats.tackles}</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
+                                    <span className="text-xs font-bold text-black leading-tight">TACKLES</span>
+                                    <span className="text-xl font-bold text-black mt-1">{playerStats.tackles}</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Completed</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">Completed</span>
                               </div>
 
                               {/* Clearances */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
-                                  <span className="text-xs font-bold text-black leading-tight">CLEARANCES</span>
-                                  <span className="text-xl font-bold text-black mt-1">11</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
+                                    <span className="text-xs font-bold text-black leading-tight">CLEARANCES</span>
+                                    <span className="text-xl font-bold text-black mt-1">11</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Made</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">Made</span>
                               </div>
 
                               {/* Duels */}
-                              <div className="flex flex-col items-center space-y-2">
-                                <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                  <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
-                                  <span className="text-xs font-bold text-black leading-tight">DUELS</span>
-                                  <span className="text-xl font-bold text-black mt-1">{playerStats.takeOns}</span>
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">TOTAL</span>
+                                    <span className="text-xs font-bold text-black leading-tight">DUELS</span>
+                                    <span className="text-xl font-bold text-black mt-1">{playerStats.takeOns}</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Engaged</span>
                                 </div>
-                                <span className="text-xs text-white/80 font-medium">Engaged</span>
                               </div>
                             </div>
                           </div>
