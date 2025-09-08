@@ -867,6 +867,7 @@ export default function PlayerDetails() {
                         outline: none !important;
                         margin: 0 !important;
                         box-shadow: none !important;
+                        color: hsl(var(--foreground)) !important;
                       }
                       [data-testid="tab-details"],
                       [data-testid="tab-teams"],
