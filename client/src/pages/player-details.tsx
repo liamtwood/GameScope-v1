@@ -1698,62 +1698,12 @@ export default function PlayerDetails() {
                         
                         {/* Stats Content */}
                         <Tabs defaultValue="passing" className="w-full">
-                          <TabsList className="grid w-full grid-cols-2 bg-white/10 mb-6">
+                          <TabsList className="grid w-full grid-cols-1 bg-white/10 mb-6">
                             <TabsTrigger value="passing" className={source === "profiles" ? "text-foreground data-[state=active]:bg-foreground/20 data-[state=active]:text-foreground" : "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"}>Passing</TabsTrigger>
-                            <TabsTrigger value="defense" className={source === "profiles" ? "text-foreground data-[state=active]:bg-foreground/20 data-[state=active]:text-foreground" : "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"}>Defense</TabsTrigger>
                           </TabsList>
 
 
 
-                          {/* Defense Tab */}
-                          <TabsContent value="defense" className="space-y-6">
-                            <div className="max-w-md mx-auto">
-                              {/* Tackles */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Tackles</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-blue-400">{playerStats.tackles || 0}</div>
-                                  <div className="text-sm text-white/80">Total Tackles</div>
-                                  <div className="text-sm text-white/60">
-                                    {playerStats.tacklesWon || 0} won, {(playerStats.tackles || 0) - (playerStats.tacklesWon || 0)} lost
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Take Ons */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
-                                <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-purple-400">{playerStats.takeOns}</div>
-                                  <div className="text-sm text-white/80">Total Take Ons</div>
-                                  <div className="text-sm text-white/60">
-                                    Defensive take-on attempts
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Disciplinary */}
-                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
-                                <div className="space-y-3">
-                                  <div className="flex justify-center space-x-6">
-                                    <div className="text-center">
-                                      <div className="text-2xl font-bold text-gray-400">{playerStats.fouls}</div>
-                                      <div className="text-xs text-white/80">Fouls</div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="text-2xl font-bold text-yellow-500">{playerStats.yellowCards}</div>
-                                      <div className="text-xs text-white/80">Yellow</div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="text-2xl font-bold text-red-500">{playerStats.redCards}</div>
-                                      <div className="text-xs text-white/80">Red</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </TabsContent>
                         </Tabs>
                         
                         </div>
