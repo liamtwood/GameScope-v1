@@ -10,6 +10,7 @@ import { MetricsComparison } from "@/components/metrics-comparison";
 import { VideoManager } from "@/components/video-manager";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { ExcelUpload } from "@/components/excel-upload";
+import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit, Star } from "lucide-react";
 import { Link } from "wouter";
@@ -153,14 +154,7 @@ export default function Analysis() {
     fixture?.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture?.opponent
   );
 
-  // Split color scheme: Polk State on left, Opposition on right
-  const polkStateColor = selectedTeam?.colors?.primary || selectedClub?.colors?.primary || '#CC4125';
-  const oppositionColor = opponentTeam?.colors?.primary || '#6b7280';
-  
-  const teamLogoPath = polkTeam?.logoPath;
-  const opponentLogoPath = opponentTeam?.logoPath;
-
-  // Get primary color from team/club colors with fallback
+  // Get primary color from team/club colors with fallback (still used in some places)
   const teamColors = (selectedTeam?.colors as any) || {};
   const clubColors = (selectedClub?.colors as any) || {};
   const primaryColor = teamColors.primary || clubColors.primary || '#CC4125';
@@ -200,77 +194,14 @@ export default function Analysis() {
         <TabsContent value="statistics">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
@@ -292,77 +223,14 @@ export default function Analysis() {
         <TabsContent value="ai">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               <h3 className="text-lg font-semibold mb-4">AI-Powered Analysis</h3>
@@ -396,77 +264,14 @@ export default function Analysis() {
         <TabsContent value="spider">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               <h3 className="text-lg font-semibold mb-4">Spider Charts</h3>
@@ -640,77 +445,14 @@ export default function Analysis() {
         <TabsContent value="heatmaps">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               {/* Fixture Details Container */}
@@ -791,77 +533,14 @@ export default function Analysis() {
         <TabsContent value="positions">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               {/* Polk State College Lineups */}
@@ -917,77 +596,14 @@ export default function Analysis() {
         <TabsContent value="videos">
           <Card>
             <CardContent className="p-6">
-              {/* Team Header - Always Visible within this container */}
+              {/* Team Header */}
               <div className="mb-6">
-                {/* Main header container with vertical split */}
-                <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                  {/* POLK side - club color gradient */}
-                  <div className="absolute inset-0 to-black" 
-                       style={{ 
-                         clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-                         background: `linear-gradient(to bottom right, ${polkStateColor}, ${polkStateColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Opponent side - opposition color */}
-                  <div className="absolute inset-0" 
-                       style={{ 
-                         clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-                         background: `linear-gradient(to bottom left, ${oppositionColor}, ${oppositionColor}dd, #000000)`
-                       }}>
-                  </div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10 h-full flex items-center px-8">
-                    {/* POLK section */}
-                    <div className="flex items-center space-x-4 text-white flex-1">
-                      {teamLogoPath ? (
-                        <img 
-                          src={teamLogoPath} 
-                          alt="Polk State College logo"
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">Polk State</span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-2xl font-bold">Polk State College</div>
-                        <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                      </div>
-                    </div>
-                    
-                    {/* Center score - absolutely centered */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                        <div className="text-2xl font-light text-muted-foreground">-</div>
-                        <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-                    </div>
-                    
-                    {/* Opponent section */}
-                    <div className="flex items-center space-x-4 text-foreground flex-1 justify-end">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{fixture.opponent}</div>
-                        <div className="text-muted-foreground text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                      </div>
-                      {opponentLogoPath ? (
-                        <img 
-                          src={opponentLogoPath} 
-                          alt={`${fixture.opponent} logo`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 flex items-center justify-center">
-                          <span className="font-bold text-lg" style={{ color: primaryColor }}>{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SharedScoreBanner 
+                  fixture={fixture}
+                  team={selectedTeam}
+                  club={selectedClub}
+                  oppositionTeam={opponentTeam}
+                />
               </div>
               
               <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
