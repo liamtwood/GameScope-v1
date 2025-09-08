@@ -1853,7 +1853,7 @@ export default function PlayerDetails() {
                                 
                                 {/* Success Rate Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                  <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                     <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
                                     <span className="text-xs font-bold text-black leading-tight">RATE</span>
                                     <span className="text-xl font-bold text-black mt-1">82%</span>
@@ -1884,7 +1884,7 @@ export default function PlayerDetails() {
                                 
                                 {/* Dominant Foot Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                  <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                     <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
                                     <span className="text-xs font-bold text-black leading-tight">FOOT</span>
                                     <span className="text-xl font-bold text-black mt-1">81%</span>
@@ -1918,7 +1918,7 @@ export default function PlayerDetails() {
                                 
                                 {/* Game Average Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                  <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                     <span className="text-xs font-bold text-black leading-tight">GAME</span>
                                     <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
                                     <span className="text-xl font-bold text-black mt-1">242</span>
@@ -1949,7 +1949,7 @@ export default function PlayerDetails() {
                                 
                                 {/* Average MPH Sign */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                  <div className="w-20 h-24 border-4 border-black rounded-lg flex flex-col items-center justify-center py-2" style={{ backgroundColor: '#27bab5' }}>
                                     <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
                                     <span className="text-xs font-bold text-black leading-tight">MPH</span>
                                     <span className="text-xl font-bold text-black mt-1">27</span>
