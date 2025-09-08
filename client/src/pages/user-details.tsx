@@ -1053,56 +1053,12 @@ export default function UserDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
                     <div className="space-y-6">
-                      {/* Avatar Photo Section */}
-                      <div>
-                        <h4 className="text-md font-medium mb-3">Avatar Photo</h4>
-                        <div className="flex items-center space-x-6">
-                          <div className="flex-shrink-0">
-                            <Avatar className="h-24 w-24 border-2 border-gray-200">
-                              <AvatarImage 
-                                src={pendingProfilePhoto || user.avatarPath || ''} 
-                                alt={`${user.firstName} ${user.lastName}`}
-                                data-testid={`avatar-${user.id}`}
-                              />
-                              <AvatarFallback className="text-2xl font-bold bg-gray-100">
-                                {user.firstName?.[0]}{user.lastName?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm text-muted-foreground mb-3">
-                              Upload an avatar photo for {user.firstName} {user.lastName}. This will be displayed in their user profile and team rosters.
-                            </p>
-                            <ObjectUploader
-                              onUploadComplete={(result: UploadResult) => {
-                                if (result.successful && result.successful.length > 0) {
-                                  const uploadedFile = result.successful[0];
-                                  const photoURL = uploadedFile.uploadURL;
-                                  if (photoURL) {
-                                    setPendingProfilePhoto(photoURL);
-                                    photoUploadMutation.mutate(photoURL);
-                                  }
-                                }
-                              }}
-                              onUploadError={(error: any) => {
-                                console.error('Photo upload failed:', error);
-                              }}
-                              allowedFileTypes={['image/*']}
-                              maxFileSize={5 * 1024 * 1024}
-                              containerClass="w-full"
-                              bucketPrefix="avatars"
-                              data-testid="uploader-profile-photo"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Player Profile Photo Section */}
+                      {/* Player Profile Photo Section */
                       <div>
                         <h4 className="text-md font-medium mb-3">Player Profile Photo</h4>
                         <div className="flex items-center space-x-6">
                           <div className="flex-shrink-0">
-                            <div className="h-32 w-24 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <div className="h-48 w-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                               {user.headshotPath ? (
                                 <img 
                                   src={user.headshotPath} 
@@ -1122,7 +1078,10 @@ export default function UserDetails() {
                               Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
                             </p>
                             <ObjectUploader
-                              onUploadComplete={(result: UploadResult) => {
+                              maxNumberOfFiles={1}
+                              maxFileSize={5242880} // 5MB
+                              onGetUploadParameters={getPhotoUploadURL}
+                              onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
                                 if (result.successful && result.successful.length > 0) {
                                   const uploadedFile = result.successful[0];
                                   const photoURL = uploadedFile.uploadURL;
@@ -1134,15 +1093,13 @@ export default function UserDetails() {
                                   }
                                 }
                               }}
-                              onUploadError={(error: any) => {
-                                console.error('Headshot upload failed:', error);
-                              }}
-                              allowedFileTypes={['image/*']}
-                              maxFileSize={5 * 1024 * 1024}
-                              containerClass="w-full"
-                              bucketPrefix="player-photos"
-                              data-testid="uploader-headshot"
-                            />
+                              buttonClassName="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                            >
+                              <span className="flex items-center gap-2">
+                                <Edit className="h-4 w-4" />
+                                Upload Player Photo
+                              </span>
+                            </ObjectUploader>
                           </div>
                         </div>
                       </div>
@@ -1151,7 +1108,6 @@ export default function UserDetails() {
                       <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                          <li>• <strong>Avatar Photo:</strong> Casual or action shots work well</li>
                           <li>• <strong>Player Profile Photo:</strong> Full-length photo showing the player, typically in uniform</li>
                           <li>• <strong>File Size:</strong> Maximum 5MB per image</li>
                           <li>• <strong>Format:</strong> JPG, PNG, or WebP recommended</li>
