@@ -1099,7 +1099,6 @@ export default function UserDetails() {
                       </div>
                     </div>
                   </div>
-                  </div>
                 </div>
               </TabsContent>
             </Tabs>
