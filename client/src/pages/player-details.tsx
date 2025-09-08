@@ -1409,7 +1409,7 @@ export default function PlayerDetails() {
                       {/* Section Header */}
                       <div className="w-4/5 mx-auto">
                         <div className="pt-8">
-                          <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: clubPrimaryColor }}>Player Biography</h4>
+                          <h4 className="text-[10px] font-medium uppercase tracking-wide mb-2" style={{ color: 'black' }}>Player Biography</h4>
                         </div>
                       </div>
 
@@ -1427,7 +1427,7 @@ export default function PlayerDetails() {
                                   data-testid={`input-height-${player.id}`}
                                 />
                               ) : (
-                                <div className="h-6 flex items-center text-sm font-semibold">{player?.height || 'Not specified'}</div>
+                                <div className="h-6 flex items-center text-sm font-semibold text-black">{player?.height || 'Not specified'}</div>
                               )}
                             </div>
                           </div>
@@ -1443,7 +1443,7 @@ export default function PlayerDetails() {
                                   data-testid={`input-hometown-${player.id}`}
                                 />
                               ) : (
-                                <div className="h-6 flex items-center text-sm font-semibold">{player?.hometown || 'Not specified'}</div>
+                                <div className="h-6 flex items-center text-sm font-semibold text-black">{player?.hometown || 'Not specified'}</div>
                               )}
                             </div>
                           </div>
@@ -1459,7 +1459,7 @@ export default function PlayerDetails() {
                                   data-testid={`input-class-year-${player.id}`}
                                 />
                               ) : (
-                                <div className="h-6 flex items-center text-sm font-semibold">{player?.classYear || 'Not specified'}</div>
+                                <div className="h-6 flex items-center text-sm font-semibold text-black">{player?.classYear || 'Not specified'}</div>
                               )}
                             </div>
                           </div>
@@ -1475,7 +1475,7 @@ export default function PlayerDetails() {
                                   data-testid={`input-high-school-${player.id}`}
                                 />
                               ) : (
-                                <div className="h-6 flex items-center text-sm font-semibold">{player?.highSchool || 'Not specified'}</div>
+                                <div className="h-6 flex items-center text-sm font-semibold text-black">{player?.highSchool || 'Not specified'}</div>
                               )}
                             </div>
                           </div>
