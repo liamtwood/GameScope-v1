@@ -727,7 +727,7 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="px-6">
+                  <div className="px-6 pt-4">
                     <div className="flex items-center gap-6">
                       {/* Invisible Spacer - Same width as GameScope branding */}
                       <div className="flex items-center gap-2 flex-shrink-0 invisible">
