@@ -469,6 +469,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route for updating player jersey number in a team
+  app.patch("/api/player/:playerId/team/:teamId/jersey", async (req, res) => {
+    try {
+      const { playerId, teamId } = req.params;
+      const { jerseyNumber } = req.body;
+      
+      await storage.updateUserTeam(playerId, teamId, { jerseyNumber });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating player jersey number:", error);
+      res.status(500).json({ message: "Failed to update player jersey number" });
+    }
+  });
+
   app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);
