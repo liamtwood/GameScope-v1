@@ -1516,12 +1516,9 @@ export default function PlayerDetails() {
               )}
 
               {/* Video Tab Content */}
-              <TabsContent value="video" className="m-0 flex-1 min-h-0">
+              <TabsContent value="video" className="m-0">
                 {source === "profiles" ? (
-                  <div 
-                    className="px-6 h-full flex flex-col relative" 
-                    style={{ minHeight: 'calc(100vh - 200px)' }}
-                  >
+                  <div className="px-6 relative">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -1627,11 +1624,8 @@ export default function PlayerDetails() {
 
               {/* Bio Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="bio" className="m-0 flex-1 min-h-0">
-                  <div 
-                    className="px-6 h-full flex flex-col relative" 
-                    style={{ minHeight: 'calc(100vh - 200px)' }}
-                  >
+                <TabsContent value="bio" className="m-0">
+                  <div className="px-6 relative">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2021,11 +2015,8 @@ export default function PlayerDetails() {
 
               {/* Attack Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="attack" className="m-0 flex-1 min-h-0">
-                  <div 
-                    className="px-6 h-full flex flex-col relative" 
-                    style={{ minHeight: 'calc(100vh - 200px)' }}
-                  >
+                <TabsContent value="attack" className="m-0">
+                  <div className="px-6 relative">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2120,11 +2111,8 @@ export default function PlayerDetails() {
 
               {/* Passing Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="passing" className="m-0 flex-1 min-h-0">
-                  <div 
-                    className="px-6 h-full flex flex-col relative" 
-                    style={{ minHeight: 'calc(100vh - 200px)' }}
-                  >
+                <TabsContent value="passing" className="m-0">
+                  <div className="px-6 relative">
 
                     <div className="relative z-10">
                     <div className="pt-6">
@@ -2296,11 +2284,8 @@ export default function PlayerDetails() {
 
               {/* Defense Tab Content - only when coming from Player Profiles */}
               {source === "profiles" && (
-                <TabsContent value="defense" className="m-0 flex-1 min-h-0">
-                  <div 
-                    className="px-6 h-full flex flex-col relative" 
-                    style={{ minHeight: 'calc(100vh - 200px)' }}
-                  >
+                <TabsContent value="defense" className="m-0">
+                  <div className="px-6 relative">
 
                     <div className="relative z-10">
                     <div className="pt-6">
