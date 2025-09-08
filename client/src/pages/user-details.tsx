@@ -9,15 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { User, UserTeam, Team } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Plus, Trash2, CalendarIcon } from "lucide-react";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { format, differenceInYears } from "date-fns";
 import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export default function UserDetails() {
   const [, params] = useRoute("/users/:id");
@@ -565,12 +568,36 @@ export default function UserDetails() {
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                           {isEditing ? (
-                            <Input
-                              type="date"
-                              value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
-                              onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
-                              data-testid="input-date-of-birth"
-                            />
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal",
+                                    !editData.dateOfBirth && "text-muted-foreground"
+                                  )}
+                                  data-testid="button-date-picker"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {editData.dateOfBirth ? (
+                                    format(new Date(editData.dateOfBirth), "d MMM yyyy")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={editData.dateOfBirth ? new Date(editData.dateOfBirth) : undefined}
+                                  onSelect={(date) => handleInputChange('dateOfBirth', date || null)}
+                                  disabled={(date) =>
+                                    date > new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
                           ) : (
                             <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
                               {user.dateOfBirth 
