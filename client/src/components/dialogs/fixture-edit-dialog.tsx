@@ -433,7 +433,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                       setSelectedOpponentForLogo({...updatedTeam, logoPath});
                     }
                   }}
-                  className="w-full"
                 />
               </div>
             </div>
