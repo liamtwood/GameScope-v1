@@ -1053,49 +1053,7 @@ export default function UserDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
                     <div className="space-y-6">
-                      {/* Player Profile Photo Section */}
-                      <div>
-                        <h4 className="text-md font-medium mb-3">Player Profile Photo</h4>
-                        <div className="flex items-center space-x-6">
-                          <div className="flex-shrink-0">
-                            <div className="h-48 w-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                              {user.headshotPath ? (
-                                <img 
-                                  src={user.headshotPath} 
-                                  alt={`${user.firstName} ${user.lastName} full length photo`}
-                                  className="h-full w-full object-cover"
-                                  data-testid={`player-profile-photo-${user.id}`}
-                                />
-                              ) : (
-                                <div className="h-full w-full flex items-center justify-center text-gray-400">
-                                  <span className="text-xs text-center">No player photo</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm text-muted-foreground mb-3">
-                              Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
-                            </p>
-                            <Button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-                              <span className="flex items-center gap-2">
-                                <Edit className="h-4 w-4" />
-                                Upload Player Photo
-                              </span>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Photo Guidelines</h5>
-                        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                          <li>• <strong>Player Profile Photo:</strong> Full-length photo showing the player, typically in uniform</li>
-                          <li>• <strong>File Size:</strong> Maximum 5MB per image</li>
-                          <li>• <strong>Format:</strong> JPG, PNG, or WebP recommended</li>
-                          <li>• <strong>Resolution:</strong> Minimum 400x400 pixels for best quality</li>
-                        </ul>
-                      </div>
+                      <p className="text-muted-foreground">Photo management features will be available here.</p>
                     </div>
                   </div>
                 </div>
