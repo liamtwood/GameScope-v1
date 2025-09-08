@@ -334,7 +334,7 @@ export default function UserDetails() {
     >
       <div className="space-y-6" data-testid={`user-details-${user.id}`}>
         {/* User Header Card */}
-        <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl" style={{...solidStyle, borderColor: clubPrimaryColor}}>
+        <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl rounded-t-lg rounded-b-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             {/* Back Button Row */}
             <div className="px-6 py-1 flex justify-between items-center">
