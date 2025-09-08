@@ -2341,12 +2341,12 @@ export default function PlayerDetails() {
                                 </div>
                               </div>
 
-                              {/* Take Ons */}
+                              {/* Duels */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Duels</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-orange-400">{playerStats.takeOns}</div>
-                                  <div className="text-sm text-white/80">Total Take Ons</div>
+                                  <div className="text-sm text-white/80">Total Duels</div>
                                   <div className="text-sm text-white/60">
                                     Defensive duels engaged
                                   </div>
