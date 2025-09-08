@@ -1056,7 +1056,7 @@ export default function UserDetails() {
                       <div>
                         <div className="flex items-center space-x-6">
                           <div className="flex-shrink-0">
-                            <div className="max-w-sm border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <div className="max-w-xs border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                               {user.headshotPath ? (
                                 <img 
                                   src={user.headshotPath} 
