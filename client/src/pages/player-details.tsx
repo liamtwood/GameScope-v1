@@ -2236,33 +2236,33 @@ export default function PlayerDetails() {
                               </div>
                             </div>
 
-                            {/* FOOT Card - Duplicate */}
+                            {/* VELOCITY Card - Duplicate */}
                             <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
-                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Velocity</h4>
                               <div className="grid grid-cols-3 gap-2 items-center">
-                                {/* Left Foot */}
+                                {/* Max MPH */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-purple-400">12</span>
+                                    <span className="text-xl font-bold text-purple-400">42</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Left Foot</span>
+                                  <span className="text-xs text-white/80 font-medium">Max (mph)</span>
                                 </div>
                                 
-                                {/* Dominant Foot Sign */}
+                                {/* Average Speed Sign */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
-                                    <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
-                                    <span className="text-xs font-bold text-black leading-tight">FOOT</span>
-                                    <span className="text-xl font-bold text-black mt-1">81%</span>
+                                    <span className="text-xs font-bold text-black leading-tight">AVERAGE</span>
+                                    <span className="text-xs font-bold text-black leading-tight">SPEED</span>
+                                    <span className="text-xl font-bold text-black mt-1">27 MPH</span>
                                   </div>
                                 </div>
                                 
-                                {/* Right Foot */}
+                                {/* Max M/S */}
                                 <div className="flex flex-col items-center space-y-2">
                                   <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-orange-400">51</span>
+                                    <span className="text-xl font-bold text-orange-400">17</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                  <span className="text-xs text-white/80 font-medium">Max (m/s)</span>
                                 </div>
                               </div>
                             </div>
