@@ -2131,7 +2131,7 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Passing Statistics */}
-                        <div className="w-3/5 space-y-8">
+                        <div className="w-3/4 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Navigation className="h-6 w-6 text-white" />
