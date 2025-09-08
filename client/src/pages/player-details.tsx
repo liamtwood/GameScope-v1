@@ -1738,7 +1738,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">0</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-foreground/60">
+                                  <div className="text-sm" style={{ color: '#19f7a5' }}>
                                     xG: 0.02
                                   </div>
                                 </div>
@@ -1755,7 +1755,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">1</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-foreground/60">
+                                  <div className="text-sm" style={{ color: '#19f7a5' }}>
                                     xA: 0.04
                                   </div>
                                 </div>
@@ -1772,7 +1772,7 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">60%</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-foreground/60">
+                                  <div className="text-sm" style={{ color: '#19f7a5' }}>
                                     3 on target of 5 total
                                   </div>
                                 </div>
