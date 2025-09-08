@@ -1657,15 +1657,15 @@ export default function PlayerDetails() {
                         {/* Player Biography Header */}
                         <div className="mb-6">
                           <div className="flex items-center gap-3">
-                            <Fingerprint className="h-6 w-6 text-white" />
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wide">Player Biography</h3>
+                            <Fingerprint className="h-6 w-6 text-black" />
+                            <h3 className="text-xl font-bold text-black uppercase tracking-wide">Player Biography</h3>
                           </div>
                         </div>
                         
                         {/* Player Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-xs font-medium text-white block mb-1 uppercase">Height</span>
+                            <span className="text-xs font-medium text-black block mb-1 uppercase">Height</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1675,12 +1675,12 @@ export default function PlayerDetails() {
                                 placeholder="Height"
                               />
                             ) : (
-                              <span className="text-sm text-white font-normal">{player?.height || 'Not specified'}</span>
+                              <span className="text-sm text-black font-normal">{player?.height || 'Not specified'}</span>
                             )}
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-xs font-medium text-white block mb-1 uppercase">Hometown</span>
+                            <span className="text-xs font-medium text-black block mb-1 uppercase">Hometown</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1690,12 +1690,12 @@ export default function PlayerDetails() {
                                 placeholder="Hometown"
                               />
                             ) : (
-                              <span className="text-sm text-white font-normal">{player?.hometown || 'Not specified'}</span>
+                              <span className="text-sm text-black font-normal">{player?.hometown || 'Not specified'}</span>
                             )}
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-xs font-medium text-white block mb-1 uppercase">Class</span>
+                            <span className="text-xs font-medium text-black block mb-1 uppercase">Class</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1705,12 +1705,12 @@ export default function PlayerDetails() {
                                 placeholder="Class Year"
                               />
                             ) : (
-                              <span className="text-sm text-white font-normal">{player?.classYear || 'Not specified'}</span>
+                              <span className="text-sm text-black font-normal">{player?.classYear || 'Not specified'}</span>
                             )}
                           </div>
                           
                           <div className="py-2 border-b border-white/20">
-                            <span className="text-xs font-medium text-white block mb-1 uppercase">High School</span>
+                            <span className="text-xs font-medium text-black block mb-1 uppercase">High School</span>
                             {isEditing ? (
                               <input
                                 type="text"
@@ -1720,7 +1720,7 @@ export default function PlayerDetails() {
                                 placeholder="High School"
                               />
                             ) : (
-                              <span className="text-sm text-white font-normal">{player?.highSchool || 'Not specified'}</span>
+                              <span className="text-sm text-black font-normal">{player?.highSchool || 'Not specified'}</span>
                             )}
                           </div>
                         </div>
@@ -1728,7 +1728,7 @@ export default function PlayerDetails() {
                         
                         {/* Bio Text */}
                         <div className="pt-6">
-                          <h4 className="text-xs font-medium mb-3 text-white uppercase">About</h4>
+                          <h4 className="text-xs font-medium mb-3 text-black uppercase">About</h4>
                           {isEditing ? (
                             <textarea
                               value={editData.bio || ''}
@@ -1737,9 +1737,9 @@ export default function PlayerDetails() {
                               placeholder="Enter player biography..."
                             />
                           ) : player?.bio ? (
-                            <p className="text-sm leading-relaxed text-white">{player.bio}</p>
+                            <p className="text-sm leading-relaxed text-black">{player.bio}</p>
                           ) : (
-                            <p className="text-sm italic text-white/70 text-center">No biography available</p>
+                            <p className="text-sm italic text-black/70 text-center">No biography available</p>
                           )}
                         </div>
                         
