@@ -562,7 +562,7 @@ export default function PlayerDetails() {
     >
       <div className="-m-6" data-testid={`player-details-${player.id}`}>
         {/* Player Header Card with Integrated Tabs */}
-        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col min-h-screen">
+        <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col">
           <Card className="w-full relative overflow-hidden border-0 shadow-none rounded-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
             <CardContent className="p-0">
               {/* Honeycomb Background Pattern */}
