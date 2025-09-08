@@ -1357,7 +1357,7 @@ export default function PlayerDetails() {
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
-                                      <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+                                      <div className="h-12 w-12 bg-background border-2 border-muted-foreground/30 dark:border-muted-foreground/50 text-muted-foreground rounded-full flex items-center justify-center text-lg font-bold">
                                         {playerTeam.jerseyNumber || '?'}
                                       </div>
                                       <div className="flex-1">
@@ -1915,8 +1915,8 @@ export default function PlayerDetails() {
                                 <div className="grid grid-cols-3 gap-2 items-center">
                                   {/* Attempted */}
                                   <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-blue-400">77</span>
+                                    <div className="w-16 h-16 bg-background border-2 border-muted-foreground/30 dark:border-muted-foreground/50 rounded-full flex items-center justify-center">
+                                      <span className="text-xl font-bold text-muted-foreground">77</span>
                                     </div>
                                     <span className="text-xs text-white/80 font-medium">Attempted</span>
                                   </div>
@@ -1932,8 +1932,8 @@ export default function PlayerDetails() {
                                   
                                   {/* Success */}
                                   <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-emerald-400">63</span>
+                                    <div className="w-16 h-16 bg-background border-2 border-muted-foreground/30 dark:border-muted-foreground/50 rounded-full flex items-center justify-center">
+                                      <span className="text-xl font-bold text-muted-foreground">63</span>
                                     </div>
                                     <span className="text-xs text-white/80 font-medium">Success</span>
                                   </div>
