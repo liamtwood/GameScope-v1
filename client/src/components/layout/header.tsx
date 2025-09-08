@@ -103,22 +103,6 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           className="bg-muted p-3 relative"
           style={title === "VIEW SQUAD MEMBER" ? {} : {}}
         >
-          {/* Lightning/Streak Texture Overlay - only for VIEW SQUAD MEMBER */}
-          {title === "VIEW SQUAD MEMBER" && (
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                backgroundImage: `
-                  linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.03) 32%, transparent 32%),
-                  linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.04) 62%, transparent 62%),
-                  linear-gradient(45deg, transparent 80%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.02) 85%, transparent 85%),
-                  linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 43%, transparent 43%),
-                  linear-gradient(60deg, transparent 70%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0.02) 73%, transparent 73%)
-                `,
-                backgroundSize: '120px 120px, 80px 80px, 160px 160px, 100px 100px, 140px 140px'
-              }}
-            />
-          )}
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
