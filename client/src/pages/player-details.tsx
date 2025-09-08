@@ -2051,7 +2051,7 @@ export default function PlayerDetails() {
                         </div>
                         
                         {/* Attack Statistics */}
-                        <div className="w-1/2 space-y-8">
+                        <div className="w-3/4 space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Target className="h-6 w-6 text-white" />
@@ -2060,32 +2060,51 @@ export default function PlayerDetails() {
                           </div>
                           
                           <div className="space-y-6">
-                            <div className="max-w-md mx-auto">
-                              {/* Shots */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                              {/* Goals */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals</h4>
                                 <div className="space-y-3">
-                                  <div className="text-3xl font-bold text-blue-400">{playerStats.shots.rate}%</div>
-                                  <div className="text-sm text-white/80">Accuracy</div>
+                                  <div className="text-3xl font-bold text-green-400">0</div>
+                                  <div className="text-sm text-white/80">Total Goals</div>
                                   <div className="text-sm text-white/60">
-                                    {playerStats.shots.successful} on target of {playerStats.shots.total} attempts
+                                    xG: 0.02
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Goals & Assists */}
+                              {/* Assists */}
                               <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Assists</h4>
                                 <div className="space-y-3">
-                                  <div className="flex justify-around">
-                                    <div className="text-center">
-                                      <div className="text-2xl font-bold text-green-500">{playerStats.goals}</div>
-                                      <div className="text-xs text-white/80">Goals</div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="text-2xl font-bold text-blue-500">{playerStats.assists}</div>
-                                      <div className="text-xs text-white/80">Assists</div>
-                                    </div>
+                                  <div className="text-3xl font-bold text-blue-400">1</div>
+                                  <div className="text-sm text-white/80">Total Assists</div>
+                                  <div className="text-sm text-white/60">
+                                    xA: 0.04
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Shots */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-purple-400">60%</div>
+                                  <div className="text-sm text-white/80">Accuracy</div>
+                                  <div className="text-sm text-white/60">
+                                    3 on target of 5 total
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Big Chances */}
+                              <div className="bg-white/10 rounded-lg p-6 border border-white/20 text-center">
+                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Big Chances</h4>
+                                <div className="space-y-3">
+                                  <div className="text-3xl font-bold text-orange-400">0</div>
+                                  <div className="text-sm text-white/80">Total Chances</div>
+                                  <div className="text-sm text-white/60">
+                                    High-quality opportunities
                                   </div>
                                 </div>
                               </div>
