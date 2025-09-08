@@ -1053,7 +1053,37 @@ export default function UserDetails() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
                     <div className="space-y-6">
-                      <p className="text-muted-foreground">Photo management features will be available here.</p>
+                      <div>
+                        <div className="flex items-center space-x-6">
+                          <div className="flex-shrink-0">
+                            <div className="h-48 w-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                              {user.headshotPath ? (
+                                <img 
+                                  src={user.headshotPath} 
+                                  alt={`${user.firstName} ${user.lastName} full length photo`}
+                                  className="h-full w-full object-cover"
+                                  data-testid={`player-profile-photo-${user.id}`}
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center text-gray-400">
+                                  <span className="text-xs text-center">No player photo</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
+                            </p>
+                            <Button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                              <span className="flex items-center gap-2">
+                                <Edit className="h-4 w-4" />
+                                Upload Player Photo
+                              </span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
