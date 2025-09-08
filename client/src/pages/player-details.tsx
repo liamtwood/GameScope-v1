@@ -1388,7 +1388,7 @@ export default function PlayerDetails() {
 
               {/* Parents Tab Content */}
               <TabsContent value="parents" className="m-0">
-                <div className="bg-white px-6 pb-6 space-y-3 min-h-[400px]">
+                <div className="bg-background px-6 pb-6 space-y-3 min-h-[400px]">
                   <div className="pt-4">
                     <div className="w-4/5 mx-auto">
                       <div className="text-center py-8">
@@ -1403,7 +1403,7 @@ export default function PlayerDetails() {
               {/* Bio Tab Content - only for VIEW SQUAD MEMBER */}
               {source !== "profiles" && (
                 <TabsContent value="bio" className="m-0">
-                  <div className="bg-white px-6 pb-6 space-y-3 border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                  <div className="bg-background px-6 pb-6 space-y-3 border border-border border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
                     <div className="pt-4">
                       
                       {/* Section Header */}
@@ -2422,7 +2422,7 @@ export default function PlayerDetails() {
 
               {/* Photo Tab Content */}
               <TabsContent value="photo" className="m-0">
-                <div className="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
+                <div className="bg-background border border-border border-t-0 rounded-b-lg shadow-sm min-h-[400px]">
                   <div className="p-6">
                     <div className="w-full">
                       
