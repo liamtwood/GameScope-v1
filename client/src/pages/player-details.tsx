@@ -796,7 +796,7 @@ export default function PlayerDetails() {
                               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                               .map((fixture) => (
                               <SelectItem key={fixture.id} value={fixture.id}>
-                                {new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} vs {fixture.opponent}
+                                {new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} {fixture.type === 'HOME' ? 'vs' : 'at'} {fixture.opponent}
                               </SelectItem>
                             ))
                           ) : (
