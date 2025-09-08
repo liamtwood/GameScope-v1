@@ -2012,29 +2012,6 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="attack" className="m-0">
                   <div className="px-6 relative">
-                    {/* Fixture Selector for Profiles Mode */}
-                    <div className="absolute top-4 right-6 flex items-center gap-2 z-10">
-                      <span className="text-sm text-foreground/70 uppercase tracking-wide">Fixture:</span>
-                      <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className="w-48 h-8 text-xs bg-muted border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures
-                            .filter(f => f.status === 'COMPLETED')
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map((fixture) => (
-                            <SelectItem key={fixture.id} value={fixture.id}>
-                              vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
-                              {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
-                                ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
-                                : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -2148,29 +2125,6 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="passing" className="m-0">
                   <div className="px-6 relative">
-                    {/* Fixture Selector for Profiles Mode */}
-                    <div className="absolute top-4 right-6 flex items-center gap-2 z-10">
-                      <span className="text-sm text-foreground/70 uppercase tracking-wide">Fixture:</span>
-                      <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className="w-48 h-8 text-xs bg-muted border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures
-                            .filter(f => f.status === 'COMPLETED')
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map((fixture) => (
-                            <SelectItem key={fixture.id} value={fixture.id}>
-                              vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
-                              {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
-                                ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
-                                : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
@@ -2341,29 +2295,6 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="defense" className="m-0">
                   <div className="px-6 relative">
-                    {/* Fixture Selector for Profiles Mode */}
-                    <div className="absolute top-4 right-6 flex items-center gap-2 z-10">
-                      <span className="text-sm text-foreground/70 uppercase tracking-wide">Fixture:</span>
-                      <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className="w-48 h-8 text-xs bg-muted border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures
-                            .filter(f => f.status === 'COMPLETED')
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map((fixture) => (
-                            <SelectItem key={fixture.id} value={fixture.id}>
-                              vs {fixture.opponent} • {new Date(fixture.date).toLocaleDateString()}
-                              {fixture.homeScore !== undefined && fixture.awayScore !== undefined 
-                                ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
-                                : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                     <div className="pt-6">
                       <div className="flex gap-6 items-start">
                         {/* Left Side - Headshot Photo */}
