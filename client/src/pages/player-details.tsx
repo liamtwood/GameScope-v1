@@ -671,7 +671,7 @@ export default function PlayerDetails() {
                   <div className="flex items-center gap-6">
                   
                   {/* Crosshair Icon and GameScope PROFILE Text - Outside Container */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
                     <div className="flex flex-col justify-center text-left">
                       <div className="text-sm font-bold uppercase tracking-wider" style={{ color: '#486D8D' }}>GameScope</div>
@@ -679,7 +679,7 @@ export default function PlayerDetails() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30 flex-1 relative" style={{ backgroundColor: clubPrimaryColor }}>
+                  <div className="flex-1 flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30" style={{ backgroundColor: clubPrimaryColor }}>
                     <div className="flex items-center gap-4">
                       {/* Squad Number */}
                       {userTeams && userTeams.length > 0 && userTeams[0].jerseyNumber && (
@@ -727,83 +727,99 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="flex justify-between items-center mt-4 px-6">
-                    {/* Tab Navigation - Left side with extra margin */}
-                    <div className="flex items-center gap-4" style={{ marginLeft: 'calc(2rem + 1.5rem)' }}>
-                      {/* Bio Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'bio' ? 'text-foreground font-bold' : 'text-foreground/70'
-                        }`}
-                        onClick={() => setActiveTab('bio')}
-                      >
-                        Bio
-                      </span>
+                  <div className="px-6">
+                    <div className="flex items-center gap-6">
+                      {/* Invisible Spacer - Same width as GameScope branding */}
+                      <div className="flex items-center gap-2 flex-shrink-0 invisible">
+                        <div className="h-6 w-6"></div>
+                        <div>
+                          <div className="text-sm font-bold">GameScope</div>
+                          <div className="text-xs font-medium">Profile</div>
+                        </div>
+                      </div>
                       
-                      {/* Attack Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'attack' ? 'text-foreground font-bold' : 'text-foreground/70'
-                        }`}
-                        onClick={() => setActiveTab('attack')}
-                      >
-                        Attack
-                      </span>
-                      
-                      {/* Passing Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'passing' ? 'text-foreground font-bold' : 'text-foreground/70'
-                        }`}
-                        onClick={() => setActiveTab('passing')}
-                      >
-                        Passing
-                      </span>
-                      
-                      {/* Defense Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'defense' ? 'text-foreground font-bold' : 'text-foreground/70'
-                        }`}
-                        onClick={() => setActiveTab('defense')}
-                      >
-                        Defense
-                      </span>
-                      
-                      {/* Videos Tab */}
-                      <span 
-                        className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                          activeTab === 'video' ? 'text-foreground font-bold' : 'text-foreground/70'
-                        }`}
-                        onClick={() => setActiveTab('video')}
-                      >
-                        Videos
-                      </span>
-                    </div>
-                    
-                    {/* Fixture Selector - Right side aligned with container */}
-                    <div className="flex items-center gap-2" style={{ marginRight: '1rem' }}>
-                      <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
-                      <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className={source === "profiles" ? "w-80 h-8 text-xs bg-muted border-border text-foreground" : "w-80 h-8 text-xs bg-white/10 border-white/20 text-white"}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures.filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED').length > 0 ? (
-                            fixtures
-                              .filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED')
-                              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                              .map((fixture) => (
-                              <SelectItem key={fixture.id} value={fixture.id}>
-                                {new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} {fixture.type === 'HOME' ? 'vs' : 'at'} {fixture.opponent}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="no-fixtures" disabled>No Fixtures</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      {/* Tabs and Fixture Container - Now aligns with player container */}
+                      <div className="flex-1 flex items-center justify-between">
+                        {/* Tabs - Left aligned */}
+                        <div className="flex items-center gap-4">
+                          {/* Bio Tab */}
+                          <span 
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'bio' ? 'text-foreground font-bold' : 'text-foreground/70'
+                            }`}
+                            onClick={() => setActiveTab('bio')}
+                          >
+                            Bio
+                          </span>
+                          
+                          {/* Attack Tab */}
+                          <span 
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'attack' ? 'text-foreground font-bold' : 'text-foreground/70'
+                            }`}
+                            onClick={() => setActiveTab('attack')}
+                          >
+                            Attack
+                          </span>
+                          
+                          {/* Passing Tab */}
+                          <span 
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'passing' ? 'text-foreground font-bold' : 'text-foreground/70'
+                            }`}
+                            onClick={() => setActiveTab('passing')}
+                          >
+                            Passing
+                          </span>
+                          
+                          {/* Defense Tab */}
+                          <span 
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'defense' ? 'text-foreground font-bold' : 'text-foreground/70'
+                            }`}
+                            onClick={() => setActiveTab('defense')}
+                          >
+                            Defense
+                          </span>
+                          
+                          {/* Videos Tab */}
+                          <span 
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'video' ? 'text-foreground font-bold' : 'text-foreground/70'
+                            }`}
+                            onClick={() => setActiveTab('video')}
+                          >
+                            Videos
+                          </span>
+                        </div>
+                        
+                        {/* Fixture Dropdown - Right aligned */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground/70 uppercase tracking-wide">
+                            Fixture:
+                          </span>
+                          <Select value={selectedFixture} onValueChange={setSelectedFixture}>
+                            <SelectTrigger className="w-80 h-8 text-xs bg-muted border-border text-foreground">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all-season">This Season</SelectItem>
+                              {fixtures.filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED').length > 0 ? (
+                                fixtures
+                                  .filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED')
+                                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                  .map((fixture) => (
+                                  <SelectItem key={fixture.id} value={fixture.id}>
+                                    {new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} {fixture.type === 'HOME' ? 'vs' : 'at'} {fixture.opponent}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-fixtures" disabled>No Fixtures</SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

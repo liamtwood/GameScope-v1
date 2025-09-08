@@ -1,0 +1,67 @@
+{/* Player Info Section - YOUR EXISTING CODE */}
+<div className="px-6 pt-2 pb-6">
+  <div className="w-full">
+    <div className="flex items-center gap-6">
+      {/* GameScope Icon - NOTE THE WIDTH */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <Crosshair className="h-6 w-6" style={{ color: '#486D8D' }} />
+        <div className="flex flex-col justify-center text-left">
+          <div className="text-sm font-bold uppercase tracking-wider" style={{ color: '#486D8D' }}>GameScope</div>
+          <div className="text-xs font-medium uppercase tracking-wide" style={{ color: '#486D8D', opacity: 0.8 }}>Profile</div>
+        </div>
+      </div>
+      
+      {/* Player Container */}
+      <div className="flex-1 flex items-center justify-between px-4 py-3 rounded-lg shadow-lg border-2 border-white/30" 
+           style={{ backgroundColor: clubPrimaryColor }}>
+        {/* ... player content ... */}
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* TABS AND FIXTURE SECTION - UPDATED */}
+<div className="px-6">
+  <div className="flex items-center gap-6">
+    {/* Invisible Spacer - Same width as GameScope branding */}
+    <div className="flex items-center gap-2 flex-shrink-0 invisible">
+      <div className="h-6 w-6"></div>
+      <div>
+        <div className="text-sm font-bold">GameScope</div>
+        <div className="text-xs font-medium">Profile</div>
+      </div>
+    </div>
+    
+    {/* Tabs and Fixture Container - Now aligns with player container */}
+    <div className="flex-1 flex items-center justify-between">
+      {/* Tabs - Left aligned */}
+      <div className="flex items-center gap-4">
+        <span 
+          className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+            activeTab === 'bio' ? 'text-foreground font-bold' : 'text-foreground/70'
+          }`}
+          onClick={() => setActiveTab('bio')}
+        >
+          Bio
+        </span>
+        {/* ... other tabs ... */}
+      </div>
+      
+      {/* Fixture Dropdown - Right aligned */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-foreground/70 uppercase tracking-wide">
+          Fixture:
+        </span>
+        <Select value={selectedFixture} onValueChange={setSelectedFixture}>
+          <SelectTrigger className="w-80 h-8 text-xs bg-muted border-border text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all-season">This Season</SelectItem>
+            {/* ...fixture options... */}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  </div>
+</div>
