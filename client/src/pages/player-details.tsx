@@ -550,7 +550,7 @@ export default function PlayerDetails() {
   const labelColor = isLightColor(clubPrimaryColor) ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
   const solidStyle = {
-    backgroundColor: source === "profiles" ? 'hsl(var(--background))' : '#f8f9fa',
+    backgroundColor: source === "profiles" ? 'hsl(var(--background) / 1)' : '#f8f9fa',
     position: 'relative' as const,
     overflow: 'hidden' as const,
   } as React.CSSProperties;
