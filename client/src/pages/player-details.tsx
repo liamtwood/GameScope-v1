@@ -790,13 +790,36 @@ export default function PlayerDetails() {
                         <SelectContent>
                           <SelectItem value="all-season">All Season</SelectItem>
                           {fixtures
-                            .filter(f => f.status === 'COMPLETED')
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map((fixture) => (
-                            <SelectItem key={fixture.id} value={fixture.id}>
-                              vs {fixture.opponent} ({new Date(fixture.date).toLocaleDateString()})
-                            </SelectItem>
-                          ))}
+                            .sort((a, b) => {
+                              // Sort upcoming fixtures first, then completed ones by date
+                              const dateA = new Date(a.date).getTime();
+                              const dateB = new Date(b.date).getTime();
+                              const now = Date.now();
+                              
+                              // If both are future or both are past, sort by date
+                              if ((dateA > now && dateB > now) || (dateA <= now && dateB <= now)) {
+                                return dateA - dateB; // Ascending for future, ascending for past too (oldest first)
+                              }
+                              
+                              // Future fixtures come before past fixtures
+                              return dateA > now ? -1 : 1;
+                            })
+                            .map((fixture) => {
+                              const fixtureDate = new Date(fixture.date);
+                              const isUpcoming = fixtureDate.getTime() > Date.now();
+                              const statusIcon = fixture.status === 'COMPLETED' ? '✓' : 
+                                               fixture.status === 'CANCELLED' ? '✗' : 
+                                               isUpcoming ? '⏰' : '●';
+                              
+                              return (
+                                <SelectItem key={fixture.id} value={fixture.id}>
+                                  {statusIcon} vs {fixture.opponent} • {fixtureDate.toLocaleDateString()} 
+                                  {fixture.status === 'COMPLETED' && fixture.homeScore !== undefined && fixture.awayScore !== undefined 
+                                    ? ` (${fixture.type === 'HOME' ? fixture.homeScore + '-' + fixture.awayScore : fixture.awayScore + '-' + fixture.homeScore})`
+                                    : ''}
+                                </SelectItem>
+                              );
+                            })}
                         </SelectContent>
                       </Select>
                     </div>
