@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Team } from "@shared/schema";
+import { useClub } from "./club-context";
 
 interface TeamContextType {
   selectedTeam: Team | null;
@@ -17,14 +18,30 @@ interface TeamProviderProps {
 
 export function TeamProvider({ children }: TeamProviderProps) {
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const { selectedClub } = useClub();
 
   // Fetch all teams
-  const { data: teams = [], isLoading } = useQuery<Team[]>({
+  const { data: allTeams = [], isLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
   });
 
-  // Get selected team from teams array
+  // Filter teams by selected club
+  const teams = allTeams.filter(team => team.clubId === selectedClub?.id);
+
+  // Get selected team from filtered teams array
   const selectedTeam = teams.find(team => team.id === selectedTeamId) || teams[0] || null;
+
+  // Handle club changes - reset to first team of new club
+  useEffect(() => {
+    if (selectedClub && teams.length > 0) {
+      const currentTeamInClub = teams.find(team => team.id === selectedTeamId);
+      if (!currentTeamInClub) {
+        // Current team doesn't belong to new club, select first team
+        setSelectedTeamId(teams[0].id);
+        localStorage.setItem("selectedTeamId", teams[0].id);
+      }
+    }
+  }, [selectedClub?.id, teams, selectedTeamId]);
 
   // Load selected team ID from localStorage on mount
   useEffect(() => {
@@ -34,6 +51,7 @@ export function TeamProvider({ children }: TeamProviderProps) {
     } else if (teams.length > 0 && !selectedTeamId) {
       // Default to first team if none selected
       setSelectedTeamId(teams[0].id);
+      localStorage.setItem("selectedTeamId", teams[0].id);
     }
   }, [teams, selectedTeamId]);
 
