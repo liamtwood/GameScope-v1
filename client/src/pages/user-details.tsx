@@ -160,11 +160,32 @@ export default function UserDetails() {
   };
 
   const handleSave = () => {
-    // Ensure dates are properly formatted before saving
-    const dataToSave = { ...editData };
-    if (dataToSave.dateOfBirth && typeof dataToSave.dateOfBirth !== 'string') {
-      dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth).toISOString();
+    // Only send the fields we actually allow editing, excluding system timestamps
+    const allowedFields = [
+      'firstName', 'lastName', 'shirtName', 'dateOfBirth', 'gender', 
+      'email', 'phone', 'role', 'status', 'avatarPath', 'headshotPath'
+    ];
+    
+    const dataToSave: Partial<User> = {};
+    
+    // Only include allowed fields that exist in editData
+    allowedFields.forEach(field => {
+      if (editData[field as keyof User] !== undefined) {
+        dataToSave[field as keyof User] = editData[field as keyof User];
+      }
+    });
+    
+    // Ensure dateOfBirth is properly formatted as ISO string
+    if (dataToSave.dateOfBirth) {
+      if (dataToSave.dateOfBirth instanceof Date) {
+        dataToSave.dateOfBirth = dataToSave.dateOfBirth.toISOString();
+      } else if (typeof dataToSave.dateOfBirth === 'string' && !dataToSave.dateOfBirth.includes('T')) {
+        // If it's just a date string (YYYY-MM-DD), convert to full ISO string
+        dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth + 'T00:00:00.000Z').toISOString();
+      }
     }
+    
+    console.log('Saving user data:', dataToSave);
     updateUserMutation.mutate(dataToSave);
   };
 
