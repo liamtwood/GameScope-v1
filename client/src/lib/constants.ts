@@ -53,7 +53,6 @@ export const NAVIGATION_SECTIONS = [
     items: [
       { id: 'devops-users', label: 'All Users', icon: 'Users', tooltip: 'System-wide User Management' },
       { id: 'clubs', label: 'Clubs', icon: 'Landmark', tooltip: 'Manage Clubs' },
-      { id: 'screenshots', label: 'Screenshots', icon: 'Camera', tooltip: 'App Screenshots' },
     ]
   }
 ];
