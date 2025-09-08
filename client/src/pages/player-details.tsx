@@ -1946,8 +1946,8 @@ export default function PlayerDetails() {
                                 <div className="grid grid-cols-3 gap-2 items-center">
                                   {/* Left Foot */}
                                   <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-purple-400">12</span>
+                                    <div className="w-16 h-16 bg-background border-2 border-muted-foreground/30 dark:border-muted-foreground/50 rounded-full flex items-center justify-center">
+                                      <span className="text-xl font-bold text-muted-foreground">12</span>
                                     </div>
                                     <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                   </div>
@@ -1963,8 +1963,8 @@ export default function PlayerDetails() {
                                   
                                   {/* Right Foot */}
                                   <div className="flex flex-col items-center space-y-2">
-                                    <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                      <span className="text-xl font-bold text-orange-400">51</span>
+                                    <div className="w-16 h-16 bg-background border-2 border-muted-foreground/30 dark:border-muted-foreground/50 rounded-full flex items-center justify-center">
+                                      <span className="text-xl font-bold text-muted-foreground">51</span>
                                     </div>
                                     <span className="text-xs text-white/80 font-medium">Right Foot</span>
                                   </div>
