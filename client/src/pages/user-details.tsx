@@ -463,9 +463,9 @@ export default function UserDetails() {
                         maxFileSize={5242880} // 5MB
                         onGetUploadParameters={getPhotoUploadURL}
                         onComplete={handlePhotoUploadComplete}
-                        buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer"
+                        buttonClassName="bg-white border-2 border-white/30 rounded-full p-2 opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer [&_svg]:!w-3 [&_svg]:!h-3"
                       >
-                        <Pencil className="h-3 w-3 text-gray-600" />
+                        <Pencil className="!h-3 !w-3 text-gray-600" />
                       </ObjectUploader>
                     </div>
                   </div>
