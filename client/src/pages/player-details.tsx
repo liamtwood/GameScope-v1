@@ -782,7 +782,7 @@ export default function PlayerDetails() {
                     </div>
                     
                     {/* Fixture Selector - Right side aligned with container */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" style={{ marginRight: '1rem' }}>
                       <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
                         <SelectTrigger className={source === "profiles" ? "w-80 h-8 text-xs bg-muted border-border text-foreground" : "w-80 h-8 text-xs bg-white/10 border-white/20 text-white"}>
