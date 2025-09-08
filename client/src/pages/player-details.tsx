@@ -2203,8 +2203,8 @@ export default function PlayerDetails() {
                                 
                                 {/* Success */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-emerald-400">63</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>63</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Success</span>
                                 </div>
@@ -2217,8 +2217,8 @@ export default function PlayerDetails() {
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Left Foot */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-purple-400">12</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>12</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Left Foot</span>
                                 </div>
@@ -2234,8 +2234,8 @@ export default function PlayerDetails() {
                                 
                                 {/* Right Foot */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-orange-400">51</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>51</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Right Foot</span>
                                 </div>
@@ -2251,8 +2251,8 @@ export default function PlayerDetails() {
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Total */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-blue-400">672</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>672</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Total (m)</span>
                                 </div>
@@ -2268,8 +2268,8 @@ export default function PlayerDetails() {
                                 
                                 {/* Max */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-emerald-400">42</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>42</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (m)</span>
                                 </div>
@@ -2282,8 +2282,8 @@ export default function PlayerDetails() {
                               <div className="grid grid-cols-3 gap-2 items-center">
                                 {/* Max MPH */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-purple-400">42</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>42</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (mph)</span>
                                 </div>
@@ -2299,8 +2299,8 @@ export default function PlayerDetails() {
                                 
                                 {/* Max M/S */}
                                 <div className="flex flex-col items-center space-y-2">
-                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
-                                    <span className="text-xl font-bold text-orange-400">17</span>
+                                  <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
+                                    <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>17</span>
                                   </div>
                                   <span className="text-xs text-white/80 font-medium">Max (m/s)</span>
                                 </div>
