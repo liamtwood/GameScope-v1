@@ -492,7 +492,7 @@ export default function UserDetails() {
         <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
           <CardContent className="p-0">
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-5 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
+              <TabsList className="grid grid-cols-4 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
                 <TabsTrigger 
                   value="details" 
                   data-testid="tab-user-details"
@@ -508,22 +508,6 @@ export default function UserDetails() {
                   } as React.CSSProperties}
                 >
                   User Details
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="account" 
-                  data-testid="tab-account"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0"
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none !important',
-                    backgroundImage: 'none !important',
-                    background: clubPrimaryColor + ' !important',
-                    filter: 'none !important',
-                    border: 'none !important',
-                    outline: 'none !important'
-                  } as React.CSSProperties}
-                >
-                  Account
                 </TabsTrigger>
                 <TabsTrigger 
                   value="teams" 
@@ -687,17 +671,12 @@ export default function UserDetails() {
                           )}
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
 
-              <TabsContent value="account" className="p-6 mt-0">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Account Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
+                      {/* Separator */}
+                      <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                      {/* Contact Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                           {isEditing ? (
@@ -731,7 +710,11 @@ export default function UserDetails() {
                         </div>
                       </div>
 
-                      <div className="space-y-4">
+                      {/* Separator */}
+                      <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                      {/* Account Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Role</label>
                           {isEditing ? (
@@ -782,7 +765,13 @@ export default function UserDetails() {
                             </div>
                           )}
                         </div>
-                        
+                      </div>
+
+                      {/* Separator */}
+                      <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                      {/* System Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Created</label>
                           <p className="text-lg" data-testid={`text-created-${user.id}`}>
@@ -794,6 +783,7 @@ export default function UserDetails() {
                   </div>
                 </div>
               </TabsContent>
+
 
               <TabsContent value="teams" className="p-6 mt-0">
                 <div className="space-y-6">
