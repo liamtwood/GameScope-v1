@@ -164,6 +164,10 @@ export default function UserDetails() {
   };
 
   const handleInputChange = (field: keyof User, value: any) => {
+    // Convert Date objects to ISO strings for dateOfBirth
+    if (field === 'dateOfBirth' && value instanceof Date) {
+      value = value.toISOString();
+    }
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -611,9 +615,12 @@ export default function UserDetails() {
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Age</label>
                           <p className="text-lg" data-testid={`text-age-${user.id}`}>
-                            {user.dateOfBirth 
-                              ? differenceInYears(new Date(), new Date(user.dateOfBirth))
-                              : 'Not provided'}
+                            {(() => {
+                              const birthDate = isEditing && editData.dateOfBirth ? editData.dateOfBirth : user.dateOfBirth;
+                              return birthDate 
+                                ? differenceInYears(new Date(), new Date(birthDate))
+                                : 'Not provided';
+                            })()}
                           </p>
                         </div>
                         
