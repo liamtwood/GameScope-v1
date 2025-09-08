@@ -13,7 +13,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { LogoUpload } from "@/components/logo-upload";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, CalendarIcon, Plus } from "lucide-react";
+import { Calendar, CalendarIcon, Plus, Edit, Check, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -47,6 +47,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
   const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
   const [selectedOpponentForLogo, setSelectedOpponentForLogo] = useState<OppositionTeam | null>(null);
+  const [isEditingOpponentName, setIsEditingOpponentName] = useState(false);
+  const [editOpponentName, setEditOpponentName] = useState("");
 
   // Fetch existing competitions and opposition teams
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -62,38 +64,51 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
 
   const updateOppositionTeamMutation = useMutation({
-    mutationFn: async ({ teamId, logoPath }: { teamId: string; logoPath?: string }) => {
+    mutationFn: async ({ teamId, logoPath, name }: { teamId: string; logoPath?: string; name?: string }) => {
       const updateData: any = {};
       if (logoPath !== undefined) updateData.logoPath = logoPath;
+      if (name !== undefined) updateData.name = name;
       return apiRequest("PUT", `/api/opposition-teams/${teamId}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
     },
   });
 
-  // Handle opponent name changes - don't reset team if we're just editing the name
-  const handleOpponentChange = (opponentName: string) => {
-    // Only look for a different team if the name exactly matches another team
-    const existingTeam = oppositionTeams.find(team => team.name === opponentName);
-    if (existingTeam && existingTeam.id !== currentOppositionTeam?.id) {
-      setCurrentOppositionTeam(existingTeam);
-      form.setValue("shortName", existingTeam.shortName || "");
+  // Handle starting opponent name edit
+  const handleStartEditOpponentName = () => {
+    if (selectedOpponentForLogo) {
+      setEditOpponentName(selectedOpponentForLogo.name);
+      setIsEditingOpponentName(true);
     }
-    // Don't reset currentOppositionTeam to null when typing - keep the existing team
   };
 
-  // Handle logo upload click - create team if needed
-  const handleLogoUploadClick = () => {
-    const opponentName = form.watch("opponent");
-    if (!currentOppositionTeam && opponentName && opponentName.trim()) {
-      // Create the team first, then show upload
-      createOppositionTeamMutation.mutate(opponentName.trim());
-    } else {
-      // Team already exists, show upload immediately
-      setShowLogoUpload(true);
+  // Handle saving opponent name edit
+  const handleSaveOpponentNameEdit = () => {
+    if (selectedOpponentForLogo && editOpponentName.trim()) {
+      updateOppositionTeamMutation.mutate({
+        teamId: selectedOpponentForLogo.id,
+        name: editOpponentName.trim()
+      });
+      // Update form with new name
+      form.setValue("opponent", editOpponentName.trim());
+      // Update local state
+      setSelectedOpponentForLogo({
+        ...selectedOpponentForLogo,
+        name: editOpponentName.trim()
+      });
     }
+    setIsEditingOpponentName(false);
+    setEditOpponentName("");
   };
+
+  // Handle canceling opponent name edit
+  const handleCancelOpponentNameEdit = () => {
+    setIsEditingOpponentName(false);
+    setEditOpponentName("");
+  };
+
 
   const form = useForm<FixtureEditFormData>({
     resolver: zodResolver(fixtureEditSchema),
@@ -265,6 +280,35 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                             Cancel
                           </Button>
                         </div>
+                      ) : isEditingOpponentName && selectedOpponentForLogo ? (
+                        <div className="flex gap-2">
+                          <Input
+                            value={editOpponentName}
+                            onChange={(e) => setEditOpponentName(e.target.value)}
+                            placeholder="Enter opponent name"
+                            className="flex-1"
+                            data-testid="input-edit-opponent-name"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSaveOpponentNameEdit}
+                            disabled={!editOpponentName.trim()}
+                            title="Save changes"
+                          >
+                            <Check className="h-4 w-4 text-green-600" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelOpponentNameEdit}
+                            title="Cancel edit"
+                          >
+                            <X className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
                       ) : (
                         <div className="flex gap-2">
                           <Select
@@ -300,6 +344,18 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                               ))}
                             </SelectContent>
                           </Select>
+                          {selectedOpponentForLogo && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleStartEditOpponentName}
+                              title="Edit opponent name"
+                              data-testid="button-edit-opponent-name"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             type="button"
                             variant="outline"
