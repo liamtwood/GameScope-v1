@@ -23,7 +23,7 @@ export function usePlayers(teamId: string) {
 
 export function useFixtures(teamId: string) {
   return useQuery<Fixture[]>({
-    queryKey: ['/api/teams', teamId, 'fixtures'],
+    queryKey: ['/api/fixtures', teamId],
     enabled: !!teamId
   });
 }
