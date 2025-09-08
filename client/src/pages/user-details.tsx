@@ -895,7 +895,13 @@ export default function UserDetails() {
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-4">
-                                <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold">
+                                <div 
+                                  className="h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold"
+                                  style={{
+                                    backgroundColor: clubPrimaryColor,
+                                    color: textColor
+                                  }}
+                                >
                                   {userTeam.jerseyNumber || '?'}
                                 </div>
                                 <div className="flex-1">
