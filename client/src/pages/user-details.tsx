@@ -559,7 +559,7 @@ export default function UserDetails() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="details" className="p-6 mt-0 min-h-[450px]">
+              <TabsContent value="details" className="p-6 mt-0 min-h-[425px]">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">User Information</h3>
@@ -783,7 +783,7 @@ export default function UserDetails() {
               </TabsContent>
 
 
-              <TabsContent value="teams" className="p-6 mt-0 min-h-[450px]">
+              <TabsContent value="teams" className="p-6 mt-0 min-h-[425px]">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Team Assignments</h3>
@@ -931,7 +931,7 @@ export default function UserDetails() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="bio" className="p-6 mt-0 min-h-[450px]">
+              <TabsContent value="bio" className="p-6 mt-0 min-h-[425px]">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Player Bio</h3>
