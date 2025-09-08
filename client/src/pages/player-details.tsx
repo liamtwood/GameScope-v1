@@ -727,9 +727,9 @@ export default function PlayerDetails() {
                 
                 {/* Tab Selector Below Container - Only show when from profiles */}
                 {source === "profiles" && (
-                  <div className="flex justify-between items-center mt-4" style={{ paddingLeft: 'calc(1.5rem + 2rem + 1.5rem)', paddingRight: '1.5rem' }}>
-                    {/* Tab Navigation - Left side */}
-                    <div className="flex items-center gap-4">
+                  <div className="flex justify-between items-center mt-4 px-6">
+                    {/* Tab Navigation - Left side with extra margin */}
+                    <div className="flex items-center gap-4" style={{ marginLeft: 'calc(2rem + 1.5rem)' }}>
                       {/* Bio Tab */}
                       <span 
                         className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
@@ -781,7 +781,7 @@ export default function PlayerDetails() {
                       </span>
                     </div>
                     
-                    {/* Fixture Selector - Right side with more space */}
+                    {/* Fixture Selector - Right side aligned with container */}
                     <div className="flex items-center gap-2">
                       <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
