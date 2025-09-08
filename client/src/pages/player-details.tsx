@@ -620,8 +620,8 @@ export default function PlayerDetails() {
                   variant="ghost" 
                   onClick={() => window.history.back()}
                   data-testid="button-back-to-squad"
-                  className="text-white hover:bg-white/10"
-                  style={{ color: textColor }}
+                  className={source === "profiles" ? "text-foreground hover:bg-foreground/10" : "text-white hover:bg-white/10"}
+                  style={source === "profiles" ? {} : { color: textColor }}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
@@ -632,8 +632,8 @@ export default function PlayerDetails() {
                     variant="ghost" 
                     onClick={handleEdit}
                     data-testid="button-edit-player"
-                    className="text-white hover:bg-white/10"
-                    style={{ color: textColor }}
+                    className={source === "profiles" ? "text-foreground hover:bg-foreground/10" : "text-white hover:bg-white/10"}
+                    style={source === "profiles" ? {} : { color: textColor }}
                   >
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
@@ -645,8 +645,8 @@ export default function PlayerDetails() {
                       onClick={handleSave}
                       disabled={updatePlayerMutation.isPending}
                       data-testid="button-save-player"
-                      className="text-white hover:bg-white/10"
-                      style={{ color: textColor }}
+                      className={source === "profiles" ? "text-foreground hover:bg-foreground/10" : "text-white hover:bg-white/10"}
+                      style={source === "profiles" ? {} : { color: textColor }}
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Save
@@ -655,8 +655,8 @@ export default function PlayerDetails() {
                       variant="ghost" 
                       onClick={handleCancel}
                       data-testid="button-cancel-edit"
-                      className="text-white hover:bg-white/10"
-                      style={{ color: textColor }}
+                      className={source === "profiles" ? "text-foreground hover:bg-foreground/10" : "text-white hover:bg-white/10"}
+                      style={source === "profiles" ? {} : { color: textColor }}
                     >
                       <X className="mr-2 h-4 w-4" />
                       Cancel
@@ -782,9 +782,9 @@ export default function PlayerDetails() {
                     
                     {/* Fixture Selector - Absolute positioned to the right */}
                     <div className="absolute right-0 flex items-center gap-2">
-                      <span className="text-sm text-white/70 uppercase tracking-wide">Fixture:</span>
+                      <span className={source === "profiles" ? "text-sm text-foreground/70 uppercase tracking-wide" : "text-sm text-white/70 uppercase tracking-wide"}>Fixture:</span>
                       <Select value={selectedFixture} onValueChange={setSelectedFixture}>
-                        <SelectTrigger className="w-48 h-8 text-xs bg-white/10 border-white/20 text-white">
+                        <SelectTrigger className={source === "profiles" ? "w-48 h-8 text-xs bg-foreground/10 border-foreground/20 text-foreground" : "w-48 h-8 text-xs bg-white/10 border-white/20 text-white"}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
