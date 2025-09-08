@@ -2370,7 +2370,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.tackles}</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Tackles</div>
                                   <div className="text-sm text-white/60">
                                     Defensive actions completed
                                   </div>
@@ -2388,7 +2387,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">11</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Clearances</div>
                                   <div className="text-sm text-white/60">
                                     Defensive clearances made
                                   </div>
@@ -2406,7 +2404,6 @@ export default function PlayerDetails() {
                                       <span className="text-xl font-bold text-black mt-1">{playerStats.takeOns}</span>
                                     </div>
                                   </div>
-                                  <div className="text-sm text-white/80">Total Duels</div>
                                   <div className="text-sm text-white/60">
                                     Defensive duels engaged
                                   </div>
