@@ -504,7 +504,11 @@ export default function UserDetails() {
                     background: clubPrimaryColor + ' !important',
                     filter: 'none !important',
                     border: 'none !important',
-                    outline: 'none !important'
+                    outline: 'none !important',
+                    textShadow: 'none !important',
+                    WebkitBoxShadow: 'none !important',
+                    MozBoxShadow: 'none !important',
+                    WebkitFilter: 'none !important'
                   } as React.CSSProperties}
                 >
                   User Details
@@ -520,7 +524,11 @@ export default function UserDetails() {
                     background: clubPrimaryColor + ' !important',
                     filter: 'none !important',
                     border: 'none !important',
-                    outline: 'none !important'
+                    outline: 'none !important',
+                    textShadow: 'none !important',
+                    WebkitBoxShadow: 'none !important',
+                    MozBoxShadow: 'none !important',
+                    WebkitFilter: 'none !important'
                   } as React.CSSProperties}
                 >
                   Teams
@@ -536,7 +544,11 @@ export default function UserDetails() {
                     background: clubPrimaryColor + ' !important',
                     filter: 'none !important',
                     border: 'none !important',
-                    outline: 'none !important'
+                    outline: 'none !important',
+                    textShadow: 'none !important',
+                    WebkitBoxShadow: 'none !important',
+                    MozBoxShadow: 'none !important',
+                    WebkitFilter: 'none !important'
                   } as React.CSSProperties}
                 >
                   Bio
@@ -552,7 +564,11 @@ export default function UserDetails() {
                     background: clubPrimaryColor + ' !important',
                     filter: 'none !important',
                     border: 'none !important',
-                    outline: 'none !important'
+                    outline: 'none !important',
+                    textShadow: 'none !important',
+                    WebkitBoxShadow: 'none !important',
+                    MozBoxShadow: 'none !important',
+                    WebkitFilter: 'none !important'
                   } as React.CSSProperties}
                 >
                   Photos
