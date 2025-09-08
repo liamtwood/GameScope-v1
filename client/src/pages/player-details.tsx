@@ -1951,7 +1951,7 @@ export default function PlayerDetails() {
                             <div className="max-w-md mx-auto">
                               {/* Tackles */}
                               <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Tackles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.tackles || 0}</div>
                                   <div className="text-sm text-white/80">Total Tackles</div>
@@ -2326,7 +2326,7 @@ export default function PlayerDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* 1st Touch */}
                               <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">1st Touch</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">1st Touch</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2344,7 +2344,7 @@ export default function PlayerDetails() {
 
                               {/* Tackles */}
                               <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Tackles</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2361,7 +2361,7 @@ export default function PlayerDetails() {
 
                               {/* Clearances */}
                               <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Clearances</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Clearances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
@@ -2378,7 +2378,7 @@ export default function PlayerDetails() {
 
                               {/* Duels */}
                               <div className="bg-muted rounded-lg p-6 border border-border text-center">
-                                <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Duels</h4>
+                                <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Duels</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
                                     <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
