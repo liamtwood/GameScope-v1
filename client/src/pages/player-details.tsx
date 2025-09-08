@@ -2139,7 +2139,7 @@ export default function PlayerDetails() {
                             </div>
                           </div>
                           
-                          <div className="flex gap-4">
+                          <div className="flex gap-8">
                             {/* PASS SUCCESS Card */}
                             <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
@@ -2204,7 +2204,7 @@ export default function PlayerDetails() {
                           </div>
 
                           {/* Duplicated Row */}
-                          <div className="flex gap-4">
+                          <div className="flex gap-8">
                             {/* DISTANCE Card - Duplicate */}
                             <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
                               <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Distance</h4>
