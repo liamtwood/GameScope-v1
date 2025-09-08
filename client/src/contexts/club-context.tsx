@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Club } from "@shared/schema";
+import type { Club, Team } from "@shared/schema";
 
 interface ClubContextType {
   selectedClub: Club | null;
@@ -23,6 +23,11 @@ export function ClubProvider({ children }: ClubProviderProps) {
     queryKey: ["/api/clubs"],
   });
 
+  // Fetch all teams (needed for team reset logic)
+  const { data: allTeams = [] } = useQuery<Team[]>({
+    queryKey: ["/api/teams"],
+  });
+
   // Get selected club from clubs array
   const selectedClub = clubs.find(club => club.id === selectedClubId) || clubs[0] || null;
 
@@ -40,6 +45,15 @@ export function ClubProvider({ children }: ClubProviderProps) {
   const selectClub = (club: Club) => {
     setSelectedClubId(club.id);
     localStorage.setItem("selectedClubId", club.id);
+    
+    // When club changes, automatically select first team from the new club
+    const clubTeams = allTeams.filter(team => team.clubId === club.id);
+    if (clubTeams.length > 0) {
+      localStorage.setItem("selectedTeamId", clubTeams[0].id);
+    } else {
+      // Clear team selection if new club has no teams
+      localStorage.removeItem("selectedTeamId");
+    }
   };
 
   return (
