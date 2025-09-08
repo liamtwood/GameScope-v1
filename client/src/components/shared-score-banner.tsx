@@ -22,24 +22,9 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
   const clubColors = (club.colors as any) || { primary: '#CC4125', secondary: '#ffffff' };
   const oppositionColors = (oppositionTeam?.colors as any) || { primary: '#6b7280', secondary: '#4b5563' };
   
-  // Use opponent's primary color for the background, fall back to team colors if no opponent
-  const primaryColor = oppositionColors.primary || teamColors.primary || clubColors.primary || '#6b7280';
-  
-  // Create a darker shade for the gradient middle point
-  const darkenColor = (color: string, amount: number = 0.2): string => {
-    const hex = color.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    
-    const newR = Math.round(r * (1 - amount));
-    const newG = Math.round(g * (1 - amount));
-    const newB = Math.round(b * (1 - amount));
-    
-    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
-  };
-  
-  const secondaryColor = darkenColor(primaryColor);
+  // Split color scheme: Polk State on left, Opposition on right
+  const polkStateColor = teamColors.primary || clubColors.primary || '#CC4125';
+  const oppositionColor = oppositionColors.primary || '#6b7280';
   
   // Scores: Show as Away - Home to match the layout
   const leftScore = isHomeMatch ? fixture.homeScore : fixture.awayScore;  // PSC score
@@ -51,7 +36,7 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
 
   return (
     <div className="w-full h-16 relative overflow-hidden rounded-lg" style={{ 
-      background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${primaryColor} 100%)`
+      background: `linear-gradient(90deg, ${polkStateColor} 0%, ${polkStateColor} 50%, ${oppositionColor} 50%, ${oppositionColor} 100%)`
     }}>
       {/* Vertical Lines Pattern - Texture (disabled for now, may use later)
       <div className="absolute inset-0">
