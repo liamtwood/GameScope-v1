@@ -789,8 +789,9 @@ export default function PlayerDetails() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all-season">This Season</SelectItem>
-                          {fixtures.length > 0 ? (
+                          {fixtures.filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED').length > 0 ? (
                             fixtures
+                              .filter(f => f.status !== 'SCHEDULED' && f.status !== 'CANCELLED')
                               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                               .map((fixture) => (
                               <SelectItem key={fixture.id} value={fixture.id}>
