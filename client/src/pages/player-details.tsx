@@ -1901,7 +1901,7 @@ export default function PlayerDetails() {
                           <TabsContent value="attack" className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                               {/* First Touch Success */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">First Touch Success</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-green-400">{playerStats.firstTouchSuccess.rate}%</div>
@@ -1916,7 +1916,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Dribbles */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dribbles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.dribbles.rate}%</div>
@@ -1929,7 +1929,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Penetrating Dribbles */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Penetrating Dribbles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-purple-400">{playerStats.penetratingDribbles.rate}%</div>
@@ -1942,7 +1942,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Shots */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Shots</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-red-400">{playerStats.shots.rate}%</div>
@@ -1955,7 +1955,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Goals & Assists */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Goals & Assists</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center space-x-6">
@@ -1972,7 +1972,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Crosses */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Dangerous Crosses</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-orange-400">{playerStats.crosses.total}</div>
@@ -1989,7 +1989,7 @@ export default function PlayerDetails() {
                           <TabsContent value="passing" className="space-y-6">
                             <div className="space-y-6">
                               {/* PASS SUCCESS Card */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Pass Success</h4>
                                 <div className="grid grid-cols-3 gap-2 items-center">
                                   {/* Attempted */}
@@ -2020,7 +2020,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* FOOT Card */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-6 uppercase tracking-wide">Foot</h4>
                                 <div className="grid grid-cols-3 gap-2 items-center">
                                   {/* Left Foot */}
@@ -2056,7 +2056,7 @@ export default function PlayerDetails() {
                           <TabsContent value="defense" className="space-y-6">
                             <div className="max-w-md mx-auto">
                               {/* Tackles */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-blue-400">{playerStats.tackles || 0}</div>
@@ -2068,7 +2068,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Take Ons */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Take Ons</h4>
                                 <div className="space-y-3">
                                   <div className="text-3xl font-bold text-purple-400">{playerStats.takeOns}</div>
@@ -2080,7 +2080,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Disciplinary */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Disciplinary</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center space-x-6">
@@ -2199,7 +2199,7 @@ export default function PlayerDetails() {
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* Goals */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Goals</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2216,7 +2216,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Assists */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Assists</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2233,7 +2233,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Shots */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Shots</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2250,7 +2250,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Big Chances */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-foreground mb-4 uppercase tracking-wide">Big Chances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2584,7 +2584,7 @@ export default function PlayerDetails() {
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                               {/* 1st Touch */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">1st Touch</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2602,7 +2602,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Tackles */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Tackles</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2619,7 +2619,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Clearances */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Clearances</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
@@ -2636,7 +2636,7 @@ export default function PlayerDetails() {
                               </div>
 
                               {/* Duels */}
-                              <div className="bg-muted/50 rounded-lg p-6 border border-border text-center">
+                              <div className="bg-muted rounded-lg p-6 border border-border text-center">
                                 <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Duels</h4>
                                 <div className="space-y-3">
                                   <div className="flex justify-center">
