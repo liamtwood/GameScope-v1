@@ -2202,6 +2202,71 @@ export default function PlayerDetails() {
                               </div>
                             </div>
                           </div>
+
+                          {/* Duplicated Row */}
+                          <div className="flex gap-4">
+                            {/* PASS SUCCESS Card - Duplicate */}
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Passes</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                {/* Attempted */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-blue-500/20 border-2 border-blue-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-blue-400">77</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                </div>
+                                
+                                {/* Success Rate Sign */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">SUCCESS</span>
+                                    <span className="text-xs font-bold text-black leading-tight">RATE</span>
+                                    <span className="text-xl font-bold text-black mt-1">82%</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Success */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-emerald-400">63</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Success</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* FOOT Card - Duplicate */}
+                            <div className="bg-white/10 rounded-lg px-2 py-4 border border-white/20 text-center flex-1">
+                              <h4 className="text-lg font-medium text-white mb-4 uppercase tracking-wide">Foot</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                {/* Left Foot */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-purple-500/20 border-2 border-purple-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-purple-400">12</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Left Foot</span>
+                                </div>
+                                
+                                {/* Dominant Foot Sign */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-20 h-24 bg-white border-4 border-black rounded-lg flex flex-col items-center justify-center py-2">
+                                    <span className="text-xs font-bold text-black leading-tight">DOMINANT</span>
+                                    <span className="text-xs font-bold text-black leading-tight">FOOT</span>
+                                    <span className="text-xl font-bold text-black mt-1">81%</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Right Foot */}
+                                <div className="flex flex-col items-center space-y-2">
+                                  <div className="w-16 h-16 bg-orange-500/20 border-2 border-orange-400 rounded-full flex items-center justify-center">
+                                    <span className="text-xl font-bold text-orange-400">51</span>
+                                  </div>
+                                  <span className="text-xs text-white/80 font-medium">Right Foot</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
