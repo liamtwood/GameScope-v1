@@ -787,9 +787,11 @@ export default function Squad() {
                         <div key={player.id} className="relative">
                           <PlayerCard
                             player={player}
+                            teamId={currentTeam?.id}
                             onEdit={handleViewPlayer}
                             onDelete={handleDeletePlayer}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
+                            onUpdateJerseyNumber={handleUpdateJerseyNumber}
                             onUpdateStatus={(player, newStatus) => {
                               handleUpdatePlayer(player.id, { status: newStatus });
                             }}

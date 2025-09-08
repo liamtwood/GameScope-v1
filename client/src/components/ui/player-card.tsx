@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, Trash2, MoreHorizontal, Star, User as UserIcon, Pencil } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal, Star, User as UserIcon, Pencil, Check, X } from "lucide-react";
 import { User } from "@shared/schema";
 import { useLocation } from "wouter";
 import {
@@ -26,15 +27,19 @@ type Player = User & {
 
 interface PlayerCardProps {
   player: Player;
+  teamId?: string;
   onEdit?: (player: Player) => void;
   onDelete?: (player: Player) => void;
   onToggleKeyPlayer?: (player: Player) => void;
   onUpdateStatus?: (player: Player, newStatus: string) => void;
+  onUpdateJerseyNumber?: (playerId: string, teamId: string, jerseyNumber: number) => void;
 }
 
-export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus }: PlayerCardProps) {
+export function PlayerCard({ player, teamId, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus, onUpdateJerseyNumber }: PlayerCardProps) {
   const [, setLocation] = useLocation();
   const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [isEditingJersey, setIsEditingJersey] = useState(false);
+  const [editJerseyValue, setEditJerseyValue] = useState(player.jerseyNumber?.toString() || '');
   const { clubPrimary } = useClubTheme();
   
   const getStatusColor = () => {
@@ -79,17 +84,74 @@ export function PlayerCard({ player, onEdit, onDelete, onToggleKeyPlayer, onUpda
     }
   };
 
+  const handleSaveJersey = () => {
+    const newJerseyNumber = parseInt(editJerseyValue);
+    if (!isNaN(newJerseyNumber) && teamId && onUpdateJerseyNumber) {
+      onUpdateJerseyNumber(player.id, teamId, newJerseyNumber);
+    }
+    setIsEditingJersey(false);
+  };
+
+  const handleCancelJersey = () => {
+    setEditJerseyValue(player.jerseyNumber?.toString() || '');
+    setIsEditingJersey(false);
+  };
+
   // Function to get player display (jersey number)
   const getPlayerDisplay = () => {
     // Show jersey number if available, otherwise ?
     const displayNumber = player.jerseyNumber !== undefined && player.jerseyNumber !== null ? player.jerseyNumber : '?';
+    
+    if (isEditingJersey) {
+      return (
+        <div className="flex items-center space-x-1">
+          <Input
+            type="number"
+            value={editJerseyValue}
+            onChange={(e) => setEditJerseyValue(e.target.value)}
+            className="w-12 h-8 text-center text-sm"
+            min="1"
+            max="99"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSaveJersey();
+            }}
+            className="h-6 w-6 p-0"
+          >
+            <Check className="h-3 w-3 text-green-600" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCancelJersey();
+            }}
+            className="h-6 w-6 p-0"
+          >
+            <X className="h-3 w-3 text-red-600" />
+          </Button>
+        </div>
+      );
+    }
+    
     return (
       <div 
-        className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2"
+        className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 cursor-pointer hover:opacity-80"
         style={{ 
           backgroundColor: clubPrimary,
           borderColor: clubPrimary
         }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsEditingJersey(true);
+        }}
+        title="Click to edit jersey number"
       >
         {displayNumber}
       </div>
