@@ -806,9 +806,9 @@ export default function PlayerDetails() {
               </div>
               
               {/* Modern Tab Navigation */}
-              <div className="px-0 bg-white/90 backdrop-blur-sm">
+              <div className="px-0 bg-background/90 backdrop-blur-sm">
                 <div className="px-0">
-                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden`} style={{ backgroundColor: '#f8f9fa' }}>
+                  <TabsList className={`grid ${isPhotoOnlyMode ? 'grid-cols-1' : 'grid-cols-7'} w-full rounded-none border-0 p-0 h-auto relative overflow-hidden bg-muted`}>
                     {/* Honeycomb Background Pattern for Tabs */}
                     <div 
                       className="absolute inset-0 pointer-events-none"
@@ -1499,11 +1499,11 @@ export default function PlayerDetails() {
                                   data-testid={`textarea-bio-${player.id}`}
                                 />
                               ) : player?.bio ? (
-                                <div className="text-sm leading-relaxed text-gray-700 bg-gray-50 p-3 rounded border">
+                                <div className="text-sm leading-relaxed text-foreground bg-muted p-3 rounded border">
                                   {player.bio}
                                 </div>
                               ) : (
-                                <div className="text-sm italic text-muted-foreground text-center bg-gray-50 p-3 rounded border">
+                                <div className="text-sm italic text-muted-foreground text-center bg-muted p-3 rounded border">
                                   No biography available
                                 </div>
                               )}
