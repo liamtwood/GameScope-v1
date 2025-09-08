@@ -1051,17 +1051,17 @@ export default function UserDetails() {
               <TabsContent value="photos" className="p-6 mt-0">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Photo Management</h3>
+                    <h3 className="text-lg font-semibold mb-4">Player Profile Photo</h3>
                     <div className="space-y-6">
                       <div>
                         <div className="flex items-center space-x-6">
                           <div className="flex-shrink-0">
-                            <div className="h-48 w-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                            <div className="max-w-sm border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                               {user.headshotPath ? (
                                 <img 
                                   src={user.headshotPath} 
                                   alt={`${user.firstName} ${user.lastName} full length photo`}
-                                  className="h-full w-full object-cover"
+                                  className="w-full h-auto object-contain"
                                   data-testid={`player-profile-photo-${user.id}`}
                                 />
                               ) : (
