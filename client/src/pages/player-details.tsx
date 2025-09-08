@@ -1633,31 +1633,10 @@ export default function PlayerDetails() {
                     style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
-                    <div className="relative z-10">
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
+                    <div className="relative z-10 flex-1">
+                      <div className="pt-6">
                         {/* Bio Information */}
-                        <div className="w-1/2 space-y-8">
+                        <div className="w-full space-y-8">
                         
                         {/* Player Biography Header */}
                         <div className="mb-6">
@@ -1751,6 +1730,25 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Player Image at Bottom */}
+                    <div className="mt-6 flex justify-center">
+                      <div className="w-64">
+                        {player?.headshotPath ? (
+                          <img
+                            src={player.headshotPath}
+                            alt={`${player?.firstName} ${player?.lastName} headshot`}
+                            className="w-full h-auto object-cover rounded-lg"
+                            data-testid={`img-headshot-${player?.id}`}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-white/10 flex items-center justify-center rounded-lg">
+                            <div className="text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2027,31 +2025,10 @@ export default function PlayerDetails() {
                     style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
-                    <div className="relative z-10">
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
+                    <div className="relative z-10 flex-1">
+                      <div className="pt-6">
                         {/* Attack Statistics */}
-                        <div className="w-3/4 space-y-8">
+                        <div className="w-full space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Target className="h-6 w-6 text-white" />
@@ -2113,6 +2090,25 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Player Image at Bottom */}
+                    <div className="mt-6 flex justify-center">
+                      <div className="w-64">
+                        {player?.headshotPath ? (
+                          <img
+                            src={player.headshotPath}
+                            alt={`${player?.firstName} ${player?.lastName} headshot`}
+                            className="w-full h-auto object-cover rounded-lg"
+                            data-testid={`img-headshot-${player?.id}`}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-white/10 flex items-center justify-center rounded-lg">
+                            <div className="text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2126,31 +2122,10 @@ export default function PlayerDetails() {
                     style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
-                    <div className="relative z-10">
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
+                    <div className="relative z-10 flex-1">
+                      <div className="pt-6">
                         {/* Passing Statistics */}
-                        <div className="w-3/4 space-y-8">
+                        <div className="w-full space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Navigation className="h-6 w-6 text-white" />
@@ -2289,6 +2264,25 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Player Image at Bottom */}
+                    <div className="mt-6 flex justify-center">
+                      <div className="w-64">
+                        {player?.headshotPath ? (
+                          <img
+                            src={player.headshotPath}
+                            alt={`${player?.firstName} ${player?.lastName} headshot`}
+                            className="w-full h-auto object-cover rounded-lg"
+                            data-testid={`img-headshot-${player?.id}`}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-white/10 flex items-center justify-center rounded-lg">
+                            <div className="text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2302,31 +2296,10 @@ export default function PlayerDetails() {
                     style={{ minHeight: 'calc(100vh - 200px)' }}
                   >
 
-                    <div className="relative z-10">
-                    <div className="pt-6">
-                      <div className="flex gap-6 items-start">
-                        {/* Left Side - Headshot Photo */}
-                        <div className="w-1/4 pl-6">
-                          {player?.headshotPath ? (
-                            <div className="sticky top-6">
-                              <img
-                                src={player.headshotPath}
-                                alt={`${player?.firstName} ${player?.lastName} headshot`}
-                                className="w-full h-auto object-cover"
-                                data-testid={`img-headshot-${player?.id}`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-64 bg-white/10 flex items-center justify-center">
-                              <div className="text-white text-4xl font-semibold">
-                                {player?.firstName?.[0]}{player?.lastName?.[0]}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
+                    <div className="relative z-10 flex-1">
+                      <div className="pt-6">
                         {/* Defense Statistics */}
-                        <div className="w-3/4 space-y-8">
+                        <div className="w-full space-y-8">
                           <div className="mb-6">
                             <div className="flex items-center gap-3">
                               <Shield className="h-6 w-6 text-white" />
@@ -2388,6 +2361,25 @@ export default function PlayerDetails() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Player Image at Bottom */}
+                    <div className="mt-6 flex justify-center">
+                      <div className="w-64">
+                        {player?.headshotPath ? (
+                          <img
+                            src={player.headshotPath}
+                            alt={`${player?.firstName} ${player?.lastName} headshot`}
+                            className="w-full h-auto object-cover rounded-lg"
+                            data-testid={`img-headshot-${player?.id}`}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-white/10 flex items-center justify-center rounded-lg">
+                            <div className="text-white text-4xl font-semibold">
+                              {player?.firstName?.[0]}{player?.lastName?.[0]}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
