@@ -1918,7 +1918,7 @@ export default function PlayerDetails() {
                                     <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                       <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>76</span>
                                     </div>
-                                    <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                    <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Attempted</span>
                                   </div>
                                   
                                   {/* Success Rate Sign */}
@@ -2189,7 +2189,7 @@ export default function PlayerDetails() {
                                   <div className="w-16 h-16 bg-background border-2 rounded-full flex items-center justify-center" style={{ borderColor: '#19f7a5' }}>
                                     <span className="text-xl font-bold" style={{ color: '#19f7a5' }}>76</span>
                                   </div>
-                                  <span className="text-xs text-white/80 font-medium">Attempted</span>
+                                  <span className="text-xs font-medium" style={{ color: '#19f7a5' }}>Attempted</span>
                                 </div>
                                 
                                 {/* Success Rate Sign */}
