@@ -460,7 +460,7 @@ export default function UserDetails() {
                 <TabsTrigger 
                   value="details" 
                   data-testid="tab-user-details"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-background data-[state=active]:text-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0 bg-gradient-to-r from-transparent to-transparent"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0 bg-gradient-to-r from-transparent to-transparent"
                   style={{
                     backgroundColor: 'var(--tab-inactive-bg, ' + clubPrimaryColor + ')',
                     '--tab-inactive-bg': clubPrimaryColor,
@@ -473,7 +473,7 @@ export default function UserDetails() {
                 <TabsTrigger 
                   value="account" 
                   data-testid="tab-account"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-background data-[state=active]:text-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0 bg-gradient-to-r from-transparent to-transparent"
+                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0 bg-gradient-to-r from-transparent to-transparent"
                   style={{
                     backgroundColor: 'var(--tab-inactive-bg, ' + clubPrimaryColor + ')',
                     '--tab-inactive-bg': clubPrimaryColor,
