@@ -278,6 +278,8 @@ export default function Analysis() {
                 <MetricsComparison
                   teamStats={fullGameStats}
                   opponentStats={opponentFullGameStats || undefined}
+                  teamColor={polkStateColor}
+                  opponentColor={oppositionColor}
                 />
               ) : (
                 <div className="text-center py-8">

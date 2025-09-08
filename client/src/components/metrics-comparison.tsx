@@ -5,6 +5,8 @@ import { MatchStats } from "@shared/schema";
 interface MetricsComparisonProps {
   teamStats: MatchStats;
   opponentStats?: MatchStats;
+  teamColor?: string;
+  opponentColor?: string;
 }
 
 interface MetricBarProps {
@@ -14,9 +16,11 @@ interface MetricBarProps {
   maxValue?: number;
   unit?: string;
   isPercentage?: boolean;
+  teamColor?: string;
+  opponentColor?: string;
 }
 
-function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPercentage = false }: MetricBarProps) {
+function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPercentage = false, teamColor = "#dc2626", opponentColor = "#6b7280" }: MetricBarProps) {
   const total = teamValue + opponentValue;
   
   // Normalize to percentages if not already a percentage metric
@@ -62,16 +66,22 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
       </div>
       
       <div className="relative w-3/4 h-8 bg-muted rounded-lg overflow-hidden mx-auto">
-        {/* Team bar (from left) - POLK red/black gradient */}
+        {/* Team bar (from left) - Team color */}
         <div 
-          className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500 ease-out"
-          style={{ width: `${normalizedTeamValue}%` }}
+          className="absolute left-0 top-0 h-full transition-all duration-500 ease-out"
+          style={{ 
+            width: `${normalizedTeamValue}%`,
+            background: `linear-gradient(to right, ${teamColor}, ${teamColor}dd)`
+          }}
         />
         
-        {/* Opponent bar (from right) - white with red accent */}
+        {/* Opponent bar (from right) - Opposition color */}
         <div 
-          className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-400 to-red-300 transition-all duration-500 ease-out"
-          style={{ width: `${normalizedOpponentValue}%` }}
+          className="absolute right-0 top-0 h-full transition-all duration-500 ease-out"
+          style={{ 
+            width: `${normalizedOpponentValue}%`,
+            background: `linear-gradient(to left, ${opponentColor}, ${opponentColor}dd)`
+          }}
         />
         
         {/* Center divider */}
@@ -80,19 +90,19 @@ function MetricBar({ label, teamValue, opponentValue, maxValue, unit = "", isPer
       
       <div className="w-3/4 mx-auto flex justify-between items-center text-xs">
         <div className="text-left">
-          <div className="text-red-600 font-semibold">{formatValue(displayTeamValue)}</div>
-          {!isPercentage && <div className="text-red-400">{formatPercentage(normalizedTeamValue)}</div>}
+          <div className="font-semibold" style={{ color: teamColor }}>{formatValue(displayTeamValue)}</div>
+          {!isPercentage && <div style={{ color: `${teamColor}99` }}>{formatPercentage(normalizedTeamValue)}</div>}
         </div>
         <div className="text-right">
-          <div className="text-red-600 font-semibold">{formatValue(displayOpponentValue)}</div>
-          {!isPercentage && <div className="text-red-400">{formatPercentage(normalizedOpponentValue)}</div>}
+          <div className="font-semibold" style={{ color: opponentColor }}>{formatValue(displayOpponentValue)}</div>
+          {!isPercentage && <div style={{ color: `${opponentColor}99` }}>{formatPercentage(normalizedOpponentValue)}</div>}
         </div>
       </div>
     </div>
   );
 }
 
-export function MetricsComparison({ teamStats, opponentStats }: MetricsComparisonProps) {
+export function MetricsComparison({ teamStats, opponentStats, teamColor = "#dc2626", opponentColor = "#6b7280" }: MetricsComparisonProps) {
   const metricCategories = [
     {
       category: "Key",
@@ -265,6 +275,8 @@ export function MetricsComparison({ teamStats, opponentStats }: MetricsCompariso
                   opponentValue={metric.opponentValue}
                   unit={metric.unit}
                   isPercentage={metric.isPercentage}
+                  teamColor={teamColor}
+                  opponentColor={opponentColor}
                 />
               ))}
             </div>
