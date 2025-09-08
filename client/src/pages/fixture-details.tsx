@@ -436,15 +436,15 @@ export default function FixtureDetails() {
               {/* Comprehensive Analysis Tabs */}
               <Tabs defaultValue="fixture-details" className="w-full">
                 <div className="flex justify-center mb-6">
-                  <TabsList className="grid max-w-[900px] grid-cols-8">
-                    <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
-                    <TabsTrigger value="statistics">Statistics</TabsTrigger>
-                    <TabsTrigger value="spider">Spider Charts</TabsTrigger>
-                    <TabsTrigger value="heatmaps">Heat Maps</TabsTrigger>
-                    <TabsTrigger value="positions">Position Maps</TabsTrigger>
-                    <TabsTrigger value="ai">AI Analysis</TabsTrigger>
-                    <TabsTrigger value="videos">Videos</TabsTrigger>
-                    <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
+                  <TabsList className="grid max-w-[900px] grid-cols-8 gap-0">
+                    <TabsTrigger value="fixture-details" className="min-w-[100px] px-4 py-3 text-center">Fixture Details</TabsTrigger>
+                    <TabsTrigger value="statistics" className="min-w-[100px] px-4 py-3 text-center">Statistics</TabsTrigger>
+                    <TabsTrigger value="spider" className="min-w-[100px] px-4 py-3 text-center">Spider Charts</TabsTrigger>
+                    <TabsTrigger value="heatmaps" className="min-w-[100px] px-4 py-3 text-center">Heat Maps</TabsTrigger>
+                    <TabsTrigger value="positions" className="min-w-[100px] px-4 py-3 text-center">Position Maps</TabsTrigger>
+                    <TabsTrigger value="ai" className="min-w-[100px] px-4 py-3 text-center">AI Analysis</TabsTrigger>
+                    <TabsTrigger value="videos" className="min-w-[100px] px-4 py-3 text-center">Videos</TabsTrigger>
+                    <TabsTrigger value="upload" data-testid="tab-upload" className="min-w-[100px] px-4 py-3 text-center">Upload Data</TabsTrigger>
                   </TabsList>
                 </div>
 
