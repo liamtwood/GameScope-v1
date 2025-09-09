@@ -25,7 +25,10 @@ import {
   Activity,
   BarChart3,
   Map,
-  Zap
+  Zap,
+  AlertCircle,
+  ExternalLink,
+  Camera
 } from "lucide-react";
 
 interface VideoClip {
@@ -34,6 +37,8 @@ interface VideoClip {
   timestamp: string;
   duration: number;
   url: string;
+  originalUrl?: string; // Keep original URL for reference
+  filename?: string;
   thumbnail?: string;
   players: {
     from?: string;
@@ -177,28 +182,71 @@ const getRealisticPosition = (eventType: string, team: 'home' | 'away'): [number
   }
 };
 
+// Helper function to get the correct video URL for playback
+const getVideoPlaybackUrl = (video: any) => {
+  if (!video.url) return '';
+  
+  // Handle Google Cloud Storage URLs - convert to server proxy
+  if (video.url.includes('storage.googleapis.com')) {
+    try {
+      const urlObj = new URL(video.url);
+      const pathSegments = urlObj.pathname.split('/').filter(p => p);
+      
+      // For Replit object storage: /bucket/.private/uploads/objectId -> /objects/uploads/objectId
+      if (pathSegments.length >= 3 && pathSegments.includes('uploads')) {
+        const uploadsIndex = pathSegments.indexOf('uploads');
+        if (uploadsIndex >= 0) {
+          const objectPath = pathSegments.slice(uploadsIndex).join('/');
+          return `/objects/${objectPath}`;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing storage URL:', e);
+    }
+  }
+  
+  // Handle Google Drive URLs - these can't be directly played
+  if (video.url.includes('drive.google.com')) {
+    return 'google-drive'; // Special marker for unsupported URLs
+  }
+  
+  // Handle Veo URLs - these are platform links, not direct video files
+  if (video.url.includes('app.veo.co')) {
+    return 'veo-platform'; // Special marker for platform URLs
+  }
+  
+  // Return original URL for direct video files
+  return video.url;
+};
+
 // Helper function to convert fixture videos to clips format
 const convertVideoDataToClips = (videoLinks: any[]): VideoClip[] => {
   if (!videoLinks || !Array.isArray(videoLinks)) return [];
   
-  return videoLinks.map((video, index) => ({
-    id: video.id || `clip-${index}`,
-    eventType: video.duration || 'full_game',
-    timestamp: '0:00', // Will be updated when AI provides event timestamps
-    duration: video.duration === 'full_game' ? 5400 : video.duration === '1st_half' ? 2700 : video.duration === '2nd_half' ? 2700 : 1200,
-    url: video.url || '',
-    thumbnail: video.thumbnail,
-    players: {
-      involved: [] // Will be populated by AI analysis
-    },
-    eventData: {
-      success: true,
-      startPosition: [50, 50] as [number, number],
-      endPosition: [50, 50] as [number, number],
-      outcome: 'completed'
-    },
-    team: 'home' as 'home' | 'away'
-  })).filter(clip => clip.url); // Only include clips with valid URLs
+  return videoLinks.map((video, index) => {
+    const playbackUrl = getVideoPlaybackUrl(video);
+    
+    return {
+      id: video.id || `clip-${index}`,
+      eventType: video.duration || 'full_game',
+      timestamp: '0:00',
+      duration: video.duration === 'full_game' ? 5400 : video.duration === '1st_half' ? 2700 : video.duration === '2nd_half' ? 2700 : 1200,
+      url: playbackUrl,
+      originalUrl: video.url, // Keep original for reference
+      filename: video.filename,
+      thumbnail: video.thumbnail,
+      players: {
+        involved: []
+      },
+      eventData: {
+        success: true,
+        startPosition: [50, 50] as [number, number],
+        endPosition: [50, 50] as [number, number],
+        outcome: 'completed'
+      },
+      team: 'home' as 'home' | 'away'
+    };
+  }).filter(clip => clip.url && clip.url !== ''); // Only include clips with valid URLs
 };
 
 const EVENT_CATEGORIES = [
@@ -624,14 +672,53 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
               <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
                 {selectedClip ? (
                   <>
-                    <video
-                      ref={videoRef}
-                      src={selectedClip.url}
-                      className="w-full h-full"
-                      onTimeUpdate={handleTimeUpdate}
-                      onLoadedMetadata={handleLoadedMetadata}
-                      onEnded={() => setIsPlaying(false)}
-                    />
+                    {selectedClip.url === 'google-drive' ? (
+                      <div className="w-full h-full flex items-center justify-center text-white p-8 text-center">
+                        <div className="space-y-4">
+                          <AlertCircle className="h-12 w-12 mx-auto text-yellow-400" />
+                          <h3 className="text-lg font-semibold">Google Drive Video</h3>
+                          <p className="text-sm text-gray-300">This video is hosted on Google Drive and cannot be played directly.</p>
+                          <Button 
+                            onClick={() => window.open(selectedClip.originalUrl, '_blank')}
+                            variant="outline"
+                            className="text-white border-white hover:bg-white hover:text-black"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open in Google Drive
+                          </Button>
+                        </div>
+                      </div>
+                    ) : selectedClip.url === 'veo-platform' ? (
+                      <div className="w-full h-full flex items-center justify-center text-white p-8 text-center">
+                        <div className="space-y-4">
+                          <Camera className="h-12 w-12 mx-auto text-blue-400" />
+                          <h3 className="text-lg font-semibold">Veo Camera Platform</h3>
+                          <p className="text-sm text-gray-300">This video is hosted on the Veo platform with advanced analytics.</p>
+                          <Button 
+                            onClick={() => window.open(selectedClip.originalUrl, '_blank')}
+                            variant="outline"
+                            className="text-white border-white hover:bg-white hover:text-black"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open in Veo Platform
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <video
+                        ref={videoRef}
+                        src={selectedClip.url}
+                        className="w-full h-full"
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        onEnded={() => setIsPlaying(false)}
+                        onError={(e) => {
+                          console.error('Video error:', e);
+                          console.log('Failed URL:', selectedClip.url);
+                          console.log('Original URL:', selectedClip.originalUrl);
+                        }}
+                      />
+                    )}
                     
                     {/* Video Overlay Info */}
                     <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-2 rounded-md text-sm">
