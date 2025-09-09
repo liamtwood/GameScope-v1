@@ -76,6 +76,107 @@ interface VideoAnalysisDashboardProps {
   fixtureId: string;
 }
 
+// Pitch coordinate system - based on provided dimensions
+const PITCH_POSITIONS = {
+  // Center positions
+  center: [50, 50],
+  
+  // Goal areas
+  homeGoal: [6, 50],
+  awayGoal: [94, 50],
+  
+  // Penalty areas
+  homePenaltyArea: { 
+    topLeft: [0, 37], topRight: [16, 37],
+    bottomLeft: [0, 63], bottomRight: [16, 63],
+    penaltySpot: [10, 50]
+  },
+  awayPenaltyArea: {
+    topLeft: [84, 37], topRight: [100, 37],
+    bottomLeft: [84, 63], bottomRight: [100, 63],
+    penaltySpot: [90, 50]
+  },
+  
+  // Six yard boxes
+  homeSixYard: {
+    topLeft: [0, 44], topRight: [6, 44],
+    bottomLeft: [0, 56], bottomRight: [6, 56]
+  },
+  awaySixYard: {
+    topLeft: [94, 44], topRight: [100, 44],
+    bottomLeft: [94, 56], bottomRight: [100, 56]
+  },
+  
+  // Corner positions
+  corners: {
+    homeTopLeft: [0, 0],
+    homeBottomLeft: [0, 100],
+    awayTopRight: [100, 0],
+    awayBottomRight: [100, 100]
+  },
+  
+  // Common event positions
+  commonPositions: [
+    [16, 19], [84, 19], // Top penalty area corners
+    [16, 81], [84, 81], // Bottom penalty area corners
+    [6, 37], [94, 37],   // Top six yard corners
+    [6, 63], [94, 63],   // Bottom six yard corners
+    [10, 50], [90, 50],  // Penalty spots
+    [50, 0], [50, 100],  // Midfield sidelines
+    [25, 25], [75, 25],  // Wing positions
+    [25, 75], [75, 75]   // Wing positions
+  ]
+};
+
+// Helper function to get realistic position based on event type
+const getRealisticPosition = (eventType: string, team: 'home' | 'away'): [number, number] => {
+  const isHome = team === 'home';
+  
+  switch (eventType) {
+    case 'goal':
+    case 'shot':
+      return isHome ? [90, 50 + (Math.random() - 0.5) * 26] : [10, 50 + (Math.random() - 0.5) * 26];
+    
+    case 'corner':
+      const corners = PITCH_POSITIONS.corners;
+      return isHome ? 
+        (Math.random() > 0.5 ? [94, 37] : [94, 63]) :
+        (Math.random() > 0.5 ? [6, 37] : [6, 63]);
+    
+    case 'penalty':
+      return isHome ? [90, 50] : [10, 50];
+    
+    case 'freekick':
+      // Free kicks can happen anywhere but more likely in attacking third
+      const x = isHome ? 60 + Math.random() * 30 : 10 + Math.random() * 30;
+      const y = 20 + Math.random() * 60;
+      return [x, y];
+    
+    case 'pass':
+    case 'long_pass':
+    case 'short_pass':
+      // Passes distributed across the field, favoring team's attacking direction
+      const passX = isHome ? 30 + Math.random() * 50 : 20 + Math.random() * 50;
+      const passY = 10 + Math.random() * 80;
+      return [passX, passY];
+    
+    case 'tackle':
+    case 'interception':
+      // Defensive actions more likely in defensive areas
+      const defX = isHome ? 10 + Math.random() * 40 : 50 + Math.random() * 40;
+      const defY = 15 + Math.random() * 70;
+      return [defX, defY];
+    
+    default:
+      // Use one of the common positions or random realistic position
+      if (Math.random() > 0.7) {
+        const commonPos = PITCH_POSITIONS.commonPositions[Math.floor(Math.random() * PITCH_POSITIONS.commonPositions.length)];
+        return [commonPos[0], commonPos[1]];
+      }
+      return [10 + Math.random() * 80, 10 + Math.random() * 80];
+  }
+};
+
 // Helper function to convert fixture videos to clips format
 const convertVideoDataToClips = (videoLinks: any[]): VideoClip[] => {
   if (!videoLinks || !Array.isArray(videoLinks)) return [];
@@ -196,7 +297,7 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
         team,
         description: getEventDescription(eventType, player, team === 'home'),
         outcome: Math.random() > 0.3 ? 'success' : Math.random() > 0.5 ? 'failed' : 'neutral',
-        position: [Math.random() * 100, Math.random() * 60],
+        position: getRealisticPosition(eventType, team),
         details: {
           distance: eventType.includes('pass') ? Math.floor(Math.random() * 40) + 5 : undefined,
           velocity: eventType === 'shot' ? Math.floor(Math.random() * 30) + 40 : undefined
@@ -301,36 +402,84 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
     setCurrentTime(0);
   };
 
-  // Interactive pitch component
+  // Interactive pitch component with accurate dimensions
   const InteractivePitch = () => (
-    <div className="relative w-full h-32 bg-green-500 rounded-lg overflow-hidden border">
-      {/* Pitch markings */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 60">
+    <div className="relative w-full h-48 bg-green-500 rounded-lg overflow-hidden border">
+      {/* Pitch markings with proper coordinates */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
         {/* Pitch outline */}
-        <rect x="2" y="2" width="96" height="56" fill="none" stroke="white" strokeWidth="0.5"/>
+        <rect x="0" y="0" width="100" height="100" fill="none" stroke="white" strokeWidth="0.5"/>
         
         {/* Center line and circle */}
-        <line x1="50" y1="2" x2="50" y2="58" stroke="white" strokeWidth="0.5"/>
-        <circle cx="50" cy="30" r="8" fill="none" stroke="white" strokeWidth="0.5"/>
+        <line x1="50" y1="0" x2="50" y2="100" stroke="white" strokeWidth="0.5"/>
+        <circle cx="50" cy="50" r="9" fill="none" stroke="white" strokeWidth="0.5"/>
+        <circle cx="50" cy="50" r="0.5" fill="white"/>
         
-        {/* Penalty areas */}
-        <rect x="2" y="15" width="15" height="30" fill="none" stroke="white" strokeWidth="0.5"/>
-        <rect x="83" y="15" width="15" height="30" fill="none" stroke="white" strokeWidth="0.5"/>
+        {/* Penalty areas - using exact coordinates */}
+        <rect x="0" y="37" width="16" height="26" fill="none" stroke="white" strokeWidth="0.5"/>
+        <rect x="84" y="37" width="16" height="26" fill="none" stroke="white" strokeWidth="0.5"/>
         
-        {/* Goal areas */}
-        <rect x="2" y="22" width="5" height="16" fill="none" stroke="white" strokeWidth="0.5"/>
-        <rect x="93" y="22" width="5" height="16" fill="none" stroke="white" strokeWidth="0.5"/>
+        {/* Six yard boxes */}
+        <rect x="0" y="44" width="6" height="12" fill="none" stroke="white" strokeWidth="0.5"/>
+        <rect x="94" y="44" width="6" height="12" fill="none" stroke="white" strokeWidth="0.5"/>
+        
+        {/* Penalty spots */}
+        <circle cx="10" cy="50" r="0.5" fill="white"/>
+        <circle cx="90" cy="50" r="0.5" fill="white"/>
+        
+        {/* Penalty arcs */}
+        <path d="M 10 41 A 9 9 0 0 1 10 59" fill="none" stroke="white" strokeWidth="0.5"/>
+        <path d="M 90 41 A 9 9 0 0 0 90 59" fill="none" stroke="white" strokeWidth="0.5"/>
+        
+        {/* Corner arcs */}
+        <path d="M 0 1 A 1 1 0 0 1 1 0" fill="none" stroke="white" strokeWidth="0.5"/>
+        <path d="M 99 0 A 1 1 0 0 1 100 1" fill="none" stroke="white" strokeWidth="0.5"/>
+        <path d="M 100 99 A 1 1 0 0 1 99 100" fill="none" stroke="white" strokeWidth="0.5"/>
+        <path d="M 1 100 A 1 1 0 0 1 0 99" fill="none" stroke="white" strokeWidth="0.5"/>
+        
+        {/* Goals */}
+        <rect x="-1" y="47" width="1" height="6" fill="none" stroke="white" strokeWidth="0.5"/>
+        <rect x="100" y="47" width="1" height="6" fill="none" stroke="white" strokeWidth="0.5"/>
         
         {/* Zone overlays */}
         {selectedZone === 'defensive_third' && (
-          <rect x="2" y="2" width="32" height="56" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+          <rect x="0" y="0" width="33" height="100" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
         )}
         {selectedZone === 'middle_third' && (
-          <rect x="34" y="2" width="32" height="56" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+          <rect x="33" y="0" width="34" height="100" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
         )}
         {selectedZone === 'final_third' && (
-          <rect x="66" y="2" width="32" height="56" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+          <rect x="67" y="0" width="33" height="100" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
         )}
+        {selectedZone === 'penalty_area' && (
+          <>
+            <rect x="0" y="37" width="16" height="26" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+            <rect x="84" y="37" width="16" height="26" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+          </>
+        )}
+        {selectedZone === 'six_yard_box' && (
+          <>
+            <rect x="0" y="44" width="6" height="12" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+            <rect x="94" y="44" width="6" height="12" fill="rgba(255,255,255,0.2)" stroke="yellow" strokeWidth="1"/>
+          </>
+        )}
+        
+        {/* Event position markers */}
+        {filteredEvents.slice(0, 20).map((event) => {
+          const category = EVENT_CATEGORIES.find(cat => cat.id === event.category);
+          return (
+            <circle
+              key={event.id}
+              cx={event.position[0]}
+              cy={event.position[1]}
+              r="1"
+              className={`${category?.color?.replace('bg-', 'fill-')} opacity-70 hover:opacity-100 cursor-pointer`}
+              onClick={() => console.log(`Jump to ${event.timestamp}`)}
+            >
+              <title>{event.description} at {event.timestamp}</title>
+            </circle>
+          );
+        })}
       </svg>
       
       {/* Clickable zone buttons */}
