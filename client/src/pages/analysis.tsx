@@ -992,7 +992,7 @@ export default function Analysis() {
                 </div>
               </div>
               
-              <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
+              <h3 className="text-lg font-semibold mb-4">In Progress</h3>
               <VideoManager 
                 fixtureId={fixtureId} 
                 videoLinks={fixture.videoLinks ? fixture.videoLinks as any[] : []} 

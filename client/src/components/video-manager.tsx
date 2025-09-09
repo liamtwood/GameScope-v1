@@ -526,7 +526,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-lg font-semibold">Match Videos</CardTitle>
+        <CardTitle className="text-lg font-semibold">In Progress</CardTitle>
         <div className="flex items-center gap-2">
           {videos.some(v => v.url && !v.processed && !v.isProcessing) && (
             <Button 

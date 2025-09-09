@@ -100,7 +100,7 @@ export default function Videos() {
             onClick={handleBackToFixtures}
             className="flex items-center gap-2"
           >
-            ← Back to Match Videos
+            ← Back to In Progress
           </Button>
         </div>
         <VideoAnalysisDashboard fixtureId={selectedFixtureId} />
@@ -110,7 +110,7 @@ export default function Videos() {
 
   return (
     <MainLayout 
-      title="Match Videos" 
+      title="In Progress" 
       subtitle="Video analysis and match recordings"
     >
       {/* Video Filter */}

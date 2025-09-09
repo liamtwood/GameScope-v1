@@ -653,7 +653,7 @@ export default function FixtureDetails() {
                 <TabsContent value="videos">
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold mb-4">Match Videos</h3>
+                      <h3 className="text-lg font-semibold mb-4">In Progress</h3>
                       <VideoManager 
                         fixtureId={fixtureId || ""} 
                         videoLinks={Array.isArray(fixture.videoLinks) ? fixture.videoLinks : []} 
