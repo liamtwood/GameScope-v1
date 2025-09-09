@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Fixture } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,73 +53,31 @@ interface VideoClip {
 
 interface VideoAnalysisDashboardProps {
   fixtureId: string;
-  clips?: VideoClip[];
 }
 
-// Mock data for demonstration
-const MOCK_CLIPS: VideoClip[] = [
-  {
-    id: '1',
-    eventType: 'pass',
-    timestamp: '12:34',
-    duration: 8,
-    url: '/mock-clip-1.mp4',
+// Helper function to convert fixture videos to clips format
+const convertVideoDataToClips = (videoLinks: any[]): VideoClip[] => {
+  if (!videoLinks || !Array.isArray(videoLinks)) return [];
+  
+  return videoLinks.map((video, index) => ({
+    id: video.id || `clip-${index}`,
+    eventType: video.duration || 'full_game',
+    timestamp: '0:00', // Will be updated when AI provides event timestamps
+    duration: video.duration === 'full_game' ? 5400 : video.duration === '1st_half' ? 2700 : video.duration === '2nd_half' ? 2700 : 1200,
+    url: video.url || '',
+    thumbnail: video.thumbnail,
     players: {
-      from: 'Sarah Johnson',
-      to: 'Emma Davis',
-      involved: ['Sarah Johnson', 'Emma Davis']
+      involved: [] // Will be populated by AI analysis
     },
     eventData: {
       success: true,
-      distance: 15,
-      velocity: 45,
-      foot: 'right',
-      startPosition: [30, 45],
-      endPosition: [45, 60],
+      startPosition: [50, 50] as [number, number],
+      endPosition: [50, 50] as [number, number],
       outcome: 'completed'
     },
     team: 'home'
-  },
-  {
-    id: '2',
-    eventType: 'shot',
-    timestamp: '23:15',
-    duration: 12,
-    url: '/mock-clip-2.mp4',
-    players: {
-      involved: ['Emma Davis']
-    },
-    eventData: {
-      success: false,
-      distance: 18,
-      velocity: 65,
-      foot: 'left',
-      startPosition: [80, 35],
-      endPosition: [100, 50],
-      outcome: 'saved'
-    },
-    team: 'home'
-  },
-  {
-    id: '3',
-    eventType: 'header',
-    timestamp: '34:22',
-    duration: 6,
-    url: '/mock-clip-3.mp4',
-    players: {
-      involved: ['Maria Rodriguez']
-    },
-    eventData: {
-      success: true,
-      distance: 8,
-      foot: 'head',
-      startPosition: [85, 45],
-      endPosition: [95, 50],
-      outcome: 'goal'
-    },
-    team: 'home'
-  }
-];
+  })).filter(clip => clip.url); // Only include clips with valid URLs
+};
 
 const EVENT_TYPES = [
   { value: 'all', label: 'All Events' },
@@ -139,7 +99,15 @@ const FIELD_ZONES = [
   { value: 'six_yard_box', label: 'Six Yard Box' }
 ];
 
-export function VideoAnalysisDashboard({ fixtureId, clips = MOCK_CLIPS }: VideoAnalysisDashboardProps) {
+export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProps) {
+  // Fetch fixture data to get video links
+  const { data: fixture } = useQuery<Fixture>({
+    queryKey: ["/api/fixture", fixtureId],
+    enabled: !!fixtureId,
+  });
+  
+  // Convert fixture video links to clips format
+  const clips = convertVideoDataToClips(fixture?.videoLinks || []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [selectedClip, setSelectedClip] = useState<VideoClip | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -158,13 +126,11 @@ export function VideoAnalysisDashboard({ fixtureId, clips = MOCK_CLIPS }: VideoA
   const filteredClips = clips.filter(clip => {
     if (selectedEventType !== 'all' && clip.eventType !== selectedEventType) return false;
     if (selectedTeam !== 'all' && clip.team !== selectedTeam) return false;
-    if (searchPlayer && !clip.players.involved.some(p => 
+    if (searchPlayer && clip.players.involved.length > 0 && !clip.players.involved.some(p => 
       p.toLowerCase().includes(searchPlayer.toLowerCase())
     )) return false;
     
-    const clipMinute = parseInt(clip.timestamp.split(':')[0]);
-    if (clipMinute < timeRange[0] || clipMinute > timeRange[1]) return false;
-    
+    // For now, show all clips since timestamps will come from AI analysis
     return true;
   });
 
