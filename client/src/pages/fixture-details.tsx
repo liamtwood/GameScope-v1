@@ -14,6 +14,7 @@ import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
 import { SharedScoreBanner } from "@/components/shared-score-banner";
+import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -70,11 +71,11 @@ export default function FixtureDetails() {
     queryKey: ["/api/team", fixture?.teamId, "users", "lineup-v2"],
     enabled: !!fixture?.teamId,
     staleTime: 0,
-    cacheTime: 0,
+    gcTime: 0,
   });
 
   // Convert team players to the format expected by the lineup
-  const players = teamPlayersData?.map(tp => ({
+  const players = teamPlayersData?.map((tp: any) => ({
     ...tp.user,
     id: tp.user.id,
     jerseyNumber: tp.jerseyNumber,
@@ -643,16 +644,9 @@ export default function FixtureDetails() {
                   </Card>
                 </TabsContent>
 
-                {/* AI Analysis Tab */}
-                <TabsContent value="ai">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="text-center py-12">
-                        <h3 className="text-lg font-semibold mb-2">AI-Powered Analysis</h3>
-                        <p className="text-muted-foreground">Coming soon - AI-powered match insights and recommendations</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                {/* Video Analysis Dashboard Tab */}
+                <TabsContent value="analysis">
+                  <VideoAnalysisDashboard fixtureId={fixtureId || ""} />
                 </TabsContent>
 
                 {/* Videos Tab */}
