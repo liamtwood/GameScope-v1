@@ -13,7 +13,6 @@ import { VideoManager } from "@/components/video-manager";
 import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
-import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -243,15 +242,6 @@ export default function FixtureDetails() {
           </div>
         </div>
 
-        {/* Result Header */}
-        {currentTeam && currentClub && (
-          <SharedScoreBanner 
-            fixture={fixture}
-            team={currentTeam}
-            club={currentClub}
-            oppositionTeam={oppositionTeam}
-          />
-        )}
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -424,15 +414,6 @@ export default function FixtureDetails() {
 
           <TabsContent value="analysis" className="mt-6">
             <div className="space-y-6">
-              {/* GameScope Analysis Banner */}
-              {currentTeam && currentClub && (
-                <SharedScoreBanner 
-                  fixture={fixture}
-                  team={currentTeam}
-                  club={currentClub}
-                  oppositionTeam={oppositionTeam}
-                />
-              )}
               
               {/* Comprehensive Analysis Tabs */}
               <Tabs defaultValue="fixture-details" className="w-full">
