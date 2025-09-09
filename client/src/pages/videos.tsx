@@ -103,6 +103,64 @@ export default function Videos() {
             ← Back to In Progress
           </Button>
         </div>
+
+        {/* Result Banner */}
+        <div className="mb-6">
+          {/* Main header container with vertical split */}
+          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
+            {/* POLK side - club color gradient */}
+            <div className="absolute inset-0 to-black" 
+                 style={{ 
+                   clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+                   background: `linear-gradient(to bottom right, #CC4125, #CC4125dd, #000000)`
+                 }}>
+            </div>
+            
+            {/* Opponent side - opposition color */}
+            <div className="absolute inset-0" 
+                 style={{ 
+                   clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
+                   background: `linear-gradient(to bottom left, #6b7280, #6b7280dd, #000000)`
+                 }}>
+            </div>
+            
+            {/* Content overlay */}
+            <div className="relative z-10 h-full flex items-center px-8">
+              {/* POLK section */}
+              <div className="flex items-center space-x-4 text-white flex-1">
+                <div className="w-20 h-20 flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">Polk State</span>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">Polk State College</div>
+                  <div className="text-white/80 text-sm">{selectedFixture?.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
+                </div>
+              </div>
+              
+              {/* Center score - absolutely centered */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-4 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
+                <div className="flex items-center space-x-4">
+                  <div className="text-3xl font-bold" style={{ color: '#CC4125' }}>{selectedFixture?.type === 'HOME' ? (selectedFixture?.homeScore || 0) : (selectedFixture?.awayScore || 0)}</div>
+                  <div className="text-2xl font-light text-muted-foreground">-</div>
+                  <div className="text-3xl font-bold" style={{ color: '#CC4125' }}>{selectedFixture?.type === 'HOME' ? (selectedFixture?.awayScore || 0) : (selectedFixture?.homeScore || 0)}</div>
+                </div>
+                <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+              </div>
+              
+              {/* Opponent section */}
+              <div className="flex items-center space-x-4 text-white flex-1 justify-end">
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{selectedFixture?.opponent}</div>
+                  <div className="text-white/80 text-sm">{selectedFixture?.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
+                </div>
+                <div className="w-20 h-20 flex items-center justify-center">
+                  <span className="font-bold text-lg" style={{ color: '#CC4125' }}>{selectedFixture?.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <VideoAnalysisDashboard fixtureId={selectedFixtureId} />
       </MainLayout>
     );
