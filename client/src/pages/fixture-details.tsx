@@ -242,62 +242,6 @@ export default function FixtureDetails() {
           </div>
         </div>
 
-        {/* Score Banner */}
-        {fixture.status === 'COMPLETED' && fixture.homeScore !== null && fixture.awayScore !== null && (
-          <div className="w-full h-20 relative overflow-hidden rounded-lg mb-6" style={{ 
-            background: `linear-gradient(90deg, #CC4125 0%, #CC4125 50%, #6b7280 50%, #6b7280 100%)` 
-          }}>
-            <div className="relative h-full flex items-center justify-between px-6">
-              {/* Home Team (Polk State) */}
-              <div className="flex items-center space-x-4 text-white flex-1">
-                {currentClub?.logoPath ? (
-                  <img 
-                    src={currentClub.logoPath} 
-                    alt="Polk State College logo"
-                    className="w-12 h-12 object-contain"
-                  />
-                ) : (
-                  <div className="w-12 h-12 flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">PSC</span>
-                  </div>
-                )}
-                <div>
-                  <div className="text-lg font-bold">Polk State College</div>
-                  <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-                </div>
-              </div>
-              
-              {/* Center Score */}
-              <div className="rounded-lg px-4 py-2" style={{ backgroundColor: '#ffffff' }}>
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl font-bold text-gray-900">{fixture.type === 'HOME' ? fixture.homeScore : fixture.awayScore}</span>
-                  <span className="text-lg font-medium text-gray-500">-</span>
-                  <span className="text-2xl font-bold text-gray-900">{fixture.type === 'HOME' ? fixture.awayScore : fixture.homeScore}</span>
-                </div>
-                <div className="text-xs text-gray-500 text-center leading-none">LIAM</div>
-              </div>
-              
-              {/* Away Team (Opponent) */}
-              <div className="flex items-center space-x-4 text-white flex-1 justify-end">
-                <div className="text-right">
-                  <div className="text-lg font-bold">{fixture.opponent}</div>
-                  <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-                </div>
-                {oppositionTeam?.logoPath ? (
-                  <img 
-                    src={oppositionTeam.logoPath} 
-                    alt={`${fixture.opponent} logo`}
-                    className="w-12 h-12 object-contain"
-                  />
-                ) : (
-                  <div className="w-12 h-12 flex items-center justify-center">
-                    <span className="font-bold text-white text-sm">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
