@@ -75,7 +75,7 @@ const convertVideoDataToClips = (videoLinks: any[]): VideoClip[] => {
       endPosition: [50, 50] as [number, number],
       outcome: 'completed'
     },
-    team: 'home'
+    team: 'home' as 'home' | 'away'
   })).filter(clip => clip.url); // Only include clips with valid URLs
 };
 
@@ -107,7 +107,7 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
   });
   
   // Convert fixture video links to clips format
-  const clips = convertVideoDataToClips(fixture?.videoLinks || []);
+  const clips = convertVideoDataToClips(Array.isArray(fixture?.videoLinks) ? fixture.videoLinks : []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [selectedClip, setSelectedClip] = useState<VideoClip | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);

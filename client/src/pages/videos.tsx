@@ -10,11 +10,13 @@ import { Play, Share, Clock, Calendar, Video as VideoIcon, Image } from "lucide-
 import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
+import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 
 export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
+  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -43,10 +45,11 @@ export default function Videos() {
   }) || [];
 
   const handleWatchVideo = (fixture: Fixture) => {
-    toast({
-      title: "Playing Video",
-      description: `Playing video for ${fixture.opponent}`,
-    });
+    setSelectedFixtureId(fixture.id);
+  };
+  
+  const handleBackToFixtures = () => {
+    setSelectedFixtureId(null);
   };
 
   const handleShareVideo = (fixture: Fixture) => {
@@ -82,6 +85,28 @@ export default function Videos() {
     { id: 'recent' as const, label: 'Recent' },
     { id: 'analyzed' as const, label: 'Analyzed' },
   ];
+
+  // If a fixture is selected, show the video analysis dashboard
+  if (selectedFixtureId) {
+    const selectedFixture = fixtures?.find(f => f.id === selectedFixtureId);
+    return (
+      <MainLayout 
+        title={`Video Analysis: ${selectedFixture?.opponent || 'Match'}`}
+        subtitle={`${selectedFixture ? format(new Date(selectedFixture.date), 'd MMM yyyy') : ''}`}
+      >
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToFixtures}
+            className="flex items-center gap-2"
+          >
+            ← Back to Match Videos
+          </Button>
+        </div>
+        <VideoAnalysisDashboard fixtureId={selectedFixtureId} />
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout 
@@ -165,7 +190,12 @@ export default function Videos() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {fixtures.map((fixture) => (
-                    <Card key={fixture.id} className="overflow-hidden" data-testid={`card-video-${fixture.id}`}>
+                    <Card 
+                      key={fixture.id} 
+                      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" 
+                      data-testid={`card-video-${fixture.id}`}
+                      onClick={() => handleWatchVideo(fixture)}
+                    >
                       {/* Video Thumbnail */}
                       <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
                         {fixture.hasVideo ? (
@@ -236,23 +266,43 @@ export default function Videos() {
                         
                         {/* Video Duration Info */}
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            {fixture.hasVideo ? (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>90 min</span>
-                              </>
-                            ) : (
-                              <>
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  {fixture.status === 'SCHEDULED' 
-                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                                    : 'Pending'
-                                  }
-                                </span>
-                              </>
-                            )}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                              {fixture.hasVideo ? (
+                                <>
+                                  <Clock className="w-3 h-3" />
+                                  <span>Video Available</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Calendar className="w-3 h-3" />
+                                  <span>
+                                    {fixture.status === 'SCHEDULED' 
+                                      ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                                      : 'Pending'
+                                    }
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                            <Button 
+                              size="sm" 
+                              variant={fixture.hasVideo ? "default" : "outline"}
+                              className="text-xs px-3 py-1 h-6"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleWatchVideo(fixture);
+                              }}
+                            >
+                              {fixture.hasVideo ? (
+                                <>
+                                  <Play className="w-3 h-3 mr-1" />
+                                  Analyze
+                                </>
+                              ) : (
+                                'View Match'
+                              )}
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
