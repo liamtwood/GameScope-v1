@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Fixture } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -566,61 +567,14 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
 
   return (
     <div className="space-y-6">
-      {/* Match Header Banner */}
+      {/* Shared Score Banner */}
       {fixture && currentTeam && currentClub && (
-        <div className="h-24 relative overflow-hidden rounded-lg mb-6" style={{ 
-          background: `linear-gradient(135deg, #CC4125 0%, #d45532 100%)` 
-        }}>
-          <div className="relative h-full flex items-center justify-between px-8">
-            {/* Polk State section */}
-            <div className="flex items-center space-x-4 text-white flex-1">
-              {currentClub?.logoPath ? (
-                <img 
-                  src={currentClub.logoPath} 
-                  alt="Polk State College logo"
-                  className="w-16 h-16 object-contain"
-                />
-              ) : (
-                <div className="w-16 h-16 flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">Polk State</span>
-                </div>
-              )}
-              <div>
-                <div className="text-xl font-bold">{currentTeam.name}</div>
-                <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
-              </div>
-            </div>
-            
-            {/* Center score - absolutely centered */}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl px-6 py-3 border-2 shadow-2xl drop-shadow-lg" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}>
-              <div className="flex items-center space-x-4">
-                <div className="text-2xl font-bold" style={{ color: '#CC4125' }}>{fixture.type === 'HOME' ? (fixture.homeScore || 0) : (fixture.awayScore || 0)}</div>
-                <div className="text-xl font-light text-muted-foreground">-</div>
-                <div className="text-2xl font-bold" style={{ color: '#CC4125' }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
-              </div>
-              <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
-            </div>
-            
-            {/* Opponent section */}
-            <div className="flex items-center space-x-4 text-white flex-1 justify-end">
-              <div className="text-right">
-                <div className="text-xl font-bold">{fixture.opponent}</div>
-                <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'AWAY' : 'HOME'}</div>
-              </div>
-              {oppositionTeam?.logoPath ? (
-                <img 
-                  src={oppositionTeam.logoPath} 
-                  alt={`${fixture.opponent} logo`}
-                  className="w-16 h-16 object-contain"
-                />
-              ) : (
-                <div className="w-16 h-16 flex items-center justify-center">
-                  <span className="font-bold text-lg text-white">{fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <SharedScoreBanner 
+          fixture={fixture}
+          team={currentTeam}
+          club={currentClub}
+          oppositionTeam={oppositionTeam}
+        />
       )}
       <div className="grid grid-cols-12 gap-6 min-h-[600px]">
         {/* Left Panel - Categories & Events Log */}
