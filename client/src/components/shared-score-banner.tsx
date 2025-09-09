@@ -87,7 +87,7 @@ export function SharedScoreBanner({ fixture, team, club, oppositionTeam }: Share
               <span className="text-lg font-medium text-gray-500">-</span>
               <span className="text-xl font-bold text-gray-900">{rightScore}</span>
             </div>
-            <div className="text-xs text-gray-500 text-center leading-none">RESULT</div>
+            <div className="text-xs text-gray-500 text-center leading-none">XXX</div>
           </div>
         ) : (
           <div className="bg-white rounded-lg px-3 py-2 mx-4 shadow-sm">
