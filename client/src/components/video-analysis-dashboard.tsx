@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,26 @@ interface VideoClip {
   team: 'home' | 'away';
 }
 
+interface MatchEvent {
+  id: string;
+  timestamp: string;
+  minute: number;
+  second: number;
+  eventType: string;
+  category: string;
+  player?: string;
+  team: 'home' | 'away';
+  description: string;
+  outcome: 'success' | 'failed' | 'neutral';
+  position: [number, number];
+  details?: {
+    distance?: number;
+    velocity?: number;
+    direction?: string;
+    target?: string;
+  };
+}
+
 interface VideoAnalysisDashboardProps {
   fixtureId: string;
 }
@@ -78,6 +99,45 @@ const convertVideoDataToClips = (videoLinks: any[]): VideoClip[] => {
     team: 'home' as 'home' | 'away'
   })).filter(clip => clip.url); // Only include clips with valid URLs
 };
+
+const EVENT_CATEGORIES = [
+  { 
+    id: 'attacking', 
+    label: 'Attacking', 
+    color: 'bg-red-500', 
+    events: ['shot', 'goal', 'assist', 'cross', 'through_pass', 'key_pass']
+  },
+  { 
+    id: 'passing', 
+    label: 'Passing & Build-up', 
+    color: 'bg-blue-500', 
+    events: ['pass', 'long_pass', 'short_pass', 'back_pass', 'switch_play']
+  },
+  { 
+    id: 'defending', 
+    label: 'Defending', 
+    color: 'bg-green-500', 
+    events: ['tackle', 'interception', 'clearance', 'block', 'foul']
+  },
+  { 
+    id: 'setpieces', 
+    label: 'Set Pieces', 
+    color: 'bg-purple-500', 
+    events: ['corner', 'freekick', 'throw_in', 'penalty', 'kickoff']
+  },
+  { 
+    id: 'transitions', 
+    label: 'Transitions', 
+    color: 'bg-orange-500', 
+    events: ['counter_attack', 'turnover', 'press', 'recovery']
+  },
+  { 
+    id: 'aerial', 
+    label: 'Aerial Duels', 
+    color: 'bg-yellow-500', 
+    events: ['header', 'aerial_duel', 'high_ball', 'jump']
+  }
+];
 
 const EVENT_TYPES = [
   { value: 'all', label: 'All Events' },
@@ -108,6 +168,59 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
   
   // Convert fixture video links to clips format
   const clips = convertVideoDataToClips(Array.isArray(fixture?.videoLinks) ? fixture.videoLinks : []);
+  
+  // Generate comprehensive match events log (this would come from AI analysis in production)
+  const generateMatchEvents = (): MatchEvent[] => {
+    const events: MatchEvent[] = [];
+    const players = ['Sarah Johnson', 'Emma Davis', 'Maria Rodriguez', 'Ashley Smith', 'Taylor Brown'];
+    const opposingPlayers = ['A. Williams', 'B. Jones', 'C. Miller', 'D. Wilson'];
+    
+    // Generate events throughout the match
+    for (let minute = 1; minute <= 90; minute += Math.floor(Math.random() * 3) + 1) {
+      const eventTypes = EVENT_CATEGORIES.flatMap(cat => cat.events);
+      const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+      const category = EVENT_CATEGORIES.find(cat => cat.events.includes(eventType));
+      const player = Math.random() > 0.6 ? players[Math.floor(Math.random() * players.length)] 
+                    : opposingPlayers[Math.floor(Math.random() * opposingPlayers.length)];
+      const team = players.includes(player) ? 'home' : 'away';
+      const second = Math.floor(Math.random() * 60);
+      
+      events.push({
+        id: `event-${minute}-${second}`,
+        timestamp: `${minute}:${second.toString().padStart(2, '0')}`,
+        minute,
+        second,
+        eventType,
+        category: category?.id || 'other',
+        player,
+        team,
+        description: getEventDescription(eventType, player, team === 'home'),
+        outcome: Math.random() > 0.3 ? 'success' : Math.random() > 0.5 ? 'failed' : 'neutral',
+        position: [Math.random() * 100, Math.random() * 60],
+        details: {
+          distance: eventType.includes('pass') ? Math.floor(Math.random() * 40) + 5 : undefined,
+          velocity: eventType === 'shot' ? Math.floor(Math.random() * 30) + 40 : undefined
+        }
+      });
+    }
+    
+    return events.sort((a, b) => a.minute - b.minute || a.second - b.second);
+  };
+  
+  const getEventDescription = (eventType: string, player: string, isHome: boolean): string => {
+    const teamPrefix = isHome ? '' : '(OPP) ';
+    switch (eventType) {
+      case 'pass': return `${teamPrefix}${player} completes pass`;
+      case 'shot': return `${teamPrefix}${player} takes shot`;
+      case 'goal': return `${teamPrefix}${player} scores!`;
+      case 'tackle': return `${teamPrefix}${player} makes tackle`;
+      case 'corner': return `${teamPrefix}Corner kick awarded`;
+      case 'header': return `${teamPrefix}${player} wins header`;
+      default: return `${teamPrefix}${player} - ${eventType}`;
+    }
+  };
+  
+  const matchEvents = generateMatchEvents();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [selectedClip, setSelectedClip] = useState<VideoClip | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -117,6 +230,7 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
   
   // Filters
   const [selectedEventType, setSelectedEventType] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedZone, setSelectedZone] = useState('all');
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [timeRange, setTimeRange] = useState([0, 90]);
@@ -131,6 +245,17 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
     )) return false;
     
     // For now, show all clips since timestamps will come from AI analysis
+    return true;
+  });
+  
+  // Filter events based on current filters
+  const filteredEvents = matchEvents.filter(event => {
+    if (selectedCategory !== 'all' && event.category !== selectedCategory) return false;
+    if (selectedEventType !== 'all' && event.eventType !== selectedEventType) return false;
+    if (selectedTeam !== 'all' && event.team !== selectedTeam) return false;
+    if (event.minute < timeRange[0] || event.minute > timeRange[1]) return false;
+    if (searchPlayer && event.player && !event.player.toLowerCase().includes(searchPlayer.toLowerCase())) return false;
+    
     return true;
   });
 
@@ -235,8 +360,104 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-12 gap-6 min-h-[600px]">
-        {/* Left Panel - Video Player */}
-        <div className="col-span-7">
+        {/* Left Panel - Categories & Events Log */}
+        <div className="col-span-4">
+          <div className="space-y-4">
+            {/* Category Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">Event Categories</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('all')}
+                  className="w-full justify-start text-xs"
+                >
+                  All Categories
+                </Button>
+                {EVENT_CATEGORIES.map((category) => {
+                  const categoryEvents = filteredEvents.filter(e => e.category === category.id).length;
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedCategory(selectedCategory === category.id ? 'all' : category.id)}
+                      className="w-full justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${category.color}`} />
+                        {category.label}
+                      </div>
+                      <Badge variant="secondary" className="text-xs">{categoryEvents}</Badge>
+                    </Button>
+                  );
+                })}
+              </CardContent>
+            </Card>
+            
+            {/* Events Log */}
+            <Card className="flex-1">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium">Events Timeline</CardTitle>
+                  <Badge variant="outline">{filteredEvents.length} events</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-96">
+                  <div className="space-y-2">
+                    {filteredEvents.map((event) => {
+                      const category = EVENT_CATEGORIES.find(cat => cat.id === event.category);
+                      return (
+                        <div
+                          key={event.id}
+                          className="flex items-start gap-3 p-2 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                          onClick={() => {
+                            // Jump to event time in video
+                            console.log(`Jump to ${event.timestamp}`);
+                          }}
+                        >
+                          <div className="flex flex-col items-center gap-1">
+                            <div className={`w-2 h-2 rounded-full ${category?.color || 'bg-gray-400'}`} />
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {event.timestamp}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium truncate">
+                                {event.description}
+                              </span>
+                              <Badge 
+                                variant={event.outcome === 'success' ? 'default' : 
+                                        event.outcome === 'failed' ? 'destructive' : 'secondary'}
+                                className="text-xs"
+                              >
+                                {event.outcome}
+                              </Badge>
+                            </div>
+                            {event.details && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {event.details.distance && `${event.details.distance}m`}
+                                {event.details.velocity && ` • ${event.details.velocity}km/h`}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        
+        {/* Center Panel - Video Player */}
+        <div className="col-span-5">
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -353,7 +574,7 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
         </div>
 
         {/* Right Panel - Filters and Data */}
-        <div className="col-span-5 space-y-4">
+        <div className="col-span-3 space-y-4">
           {/* Filter Controls */}
           <Card>
             <CardHeader>
