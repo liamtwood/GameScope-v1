@@ -248,7 +248,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">1</div>
                     </div>
                     
                     {/* Opponent section */}
@@ -342,7 +342,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">2</div>
                     </div>
                     
                     {/* Opponent section */}
@@ -446,7 +446,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">3</div>
                     </div>
                     
                     {/* Opponent section */}
@@ -690,7 +690,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">4</div>
                     </div>
                     
                     {/* Opponent section */}
@@ -841,7 +841,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">5</div>
                     </div>
                     
                     {/* Opponent section */}
@@ -967,7 +967,7 @@ export default function Analysis() {
                         <div className="text-2xl font-light text-muted-foreground">-</div>
                         <div className="text-3xl font-bold" style={{ color: primaryColor }}>{fixture.type === 'HOME' ? (fixture.awayScore || 0) : (fixture.homeScore || 0)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground text-center mt-1">FT</div>
+                      <div className="text-xs text-muted-foreground text-center mt-1">6</div>
                     </div>
                     
                     {/* Opponent section */}
