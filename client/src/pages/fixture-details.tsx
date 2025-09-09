@@ -274,7 +274,7 @@ export default function FixtureDetails() {
                   <span className="text-lg font-medium text-gray-500">-</span>
                   <span className="text-2xl font-bold text-gray-900">{fixture.type === 'HOME' ? fixture.awayScore : fixture.homeScore}</span>
                 </div>
-                <div className="text-xs text-gray-500 text-center leading-none">RESULT</div>
+                <div className="text-xs text-gray-500 text-center leading-none">LIAM</div>
               </div>
               
               {/* Away Team (Opponent) */}
