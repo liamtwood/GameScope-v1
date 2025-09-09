@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Fixture } from "@shared/schema";
+import { SharedScoreBanner } from "@/components/shared-score-banner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -315,6 +316,16 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
     enabled: !!fixtureId,
   });
   
+  // Fetch team, club, and opposition data for score banner
+  const { data: teams } = useQuery({ queryKey: ["/api/teams"] });
+  const { data: clubs } = useQuery({ queryKey: ["/api/clubs"] });
+  const { data: oppositionTeams } = useQuery({ queryKey: ["/api/opposition-teams"] });
+  
+  // Find the current team, club, and opposition team
+  const currentTeam = teams?.find((team: any) => team.id === fixture?.teamId);
+  const currentClub = clubs?.find((club: any) => club.id === currentTeam?.clubId);
+  const oppositionTeam = oppositionTeams?.find((team: any) => team.id === fixture?.oppositionTeamId);
+  
   // Convert fixture video links to clips format
   const clips = convertVideoDataToClips(Array.isArray(fixture?.videoLinks) ? fixture.videoLinks : []);
   
@@ -556,6 +567,15 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
 
   return (
     <div className="space-y-6">
+      {/* Score Banner */}
+      {fixture && currentTeam && currentClub && (
+        <SharedScoreBanner 
+          fixture={fixture}
+          team={currentTeam}
+          club={currentClub}
+          oppositionTeam={oppositionTeam}
+        />
+      )}
       <div className="grid grid-cols-12 gap-6 min-h-[600px]">
         {/* Left Panel - Categories & Events Log */}
         <div className="col-span-4">
