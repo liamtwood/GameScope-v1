@@ -342,10 +342,10 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                         <FormControl>
-                          <SelectTrigger data-testid="select-role">
-                            <SelectValue placeholder="Select role" />
+                          <SelectTrigger data-testid="select-role" className="opacity-60">
+                            <SelectValue placeholder="Player" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
