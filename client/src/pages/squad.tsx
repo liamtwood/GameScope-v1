@@ -67,12 +67,15 @@ export default function Squad() {
   useEffect(() => {
     if (currentTeam) {
       const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub || undefined);
-      setSelectedSeason(getCurrentSeason(seasonStartMonth));
+      const newSeason = getCurrentSeason(seasonStartMonth);
+      setSelectedSeason(newSeason);
+      setTempSelectedSeason(newSeason);
     }
   }, [currentTeam, currentClub]);
 
   // Settings dialog state
   const [showSettings, setShowSettings] = useState(false);
+  const [tempSelectedSeason, setTempSelectedSeason] = useState<string>(selectedSeason);
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
@@ -361,6 +364,25 @@ export default function Squad() {
     queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
   };
 
+  const handleOpenSettings = () => {
+    setTempSelectedSeason(selectedSeason);
+    setShowSettings(true);
+  };
+
+  const handleSaveSettings = () => {
+    setSelectedSeason(tempSelectedSeason);
+    setShowSettings(false);
+    toast({
+      title: "Settings Updated",
+      description: "Squad settings have been saved successfully.",
+    });
+  };
+
+  const handleCancelSettings = () => {
+    setTempSelectedSeason(selectedSeason);
+    setShowSettings(false);
+  };
+
 
   return (
     <MainLayout 
@@ -477,7 +499,7 @@ export default function Squad() {
             
             <Button 
               variant="ghost" 
-              onClick={() => setShowSettings(true)}
+              onClick={handleOpenSettings}
               data-testid="button-squad-settings"
             >
               <Settings className="h-4 w-4" />
@@ -846,7 +868,7 @@ export default function Squad() {
       )}
 
       {/* Squad Settings Dialog */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+      <Dialog open={showSettings} onOpenChange={handleCancelSettings}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Squad Settings</DialogTitle>
@@ -861,14 +883,30 @@ export default function Squad() {
               <SeasonPicker
                 team={currentTeam || undefined}
                 club={currentClub || undefined}
-                selectedSeason={selectedSeason}
-                onSeasonChange={setSelectedSeason}
+                selectedSeason={tempSelectedSeason}
+                onSeasonChange={setTempSelectedSeason}
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
                 Select the season to view and manage squad data for
               </p>
             </div>
+          </div>
+          
+          <div className="flex justify-end space-x-2 pt-4 border-t">
+            <Button 
+              variant="outline" 
+              onClick={handleCancelSettings}
+              data-testid="button-cancel-settings"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSaveSettings}
+              data-testid="button-save-settings"
+            >
+              Save Changes
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
