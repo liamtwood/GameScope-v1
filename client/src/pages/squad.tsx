@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -7,6 +7,7 @@ import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { ExcelImportDialog } from "@/components/dialogs/excel-import-dialog";
 import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
+import { SeasonPicker } from "@/components/ui/season-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload } from "lucide-react";
-import { User, Team, Fixture } from "@shared/schema";
+import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
 // Define Player type for compatibility
 type Player = User & {
@@ -27,7 +28,9 @@ type Player = User & {
 import { Position } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { getCurrentSeason, getEffectiveSeasonStartMonth } from "@/utils/seasonUtils";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 type StatusFilter = 'all' | 'Fit' | 'Injured' | 'Retired';
@@ -45,8 +48,27 @@ export default function Squad() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<'table' | 'player-card'>('player-card');
   const [showFilters, setShowFilters] = useState(false);
+  
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
+
+  // Season management
+  const [selectedSeason, setSelectedSeason] = useState<string>(() => {
+    if (currentTeam) {
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      return getCurrentSeason(seasonStartMonth);
+    }
+    return getCurrentSeason("August");
+  });
+
+  // Update selected season when team changes
+  useEffect(() => {
+    if (currentTeam) {
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      setSelectedSeason(getCurrentSeason(seasonStartMonth));
+    }
+  }, [currentTeam, currentClub]);
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
@@ -405,18 +427,30 @@ export default function Squad() {
         </div>
       </div>
 
-      {/* Tab Navigation with Filter and Add Player Buttons */}
+      {/* Season Selection and Navigation Controls */}
       <div className="mb-6 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowFilters(!showFilters)}
-              data-testid="button-toggle-filters"
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Enable Filter
-            </Button>
+            <div className="flex items-center gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-foreground">Season</label>
+                <SeasonPicker
+                  team={currentTeam}
+                  club={currentClub}
+                  selectedSeason={selectedSeason}
+                  onSeasonChange={setSelectedSeason}
+                  className="w-[140px]"
+                />
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFilters(!showFilters)}
+                data-testid="button-toggle-filters"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Enable Filter
+              </Button>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <PlayerCreateDialog 
