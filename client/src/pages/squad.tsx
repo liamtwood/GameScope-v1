@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload } from "lucide-react";
 import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
@@ -56,7 +57,7 @@ export default function Squad() {
   // Season management
   const [selectedSeason, setSelectedSeason] = useState<string>(() => {
     if (currentTeam) {
-      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub || undefined);
       return getCurrentSeason(seasonStartMonth);
     }
     return getCurrentSeason("August");
@@ -65,10 +66,13 @@ export default function Squad() {
   // Update selected season when team changes
   useEffect(() => {
     if (currentTeam) {
-      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub || undefined);
       setSelectedSeason(getCurrentSeason(seasonStartMonth));
     }
   }, [currentTeam, currentClub]);
+
+  // Settings dialog state
+  const [showSettings, setShowSettings] = useState(false);
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
@@ -427,30 +431,18 @@ export default function Squad() {
         </div>
       </div>
 
-      {/* Season Selection and Navigation Controls */}
+      {/* Navigation Controls */}
       <div className="mb-6 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-foreground">Season</label>
-                <SeasonPicker
-                  team={currentTeam}
-                  club={currentClub}
-                  selectedSeason={selectedSeason}
-                  onSeasonChange={setSelectedSeason}
-                  className="w-[140px]"
-                />
-              </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowFilters(!showFilters)}
-                data-testid="button-toggle-filters"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Enable Filter
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-filters"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Enable Filter
+            </Button>
           </div>
           <div className="flex items-center gap-2">
             <PlayerCreateDialog 
@@ -483,7 +475,11 @@ export default function Squad() {
               </Button>
             </ExcelImportDialog>
             
-            <Button variant="ghost" data-testid="button-squad-settings">
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowSettings(true)}
+              data-testid="button-squad-settings"
+            >
               <Settings className="h-4 w-4" />
             </Button>
           </div>
@@ -849,6 +845,33 @@ export default function Squad() {
         </>
       )}
 
+      {/* Squad Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Squad Settings</DialogTitle>
+            <DialogDescription>
+              Configure squad management preferences and season settings.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Season</label>
+              <SeasonPicker
+                team={currentTeam || undefined}
+                club={currentClub || undefined}
+                selectedSeason={selectedSeason}
+                onSeasonChange={setSelectedSeason}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Select the season to view and manage squad data for
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </MainLayout>
   );
