@@ -147,13 +147,6 @@ export default function Analysis() {
   // Process match stats - get full game stats (with fallback for missing data)
   const fullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true) || null;
   const opponentFullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null)) || null;
-  
-  // Debug logging
-  console.log('STATS DEBUG: matchStats length:', matchStats?.length);
-  console.log('STATS DEBUG: fullGameStats:', fullGameStats);
-  console.log('STATS DEBUG: opponentFullGameStats:', opponentFullGameStats);
-  console.log('STATS DEBUG: team possession:', fullGameStats?.possession);
-  console.log('STATS DEBUG: opponent possession:', opponentFullGameStats?.possession);
 
   // Get team and opponent logos from opponents table
   const polkTeam = oppositionTeams?.find((team: any) => team.shortName === "POLK");
