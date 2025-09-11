@@ -825,8 +825,16 @@ export default function Fixtures() {
             <div 
               id="pdf-report-container" 
               ref={pdfReportRef}
-              className="fixed -left-[9999px] -top-[9999px] w-[210mm] h-auto bg-white"
-              style={{ zIndex: -9999 }}
+              style={{ 
+                position: 'fixed',
+                left: '-9999px',
+                top: '-9999px',
+                width: '210mm',
+                height: 'auto',
+                backgroundColor: 'white',
+                zIndex: -9999,
+                fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
+              }}
             >
               <PDFReportContent fixture={generateReportFixture} />
             </div>

@@ -12,6 +12,21 @@ export async function generateMatchReportPDF(elementId: string, filename: string
     const originalDisplay = element.style.display;
     element.style.display = 'block';
 
+    // Wait for charts and images to fully render
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Force SVG elements to be rendered properly
+    const svgElements = element.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+      const img = new Image();
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+    });
+
+    // Additional delay for SVG processing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     // Generate canvas from HTML
     const canvas = await html2canvas(element, {
       scale: 2, // Higher resolution
@@ -20,6 +35,18 @@ export async function generateMatchReportPDF(elementId: string, filename: string
       backgroundColor: '#ffffff',
       width: element.scrollWidth,
       height: element.scrollHeight,
+      logging: true, // Enable logging for debugging
+      onclone: (clonedDoc) => {
+        // Ensure all images are loaded in the cloned document
+        const images = clonedDoc.querySelectorAll('img');
+        return Promise.all(Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }));
+      }
     });
 
     // Restore original display

@@ -264,11 +264,41 @@ export function MatchReportPDF({
     <div style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
-        <div style={{...styles.teamName, left: '30px'}}>{clubName}</div>
+        <div style={{...styles.teamName, left: '30px', display: 'flex', alignItems: 'center', gap: '10px'}}>
+          {teamLogoPath && (
+            <img 
+              src={teamLogoPath} 
+              alt={`${clubName} logo`}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid white'
+              }}
+            />
+          )}
+          {clubName}
+        </div>
         <div style={styles.scoreDisplay}>
           {teamScore} - {opponentScore}
         </div>
-        <div style={{...styles.teamName, right: '30px'}}>{fixture.opponent}</div>
+        <div style={{...styles.teamName, right: '30px', display: 'flex', alignItems: 'center', gap: '10px', flexDirection: 'row-reverse'}}>
+          {opponentLogoPath && (
+            <img 
+              src={opponentLogoPath} 
+              alt={`${fixture.opponent} logo`}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid white'
+              }}
+            />
+          )}
+          {fixture.opponent}
+        </div>
       </div>
 
       <div style={styles.content}>
