@@ -262,6 +262,7 @@ export default function FixtureDetails() {
             polkStateColor={polkStateColor}
             oppositionColor={oppositionColor}
             primaryColor={primaryColor}
+            clubName={currentClub?.name || 'Florida College'}
           />
         )}
 
