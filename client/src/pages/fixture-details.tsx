@@ -14,6 +14,7 @@ import { ExcelUpload } from "@/components/excel-upload";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
+import { MatchScoreBanner } from "@/components/match-score-banner";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
