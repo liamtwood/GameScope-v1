@@ -173,8 +173,8 @@ export default function FixtureDetails() {
   const opponentLogoPath = oppositionTeam?.logoPath;
 
   const isHomeMatch = fixture.type === 'HOME';
-  const homeTeam = isHomeMatch ? 'Polk State College' : fixture.opponent;
-  const awayTeam = isHomeMatch ? fixture.opponent : 'Polk State College';
+  const homeTeam = isHomeMatch ? (currentClub?.name || 'Home Team') : fixture.opponent;
+  const awayTeam = isHomeMatch ? fixture.opponent : (currentClub?.name || 'Away Team');
 
   const handleDeleteFixture = () => {
     if (fixture) {
@@ -262,7 +262,7 @@ export default function FixtureDetails() {
             polkStateColor={polkStateColor}
             oppositionColor={oppositionColor}
             primaryColor={primaryColor}
-            clubName={currentClub?.name || 'Florida College'}
+            clubName={currentClub?.name}
           />
         )}
 
@@ -368,7 +368,7 @@ export default function FixtureDetails() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Home Team - Polk State College</span>
+                  <span>Home Team - {currentClub?.name || 'Florida College'}</span>
                 </h3>
                 {isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
