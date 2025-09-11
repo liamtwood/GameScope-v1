@@ -162,6 +162,16 @@ export default function FixtureDetails() {
   const currentTeam = teams?.find(team => team.id === fixture.teamId);
   const currentClub = clubs?.find(club => club.id === currentTeam?.clubId);
 
+  // Extract club colors and logo for the results banner
+  const clubColors = (currentClub?.colors as any) || {};
+  const polkStateColor = clubColors.primary || '#CC4125';
+  const primaryColor = clubColors.primary || '#CC4125';
+  const teamLogoPath = currentClub?.logoPath;
+  
+  // Get opposition team colors and logo
+  const oppositionColor = (oppositionTeam?.colors as any)?.primary || '#6b7280';
+  const opponentLogoPath = oppositionTeam?.logoPath;
+
   const isHomeMatch = fixture.type === 'HOME';
   const homeTeam = isHomeMatch ? 'Polk State College' : fixture.opponent;
   const awayTeam = isHomeMatch ? fixture.opponent : 'Polk State College';
