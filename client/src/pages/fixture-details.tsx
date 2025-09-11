@@ -162,23 +162,19 @@ export default function FixtureDetails() {
     fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
   );
 
-  // Find the current team and club details
-  const currentTeam = teams?.find(team => team.id === fixture.teamId);
-  const currentClub = clubs?.find(club => club.id === currentTeam?.clubId);
-
-  // Extract club colors and logo for the results banner
-  const clubColors = (currentClub?.colors as any) || {};
+  // Extract club colors and logo for the results banner from selected club
+  const clubColors = (selectedClub?.colors as any) || {};
   const polkStateColor = clubColors.primary || '#CC4125';
   const primaryColor = clubColors.primary || '#CC4125';
-  const teamLogoPath = currentClub?.logoPath;
+  const teamLogoPath = selectedClub?.logoPath;
   
   // Get opposition team colors and logo
   const oppositionColor = (oppositionTeam?.colors as any)?.primary || '#6b7280';
   const opponentLogoPath = oppositionTeam?.logoPath;
 
   const isHomeMatch = fixture.type === 'HOME';
-  const homeTeam = isHomeMatch ? (currentClub?.name || 'Home Team') : fixture.opponent;
-  const awayTeam = isHomeMatch ? fixture.opponent : (currentClub?.name || 'Away Team');
+  const homeTeam = isHomeMatch ? (selectedClub?.name || 'Home Team') : fixture.opponent;
+  const awayTeam = isHomeMatch ? fixture.opponent : (selectedClub?.name || 'Away Team');
 
   const handleDeleteFixture = () => {
     if (fixture) {
@@ -266,7 +262,7 @@ export default function FixtureDetails() {
             polkStateColor={polkStateColor}
             oppositionColor={oppositionColor}
             primaryColor={primaryColor}
-            clubName={currentClub?.name}
+            clubName={selectedClub?.name}
           />
         )}
 
@@ -372,7 +368,7 @@ export default function FixtureDetails() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Home Team - {currentClub?.name || 'Florida College'}</span>
+                  <span>Home Team - {selectedClub?.name || 'Home Team'}</span>
                 </h3>
                 {isHomeMatch && players && players.length > 0 ? (
                   <div className="space-y-2">
