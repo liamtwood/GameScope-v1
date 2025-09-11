@@ -47,11 +47,6 @@ function PDFReportContent({ fixture }: { fixture: Fixture }) {
   const teamStats = matchStats?.find(stat => stat.isTeamStats === true && stat.fixtureId === fixture.id);
   const opponentStats = matchStats?.find(stat => stat.isTeamStats === false && stat.fixtureId === fixture.id);
   
-  // Debug logging
-  console.log('PDF Debug - fixture:', fixture.id);
-  console.log('PDF Debug - matchStats:', matchStats);
-  console.log('PDF Debug - teamStats:', teamStats);
-  console.log('PDF Debug - opponentStats:', opponentStats);
   
   return (
     <MatchReportPDF

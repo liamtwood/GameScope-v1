@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Report: Holt F.C. vs Yellow (1-1)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #c94b4b 0%, #c94b4b 45%, #f4e04d 55%, #f4e04d 100%);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        .score-display {
+            background: white;
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .team-name {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        .team-name.home {
+            left: 30px;
+        }
+        .team-name.away {
+            right: 30px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        .section-title {
+            font-size: 28px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .chart-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+        .spider-chart {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .spider-chart img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .metric-name {
+            font-weight: 500;
+            color: #555;
+        }
+        .holt-value {
+            text-align: center;
+            font-weight: bold;
+            color: #c94b4b;
+        }
+        .yellow-value {
+            text-align: center;
+            font-weight: bold;
+            color: #d4a000;
+        }
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .analysis-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .analysis-title {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .analysis-text {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            background: linear-gradient(90deg, rgba(201, 75, 75, 0.2) 0%, rgba(244, 224, 77, 0.2) 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="team-name home">HOLT F.C.</div>
+            <div class="score-display">1 - 1</div>
+            <div class="team-name away">YELLOW</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">Match Overview</h2>
+                <div class="overview-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">65.53%</div>
+                        <div class="stat-label">Holt F.C. Possession</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">44.5 km</div>
+                        <div class="stat-label">Holt F.C. Distance Covered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">81%</div>
+                        <div class="stat-label">Holt F.C. Pass Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attack Performance Section -->
+            <div class="chart-section">
+                <h3 class="chart-title">Attack Performance</h3>
+                <div class="chart-container">
+                    <div class="spider-chart">
+                        <p style="text-align: center; color: #666; padding: 100px 20px;">
+                            Spider Chart: Attack Performance<br><br>
+                            Visual representation showing:<br>
+                            - Holt F.C. (Red) dominant in corners (8-2)<br>
+                            - Yellow with more dangerous crosses (5-2)<br>
+                            - Both teams scored 1 goal
+                        </p>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Attack Metrics</th>
+                                    <th class="holt-value">Holt F.C.</th>
+                                    <th class="yellow-value">Yellow</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="metric-name">Goals</td>
+                                    <td class="holt-value">1</td>
+                                    <td class="yellow-value">1</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Shots Attempted</td>
+                                    <td class="holt-value">0</td>
+                                    <td class="yellow-value">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Shots on Target</td>
+                                    <td class="holt-value">0</td>
+                                    <td class="yellow-value">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Runs Into Boxes</td>
+                                    <td class="holt-value">0</td>
+                                    <td class="yellow-value">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Corner Kicks</td>
+                                    <td class="holt-value">8</td>
+                                    <td class="yellow-value">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Dangerous Crosses</td>
+                                    <td class="holt-value">2</td>
+                                    <td class="yellow-value">5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Possession Performance Section -->
+            <div class="chart-section">
+                <h3 class="chart-title">Possession Performance</h3>
+                <div class="chart-container">
+                    <div class="spider-chart">
+                        <p style="text-align: center; color: #666; padding: 100px 20px;">
+                            Spider Chart: Possession Performance<br><br>
+                            Visual representation showing:<br>
+                            - Holt F.C. (Red) creates large pentagon shape<br>
+                            - Dominant in all possession metrics<br>
+                            - Yellow's compact shape shows defensive discipline
+                        </p>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Possession Metrics</th>
+                                    <th class="holt-value">Holt F.C.</th>
+                                    <th class="yellow-value">Yellow</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="metric-name">Possession %</td>
+                                    <td class="holt-value">66%</td>
+                                    <td class="yellow-value">34%</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Pass Accuracy %</td>
+                                    <td class="holt-value">81%</td>
+                                    <td class="yellow-value">66%</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">First Touch %</td>
+                                    <td class="holt-value">98%</td>
+                                    <td class="yellow-value">96%</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Take Ons</td>
+                                    <td class="holt-value">21</td>
+                                    <td class="yellow-value">13</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Passes Success</td>
+                                    <td class="holt-value">521</td>
+                                    <td class="yellow-value">274</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Performance Section -->
+            <div class="chart-section">
+                <h3 class="chart-title">Technical Performance</h3>
+                <div class="chart-container">
+                    <div class="spider-chart">
+                        <p style="text-align: center; color: #666; padding: 100px 20px;">
+                            Spider Chart: Technical Performance<br><br>
+                            Visual representation showing:<br>
+                            - Holt F.C. (Red) high tackle count (45)<br>
+                            - More aggressive pressing approach<br>
+                            - Yellow's efficient defensive work
+                        </p>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Technical Metrics</th>
+                                    <th class="holt-value">Holt F.C.</th>
+                                    <th class="yellow-value">Yellow</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="metric-name">Tackles</td>
+                                    <td class="holt-value">45</td>
+                                    <td class="yellow-value">29</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Free Kicks</td>
+                                    <td class="holt-value">8</td>
+                                    <td class="yellow-value">5</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Offsides</td>
+                                    <td class="holt-value">4</td>
+                                    <td class="yellow-value">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Right Foot Pass %</td>
+                                    <td class="holt-value">0%</td>
+                                    <td class="yellow-value">0%</td>
+                                </tr>
+                                <tr>
+                                    <td class="metric-name">Left Foot Pass %</td>
+                                    <td class="holt-value">0%</td>
+                                    <td class="yellow-value">0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Statistics Table -->
+            <div class="section">
+                <h2 class="section-title">Complete Match Statistics</h2>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category / Metric</th>
+                                <th class="holt-value">Holt F.C.</th>
+                                <th class="yellow-value">Yellow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f0f0;">
+                                <td colspan="3" style="font-weight: bold; color: #667eea;">Physical Performance</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Total Team Distance (km)</td>
+                                <td class="holt-value">44,497.23</td>
+                                <td class="yellow-value">33,487.10</td>
+                            </tr>
+                            <tr style="background: #f0f0f0;">
+                                <td colspan="3" style="font-weight: bold; color: #667eea;">Possession</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Possession (%)</td>
+                                <td class="holt-value">65.53%</td>
+                                <td class="yellow-value">34.47%</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Dribbles</td>
+                                <td class="holt-value">51</td>
+                                <td class="yellow-value">22</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Penetrating Dribbles</td>
+                                <td class="holt-value">3</td>
+                                <td class="yellow-value">1</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Take Ons</td>
+                                <td class="holt-value">21</td>
+                                <td class="yellow-value">13</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">First Touch Success</td>
+                                <td class="holt-value">630</td>
+                                <td class="yellow-value">398</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">First Touch Success Rate (%)</td>
+                                <td class="holt-value">97.98%</td>
+                                <td class="yellow-value">95.90%</td>
+                            </tr>
+                            <tr style="background: #f0f0f0;">
+                                <td colspan="3" style="font-weight: bold; color: #667eea;">Passing</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Pass - Total Attempted</td>
+                                <td class="holt-value">643</td>
+                                <td class="yellow-value">415</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Pass - Success</td>
+                                <td class="holt-value">521</td>
+                                <td class="yellow-value">274</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Pass - Success Rate (%)</td>
+                                <td class="holt-value">81.02%</td>
+                                <td class="yellow-value">66.02%</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Pass - Total Distance (m)</td>
+                                <td class="holt-value">5,976.50</td>
+                                <td class="yellow-value">2,532.89</td>
+                            </tr>
+                            <tr>
+                                <td class="metric-name">Pass - Avg Velocity (km/h)</td>
+                                <td class="holt-value">15.80</td>
+                                <td class="yellow-value">18.34</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tactical Analysis -->
+            <div class="analysis-section">
+                <h3 class="analysis-title">Tactical Analysis</h3>
+                <p class="analysis-text">
+                    <span class="highlight">Holt F.C.</span> employed a possession-based, high-pressing system that dominated the match statistics. 
+                    With 65.53% possession and 521 successful passes at 81% accuracy, they controlled the tempo and rhythm of the game. 
+                    Their 45 tackles despite having possession indicates an aggressive pressing approach to quickly win back the ball.
+                </p>
+                <p class="analysis-text">
+                    The spider charts clearly illustrate Holt's dominance - particularly in the possession chart where their red area creates 
+                    an almost perfect pentagon shape. They created sustained pressure with 8 corners and covered significantly more ground 
+                    (44.5km vs 33.5km), showing their high-intensity approach.
+                </p>
+                <p class="analysis-text">
+                    <span class="highlight">Yellow</span> executed a disciplined counter-attacking strategy that proved highly effective. 
+                    Despite only 34% possession, they created more dangerous crosses (5 vs 2) and matched Holt's goal output. 
+                    Their higher pass velocity (18.34 km/h vs 15.80 km/h) indicates quick, direct transitions when they won possession.
+                </p>
+                <p class="analysis-text">
+                    The 1-1 draw perfectly reflects this tactical battle: Holt F.C.'s possession dominance was neutralized by Yellow's 
+                    defensive organization and clinical counter-attacking. The contrasting spider chart shapes - Holt's expansive red areas 
+                    versus Yellow's compact formations - visually confirm that controlling the game doesn't guarantee victory.
+                </p>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="analysis-section">
+                <h3 class="analysis-title">Key Takeaways</h3>
+                <p class="analysis-text">
+                    ✓ <strong>Possession vs Efficiency:</strong> Holt F.C. dominated with 66% possession but couldn't convert territorial advantage into goals
+                </p>
+                <p class="analysis-text">
+                    ✓ <strong>Tactical Discipline:</strong> Yellow's compact defensive shape and quick transitions earned them a valuable point
+                </p>
+                <p class="analysis-text">
+                    ✓ <strong>High Pressing:</strong> Holt's 45 tackles despite possession dominance shows their commitment to aggressive ball recovery
+                </p>
+                <p class="analysis-text">
+                    ✓ <strong>Clinical Finishing:</strong> Both teams scored once, but Yellow was more efficient with their limited opportunities
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
