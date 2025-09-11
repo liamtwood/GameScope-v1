@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute } from "wouter";
+import { useClub } from "@/contexts/club-context";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +23,9 @@ export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
   const fixtureId = params?.id;
   const [activeTab, setActiveTab] = useState("details");
+  
+  // Get the currently selected club
+  const { selectedClub } = useClub();
 
   // Spider Chart Data Transformation Functions
   const createAttackSpiderData = (teamStats: MatchStats, opponentStats?: MatchStats) => [
