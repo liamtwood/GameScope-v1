@@ -7,6 +7,7 @@ interface MatchScoreBannerProps {
   polkStateColor?: string;
   oppositionColor?: string;
   primaryColor?: string;
+  clubName?: string;
 }
 
 export function MatchScoreBanner({ 
@@ -15,7 +16,8 @@ export function MatchScoreBanner({
   opponentLogoPath, 
   polkStateColor = '#CC4125', 
   oppositionColor = '#6b7280',
-  primaryColor = '#CC4125'
+  primaryColor = '#CC4125',
+  clubName = 'Florida College'
 }: MatchScoreBannerProps) {
   return (
     <div className="mb-6">
@@ -44,16 +46,16 @@ export function MatchScoreBanner({
             {teamLogoPath ? (
               <img 
                 src={teamLogoPath} 
-                alt="Polk State College logo"
+                alt={`${clubName} logo`}
                 className="w-20 h-20 object-contain"
               />
             ) : (
               <div className="w-20 h-20 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">Polk State</span>
+                <span className="text-white font-bold text-xs">{clubName.split(' ').slice(0, 2).join(' ')}</span>
               </div>
             )}
             <div>
-              <div className="text-2xl font-bold">Polk State College</div>
+              <div className="text-2xl font-bold">{clubName}</div>
               <div className="text-white/80 text-sm">{fixture.type === 'HOME' ? 'HOME' : 'AWAY'}</div>
             </div>
           </div>
