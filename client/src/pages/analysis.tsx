@@ -199,8 +199,8 @@ export default function Analysis() {
         {/* Shared Team Header - Always Visible across all tabs */}
         <MatchScoreBanner 
           fixture={fixture}
-          teamLogoPath={teamLogoPath}
-          opponentLogoPath={opponentLogoPath}
+          teamLogoPath={teamLogoPath || undefined}
+          opponentLogoPath={opponentLogoPath || undefined}
           polkStateColor={polkStateColor}
           oppositionColor={oppositionColor}
           primaryColor={primaryColor}
@@ -288,7 +288,7 @@ export default function Analysis() {
                       <div className="space-y-3">
                         <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                           <span className="text-muted-foreground">Metric</span>
-                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-center" style={{ color: polkStateColor }}>{selectedClub?.name || 'Home Team'}</span>
                           <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
@@ -343,7 +343,7 @@ export default function Analysis() {
                       <div className="space-y-3">
                         <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                           <span className="text-muted-foreground">Metric</span>
-                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-center" style={{ color: polkStateColor }}>{selectedClub?.name || 'Home Team'}</span>
                           <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
@@ -393,7 +393,7 @@ export default function Analysis() {
                       <div className="space-y-3">
                         <div className="grid grid-cols-3 gap-4 text-sm font-medium border-b pb-2">
                           <span className="text-muted-foreground">Metric</span>
-                          <span className="text-red-600 text-center">Polk State College</span>
+                          <span className="text-center" style={{ color: polkStateColor }}>{selectedClub?.name || 'Home Team'}</span>
                           <span className="text-gray-600 text-center">{opponentTeam?.shortName || "OPP"}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
@@ -514,7 +514,7 @@ export default function Analysis() {
             <CardContent className="p-6">
               {/* Polk State College Lineups */}
               <div>
-                <h3 className="text-lg font-semibold mb-6">Polk State College Lineup</h3>
+                <h3 className="text-lg font-semibold mb-6">{selectedClub?.name || 'Home Team'} Lineup</h3>
                 {players && players.length > 0 ? (
                   <div className="space-y-2">
                     {players.slice(0, 11).map((player, index) => (
