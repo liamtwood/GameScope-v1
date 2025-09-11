@@ -148,17 +148,16 @@ export default function Analysis() {
   const fullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true) || null;
   const opponentFullGameStats = matchStats?.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null)) || null;
 
-  // Get team and opponent logos from opponents table
-  const polkTeam = oppositionTeams?.find((team: any) => team.shortName === "POLK");
+  // Get opponent team from opponents table
   const opponentTeam = oppositionTeams?.find((team: any) => 
     fixture?.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture?.opponent
   );
 
-  // Split color scheme: Polk State on left, Opposition on right
-  const polkStateColor = (selectedTeam?.colors as any)?.primary || (selectedClub?.colors as any)?.primary || '#CC4125';
+  // Use selected club for team colors and logo, opponent from opponents table
+  const polkStateColor = (selectedClub?.colors as any)?.primary || '#CC4125';
   const oppositionColor = (opponentTeam?.colors as any)?.primary || '#6b7280';
   
-  const teamLogoPath = polkTeam?.logoPath;
+  const teamLogoPath = selectedClub?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
 
   // Get primary color from team/club colors with fallback (still used in some places)
@@ -205,6 +204,7 @@ export default function Analysis() {
           polkStateColor={polkStateColor}
           oppositionColor={oppositionColor}
           primaryColor={primaryColor}
+          clubName={selectedClub?.name}
         />
 
         {/* Statistics Tab */}
