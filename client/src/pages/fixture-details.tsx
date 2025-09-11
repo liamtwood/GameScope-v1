@@ -253,6 +253,17 @@ export default function FixtureDetails() {
           </div>
         </div>
 
+        {/* Results Banner - only show for completed matches */}
+        {fixture.status === 'COMPLETED' && (
+          <MatchScoreBanner 
+            fixture={fixture}
+            teamLogoPath={teamLogoPath}
+            opponentLogoPath={opponentLogoPath}
+            polkStateColor={polkStateColor}
+            oppositionColor={oppositionColor}
+            primaryColor={primaryColor}
+          />
+        )}
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
