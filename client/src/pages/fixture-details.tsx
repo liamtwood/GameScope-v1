@@ -257,8 +257,8 @@ export default function FixtureDetails() {
         {fixture.status === 'COMPLETED' && (
           <MatchScoreBanner 
             fixture={fixture}
-            teamLogoPath={teamLogoPath}
-            opponentLogoPath={opponentLogoPath}
+            teamLogoPath={teamLogoPath || undefined}
+            opponentLogoPath={opponentLogoPath || undefined}
             polkStateColor={polkStateColor}
             oppositionColor={oppositionColor}
             primaryColor={primaryColor}
