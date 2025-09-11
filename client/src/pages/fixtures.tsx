@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useTeam } from "@/contexts/team-context";
@@ -24,6 +24,42 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { SeasonPicker } from "@/components/ui/season-picker";
 import { getCurrentSeason, getEffectiveSeasonStartMonth, filterFixturesBySeason } from "@/utils/seasonUtils";
+import { MatchReportPDF } from "@/components/match-report-pdf";
+import { generateMatchReportPDF } from "@/utils/pdf-generator";
+import { MatchStats, OppositionTeam } from "@shared/schema";
+
+// PDF Report Content Component
+function PDFReportContent({ fixture }: { fixture: Fixture }) {
+  const { selectedClub: currentClub } = useClub();
+  
+  // Fetch match stats for the fixture
+  const { data: matchStats } = useQuery<MatchStats[]>({
+    queryKey: ['/api/match-stats', fixture.id],
+    enabled: !!fixture.id,
+  });
+  
+  // Fetch opposition teams for logos
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+  
+  const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+  const teamStats = matchStats?.find(stat => stat.isTeamStats === true);
+  const opponentStats = matchStats?.find(stat => stat.isTeamStats === false);
+  
+  return (
+    <MatchReportPDF
+      fixture={fixture}
+      teamStats={teamStats}
+      opponentStats={opponentStats}
+      teamLogoPath={currentClub?.logoPath || undefined}
+      opponentLogoPath={oppositionTeam?.logoPath || undefined}
+      clubName={currentClub?.name || 'Home Team'}
+      teamColor={(currentClub?.colors as any)?.primary || '#dc2626'}
+      opponentColor={(oppositionTeam?.colors as any)?.primary || '#6b7280'}
+    />
+  );
+}
 
 type FilterType = 'all' | FixtureStatus;
 
@@ -41,6 +77,8 @@ export default function Fixtures() {
   const [editCompetitionName, setEditCompetitionName] = useState<string>("");
   const [magicLookupOpen, setMagicLookupOpen] = useState(false);
   const [magicResults, setMagicResults] = useState<any[]>([]);
+  const [generateReportFixture, setGenerateReportFixture] = useState<Fixture | null>(null);
+  const pdfReportRef = useRef<HTMLDivElement>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -86,6 +124,11 @@ export default function Fixtures() {
 
   const { data: clubs = [] } = useQuery<Club[]>({ queryKey: ["/api/clubs"] });
   
+  // Fetch opposition teams for PDF generation
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+  
   // Set default season when team/club data loads
   useEffect(() => {
     if (!selectedSeason && currentTeam && currentClub) {
@@ -94,6 +137,33 @@ export default function Fixtures() {
       setSelectedSeason(currentSeason);
     }
   }, [selectedSeason, currentTeam, currentClub]);
+
+  // Generate PDF report
+  const handleGenerateReport = async (fixture: Fixture) => {
+    try {
+      setGenerateReportFixture(fixture);
+      
+      // Wait for component to render
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const filename = `${currentClub?.name || 'Team'}_vs_${fixture.opponent}_${format(new Date(fixture.date), 'yyyy-MM-dd')}.pdf`;
+      await generateMatchReportPDF('pdf-report-container', filename);
+      
+      toast({
+        title: "Success",
+        description: "Match report PDF generated successfully",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF report",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerateReportFixture(null);
+    }
+  };
 
 
   // Mutation for updating fixtures
@@ -633,6 +703,7 @@ export default function Fixtures() {
                                 onViewAnalysis={handleViewAnalysis}
                                 onEdit={() => {}} // Edit is handled by the dialog wrapper
                                 onDelete={handleDeleteFixture}
+                                onGenerateReport={handleGenerateReport}
                                 hasAnalysisData={fixturesWithAnalysis.has(fixture.id)} // Show only if match stats exist
                               />
                             </div>
@@ -747,6 +818,18 @@ export default function Fixtures() {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Hidden PDF Report Component */}
+          {generateReportFixture && (
+            <div 
+              id="pdf-report-container" 
+              ref={pdfReportRef}
+              className="fixed -left-[9999px] -top-[9999px] w-[210mm] h-auto bg-white"
+              style={{ zIndex: -9999 }}
+            >
+              <PDFReportContent fixture={generateReportFixture} />
+            </div>
+          )}
 
         </>
     </MainLayout>

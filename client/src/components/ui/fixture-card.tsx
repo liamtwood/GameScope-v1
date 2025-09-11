@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, MoreHorizontal, Video, ChartSpline } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal, Video, ChartSpline, FileDown } from "lucide-react";
 import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -19,11 +19,12 @@ interface FixtureCardProps {
   onEdit?: (fixture: Fixture) => void;
   onDelete?: (fixture: Fixture) => void;
   onViewAnalysis?: (fixture: Fixture) => void;
+  onGenerateReport?: (fixture: Fixture) => void;
   showAnimatedBorder?: boolean;
   hasAnalysisData?: boolean;
 }
 
-export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, showAnimatedBorder = false, hasAnalysisData = false }: FixtureCardProps) {
+export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, onGenerateReport, showAnimatedBorder = false, hasAnalysisData = false }: FixtureCardProps) {
   // Fetch opposition teams to get logo information
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -198,6 +199,25 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
                   <ChartSpline className="h-4 w-4 text-red-600" />
+                </div>
+              </Button>
+            )}
+
+            {/* Generate Report Icon */}
+            {fixture.status === 'COMPLETED' && hasAnalysisData && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                title="Generate Match Report PDF"
+                data-testid={`button-generate-report-${fixture.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGenerateReport?.(fixture);
+                }}
+              >
+                <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                  <FileDown className="h-4 w-4 text-green-600" />
                 </div>
               </Button>
             )}
