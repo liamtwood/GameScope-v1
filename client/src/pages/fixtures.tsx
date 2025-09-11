@@ -34,7 +34,7 @@ function PDFReportContent({ fixture }: { fixture: Fixture }) {
   
   // Fetch match stats for the fixture
   const { data: matchStats } = useQuery<MatchStats[]>({
-    queryKey: ['/api/match-stats', fixture.id],
+    queryKey: [`/api/match-stats/${fixture.id}`],
     enabled: !!fixture.id,
   });
   
@@ -44,8 +44,8 @@ function PDFReportContent({ fixture }: { fixture: Fixture }) {
   });
   
   const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
-  const teamStats = matchStats?.find(stat => stat.isTeamStats === true);
-  const opponentStats = matchStats?.find(stat => stat.isTeamStats === false);
+  const teamStats = matchStats?.find(stat => stat.isTeamStats === true && stat.fixtureId === fixture.id);
+  const opponentStats = matchStats?.find(stat => stat.isTeamStats === false && stat.fixtureId === fixture.id);
   
   return (
     <MatchReportPDF
