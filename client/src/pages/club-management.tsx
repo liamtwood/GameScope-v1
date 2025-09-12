@@ -153,7 +153,9 @@ export default function ClubManagement() {
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
   
   // Fetch admin users for owner selection (for editing club)
-  const { data: adminUsersForEdit = [] } = useAdminUsers(editingClub?.id);
+  const { data: adminUsersForEdit = [] } = useAdminUsers(
+    isEditClubDialogOpen && editingClub?.id ? editingClub.id : undefined
+  );
   
   // Get club primary color for styling
   const clubPrimaryColor = (selectedClub?.colors as any)?.primary || '#dc2626';
