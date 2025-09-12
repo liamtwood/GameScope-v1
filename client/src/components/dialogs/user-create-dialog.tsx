@@ -88,8 +88,18 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
   }, [dateOfBirth, form]);
 
   const handleSubmit = (data: CreateUserFormData) => {
+    // Transform empty strings to undefined for optional fields
+    const cleanedData = {
+      ...data,
+      shirtName: data.shirtName || undefined,
+      dateOfBirth: data.dateOfBirth || undefined,
+      age: data.age || undefined,
+      gender: data.gender || undefined,
+      phone: data.phone || undefined,
+    };
+    
     // In non-DevOps mode, add the clubId from props
-    const submitData = isDevOpsMode ? data : { ...data, clubId };
+    const submitData = isDevOpsMode ? cleanedData : { ...cleanedData, clubId };
     onSave(submitData);
     form.reset();
     setOpen(false);
