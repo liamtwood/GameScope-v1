@@ -428,8 +428,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User operations (replaces Player operations)
-  async getUsers(teamId?: string): Promise<User[]> {
-    if (teamId) {
+  async getUsers(teamId?: string, role?: string): Promise<User[]> {
+    if (teamId && role) {
+      // Get users through team assignments with team-specific fields and role filter
+      return await db.select({
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        // Add team-specific fields
+        jerseyNumber: userTeams.jerseyNumber,
+        position: userTeams.position,
+        starPlayer: userTeams.starPlayer,
+        fitnessStatus: userTeams.fitnessStatus,
+      })
+      .from(users)
+      .innerJoin(userTeams, eq(users.id, userTeams.userId))
+      .where(and(eq(userTeams.teamId, teamId), eq(users.role, role)));
+    } else if (teamId) {
       // Get users through team assignments with team-specific fields
       return await db.select({
         id: users.id,
@@ -457,53 +485,104 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .innerJoin(userTeams, eq(users.id, userTeams.userId))
       .where(eq(userTeams.teamId, teamId));
+    } else if (role) {
+      // Get all users with role filter
+      return await db.select({
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }).from(users).where(eq(users.role, role));
+    } else {
+      // Get all users
+      return await db.select({
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }).from(users);
     }
-    return await db.select({
-      id: users.id,
-      username: users.username,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      shirtName: users.shirtName,
-      dateOfBirth: users.dateOfBirth,
-      gender: users.gender,
-      avatarPath: users.avatarPath,
-      email: users.email,
-      phone: users.phone,
-      emergencyContact: users.emergencyContact,
-      emergencyContactPhone: users.emergencyContactPhone,
-      role: users.role,
-      status: users.status,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-    }).from(users);
   }
 
-  async getUsersWithClubs(): Promise<(User & { clubId?: string | null; clubName?: string | null })[]> {
-    const result = await db.select({
-      id: users.id,
-      username: users.username,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      shirtName: users.shirtName,
-      dateOfBirth: users.dateOfBirth,
-      gender: users.gender,
-      avatarPath: users.avatarPath,
-      email: users.email,
-      phone: users.phone,
-      emergencyContact: users.emergencyContact,
-      emergencyContactPhone: users.emergencyContactPhone,
-      role: users.role,
-      status: users.status,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-      clubId: clubs.id,
-      clubName: clubs.name,
-    })
-    .from(users)
-    .leftJoin(userClubs, eq(users.id, userClubs.userId))
-    .leftJoin(clubs, eq(userClubs.clubId, clubs.id));
-    
-    return result;
+  async getUsersWithClubs(role?: string): Promise<(User & { clubId?: string | null; clubName?: string | null })[]> {
+    if (role) {
+      const result = await db.select({
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        clubId: clubs.id,
+        clubName: clubs.name,
+      })
+      .from(users)
+      .leftJoin(userClubs, eq(users.id, userClubs.userId))
+      .leftJoin(clubs, eq(userClubs.clubId, clubs.id))
+      .where(eq(users.role, role));
+      
+      return result;
+    } else {
+      const result = await db.select({
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        clubId: clubs.id,
+        clubName: clubs.name,
+      })
+      .from(users)
+      .leftJoin(userClubs, eq(users.id, userClubs.userId))
+      .leftJoin(clubs, eq(userClubs.clubId, clubs.id));
+      
+      return result;
+    }
   }
 
   async getUser(id: string): Promise<User | undefined> {

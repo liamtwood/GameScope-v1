@@ -229,11 +229,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get users by club ID  
   app.get("/api/club/:clubId/users", async (req, res) => {
     try {
-      console.log("Club users endpoint hit with clubId:", req.params.clubId);
-      const clubUsers = await storage.getClubUsers(req.params.clubId);
+      const clubId = req.params.clubId;
+      const role = req.query.role as string;
+      console.log("Club users endpoint hit with clubId:", clubId, "role:", role);
+      
+      const clubUsers = await storage.getClubUsers(clubId);
       console.log("Found users:", clubUsers.length);
-      // Extract just the user data for frontend compatibility
-      const users = clubUsers.map(cu => cu.user);
+      
+      // Extract just the user data and filter by role if specified
+      let users = clubUsers.map(cu => cu.user);
+      if (role) {
+        users = users.filter(user => user.role === role);
+      }
+      
       res.json(users);
     } catch (error) {
       console.error("Error fetching club users:", error);
@@ -416,13 +424,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users", async (req, res) => {
     try {
       const teamId = req.query.teamId as string;
+      const role = req.query.role as string;
       const includeClubs = req.query.includeClubs === 'true';
       
       if (includeClubs) {
-        const users = await storage.getUsersWithClubs();
+        const users = await storage.getUsersWithClubs(role);
         res.json(users);
       } else {
-        const users = await storage.getUsers(teamId);
+        const users = await storage.getUsers(teamId, role);
         res.json(users);
       }
     } catch (error) {

@@ -46,9 +46,20 @@ const COMMON_COUNTRIES = [
   "Ireland", "Mexico", "Brazil", "Argentina", "Japan", "South Korea", "New Zealand", "South Africa", "India", "Other"
 ];
 
-const SAMPLE_OWNERS = [
-  "John Smith", "Sarah Johnson", "Michael Brown", "Emma Davis", "David Wilson", "Lisa Garcia", "Robert Martinez", "Jennifer Anderson"
-];
+// Fetch admin users for owner selection
+const useAdminUsers = (clubId?: string) => {
+  return useQuery<any[]>({
+    queryKey: clubId ? ["/api/club", clubId, "admin-users"] : ["/api/users", "admin"],
+    queryFn: async () => {
+      const url = clubId 
+        ? `/api/club/${clubId}/users?role=admin`
+        : `/api/users?includeClubs=true&role=admin`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch admin users');
+      return response.json();
+    }
+  });
+};
 
 // Club card statistics type
 type ClubCardStats = {
@@ -125,11 +136,13 @@ export default function Clubs() {
   const [editingClub, setEditingClub] = useState<Club | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
-  const [isCreateOwnerDialogOpen, setIsCreateOwnerDialogOpen] = useState(false);
-  const [newOwnerName, setNewOwnerName] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { clubs, isLoading, selectedClub, selectClub } = useClub();
+  
+  // Fetch admin users for owner selection
+  const { data: adminUsersForCreate = [] } = useAdminUsers();
+  const { data: adminUsersForEdit = [] } = useAdminUsers(editingClub?.id);
 
   const form = useForm<CreateClubFormData>({
     resolver: zodResolver(createClubSchema),
@@ -391,22 +404,12 @@ export default function Clubs() {
                                   <SelectValue placeholder="Select owner" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {SAMPLE_OWNERS.map((owner) => (
-                                    <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                  {adminUsersForCreate.map((user) => (
+                                    <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setIsCreateOwnerDialogOpen(true)}
-                              data-testid="button-add-owner-create"
-                              className="shrink-0"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
                           </div>
                           <FormMessage />
                         </FormItem>
@@ -883,22 +886,12 @@ export default function Clubs() {
                                 <SelectValue placeholder="Select owner" />
                               </SelectTrigger>
                               <SelectContent>
-                                {SAMPLE_OWNERS.map((owner) => (
-                                  <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                {adminUsersForEdit.map((user) => (
+                                  <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </FormControl>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setIsCreateOwnerDialogOpen(true)}
-                            data-testid="button-add-owner"
-                            className="shrink-0"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
                         </div>
                         <FormMessage />
                       </FormItem>
@@ -1171,55 +1164,6 @@ export default function Clubs() {
         </DialogContent>
       </Dialog>
 
-      {/* Create Owner Dialog */}
-      <Dialog open={isCreateOwnerDialogOpen} onOpenChange={setIsCreateOwnerDialogOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Add New Owner</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <FormLabel>Owner Name</FormLabel>
-              <Input
-                placeholder="Enter owner name"
-                value={newOwnerName}
-                onChange={(e) => setNewOwnerName(e.target.value)}
-                data-testid="input-new-owner-name"
-                className="mt-1"
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsCreateOwnerDialogOpen(false);
-                  setNewOwnerName("");
-                }}
-                data-testid="button-cancel-new-owner"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  if (newOwnerName.trim()) {
-                    // Add to the list and select it
-                    SAMPLE_OWNERS.push(newOwnerName.trim());
-                    editForm.setValue("owner", newOwnerName.trim());
-                    setIsCreateOwnerDialogOpen(false);
-                    setNewOwnerName("");
-                  }
-                }}
-                disabled={!newOwnerName.trim()}
-                data-testid="button-add-new-owner"
-              >
-                Add Owner
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </MainLayout>
   );
 }
