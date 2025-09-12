@@ -50,6 +50,7 @@ export default function DevOpsUsers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users-with-clubs", "v2"] });
       toast({
         title: "User Added",
         description: "New user has been added to the system.",
@@ -70,6 +71,7 @@ export default function DevOpsUsers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users-with-clubs", "v2"] });
       toast({
         title: "User Updated",
         description: "User information has been updated successfully.",
@@ -110,6 +112,7 @@ export default function DevOpsUsers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users-with-clubs", "v2"] });
       toast({
         title: "User Deleted",
         description: "User has been removed from the system.",
