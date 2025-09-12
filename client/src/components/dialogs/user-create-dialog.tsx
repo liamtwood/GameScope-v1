@@ -89,7 +89,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* NAME INFORMATION - 3 columns */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-foreground">NAME INFORMATION</h3>
+              <h3 className="text-sm font-semibold text-foreground">NAME INFORMATION</h3>
               <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -135,7 +135,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
 
             {/* PERSONAL INFORMATION - 3 columns */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-foreground">PERSONAL INFORMATION</h3>
+              <h3 className="text-sm font-semibold text-foreground">PERSONAL INFORMATION</h3>
               <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -199,7 +199,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
 
             {/* CONTACT INFORMATION - 2 columns, 2 rows */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-foreground">CONTACT INFORMATION</h3>
+              <h3 className="text-sm font-semibold text-foreground">CONTACT INFORMATION</h3>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
