@@ -434,7 +434,6 @@ export class DatabaseStorage implements IStorage {
       return await db.select({
         id: users.id,
         username: users.username,
-        password: users.password,
         firstName: users.firstName,
         lastName: users.lastName,
         shirtName: users.shirtName,
@@ -459,14 +458,30 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(userTeams, eq(users.id, userTeams.userId))
       .where(eq(userTeams.teamId, teamId));
     }
-    return await db.select().from(users);
+    return await db.select({
+      id: users.id,
+      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      shirtName: users.shirtName,
+      dateOfBirth: users.dateOfBirth,
+      gender: users.gender,
+      avatarPath: users.avatarPath,
+      email: users.email,
+      phone: users.phone,
+      emergencyContact: users.emergencyContact,
+      emergencyContactPhone: users.emergencyContactPhone,
+      role: users.role,
+      status: users.status,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    }).from(users);
   }
 
   async getUsersWithClubs(): Promise<(User & { clubId?: string | null; clubName?: string | null })[]> {
     const result = await db.select({
       id: users.id,
       username: users.username,
-      password: users.password,
       firstName: users.firstName,
       lastName: users.lastName,
       shirtName: users.shirtName,
@@ -492,7 +507,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select({
+      id: users.id,
+      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      shirtName: users.shirtName,
+      dateOfBirth: users.dateOfBirth,
+      gender: users.gender,
+      avatarPath: users.avatarPath,
+      email: users.email,
+      phone: users.phone,
+      emergencyContact: users.emergencyContact,
+      emergencyContactPhone: users.emergencyContactPhone,
+      role: users.role,
+      status: users.status,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    }).from(users).where(eq(users.id, id));
     return user;
   }
 
@@ -516,7 +548,9 @@ export class DatabaseStorage implements IStorage {
     };
     
     await db.insert(users).values(newUserData);
-    return newUserData as User;
+    // Return user without password field for security
+    const { password, ...userWithoutPassword } = newUserData;
+    return userWithoutPassword as User;
   }
 
   async updateUser(id: string, user: Partial<InsertUser>): Promise<User> {
@@ -527,7 +561,24 @@ export class DatabaseStorage implements IStorage {
     
     await db.update(users).set(updated).where(eq(users.id, id));
     
-    const [updatedUser] = await db.select().from(users).where(eq(users.id, id));
+    const [updatedUser] = await db.select({
+      id: users.id,
+      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      shirtName: users.shirtName,
+      dateOfBirth: users.dateOfBirth,
+      gender: users.gender,
+      avatarPath: users.avatarPath,
+      email: users.email,
+      phone: users.phone,
+      emergencyContact: users.emergencyContact,
+      emergencyContactPhone: users.emergencyContactPhone,
+      role: users.role,
+      status: users.status,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    }).from(users).where(eq(users.id, id));
     if (!updatedUser) throw new Error('User not found');
     
     return updatedUser;
@@ -655,7 +706,24 @@ export class DatabaseStorage implements IStorage {
       
     return result.map(row => ({
       ...row.user_clubs,
-      user: row.users!
+      user: {
+        id: row.users!.id,
+        username: row.users!.username,
+        firstName: row.users!.firstName,
+        lastName: row.users!.lastName,
+        shirtName: row.users!.shirtName,
+        dateOfBirth: row.users!.dateOfBirth,
+        gender: row.users!.gender,
+        avatarPath: row.users!.avatarPath,
+        email: row.users!.email,
+        phone: row.users!.phone,
+        emergencyContact: row.users!.emergencyContact,
+        emergencyContactPhone: row.users!.emergencyContactPhone,
+        role: row.users!.role,
+        status: row.users!.status,
+        createdAt: row.users!.createdAt,
+        updatedAt: row.users!.updatedAt,
+      }
     })) as (UserClub & { user: User })[];
   }
 
@@ -699,7 +767,24 @@ export class DatabaseStorage implements IStorage {
 
       createdAt: userTeams.createdAt,
       updatedAt: userTeams.updatedAt,
-      user: users
+      user: {
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }
     })
     .from(userTeams)
     .innerJoin(users, eq(userTeams.userId, users.id))
@@ -714,7 +799,24 @@ export class DatabaseStorage implements IStorage {
       parentUserId: userParents.parentUserId,
       relationshipType: userParents.relationshipType,
       createdAt: userParents.createdAt,
-      parent: users
+      parent: {
+        id: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        shirtName: users.shirtName,
+        dateOfBirth: users.dateOfBirth,
+        gender: users.gender,
+        avatarPath: users.avatarPath,
+        email: users.email,
+        phone: users.phone,
+        emergencyContact: users.emergencyContact,
+        emergencyContactPhone: users.emergencyContactPhone,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }
     })
     .from(userParents)
     .innerJoin(users, eq(userParents.parentUserId, users.id))
