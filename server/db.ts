@@ -18,7 +18,6 @@ export const pool = new Pool({
   max: 3, // Maximum number of connections in the pool (safe for Neon limits)
   idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
   connectionTimeoutMillis: 5000, // Timeout when acquiring a connection
-  maxLifetimeSeconds: 1800, // Recycle connections after 30 minutes
   allowExitOnIdle: true, // Allow pool to close when idle (good for serverless)
 });
 

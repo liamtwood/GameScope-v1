@@ -138,21 +138,30 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   constructor() {
-    this.initializeData();
+    this.initializeData().catch(err => {
+      console.error('Failed to initialize database data:', err);
+      // Don't throw here - allow the app to continue running
+    });
   }
 
   private async initializeData() {
-    // Check if data already exists
-    const existingTeams = await db.select().from(teams);
-    if (existingTeams.length > 0) {
-      return; // Data already exists
-    }
+    try {
+      console.log('Initializing database data...');
+      
+      // Check if data already exists
+      const existingTeams = await db.select().from(teams);
+      if (existingTeams.length > 0) {
+        console.log('Database data already exists, skipping initialization');
+        return; // Data already exists
+      }
 
-    // Create Polk State College club first
-    const [club] = await db.insert(clubs).values({
-      name: "Polk State College",
-      owner: "Liam Wood",
-    }).returning();
+      console.log('Creating initial database data...');
+
+      // Create Polk State College club first
+      const [club] = await db.insert(clubs).values({
+        name: "Polk State College",
+        owner: "Liam Wood",
+      }).returning();
 
     // Initialize with sample team
     const teamId = randomUUID();
@@ -319,6 +328,12 @@ export class DatabaseStorage implements IStorage {
     };
 
     await db.insert(users).values({ ...userData, id: randomUUID() });
+    
+    console.log('Database initialization completed successfully');
+    } catch (error) {
+      console.error('Database initialization failed:', error);
+      throw error;
+    }
   }
 
   // Club operations
