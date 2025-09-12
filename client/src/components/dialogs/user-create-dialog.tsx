@@ -7,8 +7,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
 
-const createUserSchema = z.object({
+// Base schema for all user creation
+const baseUserSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   shirtName: z.string().optional(),
@@ -21,7 +23,12 @@ const createUserSchema = z.object({
   status: z.string().default("Active"),
 });
 
-type CreateUserFormData = z.infer<typeof createUserSchema>;
+// Schema for DevOps (includes club selection)
+const devOpsUserSchema = baseUserSchema.extend({
+  clubId: z.string().min(1, "Club selection is required"),
+});
+
+type CreateUserFormData = z.infer<typeof devOpsUserSchema>;
 
 interface UserCreateDialogProps {
   children: React.ReactNode;
@@ -31,10 +38,20 @@ interface UserCreateDialogProps {
 
 export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogProps) {
   const [open, setOpen] = useState(false);
+  
+  // Determine if this is DevOps mode (no specific club selected)
+  const isDevOpsMode = !clubId;
+  
+  // Fetch clubs for DevOps mode
+  const { data: clubs = [] } = useQuery<any[]>({ 
+    queryKey: ["/api/clubs"],
+    enabled: isDevOpsMode
+  });
 
   const form = useForm<CreateUserFormData>({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(isDevOpsMode ? devOpsUserSchema : baseUserSchema),
     defaultValues: {
+      ...(isDevOpsMode && { clubId: "" }),
       firstName: "",
       lastName: "",
       shirtName: "",
@@ -71,7 +88,9 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
   }, [dateOfBirth, form]);
 
   const handleSubmit = (data: CreateUserFormData) => {
-    onSave(data);
+    // In non-DevOps mode, add the clubId from props
+    const submitData = isDevOpsMode ? data : { ...data, clubId };
+    onSave(submitData);
     form.reset();
     setOpen(false);
   };
@@ -88,6 +107,37 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* CLUB SELECTION - Only for DevOps mode */}
+            {isDevOpsMode && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">CLUB SELECTION</h3>
+                <FormField
+                  control={form.control}
+                  name="clubId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Club *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-club">
+                            <SelectValue placeholder="Select club" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {clubs.map((club: any) => (
+                            <SelectItem key={club.id} value={club.id}>
+                              {club.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
             {/* NAME INFORMATION - 3 columns */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">NAME INFORMATION</h3>
@@ -287,7 +337,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
               </Button>
               <Button 
                 type="submit" 
-                disabled={!clubId}
+                disabled={isDevOpsMode ? !form.watch("clubId") : !clubId}
                 data-testid="button-save"
               >
                 Add User
