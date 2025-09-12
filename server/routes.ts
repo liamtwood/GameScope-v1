@@ -2068,6 +2068,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus, clubId, ...userData } = req.body;
       
+      console.log("Creating user with request body:", req.body);
+      console.log("Extracted clubId:", clubId);
+      
       // Set shirt_name to surname if not provided
       if (!userData.shirtName && userData.lastName) {
         userData.shirtName = userData.lastName;
@@ -2077,13 +2080,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedUserData = insertUserSchema.parse(userData);
       const user = await storage.createUser(validatedUserData);
       
+      console.log("User created with ID:", user.id);
+      
       // Add to club if clubId is provided
       if (clubId) {
+        console.log("Adding user to club:", clubId);
         const clubAssignment = {
           status: 'Active',
           keyUser: false
         };
         await storage.addUserToClub(user.id, clubId, clubAssignment);
+        console.log("User successfully added to club");
+      } else {
+        console.log("No clubId provided, skipping club assignment");
       }
       
       // Add to team if teamId and position are provided

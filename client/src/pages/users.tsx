@@ -304,7 +304,7 @@ export default function Users() {
           </div>
           <div className="flex items-center gap-2">
             <UserCreateDialog 
-              clubId={currentClub?.id || ""} 
+              clubId={currentClub?.id} 
               onSave={handleCreateUser}
             >
               <Button 

@@ -32,7 +32,7 @@ type CreateUserFormData = z.infer<typeof devOpsUserSchema>;
 
 interface UserCreateDialogProps {
   children: React.ReactNode;
-  clubId: string;
+  clubId?: string;
   onSave: (data: CreateUserFormData) => void;
 }
 
@@ -40,7 +40,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
   const [open, setOpen] = useState(false);
   
   // Determine if this is DevOps mode (no specific club selected)
-  const isDevOpsMode = !clubId;
+  const isDevOpsMode = !clubId || clubId.trim() === "";
   
   // Fetch clubs for DevOps mode
   const { data: clubs = [] } = useQuery<any[]>({ 
