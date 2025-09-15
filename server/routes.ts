@@ -577,6 +577,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Transfer players between teams
+  app.post("/api/players/transfer", async (req, res) => {
+    try {
+      const { playerIds, sourceTeamId, targetTeamId, keepOnSourceTeam } = req.body;
+
+      if (!playerIds || !Array.isArray(playerIds) || playerIds.length === 0) {
+        return res.status(400).json({ message: "playerIds array is required" });
+      }
+
+      if (!sourceTeamId || !targetTeamId) {
+        return res.status(400).json({ message: "sourceTeamId and targetTeamId are required" });
+      }
+
+      if (sourceTeamId === targetTeamId) {
+        return res.status(400).json({ message: "Source and target teams cannot be the same" });
+      }
+
+      console.log(`Transferring ${playerIds.length} players from team ${sourceTeamId} to team ${targetTeamId}, keepOnSourceTeam: ${keepOnSourceTeam}`);
+
+      const transferResults = [];
+      
+      for (const playerId of playerIds) {
+        try {
+          // Get the player's current team assignment to copy settings like position
+          const currentTeamAssignments = await storage.getUserTeams(playerId);
+          const sourceTeamAssignment = currentTeamAssignments.find(assignment => assignment.teamId === sourceTeamId);
+          
+          if (!sourceTeamAssignment) {
+            console.warn(`Player ${playerId} is not currently on source team ${sourceTeamId}`);
+            continue;
+          }
+
+          // Create assignment for target team with similar settings
+          const targetTeamAssignment = {
+            userId: playerId,
+            teamId: targetTeamId,
+            position: sourceTeamAssignment.position,
+            jerseyNumber: sourceTeamAssignment.jerseyNumber || 0,
+            starPlayer: sourceTeamAssignment.starPlayer || false,
+            fitnessStatus: sourceTeamAssignment.fitnessStatus || 'Fit'
+          };
+
+          // Add player to target team
+          const validatedTeamData = insertUserTeamSchema.parse(targetTeamAssignment);
+          await storage.addUserToTeam(playerId, targetTeamId, validatedTeamData);
+
+          // If not keeping on both teams, remove from source team
+          if (!keepOnSourceTeam) {
+            await storage.removeUserFromTeam(playerId, sourceTeamId);
+          }
+
+          transferResults.push({
+            playerId,
+            success: true,
+            addedToTarget: true,
+            removedFromSource: !keepOnSourceTeam
+          });
+
+        } catch (error) {
+          console.error(`Error transferring player ${playerId}:`, error);
+          transferResults.push({
+            playerId,
+            success: false,
+            error: error.message
+          });
+        }
+      }
+
+      const successCount = transferResults.filter(r => r.success).length;
+      const failCount = transferResults.filter(r => !r.success).length;
+
+      res.json({
+        message: `Transfer completed: ${successCount} successful, ${failCount} failed`,
+        results: transferResults,
+        summary: {
+          total: playerIds.length,
+          successful: successCount,
+          failed: failCount
+        }
+      });
+
+    } catch (error) {
+      console.error("Error in player transfer:", error);
+      res.status(500).json({ message: "Failed to transfer players" });
+    }
+  });
+
   // Photo upload routes
   // Get upload URL for player photo
   app.post("/api/player/:playerId/photo/upload", async (req, res) => {
