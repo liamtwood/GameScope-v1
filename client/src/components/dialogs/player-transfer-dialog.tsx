@@ -200,6 +200,7 @@ export function PlayerTransferDialog({
 
   const selectedSourceTeam = allTeams.find(team => team.id === actualSourceTeamId);
   const selectedTargetTeam = allTeams.find(team => team.id === actualTargetTeamId);
+  const currentTeam = allTeams.find(team => team.id === currentTeamId);
 
   return (
     <>
@@ -245,7 +246,10 @@ export function PlayerTransferDialog({
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  {transferMode === "out" ? "Current Squad" : "Source Team Squad"} ({sourcePlayers.length} players)
+                  {transferMode === "out" ? 
+                    `Current Squad - ${currentTeam?.name || 'Unknown Team'}` : 
+                    `Source Team Squad - ${selectedSourceTeam?.name || 'Select Team'}`
+                  } ({sourcePlayers.length} players)
                 </CardTitle>
                 {transferMode === "in" && (
                   <div className="space-y-2">
@@ -330,7 +334,10 @@ export function PlayerTransferDialog({
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   {transferMode === "out" ? <ArrowRight className="h-4 w-4" /> : <Users className="h-4 w-4" />}
-                  {transferMode === "out" ? "Transfer To" : "Current Squad"}
+                  {transferMode === "out" ? 
+                    "Transfer To" : 
+                    `Current Squad - ${currentTeam?.name || 'Unknown Team'}`
+                  }
                 </CardTitle>
                 {transferMode === "out" && (
                   <div className="space-y-2">
@@ -356,7 +363,10 @@ export function PlayerTransferDialog({
                 {actualTargetTeamId ? (
                   <>
                     <div className="mb-3 text-xs text-muted-foreground">
-                      Current squad in {selectedTargetTeam?.name} ({targetPlayers.length} players)
+                      {transferMode === "out" ? 
+                        `Current squad in ${selectedTargetTeam?.name} (${targetPlayers.length} players)` :
+                        `Current squad (${targetPlayers.length} players)`
+                      }
                     </div>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">
