@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -580,32 +580,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Transfer players between teams
   app.post("/api/players/transfer", async (req, res) => {
     try {
-      const { playerIds, sourceTeamId, targetTeamId, keepOnSourceTeam } = req.body;
+      // Validate request body using Zod schema
+      const validatedData = playerTransferSchema.parse(req.body);
+      const { playerIds, sourceTeamId, targetTeamId, keepOnSourceTeam } = validatedData;
 
-      if (!playerIds || !Array.isArray(playerIds) || playerIds.length === 0) {
-        return res.status(400).json({ message: "playerIds array is required" });
+      // Verify source and target teams exist and belong to the same club
+      const sourceTeam = await storage.getTeam(sourceTeamId);
+      const targetTeam = await storage.getTeam(targetTeamId);
+
+      if (!sourceTeam) {
+        return res.status(404).json({ message: "Source team not found" });
       }
 
-      if (!sourceTeamId || !targetTeamId) {
-        return res.status(400).json({ message: "sourceTeamId and targetTeamId are required" });
+      if (!targetTeam) {
+        return res.status(404).json({ message: "Target team not found" });
       }
 
-      if (sourceTeamId === targetTeamId) {
-        return res.status(400).json({ message: "Source and target teams cannot be the same" });
+      if (sourceTeam.clubId !== targetTeam.clubId) {
+        return res.status(400).json({ message: "Source and target teams must belong to the same club" });
       }
 
-      console.log(`Transferring ${playerIds.length} players from team ${sourceTeamId} to team ${targetTeamId}, keepOnSourceTeam: ${keepOnSourceTeam}`);
+      console.log(`Transferring ${playerIds.length} players from team ${sourceTeam.name} to team ${targetTeam.name}, keepOnSourceTeam: ${keepOnSourceTeam}`);
 
       const transferResults = [];
       
       for (const playerId of playerIds) {
         try {
-          // Get the player's current team assignment to copy settings like position
+          // Verify player exists
+          const player = await storage.getUser(playerId);
+          if (!player) {
+            transferResults.push({
+              playerId,
+              success: false,
+              error: "Player not found"
+            });
+            continue;
+          }
+
+          // Get the player's current team assignments
           const currentTeamAssignments = await storage.getUserTeams(playerId);
           const sourceTeamAssignment = currentTeamAssignments.find(assignment => assignment.teamId === sourceTeamId);
+          const existingTargetAssignment = currentTeamAssignments.find(assignment => assignment.teamId === targetTeamId);
           
           if (!sourceTeamAssignment) {
-            console.warn(`Player ${playerId} is not currently on source team ${sourceTeamId}`);
+            transferResults.push({
+              playerId,
+              success: false,
+              error: `Player is not currently on source team ${sourceTeam.name}`
+            });
+            continue;
+          }
+
+          // Skip if player already on target team (idempotent)
+          if (existingTargetAssignment) {
+            transferResults.push({
+              playerId,
+              success: true,
+              message: `Player already on target team ${targetTeam.name}`,
+              addedToTarget: false,
+              removedFromSource: false
+            });
             continue;
           }
 
@@ -632,7 +666,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             playerId,
             success: true,
             addedToTarget: true,
-            removedFromSource: !keepOnSourceTeam
+            removedFromSource: !keepOnSourceTeam,
+            message: keepOnSourceTeam ? 
+              `Added to ${targetTeam.name}, kept on ${sourceTeam.name}` :
+              `Moved from ${sourceTeam.name} to ${targetTeam.name}`
           });
 
         } catch (error) {
@@ -640,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           transferResults.push({
             playerId,
             success: false,
-            error: error.message
+            error: error instanceof Error ? error.message : "Unknown error occurred"
           });
         }
       }

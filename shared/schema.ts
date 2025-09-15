@@ -398,6 +398,19 @@ export type InsertPlayerStats = z.infer<typeof insertPlayerStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
 
+// Player transfer schema
+export const playerTransferSchema = z.object({
+  playerIds: z.array(z.string().uuid("Invalid player ID")).min(1, "At least one player must be selected"),
+  sourceTeamId: z.string().uuid("Invalid source team ID"),
+  targetTeamId: z.string().uuid("Invalid target team ID"),
+  keepOnSourceTeam: z.boolean(),
+}).refine(data => data.sourceTeamId !== data.targetTeamId, {
+  message: "Source and target teams cannot be the same",
+  path: ["targetTeamId"]
+});
+
+export type PlayerTransferRequest = z.infer<typeof playerTransferSchema>;
+
 // Extended types for users with team data
 export type UserWithTeamData = User & {
   jerseyNumber: number | null;
