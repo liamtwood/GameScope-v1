@@ -7,6 +7,7 @@ import { PlayerCard } from "@/components/ui/player-card";
 import { PlayerCreateDialog } from "@/components/dialogs/player-create-dialog";
 import { ExcelImportDialog } from "@/components/dialogs/excel-import-dialog";
 import { PlayerReadOnlyView } from "@/components/ui/player-read-only-view";
+import { PlayerTransferDialog } from "@/components/dialogs/player-transfer-dialog";
 import { SeasonPicker } from "@/components/ui/season-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload, ArrowRightLeft } from "lucide-react";
 import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
 // Define Player type for compatibility
@@ -496,6 +497,23 @@ export default function Squad() {
                 Import Excel
               </Button>
             </ExcelImportDialog>
+            
+            <PlayerTransferDialog
+              currentTeamId={currentTeam?.id || ""}
+              clubId={currentClub?.id || ""}
+              onTransferComplete={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
+              }}
+            >
+              <Button 
+                variant="outline" 
+                disabled={!currentTeam?.id || !currentClub?.id}
+                data-testid="button-transfer-players"
+              >
+                <ArrowRightLeft className="mr-2 h-4 w-4" />
+                Transfer Players
+              </Button>
+            </PlayerTransferDialog>
             
             <Button 
               variant="ghost" 
