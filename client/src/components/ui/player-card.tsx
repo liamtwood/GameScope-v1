@@ -4,15 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, Trash2, MoreHorizontal, Star, User as UserIcon, Pencil, Check, X } from "lucide-react";
+import { Edit, Trash2, Star, User as UserIcon, Pencil, Check, X } from "lucide-react";
 import { User } from "@shared/schema";
 import { useLocation } from "wouter";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
@@ -246,43 +240,22 @@ export function PlayerCard({ player, teamId, onEdit, onDelete, onToggleKeyPlayer
               </Button>
             )}
 
-            {/* Actions Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="h-8 w-8 p-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {onToggleKeyPlayer && (
-                  <DropdownMenuItem onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onToggleKeyPlayer(player);
-                  }}>
-                    <Star className="mr-2 h-4 w-4" />
-                    {player.keyPlayer ? 'Remove Star' : 'Make Star Player'}
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <DropdownMenuItem 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onDelete(player);
-                    }}
-                    className="text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Player
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Delete Button */}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(player);
+                }}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                data-testid={`button-delete-${player.id}`}
+                title="Delete player"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
