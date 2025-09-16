@@ -25,6 +25,7 @@ import PlayerProfiles from "@/pages/player-profiles";
 import Users from "@/pages/users";
 import DevOpsUsers from "@/pages/devops-users";
 import UserDetails from "@/pages/user-details";
+import { VideoPlayerPage } from "@/pages/video-player";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/statistics" component={Statistics} />
       <Route path="/teams" component={Teams} />
       <Route path="/videos" component={Videos} />
+      <Route path="/video-player" component={VideoPlayerPage} />
       <Route path="/clubs" component={Clubs} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
