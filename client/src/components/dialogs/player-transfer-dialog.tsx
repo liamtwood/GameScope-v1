@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowRight, Users, Star, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useClubTheme } from "@/hooks/use-club-theme";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface Player {
@@ -51,6 +52,7 @@ export function PlayerTransferDialog({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [keepOnBothTeams, setKeepOnBothTeams] = useState<boolean | null>(null);
   const { toast } = useToast();
+  const { clubPrimary } = useClubTheme();
 
   // Fetch teams in the same club (excluding current team)
   const { data: allTeams = [] } = useQuery<Team[]>({
@@ -296,7 +298,10 @@ export function PlayerTransferDialog({
                             data-testid={`checkbox-player-${player.id}`}
                           />
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                            <div 
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                              style={{ backgroundColor: clubPrimary }}
+                            >
                               {player.jerseyNumber || "?"}
                             </div>
                             <div className="flex-1 min-w-0">
@@ -370,7 +375,10 @@ export function PlayerTransferDialog({
                             key={player.id}
                             className="flex items-center gap-3 p-2 rounded-lg border bg-muted/50"
                           >
-                            <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-xs font-medium">
+                            <div 
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                              style={{ backgroundColor: clubPrimary }}
+                            >
                               {player.jerseyNumber || "?"}
                             </div>
                             <div className="flex-1 min-w-0">
