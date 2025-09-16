@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ interface YouTubePlayerProps {
 }
 
 export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlayerProps) {
-  const playerRef = useRef<ReactPlayer | null>(null);
+  const playerRef = useRef<any>(null);
   const [playing, setPlaying] = useState(false);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -66,7 +66,7 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
   const handleSeekCommit = (value: number[]) => {
     setSeeking(false);
     const seekToTime = (value[0] / 100) * duration;
-    playerRef.current?.seekTo(seekToTime, 'seconds');
+    seekTo(seekToTime);
   };
 
   const handleSeekStart = () => {
@@ -74,18 +74,37 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
   };
 
   const seekTo = (seconds: number) => {
+    if (!playerRef.current) return;
     if (seconds < 0) seconds = 0;
     if (seconds > duration) seconds = duration;
-    playerRef.current?.seekTo(seconds, 'seconds');
-    setCurrentTime(seconds);
+    try {
+      playerRef.current.seekTo(seconds, 'seconds');
+      setCurrentTime(seconds);
+    } catch (error) {
+      console.error('Error seeking to time:', error);
+    }
   };
 
   const skipForward = () => {
-    seekTo(currentTime + 10);
+    if (playerRef.current) {
+      try {
+        const current = playerRef.current.getCurrentTime();
+        seekTo(current + 10);
+      } catch (error) {
+        seekTo(currentTime + 10);
+      }
+    }
   };
 
   const skipBackward = () => {
-    seekTo(currentTime - 10);
+    if (playerRef.current) {
+      try {
+        const current = playerRef.current.getCurrentTime();
+        seekTo(current - 10);
+      } catch (error) {
+        seekTo(currentTime - 10);
+      }
+    }
   };
 
   const handleSeekInputSubmit = () => {
@@ -110,6 +129,10 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
 
   const toggleMute = () => {
     setMuted(!muted);
+  };
+
+  const handlePlayerReady = () => {
+    console.log('Player ready');
   };
 
   // Quick seek buttons for specific times
@@ -147,10 +170,21 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
               muted={muted}
               onProgress={handleProgress}
               onDuration={setDuration}
-              onReady={() => console.log('Player ready')}
+              onReady={handlePlayerReady}
               width={width}
               height={height}
               controls={false}
+              config={{
+                youtube: {
+                  playerVars: {
+                    showinfo: 1,
+                    controls: 0,
+                    rel: 0,
+                    fs: 1,
+                    iv_load_policy: 3
+                  }
+                }
+              }}
               data-testid="youtube-player"
             />
           </div>
@@ -272,7 +306,7 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => seekTo(duration * 0.5)}
+                  onClick={() => seekTo(duration / 2)}
                   data-testid="quick-seek-middle"
                 >
                   Middle
