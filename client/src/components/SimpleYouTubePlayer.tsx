@@ -47,7 +47,7 @@ export function SimpleYouTubePlayer({ url }: SimpleYouTubePlayerProps) {
         <CardTitle>Simple YouTube Player (Debug)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="aspect-video bg-black">
+        <div className="aspect-video bg-black rounded-lg overflow-hidden">
           <ReactPlayer
             ref={playerRef}
             url={url}
@@ -59,6 +59,18 @@ export function SimpleYouTubePlayer({ url }: SimpleYouTubePlayerProps) {
             width="100%"
             height="100%"
             controls={true}
+            config={{
+              youtube: {
+                playerVars: {
+                  autoplay: 0,
+                  controls: 1,
+                  disablekb: 0,
+                  enablejsapi: 1,
+                  fs: 1,
+                  rel: 0
+                }
+              }
+            }}
             data-testid="simple-youtube-player"
           />
         </div>
