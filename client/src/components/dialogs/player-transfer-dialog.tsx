@@ -67,11 +67,51 @@ export function PlayerTransferDialog({
   // Determine source and target team IDs based on mode
   const actualSourceTeamId = transferMode === "out" ? currentTeamId : selectedSourceTeamId;
   const actualTargetTeamId = transferMode === "out" ? selectedTargetTeamId : currentTeamId;
+  
+  // Check if selecting players from "not in any team"
+  const isNoTeamSource = transferMode === "in" && selectedSourceTeamId === "NO_TEAM";
 
-  // Fetch source team's players
+  // Fetch source team's players or club players without teams
   const { data: sourceTeamPlayers = [] } = useQuery<any[]>({
-    queryKey: ["/api/team", actualSourceTeamId, "users"],
-    enabled: open && !!actualSourceTeamId,
+    queryKey: isNoTeamSource 
+      ? ["/api/club", clubId, "users", "unassigned"] 
+      : ["/api/team", actualSourceTeamId, "users"],
+    enabled: open && (!!actualSourceTeamId || isNoTeamSource),
+    queryFn: async () => {
+      if (isNoTeamSource) {
+        // Fetch all club users and filter out those already in teams
+        const allClubUsersResponse = await fetch(`/api/club/${clubId}/users?role=Player`);
+        const allClubUsers = await allClubUsersResponse.json();
+        
+        // Get all teams in club and their users to filter out assigned players
+        const allTeamsResponse = await fetch("/api/teams");
+        const allTeams = await allTeamsResponse.json();
+        const clubTeamIds = allTeams.filter((team: any) => team.clubId === clubId).map((team: any) => team.id);
+        
+        // Get all users assigned to any team in this club
+        const assignedUserIds = new Set();
+        for (const teamId of clubTeamIds) {
+          const teamUsersResponse = await fetch(`/api/team/${teamId}/users`);
+          const teamUsers = await teamUsersResponse.json();
+          teamUsers.forEach((tu: any) => assignedUserIds.add(tu.user.id));
+        }
+        
+        // Filter out assigned users and return unassigned ones in the expected format
+        return allClubUsers
+          .filter((user: any) => !assignedUserIds.has(user.id))
+          .map((user: any) => ({
+            user: user,
+            jerseyNumber: null,
+            position: "Unassigned",
+            starPlayer: false,
+            fitnessStatus: "Fit"
+          }));
+      } else {
+        // Regular team users fetch
+        const response = await fetch(`/api/team/${actualSourceTeamId}/users`);
+        return await response.json();
+      }
+    },
   });
 
   // Convert to player format
@@ -245,7 +285,7 @@ export function PlayerTransferDialog({
                   <Users className="h-4 w-4" />
                   {transferMode === "out" ? 
                     `Current Squad - ${currentTeam?.name || 'Unknown Team'}` : 
-                    `Source Team Squad - ${selectedSourceTeam?.name || 'Select Team'}`
+                    isNoTeamSource ? "Players Not in Any Team" : `Source Team Squad - ${selectedSourceTeam?.name || 'Select Team'}`
                   } ({sourcePlayers.length} players)
                 </CardTitle>
                 {transferMode === "in" && (
@@ -261,6 +301,9 @@ export function PlayerTransferDialog({
                         <SelectValue placeholder="Select source team" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="NO_TEAM">
+                          Not in any Team
+                        </SelectItem>
                         {clubTeams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
@@ -436,7 +479,7 @@ export function PlayerTransferDialog({
               <p>
                 {transferMode === "out" ? 
                   `You are about to transfer ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from your current team to ${selectedTargetTeam?.name}.` :
-                  `You are about to bring ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from ${selectedSourceTeam?.name} to your current team.`
+                  `You are about to bring ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from ${isNoTeamSource ? 'unassigned players' : selectedSourceTeam?.name} to your current team.`
                 }
               </p>
               <p className="font-medium">
