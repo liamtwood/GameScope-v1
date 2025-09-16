@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowRight, Users, UserCheck, ArrowLeft } from "lucide-react";
+import { ArrowRight, Users, Star, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -221,8 +221,8 @@ export function PlayerTransferDialog({
           {/* Transfer Mode Tabs */}
           <Tabs 
             value={transferMode} 
-            onValueChange={(value: TransferMode) => {
-              setTransferMode(value);
+            onValueChange={(value: string) => {
+              setTransferMode(value as TransferMode);
               setSelectedPlayers(new Set());
               setSelectedSourceTeamId("");
               setSelectedTargetTeamId("");
@@ -306,7 +306,7 @@ export function PlayerTransferDialog({
                               <p className="text-xs text-muted-foreground">{player.position}</p>
                             </div>
                             {player.starPlayer && (
-                              <UserCheck className="h-4 w-4 text-yellow-500" />
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                             )}
                           </div>
                         </div>
@@ -380,7 +380,7 @@ export function PlayerTransferDialog({
                               <p className="text-xs text-muted-foreground">{player.position}</p>
                             </div>
                             {player.starPlayer && (
-                              <UserCheck className="h-4 w-4 text-yellow-500" />
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                             )}
                           </div>
                         ))}
