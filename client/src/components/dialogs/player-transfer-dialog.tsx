@@ -6,8 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowRight, Users, UserCheck, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -211,36 +210,32 @@ export function PlayerTransferDialog({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[900px] max-h-[85vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {transferMode === "out" ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+            <DialogTitle>
               Transfer Players
             </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Transfer players out of your team or into your team to another team in the club.
+            </p>
           </DialogHeader>
 
-          {/* Transfer Mode Selection */}
-          <div className="mb-4">
-            <RadioGroup
-              value={transferMode}
-              onValueChange={(value: TransferMode) => {
-                setTransferMode(value);
-                setSelectedPlayers(new Set());
-                setSelectedSourceTeamId("");
-                setSelectedTargetTeamId("");
-              }}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="out" id="transfer-out" data-testid="radio-transfer-out" />
-                <Label htmlFor="transfer-out">Transfer Out (from current team)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="in" id="transfer-in" data-testid="radio-transfer-in" />
-                <Label htmlFor="transfer-in">Transfer In (to current team)</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          {/* Transfer Mode Tabs */}
+          <Tabs 
+            value={transferMode} 
+            onValueChange={(value: TransferMode) => {
+              setTransferMode(value);
+              setSelectedPlayers(new Set());
+              setSelectedSourceTeamId("");
+              setSelectedTargetTeamId("");
+            }}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="out" data-testid="tab-transfer-out">Transfer Out</TabsTrigger>
+              <TabsTrigger value="in" data-testid="tab-transfer-in">Transfer In</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 mt-4">
             {/* Source Team */}
             <Card className="flex flex-col min-h-0">
               <CardHeader className="pb-3">
