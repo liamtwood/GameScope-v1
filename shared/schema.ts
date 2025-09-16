@@ -8,6 +8,8 @@ export const clubs = pgTable("clubs", {
   name: text("name").notNull(),
   shortName: text("short_name").notNull().default("PSC"),
   owner: text("owner").notNull(),
+  ownerFirstName: text("owner_first_name"),
+  ownerLastName: text("owner_last_name"),
   logoPath: text("logo_path"),
   // Tenant-specific attributes
   address: text("address"),

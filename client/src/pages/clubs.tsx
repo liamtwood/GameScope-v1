@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +24,8 @@ import { z } from "zod";
 // Create a schema with required name validation and colors
 const createClubSchema = insertClubSchema.extend({
   name: z.string().min(1, "Club name is required"),
+  ownerFirstName: z.string().min(1, "First name is required"),
+  ownerLastName: z.string().min(1, "Last name is required"),
   colors: z.object({
     primary: z.string().min(1, "Primary color is required"),
     secondary: z.string().optional(),
@@ -150,6 +152,8 @@ export default function Clubs() {
       name: "",
       shortName: "",
       owner: "admin", // Default owner
+      ownerFirstName: "",
+      ownerLastName: "",
       address: "",
       city: "",
       state: "",
@@ -169,6 +173,8 @@ export default function Clubs() {
       name: "",
       shortName: "",
       owner: "",
+      ownerFirstName: "",
+      ownerLastName: "",
       address: "",
       city: "",
       state: "",
@@ -268,6 +274,8 @@ export default function Clubs() {
       name: club.name,
       shortName: club.shortName,
       owner: club.owner,
+      ownerFirstName: (club as any).ownerFirstName || "",
+      ownerLastName: (club as any).ownerLastName || "",
       address: club.address || "",
       city: club.city || "",
       state: club.state || "",
@@ -346,6 +354,7 @@ export default function Clubs() {
               <DialogContent className="sm:max-w-[800px]">
             <DialogHeader>
               <DialogTitle>Create New Club</DialogTitle>
+              <DialogDescription>Create new GameScope Club</DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 text-sm">
@@ -502,7 +511,45 @@ export default function Clubs() {
                       )}
                     />
                     
-                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CLUB OWNER</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <FormField
+                        control={form.control}
+                        name="ownerFirstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="First name"
+                                data-testid="input-owner-first-name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="ownerLastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Last name"
+                                data-testid="input-owner-last-name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -1008,7 +1055,48 @@ export default function Clubs() {
                     )}
                   />
                   
-                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CLUB OWNER</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <FormField
+                      control={editForm.control}
+                      name="ownerFirstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="First name"
+                              data-testid="input-edit-owner-first-name"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={editForm.control}
+                      name="ownerLastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Last name"
+                              data-testid="input-edit-owner-last-name"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={editForm.control}
