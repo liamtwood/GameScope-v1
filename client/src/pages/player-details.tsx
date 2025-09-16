@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
@@ -1280,6 +1280,9 @@ export default function PlayerDetails() {
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle>Add to Team</DialogTitle>
+                                  <DialogDescription>
+                                    Add this player to a team roster.
+                                  </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div>

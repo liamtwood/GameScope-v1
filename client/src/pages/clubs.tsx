@@ -876,6 +876,9 @@ export default function Clubs() {
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Edit Club</DialogTitle>
+            <DialogDescription>
+              Update club information and settings.
+            </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 text-sm">

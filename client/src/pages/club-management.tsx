@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -433,6 +433,9 @@ export default function ClubManagement() {
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Edit Club</DialogTitle>
+            <DialogDescription>
+              Update club information and settings.
+            </DialogDescription>
           </DialogHeader>
           <Form {...editClubForm}>
             <form onSubmit={editClubForm.handleSubmit(onEditClubSubmit)} className="space-y-6 text-sm">

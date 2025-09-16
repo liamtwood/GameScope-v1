@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -255,9 +255,9 @@ export function PlayerTransferDialog({
             <DialogTitle>
               Transfer Players
             </DialogTitle>
-            <p className="text-sm text-muted-foreground">
+            <DialogDescription>
               Transfer players out of your team or into your team to another team in the club.
-            </p>
+            </DialogDescription>
           </DialogHeader>
 
           {/* Transfer Mode Tabs */}

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, Club } from "@shared/schema";
@@ -748,11 +748,11 @@ export default function Fixtures() {
                   <Sparkles className="h-5 w-5 text-purple-600" />
                   Magic Lookup - Find Fixtures & Rosters
                 </DialogTitle>
+                <DialogDescription>
+                  Automatically search for team schedules and player rosters from official athletics websites.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Automatically search for team schedules and player rosters from official athletics websites.
-                </p>
                 
                 <div className="space-y-4">
                   <div className="flex gap-2">

@@ -687,6 +687,9 @@ export default function Settings() {
                 <Wand2 className="mr-2 h-5 w-5" />
                 Enhance {enhancingTeam?.name} Logo
               </DialogTitle>
+              <DialogDescription>
+                Remove the background and enhance the logo appearance.
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
@@ -839,6 +842,9 @@ export default function Settings() {
                 <UploadCloud className="mr-2 h-5 w-5" />
                 Replace {replacingTeam?.name} Logo
               </DialogTitle>
+              <DialogDescription>
+                Upload a new logo to replace the current one.
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
@@ -1051,6 +1057,9 @@ export default function Settings() {
               <DialogTitle>
                 Edit {editingTeam?.type === 'club' ? 'Club' : 'Opponent'}
               </DialogTitle>
+              <DialogDescription>
+                Update the {editingTeam?.type === 'club' ? 'club' : 'opponent'} name and information.
+              </DialogDescription>
             </DialogHeader>
             
             {editingTeam && (

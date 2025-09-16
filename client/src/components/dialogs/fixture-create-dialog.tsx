@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -174,6 +174,9 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Fixture</DialogTitle>
+          <DialogDescription>
+            Schedule a new match against an opposition team.
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -412,8 +415,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       setSelectedOpponentForLogo({...updatedTeam, logoPath});
                     }
                   }}
-                  buttonText="Upload Logo"
-                  className="w-full"
                 />
               </div>
             </div>

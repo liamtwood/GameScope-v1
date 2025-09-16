@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { User, UserTeam, Team } from "@shared/schema";
 import { ArrowLeft, Star, Edit, Save, X, Pencil, Plus, Trash2, CalendarIcon } from "lucide-react";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
@@ -818,6 +818,9 @@ export default function UserDetails() {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Add to Team</DialogTitle>
+                            <DialogDescription>
+                              Add this user to a team roster.
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
