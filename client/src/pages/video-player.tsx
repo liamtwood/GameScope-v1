@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { YouTubePlayer } from '@/components/YouTubePlayer';
+import { SimpleYouTubePlayer } from '@/components/SimpleYouTubePlayer';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function VideoPlayerPage() {
   const [videoUrl, setVideoUrl] = useState("https://www.youtube.com/watch?v=gvoQ8gvzuC4");
@@ -109,14 +111,28 @@ export function VideoPlayerPage() {
 
         <Separator />
 
-        {/* YouTube Player */}
+        {/* YouTube Players */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-center">Video Player</h2>
-          <YouTubePlayer
-            url={videoUrl}
-            width="100%"
-            height={500}
-          />
+          <h2 className="text-2xl font-semibold text-center">Video Players</h2>
+          
+          <Tabs defaultValue="simple" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="simple">Simple Player (Debug)</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced Player</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="simple" className="space-y-4">
+              <SimpleYouTubePlayer url={videoUrl} />
+            </TabsContent>
+            
+            <TabsContent value="advanced" className="space-y-4">
+              <YouTubePlayer
+                url={videoUrl}
+                width="100%"
+                height={500}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Usage Instructions */}

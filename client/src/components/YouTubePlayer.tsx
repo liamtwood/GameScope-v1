@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ interface YouTubePlayerProps {
 
 export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlayerProps) {
   const playerRef = useRef<any>(null);
+  const [playerReady, setPlayerReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -74,10 +75,14 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
   };
 
   const seekTo = (seconds: number) => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !playerReady) {
+      console.warn('Player not ready for seeking');
+      return;
+    }
     if (seconds < 0) seconds = 0;
     if (seconds > duration) seconds = duration;
     try {
+      console.log('Seeking to:', seconds);
       playerRef.current.seekTo(seconds, 'seconds');
       setCurrentTime(seconds);
     } catch (error) {
@@ -133,7 +138,18 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
 
   const handlePlayerReady = () => {
     console.log('Player ready');
+    setPlayerReady(true);
   };
+
+  // Check if URL is valid YouTube URL
+  const isValidYouTubeUrl = (url: string) => {
+    return ReactPlayer.canPlay ? ReactPlayer.canPlay(url) : true;
+  };
+
+  useEffect(() => {
+    console.log('YouTube Player - URL changed:', url);
+    console.log('YouTube Player - Can play:', isValidYouTubeUrl(url));
+  }, [url]);
 
   // Quick seek buttons for specific times
   const quickSeekTimes = [
@@ -162,31 +178,36 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
         <div className="space-y-4">
           {/* Video Player */}
           <div className="relative">
-            <ReactPlayer
-              ref={playerRef}
-              url={url}
-              playing={playing}
-              volume={volume}
-              muted={muted}
-              onProgress={handleProgress}
-              onDuration={setDuration}
-              onReady={handlePlayerReady}
-              width={width}
-              height={height}
-              controls={false}
-              config={{
-                youtube: {
-                  playerVars: {
-                    showinfo: 1,
+            {isValidYouTubeUrl(url) ? (
+              <ReactPlayer
+                ref={playerRef}
+                url={url}
+                playing={playing}
+                volume={volume}
+                muted={muted}
+                onProgress={handleProgress}
+                onDuration={setDuration}
+                onReady={handlePlayerReady}
+                onError={(error) => console.error('Player error:', error)}
+                width={width}
+                height={height}
+                controls={false}
+                config={{
+                  youtube: {
                     controls: 0,
                     rel: 0,
-                    fs: 1,
+                    showinfo: 0,
+                    modestbranding: 1,
                     iv_load_policy: 3
                   }
-                }
-              }}
-              data-testid="youtube-player"
-            />
+                }}
+                data-testid="youtube-player"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500">
+                <p>Invalid or unsupported video URL</p>
+              </div>
+            )}
           </div>
 
           {/* Progress Bar */}
@@ -318,6 +339,8 @@ export function YouTubePlayer({ url, width = "100%", height = 400 }: YouTubePlay
           {/* Video Info */}
           <div className="text-sm text-gray-600 border-t pt-4">
             <p><strong>Video ID:</strong> {videoId}</p>
+            <p><strong>Valid URL:</strong> {isValidYouTubeUrl(url) ? 'Yes' : 'No'}</p>
+            <p><strong>Player Ready:</strong> {playerReady ? 'Yes' : 'No'}</p>
             <p><strong>Current Position:</strong> {formatTime(currentTime)} / {formatTime(duration)}</p>
             <p><strong>Progress:</strong> {Math.round(played * 100)}%</p>
           </div>
