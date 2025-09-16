@@ -400,133 +400,61 @@ export default function Clubs() {
                       />
                     </div>
                     
-                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">ADDRESS</h4>
+
+                    
                     <FormField
                       control={form.control}
-                      name="address"
+                      name="owner"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Address</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter address"
-                              data-testid="input-club-address"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="city"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>City</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter city"
-                                data-testid="input-club-city"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="state"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>State/County</FormLabel>
-                            <FormControl>
+                          <FormLabel>Owner</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl className="flex-1">
                               <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger data-testid="select-club-state">
-                                  <SelectValue placeholder="Select state/county" />
+                                <SelectTrigger data-testid="select-club-owner">
+                                  <SelectValue placeholder="Select owner" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {COMMON_STATES.map((state) => (
-                                    <SelectItem key={state} value={state}>{state}</SelectItem>
+                                  {adminUsersForCreate.map((user) => (
+                                    <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Country</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <SelectTrigger data-testid="select-club-country">
-                                <SelectValue placeholder="Select country" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {COMMON_COUNTRIES.map((country) => (
-                                  <SelectItem key={country} value={country}>{country}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     
-                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CLUB OWNER</h4>
-                    
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <FormField
-                        control={form.control}
-                        name="ownerFirstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>First Name</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="subscriptionStatus"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Club Status</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
                             <FormControl>
-                              <Input
-                                placeholder="First name"
-                                data-testid="input-owner-first-name"
-                                {...field}
-                              />
+                              <SelectTrigger data-testid="select-club-status">
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="ownerLastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Last Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Last name"
-                                data-testid="input-owner-last-name"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                              <SelectItem value="suspended">Suspended</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+
+                    
+                    <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                    <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="phone"
@@ -564,31 +492,6 @@ export default function Clubs() {
                         )}
                       />
                     </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="owner"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Owner</FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl className="flex-1">
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger data-testid="select-club-owner">
-                                  <SelectValue placeholder="Select owner" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {adminUsersForCreate.map((user) => (
-                                    <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
                   
                   {/* Right Column - Branding */}
@@ -923,135 +826,61 @@ export default function Clubs() {
                       )}
                     />
                   </div>
-                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">ADDRESS</h4>
+
+                  
                   <FormField
                     control={editForm.control}
-                    name="address"
+                    name="owner"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter address"
-                            data-testid="input-edit-club-address"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={editForm.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter city"
-                              data-testid="input-edit-club-city"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={editForm.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State/County</FormLabel>
-                          <FormControl>
+                        <FormLabel>Owner</FormLabel>
+                        <div className="flex gap-2">
+                          <FormControl className="flex-1">
                             <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <SelectTrigger data-testid="select-edit-club-state">
-                                <SelectValue placeholder="Select state/county" />
+                              <SelectTrigger data-testid="select-edit-club-owner">
+                                <SelectValue placeholder="Select owner" />
                               </SelectTrigger>
                               <SelectContent>
-                                {COMMON_STATES.map((state) => (
-                                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                                {adminUsersForEdit.map((user) => (
+                                  <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={editForm.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} value={field.value || ""}>
-                            <SelectTrigger data-testid="select-edit-club-country">
-                              <SelectValue placeholder="Select country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {COMMON_COUNTRIES.map((country) => (
-                                <SelectItem key={country} value={country}>{country}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   
-                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CLUB OWNER</h4>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <FormField
-                      control={editForm.control}
-                      name="ownerFirstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                  <FormField
+                    control={editForm.control}
+                    name="subscriptionStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Club Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                           <FormControl>
-                            <Input
-                              placeholder="First name"
-                              data-testid="input-edit-owner-first-name"
-                              {...field}
-                              value={field.value || ""}
-                            />
+                            <SelectTrigger data-testid="select-edit-club-status">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={editForm.control}
-                      name="ownerLastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Last name"
-                              data-testid="input-edit-owner-last-name"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+
+                  
+                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CONTACT INFORMATION</h4>
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={editForm.control}
                       name="phone"
@@ -1089,31 +918,6 @@ export default function Clubs() {
                       )}
                     />
                   </div>
-                  
-                  <FormField
-                    control={editForm.control}
-                    name="owner"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Owner</FormLabel>
-                        <div className="flex gap-2">
-                          <FormControl className="flex-1">
-                            <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <SelectTrigger data-testid="select-edit-club-owner">
-                                <SelectValue placeholder="Select owner" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {adminUsersForEdit.map((user) => (
-                                  <SelectItem key={user.id} value={user.firstName + ' ' + user.lastName}>{user.firstName} {user.lastName}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
                 
                 {/* Right Column - Logo and Colors */}
@@ -1207,30 +1011,6 @@ export default function Clubs() {
                     />
                   </div>
                   
-                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mt-6 mb-3">CLUB STATUS</h4>
-                  <FormField
-                    control={editForm.control}
-                    name="subscriptionStatus"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Club Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-edit-club-status">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="suspended">Suspended</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </div>
 
