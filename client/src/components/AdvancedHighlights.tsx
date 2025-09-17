@@ -467,6 +467,36 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     return "";
   };
 
+  // Enhanced event display function for tactical clarity
+  const getEnhancedEventDisplay = (event: MatchEvent): string => {
+    // Shots: Show outcome
+    if (event.type.name === 'Shot' && event.shot?.outcome?.name) {
+      return event.shot.outcome.name === 'Off T' 
+        ? 'Shot Off Target' 
+        : `Shot - ${event.shot.outcome.name}`;
+    }
+    
+    // Free Kicks: Show type if available
+    if (event.type.name === 'Free Kick' && event.pass?.type?.name) {
+      return `Free Kick - ${event.pass.type.name}`;
+    }
+    
+    // Corners: Show type if available
+    if (event.type.name === 'Corner' && event.pass?.type?.name) {
+      return `Corner - ${event.pass.type.name}`;
+    }
+    
+    // Penalties: Show outcome
+    if (event.type.name === 'Shot' && event.shot?.type?.name === 'Penalty') {
+      return event.shot.outcome?.name === 'Off T'
+        ? 'Penalty Off Target'
+        : `Penalty - ${event.shot.outcome?.name || 'Unknown'}`;
+    }
+    
+    // Default: Keep as-is
+    return event.type.name;
+  };
+
   // Clean JSX structure following architect guidance
   return (
     <div className="relative">
@@ -643,7 +673,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                                 variant="secondary"
                                 className={`${getEventTypeColor(event.type.name, event.shot?.outcome?.name)} text-xs`}
                               >
-                                {event.type.name}
+                                {getEnhancedEventDisplay(event)}
                               </Badge>
                               {event.shot?.statsbomb_xg && (
                                 <span className="text-xs text-muted-foreground" data-testid={`event-xg-${event.index}`}>
@@ -778,7 +808,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                                   <div className="text-xs">
                                     <span className="font-mono">{event.time}</span>
                                     <div className="text-muted-foreground truncate">
-                                      {fullEvent?.type.name} - {fullEvent?.player?.name || 'Team Action'}
+                                      {fullEvent ? getEnhancedEventDisplay(fullEvent) : 'Unknown Event'} - {fullEvent?.player?.name || 'Team Action'}
                                     </div>
                                   </div>
                                 </TableCell>
