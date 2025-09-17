@@ -120,7 +120,7 @@ interface SelectedEvent {
 }
 
 export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
-  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>(['Shot']);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<number[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<SelectedEvent[]>([]);
@@ -142,14 +142,14 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Define event categories including nested event types - ordered as requested
+  // Define event categories including nested event types - shots prioritized at top
   const eventCategories = {
+    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward'],
+    'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
     DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper'],
     'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost'],
     POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield', 'Dribble'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off', 'Penalty', 'Penalty Saved'],
-    'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
-    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward'],
     TECHNIQUE: ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
     PRESSURE: ['Under Pressure', 'Composed Play'],
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
