@@ -120,7 +120,7 @@ interface SelectedEvent {
 }
 
 export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
-  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>(['Shot']);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<number[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<SelectedEvent[]>([]);
