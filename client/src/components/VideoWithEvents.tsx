@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
+import { HighlightGenerator } from '@/components/HighlightGenerator';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface VideoWithEventsProps {
   url: string;
@@ -94,6 +96,19 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
 
   const videoId = getVideoId(url);
 
+  // Handle highlight event selection
+  const handleHighlightSelect = (highlight: any) => {
+    const eventTimeInSeconds = highlight.startTime;
+    const eventPeriod = highlight.event.period;
+    handleEventClick(eventTimeInSeconds, eventPeriod);
+  };
+
+  // Handle highlight package generation
+  const handlePackageGenerate = (highlightPackage: any) => {
+    console.log('Generated highlight package:', highlightPackage);
+    // Could add toast notification or other feedback here
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
       <Card className="mb-6">
@@ -120,17 +135,94 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
         </CardHeader>
       </Card>
       
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Event Table - Left Side */}
-        <div className="lg:col-span-2">
-          <MatchEventTable onEventClick={handleEventClick} />
-        </div>
+      <Tabs defaultValue="events" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="events">Match Events</TabsTrigger>
+          <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
+          <TabsTrigger value="video">Video Player</TabsTrigger>
+        </TabsList>
         
-        {/* Video Player - Right Side */}
-        <div className="lg:col-span-3">
+        <TabsContent value="events">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Event Table - Left Side */}
+            <div className="lg:col-span-2">
+              <MatchEventTable onEventClick={handleEventClick} />
+            </div>
+            
+            {/* Video Player - Right Side */}
+            <div className="lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Video</CardTitle>
+                  {videoId && (
+                    <p className="text-sm text-gray-600">
+                      Video ID: {videoId}
+                    </p>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    <iframe
+                      id="youtube-iframe"
+                      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      data-testid="match-video-iframe"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="highlights">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Highlight Generator - Left Side */}
+            <div className="lg:col-span-2">
+              <HighlightGenerator 
+                onHighlightSelect={handleHighlightSelect}
+                onPackageGenerate={handlePackageGenerate}
+              />
+            </div>
+            
+            {/* Video Player - Right Side */}
+            <div className="lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Video - Highlight Mode</CardTitle>
+                  {videoId && (
+                    <p className="text-sm text-gray-600">
+                      Video ID: {videoId} | Click any highlight to jump to that moment
+                    </p>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    <iframe
+                      id="youtube-iframe"
+                      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      data-testid="match-video-iframe"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="video">
           <Card>
             <CardHeader>
-              <CardTitle>Match Video</CardTitle>
+              <CardTitle>Match Video - Full Screen</CardTitle>
               {videoId && (
                 <p className="text-sm text-gray-600">
                   Video ID: {videoId}
@@ -152,8 +244,8 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
       
     </div>
   );

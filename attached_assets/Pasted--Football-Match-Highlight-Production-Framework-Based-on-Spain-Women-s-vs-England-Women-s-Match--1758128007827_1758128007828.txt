@@ -1,0 +1,279 @@
+# Football Match Highlight Production Framework
+## Based on Spain Women's vs England Women's Match Analysis
+
+---
+
+## 1. HIGHLIGHT CATEGORIES & PRIORITY SCORING
+
+### **Tier 1 - Must Include (Score: 80-100)**
+- **Goals** (100 points)
+  - The defining moments of any match
+  - Include full build-up sequence (10-15 seconds before)
+  - Multiple angles if available
+  - Celebration and crowd reaction
+
+- **Penalty Kicks** (80-90 points)
+  - Award of penalty
+  - The kick itself
+  - Goalkeeper and shooter reactions
+
+- **Red Cards** (85 points)
+  - The incident leading to the card
+  - Referee decision
+  - Player/team reactions
+
+### **Tier 2 - High Priority (Score: 60-79)**
+- **Great Saves** (60-75 points)
+  - Spectacular goalkeeper interventions
+  - Penalty saves get highest priority
+  - Include the shot that prompted the save
+
+- **Near Misses** (65-70 points)
+  - Shots hitting the post/crossbar
+  - Last-second blocks or clearances
+  - Close offside calls on goals
+
+- **Yellow Cards** (40-60 points)
+  - Tactical fouls
+  - Dangerous play
+  - Second yellows leading to red
+
+### **Tier 3 - Context & Flow (Score: 25-59)**
+- **Key Chances** (30-50 points)
+  - Clear scoring opportunities
+  - Through balls and breakaways
+  - Set pieces in dangerous areas
+
+- **Skillful Play** (25-40 points)
+  - Successful dribbles past multiple players
+  - Nutmegs or tricks
+  - Outstanding individual moments
+
+- **Tactical Moments** (25-35 points)
+  - Formation changes
+  - Key substitutions
+  - Momentum shifts
+
+---
+
+## 2. TEMPORAL HIGHLIGHT SELECTION
+
+### **Match Phase Distribution**
+Based on our analysis, ensure balanced coverage:
+
+| Phase | Minutes | Typical Highlights | Focus |
+|-------|---------|-------------------|-------|
+| Opening | 0-15 | 2-3 | Early pressure, first chances |
+| Early Game | 15-30 | 3-4 | Goals, developing patterns |
+| Pre-Half | 30-45 | 2-3 | Tactical adjustments, late pushes |
+| Second Half Start | 45-60 | 3-4 | Fresh energy, tactical changes |
+| Mid Second | 60-75 | 2-3 | Fatigue effects, substitutions |
+| Final Push | 75-90 | 3-4 | Desperation, late drama |
+| Extra Time | 90+ | All key events | Every significant moment |
+
+### **Recommended Highlight Package Durations**
+
+1. **Quick Highlights (60-90 seconds)**
+   - Goals only
+   - Red cards
+   - Penalty decisions
+   - Match-winning moments
+
+2. **Standard Highlights (3-5 minutes)**
+   - All Tier 1 events
+   - Best of Tier 2 events
+   - 1-2 skillful moments
+   - Key tactical shifts
+
+3. **Extended Highlights (8-10 minutes)**
+   - All Tier 1 & 2 events
+   - Selected Tier 3 moments
+   - Build-up play for goals
+   - Crowd atmosphere shots
+   - Key statistics overlay
+
+4. **Full Match Story (15-20 minutes)**
+   - Complete narrative arc
+   - Pre-match atmosphere
+   - All significant events
+   - Tactical analysis segments
+   - Post-match reactions
+
+---
+
+## 3. PRODUCTION GUIDELINES
+
+### **Event Context Windows**
+
+```
+PRE-EVENT → EVENT → POST-EVENT
+   5-10s      Core      3-5s
+```
+
+- **Goals**: Show 10-15s build-up, full celebration
+- **Saves**: Include shot approach, save, immediate reaction
+- **Cards**: Show foul, decision, player reaction
+- **Chances**: Focus on creation and execution
+
+### **Narrative Flow Principles**
+
+1. **Chronological Base**: Maintain match timeline
+2. **Momentum Grouping**: Cluster related events
+3. **Emotional Peaks**: Balance intensity throughout
+4. **Team Balance**: Fair representation of both teams
+
+### **Technical Specifications**
+
+#### Shot Selection Priority:
+1. Wide angle for tactical view
+2. Close-up for skill/emotion
+3. Reverse angle for controversial decisions
+4. Aerial view for positional play
+
+#### Audio Considerations:
+- Natural crowd noise for atmosphere
+- Commentary for context (optional)
+- Music for promotional packages only
+
+---
+
+## 4. MATCH-SPECIFIC INSIGHTS
+
+### **From Spain vs England Analysis**
+
+#### Key Findings:
+- **Single Goal Match**: Olga Carmona's 29th-minute goal
+  - Must be centerpiece of any highlight package
+  - Show complete build-up sequence
+  - Include defensive breakdown analysis
+
+#### Shot Distribution:
+- Spain: 14 shots (more attacking)
+- England: 8 shots (fewer opportunities)
+- Focus on Spain's dominance narrative
+
+#### Pressure Periods:
+- Minutes 15-30: Most eventful (goal scored)
+- Minutes 89-91: Spain sustained pressure
+- These periods deserve more coverage
+
+---
+
+## 5. AUTOMATED HIGHLIGHT DETECTION ALGORITHM
+
+### **Scoring Formula**
+
+```python
+highlight_score = base_score * location_modifier * context_modifier
+
+where:
+- base_score: Event type value (0-100)
+- location_modifier: 1.0-1.5 based on field position
+- context_modifier: 1.0-2.0 based on match situation
+```
+
+### **Key Detection Rules**
+
+1. **Goal Detection**
+   - Event type = "Shot"
+   - Outcome = "Goal"
+   - Auto-include 15s before, 10s after
+
+2. **Save Detection**
+   - Event type = "Goal Keeper"
+   - Action = "Save"
+   - Include if shot was on target
+
+3. **Card Detection**
+   - Event type contains "Card"
+   - Include foul event preceding card
+
+4. **Pressure Detection**
+   - 3+ shots/corners in 5-minute window
+   - Include best chance from sequence
+
+---
+
+## 6. QUALITY METRICS
+
+### **Highlight Package Evaluation**
+
+Rate each package on:
+
+| Metric | Weight | Description |
+|--------|--------|-------------|
+| Completeness | 30% | All major events included |
+| Flow | 25% | Smooth narrative progression |
+| Balance | 20% | Fair team representation |
+| Drama | 15% | Emotional peaks and valleys |
+| Context | 10% | Adequate build-up/reaction |
+
+### **Viewer Engagement Indicators**
+
+- **Hook Rate**: Goal shown in first 10 seconds
+- **Retention**: Even distribution of highlights
+- **Satisfaction**: All crucial moments included
+- **Shareability**: Best individual moments isolated
+
+---
+
+## 7. IMPLEMENTATION CHECKLIST
+
+### **Pre-Production**
+- [ ] Identify all Tier 1 events
+- [ ] Score all potential highlights
+- [ ] Check team balance
+- [ ] Verify chronological order
+
+### **Production**
+- [ ] Capture adequate context for each event
+- [ ] Include multiple angles for key moments
+- [ ] Add graphics/statistics where relevant
+- [ ] Balance audio levels
+
+### **Post-Production**
+- [ ] Review pacing and flow
+- [ ] Ensure no crucial events missed
+- [ ] Verify fair representation
+- [ ] Check technical quality
+
+### **Distribution**
+- [ ] Create multiple duration versions
+- [ ] Generate platform-specific formats
+- [ ] Extract key GIFs/clips for social
+- [ ] Prepare statistical overlays
+
+---
+
+## 8. SPECIAL CONSIDERATIONS
+
+### **Tournament/Cup Matches**
+- Include pre-match atmosphere
+- Show trophy/stakes context
+- Extended celebration coverage
+- Historical context if relevant
+
+### **Derby/Rivalry Matches**
+- Extra focus on confrontations
+- Crowd reactions more prominent
+- Historical context flashbacks
+- Extended post-match coverage
+
+### **Title-Deciding Matches**
+- Table implications shown
+- Extended emotional moments
+- Manager reactions included
+- Season context provided
+
+---
+
+## CONCLUSION
+
+This framework ensures comprehensive, engaging highlight packages that:
+1. Capture all crucial moments
+2. Tell the match story effectively
+3. Maintain viewer engagement
+4. Provide fair representation
+5. Optimize for various platforms and durations
+
+The scoring system allows for automated detection while human editors can apply narrative and emotional intelligence to create the final product.
