@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Clock } from 'lucide-react';
+import { Search, Clock, Target, TrendingUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import matchEvents from '@/data/match-events.json';
 
@@ -34,6 +34,28 @@ interface MatchEvent {
     };
     length: number;
   };
+  shot?: {
+    statsbomb_xg: number;
+    end_location: number[];
+    technique?: {
+      id: number;
+      name: string;
+    };
+    body_part?: {
+      id: number;
+      name: string;
+    };
+    type?: {
+      id: number;
+      name: string;
+    };
+    outcome: {
+      id: number;
+      name: string;
+    };
+    first_time?: boolean;
+    freeze_frame?: any[];
+  };
 }
 
 interface MatchEventTableProps {
@@ -44,6 +66,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEventType, setSelectedEventType] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
+  const [showShotsOnly, setShowShotsOnly] = useState(false);
 
   // Convert timestamp to seconds
   const timestampToSeconds = (timestamp: string): number => {
@@ -78,21 +101,34 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
       const matchesSearch = 
         event.type.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (event.player?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.team.name.toLowerCase().includes(searchTerm.toLowerCase());
+        event.team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (event.shot?.outcome?.name || "").toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesEventType = selectedEventType === "" || event.type.name === selectedEventType;
       const matchesTeam = selectedTeam === "" || event.team.name === selectedTeam;
+      const matchesShotsFilter = !showShotsOnly || event.type.name === "Shot";
 
-      return matchesSearch && matchesEventType && matchesTeam;
+      return matchesSearch && matchesEventType && matchesTeam && matchesShotsFilter;
     });
-  }, [searchTerm, selectedEventType, selectedTeam]);
+  }, [searchTerm, selectedEventType, selectedTeam, showShotsOnly]);
 
   const handleEventClick = (event: MatchEvent) => {
     const timeInSeconds = timestampToSeconds(event.timestamp);
     onEventClick(timeInSeconds, event.period);
   };
 
-  const getEventTypeColor = (eventType: string) => {
+  const getEventTypeColor = (eventType: string, shotOutcome?: string) => {
+    if (eventType === "Shot" && shotOutcome) {
+      const shotColors: { [key: string]: string } = {
+        "Goal": "bg-green-500 text-white font-bold",
+        "Saved": "bg-yellow-500 text-white",
+        "Off T": "bg-red-500 text-white",
+        "Blocked": "bg-orange-500 text-white",
+        "Wayward": "bg-gray-500 text-white"
+      };
+      return shotColors[shotOutcome] || "bg-red-100 text-red-800";
+    }
+    
     const colors: { [key: string]: string } = {
       "Pass": "bg-blue-100 text-blue-800",
       "Ball Receipt*": "bg-green-100 text-green-800", 
@@ -101,7 +137,8 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
       "Half Start": "bg-orange-100 text-orange-800",
       "Shot": "bg-red-100 text-red-800",
       "Goal": "bg-emerald-100 text-emerald-800",
-      "Substitution": "bg-indigo-100 text-indigo-800"
+      "Substitution": "bg-indigo-100 text-indigo-800",
+      "Half End": "bg-gray-100 text-gray-800"
     };
     return colors[eventType] || "bg-gray-100 text-gray-800";
   };
@@ -157,6 +194,17 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                 <option key={team} value={team}>{team}</option>
               ))}
             </select>
+            
+            <Button
+              variant={showShotsOnly ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowShotsOnly(!showShotsOnly)}
+              className="flex items-center gap-1 whitespace-nowrap"
+              data-testid="shots-only-filter"
+            >
+              <Target className="h-4 w-4" />
+              {showShotsOnly ? "Show All" : "Shots Only"}
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -170,6 +218,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                 <TableHead className="w-24 px-2">Event</TableHead>
                 <TableHead className="w-12 px-2">Team</TableHead>
                 <TableHead className="px-2">Player</TableHead>
+                <TableHead className="w-20 px-2 text-center">Details</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -185,12 +234,17 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                   </TableCell>
                   
                   <TableCell className="px-2">
-                    <Badge 
-                      variant="secondary"
-                      className={`${getEventTypeColor(event.type.name)} whitespace-nowrap`}
-                    >
-                      {event.type.name}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge 
+                        variant="secondary"
+                        className={`${getEventTypeColor(event.type.name, event.shot?.outcome?.name)} whitespace-nowrap`}
+                      >
+                        {event.type.name === "Shot" && event.shot?.outcome?.name ? event.shot.outcome.name : event.type.name}
+                      </Badge>
+                      {event.type.name === "Shot" && (
+                        <Target className="h-3 w-3 text-red-500" />
+                      )}
+                    </div>
                   </TableCell>
                   
                   <TableCell className="px-2 text-center font-semibold text-xs">
@@ -201,6 +255,22 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                     <div className="text-sm whitespace-nowrap">
                       {event.player?.name || "-"}
                     </div>
+                  </TableCell>
+                  
+                  <TableCell className="px-2 text-center">
+                    {event.shot && (
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-1 text-xs">
+                          <TrendingUp className="h-3 w-3" />
+                          <span className="font-mono">{(event.shot.statsbomb_xg * 100).toFixed(1)}%</span>
+                        </div>
+                        {event.shot.body_part && (
+                          <div className="text-xs text-gray-500">
+                            {event.shot.body_part.name}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </TableCell>
                   
                 </TableRow>
