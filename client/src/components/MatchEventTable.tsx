@@ -162,7 +162,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
       </CardHeader>
 
       <CardContent className="p-0">
-        <div className="h-96 overflow-y-auto">
+        <div className="h-[600px] overflow-y-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
