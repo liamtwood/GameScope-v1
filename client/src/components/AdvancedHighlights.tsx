@@ -432,7 +432,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                             {selectedTeamPlayers.length === teamPlayersData.length ? "Deselect All" : "All Players"}
                           </Button>
                         </div>
-                        <div className="grid grid-cols-2 gap-1">
+                        <div className="grid grid-cols-6 gap-1">
                           {teamPlayersData.map((player) => {
                             const isPlayerSelected = selectedPlayers.includes(player.id);
                             const playerEventCount = matchEvents.filter(e => 
@@ -443,21 +443,21 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                                 key={player.id}
                                 size="sm"
                                 variant={isPlayerSelected ? "default" : "outline"}
-                                className="text-xs justify-start h-8 p-2"
+                                className="text-xs justify-center h-8 p-1 w-full relative"
                                 onClick={() => handlePlayerToggle(player.id)}
                                 data-testid={`player-${player.id}`}
                                 disabled={playerEventCount === 0}
+                                title={`${player.name}${playerEventCount > 0 ? ` (${playerEventCount} events)` : ''}`}
                               >
-                                <span className="font-mono w-6">
+                                <span className="font-mono font-bold">
                                   {player.jerseyNumber || '?'}
                                 </span>
-                                <span className="truncate ml-1">
-                                  {player.name.split(' ').slice(-1)[0]}
-                                </span>
                                 {playerEventCount > 0 && (
-                                  <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1">
-                                    {playerEventCount}
-                                  </Badge>
+                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <span className="text-[8px] text-white font-bold leading-none">
+                                      {playerEventCount > 9 ? '9+' : playerEventCount}
+                                    </span>
+                                  </div>
                                 )}
                               </Button>
                             );
