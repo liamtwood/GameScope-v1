@@ -11,30 +11,55 @@ interface VideoWithEventsProps {
 export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
+  const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
   
-  // Load saved kickoff offset from localStorage
+  // Load saved offsets from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('match-kickoff-offset');
-    if (saved) {
-      const offset = parseFloat(saved);
+    const savedKickoff = localStorage.getItem('match-kickoff-offset');
+    const savedSecondHalf = localStorage.getItem('match-second-half-offset');
+    
+    if (savedKickoff) {
+      const offset = parseFloat(savedKickoff);
       setKickoffOffset(offset);
+    }
+    
+    if (savedSecondHalf) {
+      const offset = parseFloat(savedSecondHalf);
+      setSecondHalfOffset(offset);
     }
   }, []);
   
-  // Save kickoff offset to localStorage when it changes
+  // Save offsets to localStorage when they change
   useEffect(() => {
     localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
   }, [kickoffOffset]);
+  
+  useEffect(() => {
+    localStorage.setItem('match-second-half-offset', secondHalfOffset.toString());
+  }, [secondHalfOffset]);
   
   const handleKickoffOffsetChange = (newOffset: number) => {
     setKickoffOffset(newOffset);
   };
   
-  const handleEventClick = (eventTimeInSeconds: number) => {
-    // Apply kickoff offset to get actual video time
-    const videoTimeInSeconds = eventTimeInSeconds + kickoffOffset;
+  const handleSecondHalfOffsetChange = (newOffset: number) => {
+    setSecondHalfOffset(newOffset);
+  };
+  
+  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
+    // Apply appropriate offset based on period
+    let videoTimeInSeconds: number;
     
-    console.log('Event time:', eventTimeInSeconds, 'Kickoff offset:', kickoffOffset, 'Video seek time:', videoTimeInSeconds);
+    if (eventPeriod === 2) {
+      // Second half: use second half offset
+      videoTimeInSeconds = eventTimeInSeconds + secondHalfOffset;
+      console.log('Event time:', eventTimeInSeconds, 'Second half offset:', secondHalfOffset, 'Video seek time:', videoTimeInSeconds);
+    } else {
+      // First half: use kickoff offset
+      videoTimeInSeconds = eventTimeInSeconds + kickoffOffset;
+      console.log('Event time:', eventTimeInSeconds, 'Kickoff offset:', kickoffOffset, 'Video seek time:', videoTimeInSeconds);
+    }
+    
     setCurrentSeekTime(videoTimeInSeconds);
     
     // Ensure we don't seek to negative time
@@ -86,6 +111,8 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
                 onVideoUrlChange={onVideoUrlChange}
                 kickoffOffset={kickoffOffset}
                 onKickoffOffsetChange={handleKickoffOffsetChange}
+                secondHalfOffset={secondHalfOffset}
+                onSecondHalfOffsetChange={handleSecondHalfOffsetChange}
                 onEventClick={handleEventClick}
               />
             </div>

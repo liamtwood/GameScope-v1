@@ -13,7 +13,9 @@ interface VideoAnalysisSettingsProps {
   onVideoUrlChange: (url: string) => void;
   kickoffOffset: number;
   onKickoffOffsetChange: (offset: number) => void;
-  onEventClick: (timeInSeconds: number) => void;
+  secondHalfOffset: number;
+  onSecondHalfOffsetChange: (offset: number) => void;
+  onEventClick: (timeInSeconds: number, eventPeriod?: number) => void;
 }
 
 export function VideoAnalysisSettings({ 
@@ -21,16 +23,23 @@ export function VideoAnalysisSettings({
   onVideoUrlChange, 
   kickoffOffset, 
   onKickoffOffsetChange,
+  secondHalfOffset,
+  onSecondHalfOffsetChange,
   onEventClick 
 }: VideoAnalysisSettingsProps) {
   const [inputUrl, setInputUrl] = useState("");
   const [kickoffInput, setKickoffInput] = useState<string>("0:00");
+  const [secondHalfInput, setSecondHalfInput] = useState<string>("0:00");
   const [isOpen, setIsOpen] = useState(false);
 
-  // Update kickoff input when offset changes
+  // Update inputs when offsets change
   useEffect(() => {
     setKickoffInput(formatTimeForInput(kickoffOffset));
   }, [kickoffOffset]);
+  
+  useEffect(() => {
+    setSecondHalfInput(formatTimeForInput(secondHalfOffset));
+  }, [secondHalfOffset]);
 
   const formatTimeForInput = (seconds: number): string => {
     const mins = Math.floor(Math.abs(seconds) / 60);
@@ -66,6 +75,11 @@ export function VideoAnalysisSettings({
   const handleKickoffOffsetSubmit = () => {
     const newOffset = parseTimeInput(kickoffInput);
     onKickoffOffsetChange(newOffset);
+  };
+  
+  const handleSecondHalfOffsetSubmit = () => {
+    const newOffset = parseTimeInput(secondHalfInput);
+    onSecondHalfOffsetChange(newOffset);
   };
 
   const getVideoId = (url: string) => {
@@ -138,7 +152,7 @@ export function VideoAnalysisSettings({
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="kickoff-offset-settings">
-                  Kickoff Time Offset (Video Time when Match Starts)
+                  First Half Kickoff Offset (Video Time when Match Starts)
                 </Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Input
@@ -162,52 +176,110 @@ export function VideoAnalysisSettings({
                 </div>
               </div>
               
-              {kickoffOffset !== 0 && (
+              <div>
+                <Label htmlFor="second-half-offset-settings">
+                  Second Half Kickoff Offset (Video Time for 2nd Half Start)
+                </Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    id="second-half-offset-settings"
+                    value={secondHalfInput}
+                    onChange={(e) => setSecondHalfInput(e.target.value)}
+                    placeholder="e.g., 47:30 or 2850"
+                    className="w-32"
+                    data-testid="second-half-offset-settings-input"
+                  />
+                  <Button 
+                    onClick={handleSecondHalfOffsetSubmit}
+                    size="sm"
+                    data-testid="set-second-half-offset-settings"
+                  >
+                    Set Offset
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    Current: {formatTimeForInput(secondHalfOffset)}
+                  </span>
+                </div>
+              </div>
+              
+              {(kickoffOffset !== 0 || secondHalfOffset !== 0) && (
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Offset applied: When you click an event at match time 0:00, the video will seek to {formatTimeForInput(kickoffOffset)}.
-                    {kickoffOffset < 0 && " (Negative offset means the video starts after kickoff)"}
-                    {kickoffOffset > 0 && " (Positive offset means the video includes pre-match content)"}
+                    <div className="space-y-1">
+                      {kickoffOffset !== 0 && (
+                        <p>First half: Events will be offset by {formatTimeForInput(kickoffOffset)}.</p>
+                      )}
+                      {secondHalfOffset !== 0 && (
+                        <p>Second half: Events will be offset by {formatTimeForInput(secondHalfOffset)}.</p>
+                      )}
+                      <p className="text-xs">
+                        Positive offsets = video includes pre-match content. 
+                        Negative offsets = video starts after kickoff.
+                      </p>
+                    </div>
                   </AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
                 <Label>Quick Test Controls</Label>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEventClick(0)}
-                    data-testid="test-kickoff"
-                  >
-                    Test Kickoff (0:00)
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEventClick(30)}
-                    data-testid="test-30s"
-                  >
-                    Test 0:30
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEventClick(60)}
-                    data-testid="test-1m"
-                  >
-                    Test 1:00
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEventClick(300)}
-                    data-testid="test-5m"
-                  >
-                    Test 5:00
-                  </Button>
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-gray-700">First Half Tests:</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(0, 1)}
+                      data-testid="test-kickoff"
+                    >
+                      Test Kickoff (0:00)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(30, 1)}
+                      data-testid="test-30s"
+                    >
+                      Test 0:30
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(300, 1)}
+                      data-testid="test-5m"
+                    >
+                      Test 5:00
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs font-medium text-gray-700">Second Half Tests:</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(2700, 2)}
+                      data-testid="test-45m"
+                    >
+                      Test 2nd Half Kickoff (45:00)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(2730, 2)}
+                      data-testid="test-45-30s"
+                    >
+                      Test 45:30
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEventClick(3000, 2)}
+                      data-testid="test-50m"
+                    >
+                      Test 50:00
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-xs text-gray-500">
                   Use these buttons to test if your offset is correct. They should jump to the right moments in the match.

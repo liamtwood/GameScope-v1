@@ -37,7 +37,7 @@ interface MatchEvent {
 }
 
 interface MatchEventTableProps {
-  onEventClick: (timeInSeconds: number) => void;
+  onEventClick: (timeInSeconds: number, eventPeriod?: number) => void;
 }
 
 export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
@@ -89,7 +89,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
 
   const handleEventClick = (event: MatchEvent) => {
     const timeInSeconds = timestampToSeconds(event.timestamp);
-    onEventClick(timeInSeconds);
+    onEventClick(timeInSeconds, event.period);
   };
 
   const getEventTypeColor = (eventType: string) => {
