@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { X, Play, ChevronDown, Target, TrendingUp } from 'lucide-react';
+import { X, Play, ChevronDown, Target, TrendingUp, Film } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
@@ -652,9 +652,10 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Left Sidebar - Filters */}
-      <aside className="lg:col-span-3">
+    <div className="relative">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Left Sidebar - Filters */}
+        <aside className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Event Filters</CardTitle>
@@ -1076,8 +1077,8 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         </Card>
       </aside>
 
-      {/* Main Content - Events Table */}
-      <main className="lg:col-span-6">
+        {/* Main Content - Events Table */}
+        <main className="lg:col-span-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -1219,125 +1220,138 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             </ScrollArea>
           </CardContent>
         </Card>
-      </main>
+        </main>
+      </div>
 
-      {/* Right Sidebar - Highlights Generation */}
-      <aside className="lg:col-span-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Custom Highlights
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Options */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Options</h3>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="commentary" 
-                  checked={includeCommentary}
-                  onCheckedChange={(checked) => setIncludeCommentary(!!checked)}
-                  data-testid="checkbox-commentary"
-                />
-                <label htmlFor="commentary" className="text-sm font-medium">Include Commentary</label>
+      {/* Floating Film Button with Hover Overlay */}
+      <div className="fixed bottom-6 right-6 z-50 group">
+        {/* Hover Overlay */}
+        <div className="invisible group-hover:visible absolute bottom-16 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <Card className="w-80 shadow-2xl border-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Custom Highlights
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Options */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Options</h3>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="commentary" 
+                    checked={includeCommentary}
+                    onCheckedChange={(checked) => setIncludeCommentary(!!checked)}
+                    data-testid="checkbox-commentary"
+                  />
+                  <label htmlFor="commentary" className="text-sm font-medium">Include Commentary</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="lineups" 
+                    checked={includeLineups}
+                    onCheckedChange={(checked) => setIncludeLineups(!!checked)}
+                    data-testid="checkbox-lineups"
+                  />
+                  <label htmlFor="lineups" className="text-sm font-medium">Include Line-ups</label>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="lineups" 
-                  checked={includeLineups}
-                  onCheckedChange={(checked) => setIncludeLineups(!!checked)}
-                  data-testid="checkbox-lineups"
-                />
-                <label htmlFor="lineups" className="text-sm font-medium">Include Line-ups</label>
-              </div>
-            </div>
 
-            {/* Duration Info */}
-            <div className="bg-muted p-4 rounded-lg">
-              <div className="flex justify-between text-sm mb-2">
-                <span>Selected Events</span>
-                <span data-testid="selected-events-count"><strong>{selectedEvents.length}</strong> clips</span>
+              {/* Duration Info */}
+              <div className="bg-muted p-3 rounded-lg">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Selected Events</span>
+                  <span data-testid="selected-events-count"><strong>{selectedEvents.length}</strong> clips</span>
+                </div>
+                <div className="text-xs text-muted-foreground" data-testid="estimated-duration">
+                  Estimated duration: ~{selectedEvents.length * 10}s
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground" data-testid="estimated-duration">
-                Estimated duration: ~{selectedEvents.length * 10}s
-              </div>
-            </div>
 
-            {/* Selected Events */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Selected Events</h4>
-              <ScrollArea className="h-32 border rounded">
-                {selectedEvents.length === 0 ? (
-                  <div className="text-sm text-muted-foreground text-center py-4" data-testid="no-selected-events">
-                    No events selected
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader className="sticky top-0 bg-white dark:bg-gray-900">
-                      <TableRow>
-                        <TableHead className="px-2 text-xs">Time</TableHead>
-                        <TableHead className="px-2 text-xs">Event</TableHead>
-                        <TableHead className="w-12 px-2"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedEvents.map((event) => {
-                        const fullEvent = matchEvents.find(e => e.id === event.id);
-                        return (
-                          <TableRow
-                            key={event.id}
-                            className="text-sm"
-                            data-testid={`selected-event-${event.id}`}
-                          >
-                            <TableCell className="px-2 font-mono text-xs" data-testid={`selected-event-time-${event.id}`}>
-                              {event.time}
-                            </TableCell>
-                            <TableCell className="px-2">
-                              <div className="flex items-center gap-1">
-                                <Badge 
-                                  variant="secondary"
-                                  className={`${getEventTypeColor(fullEvent?.type.name || '', fullEvent?.shot?.outcome?.name)} text-xs`}
-                                  data-testid={`selected-event-type-${event.id}`}
+              {/* Selected Events */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Selected Events</h4>
+                <ScrollArea className="h-32 border rounded">
+                  {selectedEvents.length === 0 ? (
+                    <div className="text-sm text-muted-foreground text-center py-4" data-testid="no-selected-events">
+                      No events selected
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-white dark:bg-gray-900">
+                        <TableRow>
+                          <TableHead className="px-2 text-xs">Time</TableHead>
+                          <TableHead className="px-2 text-xs">Event</TableHead>
+                          <TableHead className="w-12 px-2"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedEvents.map((event) => {
+                          const fullEvent = matchEvents.find(e => e.id === event.id);
+                          return (
+                            <TableRow
+                              key={event.id}
+                              className="text-sm"
+                              data-testid={`selected-event-${event.id}`}
+                            >
+                              <TableCell className="px-2 font-mono text-xs" data-testid={`selected-event-time-${event.id}`}>
+                                {event.time}
+                              </TableCell>
+                              <TableCell className="px-2">
+                                <div className="flex items-center gap-1">
+                                  <Badge 
+                                    variant="secondary"
+                                    className={`${getEventTypeColor(fullEvent?.type.name || '', fullEvent?.shot?.outcome?.name)} text-xs`}
+                                    data-testid={`selected-event-type-${event.id}`}
+                                  >
+                                    {fullEvent?.type.name || 'Event'}
+                                  </Badge>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1" data-testid={`selected-event-player-${event.id}`}>
+                                  {fullEvent?.player?.name || 'Team Action'}
+                                </div>
+                              </TableCell>
+                              <TableCell className="px-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleRemoveFromHighlights(event.id)}
+                                  data-testid={`remove-selected-event-${event.id}`}
                                 >
-                                  {fullEvent?.type.name || 'Event'}
-                                </Badge>
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-1" data-testid={`selected-event-player-${event.id}`}>
-                                {fullEvent?.player?.name || 'Team Action'}
-                              </div>
-                            </TableCell>
-                            <TableCell className="px-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleRemoveFromHighlights(event.id)}
-                                data-testid={`remove-selected-event-${event.id}`}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                )}
-              </ScrollArea>
-            </div>
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  )}
+                </ScrollArea>
+              </div>
 
-            {/* Generate Button */}
-            <Button 
-              className="w-full" 
-              disabled={selectedEvents.length === 0}
-              data-testid="generate-highlights"
-            >
-              Generate Custom Highlights
-            </Button>
-          </CardContent>
-        </Card>
-      </aside>
+              {/* Generate Button */}
+              <Button 
+                className="w-full" 
+                disabled={selectedEvents.length === 0}
+                data-testid="generate-highlights"
+              >
+                Generate Custom Highlights
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Floating Film Button */}
+        <Button
+          size="lg"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-primary hover:bg-primary/90"
+          data-testid="floating-film-button"
+        >
+          <Film className="h-6 w-6" />
+        </Button>
+      </div>
     </div>
   );
 }
