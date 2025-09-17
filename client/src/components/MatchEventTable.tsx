@@ -167,8 +167,8 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
                 <TableHead className="w-16 px-2">Time</TableHead>
-                <TableHead className="w-12 px-2">Team</TableHead>
                 <TableHead className="w-24 px-2">Event</TableHead>
+                <TableHead className="w-12 px-2">Team</TableHead>
                 <TableHead className="px-2">Player</TableHead>
               </TableRow>
             </TableHeader>
@@ -184,10 +184,6 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                     {formatTimestamp(event.timestamp)}
                   </TableCell>
                   
-                  <TableCell className="px-2 text-center font-semibold text-xs">
-                    {event.team.name.includes("England") ? "ENG" : "ESP"}
-                  </TableCell>
-                  
                   <TableCell className="px-2">
                     <Badge 
                       variant="secondary"
@@ -195,6 +191,10 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                     >
                       {event.type.name}
                     </Badge>
+                  </TableCell>
+                  
+                  <TableCell className="px-2 text-center font-semibold text-xs">
+                    {event.team.name.includes("England") ? "ENG" : "ESP"}
                   </TableCell>
                   
                   <TableCell className="px-2">

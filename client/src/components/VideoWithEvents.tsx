@@ -95,12 +95,12 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
       
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Event Table - Left Side */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-2">
           <MatchEventTable onEventClick={handleEventClick} />
         </div>
         
         {/* Video Player - Right Side */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <Card>
             <CardHeader>
               <CardTitle>Match Video</CardTitle>
