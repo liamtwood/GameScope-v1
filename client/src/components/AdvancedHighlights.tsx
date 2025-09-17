@@ -152,7 +152,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     'PRESSURE CONTEXT': ['Under Pressure', 'Composed Play'],
     'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
     'TECHNIQUE': ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
-    'SUBSTITUTION CONTEXT': ['Tactical Substitutions'],
+    'SUBS': ['Tactical Substitutions'],
     'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost']
   };
 
