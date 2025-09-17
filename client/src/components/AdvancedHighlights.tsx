@@ -969,11 +969,9 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                 <Table>
                   <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 shadow-sm border-b">
                     <TableRow>
-                      <TableHead className="w-16 text-center min-w-16">Time</TableHead>
-                      <TableHead className="w-20 text-center min-w-20">Period</TableHead>
+                      <TableHead className="w-20 text-center min-w-20">Time</TableHead>
                       <TableHead className="w-auto">Event</TableHead>
-                      <TableHead className="w-20 min-w-20 hidden sm:table-cell">Team</TableHead>
-                      <TableHead className="w-24 min-w-24 hidden md:table-cell">Player</TableHead>
+                      <TableHead className="w-32 min-w-32 hidden md:table-cell">Player</TableHead>
                       <TableHead className="w-28 text-center min-w-28">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -986,13 +984,15 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                           className={`${getTeamColor(event.team.name)} hover:bg-muted/50 transition-colors`}
                           data-testid={`event-row-${event.index}`}
                         >
-                          <TableCell className="text-center font-mono text-sm" data-testid={`event-time-${event.index}`}>
-                            {formatTimestamp(event.timestamp)}
-                          </TableCell>
-                          <TableCell className="text-center" data-testid={`event-period-${event.index}`}>
-                            <Badge variant="outline" className="text-xs">
-                              {event.period === 1 ? '1H' : event.period === 2 ? '2H' : `P${event.period}`}
-                            </Badge>
+                          <TableCell className="text-center py-1.5" data-testid={`event-time-${event.index}`}>
+                            <div className="flex flex-col items-center gap-0.5">
+                              <Badge variant="outline" className="text-[10px] h-4 px-1.5" data-testid={`event-period-${event.index}`}>
+                                {event.period === 1 ? '1H' : event.period === 2 ? '2H' : `P${event.period}`}
+                              </Badge>
+                              <span className="font-mono text-sm leading-tight">
+                                {formatTimestamp(event.timestamp)}
+                              </span>
+                            </div>
                           </TableCell>
                           <TableCell data-testid={`event-type-${event.index}`}>
                             <div className="flex items-center gap-2">
@@ -1036,15 +1036,15 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                               </div>
                             )}
                           </TableCell>
-                          <TableCell className="hidden sm:table-cell" data-testid={`event-team-${event.index}`}>
-                            <Badge variant="outline" className="text-xs">
-                              {event.team.name.includes('Spain') ? 'ESP' : 'ENG'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell" data-testid={`event-player-${event.index}`}>
-                            <span className="text-sm">
-                              {event.player?.name || '-'}
-                            </span>
+                          <TableCell className="hidden md:table-cell py-1.5" data-testid={`event-player-${event.index}`}>
+                            <div className="flex flex-col items-start gap-0.5">
+                              <Badge variant="outline" className="text-[10px] h-4 px-1.5" data-testid={`event-team-${event.index}`}>
+                                {event.team.name.includes('Spain') ? 'ESP' : 'ENG'}
+                              </Badge>
+                              <span className="text-sm leading-tight truncate" title={event.player?.name || '-'}>
+                                {event.player?.name || '-'}
+                              </span>
+                            </div>
                           </TableCell>
                           <TableCell className="text-center">
                             <div className="flex gap-1 justify-center">
