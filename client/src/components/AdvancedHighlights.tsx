@@ -190,7 +190,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         <aside className="lg:col-span-3">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">🎯 Event Filters</CardTitle>
+              <CardTitle className="text-lg">Event Filters</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Priority Filters */}
@@ -275,9 +275,9 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             <CardContent className="pt-6">
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="timeline" data-testid="view-timeline">📅 Timeline</TabsTrigger>
-                  <TabsTrigger value="grid" data-testid="view-grid">⊞ Grid</TabsTrigger>
-                  <TabsTrigger value="heatmap" data-testid="view-heatmap">🔥 Heatmap</TabsTrigger>
+                  <TabsTrigger value="timeline" data-testid="view-timeline">Timeline</TabsTrigger>
+                  <TabsTrigger value="grid" data-testid="view-grid">Clips</TabsTrigger>
+                  <TabsTrigger value="heatmap" data-testid="view-heatmap">Heatmap</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="timeline" className="mt-6">
@@ -364,7 +364,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         <aside className="lg:col-span-3">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">🎬 Highlight Builder</CardTitle>
+              <CardTitle className="text-lg">Highlight Builder</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Package Selector */}
