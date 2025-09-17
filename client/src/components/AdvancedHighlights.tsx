@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X, Play } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { X, Play, ChevronDown } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
@@ -92,17 +94,37 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Get unique event types and teams for filtering
-  const { eventTypes, teams } = useMemo(() => {
+  // Define event categories
+  const eventCategories = {
+    DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper'],
+    POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield'],
+    ATTACK: ['Shot', 'Dribble'],
+    TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol']
+  };
+
+  // Get available event types and teams
+  const { availableEventTypes, teams } = useMemo(() => {
     const typeSet = new Set(matchEvents.map(event => event.type.name));
     const teamSet = new Set(matchEvents.map(event => event.team.name));
     const types = Array.from(typeSet);
     const teamNames = Array.from(teamSet);
     return {
-      eventTypes: types.sort(),
+      availableEventTypes: types.sort(),
       teams: teamNames.sort()
     };
   }, []);
+
+  // Get counts for each event type
+  const getEventTypeCount = (eventType: string): number => {
+    return matchEvents.filter(e => e.type.name === eventType).length;
+  };
+
+  // Get counts for each category
+  const getCategoryCount = (categoryEvents: string[]): number => {
+    return categoryEvents.reduce((total, eventType) => {
+      return total + getEventTypeCount(eventType);
+    }, 0);
+  };
 
   // Filter events based on selected criteria
   const filteredEvents = useMemo(() => {
@@ -184,23 +206,83 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             <CardTitle className="text-lg">Event Filters</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Event Type Filters */}
+            {/* Event Type Filters - Grouped */}
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Event Types</h3>
-              <div className="space-y-2">
-                {eventTypes.map((type) => {
-                  const count = matchEvents.filter(e => e.type.name === type).length;
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Event Categories</h3>
+              <div className="space-y-3">
+                {Object.entries(eventCategories).map(([categoryName, categoryEvents]) => {
+                  const availableEventsInCategory = categoryEvents.filter(eventType => 
+                    availableEventTypes.includes(eventType)
+                  );
+                  const categoryCount = getCategoryCount(availableEventsInCategory);
+                  const selectedInCategory = selectedEventTypes.filter(type => categoryEvents.includes(type));
+                  
+                  if (availableEventsInCategory.length === 0) return null;
+                  
                   return (
-                    <Button
-                      key={type}
-                      variant={selectedEventTypes.includes(type) ? "default" : "outline"}
-                      className="w-full justify-between"
-                      onClick={() => handleEventTypeToggle(type)}
-                      data-testid={`filter-${type.toLowerCase().replace(/\s/g, '-')}`}
-                    >
-                      {type}
-                      <Badge variant="secondary">{count}</Badge>
-                    </Button>
+                    <Collapsible key={categoryName} className="space-y-2">
+                      <CollapsibleTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between"
+                          data-testid={`category-${categoryName.toLowerCase()}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{categoryName}</span>
+                            {selectedInCategory.length > 0 && (
+                              <Badge variant="default" className="text-xs">
+                                {selectedInCategory.length}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{categoryCount}</Badge>
+                            <ChevronDown className="h-4 w-4" />
+                          </div>
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-1 pl-4">
+                        <Button
+                          size="sm"
+                          variant={selectedInCategory.length === availableEventsInCategory.length ? "default" : "outline"}
+                          className="w-full mb-2"
+                          onClick={() => {
+                            if (selectedInCategory.length === availableEventsInCategory.length) {
+                              // Deselect all in category
+                              setSelectedEventTypes(prev => 
+                                prev.filter(type => !categoryEvents.includes(type))
+                              );
+                            } else {
+                              // Select all in category
+                              setSelectedEventTypes(prev => [
+                                ...prev.filter(type => !categoryEvents.includes(type)),
+                                ...availableEventsInCategory
+                              ]);
+                            }
+                          }}
+                          data-testid={`select-all-${categoryName.toLowerCase()}`}
+                        >
+                          {selectedInCategory.length === availableEventsInCategory.length ? "Deselect All" : "Select All"}
+                        </Button>
+                        {availableEventsInCategory.map((eventType) => {
+                          const count = getEventTypeCount(eventType);
+                          const isSelected = selectedEventTypes.includes(eventType);
+                          return (
+                            <Button
+                              key={eventType}
+                              size="sm"
+                              variant={isSelected ? "default" : "outline"}
+                              className="w-full justify-between"
+                              onClick={() => handleEventTypeToggle(eventType)}
+                              data-testid={`filter-${eventType.toLowerCase().replace(/[\s*]/g, '-')}`}
+                            >
+                              {eventType}
+                              <Badge variant="secondary">{count}</Badge>
+                            </Button>
+                          );
+                        })}
+                      </CollapsibleContent>
+                    </Collapsible>
                   );
                 })}
               </div>
