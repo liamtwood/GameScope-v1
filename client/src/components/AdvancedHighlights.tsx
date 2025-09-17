@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { X } from 'lucide-react';
 
 interface AdvancedHighlightsProps {
@@ -31,7 +32,6 @@ interface SelectedEvent {
 }
 
 export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
-  const [activeView, setActiveView] = useState<'timeline' | 'grid' | 'heatmap'>('timeline');
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [selectedPackage, setSelectedPackage] = useState<'quick' | 'standard' | 'extended'>('quick');
   const [selectedEvents, setSelectedEvents] = useState<SelectedEvent[]>([
@@ -299,110 +299,93 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           </Card>
         </aside>
 
-        {/* Center - Timeline View */}
+        {/* Center - View Tabs */}
         <main className="lg:col-span-6">
           <Card>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Button
-                  variant={activeView === 'timeline' ? "default" : "outline"}
-                  onClick={() => setActiveView('timeline')}
-                  data-testid="view-timeline"
-                >
-                  📅 Timeline
-                </Button>
-                <Button
-                  variant={activeView === 'grid' ? "default" : "outline"}
-                  onClick={() => setActiveView('grid')}
-                  data-testid="view-grid"
-                >
-                  ⊞ Grid
-                </Button>
-                <Button
-                  variant={activeView === 'heatmap' ? "default" : "outline"}
-                  onClick={() => setActiveView('heatmap')}
-                  data-testid="view-heatmap"
-                >
-                  🔥 Heatmap
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {activeView === 'timeline' && (
-                <div className="space-y-4">
-                  {/* Time Markers */}
-                  <div className="relative mb-8">
-                    <div className="flex justify-between items-center relative">
-                      <div className="absolute left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700 top-1/2 transform -translate-y-1/2"></div>
-                      {['0\'', '15\'', '30\'', '45\'', 'HT', '60\'', '75\'', '90\'', 'FT'].map((time) => (
-                        <span
-                          key={time}
-                          className="bg-background border-2 border-gray-200 dark:border-gray-700 px-3 py-1 rounded-full text-xs font-semibold relative z-10"
+            <CardContent className="pt-6">
+              <Tabs defaultValue="timeline" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="timeline" data-testid="view-timeline">📅 Timeline</TabsTrigger>
+                  <TabsTrigger value="grid" data-testid="view-grid">⊞ Grid</TabsTrigger>
+                  <TabsTrigger value="heatmap" data-testid="view-heatmap">🔥 Heatmap</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="timeline" className="mt-6">
+                  <div className="space-y-4">
+                    {/* Time Markers */}
+                    <div className="relative mb-8">
+                      <div className="flex justify-between items-center relative">
+                        <div className="absolute left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700 top-1/2 transform -translate-y-1/2"></div>
+                        {['0\'', '15\'', '30\'', '45\'', 'HT', '60\'', '75\'', '90\'', 'FT'].map((time) => (
+                          <span
+                            key={time}
+                            className="bg-background border-2 border-gray-200 dark:border-gray-700 px-3 py-1 rounded-full text-xs font-semibold relative z-10"
+                          >
+                            {time}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Event Groups */}
+                    <div className="space-y-4">
+                      {eventGroups.map((group) => (
+                        <div
+                          key={group.id}
+                          className={`rounded-lg p-4 ${getGroupStyles(group.type)}`}
                         >
-                          {time}
-                        </span>
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-medium text-sm">{group.title}</span>
+                            <span className="text-xs text-muted-foreground">{group.timeRange}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {group.events.map((event) => (
+                              <button
+                                key={event.id}
+                                onClick={() => handleEventChipClick(event)}
+                                className="flex items-center gap-2 bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1.5 rounded-full text-xs transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer border border-border"
+                                data-testid={`event-chip-${event.id}`}
+                              >
+                                {getEventIcon(event.type)}
+                                <span>{event.description} ({event.time})</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
-
-                  {/* Event Groups */}
-                  <div className="space-y-4">
-                    {eventGroups.map((group) => (
+                </TabsContent>
+                
+                <TabsContent value="grid" className="mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {eventGroups.flatMap(group => group.events).map((event) => (
                       <div
-                        key={group.id}
-                        className={`rounded-lg p-4 ${getGroupStyles(group.type)}`}
+                        key={event.id}
+                        onClick={() => handleEventChipClick(event)}
+                        className="cursor-pointer bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all border"
+                        data-testid={`grid-event-${event.id}`}
                       >
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-medium text-sm">{group.title}</span>
-                          <span className="text-xs text-muted-foreground">{group.timeRange}</span>
+                        <div className="h-24 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl text-white">
+                          {event.icon}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {group.events.map((event) => (
-                            <button
-                              key={event.id}
-                              onClick={() => handleEventChipClick(event)}
-                              className="flex items-center gap-2 bg-background hover:bg-accent hover:text-accent-foreground px-3 py-1.5 rounded-full text-xs transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer border border-border"
-                              data-testid={`event-chip-${event.id}`}
-                            >
-                              {getEventIcon(event.type)}
-                              <span>{event.description} ({event.time})</span>
-                            </button>
-                          ))}
+                        <div className="p-3">
+                          <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">{event.time}</div>
+                          <div className="text-sm font-medium mt-1">{event.description}</div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-              
-              {activeView === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {eventGroups.flatMap(group => group.events).map((event) => (
-                    <div
-                      key={event.id}
-                      onClick={() => handleEventChipClick(event)}
-                      className="cursor-pointer bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all border"
-                      data-testid={`grid-event-${event.id}`}
-                    >
-                      <div className="h-24 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl text-white">
-                        {event.icon}
-                      </div>
-                      <div className="p-3">
-                        <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">{event.time}</div>
-                        <div className="text-sm font-medium mt-1">{event.description}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {activeView === 'heatmap' && (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🔥</div>
-                  <div className="text-lg font-medium mb-2">Heatmap View</div>
-                  <div className="text-muted-foreground">Coming soon - Visual heatmap of match events</div>
-                </div>
-              )}
+                </TabsContent>
+                
+                <TabsContent value="heatmap" className="mt-6">
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🔥</div>
+                    <div className="text-lg font-medium mb-2">Heatmap View</div>
+                    <div className="text-muted-foreground">Coming soon - Visual heatmap of match events</div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </main>
