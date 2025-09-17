@@ -318,6 +318,13 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       if (eventType === 'High xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg > 0.3) return true;
       if (eventType === 'Medium xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg >= 0.1 && e.shot.statsbomb_xg <= 0.3) return true;
       if (eventType === 'Low xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg < 0.1) return true;
+      
+      // TECHNIQUE events - check shot data for technique and body_part
+      if (eventType === 'Volleys' && e.shot?.technique?.name === 'Volley') return true;
+      if (eventType === 'Left Foot' && e.shot?.body_part?.name === 'Left Foot') return true;
+      if (eventType === 'Right Foot' && e.shot?.body_part?.name === 'Right Foot') return true;
+      if (eventType === 'Headers' && e.shot?.body_part?.name === 'Head') return true;
+      
       return false;
     }).length;
   };
@@ -346,6 +353,13 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           }
           if (selectedType === 'Under Pressure' && event.under_pressure === true) return true;
           if (selectedType === 'Composed Play' && event.under_pressure !== true) return true;
+          
+          // TECHNIQUE events - check shot data for technique and body_part
+          if (selectedType === 'Volleys' && event.shot?.technique?.name === 'Volley') return true;
+          if (selectedType === 'Left Foot' && event.shot?.body_part?.name === 'Left Foot') return true;
+          if (selectedType === 'Right Foot' && event.shot?.body_part?.name === 'Right Foot') return true;
+          if (selectedType === 'Headers' && event.shot?.body_part?.name === 'Head') return true;
+          
           return false;
         });
       }
