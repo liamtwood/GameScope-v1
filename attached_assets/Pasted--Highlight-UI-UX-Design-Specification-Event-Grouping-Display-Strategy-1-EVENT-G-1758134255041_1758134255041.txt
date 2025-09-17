@@ -1,0 +1,435 @@
+# Highlight UI/UX Design Specification
+## Event Grouping & Display Strategy
+
+---
+
+## 1. EVENT GROUPING HIERARCHY
+
+### **Primary Grouping Methods**
+
+#### A. **Temporal Grouping (Timeline View)**
+Groups events by time periods and match flow:
+
+```
+├── Match Phases (Macro Level)
+│   ├── First Half (0-45')
+│   ├── Second Half (45-90')
+│   └── Extra Time (90-104')
+│
+├── Action Sequences (Micro Level)
+│   ├── Pressure Periods (3+ events in 5 min)
+│   ├── Goal Sequences (build-up → goal → reaction)
+│   └── Momentum Shifts (possession changes)
+│
+└── Individual Events
+    └── Timestamped moments
+```
+
+#### B. **Priority-Based Grouping**
+Events categorized by importance:
+
+| Tier | Priority Score | Color Code | Events |
+|------|---------------|------------|--------|
+| **Must Include** | 80-100 | 🟢 Green | Goals, penalties, red cards |
+| **High Priority** | 60-79 | 🟠 Orange | Great saves, near misses, yellows |
+| **Supporting** | 25-59 | 🔵 Blue | Chances, skills, tactical moments |
+| **Context** | 0-24 | ⚫ Gray | Build-up play, atmosphere |
+
+#### C. **Event Type Grouping**
+Categorical organization:
+
+- **Scoring Events**: Goals, penalties, own goals
+- **Attempts**: Shots on/off target, blocked shots
+- **Defensive**: Saves, clearances, blocks
+- **Discipline**: Yellow cards, red cards, fouls
+- **Transitions**: Substitutions, injuries
+- **Set Pieces**: Corners, free kicks, throw-ins
+
+#### D. **Team-Based Grouping**
+Separated by team involvement:
+
+- **Team A Events**: All actions by Team A
+- **Team B Events**: All actions by Team B
+- **Neutral Events**: Referee decisions, injuries
+
+---
+
+## 2. UI LAYOUT ARCHITECTURE
+
+### **Three-Panel Design**
+
+```
+┌─────────────┬──────────────────────┬─────────────┐
+│   FILTERS   │    MAIN CANVAS       │   BUILDER   │
+│             │                      │             │
+│  • Priority │  Timeline/Grid/Heat  │  Selected   │
+│  • Type     │  Event Display       │  Events     │
+│  • Phase    │                      │             │
+│  • Team     │                      │  Duration   │
+│             │                      │  Control    │
+└─────────────┴──────────────────────┴─────────────┘
+```
+
+### **Component Specifications**
+
+#### **Left Panel - Smart Filters (300px)**
+- Multi-select capability
+- Real-time count badges
+- Hierarchical organization
+- Quick presets (e.g., "All goals", "Key moments")
+
+#### **Center Canvas - Dynamic Views (Flexible)**
+- **Timeline View**: Chronological with visual clustering
+- **Grid View**: Card-based event browser
+- **Heatmap View**: Intensity visualization over time
+- **Tactical View**: Field position overlay
+
+#### **Right Panel - Highlight Builder (320px)**
+- Drag-drop event sequencing
+- Duration calculator
+- Package templates
+- Export options
+
+---
+
+## 3. VISUAL GROUPING STRATEGIES
+
+### **A. Timeline Clustering**
+
+```
+Early Pressure (0-15')
+━━━━━━━━━━━━━━━━━━━━━━
+│ 🎯 Shot │ 🎯 Shot │ ⚠️ Foul │
+└─────────┴─────────┴──────────┘
+         ↓ 
+    [5 events clustered]
+
+THE GOAL! (29')
+━━━━━━━━━━━━━━━
+│ ⚽ GOAL │ ← Highlighted & Expanded
+└─────────┘
+
+Late Drama (85-90')
+━━━━━━━━━━━━━━━━━━━
+│ 🎯 │ 🧤 │ 🎯 │ 🟨 │
+└────┴────┴────┴────┘
+```
+
+### **B. Visual Hierarchy**
+
+1. **Size**: Goals 2x larger than other events
+2. **Color**: Importance-based gradient
+3. **Position**: Key events centered, context on sides
+4. **Animation**: Pulse effect on crucial moments
+
+### **C. Contextual Grouping Rules**
+
+```javascript
+GroupingLogic = {
+  // Automatic sequence detection
+  goalSequence: {
+    lookback: 30, // seconds before goal
+    lookforward: 15, // seconds after goal
+    includeEvents: ['Pass', 'Dribble', 'Shot', 'Celebration']
+  },
+  
+  // Pressure period detection
+  pressurePeriod: {
+    threshold: 3, // minimum events
+    timeWindow: 300, // 5 minutes
+    eventTypes: ['Shot', 'Corner', 'FreeKick']
+  },
+  
+  // Momentum shift detection
+  momentumShift: {
+    possessionChange: true,
+    locationShift: 30, // meters up field
+    eventDensity: 5 // events per minute
+  }
+}
+```
+
+---
+
+## 4. INTERACTION PATTERNS
+
+### **Event Selection Workflow**
+
+```
+1. BROWSE → 2. SELECT → 3. SEQUENCE → 4. EXPORT
+
+1. Browse Events
+   ├── Filter by criteria
+   ├── View in preferred format
+   └── Preview on hover
+
+2. Select for Highlight
+   ├── Click to add
+   ├── Batch select (Shift+Click)
+   └── Smart suggestions
+
+3. Sequence & Edit
+   ├── Drag to reorder
+   ├── Adjust duration
+   └── Add transitions
+
+4. Export Package
+   ├── Choose format
+   ├── Select quality
+   └── Add metadata
+```
+
+### **Smart Features**
+
+#### **Auto-Grouping Algorithm**
+```python
+def auto_group_events(events):
+    groups = []
+    current_group = []
+    
+    for event in events:
+        if should_start_new_group(event, current_group):
+            if current_group:
+                groups.append(create_group(current_group))
+            current_group = [event]
+        else:
+            current_group.append(event)
+    
+    return groups
+
+def should_start_new_group(event, current_group):
+    if not current_group:
+        return True
+    
+    # Time gap > 5 minutes
+    if event.minute - current_group[-1].minute > 5:
+        return True
+    
+    # Different match phase
+    if get_phase(event) != get_phase(current_group[-1]):
+        return True
+    
+    # Significant event (goal, red card)
+    if event.priority >= 80:
+        return True
+    
+    return False
+```
+
+#### **Intelligent Suggestions**
+- "Add build-up to this goal?"
+- "Include goalkeeper reaction?"
+- "This period had 3 shots - include all?"
+
+---
+
+## 5. RESPONSIVE STATES
+
+### **Desktop (1400px+)**
+- Full three-panel layout
+- All views available
+- Drag-drop enabled
+
+### **Tablet (768px - 1399px)**
+- Collapsible side panels
+- Swipe between views
+- Touch-optimized controls
+
+### **Mobile (< 768px)**
+- Single column layout
+- Bottom navigation
+- Simplified builder
+
+---
+
+## 6. DATA VISUALIZATION
+
+### **Event Density Heatmap**
+
+```
+         0'    15'   30'   45'   HT   60'   75'   90'   FT
+Team A  [▁▃▅▇▅▃▁▁▃▅▇▇▅▃▁▁▁▃▅▇▅▃▁]
+Team B  [▇▅▃▁▁▃▅▇▅▃▁▁▁▃▅▇▇▅▃▁▁▃▅]
+        ↑                ↑              ↑
+    Early pressure    GOAL!      Late surge
+```
+
+### **Momentum Graph**
+
+```
++10 ┤                    ╱╲ Spain
+    │                   ╱  ╲
+  0 ┤──────────────────────────────
+    │ ╱╲    ╱╲        
+-10 ┤╱  ╲__╱  England
+    └────────────────────────────
+     0'   30'   60'   90'
+```
+
+---
+
+## 7. UI COMPONENTS
+
+### **Event Card Component**
+
+```html
+<div class="event-card" data-priority="100">
+  <div class="event-header">
+    <span class="event-icon">⚽</span>
+    <span class="event-time">28:29</span>
+    <span class="event-score">+100</span>
+  </div>
+  <div class="event-body">
+    <h4>Olga Carmona Goal</h4>
+    <p>Spain Women's • Left foot • Outside box</p>
+  </div>
+  <div class="event-actions">
+    <button class="btn-add">+ Add to Highlights</button>
+    <button class="btn-preview">👁 Preview</button>
+  </div>
+</div>
+```
+
+### **Group Container Component**
+
+```html
+<div class="event-group" data-type="pressure-period">
+  <div class="group-header">
+    <h3>Spanish Dominance</h3>
+    <span class="group-time">15' - 30'</span>
+    <button class="expand-toggle">▼</button>
+  </div>
+  <div class="group-events">
+    <!-- Event cards here -->
+  </div>
+  <div class="group-actions">
+    <button class="select-all">Select All (5)</button>
+    <button class="add-best">Add Top 3</button>
+  </div>
+</div>
+```
+
+---
+
+## 8. COLOR SYSTEM
+
+### **Priority-Based Palette**
+
+```css
+:root {
+  /* Priority Colors */
+  --must-include: #4CAF50;  /* Green */
+  --high-priority: #FF9800; /* Orange */
+  --supporting: #2196F3;    /* Blue */
+  --context: #9E9E9E;       /* Gray */
+  
+  /* Event Type Colors */
+  --goal: #4CAF50;
+  --shot: #FFC107;
+  --save: #03A9F4;
+  --card-yellow: #FFEB3B;
+  --card-red: #F44336;
+  --substitution: #9C27B0;
+  
+  /* Team Colors */
+  --team-a: #E91E63;
+  --team-b: #3F51B5;
+  
+  /* UI States */
+  --selected: #667EEA;
+  --hover: #F5F5F5;
+  --active: #E3F2FD;
+}
+```
+
+---
+
+## 9. ANIMATION & FEEDBACK
+
+### **Micro-Interactions**
+
+```css
+/* Event hover effect */
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+/* Add to highlights */
+@keyframes addPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Drag feedback */
+.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+```
+
+### **Loading States**
+
+- Skeleton screens for event loading
+- Progressive reveal for timeline
+- Smooth transitions between views
+
+---
+
+## 10. ACCESSIBILITY
+
+### **Keyboard Navigation**
+
+- `Tab`: Navigate between events
+- `Space`: Select/deselect event
+- `Enter`: Add to highlights
+- `Arrow keys`: Navigate timeline
+- `Ctrl+A`: Select all visible
+
+### **Screen Reader Support**
+
+```html
+<div role="region" aria-label="Match events timeline">
+  <button aria-label="Goal by Carmona at 28 minutes">
+    <span aria-hidden="true">⚽</span>
+    Goal - 28:29
+  </button>
+</div>
+```
+
+### **Visual Accessibility**
+
+- High contrast mode support
+- Color-blind friendly palette
+- Minimum touch target: 44x44px
+- Focus indicators on all interactive elements
+
+---
+
+## IMPLEMENTATION PRIORITIES
+
+### **Phase 1: Core Functionality**
+1. Timeline view with basic grouping
+2. Filter panel
+3. Simple highlight builder
+4. Export to JSON
+
+### **Phase 2: Enhanced Features**
+1. Grid and heatmap views
+2. Smart grouping algorithms
+3. Drag-drop reordering
+4. Duration management
+
+### **Phase 3: Advanced Features**
+1. AI-powered suggestions
+2. Multi-angle preview
+3. Collaborative editing
+4. Custom templates
+
+### **Phase 4: Platform Extensions**
+1. Mobile app
+2. Broadcasting integration
+3. Social media optimization
+4. Real-time collaboration

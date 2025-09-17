@@ -28,7 +28,7 @@ interface MatchEvent {
   };
   location?: number[];
   pass?: {
-    recipient: {
+    recipient?: {
       id: number;
       name: string;
     };
