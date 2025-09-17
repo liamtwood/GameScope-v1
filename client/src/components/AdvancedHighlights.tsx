@@ -74,7 +74,8 @@ interface SelectedEvent {
 
 export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<number[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<SelectedEvent[]>([]);
   const [includeCommentary, setIncludeCommentary] = useState<boolean>(false);
   const [includeLineups, setIncludeLineups] = useState<boolean>(false);
@@ -102,15 +103,70 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol']
   };
 
-  // Get available event types and teams
-  const { availableEventTypes, teams } = useMemo(() => {
+  // Get available event types, teams, and players
+  const { availableEventTypes, teams, teamPlayers } = useMemo(() => {
     const typeSet = new Set(matchEvents.map(event => event.type.name));
     const teamSet = new Set(matchEvents.map(event => event.team.name));
     const types = Array.from(typeSet);
     const teamNames = Array.from(teamSet);
+    
+    // Extract players for each team from all events and tactics
+    const playersByTeam: { [teamName: string]: Array<{ id: number; name: string; jerseyNumber?: number }> } = {};
+    
+    matchEvents.forEach(event => {
+      const teamName = event.team.name;
+      
+      // Initialize team array if not exists
+      if (!playersByTeam[teamName]) {
+        playersByTeam[teamName] = [];
+      }
+      
+      // Add player from event if exists
+      if (event.player) {
+        const existingPlayer = playersByTeam[teamName].find(p => p.id === event.player!.id);
+        if (!existingPlayer) {
+          playersByTeam[teamName].push({
+            id: event.player.id,
+            name: event.player.name,
+            jerseyNumber: undefined // Will be filled from tactics
+          });
+        }
+      }
+      
+      // Add players from tactics lineup if exists
+      if (event.tactics?.lineup) {
+        event.tactics.lineup.forEach(lineupPlayer => {
+          const existingPlayer = playersByTeam[teamName].find(p => p.id === lineupPlayer.player.id);
+          if (!existingPlayer) {
+            playersByTeam[teamName].push({
+              id: lineupPlayer.player.id,
+              name: lineupPlayer.player.name,
+              jerseyNumber: lineupPlayer.jersey_number
+            });
+          } else if (!existingPlayer.jerseyNumber && lineupPlayer.jersey_number) {
+            // Update jersey number if not already set
+            existingPlayer.jerseyNumber = lineupPlayer.jersey_number;
+          }
+        });
+      }
+    });
+    
+    // Sort players by jersey number within each team
+    Object.keys(playersByTeam).forEach(teamName => {
+      playersByTeam[teamName].sort((a, b) => {
+        if (a.jerseyNumber && b.jerseyNumber) {
+          return a.jerseyNumber - b.jerseyNumber;
+        }
+        if (a.jerseyNumber && !b.jerseyNumber) return -1;
+        if (!a.jerseyNumber && b.jerseyNumber) return 1;
+        return a.name.localeCompare(b.name);
+      });
+    });
+    
     return {
       availableEventTypes: types.sort(),
-      teams: teamNames.sort()
+      teams: teamNames.sort(),
+      teamPlayers: playersByTeam
     };
   }, []);
 
@@ -130,16 +186,33 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   const filteredEvents = useMemo(() => {
     return matchEvents.filter(event => {
       const matchesEventType = selectedEventTypes.length === 0 || selectedEventTypes.includes(event.type.name);
-      const matchesTeam = selectedTeam === '' || event.team.name === selectedTeam;
-      return matchesEventType && matchesTeam;
+      const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(event.team.name);
+      const matchesPlayer = selectedPlayers.length === 0 || (event.player && selectedPlayers.includes(event.player.id));
+      return matchesEventType && matchesTeam && matchesPlayer;
     });
-  }, [selectedEventTypes, selectedTeam]);
+  }, [selectedEventTypes, selectedTeams, selectedPlayers]);
 
   const handleEventTypeToggle = (eventType: string) => {
     setSelectedEventTypes(prev => 
       prev.includes(eventType) 
         ? prev.filter(t => t !== eventType)
         : [...prev, eventType]
+    );
+  };
+
+  const handleTeamToggle = (teamName: string) => {
+    setSelectedTeams(prev => 
+      prev.includes(teamName) 
+        ? prev.filter(t => t !== teamName)
+        : [...prev, teamName]
+    );
+  };
+
+  const handlePlayerToggle = (playerId: number) => {
+    setSelectedPlayers(prev => 
+      prev.includes(playerId) 
+        ? prev.filter(id => id !== playerId)
+        : [...prev, playerId]
     );
   };
 
@@ -288,32 +361,115 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
               </div>
             </div>
 
-            {/* Team Filters */}
+            {/* Team Filters - Grouped with Players */}
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Team</h3>
-              <div className="space-y-2">
-                <Button
-                  variant={selectedTeam === '' ? "default" : "outline"}
-                  className="w-full justify-between"
-                  onClick={() => setSelectedTeam('')}
-                  data-testid="filter-all-teams"
-                >
-                  All Teams
-                  <Badge variant="secondary">{matchEvents.length}</Badge>
-                </Button>
-                {teams.map((team) => {
-                  const count = matchEvents.filter(e => e.team.name === team).length;
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Teams & Players</h3>
+              <div className="space-y-3">
+                {teams.map((teamName) => {
+                  const teamEventCount = matchEvents.filter(e => e.team.name === teamName).length;
+                  const teamPlayersData = teamPlayers[teamName] || [];
+                  const selectedTeamPlayers = selectedPlayers.filter(playerId => 
+                    teamPlayersData.some(p => p.id === playerId)
+                  );
+                  const isTeamSelected = selectedTeams.includes(teamName);
+                  
                   return (
-                    <Button
-                      key={team}
-                      variant={selectedTeam === team ? "default" : "outline"}
-                      className="w-full justify-between"
-                      onClick={() => setSelectedTeam(team)}
-                      data-testid={`filter-${team.toLowerCase().replace(/\s/g, '-')}`}
-                    >
-                      {team.includes("Spain") ? "🇪🇸 Spain" : "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"}
-                      <Badge variant="secondary">{count}</Badge>
-                    </Button>
+                    <Collapsible key={teamName} className="space-y-2">
+                      <CollapsibleTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between"
+                          data-testid={`team-${teamName.toLowerCase().replace(/\s/g, '-')}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {teamName.includes("Spain") ? "🇪🇸 Spain" : "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"}
+                            </span>
+                            {(isTeamSelected || selectedTeamPlayers.length > 0) && (
+                              <Badge variant="default" className="text-xs">
+                                {isTeamSelected ? "Team" : `${selectedTeamPlayers.length} players`}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{teamEventCount}</Badge>
+                            <ChevronDown className="h-4 w-4" />
+                          </div>
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-1 pl-4">
+                        <div className="flex gap-2 mb-2">
+                          <Button
+                            size="sm"
+                            variant={isTeamSelected ? "default" : "outline"}
+                            className="flex-1"
+                            onClick={() => handleTeamToggle(teamName)}
+                            data-testid={`select-team-${teamName.toLowerCase().replace(/\s/g, '-')}`}
+                          >
+                            {isTeamSelected ? "Deselect Team" : "Select Team"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={selectedTeamPlayers.length === teamPlayersData.length ? "default" : "outline"}
+                            className="flex-1"
+                            onClick={() => {
+                              const allPlayerIds = teamPlayersData.map(p => p.id);
+                              if (selectedTeamPlayers.length === teamPlayersData.length) {
+                                // Deselect all players in team
+                                setSelectedPlayers(prev => 
+                                  prev.filter(id => !allPlayerIds.includes(id))
+                                );
+                              } else {
+                                // Select all players in team
+                                setSelectedPlayers(prev => [
+                                  ...prev.filter(id => !allPlayerIds.includes(id)),
+                                  ...allPlayerIds
+                                ]);
+                              }
+                            }}
+                            data-testid={`select-all-players-${teamName.toLowerCase().replace(/\s/g, '-')}`}
+                          >
+                            {selectedTeamPlayers.length === teamPlayersData.length ? "Deselect All" : "All Players"}
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                          {teamPlayersData.map((player) => {
+                            const isPlayerSelected = selectedPlayers.includes(player.id);
+                            const playerEventCount = matchEvents.filter(e => 
+                              e.player && e.player.id === player.id
+                            ).length;
+                            return (
+                              <Button
+                                key={player.id}
+                                size="sm"
+                                variant={isPlayerSelected ? "default" : "outline"}
+                                className="text-xs justify-start h-8 p-2"
+                                onClick={() => handlePlayerToggle(player.id)}
+                                data-testid={`player-${player.id}`}
+                                disabled={playerEventCount === 0}
+                              >
+                                <span className="font-mono w-6">
+                                  {player.jerseyNumber || '?'}
+                                </span>
+                                <span className="truncate ml-1">
+                                  {player.name.split(' ').slice(-1)[0]}
+                                </span>
+                                {playerEventCount > 0 && (
+                                  <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1">
+                                    {playerEventCount}
+                                  </Badge>
+                                )}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                        {teamPlayersData.length === 0 && (
+                          <div className="text-xs text-muted-foreground text-center py-2">
+                            No player data available
+                          </div>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
                   );
                 })}
               </div>
