@@ -128,19 +128,6 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
         </div>
       </div>
       
-      {/* Quick Instructions */}
-      <Card className="mt-6">
-        <CardContent className="p-4">
-          <div className="text-sm text-gray-600">
-            <p className="font-medium mb-2">Quick Guide:</p>
-            <ul className="space-y-1">
-              <li>• Click any event in the table to jump to that moment in the video</li>
-              <li>• Use search and filters to find specific events</li>
-              <li>• Open Settings to configure video URL and timing synchronization</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
