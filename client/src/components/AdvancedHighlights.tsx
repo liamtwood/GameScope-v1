@@ -45,6 +45,14 @@ interface MatchEvent {
       id: number;
       name: string;
     };
+    technique?: {
+      id: number;
+      name: string;
+    };
+    outcome?: {
+      id: number;
+      name: string;
+    };
   };
   shot?: {
     statsbomb_xg: number;
@@ -476,14 +484,25 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         : `Shot - ${event.shot.outcome.name}`;
     }
     
-    // Free Kicks: Show type if available
-    if (event.type.name === 'Free Kick' && event.pass?.type?.name) {
-      return `Free Kick - ${event.pass.type.name}`;
+    // Free Kicks: Check if this is a pass with Free Kick type
+    if (event.type.name === 'Pass' && event.pass?.type?.name === 'Free Kick') {
+      // Add outcome or technique if available
+      if (event.pass.technique?.name) {
+        return `Free Kick - ${event.pass.technique.name}`;
+      }
+      return 'Free Kick';
     }
     
-    // Corners: Show type if available
-    if (event.type.name === 'Corner' && event.pass?.type?.name) {
-      return `Corner - ${event.pass.type.name}`;
+    // Corners: Check if this is a pass with Corner type  
+    if (event.type.name === 'Pass' && event.pass?.type?.name === 'Corner') {
+      // Add technique or outcome if available
+      if (event.pass.technique?.name) {
+        return `Corner - ${event.pass.technique.name}`;
+      }
+      if (event.pass.outcome?.name) {
+        return `Corner - ${event.pass.outcome.name}`;
+      }
+      return 'Corner';
     }
     
     // Penalties: Show outcome
