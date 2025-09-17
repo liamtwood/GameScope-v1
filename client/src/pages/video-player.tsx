@@ -6,7 +6,7 @@ import { VideoWithEvents } from '@/components/VideoWithEvents';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function VideoPlayerPage() {
-  const [videoUrl, setVideoUrl] = useState("https://www.youtube.com/watch?v=Tn6-PIqc4UM");
+  const [videoUrl, setVideoUrl] = useState("https://www.youtube.com/watch?v=gvoQ8gvzuC4");
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
