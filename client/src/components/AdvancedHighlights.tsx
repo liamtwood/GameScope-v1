@@ -657,9 +657,9 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[600px]">
+              <div className="h-[600px] overflow-auto">
                 <Table>
-                  <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10">
+                  <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 shadow-sm border-b">
                     <TableRow>
                       <TableHead className="w-16 text-center min-w-16">Time</TableHead>
                       <TableHead className="w-20 text-center min-w-20">Period</TableHead>
@@ -764,7 +764,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                     <p>No clips found matching your filters.</p>
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </CardContent>
           </Card>
         </main>
