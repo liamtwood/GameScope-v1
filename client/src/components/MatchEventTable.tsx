@@ -77,7 +77,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
     return matchEvents.filter(event => {
       const matchesSearch = 
         event.type.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.player?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (event.player?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.team.name.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesEventType = selectedEventType === "" || event.type.name === selectedEventType;
