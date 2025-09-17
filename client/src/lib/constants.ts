@@ -37,6 +37,7 @@ export const NAVIGATION_SECTIONS = [
       { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
       { id: 'videos', label: 'In Progress', icon: 'Video', tooltip: 'In Progress' },
       { id: 'video-player', label: 'Video Player', icon: 'Camera', tooltip: 'YouTube Video Player' },
+      { id: 'match-analysis', label: 'Match Analysis', icon: 'BarChart3', tooltip: 'Advanced video analysis with event synchronization' },
       { id: 'player-profiles', label: 'Player Profiles', icon: 'Users', tooltip: 'Player Profiles' },
     ]
   },

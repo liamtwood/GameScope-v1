@@ -1,0 +1,596 @@
+"""
+Event Storage System for Match Events
+Provides efficient storage and retrieval of football match events
+"""
+
+import json
+import sqlite3
+from dataclasses import dataclass, asdict
+from typing import List, Dict, Optional, Tuple, Any
+from enum import Enum
+from datetime import datetime
+
+# ============================================================================
+# DATA STRUCTURES
+# ============================================================================
+
+@dataclass
+class Event:
+    """Core event data structure"""
+    id: str
+    index: int
+    period: int
+    minute: int
+    second: int
+    timestamp: str
+    type_id: int
+    type_name: str
+    team_id: int
+    team_name: str
+    player_id: Optional[int] = None
+    player_name: Optional[str] = None
+    position_id: Optional[int] = None
+    position_name: Optional[str] = None
+    location_x: Optional[float] = None
+    location_y: Optional[float] = None
+    duration: Optional[float] = None
+    under_pressure: bool = False
+    off_camera: bool = False
+    out: bool = False
+    
+    # Relationship fields
+    possession: Optional[int] = None
+    possession_team_id: Optional[int] = None
+    possession_team_name: Optional[str] = None
+    play_pattern_id: Optional[int] = None
+    play_pattern_name: Optional[str] = None
+    
+    # Event-specific data stored as JSON
+    metadata: Optional[Dict] = None
+    related_events: Optional[List[str]] = None
+    
+    @property
+    def time_seconds(self) -> int:
+        """Get time in total seconds"""
+        return self.minute * 60 + self.second
+    
+    @property
+    def time_string(self) -> str:
+        """Get formatted time string"""
+        return f"{self.minute}:{self.second:02d}"
+
+@dataclass
+class ShotEvent:
+    """Extended data for shot events"""
+    event_id: str
+    outcome: str
+    technique: Optional[str] = None
+    body_part: Optional[str] = None
+    type: Optional[str] = None
+    first_time: bool = False
+    follows_dribble: bool = False
+    redirect: bool = False
+    one_on_one: bool = False
+    aerial_won: bool = False
+    saved_to_post: bool = False
+    deflected: bool = False
+    saved_off_target: bool = False
+    open_goal: bool = False
+    statsbomb_xg: Optional[float] = None
+    end_location_x: Optional[float] = None
+    end_location_y: Optional[float] = None
+    end_location_z: Optional[float] = None
+    key_pass_id: Optional[str] = None
+    freeze_frame: Optional[str] = None  # JSON string
+
+@dataclass
+class PassEvent:
+    """Extended data for pass events"""
+    event_id: str
+    recipient_id: Optional[int] = None
+    recipient_name: Optional[str] = None
+    length: Optional[float] = None
+    angle: Optional[float] = None
+    height: Optional[str] = None
+    type: Optional[str] = None
+    body_part: Optional[str] = None
+    outcome: Optional[str] = None
+    end_location_x: Optional[float] = None
+    end_location_y: Optional[float] = None
+    assisted_shot_id: Optional[str] = None
+    through_ball: bool = False
+    inswinging: bool = False
+    outswinging: bool = False
+    cut_back: bool = False
+    switch: bool = False
+    cross: bool = False
+    shot_assist: bool = False
+    goal_assist: bool = False
+    miscommunication: bool = False
+
+@dataclass
+class CardEvent:
+    """Extended data for card events"""
+    event_id: str
+    card_type: str  # 'Yellow', 'Red', 'Second Yellow'
+    reason: Optional[str] = None
+    foul_committed_id: Optional[str] = None
+
+@dataclass
+class SubstitutionEvent:
+    """Extended data for substitution events"""
+    event_id: str
+    replacement_id: int
+    replacement_name: str
+    outcome: str
+
+# ============================================================================
+# STORAGE SYSTEM
+# ============================================================================
+
+class EventStore:
+    """
+    Main storage system for events
+    Provides both in-memory and persistent storage options
+    """
+    
+    def __init__(self, storage_type: str = 'memory'):
+        """
+        Initialize event store
+        
+        Args:
+            storage_type: 'memory' for in-memory only, 'sqlite' for persistent
+        """
+        self.storage_type = storage_type
+        
+        # In-memory storage structures
+        self.events: List[Event] = []
+        self.events_by_id: Dict[str, Event] = {}
+        self.events_by_type: Dict[str, List[Event]] = {}
+        self.events_by_team: Dict[str, List[Event]] = {}
+        self.events_by_minute: Dict[int, List[Event]] = {}
+        self.events_by_player: Dict[str, List[Event]] = {}
+        
+        # Extended event data
+        self.shot_events: Dict[str, ShotEvent] = {}
+        self.pass_events: Dict[str, PassEvent] = {}
+        self.card_events: Dict[str, CardEvent] = {}
+        self.substitution_events: Dict[str, SubstitutionEvent] = {}
+        
+        # Initialize database if needed
+        if storage_type == 'sqlite':
+            self.conn = sqlite3.connect(':memory:')  # or use a file path
+            self._create_tables()
+    
+    def _create_tables(self):
+        """Create SQLite tables for persistent storage"""
+        cursor = self.conn.cursor()
+        
+        # Main events table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS events (
+                id TEXT PRIMARY KEY,
+                index_num INTEGER,
+                period INTEGER,
+                minute INTEGER,
+                second INTEGER,
+                timestamp TEXT,
+                type_id INTEGER,
+                type_name TEXT,
+                team_id INTEGER,
+                team_name TEXT,
+                player_id INTEGER,
+                player_name TEXT,
+                position_id INTEGER,
+                position_name TEXT,
+                location_x REAL,
+                location_y REAL,
+                duration REAL,
+                under_pressure BOOLEAN,
+                off_camera BOOLEAN,
+                out BOOLEAN,
+                possession INTEGER,
+                possession_team_id INTEGER,
+                possession_team_name TEXT,
+                play_pattern_id INTEGER,
+                play_pattern_name TEXT,
+                metadata TEXT,
+                related_events TEXT
+            )
+        ''')
+        
+        # Shot events table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shot_events (
+                event_id TEXT PRIMARY KEY,
+                outcome TEXT,
+                technique TEXT,
+                body_part TEXT,
+                type TEXT,
+                statsbomb_xg REAL,
+                end_location_x REAL,
+                end_location_y REAL,
+                end_location_z REAL,
+                key_pass_id TEXT,
+                freeze_frame TEXT,
+                FOREIGN KEY (event_id) REFERENCES events (id)
+            )
+        ''')
+        
+        # Pass events table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pass_events (
+                event_id TEXT PRIMARY KEY,
+                recipient_id INTEGER,
+                recipient_name TEXT,
+                length REAL,
+                angle REAL,
+                height TEXT,
+                type TEXT,
+                body_part TEXT,
+                outcome TEXT,
+                end_location_x REAL,
+                end_location_y REAL,
+                shot_assist BOOLEAN,
+                goal_assist BOOLEAN,
+                FOREIGN KEY (event_id) REFERENCES events (id)
+            )
+        ''')
+        
+        # Create indexes for fast lookup
+        cursor.execute('CREATE INDEX idx_minute ON events (minute)')
+        cursor.execute('CREATE INDEX idx_type ON events (type_name)')
+        cursor.execute('CREATE INDEX idx_team ON events (team_name)')
+        cursor.execute('CREATE INDEX idx_player ON events (player_name)')
+        
+        self.conn.commit()
+    
+    def add_event(self, event: Event):
+        """Add an event to the store"""
+        # Add to main list
+        self.events.append(event)
+        
+        # Add to lookup dictionaries
+        self.events_by_id[event.id] = event
+        
+        # Group by type
+        if event.type_name not in self.events_by_type:
+            self.events_by_type[event.type_name] = []
+        self.events_by_type[event.type_name].append(event)
+        
+        # Group by team
+        if event.team_name not in self.events_by_team:
+            self.events_by_team[event.team_name] = []
+        self.events_by_team[event.team_name].append(event)
+        
+        # Group by minute
+        if event.minute not in self.events_by_minute:
+            self.events_by_minute[event.minute] = []
+        self.events_by_minute[event.minute].append(event)
+        
+        # Group by player
+        if event.player_name:
+            if event.player_name not in self.events_by_player:
+                self.events_by_player[event.player_name] = []
+            self.events_by_player[event.player_name].append(event)
+        
+        # Add to database if using SQLite
+        if self.storage_type == 'sqlite':
+            self._insert_event_to_db(event)
+    
+    def _insert_event_to_db(self, event: Event):
+        """Insert event into SQLite database"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT INTO events VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        ''', (
+            event.id, event.index, event.period, event.minute, event.second,
+            event.timestamp, event.type_id, event.type_name, event.team_id,
+            event.team_name, event.player_id, event.player_name,
+            event.position_id, event.position_name, event.location_x,
+            event.location_y, event.duration, event.under_pressure,
+            event.off_camera, event.out, event.possession,
+            event.possession_team_id, event.possession_team_name,
+            event.play_pattern_id, event.play_pattern_name,
+            json.dumps(event.metadata) if event.metadata else None,
+            json.dumps(event.related_events) if event.related_events else None
+        ))
+        self.conn.commit()
+    
+    def add_shot_details(self, shot: ShotEvent):
+        """Add shot-specific details"""
+        self.shot_events[shot.event_id] = shot
+    
+    def add_pass_details(self, pass_event: PassEvent):
+        """Add pass-specific details"""
+        self.pass_events[pass_event.event_id] = pass_event
+    
+    def add_card_details(self, card: CardEvent):
+        """Add card-specific details"""
+        self.card_events[card.event_id] = card
+    
+    def add_substitution_details(self, sub: SubstitutionEvent):
+        """Add substitution-specific details"""
+        self.substitution_events[sub.event_id] = sub
+    
+    def get_event(self, event_id: str) -> Optional[Event]:
+        """Get event by ID"""
+        return self.events_by_id.get(event_id)
+    
+    def get_events_by_type(self, type_name: str) -> List[Event]:
+        """Get all events of a specific type"""
+        return self.events_by_type.get(type_name, [])
+    
+    def get_events_by_team(self, team_name: str) -> List[Event]:
+        """Get all events for a specific team"""
+        return self.events_by_team.get(team_name, [])
+    
+    def get_events_by_minute(self, minute: int) -> List[Event]:
+        """Get all events in a specific minute"""
+        return self.events_by_minute.get(minute, [])
+    
+    def get_events_by_player(self, player_name: str) -> List[Event]:
+        """Get all events for a specific player"""
+        return self.events_by_player.get(player_name, [])
+    
+    def get_events_in_range(self, start_minute: int, end_minute: int) -> List[Event]:
+        """Get all events in a time range"""
+        events = []
+        for minute in range(start_minute, end_minute + 1):
+            events.extend(self.get_events_by_minute(minute))
+        return sorted(events, key=lambda x: (x.minute, x.second))
+    
+    def query_events(self, 
+                    type_name: Optional[str] = None,
+                    team_name: Optional[str] = None,
+                    player_name: Optional[str] = None,
+                    min_minute: Optional[int] = None,
+                    max_minute: Optional[int] = None) -> List[Event]:
+        """
+        Query events with multiple filters
+        """
+        results = self.events
+        
+        if type_name:
+            results = [e for e in results if e.type_name == type_name]
+        if team_name:
+            results = [e for e in results if e.team_name == team_name]
+        if player_name:
+            results = [e for e in results if e.player_name == player_name]
+        if min_minute is not None:
+            results = [e for e in results if e.minute >= min_minute]
+        if max_minute is not None:
+            results = [e for e in results if e.minute <= max_minute]
+        
+        return results
+    
+    def export_to_json(self, filepath: str):
+        """Export all events to JSON file"""
+        export_data = {
+            'events': [asdict(e) for e in self.events],
+            'shot_details': {k: asdict(v) for k, v in self.shot_events.items()},
+            'pass_details': {k: asdict(v) for k, v in self.pass_events.items()},
+            'card_details': {k: asdict(v) for k, v in self.card_events.items()},
+            'substitution_details': {k: asdict(v) for k, v in self.substitution_events.items()}
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(export_data, f, indent=2)
+    
+    def load_from_json(self, filepath: str):
+        """Load events from JSON file"""
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        
+        # Clear existing data
+        self.__init__(self.storage_type)
+        
+        # Load events
+        for event_dict in data.get('events', []):
+            event = Event(**event_dict)
+            self.add_event(event)
+        
+        # Load extended data
+        for event_id, shot_dict in data.get('shot_details', {}).items():
+            shot = ShotEvent(**shot_dict)
+            self.add_shot_details(shot)
+        
+        for event_id, pass_dict in data.get('pass_details', {}).items():
+            pass_event = PassEvent(**pass_dict)
+            self.add_pass_details(pass_event)
+
+# ============================================================================
+# PARSER FOR ORIGINAL JSON FORMAT
+# ============================================================================
+
+class EventParser:
+    """Parse events from original JSON format into our structure"""
+    
+    @staticmethod
+    def parse_event(raw_event: Dict) -> Event:
+        """Convert raw JSON event to Event dataclass"""
+        
+        # Extract location if present
+        location_x, location_y = None, None
+        if 'location' in raw_event:
+            location_x, location_y = raw_event['location']
+        
+        # Create base event
+        event = Event(
+            id=raw_event.get('id', ''),
+            index=raw_event.get('index', 0),
+            period=raw_event.get('period', 0),
+            minute=raw_event.get('minute', 0),
+            second=raw_event.get('second', 0),
+            timestamp=raw_event.get('timestamp', ''),
+            type_id=raw_event.get('type', {}).get('id', 0),
+            type_name=raw_event.get('type', {}).get('name', ''),
+            team_id=raw_event.get('team', {}).get('id', 0),
+            team_name=raw_event.get('team', {}).get('name', ''),
+            player_id=raw_event.get('player', {}).get('id'),
+            player_name=raw_event.get('player', {}).get('name'),
+            position_id=raw_event.get('position', {}).get('id'),
+            position_name=raw_event.get('position', {}).get('name'),
+            location_x=location_x,
+            location_y=location_y,
+            duration=raw_event.get('duration'),
+            under_pressure=raw_event.get('under_pressure', False),
+            off_camera=raw_event.get('off_camera', False),
+            out=raw_event.get('out', False),
+            possession=raw_event.get('possession'),
+            possession_team_id=raw_event.get('possession_team', {}).get('id'),
+            possession_team_name=raw_event.get('possession_team', {}).get('name'),
+            play_pattern_id=raw_event.get('play_pattern', {}).get('id'),
+            play_pattern_name=raw_event.get('play_pattern', {}).get('name'),
+            related_events=raw_event.get('related_events'),
+            metadata={}  # Store any additional fields here
+        )
+        
+        return event
+    
+    @staticmethod
+    def parse_shot_details(raw_event: Dict) -> Optional[ShotEvent]:
+        """Extract shot details if present"""
+        if 'shot' not in raw_event:
+            return None
+        
+        shot_data = raw_event['shot']
+        
+        # Extract end location
+        end_x, end_y, end_z = None, None, None
+        if 'end_location' in shot_data:
+            end_loc = shot_data['end_location']
+            end_x = end_loc[0] if len(end_loc) > 0 else None
+            end_y = end_loc[1] if len(end_loc) > 1 else None
+            end_z = end_loc[2] if len(end_loc) > 2 else None
+        
+        return ShotEvent(
+            event_id=raw_event['id'],
+            outcome=shot_data.get('outcome', {}).get('name', ''),
+            technique=shot_data.get('technique', {}).get('name'),
+            body_part=shot_data.get('body_part', {}).get('name'),
+            type=shot_data.get('type', {}).get('name'),
+            first_time=shot_data.get('first_time', False),
+            follows_dribble=shot_data.get('follows_dribble', False),
+            redirect=shot_data.get('redirect', False),
+            one_on_one=shot_data.get('one_on_one', False),
+            aerial_won=shot_data.get('aerial_won', False),
+            saved_to_post=shot_data.get('saved_to_post', False),
+            deflected=shot_data.get('deflected', False),
+            saved_off_target=shot_data.get('saved_off_target', False),
+            open_goal=shot_data.get('open_goal', False),
+            statsbomb_xg=shot_data.get('statsbomb_xg'),
+            end_location_x=end_x,
+            end_location_y=end_y,
+            end_location_z=end_z,
+            key_pass_id=shot_data.get('key_pass_id'),
+            freeze_frame=json.dumps(shot_data['freeze_frame']) if 'freeze_frame' in shot_data else None
+        )
+    
+    @staticmethod
+    def parse_pass_details(raw_event: Dict) -> Optional[PassEvent]:
+        """Extract pass details if present"""
+        if 'pass' not in raw_event:
+            return None
+        
+        pass_data = raw_event['pass']
+        
+        # Extract end location
+        end_x, end_y = None, None
+        if 'end_location' in pass_data:
+            end_x, end_y = pass_data['end_location']
+        
+        return PassEvent(
+            event_id=raw_event['id'],
+            recipient_id=pass_data.get('recipient', {}).get('id'),
+            recipient_name=pass_data.get('recipient', {}).get('name'),
+            length=pass_data.get('length'),
+            angle=pass_data.get('angle'),
+            height=pass_data.get('height', {}).get('name'),
+            type=pass_data.get('type', {}).get('name'),
+            body_part=pass_data.get('body_part', {}).get('name'),
+            outcome=pass_data.get('outcome', {}).get('name'),
+            end_location_x=end_x,
+            end_location_y=end_y,
+            assisted_shot_id=pass_data.get('assisted_shot_id'),
+            through_ball=pass_data.get('through_ball', False),
+            inswinging=pass_data.get('inswinging', False),
+            outswinging=pass_data.get('outswinging', False),
+            cut_back=pass_data.get('cut_back', False),
+            switch=pass_data.get('switch', False),
+            cross=pass_data.get('cross', False),
+            shot_assist='shot_assist' in pass_data,
+            goal_assist='goal_assist' in pass_data,
+            miscommunication=pass_data.get('miscommunication', False)
+        )
+    
+    @staticmethod
+    def load_match(filepath: str) -> EventStore:
+        """Load a complete match from JSON file"""
+        with open(filepath, 'r') as f:
+            raw_events = json.load(f)
+        
+        store = EventStore()
+        
+        for raw_event in raw_events:
+            # Parse base event
+            event = EventParser.parse_event(raw_event)
+            store.add_event(event)
+            
+            # Parse extended details
+            if shot := EventParser.parse_shot_details(raw_event):
+                store.add_shot_details(shot)
+            
+            if pass_event := EventParser.parse_pass_details(raw_event):
+                store.add_pass_details(pass_event)
+        
+        return store
+
+# ============================================================================
+# USAGE EXAMPLE
+# ============================================================================
+
+if __name__ == "__main__":
+    # Load match data
+    store = EventParser.load_match('/mnt/user-data/uploads/3906390.json')
+    
+    print(f"Total events loaded: {len(store.events)}")
+    print(f"Event types: {len(store.events_by_type)} unique types")
+    print(f"Teams: {list(store.events_by_team.keys())}")
+    print()
+    
+    # Query examples
+    print("Shots in the match:")
+    shots = store.get_events_by_type('Shot')
+    for shot in shots[:5]:  # Show first 5
+        print(f"  {shot.time_string} - {shot.player_name} ({shot.team_name})")
+        if shot.id in store.shot_events:
+            shot_details = store.shot_events[shot.id]
+            print(f"    Outcome: {shot_details.outcome}")
+    print()
+    
+    # Find specific event
+    hemp_shot_id = '29e307b6-8b66-41f1-ad9b-f28d7e055271'
+    if event := store.get_event(hemp_shot_id):
+        print(f"Hemp shot at {event.time_string}:")
+        print(f"  Team: {event.team_name}")
+        print(f"  Location: ({event.location_x}, {event.location_y})")
+        if event.id in store.shot_events:
+            shot_details = store.shot_events[event.id]
+            print(f"  Outcome: {shot_details.outcome}")
+            print(f"  Body part: {shot_details.body_part}")
+    print()
+    
+    # Query with filters
+    spain_shots = store.query_events(
+        type_name='Shot',
+        team_name="Spain Women's",
+        min_minute=15,
+        max_minute=30
+    )
+    print(f"Spain shots between 15-30 minutes: {len(spain_shots)}")
+    for shot in spain_shots:
+        print(f"  {shot.time_string} - {shot.player_name}")
