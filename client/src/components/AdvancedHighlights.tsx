@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +7,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { X, Play, ChevronDown, Target, TrendingUp, Film } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
+import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
   onEventClick?: (eventTime: number, period: number) => void;
+  initialVideoUrl?: string;
 }
 
 interface MatchEvent {
@@ -131,7 +135,7 @@ interface SelectedEvent {
   period: number;
 }
 
-export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
+export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://www.youtube.com/watch?v=gvoQ8gvzuC4" }: AdvancedHighlightsProps) {
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([
     'Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward', 
     'High xG Chances', 'Medium xG Chances', 'Low xG Chances'
@@ -141,6 +145,40 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   const [selectedEvents, setSelectedEvents] = useState<SelectedEvent[]>([]);
   const [includeCommentary, setIncludeCommentary] = useState<boolean>(false);
   const [includeLineups, setIncludeLineups] = useState<boolean>(false);
+  
+  // Mobile responsiveness state
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
+  
+  // Video state management
+  const [videoUrl, setVideoUrl] = useState<string>(initialVideoUrl);
+  const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
+  const [kickoffOffset, setKickoffOffset] = useState<number>(0);
+  const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
+  
+  // Load saved offsets from localStorage
+  useEffect(() => {
+    const savedKickoff = localStorage.getItem('match-kickoff-offset');
+    const savedSecondHalf = localStorage.getItem('match-second-half-offset');
+    
+    if (savedKickoff) {
+      const offset = parseFloat(savedKickoff);
+      setKickoffOffset(offset);
+    }
+    
+    if (savedSecondHalf) {
+      const offset = parseFloat(savedSecondHalf);
+      setSecondHalfOffset(offset);
+    }
+  }, []);
+  
+  // Save offsets to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
+  }, [kickoffOffset]);
+  
+  useEffect(() => {
+    localStorage.setItem('match-second-half-offset', secondHalfOffset.toString());
+  }, [secondHalfOffset]);
 
   // Convert timestamp to seconds
   const timestampToSeconds = (timestamp: string): number => {
@@ -148,6 +186,57 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     const [secs, ms] = seconds.split('.');
     return parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(secs) + (parseInt(ms || '0') / 1000);
   };
+  
+  // Video offset handlers
+  const handleKickoffOffsetChange = (newOffset: number) => {
+    setKickoffOffset(newOffset);
+  };
+  
+  const handleSecondHalfOffsetChange = (newOffset: number) => {
+    setSecondHalfOffset(newOffset);
+  };
+  
+  // Enhanced handleEventClick for video seeking
+  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
+    // Apply appropriate offset based on period
+    let videoTimeInSeconds: number;
+    
+    if (eventPeriod === 2) {
+      // Second half: use second half offset
+      videoTimeInSeconds = eventTimeInSeconds + secondHalfOffset;
+      console.log('Event time:', eventTimeInSeconds, 'Second half offset:', secondHalfOffset, 'Video seek time:', videoTimeInSeconds);
+    } else {
+      // First half: use kickoff offset
+      videoTimeInSeconds = eventTimeInSeconds + kickoffOffset;
+      console.log('Event time:', eventTimeInSeconds, 'Kickoff offset:', kickoffOffset, 'Video seek time:', videoTimeInSeconds);
+    }
+    
+    setCurrentSeekTime(videoTimeInSeconds);
+    
+    // Ensure we don't seek to negative time
+    const seekTime = Math.max(0, videoTimeInSeconds);
+    
+    // Find the YouTube iframe and seek to the time
+    const iframe = document.querySelector('#youtube-iframe') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+        `{"event":"command","func":"seekTo","args":[${seekTime}, true]}`,
+        '*'
+      );
+    }
+    
+    // Call the original onEventClick if provided
+    onEventClick?.(eventTimeInSeconds, eventPeriod);
+  };
+  
+  // Extract video ID for display
+  const getVideoId = (url: string) => {
+    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+  
+  const videoId = getVideoId(videoUrl);
 
   // Format timestamp for display
   const formatTimestamp = (timestamp: string): string => {
@@ -556,8 +645,189 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   // Clean JSX structure following architect guidance
   return (
     <div className="relative">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <aside className="lg:col-span-1">
+      {/* Mobile Filter Toggle Button */}
+      <div className="lg:hidden mb-4">
+        <Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="w-full" data-testid="mobile-filter-toggle">
+              <Filter className="h-4 w-4 mr-2" />
+              Event Filters ({selectedEventTypes.length} selected)
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-80 p-0">
+            <SheetHeader className="p-6">
+              <SheetTitle>Event Filters</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(100vh-80px)] px-6 pb-6">
+              {/* Mobile filters content - same as desktop but in drawer */}
+              <div className="space-y-6">
+                {/* Event Type Filters - Grouped */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Event Categories</h3>
+                  <div className="space-y-3">
+                    {Object.entries(eventCategories).map(([categoryName, categoryEvents]) => {
+                      const availableEventsInCategory = categoryEvents.filter(eventType => 
+                        availableEventTypes.includes(eventType)
+                      );
+                      const categoryCount = getCategoryCount(availableEventsInCategory);
+                      const selectedInCategory = selectedEventTypes.filter(type => categoryEvents.includes(type));
+                      
+                      if (availableEventsInCategory.length === 0) return null;
+                      
+                      return (
+                        <Collapsible key={categoryName} className="space-y-2">
+                          {/* Category Select All Checkbox Container */}
+                          <div 
+                            className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full"
+                            onClick={() => handleCategoryToggle(categoryName)}
+                            data-testid={`mobile-category-select-${categoryName.toLowerCase()}`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                checked={
+                                  selectedInCategory.length > 0 && 
+                                  selectedInCategory.length === availableEventsInCategory.length
+                                }
+                                onChange={() => {}}
+                                data-testid={`mobile-category-checkbox-${categoryName.toLowerCase()}`}
+                              />
+                              <span className="font-medium text-xs">{categoryName}</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className="text-xs">
+                                {categoryCount}
+                              </Badge>
+                              
+                              {/* Dropdown Toggle Inside Container */}
+                              <CollapsibleTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="px-1"
+                                  data-testid={`mobile-category-dropdown-${categoryName.toLowerCase()}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <ChevronDown className="h-3 w-3" />
+                                </Button>
+                              </CollapsibleTrigger>
+                            </div>
+                          </div>
+                          <CollapsibleContent className="pl-2">
+                            <div className="grid grid-cols-1 gap-2">
+                              {availableEventsInCategory.map(eventType => {
+                                const count = getEventTypeCount(eventType);
+                                const isSelected = selectedEventTypes.includes(eventType);
+                                return (
+                                  <div 
+                                    key={eventType}
+                                    className="flex items-center justify-between p-2 rounded-md hover:bg-muted/30 transition-colors cursor-pointer border border-transparent hover:border-muted"
+                                    onClick={() => handleEventTypeToggle(eventType)}
+                                    data-testid={`mobile-event-${eventType.toLowerCase().replace(/ /g, '-')}`}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <Checkbox 
+                                        checked={isSelected}
+                                        onChange={() => {}}
+                                        className="h-3 w-3"
+                                      />
+                                      <span className="text-xs">{eventType}</span>
+                                    </div>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {count}
+                                    </Badge>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Team Filters */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Teams</h3>
+                  <div className="space-y-2">
+                    {teams.map(team => {
+                      const isSelected = selectedTeams.includes(team);
+                      return (
+                        <div 
+                          key={team}
+                          className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => handleTeamToggle(team)}
+                          data-testid={`mobile-team-${team.toLowerCase().replace(/ /g, '-')}`}
+                        >
+                          <Checkbox 
+                            checked={isSelected}
+                            onChange={() => {}}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm">{team}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Player Filters */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Players</h3>
+                  <div className="space-y-3">
+                    {teams.map(teamName => {
+                      const teamPlayers = teamData[teamName];
+                      if (!teamPlayers) return null;
+                      
+                      return (
+                        <Collapsible key={teamName} className="space-y-2">
+                          <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full">
+                              <span className="font-medium text-sm">{teamName}</span>
+                              <ChevronDown className="h-4 w-4" />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="pl-2">
+                            <div className="space-y-1">
+                              {teamPlayers.startingXI.map(player => {
+                                const isSelected = selectedPlayers.includes(player.id);
+                                return (
+                                  <div 
+                                    key={player.id}
+                                    className="flex items-center space-x-2 p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer"
+                                    onClick={() => handlePlayerToggle(player.id)}
+                                    data-testid={`mobile-player-${player.id}`}
+                                  >
+                                    <Checkbox 
+                                      checked={isSelected}
+                                      onChange={() => {}}
+                                      className="h-3 w-3"
+                                    />
+                                    <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
+                                    <Badge variant="outline" className="text-xs ml-auto">
+                                      {player.position}
+                                    </Badge>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Responsive Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_350px] lg:grid-cols-[300px_1fr_400px] gap-4 md:gap-6">
+        {/* Desktop Filters Sidebar - Hidden on Mobile */}
+        <aside className="hidden lg:block lg:col-span-1">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Event Filters</CardTitle>
@@ -683,7 +953,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           </Card>
         </aside>
 
-        <main className="lg:col-span-3">
+        <main className="lg:col-span-1">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -773,7 +1043,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
+                                onClick={() => handleEventClick(timestampToSeconds(event.timestamp), event.period)}
                                 className="flex-1 text-xs"
                               >
                                 <Play className="h-3 w-3 mr-1" />
@@ -805,110 +1075,167 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             </CardContent>
           </Card>
         </main>
+
+        {/* Video and Builder Panel */}
+        <aside className="lg:col-span-1">
+          <Card className="h-[680px]">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <span>Video & Builder</span>
+                {currentSeekTime !== null && (
+                  <span className="text-sm font-normal text-blue-600">
+                    Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 h-[calc(100%-80px)]">
+              <Tabs defaultValue="video" className="h-full flex flex-col">
+                <TabsList className="grid w-full grid-cols-2 mx-4">
+                  <TabsTrigger value="video" className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    Video
+                  </TabsTrigger>
+                  <TabsTrigger value="builder" className="flex items-center gap-2">
+                    <Film className="h-4 w-4" />
+                    Builder
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="video" className="flex-1 px-4 pb-4 mt-4">
+                  <div className="space-y-4 h-full">
+                    {/* Video Settings */}
+                    <div className="flex justify-end">
+                      <VideoAnalysisSettings
+                        videoUrl={videoUrl}
+                        onVideoUrlChange={setVideoUrl}
+                        kickoffOffset={kickoffOffset}
+                        onKickoffOffsetChange={handleKickoffOffsetChange}
+                        secondHalfOffset={secondHalfOffset}
+                        onSecondHalfOffsetChange={handleSecondHalfOffsetChange}
+                        onEventClick={handleEventClick}
+                      />
+                    </div>
+                    
+                    {/* Video Player */}
+                    <div className="flex-1">
+                      {videoId ? (
+                        <div className="space-y-2">
+                          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                            <iframe
+                              id="youtube-iframe"
+                              src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                              width="100%"
+                              height="100%"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              data-testid="advanced-highlights-video-iframe"
+                            />
+                          </div>
+                          <div className="text-xs text-gray-600 px-2">
+                            <p>Video ID: {videoId}</p>
+                            <p>Click any event's Play button to jump to that moment</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800 rounded-lg">
+                          <div className="text-center text-gray-500">
+                            <Video className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                            <p>No video URL provided</p>
+                            <p className="text-xs">Use settings to configure video URL</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="builder" className="flex-1 px-4 pb-4 mt-4">
+                  <div className="space-y-4 h-full">
+                    {/* Builder Options */}
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="commentary-tab" 
+                          checked={includeCommentary}
+                          onCheckedChange={(checked) => setIncludeCommentary(!!checked)}
+                          data-testid="checkbox-commentary-tab"
+                        />
+                        <label htmlFor="commentary-tab" className="text-sm font-medium">Include Commentary</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="lineups-tab" 
+                          checked={includeLineups}
+                          onCheckedChange={(checked) => setIncludeLineups(!!checked)}
+                          data-testid="checkbox-lineups-tab"
+                        />
+                        <label htmlFor="lineups-tab" className="text-sm font-medium">Include Line-ups</label>
+                      </div>
+                    </div>
+
+                    {/* Selected Events */}
+                    <div className="flex-1 flex flex-col">
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        Selected Events ({selectedEvents.length})
+                      </h4>
+                      <ScrollArea className="flex-1">
+                        {selectedEvents.length === 0 ? (
+                          <p className="text-sm text-muted-foreground p-2 text-center">
+                            No events selected. Click "Add" on any event to include it.
+                          </p>
+                        ) : (
+                          <Table>
+                            <TableBody>
+                              {selectedEvents.map((event) => {
+                                const fullEvent = matchEvents.find(e => e.id === event.id);
+                                return (
+                                  <TableRow key={event.id} className="border-none py-1">
+                                    <TableCell className="px-2 py-1">
+                                      <div className="text-xs">
+                                        <span className="font-mono">{event.time}</span>
+                                        <div className="text-muted-foreground truncate">
+                                          {fullEvent ? getEnhancedEventDisplay(fullEvent) : 'Unknown Event'} - {fullEvent?.player?.name || 'Team Action'}
+                                        </div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="px-2">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleRemoveFromHighlights(event.id)}
+                                        data-testid={`remove-event-${event.id}`}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        )}
+                      </ScrollArea>
+                    </div>
+
+                    {/* Generate Button */}
+                    <Button 
+                      className="w-full" 
+                      disabled={selectedEvents.length === 0}
+                      data-testid="generate-highlights-tab"
+                    >
+                      Generate Custom Highlights
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </aside>
       </div>
 
-      {/* Floating Film Button with Hover Overlay */}
-      <div className="fixed bottom-6 right-6 z-50 group">
-        <div className="relative">
-          {/* Highlight Builder Overlay */}
-          <div className="absolute bottom-full right-0 mb-4 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-            <Card className="shadow-2xl border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Film className="h-5 w-5" />
-                  Highlight Builder
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Options */}
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="commentary" 
-                      checked={includeCommentary}
-                      onCheckedChange={(checked) => setIncludeCommentary(!!checked)}
-                      data-testid="checkbox-commentary"
-                    />
-                    <label htmlFor="commentary" className="text-sm font-medium">Include Commentary</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="lineups" 
-                      checked={includeLineups}
-                      onCheckedChange={(checked) => setIncludeLineups(!!checked)}
-                      data-testid="checkbox-lineups"
-                    />
-                    <label htmlFor="lineups" className="text-sm font-medium">Include Line-ups</label>
-                  </div>
-                </div>
-
-                {/* Selected Events */}
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Selected Events ({selectedEvents.length})
-                  </h4>
-                  <ScrollArea className="h-32">
-                    {selectedEvents.length === 0 ? (
-                      <p className="text-sm text-muted-foreground p-2 text-center">
-                        No events selected
-                      </p>
-                    ) : (
-                      <Table>
-                        <TableBody>
-                          {selectedEvents.map((event) => {
-                            const fullEvent = matchEvents.find(e => e.id === event.id);
-                            return (
-                              <TableRow key={event.id} className="border-none py-1">
-                                <TableCell className="px-2 py-1">
-                                  <div className="text-xs">
-                                    <span className="font-mono">{event.time}</span>
-                                    <div className="text-muted-foreground truncate">
-                                      {fullEvent ? getEnhancedEventDisplay(fullEvent) : 'Unknown Event'} - {fullEvent?.player?.name || 'Team Action'}
-                                    </div>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="px-2">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleRemoveFromHighlights(event.id)}
-                                    data-testid={`remove-event-${event.id}`}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </ScrollArea>
-                </div>
-
-                {/* Generate Button */}
-                <Button 
-                  className="w-full" 
-                  disabled={selectedEvents.length === 0}
-                  data-testid="generate-highlights"
-                >
-                  Generate Custom Highlights
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Floating Film Button */}
-          <Button
-            size="lg"
-            className="h-14 w-14 rounded-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-primary hover:bg-primary/90"
-            data-testid="floating-film-button"
-          >
-            <Film className="h-6 w-6" />
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }
