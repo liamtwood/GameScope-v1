@@ -6,7 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { X, Play, ChevronDown } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { X, Play, ChevronDown, Target, TrendingUp } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
@@ -645,8 +646,8 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   };
 
   const getTeamColor = (teamName: string) => {
-    if (teamName.includes("Spain")) return "border-l-4 border-red-500";
-    if (teamName.includes("England")) return "border-l-4 border-blue-500";
+    if (teamName.includes("Spain")) return "bg-red-50 border-l-4 border-red-500";
+    if (teamName.includes("England")) return "bg-blue-50 border-l-4 border-blue-500";
     return "";
   };
 
@@ -861,64 +862,103 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           <CardHeader>
             <CardTitle className="text-lg">Clips ({filteredEvents.length})</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[600px]">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className={`cursor-pointer bg-white dark:bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all border ${getTeamColor(event.team.name)}`}
-                    data-testid={`clip-event-${event.index}`}
-                  >
-                    <div className="h-16 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{formatTimestamp(event.timestamp)}</div>
-                        <div className="text-xs opacity-90">Period {event.period}</div>
-                      </div>
-                    </div>
-                    <div className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge 
-                          className={`${getEventTypeColor(event.type.name, event.shot?.outcome?.name)} text-xs`}
-                        >
-                          {event.type.name === "Shot" && event.shot?.outcome?.name ? event.shot.outcome.name : event.type.name}
-                        </Badge>
-                        <span className="text-xs font-medium">
-                          {event.team.name.includes("England") ? "ENG" : "ESP"}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium mb-2">
-                        {event.player?.name || "Team Action"}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
-                          className="flex-1"
-                        >
-                          <Play className="h-3 w-3 mr-1" />
-                          Play
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleAddToHighlights(event)}
-                          className="flex-1"
-                          data-testid={`add-clip-${event.index}`}
-                        >
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <CardContent className="p-0">
+            <div className="h-[600px] overflow-y-auto">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10">
+                  <TableRow>
+                    <TableHead className="w-16 px-2">Time</TableHead>
+                    <TableHead className="w-24 px-2">Event</TableHead>
+                    <TableHead className="w-12 px-2">Team</TableHead>
+                    <TableHead className="px-2">Player</TableHead>
+                    <TableHead className="w-20 px-2 text-center">Details</TableHead>
+                    <TableHead className="w-32 px-2 text-center">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.map((event) => (
+                    <TableRow 
+                      key={event.id} 
+                      className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${getTeamColor(event.team.name)}`}
+                      data-testid={`clip-event-${event.index}`}
+                    >
+                      <TableCell className="font-mono text-sm px-2">
+                        {formatTimestamp(event.timestamp)}
+                      </TableCell>
+                      
+                      <TableCell className="px-2">
+                        <div className="flex items-center gap-1">
+                          <Badge 
+                            variant="secondary"
+                            className={`${getEventTypeColor(event.type.name, event.shot?.outcome?.name)} whitespace-nowrap`}
+                          >
+                            {event.type.name === "Shot" && event.shot?.outcome?.name ? event.shot.outcome.name : event.type.name}
+                          </Badge>
+                          {event.type.name === "Shot" && (
+                            <Target className="h-3 w-3 text-red-500" />
+                          )}
+                        </div>
+                      </TableCell>
+                      
+                      <TableCell className="px-2 text-center font-semibold text-xs">
+                        {event.team.name.includes("England") ? "ENG" : "ESP"}
+                      </TableCell>
+                      
+                      <TableCell className="px-2">
+                        <div className="text-sm whitespace-nowrap">
+                          {event.player?.name || "-"}
+                        </div>
+                      </TableCell>
+                      
+                      <TableCell className="px-2 text-center">
+                        {event.shot && (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center gap-1 text-xs">
+                              <TrendingUp className="h-3 w-3" />
+                              <span className="font-mono">{(event.shot.statsbomb_xg * 100).toFixed(1)}%</span>
+                            </div>
+                            {event.shot.body_part && (
+                              <div className="text-xs text-gray-500">
+                                {event.shot.body_part.name}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="px-2">
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
+                            className="flex-1 text-xs"
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            Play
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleAddToHighlights(event)}
+                            className="flex-1 text-xs"
+                            data-testid={`add-clip-${event.index}`}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              
               {filteredEvents.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="p-8 text-center text-gray-500">
+                  <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p>No clips found matching your filters.</p>
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       </main>
@@ -966,34 +1006,323 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             {/* Selected Events */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Selected Events</h4>
-              <ScrollArea className="h-32">
+              <div className="h-32 overflow-y-auto border rounded">
                 {selectedEvents.length === 0 ? (
                   <div className="text-sm text-muted-foreground text-center py-4">
                     No events selected
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {selectedEvents.map((event) => (
-                      <div
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-white dark:bg-gray-900">
+                      <TableRow>
+                        <TableHead className="px-2 text-xs">Time</TableHead>
+                        <TableHead className="px-2 text-xs">Event</TableHead>
+                        <TableHead className="w-12 px-2"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedEvents.map((event) => {
+                        const fullEvent = matchEvents.find(e => e.id === event.id);
+                        return (
+                          <TableRow
+                            key={event.id}
+                            className="text-sm"
+                            data-testid={`selected-event-${event.id}`}
+                          >
+                            <TableCell className="px-2 font-mono text-xs">
+                              {event.time}
+                            </TableCell>
+                            <TableCell className="px-2">
+                              <div className="flex items-center gap-1">
+                                <Badge 
+                                  variant="secondary"
+                                  className={`${getEventTypeColor(fullEvent?.type.name || '', fullEvent?.shot?.outcome?.name)} text-xs`}
+                                >
+                                  {fullEvent?.type.name || 'Event'}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {fullEvent?.player?.name || 'Team Action'}
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleRemoveFromHighlights(event.id)}
+                                data-testid={`remove-event-${event.id}`}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <Button 
+              className="w-full" 
+              disabled={selectedEvents.length === 0}
+              data-testid="generate-highlights"
+            >
+              Generate Custom Highlights
+            </Button>
+          </CardContent>
+        </Card>
+      </aside>
+
+      {/* Main Content - Events Table */}
+      <main className="lg:col-span-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Match Events</span>
+              <Badge variant="secondary" data-testid="total-events-count">
+                {filteredEvents.length} events
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[600px]">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10">
+                  <TableRow>
+                    <TableHead className="w-16 text-center min-w-16">Time</TableHead>
+                    <TableHead className="w-20 text-center min-w-20">Period</TableHead>
+                    <TableHead className="min-w-40">Event</TableHead>
+                    <TableHead className="w-32 min-w-32 hidden sm:table-cell">Team</TableHead>
+                    <TableHead className="w-40 min-w-40 hidden md:table-cell">Player</TableHead>
+                    <TableHead className="w-32 text-center min-w-32">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.map((event) => {
+                    const isSelected = selectedEvents.some(selected => selected.id === event.id);
+                    return (
+                      <TableRow
                         key={event.id}
-                        className="flex items-center justify-between bg-muted p-2 rounded text-sm"
-                        data-testid={`selected-event-${event.id}`}
+                        className={`${getTeamColor(event.team.name)} hover:bg-muted/50 transition-colors`}
+                        data-testid={`event-row-${event.index}`}
                       >
-                        <div>
-                          <div className="font-medium">{event.time}</div>
-                          <div className="text-xs text-muted-foreground">{event.description}</div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleRemoveFromHighlights(event.id)}
-                          data-testid={`remove-event-${event.id}`}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
+                        <TableCell className="text-center font-mono text-sm" data-testid={`event-time-${event.index}`}>
+                          {formatTimestamp(event.timestamp)}
+                        </TableCell>
+                        <TableCell className="text-center" data-testid={`event-period-${event.index}`}>
+                          <Badge variant="outline" className="text-xs">
+                            {event.period === 1 ? '1H' : event.period === 2 ? '2H' : `P${event.period}`}
+                          </Badge>
+                        </TableCell>
+                        <TableCell data-testid={`event-type-${event.index}`}>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="secondary"
+                              className={`${getEventTypeColor(event.type.name, event.shot?.outcome?.name)} text-xs`}
+                            >
+                              {event.type.name}
+                            </Badge>
+                            {event.shot?.statsbomb_xg && (
+                              <span className="text-xs text-muted-foreground" data-testid={`event-xg-${event.index}`}>
+                                xG: {event.shot.statsbomb_xg.toFixed(2)}
+                              </span>
+                            )}
+                            {event.under_pressure && (
+                              <Badge variant="destructive" className="text-xs">
+                                Pressure
+                              </Badge>
+                            )}
+                          </div>
+                          {/* Additional event details */}
+                          {event.pass && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {event.pass.type?.name && `${event.pass.type.name} • `}
+                              Length: {event.pass.length.toFixed(0)}m
+                              {event.pass.recipient && ` → ${event.pass.recipient.name}`}
+                            </div>
+                          )}
+                          {event.shot && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {event.shot.technique?.name && `${event.shot.technique.name} • `}
+                              {event.shot.body_part?.name && `${event.shot.body_part.name} • `}
+                              Outcome: {event.shot.outcome.name}
+                            </div>
+                          )}
+                          {event.substitution && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {event.substitution.replacement && `In: ${event.substitution.replacement.name}`}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell" data-testid={`event-team-${event.index}`}>
+                          <span className="text-sm font-medium">
+                            {event.team.name}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell" data-testid={`event-player-${event.index}`}>
+                          {event.player ? (
+                            <span className="text-sm">
+                              {event.player.name}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">
+                              Team Action
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
+                              data-testid={`play-event-${event.index}`}
+                            >
+                              <Play className="h-3 w-3" />
+                            </Button>
+                            {!isSelected ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAddToHighlights(event)}
+                                data-testid={`add-clip-${event.index}`}
+                              >
+                                <Target className="h-3 w-3" />
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleRemoveFromHighlights(event.id)}
+                                data-testid={`remove-clip-${event.index}`}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              {filteredEvents.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground" data-testid="no-events-message">
+                  <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No events match your current filters</p>
+                  <p className="text-sm">Try adjusting your selection criteria</p>
+                </div>
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </main>
+
+      {/* Right Sidebar - Highlights Generation */}
+      <aside className="lg:col-span-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Custom Highlights
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Options */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Options</h3>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="commentary" 
+                  checked={includeCommentary}
+                  onCheckedChange={(checked) => setIncludeCommentary(!!checked)}
+                  data-testid="checkbox-commentary"
+                />
+                <label htmlFor="commentary" className="text-sm font-medium">Include Commentary</label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="lineups" 
+                  checked={includeLineups}
+                  onCheckedChange={(checked) => setIncludeLineups(!!checked)}
+                  data-testid="checkbox-lineups"
+                />
+                <label htmlFor="lineups" className="text-sm font-medium">Include Line-ups</label>
+              </div>
+            </div>
+
+            {/* Duration Info */}
+            <div className="bg-muted p-4 rounded-lg">
+              <div className="flex justify-between text-sm mb-2">
+                <span>Selected Events</span>
+                <span data-testid="selected-events-count"><strong>{selectedEvents.length}</strong> clips</span>
+              </div>
+              <div className="text-xs text-muted-foreground" data-testid="estimated-duration">
+                Estimated duration: ~{selectedEvents.length * 10}s
+              </div>
+            </div>
+
+            {/* Selected Events */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Selected Events</h4>
+              <ScrollArea className="h-32 border rounded">
+                {selectedEvents.length === 0 ? (
+                  <div className="text-sm text-muted-foreground text-center py-4" data-testid="no-selected-events">
+                    No events selected
                   </div>
+                ) : (
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-white dark:bg-gray-900">
+                      <TableRow>
+                        <TableHead className="px-2 text-xs">Time</TableHead>
+                        <TableHead className="px-2 text-xs">Event</TableHead>
+                        <TableHead className="w-12 px-2"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedEvents.map((event) => {
+                        const fullEvent = matchEvents.find(e => e.id === event.id);
+                        return (
+                          <TableRow
+                            key={event.id}
+                            className="text-sm"
+                            data-testid={`selected-event-${event.id}`}
+                          >
+                            <TableCell className="px-2 font-mono text-xs" data-testid={`selected-event-time-${event.id}`}>
+                              {event.time}
+                            </TableCell>
+                            <TableCell className="px-2">
+                              <div className="flex items-center gap-1">
+                                <Badge 
+                                  variant="secondary"
+                                  className={`${getEventTypeColor(fullEvent?.type.name || '', fullEvent?.shot?.outcome?.name)} text-xs`}
+                                  data-testid={`selected-event-type-${event.id}`}
+                                >
+                                  {fullEvent?.type.name || 'Event'}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1" data-testid={`selected-event-player-${event.id}`}>
+                                {fullEvent?.player?.name || 'Team Action'}
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleRemoveFromHighlights(event.id)}
+                                data-testid={`remove-selected-event-${event.id}`}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 )}
               </ScrollArea>
             </div>
