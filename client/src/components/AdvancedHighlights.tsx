@@ -103,70 +103,74 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol']
   };
 
-  // Get available event types, teams, and players
-  const { availableEventTypes, teams, teamPlayers } = useMemo(() => {
+  // Get available event types, teams, and organized players
+  const { availableEventTypes, teams, teamData } = useMemo(() => {
     const typeSet = new Set(matchEvents.map(event => event.type.name));
     const teamSet = new Set(matchEvents.map(event => event.team.name));
     const types = Array.from(typeSet);
     const teamNames = Array.from(teamSet);
     
-    // Extract players for each team from all events and tactics
-    const playersByTeam: { [teamName: string]: Array<{ id: number; name: string; jerseyNumber?: number }> } = {};
+    // Extract formation data and players for each team
+    const teamFormationData: { [teamName: string]: { 
+      formation: string;
+      startingXI: Array<{ id: number; name: string; jerseyNumber: number; position: string }>;
+      substitutes: Array<{ id: number; name: string; jerseyNumber?: number }>;
+    }} = {};
     
-    matchEvents.forEach(event => {
+    // Find Starting XI events to get formation and lineup data
+    const startingXIEvents = matchEvents.filter(event => event.type.name === "Starting XI");
+    
+    startingXIEvents.forEach(event => {
       const teamName = event.team.name;
       
-      // Initialize team array if not exists
-      if (!playersByTeam[teamName]) {
-        playersByTeam[teamName] = [];
-      }
-      
-      // Add player from event if exists
-      if (event.player) {
-        const existingPlayer = playersByTeam[teamName].find(p => p.id === event.player!.id);
-        if (!existingPlayer) {
-          playersByTeam[teamName].push({
-            id: event.player.id,
-            name: event.player.name,
-            jerseyNumber: undefined // Will be filled from tactics
-          });
-        }
-      }
-      
-      // Add players from tactics lineup if exists
-      if (event.tactics?.lineup) {
-        event.tactics.lineup.forEach(lineupPlayer => {
-          const existingPlayer = playersByTeam[teamName].find(p => p.id === lineupPlayer.player.id);
-          if (!existingPlayer) {
-            playersByTeam[teamName].push({
-              id: lineupPlayer.player.id,
-              name: lineupPlayer.player.name,
-              jerseyNumber: lineupPlayer.jersey_number
-            });
-          } else if (!existingPlayer.jerseyNumber && lineupPlayer.jersey_number) {
-            // Update jersey number if not already set
-            existingPlayer.jerseyNumber = lineupPlayer.jersey_number;
-          }
-        });
+      if (event.tactics?.lineup && event.tactics.formation) {
+        teamFormationData[teamName] = {
+          formation: event.tactics.formation.toString(),
+          startingXI: event.tactics.lineup.map(player => ({
+            id: player.player.id,
+            name: player.player.name,
+            jerseyNumber: player.jersey_number,
+            position: player.position.name
+          })),
+          substitutes: []
+        };
       }
     });
     
-    // Sort players by jersey number within each team
-    Object.keys(playersByTeam).forEach(teamName => {
-      playersByTeam[teamName].sort((a, b) => {
-        if (a.jerseyNumber && b.jerseyNumber) {
-          return a.jerseyNumber - b.jerseyNumber;
+    // Get all players who appear in events but are not in starting XI (substitutes)
+    teamNames.forEach(teamName => {
+      if (!teamFormationData[teamName]) {
+        teamFormationData[teamName] = {
+          formation: "4231", // default
+          startingXI: [],
+          substitutes: []
+        };
+      }
+      
+      const startingXIIds = new Set(teamFormationData[teamName].startingXI.map(p => p.id));
+      const substitutes: { [id: number]: { id: number; name: string; jerseyNumber?: number } } = {};
+      
+      matchEvents.forEach(event => {
+        if (event.team.name === teamName && event.player && !startingXIIds.has(event.player.id)) {
+          if (!substitutes[event.player.id]) {
+            substitutes[event.player.id] = {
+              id: event.player.id,
+              name: event.player.name,
+              jerseyNumber: undefined
+            };
+          }
         }
-        if (a.jerseyNumber && !b.jerseyNumber) return -1;
-        if (!a.jerseyNumber && b.jerseyNumber) return 1;
-        return a.name.localeCompare(b.name);
       });
+      
+      teamFormationData[teamName].substitutes = Object.values(substitutes).sort((a, b) => 
+        a.name.localeCompare(b.name)
+      );
     });
     
     return {
       availableEventTypes: types.sort(),
       teams: teamNames.sort(),
-      teamPlayers: playersByTeam
+      teamData: teamFormationData
     };
   }, []);
 
@@ -213,6 +217,161 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       prev.includes(playerId) 
         ? prev.filter(id => id !== playerId)
         : [...prev, playerId]
+    );
+  };
+
+  // Helper function to organize players by formation positions
+  const organizePlayersByFormation = (startingXI: Array<{ id: number; name: string; jerseyNumber: number; position: string }>, formation: string) => {
+    const positions = {
+      goalkeeper: startingXI.filter(p => p.position === "Goalkeeper"),
+      defenders: startingXI.filter(p => 
+        p.position.includes("Back") || 
+        p.position.includes("Center Back") || 
+        p.position === "Left Center Back" || 
+        p.position === "Right Center Back"
+      ),
+      midfielders: startingXI.filter(p => 
+        p.position.includes("Midfield") ||
+        p.position.includes("Wing Back")
+      ),
+      attackers: startingXI.filter(p => 
+        p.position.includes("Forward") || 
+        p.position.includes("Wing")
+      )
+    };
+    
+    return positions;
+  };
+
+  // Component for circular player button
+  const PlayerCircle = ({ player, isSelected, disabled, onClick }: {
+    player: { id: number; name: string; jerseyNumber: number };
+    isSelected: boolean;
+    disabled: boolean;
+    onClick: () => void;
+  }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={player.name}
+      className={`
+        w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
+        ${isSelected 
+          ? 'bg-blue-500 text-white border-blue-600 shadow-lg scale-110' 
+          : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:scale-105'
+        }
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+      `}
+      data-testid={`player-circle-${player.id}`}
+    >
+      {player.jerseyNumber}
+    </button>
+  );
+
+  // Formation layout component
+  const FormationLayout = ({ teamName }: { teamName: string }) => {
+    const data = teamData[teamName];
+    if (!data || !data.startingXI.length) return null;
+    
+    const positions = organizePlayersByFormation(data.startingXI, data.formation);
+    
+    return (
+      <div className="bg-green-100 dark:bg-green-900 p-4 rounded-lg relative overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-20 bg-gradient-to-b from-green-400 to-green-600"
+          style={{
+            backgroundImage: `
+              linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 51%, transparent 52%),
+              linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.2) 26%, transparent 27%),
+              linear-gradient(0deg, transparent 49%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 51%, transparent 52%),
+              linear-gradient(0deg, transparent 74%, rgba(255,255,255,0.2) 75%, rgba(255,255,255,0.2) 76%, transparent 77%)
+            `
+          }}
+        />
+        
+        {/* Formation display */}
+        <div className="relative z-10 space-y-6">
+          <div className="text-center">
+            <Badge variant="secondary" className="text-xs">{data.formation} Formation</Badge>
+          </div>
+          
+          {/* Attackers */}
+          {positions.attackers.length > 0 && (
+            <div className="flex justify-center gap-8">
+              {positions.attackers.map((player) => {
+                const isSelected = selectedPlayers.includes(player.id);
+                const eventCount = matchEvents.filter(e => e.player && e.player.id === player.id).length;
+                return (
+                  <PlayerCircle
+                    key={player.id}
+                    player={player}
+                    isSelected={isSelected}
+                    disabled={eventCount === 0}
+                    onClick={() => handlePlayerToggle(player.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Midfielders */}
+          {positions.midfielders.length > 0 && (
+            <div className="flex justify-center gap-4">
+              {positions.midfielders.map((player) => {
+                const isSelected = selectedPlayers.includes(player.id);
+                const eventCount = matchEvents.filter(e => e.player && e.player.id === player.id).length;
+                return (
+                  <PlayerCircle
+                    key={player.id}
+                    player={player}
+                    isSelected={isSelected}
+                    disabled={eventCount === 0}
+                    onClick={() => handlePlayerToggle(player.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Defenders */}
+          {positions.defenders.length > 0 && (
+            <div className="flex justify-center gap-3">
+              {positions.defenders.map((player) => {
+                const isSelected = selectedPlayers.includes(player.id);
+                const eventCount = matchEvents.filter(e => e.player && e.player.id === player.id).length;
+                return (
+                  <PlayerCircle
+                    key={player.id}
+                    player={player}
+                    isSelected={isSelected}
+                    disabled={eventCount === 0}
+                    onClick={() => handlePlayerToggle(player.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Goalkeeper */}
+          {positions.goalkeeper.length > 0 && (
+            <div className="flex justify-center">
+              {positions.goalkeeper.map((player) => {
+                const isSelected = selectedPlayers.includes(player.id);
+                const eventCount = matchEvents.filter(e => e.player && e.player.id === player.id).length;
+                return (
+                  <PlayerCircle
+                    key={player.id}
+                    player={player}
+                    isSelected={isSelected}
+                    disabled={eventCount === 0}
+                    onClick={() => handlePlayerToggle(player.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     );
   };
 
@@ -367,9 +526,9 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
               <div className="space-y-3">
                 {teams.map((teamName) => {
                   const teamEventCount = matchEvents.filter(e => e.team.name === teamName).length;
-                  const teamPlayersData = teamPlayers[teamName] || [];
                   const selectedTeamPlayers = selectedPlayers.filter(playerId => 
-                    teamPlayersData.some(p => p.id === playerId)
+                    teamData[teamName]?.startingXI.some(p => p.id === playerId) ||
+                    teamData[teamName]?.substitutes.some(p => p.id === playerId)
                   );
                   const isTeamSelected = selectedTeams.includes(teamName);
                   
@@ -398,76 +557,73 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                         </Button>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="space-y-1 pl-4">
-                        <div className="flex gap-2 mb-2">
-                          <Button
-                            size="sm"
-                            variant={isTeamSelected ? "default" : "outline"}
-                            className="flex-1"
-                            onClick={() => handleTeamToggle(teamName)}
-                            data-testid={`select-team-${teamName.toLowerCase().replace(/\s/g, '-')}`}
-                          >
-                            {isTeamSelected ? "Deselect Team" : "Select Team"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={selectedTeamPlayers.length === teamPlayersData.length ? "default" : "outline"}
-                            className="flex-1"
-                            onClick={() => {
-                              const allPlayerIds = teamPlayersData.map(p => p.id);
-                              if (selectedTeamPlayers.length === teamPlayersData.length) {
-                                // Deselect all players in team
-                                setSelectedPlayers(prev => 
-                                  prev.filter(id => !allPlayerIds.includes(id))
-                                );
-                              } else {
-                                // Select all players in team
-                                setSelectedPlayers(prev => [
-                                  ...prev.filter(id => !allPlayerIds.includes(id)),
-                                  ...allPlayerIds
-                                ]);
-                              }
-                            }}
-                            data-testid={`select-all-players-${teamName.toLowerCase().replace(/\s/g, '-')}`}
-                          >
-                            {selectedTeamPlayers.length === teamPlayersData.length ? "Deselect All" : "All Players"}
-                          </Button>
-                        </div>
-                        <div className="grid grid-cols-6 gap-1">
-                          {teamPlayersData.map((player) => {
-                            const isPlayerSelected = selectedPlayers.includes(player.id);
-                            const playerEventCount = matchEvents.filter(e => 
-                              e.player && e.player.id === player.id
-                            ).length;
-                            return (
-                              <Button
-                                key={player.id}
-                                size="sm"
-                                variant={isPlayerSelected ? "default" : "outline"}
-                                className="text-xs justify-center h-8 p-1 w-full relative"
-                                onClick={() => handlePlayerToggle(player.id)}
-                                data-testid={`player-${player.id}`}
-                                disabled={playerEventCount === 0}
-                                title={`${player.name}${playerEventCount > 0 ? ` (${playerEventCount} events)` : ''}`}
-                              >
-                                <span className="font-mono font-bold">
-                                  {player.jerseyNumber || '?'}
-                                </span>
-                                {playerEventCount > 0 && (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                                    <span className="text-[8px] text-white font-bold leading-none">
-                                      {playerEventCount > 9 ? '9+' : playerEventCount}
-                                    </span>
-                                  </div>
-                                )}
-                              </Button>
-                            );
-                          })}
-                        </div>
-                        {teamPlayersData.length === 0 && (
-                          <div className="text-xs text-muted-foreground text-center py-2">
-                            No player data available
+                        <div className="space-y-4">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant={isTeamSelected ? "default" : "outline"}
+                              className="flex-1"
+                              onClick={() => handleTeamToggle(teamName)}
+                              data-testid={`select-team-${teamName.toLowerCase().replace(/\s/g, '-')}`}
+                            >
+                              {isTeamSelected ? "Deselect Team" : "Select Team"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={selectedTeamPlayers.length === (teamData[teamName]?.startingXI.length || 0) + (teamData[teamName]?.substitutes.length || 0) ? "default" : "outline"}
+                              className="flex-1"
+                              onClick={() => {
+                                const allPlayerIds = [
+                                  ...(teamData[teamName]?.startingXI.map(p => p.id) || []),
+                                  ...(teamData[teamName]?.substitutes.map(p => p.id) || [])
+                                ];
+                                if (selectedTeamPlayers.length === allPlayerIds.length) {
+                                  // Deselect all players in team
+                                  setSelectedPlayers(prev => 
+                                    prev.filter(id => !allPlayerIds.includes(id))
+                                  );
+                                } else {
+                                  // Select all players in team
+                                  setSelectedPlayers(prev => [
+                                    ...prev.filter(id => !allPlayerIds.includes(id)),
+                                    ...allPlayerIds
+                                  ]);
+                                }
+                              }}
+                              data-testid={`select-all-players-${teamName.toLowerCase().replace(/\s/g, '-')}`}
+                            >
+                              {selectedTeamPlayers.length === (teamData[teamName]?.startingXI.length || 0) + (teamData[teamName]?.substitutes.length || 0) ? "Deselect All" : "All Players"}
+                            </Button>
                           </div>
-                        )}
+
+                          {/* Starting XI Formation */}
+                          <div>
+                            <div className="text-sm font-medium text-muted-foreground mb-2">Starting XI</div>
+                            <FormationLayout teamName={teamName} />
+                          </div>
+
+                          {/* Substitutes */}
+                          {teamData[teamName]?.substitutes && teamData[teamName].substitutes.length > 0 && (
+                            <div>
+                              <div className="text-sm font-medium text-muted-foreground mb-2">Substitutes</div>
+                              <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                {teamData[teamName].substitutes.map((player) => {
+                                  const isSelected = selectedPlayers.includes(player.id);
+                                  const eventCount = matchEvents.filter(e => e.player && e.player.id === player.id).length;
+                                  return (
+                                    <PlayerCircle
+                                      key={player.id}
+                                      player={{ ...player, jerseyNumber: player.jerseyNumber || 99 }}
+                                      isSelected={isSelected}
+                                      disabled={eventCount === 0}
+                                      onClick={() => handlePlayerToggle(player.id)}
+                                    />
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </CollapsibleContent>
                     </Collapsible>
                   );
