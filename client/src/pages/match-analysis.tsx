@@ -7,7 +7,7 @@ export default function MatchAnalysis() {
 
   return (
     <MainLayout 
-      title="Match Analysis" 
+      title="Video Analysis" 
       subtitle="Advanced video analysis with event synchronization and highlight generation"
     >
       <VideoWithEvents 

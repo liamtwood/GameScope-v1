@@ -159,7 +159,7 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Match Analysis</span>
+            <span>Video Analysis</span>
             <div className="flex items-center gap-4">
               {currentSeekTime !== null && (
                 <span className="text-sm font-normal text-blue-600">
