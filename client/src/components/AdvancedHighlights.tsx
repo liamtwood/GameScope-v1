@@ -33,12 +33,17 @@ interface MatchEvent {
     name: string;
   };
   location?: number[];
+  under_pressure?: boolean;
   pass?: {
     recipient?: {
       id: number;
       name: string;
     };
     length: number;
+    type?: {
+      id: number;
+      name: string;
+    };
   };
   shot?: {
     statsbomb_xg: number;
@@ -61,6 +66,47 @@ interface MatchEvent {
     };
     first_time?: boolean;
     freeze_frame?: any[];
+  };
+  clearance?: {
+    left_foot?: boolean;
+    body_part?: {
+      id: number;
+      name: string;
+    };
+  };
+  duel?: {
+    type?: {
+      id: number;
+      name: string;
+    };
+    outcome?: {
+      id: number;
+      name: string;
+    };
+  };
+  substitution?: {
+    outcome?: {
+      id: number;
+      name: string;
+    };
+    replacement?: {
+      id: number;
+      name: string;
+    };
+  };
+  tactics?: {
+    formation: number;
+    lineup: Array<{
+      player: {
+        id: number;
+        name: string;
+      };
+      position: {
+        id: number;
+        name: string;
+      };
+      jersey_number: number;
+    }>;
   };
 }
 
@@ -102,7 +148,12 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     ATTACK: ['Shot', 'Dribble', 'Goal'],
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off'],
-    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off Target', 'Shot - Post']
+    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off Target', 'Shot - Post'],
+    'PRESSURE CONTEXT': ['Under Pressure', 'Composed Play'],
+    'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
+    'TECHNIQUE': ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
+    'SUBSTITUTION CONTEXT': ['Tactical Substitutions'],
+    'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost']
   };
 
   // Get available event types (including nested ones), teams, and organized players
@@ -120,6 +171,44 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         typeSet.add(`Shot - ${event.shot.outcome.name}`);
       }
     });
+    
+    // Add pressure context filters
+    const hasUnderPressure = matchEvents.some(event => event.under_pressure === true);
+    const hasComposedPlay = matchEvents.some(event => event.under_pressure !== true);
+    if (hasUnderPressure) typeSet.add('Under Pressure');
+    if (hasComposedPlay) typeSet.add('Composed Play');
+    
+    // Add shot quality filters based on xG values
+    const hasHighXg = matchEvents.some(event => event.shot?.statsbomb_xg && event.shot.statsbomb_xg > 0.3);
+    const hasMediumXg = matchEvents.some(event => event.shot?.statsbomb_xg && event.shot.statsbomb_xg >= 0.1 && event.shot.statsbomb_xg <= 0.3);
+    const hasLowXg = matchEvents.some(event => event.shot?.statsbomb_xg && event.shot.statsbomb_xg < 0.1);
+    if (hasHighXg) typeSet.add('High xG Chances');
+    if (hasMediumXg) typeSet.add('Medium xG Chances');
+    if (hasLowXg) typeSet.add('Low xG Chances');
+    
+    // Add technique filters
+    const hasHeaders = matchEvents.some(event => event.shot?.body_part?.name === 'Head' || event.clearance?.body_part?.name === 'Head');
+    const hasLeftFoot = matchEvents.some(event => event.shot?.body_part?.name === 'Left Foot' || event.clearance?.body_part?.name === 'Left Foot' || event.clearance?.left_foot === true);
+    const hasRightFoot = matchEvents.some(event => event.shot?.body_part?.name === 'Right Foot' || event.clearance?.body_part?.name === 'Right Foot');
+    const hasVolleys = matchEvents.some(event => event.shot?.technique?.name === 'Volley');
+    if (hasHeaders) typeSet.add('Headers');
+    if (hasLeftFoot) typeSet.add('Left Foot');
+    if (hasRightFoot) typeSet.add('Right Foot');
+    if (hasVolleys) typeSet.add('Volleys');
+    
+    // Add substitution context filters
+    const hasTacticalSubs = matchEvents.some(event => event.substitution?.outcome?.name === 'Tactical');
+    if (hasTacticalSubs) typeSet.add('Tactical Substitutions');
+    
+    // Add duel outcome filters
+    const hasWonTackles = matchEvents.some(event => event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name !== 'Lost In Play');
+    const hasLostTackles = matchEvents.some(event => event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name === 'Lost In Play');
+    const hasAerialWon = matchEvents.some(event => event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Won');
+    const hasAerialLost = matchEvents.some(event => event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Lost');
+    if (hasWonTackles) typeSet.add('Won Tackles');
+    if (hasLostTackles) typeSet.add('Lost Tackles');
+    if (hasAerialWon) typeSet.add('Aerial Duels Won');
+    if (hasAerialLost) typeSet.add('Aerial Duels Lost');
     
     const teamSet = new Set(matchEvents.map(event => event.team.name));
     const types = Array.from(typeSet);
@@ -211,6 +300,30 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         return e.shot?.outcome?.name === outcomeType;
       }
       
+      // Check pressure context
+      if (eventType === 'Under Pressure' && e.under_pressure === true) return true;
+      if (eventType === 'Composed Play' && e.under_pressure !== true) return true;
+      
+      // Check shot quality based on xG
+      if (eventType === 'High xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg > 0.3) return true;
+      if (eventType === 'Medium xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg >= 0.1 && e.shot.statsbomb_xg <= 0.3) return true;
+      if (eventType === 'Low xG Chances' && e.shot?.statsbomb_xg && e.shot.statsbomb_xg < 0.1) return true;
+      
+      // Check technique
+      if (eventType === 'Headers' && (e.shot?.body_part?.name === 'Head' || e.clearance?.body_part?.name === 'Head')) return true;
+      if (eventType === 'Left Foot' && (e.shot?.body_part?.name === 'Left Foot' || e.clearance?.body_part?.name === 'Left Foot' || e.clearance?.left_foot === true)) return true;
+      if (eventType === 'Right Foot' && (e.shot?.body_part?.name === 'Right Foot' || e.clearance?.body_part?.name === 'Right Foot')) return true;
+      if (eventType === 'Volleys' && e.shot?.technique?.name === 'Volley') return true;
+      
+      // Check substitution context
+      if (eventType === 'Tactical Substitutions' && e.substitution?.outcome?.name === 'Tactical') return true;
+      
+      // Check duel outcomes
+      if (eventType === 'Won Tackles' && e.duel?.type?.name === 'Tackle' && e.duel?.outcome?.name !== 'Lost In Play') return true;
+      if (eventType === 'Lost Tackles' && e.duel?.type?.name === 'Tackle' && e.duel?.outcome?.name === 'Lost In Play') return true;
+      if (eventType === 'Aerial Duels Won' && e.duel?.type?.name === 'Aerial Lost' && e.duel?.outcome?.name === 'Won') return true;
+      if (eventType === 'Aerial Duels Lost' && e.duel?.type?.name === 'Aerial Lost' && e.duel?.outcome?.name === 'Lost') return true;
+      
       return false;
     }).length;
   };
@@ -241,6 +354,30 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
             const outcomeType = selectedType.replace('Shot - ', '');
             return event.shot?.outcome?.name === outcomeType;
           }
+          
+          // Check pressure context
+          if (selectedType === 'Under Pressure' && event.under_pressure === true) return true;
+          if (selectedType === 'Composed Play' && event.under_pressure !== true) return true;
+          
+          // Check shot quality based on xG
+          if (selectedType === 'High xG Chances' && event.shot?.statsbomb_xg && event.shot.statsbomb_xg > 0.3) return true;
+          if (selectedType === 'Medium xG Chances' && event.shot?.statsbomb_xg && event.shot.statsbomb_xg >= 0.1 && event.shot.statsbomb_xg <= 0.3) return true;
+          if (selectedType === 'Low xG Chances' && event.shot?.statsbomb_xg && event.shot.statsbomb_xg < 0.1) return true;
+          
+          // Check technique
+          if (selectedType === 'Headers' && (event.shot?.body_part?.name === 'Head' || event.clearance?.body_part?.name === 'Head')) return true;
+          if (selectedType === 'Left Foot' && (event.shot?.body_part?.name === 'Left Foot' || event.clearance?.body_part?.name === 'Left Foot' || event.clearance?.left_foot === true)) return true;
+          if (selectedType === 'Right Foot' && (event.shot?.body_part?.name === 'Right Foot' || event.clearance?.body_part?.name === 'Right Foot')) return true;
+          if (selectedType === 'Volleys' && event.shot?.technique?.name === 'Volley') return true;
+          
+          // Check substitution context
+          if (selectedType === 'Tactical Substitutions' && event.substitution?.outcome?.name === 'Tactical') return true;
+          
+          // Check duel outcomes
+          if (selectedType === 'Won Tackles' && event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name !== 'Lost In Play') return true;
+          if (selectedType === 'Lost Tackles' && event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name === 'Lost In Play') return true;
+          if (selectedType === 'Aerial Duels Won' && event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Won') return true;
+          if (selectedType === 'Aerial Duels Lost' && event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Lost') return true;
           
           return false;
         });
