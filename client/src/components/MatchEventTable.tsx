@@ -66,7 +66,6 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEventType, setSelectedEventType] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
-  const [showShotsOnly, setShowShotsOnly] = useState(false);
 
   // Convert timestamp to seconds
   const timestampToSeconds = (timestamp: string): number => {
@@ -106,11 +105,10 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
 
       const matchesEventType = selectedEventType === "" || event.type.name === selectedEventType;
       const matchesTeam = selectedTeam === "" || event.team.name === selectedTeam;
-      const matchesShotsFilter = !showShotsOnly || event.type.name === "Shot";
 
-      return matchesSearch && matchesEventType && matchesTeam && matchesShotsFilter;
+      return matchesSearch && matchesEventType && matchesTeam;
     });
-  }, [searchTerm, selectedEventType, selectedTeam, showShotsOnly]);
+  }, [searchTerm, selectedEventType, selectedTeam]);
 
   const handleEventClick = (event: MatchEvent) => {
     const timeInSeconds = timestampToSeconds(event.timestamp);
@@ -194,17 +192,6 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                 <option key={team} value={team}>{team}</option>
               ))}
             </select>
-            
-            <Button
-              variant={showShotsOnly ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowShotsOnly(!showShotsOnly)}
-              className="flex items-center gap-1 whitespace-nowrap"
-              data-testid="shots-only-filter"
-            >
-              <Target className="h-4 w-4" />
-              {showShotsOnly ? "Show All" : "Shots Only"}
-            </Button>
           </div>
         </div>
       </CardHeader>
