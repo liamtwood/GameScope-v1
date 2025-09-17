@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { HighlightGenerator } from '@/components/HighlightGenerator';
@@ -6,6 +7,15 @@ import { AdvancedHighlights } from '@/components/AdvancedHighlights';
 import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface OppositionTeam {
+  id: string;
+  name: string;
+  shortName: string | null;
+  logoPath: string | null;
+  websiteUrl: string | null;
+  colors: any;
+}
 
 interface VideoWithEventsProps {
   url: string;
@@ -127,14 +137,23 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
     onVideoUrlChange("https://www.youtube.com/watch?v=gvoQ8gvzuC4"); // Original match video
   };
 
-  // Mock fixture data for the Spain vs England match
+  // Fetch opposition teams to get logos
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams"],
+  });
+
+  // Find Spain and England teams from the opposition teams
+  const spainTeam = oppositionTeams.find(team => team.name === "Spain Women's");
+  const englandTeam = oppositionTeams.find(team => team.name === "England Women's");
+
+  // Mock fixture data for the Spain vs England match with real team IDs
   const mockFixture = {
     id: 'spain-england-final',
     createdAt: new Date('2023-08-20'),
     updatedAt: new Date('2023-08-20'),
     date: new Date('2023-08-20'),
     opponent: 'England Women\'s',
-    oppositionTeamId: null,
+    oppositionTeamId: englandTeam?.id || null,
     oppositionClubId: null,
     homeScore: 1,
     awayScore: 0,
@@ -150,6 +169,8 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
     <div className="w-full max-w-7xl mx-auto p-6">
       <MatchScoreBanner 
         fixture={mockFixture}
+        teamLogoPath={spainTeam?.logoPath || undefined}
+        opponentLogoPath={englandTeam?.logoPath || undefined}
         polkStateColor="#FF0000" // Spain red
         oppositionColor="#0066CC" // England blue  
         primaryColor="#FF0000"
