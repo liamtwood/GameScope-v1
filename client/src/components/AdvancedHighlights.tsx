@@ -144,8 +144,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
 
   // Define event categories including nested event types - shots prioritized at top
   const eventCategories = {
-    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward'],
-    'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
+    SHOTS: ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward', 'High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
     DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper', 'Won Tackles', 'Lost Tackles'],
     POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield', 'Dribble'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off', 'Penalty', 'Penalty Saved'],
