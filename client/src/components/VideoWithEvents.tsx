@@ -3,6 +3,7 @@ import { MatchEventTable } from '@/components/MatchEventTable';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { HighlightGenerator } from '@/components/HighlightGenerator';
 import { AdvancedHighlights } from '@/components/AdvancedHighlights';
+import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -126,12 +127,39 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
     onVideoUrlChange("https://www.youtube.com/watch?v=gvoQ8gvzuC4"); // Original match video
   };
 
+  // Mock fixture data for the Spain vs England match
+  const mockFixture = {
+    id: 'spain-england-final',
+    createdAt: new Date('2023-08-20'),
+    updatedAt: new Date('2023-08-20'),
+    date: new Date('2023-08-20'),
+    opponent: 'England Women\'s',
+    oppositionTeamId: null,
+    oppositionClubId: null,
+    homeScore: 1,
+    awayScore: 0,
+    type: 'HOME' as const,
+    status: 'COMPLETED',
+    teamId: 'spain-team-id',
+    venue: 'Stadium Australia',
+    competition: 'Women\'s World Cup Final',
+    videoLinks: null
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
+      <MatchScoreBanner 
+        fixture={mockFixture}
+        polkStateColor="#FF0000" // Spain red
+        oppositionColor="#0066CC" // England blue  
+        primaryColor="#FF0000"
+        clubName="Spain Women's"
+      />
+      
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Match Analysis: Spain Women's vs England Women's</span>
+            <span>Match Analysis</span>
             <div className="flex items-center gap-4">
               {currentSeekTime !== null && (
                 <span className="text-sm font-normal text-blue-600">
