@@ -495,7 +495,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                           onClick={() => handleCategoryToggle(categoryName)}
                           data-testid={`category-select-${categoryName.toLowerCase()}`}
                         >
-                          <div className="flex items-center space-x-2 flex-1">
+                          <div className="flex items-center space-x-2">
                             <Checkbox 
                               checked={
                                 selectedInCategory.length > 0 && 
@@ -505,23 +505,26 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                               data-testid={`category-checkbox-${categoryName.toLowerCase()}`}
                             />
                             <span className="font-medium text-xs">{categoryName}</span>
-                            <Badge variant="outline" className="text-xs ml-auto">
-                              {categoryCount}
-                            </Badge>
                           </div>
                           
-                          {/* Dropdown Toggle Inside Container */}
-                          <CollapsibleTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="px-1 ml-2"
-                              data-testid={`category-dropdown-${categoryName.toLowerCase()}`}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ChevronDown className="h-3 w-3" />
-                            </Button>
-                          </CollapsibleTrigger>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="text-xs">
+                              {categoryCount}
+                            </Badge>
+                            
+                            {/* Dropdown Toggle Inside Container */}
+                            <CollapsibleTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="px-1"
+                                data-testid={`category-dropdown-${categoryName.toLowerCase()}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
                         </div>
                         <CollapsibleContent className="pl-2">
                           <div className="grid grid-cols-1 gap-2">
