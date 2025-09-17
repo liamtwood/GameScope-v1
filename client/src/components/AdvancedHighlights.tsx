@@ -9,8 +9,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
-import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu } from 'lucide-react';
+import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
@@ -1007,9 +1008,16 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                                 </span>
                               )}
                               {event.under_pressure && (
-                                <Badge variant="destructive" className="text-xs">
-                                  Pressure
-                                </Badge>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-1.5 py-0.5">
+                                      <AlertCircle className="h-3 w-3" aria-label="Under pressure" />
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Under pressure</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               )}
                             </div>
                             {/* Additional event details */}
