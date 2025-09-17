@@ -146,12 +146,10 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
   const eventCategories = {
     'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward'],
     'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
-    DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper'],
-    'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost'],
+    DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper', 'Won Tackles', 'Lost Tackles'],
     POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield', 'Dribble'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off', 'Penalty', 'Penalty Saved'],
     TECHNIQUE: ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
-    PRESSURE: ['Under Pressure', 'Composed Play'],
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
     SUBS: ['Tactical Substitutions']
   };
