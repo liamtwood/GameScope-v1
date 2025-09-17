@@ -133,12 +133,14 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     }} = {};
     
     // Find Starting XI events to get formation and lineup data
+    // Only take the first Starting XI event for each team to avoid duplicates
     const startingXIEvents = matchEvents.filter(event => event.type.name === "Starting XI");
     
     startingXIEvents.forEach(event => {
       const teamName = event.team.name;
       
-      if (event.tactics?.lineup && event.tactics.formation) {
+      // Only set formation data if not already set (to prevent overwriting with duplicates)
+      if (!teamFormationData[teamName] && event.tactics?.lineup && event.tactics.formation) {
         teamFormationData[teamName] = {
           formation: event.tactics.formation.toString(),
           startingXI: event.tactics.lineup.map(player => ({
@@ -165,14 +167,19 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       const startingXIIds = new Set(teamFormationData[teamName].startingXI.map(p => p.id));
       const substitutes: { [id: number]: { id: number; name: string; jerseyNumber?: number } } = {};
       
+      // Only collect substitutes from substitution events to avoid duplicates
       matchEvents.forEach(event => {
-        if (event.team.name === teamName && event.player && !startingXIIds.has(event.player.id)) {
-          if (!substitutes[event.player.id]) {
-            substitutes[event.player.id] = {
-              id: event.player.id,
-              name: event.player.name,
-              jerseyNumber: undefined
-            };
+        if (event.team.name === teamName && event.type.name === "Substitution") {
+          // Get the player coming on (replacement)
+          if (event.substitution?.replacement && !startingXIIds.has(event.substitution.replacement.id)) {
+            const replacementPlayer = event.substitution.replacement;
+            if (!substitutes[replacementPlayer.id]) {
+              substitutes[replacementPlayer.id] = {
+                id: replacementPlayer.id,
+                name: replacementPlayer.name,
+                jerseyNumber: undefined
+              };
+            }
           }
         }
       });
