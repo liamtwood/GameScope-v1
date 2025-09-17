@@ -148,7 +148,7 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     ATTACK: ['Shot', 'Dribble', 'Goal'],
     TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off'],
-    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off Target', 'Shot - Post'],
+    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off T', 'Shot - Post', 'Shot - Wayward'],
     'PRESSURE CONTEXT': ['Under Pressure', 'Composed Play'],
     'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
     'TECHNIQUE': ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
