@@ -141,19 +141,18 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Define event categories including nested event types
+  // Define event categories including nested event types - ordered as requested
   const eventCategories = {
     DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper'],
-    POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield'],
-    ATTACK: ['Shot', 'Dribble', 'Goal'],
-    TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
+    'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost'],
+    POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield', 'Dribble'],
     'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off', 'Penalty', 'Penalty Saved'],
-    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off T', 'Shot - Post', 'Shot - Wayward'],
-    'PRESSURE CONTEXT': ['Under Pressure', 'Composed Play'],
     'SHOT QUALITY': ['High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
-    'TECHNIQUE': ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
-    'SUBS': ['Tactical Substitutions'],
-    'DUEL OUTCOMES': ['Won Tackles', 'Lost Tackles', 'Aerial Duels Won', 'Aerial Duels Lost']
+    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward'],
+    TECHNIQUE: ['Headers', 'Left Foot', 'Right Foot', 'Volleys'],
+    PRESSURE: ['Under Pressure', 'Composed Play'],
+    TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
+    SUBS: ['Tactical Substitutions']
   };
 
   // Get available event types (including nested ones), teams, and organized players
@@ -168,7 +167,20 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       }
       // Add shot outcomes as separate event types
       if (event.type.name === 'Shot' && event.shot?.outcome?.name) {
-        typeSet.add(`Shot - ${event.shot.outcome.name}`);
+        // Map 'Off T' to 'Shot Off Target' for better display
+        if (event.shot.outcome.name === 'Off T') {
+          typeSet.add('Shot Off Target');
+        } else {
+          typeSet.add(`Shot - ${event.shot.outcome.name}`);
+        }
+      }
+      // Add penalty shots from nested shot types
+      if (event.type.name === 'Shot' && event.shot?.type?.name === 'Penalty') {
+        typeSet.add('Penalty');
+      }
+      // Add penalty saves from nested goalkeeper types
+      if (event.type.name === 'Goal Keeper' && event.goalkeeper?.type?.name === 'Penalty Saved') {
+        typeSet.add('Penalty Saved');
       }
     });
     
@@ -295,9 +307,13 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       if (e.type.name === 'Pass' && e.pass?.type?.name === eventType) return true;
       
       // Check shot outcomes
-      if (e.type.name === 'Shot' && eventType.startsWith('Shot - ')) {
-        const outcomeType = eventType.replace('Shot - ', '');
-        return e.shot?.outcome?.name === outcomeType;
+      if (e.type.name === 'Shot' && (eventType.startsWith('Shot - ') || eventType === 'Shot Off Target')) {
+        if (eventType === 'Shot Off Target') {
+          return e.shot?.outcome?.name === 'Off T';
+        } else {
+          const outcomeType = eventType.replace('Shot - ', '');
+          return e.shot?.outcome?.name === outcomeType;
+        }
       }
       
       // Check pressure context
@@ -323,6 +339,10 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       if (eventType === 'Lost Tackles' && e.duel?.type?.name === 'Tackle' && e.duel?.outcome?.name === 'Lost In Play') return true;
       if (eventType === 'Aerial Duels Won' && e.duel?.type?.name === 'Aerial Lost' && e.duel?.outcome?.name === 'Won') return true;
       if (eventType === 'Aerial Duels Lost' && e.duel?.type?.name === 'Aerial Lost' && e.duel?.outcome?.name === 'Lost') return true;
+      
+      // Check penalty events from nested structures
+      if (eventType === 'Penalty' && e.type.name === 'Shot' && e.shot?.type?.name === 'Penalty') return true;
+      if (eventType === 'Penalty Saved' && e.type.name === 'Goal Keeper' && e.goalkeeper?.type?.name === 'Penalty Saved') return true;
       
       return false;
     }).length;
@@ -350,9 +370,13 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           if (event.type.name === 'Pass' && event.pass?.type?.name === selectedType) return true;
           
           // Check shot outcomes
-          if (event.type.name === 'Shot' && selectedType.startsWith('Shot - ')) {
-            const outcomeType = selectedType.replace('Shot - ', '');
-            return event.shot?.outcome?.name === outcomeType;
+          if (event.type.name === 'Shot' && (selectedType.startsWith('Shot - ') || selectedType === 'Shot Off Target')) {
+            if (selectedType === 'Shot Off Target') {
+              return event.shot?.outcome?.name === 'Off T';
+            } else {
+              const outcomeType = selectedType.replace('Shot - ', '');
+              return event.shot?.outcome?.name === outcomeType;
+            }
           }
           
           // Check pressure context
@@ -378,6 +402,10 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
           if (selectedType === 'Lost Tackles' && event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name === 'Lost In Play') return true;
           if (selectedType === 'Aerial Duels Won' && event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Won') return true;
           if (selectedType === 'Aerial Duels Lost' && event.duel?.type?.name === 'Aerial Lost' && event.duel?.outcome?.name === 'Lost') return true;
+          
+          // Check penalty events from nested structures
+          if (selectedType === 'Penalty' && event.type.name === 'Shot' && event.shot?.type?.name === 'Penalty') return true;
+          if (selectedType === 'Penalty Saved' && event.type.name === 'Goal Keeper' && event.goalkeeper?.type?.name === 'Penalty Saved') return true;
           
           return false;
         });
