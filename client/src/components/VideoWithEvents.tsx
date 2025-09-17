@@ -14,6 +14,8 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
+  const [isShowingHighlights, setIsShowingHighlights] = useState<boolean>(false);
+  const [currentHighlightPackage, setCurrentHighlightPackage] = useState<any>(null);
   
   // Load saved offsets from localStorage
   useEffect(() => {
@@ -108,6 +110,20 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
     console.log('Generated highlight package:', highlightPackage);
     // Could add toast notification or other feedback here
   };
+  
+  const handleViewHighlightsVideo = (videoUrl: string, highlightPackage: any) => {
+    console.log('Switching to highlights video:', videoUrl);
+    setIsShowingHighlights(true);
+    setCurrentHighlightPackage(highlightPackage);
+    onVideoUrlChange(videoUrl);
+  };
+  
+  const handleBackToOriginalVideo = () => {
+    console.log('Returning to original match video');
+    setIsShowingHighlights(false);
+    setCurrentHighlightPackage(null);
+    onVideoUrlChange("https://www.youtube.com/watch?v=gvoQ8gvzuC4"); // Original match video
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
@@ -186,6 +202,7 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
               <HighlightGenerator 
                 onHighlightSelect={handleHighlightSelect}
                 onPackageGenerate={handlePackageGenerate}
+                onViewHighlightsVideo={handleViewHighlightsVideo}
               />
             </div>
             
@@ -193,11 +210,34 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
             <div className="lg:col-span-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>Match Video - Highlight Mode</CardTitle>
+                  <CardTitle>
+                    {isShowingHighlights ? 'Generated Highlights Video' : 'Match Video - Highlight Mode'}
+                  </CardTitle>
                   {videoId && (
-                    <p className="text-sm text-gray-600">
-                      Video ID: {videoId} | Click any highlight to jump to that moment
-                    </p>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        Video ID: {videoId} {isShowingHighlights ? '| Duration: 4:57' : '| Click any highlight to jump to that moment'}
+                      </p>
+                      {isShowingHighlights && currentHighlightPackage && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-blue-600">
+                              📺 Now showing: {currentHighlightPackage.name}
+                            </span>
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                              {currentHighlightPackage.events.length} events
+                            </span>
+                          </div>
+                          <button 
+                            onClick={handleBackToOriginalVideo}
+                            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded transition-colors"
+                            data-testid="back-to-original-video"
+                          >
+                            ← Back to Match Video
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </CardHeader>
                 <CardContent>

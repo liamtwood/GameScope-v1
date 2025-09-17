@@ -96,12 +96,16 @@ interface HighlightPackage {
 interface HighlightGeneratorProps {
   onHighlightSelect?: (highlight: HighlightEvent) => void;
   onPackageGenerate?: (highlightPackage: HighlightPackage) => void;
+  onViewHighlightsVideo?: (videoUrl: string, highlightPackage: HighlightPackage) => void;
 }
 
-export function HighlightGenerator({ onHighlightSelect, onPackageGenerate }: HighlightGeneratorProps) {
+export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onViewHighlightsVideo }: HighlightGeneratorProps) {
   const [selectedPackageType, setSelectedPackageType] = useState<string>("standard");
   const [generating, setGenerating] = useState(false);
   const [generatedPackages, setGeneratedPackages] = useState<HighlightPackage[]>([]);
+  
+  // Pre-made highlights video for "fake" generation
+  const HIGHLIGHTS_VIDEO_URL = "https://youtu.be/SETklkU1G8Y";
   const [selectedTiers, setSelectedTiers] = useState<number[]>([1, 2, 3]);
 
   // Convert timestamp to seconds
@@ -526,6 +530,15 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate }: Hig
                           <p className="text-sm text-gray-500">{highlightPkg.description}</p>
                         </div>
                         <div className="flex gap-2">
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={() => onViewHighlightsVideo?.(HIGHLIGHTS_VIDEO_URL, highlightPkg)}
+                            data-testid="view-highlights-video"
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            View Highlights
+                          </Button>
                           <Button variant="outline" size="sm" data-testid="share-package">
                             <Share className="h-4 w-4 mr-1" />
                             Share
