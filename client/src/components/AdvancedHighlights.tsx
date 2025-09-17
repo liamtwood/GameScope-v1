@@ -533,6 +533,15 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
       return 'Goal Kick';
     }
     
+    // Kick Offs: Check if this is a pass with Kick Off type
+    if (event.type.name === 'Pass' && event.pass?.type?.name === 'Kick Off') {
+      // Add height if available
+      if (event.pass.height?.name) {
+        return `Kick Off - ${event.pass.height.name}`;
+      }
+      return 'Kick Off';
+    }
+    
     // Penalties: Show outcome
     if (event.type.name === 'Shot' && event.shot?.type?.name === 'Penalty') {
       return event.shot.outcome?.name === 'Off T'
