@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { YouTubePlayer } from '@/components/YouTubePlayer';
 import { SimpleYouTubePlayer } from '@/components/SimpleYouTubePlayer';
 import { BasicYouTubePlayer } from '@/components/BasicYouTubePlayer';
+import { VideoWithEvents } from '@/components/VideoWithEvents';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -116,12 +117,17 @@ export function VideoPlayerPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold text-center">Video Players</h2>
           
-          <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="match-analysis" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="match-analysis">Match Analysis</TabsTrigger>
               <TabsTrigger value="basic">Basic Player</TabsTrigger>
               <TabsTrigger value="simple">React Player</TabsTrigger>
               <TabsTrigger value="advanced">Advanced Player</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="match-analysis" className="space-y-4">
+              <VideoWithEvents url={videoUrl} />
+            </TabsContent>
             
             <TabsContent value="basic" className="space-y-4">
               <BasicYouTubePlayer url={videoUrl} />

@@ -1,0 +1,511 @@
+[ {
+  "id" : "73d302be-c474-47b0-b465-d276046f96a5",
+  "index" : 1,
+  "period" : 1,
+  "timestamp" : "00:00:00.000",
+  "minute" : 0,
+  "second" : 0,
+  "type" : {
+    "id" : 35,
+    "name" : "Starting XI"
+  },
+  "possession" : 1,
+  "possession_team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "play_pattern" : {
+    "id" : 1,
+    "name" : "Regular Play"
+  },
+  "team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "duration" : 0.0,
+  "tactics" : {
+    "formation" : 4231,
+    "lineup" : [ {
+      "player" : {
+        "id" : 45295,
+        "name" : "Catalina Thomas Coll Lluch"
+      },
+      "position" : {
+        "id" : 1,
+        "name" : "Goalkeeper"
+      },
+      "jersey_number" : 23
+    }, {
+      "player" : {
+        "id" : 46639,
+        "name" : "Ona Batlle Pascual"
+      },
+      "position" : {
+        "id" : 2,
+        "name" : "Right Back"
+      },
+      "jersey_number" : 2
+    }, {
+      "player" : {
+        "id" : 10165,
+        "name" : "Irene Paredes Hernandez"
+      },
+      "position" : {
+        "id" : 3,
+        "name" : "Right Center Back"
+      },
+      "jersey_number" : 4
+    }, {
+      "player" : {
+        "id" : 32694,
+        "name" : "Laia Codina Panedas"
+      },
+      "position" : {
+        "id" : 5,
+        "name" : "Left Center Back"
+      },
+      "jersey_number" : 14
+    }, {
+      "player" : {
+        "id" : 49836,
+        "name" : "Olga  Carmona García"
+      },
+      "position" : {
+        "id" : 6,
+        "name" : "Left Back"
+      },
+      "jersey_number" : 19
+    }, {
+      "player" : {
+        "id" : 49835,
+        "name" : "Teresa Abelleira Dueñas"
+      },
+      "position" : {
+        "id" : 11,
+        "name" : "Left Defensive Midfield"
+      },
+      "jersey_number" : 3
+    }, {
+      "player" : {
+        "id" : 15284,
+        "name" : "Aitana Bonmati Conca"
+      },
+      "position" : {
+        "id" : 13,
+        "name" : "Right Center Midfield"
+      },
+      "jersey_number" : 6
+    }, {
+      "player" : {
+        "id" : 50151,
+        "name" : "Alba María Redondo Ferrer"
+      },
+      "position" : {
+        "id" : 17,
+        "name" : "Right Wing"
+      },
+      "jersey_number" : 17
+    }, {
+      "player" : {
+        "id" : 10151,
+        "name" : "Jennifer Hermoso Fuentes"
+      },
+      "position" : {
+        "id" : 19,
+        "name" : "Center Attacking Midfield"
+      },
+      "jersey_number" : 10
+    }, {
+      "player" : {
+        "id" : 10161,
+        "name" : "María Francesca Caldentey Oliver"
+      },
+      "position" : {
+        "id" : 21,
+        "name" : "Left Wing"
+      },
+      "jersey_number" : 8
+    }, {
+      "player" : {
+        "id" : 222682,
+        "name" : "Salma Paralluelo Ayingono"
+      },
+      "position" : {
+        "id" : 23,
+        "name" : "Center Forward"
+      },
+      "jersey_number" : 18
+    } ]
+  }
+}, {
+  "id" : "cbad5dd0-01cd-4be0-8693-15942b19d363",
+  "index" : 2,
+  "period" : 1,
+  "timestamp" : "00:00:00.000",
+  "minute" : 0,
+  "second" : 0,
+  "type" : {
+    "id" : 35,
+    "name" : "Starting XI"
+  },
+  "possession" : 1,
+  "possession_team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "play_pattern" : {
+    "id" : 1,
+    "name" : "Regular Play"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "duration" : 0.0,
+  "tactics" : {
+    "formation" : 3412,
+    "lineup" : [ {
+      "player" : {
+        "id" : 31538,
+        "name" : "Mary Alexandra Earps"
+      },
+      "position" : {
+        "id" : 1,
+        "name" : "Goalkeeper"
+      },
+      "jersey_number" : 1
+    }, {
+      "player" : {
+        "id" : 19422,
+        "name" : "Jessica Carter"
+      },
+      "position" : {
+        "id" : 3,
+        "name" : "Right Center Back"
+      },
+      "jersey_number" : 16
+    }, {
+      "player" : {
+        "id" : 4642,
+        "name" : "Millie Bright"
+      },
+      "position" : {
+        "id" : 4,
+        "name" : "Center Back"
+      },
+      "jersey_number" : 6
+    }, {
+      "player" : {
+        "id" : 10252,
+        "name" : "Alex Greenwood"
+      },
+      "position" : {
+        "id" : 5,
+        "name" : "Left Center Back"
+      },
+      "jersey_number" : 5
+    }, {
+      "player" : {
+        "id" : 10178,
+        "name" : "Lucy Bronze"
+      },
+      "position" : {
+        "id" : 7,
+        "name" : "Right Wing Back"
+      },
+      "jersey_number" : 2
+    }, {
+      "player" : {
+        "id" : 5058,
+        "name" : "Rachel Daly"
+      },
+      "position" : {
+        "id" : 8,
+        "name" : "Left Wing Back"
+      },
+      "jersey_number" : 9
+    }, {
+      "player" : {
+        "id" : 4643,
+        "name" : "Georgia Stanway"
+      },
+      "position" : {
+        "id" : 9,
+        "name" : "Right Defensive Midfield"
+      },
+      "jersey_number" : 8
+    }, {
+      "player" : {
+        "id" : 4658,
+        "name" : "Keira Walsh"
+      },
+      "position" : {
+        "id" : 11,
+        "name" : "Left Defensive Midfield"
+      },
+      "jersey_number" : 4
+    }, {
+      "player" : {
+        "id" : 31534,
+        "name" : "Ella Toone"
+      },
+      "position" : {
+        "id" : 19,
+        "name" : "Center Attacking Midfield"
+      },
+      "jersey_number" : 10
+    }, {
+      "player" : {
+        "id" : 47521,
+        "name" : "Alessia Russo"
+      },
+      "position" : {
+        "id" : 22,
+        "name" : "Right Center Forward"
+      },
+      "jersey_number" : 23
+    }, {
+      "player" : {
+        "id" : 15555,
+        "name" : "Lauren Hemp"
+      },
+      "position" : {
+        "id" : 24,
+        "name" : "Left Center Forward"
+      },
+      "jersey_number" : 11
+    } ]
+  }
+}, {
+  "id" : "62cea4b4-febc-4df9-8df0-a134ed91e70f",
+  "index" : 3,
+  "period" : 1,
+  "timestamp" : "00:00:00.000",
+  "minute" : 0,
+  "second" : 0,
+  "type" : {
+    "id" : 18,
+    "name" : "Half Start"
+  },
+  "possession" : 1,
+  "possession_team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "play_pattern" : {
+    "id" : 1,
+    "name" : "Regular Play"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "duration" : 0.0,
+  "related_events" : [ "ebcc30be-9a0a-4f38-b241-8c8dd9834589" ]
+}, {
+  "id" : "ebcc30be-9a0a-4f38-b241-8c8dd9834589",
+  "index" : 4,
+  "period" : 1,
+  "timestamp" : "00:00:00.000",
+  "minute" : 0,
+  "second" : 0,
+  "type" : {
+    "id" : 18,
+    "name" : "Half Start"
+  },
+  "possession" : 1,
+  "possession_team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "play_pattern" : {
+    "id" : 1,
+    "name" : "Regular Play"
+  },
+  "team" : {
+    "id" : 863,
+    "name" : "Spain Women's"
+  },
+  "duration" : 0.0,
+  "related_events" : [ "62cea4b4-febc-4df9-8df0-a134ed91e70f" ]
+}, {
+  "id" : "30728cd8-f0a6-4535-8f24-16a37a1d4f08",
+  "index" : 5,
+  "period" : 1,
+  "timestamp" : "00:00:00.563",
+  "minute" : 0,
+  "second" : 0,
+  "type" : {
+    "id" : 30,
+    "name" : "Pass"
+  },
+  "possession" : 2,
+  "possession_team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "play_pattern" : {
+    "id" : 9,
+    "name" : "From Kick Off"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "player" : {
+    "id" : 31534,
+    "name" : "Ella Toone"
+  },
+  "position" : {
+    "id" : 19,
+    "name" : "Center Attacking Midfield"
+  },
+  "location" : [ 61.0, 40.1 ],
+  "duration" : 0.781021,
+  "related_events" : [ "b796b4f0-d521-4d6a-903e-b63c45120ec9" ],
+  "pass" : {
+    "recipient" : {
+      "id" : 4658,
+      "name" : "Keira Walsh"
+    },
+    "length" : 10.080674,
+    "angle" : -2.951979,
+    "height" : {
+      "id" : 1,
+      "name" : "Ground Pass"
+    },
+    "end_location" : [ 51.1, 38.2 ],
+    "body_part" : {
+      "id" : 40,
+      "name" : "Right Foot"
+    },
+    "type" : {
+      "id" : 65,
+      "name" : "Kick Off"
+    }
+  }
+}, {
+  "id" : "b796b4f0-d521-4d6a-903e-b63c45120ec9",
+  "index" : 6,
+  "period" : 1,
+  "timestamp" : "00:00:01.344",
+  "minute" : 0,
+  "second" : 1,
+  "type" : {
+    "id" : 42,
+    "name" : "Ball Receipt*"
+  },
+  "possession" : 2,
+  "possession_team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "play_pattern" : {
+    "id" : 9,
+    "name" : "From Kick Off"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "player" : {
+    "id" : 4658,
+    "name" : "Keira Walsh"
+  },
+  "position" : {
+    "id" : 11,
+    "name" : "Left Defensive Midfield"
+  },
+  "location" : [ 51.1, 38.2 ],
+  "related_events" : [ "30728cd8-f0a6-4535-8f24-16a37a1d4f08" ]
+}, {
+  "id" : "76afccc4-d025-4975-bf15-f7384554b440",
+  "index" : 7,
+  "period" : 1,
+  "timestamp" : "00:00:01.344",
+  "minute" : 0,
+  "second" : 1,
+  "type" : {
+    "id" : 43,
+    "name" : "Carry"
+  },
+  "possession" : 2,
+  "possession_team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "play_pattern" : {
+    "id" : 9,
+    "name" : "From Kick Off"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "player" : {
+    "id" : 4658,
+    "name" : "Keira Walsh"
+  },
+  "position" : {
+    "id" : 11,
+    "name" : "Left Defensive Midfield"
+  },
+  "location" : [ 51.1, 38.2 ],
+  "duration" : 0.689931,
+  "related_events" : [ "b796b4f0-d521-4d6a-903e-b63c45120ec9", "e8c2285a-79c8-4625-8d34-6cc11700a499" ],
+  "carry" : {
+    "end_location" : [ 51.1, 38.0 ]
+  }
+}, {
+  "id" : "e8c2285a-79c8-4625-8d34-6cc11700a499",
+  "index" : 8,
+  "period" : 1,
+  "timestamp" : "00:00:02.034",
+  "minute" : 0,
+  "second" : 2,
+  "type" : {
+    "id" : 30,
+    "name" : "Pass"
+  },
+  "possession" : 2,
+  "possession_team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "play_pattern" : {
+    "id" : 9,
+    "name" : "From Kick Off"
+  },
+  "team" : {
+    "id" : 865,
+    "name" : "England Women's"
+  },
+  "player" : {
+    "id" : 4658,
+    "name" : "Keira Walsh"
+  },
+  "position" : {
+    "id" : 11,
+    "name" : "Left Defensive Midfield"
+  },
+  "location" : [ 51.1, 38.0 ],
+  "duration" : 2.136094,
+  "related_events" : [ "9be5ef4d-5b8d-4fb8-8681-03bf05e85e84" ],
+  "pass" : {
+    "recipient" : {
+      "id" : 4642,
+      "name" : "Millie Bright"
+    },
+    "length" : 25.087446,
+    "angle" : 2.7618265,
+    "height" : {
+      "id" : 1,
+      "name" : "Ground Pass"
+    },
+    "end_location" : [ 30.1, 52.7 ],
+    "body_part" : {
+      "id" : 40,
+      "name" : "Right Foot"
+    }
+  }
+}]
