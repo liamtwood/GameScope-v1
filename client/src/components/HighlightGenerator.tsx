@@ -398,10 +398,7 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onVie
                 <SelectContent>
                   {Object.entries(packageTypes).map(([key, config]) => (
                     <SelectItem key={key} value={key}>
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">{config.name}</span>
-                        <span className="text-xs text-gray-500">{config.description}</span>
-                      </div>
+                      <span className="font-medium">{config.name}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
