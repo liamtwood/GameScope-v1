@@ -95,17 +95,32 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Define event categories
+  // Define event categories including nested event types
   const eventCategories = {
     DEFENSE: ['Block', 'Clearance', 'Interception', 'Pressure', 'Goal Keeper'],
     POSSESSION: ['Pass', 'Ball Receipt*', 'Carry', 'Shield'],
-    ATTACK: ['Shot', 'Dribble'],
-    TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol']
+    ATTACK: ['Shot', 'Dribble', 'Goal'],
+    TRANSITIONS: ['50/50', 'Duel', 'Ball Recovery', 'Dispossessed', 'Dribbled Past', 'Foul Committed', 'Foul Won', 'Miscontrol'],
+    'SET PIECES': ['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off'],
+    'SHOT OUTCOMES': ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot - Off Target', 'Shot - Post']
   };
 
-  // Get available event types, teams, and organized players
+  // Get available event types (including nested ones), teams, and organized players
   const { availableEventTypes, teams, teamData } = useMemo(() => {
+    // Collect base event types
     const typeSet = new Set(matchEvents.map(event => event.type.name));
+    
+    // Add nested pass types
+    matchEvents.forEach(event => {
+      if (event.type.name === 'Pass' && event.pass?.type?.name) {
+        typeSet.add(event.pass.type.name);
+      }
+      // Add shot outcomes as separate event types
+      if (event.type.name === 'Shot' && event.shot?.outcome?.name) {
+        typeSet.add(`Shot - ${event.shot.outcome.name}`);
+      }
+    });
+    
     const teamSet = new Set(matchEvents.map(event => event.team.name));
     const types = Array.from(typeSet);
     const teamNames = Array.from(teamSet);
@@ -174,9 +189,23 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     };
   }, []);
 
-  // Get counts for each event type
+  // Get counts for each event type (including nested types)
   const getEventTypeCount = (eventType: string): number => {
-    return matchEvents.filter(e => e.type.name === eventType).length;
+    return matchEvents.filter(e => {
+      // Check base event type
+      if (e.type.name === eventType) return true;
+      
+      // Check nested pass types
+      if (e.type.name === 'Pass' && e.pass?.type?.name === eventType) return true;
+      
+      // Check shot outcomes
+      if (e.type.name === 'Shot' && eventType.startsWith('Shot - ')) {
+        const outcomeType = eventType.replace('Shot - ', '');
+        return e.shot?.outcome?.name === outcomeType;
+      }
+      
+      return false;
+    }).length;
   };
 
   // Get counts for each category
@@ -186,10 +215,30 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     }, 0);
   };
 
-  // Filter events based on selected criteria
+  // Filter events based on selected criteria (including nested event types)
   const filteredEvents = useMemo(() => {
     return matchEvents.filter(event => {
-      const matchesEventType = selectedEventTypes.length === 0 || selectedEventTypes.includes(event.type.name);
+      let matchesEventType = selectedEventTypes.length === 0;
+      
+      if (selectedEventTypes.length > 0) {
+        // Check if any selected event type matches
+        matchesEventType = selectedEventTypes.some(selectedType => {
+          // Check base event type
+          if (event.type.name === selectedType) return true;
+          
+          // Check nested pass types
+          if (event.type.name === 'Pass' && event.pass?.type?.name === selectedType) return true;
+          
+          // Check shot outcomes
+          if (event.type.name === 'Shot' && selectedType.startsWith('Shot - ')) {
+            const outcomeType = selectedType.replace('Shot - ', '');
+            return event.shot?.outcome?.name === outcomeType;
+          }
+          
+          return false;
+        });
+      }
+      
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(event.team.name);
       const matchesPlayer = selectedPlayers.length === 0 || (event.player && selectedPlayers.includes(event.player.id));
       return matchesEventType && matchesTeam && matchesPlayer;
