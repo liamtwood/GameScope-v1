@@ -184,36 +184,6 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
 
   return (
     <div className="max-w-full mx-auto">
-      {/* Match Header */}
-      <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-red-500 to-yellow-400 flex items-center justify-center text-2xl">
-                🇪🇸
-              </div>
-              <div>
-                <div className="font-semibold">Spain Women's</div>
-                <div className="text-xs text-muted-foreground">Winner</div>
-              </div>
-            </div>
-            <div className="text-4xl font-bold text-center">1 - 0</div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className="font-semibold">England Women's</div>
-                <div className="text-xs text-muted-foreground">Runner-up</div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-white flex items-center justify-center text-2xl">
-                🏴󠁧󠁢󠁥󠁮󠁧󠁿
-              </div>
-            </div>
-          </div>
-          <div className="text-center text-sm text-muted-foreground mt-4">
-            Women's World Cup Final • Stadium Australia • 104 minutes played
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Sidebar - Filters */}
