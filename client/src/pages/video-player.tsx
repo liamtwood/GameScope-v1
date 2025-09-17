@@ -126,7 +126,10 @@ export function VideoPlayerPage() {
             </TabsList>
             
             <TabsContent value="match-analysis" className="space-y-4">
-              <VideoWithEvents url={videoUrl} />
+              <VideoWithEvents 
+                url={videoUrl} 
+                onVideoUrlChange={setVideoUrl}
+              />
             </TabsContent>
             
             <TabsContent value="basic" className="space-y-4">

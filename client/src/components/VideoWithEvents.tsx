@@ -1,21 +1,16 @@
-import { useRef, useState, useEffect } from 'react';
-import { BasicYouTubePlayer } from '@/components/BasicYouTubePlayer';
+import { useState, useEffect } from 'react';
 import { MatchEventTable } from '@/components/MatchEventTable';
+import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Play, Pause, SkipForward, SkipBack, Clock, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface VideoWithEventsProps {
   url: string;
+  onVideoUrlChange: (url: string) => void;
 }
 
-export function VideoWithEvents({ url }: VideoWithEventsProps) {
+export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
-  const [kickoffInput, setKickoffInput] = useState<string>("0:00");
   
   // Load saved kickoff offset from localStorage
   useEffect(() => {
@@ -23,7 +18,6 @@ export function VideoWithEvents({ url }: VideoWithEventsProps) {
     if (saved) {
       const offset = parseFloat(saved);
       setKickoffOffset(offset);
-      setKickoffInput(formatTimeForInput(offset));
     }
   }, []);
   
@@ -32,32 +26,7 @@ export function VideoWithEvents({ url }: VideoWithEventsProps) {
     localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
   }, [kickoffOffset]);
   
-  const formatTimeForInput = (seconds: number): string => {
-    const mins = Math.floor(Math.abs(seconds) / 60);
-    const secs = Math.floor(Math.abs(seconds) % 60);
-    const sign = seconds < 0 ? '-' : '';
-    return `${sign}${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  const parseTimeInput = (input: string): number => {
-    if (!input.trim()) return 0;
-    
-    const isNegative = input.startsWith('-');
-    const cleanInput = input.replace('-', '').trim();
-    
-    if (cleanInput.includes(':')) {
-      const [mins, secs] = cleanInput.split(':').map(Number);
-      const totalSeconds = (mins * 60) + (secs || 0);
-      return isNegative ? -totalSeconds : totalSeconds;
-    }
-    
-    const numValue = parseFloat(cleanInput.replace(/[^\d.]/g, ''));
-    const result = isNaN(numValue) ? 0 : numValue;
-    return isNegative ? -result : result;
-  };
-  
-  const handleKickoffOffsetChange = () => {
-    const newOffset = parseTimeInput(kickoffInput);
+  const handleKickoffOffsetChange = (newOffset: number) => {
     setKickoffOffset(newOffset);
   };
   
@@ -106,54 +75,22 @@ export function VideoWithEvents({ url }: VideoWithEventsProps) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Match Analysis: Spain Women's vs England Women's</span>
-            {currentSeekTime !== null && (
-              <span className="text-sm font-normal text-blue-600">
-                Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
-              </span>
-            )}
+            <div className="flex items-center gap-4">
+              {currentSeekTime !== null && (
+                <span className="text-sm font-normal text-blue-600">
+                  Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
+                </span>
+              )}
+              <VideoAnalysisSettings
+                videoUrl={url}
+                onVideoUrlChange={onVideoUrlChange}
+                kickoffOffset={kickoffOffset}
+                onKickoffOffsetChange={handleKickoffOffsetChange}
+                onEventClick={handleEventClick}
+              />
+            </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-            <Clock className="h-5 w-5 text-blue-600" />
-            <div className="flex-1">
-              <Label htmlFor="kickoff-offset" className="text-sm font-medium">
-                Kickoff Time Offset (Video Time when Match Starts)
-              </Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="kickoff-offset"
-                  value={kickoffInput}
-                  onChange={(e) => setKickoffInput(e.target.value)}
-                  placeholder="e.g., 2:30 or -1:15"
-                  className="w-32"
-                  data-testid="kickoff-offset-input"
-                />
-                <Button 
-                  onClick={handleKickoffOffsetChange}
-                  size="sm"
-                  data-testid="set-kickoff-offset"
-                >
-                  Set Offset
-                </Button>
-                <span className="text-sm text-gray-600">
-                  Current: {formatTimeForInput(kickoffOffset)}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {kickoffOffset !== 0 && (
-            <Alert className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Offset applied: When you click an event at match time 0:00, the video will seek to {formatTimeForInput(kickoffOffset)}.
-                {kickoffOffset < 0 && " (Negative offset means the video starts after kickoff)"}
-                {kickoffOffset > 0 && " (Positive offset means the video includes pre-match content)"}
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
       </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -186,68 +123,20 @@ export function VideoWithEvents({ url }: VideoWithEventsProps) {
                   data-testid="match-video-iframe"
                 />
               </div>
-              
-              {/* Manual seek controls */}
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-3">Quick Seek Controls</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEventClick(0)}
-                    data-testid="seek-start"
-                  >
-                    Kickoff (0:00)
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEventClick(30)}
-                    data-testid="seek-30s"
-                  >
-                    Match 0:30
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEventClick(60)}
-                    data-testid="seek-1m"
-                  >
-                    Match 1:00
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEventClick(120)}
-                    data-testid="seek-2m"
-                  >
-                    Match 2:00
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEventClick(300)}
-                    data-testid="seek-5m"
-                  >
-                    Match 5:00
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
       </div>
       
-      {/* Instructions */}
+      {/* Quick Instructions */}
       <Card className="mt-6">
         <CardContent className="p-4">
           <div className="text-sm text-gray-600">
-            <p className="font-medium mb-2">How to use:</p>
+            <p className="font-medium mb-2">Quick Guide:</p>
             <ul className="space-y-1">
-              <li>• Click on any event in the table to jump to that moment in the video</li>
-              <li>• Use the search box to find specific events, players, or teams</li>
-              <li>• Filter by event type (Pass, Shot, Goal, etc.) or team</li>
-              <li>• Events are color-coded by team: Spain (red border) and England (blue border)</li>
+              <li>• Click any event in the table to jump to that moment in the video</li>
+              <li>• Use search and filters to find specific events</li>
+              <li>• Open Settings to configure video URL and timing synchronization</li>
             </ul>
           </div>
         </CardContent>
