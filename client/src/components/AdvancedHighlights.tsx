@@ -489,13 +489,13 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                     
                     return (
                       <Collapsible key={categoryName} className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          {/* Category Select All Checkbox */}
-                          <div 
-                            className="flex items-center space-x-2 flex-1 p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
-                            onClick={() => handleCategoryToggle(categoryName)}
-                            data-testid={`category-select-${categoryName.toLowerCase()}`}
-                          >
+                        {/* Category Select All Checkbox Container */}
+                        <div 
+                          className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full"
+                          onClick={() => handleCategoryToggle(categoryName)}
+                          data-testid={`category-select-${categoryName.toLowerCase()}`}
+                        >
+                          <div className="flex items-center space-x-2 flex-1">
                             <Checkbox 
                               checked={
                                 selectedInCategory.length > 0 && 
@@ -504,26 +504,22 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                               onChange={() => {}}
                               data-testid={`category-checkbox-${categoryName.toLowerCase()}`}
                             />
-                            <div className="flex items-center gap-2 flex-1">
-                              <span className="font-medium text-sm">{categoryName}</span>
-                              <Badge variant="secondary" className="text-xs">
-                                {selectedInCategory.length}/{availableEventsInCategory.length}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {categoryCount}
-                              </Badge>
-                            </div>
+                            <span className="font-medium text-xs">{categoryName}</span>
+                            <Badge variant="outline" className="text-xs ml-auto">
+                              {categoryCount}
+                            </Badge>
                           </div>
                           
-                          {/* Dropdown Toggle */}
+                          {/* Dropdown Toggle Inside Container */}
                           <CollapsibleTrigger asChild>
                             <Button 
-                              variant="outline" 
+                              variant="ghost" 
                               size="sm"
-                              className="px-2"
+                              className="px-1 ml-2"
                               data-testid={`category-dropdown-${categoryName.toLowerCase()}`}
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-3 w-3" />
                             </Button>
                           </CollapsibleTrigger>
                         </div>
