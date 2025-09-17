@@ -304,10 +304,25 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onVie
         break;
     }
 
+    // Sort events chronologically by match time (earliest to latest)
+    selectedHighlights.sort((a, b) => {
+      // First sort by period (1st half before 2nd half)
+      if (a.event.period !== b.event.period) {
+        return a.event.period - b.event.period;
+      }
+      // Then sort by minute within the period
+      if (a.event.minute !== b.event.minute) {
+        return a.event.minute - b.event.minute;
+      }
+      // Finally sort by second within the minute
+      return a.event.second - b.event.second;
+    });
+
     // Calculate total duration
     totalDuration = selectedHighlights.reduce((sum, h) => sum + h.duration, 0);
     
     // Ensure we don't exceed max duration by trimming lower-priority events
+    // For chronological order, we trim from the end (latest events) to preserve early match flow
     if (totalDuration > config.maxDuration) {
       let runningTotal = 0;
       selectedHighlights = selectedHighlights.filter(h => {
