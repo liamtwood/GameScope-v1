@@ -53,6 +53,10 @@ interface MatchEvent {
       id: number;
       name: string;
     };
+    height?: {
+      id: number;
+      name: string;
+    };
   };
   shot?: {
     statsbomb_xg: number;
@@ -503,6 +507,30 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
         return `Corner - ${event.pass.outcome.name}`;
       }
       return 'Corner';
+    }
+    
+    // Throw-ins: Check if this is a pass with Throw-in type
+    if (event.type.name === 'Pass' && event.pass?.type?.name === 'Throw-in') {
+      // Add height or outcome if available
+      if (event.pass.height?.name) {
+        return `Throw-in - ${event.pass.height.name}`;
+      }
+      if (event.pass.outcome?.name) {
+        return `Throw-in - ${event.pass.outcome.name}`;
+      }
+      return 'Throw-in';
+    }
+    
+    // Goal Kicks: Check if this is a pass with Goal Kick type
+    if (event.type.name === 'Pass' && event.pass?.type?.name === 'Goal Kick') {
+      // Add height or outcome if available
+      if (event.pass.height?.name) {
+        return `Goal Kick - ${event.pass.height.name}`;
+      }
+      if (event.pass.outcome?.name) {
+        return `Goal Kick - ${event.pass.outcome.name}`;
+      }
+      return 'Goal Kick';
     }
     
     // Penalties: Show outcome
