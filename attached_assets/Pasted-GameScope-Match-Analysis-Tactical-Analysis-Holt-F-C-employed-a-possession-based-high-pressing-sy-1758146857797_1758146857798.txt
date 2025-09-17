@@ -1,0 +1,40 @@
+GameScope Match Analysis
+Tactical Analysis
+Holt F.C. employed a possession-based, high-pressing system that dominated the match statistics. With 65.53% possession and 521 successful passes at 81% accuracy, they controlled the tempo and rhythm of the game. Their 45 tackles despite having possession indicates an aggressive pressing approach to quickly win back the ball.
+The spider charts clearly illustrate Holt's dominance - particularly in the possession chart where their red area creates an almost perfect pentagon shape. They created sustained pressure with 8 corners and covered significantly more ground (44.5km vs 33.5km), showing their high-intensity approach.
+Yellow executed a disciplined counter-attacking strategy that proved highly effective. Despite only 34% of possession, they created more dangerous crosses (5 vs 2) and matched Holt's goal output. Their higher pass velocity (18.34 km/h vs 15.80 km/h) indicates quick, direct transitions when they won possession.
+The 1-1 draw perfectly reflects this tactical battle: Holt F.C.'s possession dominance was neutralized by Yellow's defensive organization and clinical counter-attacking. The contrasting spider chart shapes - Holt's expansive red areas versus Yellow's compact formations - visually confirm that controlling the game doesn't guarantee victory.
+Key Takeaways
+✓ Possession vs Efficiency: Holt F.C. dominated with 66% possession but couldn't convert territorial advantage into goals
+✓ Tactical Discipline: Yellow's compact defensive shape and quick transitions earned them a valuable point
+✓ High Pressing: Holt's 45 tackles despite possession dominance shows their commitment to aggressive, ball recovery
+✓ Clinical Finishing: Both teams scored once, but Yellow was more efficient with their limited opportunities
+ 
+
+Attack	
+ 	METRIC	HOLT F.C.	YELLOW
+Goals	1	1
+Shots Attempted	0	0
+Shots on Target	0	0
+Runs Into Boxes	0	0
+Corner Kicks	8	2
+Dangerous Crosses	2	5
+
+
+Possession & Passing	
+ 	METRIC	HOLT F.C.	YELLOW
+Possession %	66%	34%
+Pass Accuracy %	81%	66%
+First Touch %	98%	96%
+Take Ons	21	13
+Passes Success	521	274
+
+
+Technical	
+ 	METRIC	HOLT F.C.	YELLOW
+Tackles	45	29
+Free Kicks	8	5
+Offsides	4	2
+Right Foot Pass %	0%	0%
+Left Foot Pass %	0%	0%
+
