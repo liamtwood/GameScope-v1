@@ -384,6 +384,25 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
     );
   };
 
+  const handleCategoryToggle = (categoryName: string) => {
+    const categoryEvents = eventCategories[categoryName as keyof typeof eventCategories];
+    const availableEventsInCategory = categoryEvents.filter((eventType: string) => 
+      availableEventTypes.includes(eventType)
+    );
+    const selectedInCategory = selectedEventTypes.filter(type => categoryEvents.includes(type));
+    
+    if (selectedInCategory.length === availableEventsInCategory.length) {
+      // All selected - deselect all
+      setSelectedEventTypes(prev => prev.filter(type => !categoryEvents.includes(type)));
+    } else {
+      // None or partial selected - select all
+      setSelectedEventTypes(prev => {
+        const filtered = prev.filter(type => !categoryEvents.includes(type));
+        return [...filtered, ...availableEventsInCategory];
+      });
+    }
+  };
+
   const handlePlayerToggle = (playerId: number) => {
     setSelectedPlayers(prev => 
       prev.includes(playerId) 
@@ -471,28 +490,44 @@ export function AdvancedHighlights({ onEventClick }: AdvancedHighlightsProps) {
                     
                     return (
                       <Collapsible key={categoryName} className="space-y-2">
-                        <CollapsibleTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            className="w-full justify-between"
-                            data-testid={`category-${categoryName.toLowerCase()}`}
+                        <div className="flex items-center gap-2">
+                          {/* Category Select All Checkbox */}
+                          <div 
+                            className="flex items-center space-x-2 flex-1 p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
+                            onClick={() => handleCategoryToggle(categoryName)}
+                            data-testid={`category-select-${categoryName.toLowerCase()}`}
                           >
-                            <div className="flex items-center gap-2">
+                            <Checkbox 
+                              checked={
+                                selectedInCategory.length > 0 && 
+                                selectedInCategory.length === availableEventsInCategory.length
+                              }
+                              onChange={() => {}}
+                              data-testid={`category-checkbox-${categoryName.toLowerCase()}`}
+                            />
+                            <div className="flex items-center gap-2 flex-1">
                               <span className="font-medium text-sm">{categoryName}</span>
-                              {selectedInCategory.length > 0 && (
-                                <Badge variant="default" className="text-xs">
-                                  {selectedInCategory.length}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
                               <Badge variant="secondary" className="text-xs">
+                                {selectedInCategory.length}/{availableEventsInCategory.length}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
                                 {categoryCount}
                               </Badge>
-                              <ChevronDown className="h-4 w-4" />
                             </div>
-                          </Button>
-                        </CollapsibleTrigger>
+                          </div>
+                          
+                          {/* Dropdown Toggle */}
+                          <CollapsibleTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="px-2"
+                              data-testid={`category-dropdown-${categoryName.toLowerCase()}`}
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </CollapsibleTrigger>
+                        </div>
                         <CollapsibleContent className="pl-2">
                           <div className="grid grid-cols-1 gap-2">
                             {availableEventsInCategory.map(eventType => {
