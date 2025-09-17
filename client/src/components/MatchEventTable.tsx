@@ -169,7 +169,6 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                 <TableHead className="w-16">Time</TableHead>
                 <TableHead className="w-24">Event</TableHead>
                 <TableHead>Player</TableHead>
-                <TableHead className="w-20">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -213,19 +212,6 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                     </div>
                   </TableCell>
                   
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEventClick(event);
-                      }}
-                      data-testid={`seek-button-${event.index}`}
-                    >
-                      Seek
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
