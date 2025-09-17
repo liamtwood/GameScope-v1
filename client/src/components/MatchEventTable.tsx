@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Clock, User, MapPin } from 'lucide-react';
+import { Search, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import matchEvents from '@/data/match-events.json';
 
@@ -166,9 +166,10 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="w-16">Time</TableHead>
-                <TableHead className="w-24">Event</TableHead>
-                <TableHead>Player</TableHead>
+                <TableHead className="w-16 px-2">Time</TableHead>
+                <TableHead className="w-12 px-2">Team</TableHead>
+                <TableHead className="w-24 px-2">Event</TableHead>
+                <TableHead className="px-2">Player</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -179,36 +180,26 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
                   onClick={() => handleEventClick(event)}
                   data-testid={`event-row-${event.index}`}
                 >
-                  <TableCell className="font-mono text-sm">
+                  <TableCell className="font-mono text-sm px-2">
                     {formatTimestamp(event.timestamp)}
                   </TableCell>
                   
-                  <TableCell>
+                  <TableCell className="px-2 text-center font-semibold text-xs">
+                    {event.team.name.includes("England") ? "ENG" : "ESP"}
+                  </TableCell>
+                  
+                  <TableCell className="px-2">
                     <Badge 
                       variant="secondary"
-                      className={getEventTypeColor(event.type.name)}
+                      className={`${getEventTypeColor(event.type.name)} whitespace-nowrap`}
                     >
                       {event.type.name}
                     </Badge>
                   </TableCell>
                   
-                  <TableCell>
-                    <div className="space-y-1">
-                      {event.player && (
-                        <div className="flex items-center gap-1 text-sm">
-                          <User className="h-3 w-3" />
-                          {event.player.name}
-                        </div>
-                      )}
-                      <div className="text-xs text-gray-500">
-                        {event.team.name}
-                      </div>
-                      {event.location && (
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <MapPin className="h-3 w-3" />
-                          ({event.location[0].toFixed(1)}, {event.location[1].toFixed(1)})
-                        </div>
-                      )}
+                  <TableCell className="px-2">
+                    <div className="text-sm whitespace-nowrap">
+                      {event.player?.name || "-"}
                     </div>
                   </TableCell>
                   
