@@ -202,9 +202,10 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
       </Card>
       
       <Tabs defaultValue="events" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="events">Match Events</TabsTrigger>
           <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
           <TabsTrigger value="video">Video Player</TabsTrigger>
         </TabsList>
@@ -308,6 +309,20 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
               </Card>
             </div>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="timeline">
+          <Card>
+            <CardHeader>
+              <CardTitle>Match Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-gray-500 py-8">
+                <p>Timeline view - showing events chronologically</p>
+                <p className="text-sm mt-2">Will display filtered match events in timeline format</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="advanced">
