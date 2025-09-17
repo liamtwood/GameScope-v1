@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { HighlightGenerator } from '@/components/HighlightGenerator';
+import { AdvancedHighlights } from '@/components/AdvancedHighlights';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -152,9 +153,10 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
       </Card>
       
       <Tabs defaultValue="events" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="events">Match Events</TabsTrigger>
           <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
           <TabsTrigger value="video">Video Player</TabsTrigger>
         </TabsList>
         
@@ -257,6 +259,10 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
               </Card>
             </div>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="advanced">
+          <AdvancedHighlights onEventClick={handleEventClick} />
         </TabsContent>
         
         <TabsContent value="video">

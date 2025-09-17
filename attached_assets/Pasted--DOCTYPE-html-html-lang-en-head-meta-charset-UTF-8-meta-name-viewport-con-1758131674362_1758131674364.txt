@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Highlights UI - Event Grouping & Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .team-flag {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .spain { background: linear-gradient(135deg, #ff0000, #ffc800); }
+        .england { background: linear-gradient(135deg, #012169, #ffffff); }
+
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .match-info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            gap: 24px;
+        }
+
+        /* Sidebar Filters */
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            height: fit-content;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .filter-section {
+            margin-bottom: 24px;
+        }
+
+        .filter-section h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-btn {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-badge {
+            float: right;
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .filter-btn.active .filter-badge {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Timeline View */
+        .timeline-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .time-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .time-markers::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .time-marker {
+            background: white;
+            padding: 4px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Event Groups */
+        .event-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .event-group {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+        }
+
+        .event-group.goal {
+            border-left-color: #4caf50;
+            background: #f1f8e9;
+        }
+
+        .event-group.danger {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .event-group.pressure {
+            border-left-color: #2196f3;
+            background: #e3f2fd;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .group-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .group-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .event-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .event-chip {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .event-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .event-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .icon-goal { background: #4caf50; color: white; }
+        .icon-shot { background: #ff9800; color: white; }
+        .icon-save { background: #2196f3; color: white; }
+        .icon-card { background: #f44336; color: white; }
+        .icon-sub { background: #9c27b0; color: white; }
+
+        /* Right Panel - Highlight Builder */
+        .highlight-builder {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .builder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .builder-header h2 {
+            font-size: 18px;
+            color: #1a1a1a;
+        }
+
+        .package-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .package-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .package-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .package-time {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .selected-events {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .selected-event {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .selected-event.dragging {
+            opacity: 0.5;
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-time {
+            font-weight: 600;
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .event-description {
+            font-size: 13px;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .remove-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: #f44336;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .duration-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .duration-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .duration-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .duration-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Grid View */
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .grid-event {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .grid-event:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .grid-event-visual {
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .grid-event-info {
+            padding: 12px;
+        }
+
+        .grid-event-time {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .grid-event-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 4px 0;
+        }
+
+        .grid-event-player {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Hidden by default */
+        .grid-view {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Match Header -->
+        <header>
+            <div class="match-header">
+                <div class="team">
+                    <div class="team-flag spain">🇪🇸</div>
+                    <div>
+                        <div style="font-weight: 600;">Spain Women's</div>
+                        <div style="font-size: 12px; color: #666;">Winner</div>
+                    </div>
+                </div>
+                <div class="score">1 - 0</div>
+                <div class="team">
+                    <div>
+                        <div style="font-weight: 600;">England Women's</div>
+                        <div style="font-size: 12px; color: #666;">Runner-up</div>
+                    </div>
+                    <div class="team-flag england">🏴󐁧󐁢󐁥󐁮󐁧󐁿</div>
+                </div>
+            </div>
+            <div class="match-info">
+                Women's World Cup Final • Stadium Australia • 104 minutes played
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Sidebar - Filters -->
+            <aside class="sidebar">
+                <h2>🎯 Event Filters</h2>
+                
+                <div class="filter-section">
+                    <h3>Priority</h3>
+                    <button class="filter-btn active" data-filter="all">
+                        All Events <span class="filter-badge">56</span>
+                    </button>
+                    <button class="filter-btn" data-filter="tier1">
+                        Must Include <span class="filter-badge">1</span>
+                    </button>
+                    <button class="filter-btn" data-filter="tier2">
+                        High Priority <span class="filter-badge">8</span>
+                    </button>
+                    <button class="filter-btn" data-filter="tier3">
+                        Supporting <span class="filter-badge">47</span>
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Event Type</h3>
+                    <button class="filter-btn" data-filter="goals">
+                        ⚽ Goals <span class="filter-badge">1</span>
+                    </button>
+                    <button class="filter-btn" data-filter="shots">
+                        🎯 Shots <span class="filter-badge">22</span>
+                    </button>
+                    <button class="filter-btn" data-filter="saves">
+                        🧤 Saves <span class="filter-badge">8</span>
+                    </button>
+                    <button class="filter-btn" data-filter="cards">
+                        🟨 Cards <span class="filter-badge">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="subs">
+                        🔄 Substitutions <span class="filter-badge">6</span>
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Match Phase</h3>
+                    <button class="filter-btn" data-filter="first-half">
+                        1st Half <span class="filter-badge">20</span>
+                    </button>
+                    <button class="filter-btn" data-filter="second-half">
+                        2nd Half <span class="filter-badge">36</span>
+                    </button>
+                    <button class="filter-btn" data-filter="extra-time">
+                        Extra Time <span class="filter-badge">11</span>
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Team</h3>
+                    <button class="filter-btn" data-filter="spain">
+                        🇪🇸 Spain <span class="filter-badge">31</span>
+                    </button>
+                    <button class="filter-btn" data-filter="england">
+                        🏴󐁧󐁢󐁥󐁮󐁧󐁿 England <span class="filter-badge">25</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Center - Timeline View -->
+            <main class="timeline-container">
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('timeline')">📅 Timeline</button>
+                    <button class="view-btn" onclick="switchView('grid')">⊞ Grid</button>
+                    <button class="view-btn" onclick="switchView('heatmap')">🔥 Heatmap</button>
+                </div>
+
+                <!-- Timeline View -->
+                <div class="timeline-view" id="timeline-view">
+                    <div class="time-markers">
+                        <span class="time-marker">0'</span>
+                        <span class="time-marker">15'</span>
+                        <span class="time-marker">30'</span>
+                        <span class="time-marker">45'</span>
+                        <span class="time-marker">HT</span>
+                        <span class="time-marker">60'</span>
+                        <span class="time-marker">75'</span>
+                        <span class="time-marker">90'</span>
+                        <span class="time-marker">FT</span>
+                    </div>
+
+                    <div class="event-groups">
+                        <!-- Opening Pressure -->
+                        <div class="event-group pressure">
+                            <div class="group-header">
+                                <span class="group-title">🏴󐁧󐁢󐁥󐁮󐁧󐁿 England Early Pressure</span>
+                                <span class="group-time">0' - 20'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="1">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Hemp Shot (4')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="2">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Hemp Chance (15')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="3">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Hemp Shot (19')</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- THE GOAL -->
+                        <div class="event-group goal">
+                            <div class="group-header">
+                                <span class="group-title">⚽ GOAL - Match Winner!</span>
+                                <span class="group-time">29'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="4">
+                                    <span class="event-icon icon-goal">⚽</span>
+                                    <span>Carmona Goal (29')</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Spanish Control -->
+                        <div class="event-group pressure">
+                            <div class="group-header">
+                                <span class="group-title">🇪🇸 Spain Dominance</span>
+                                <span class="group-time">30' - 45'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="5">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Redondo Shot (36')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="6">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Paralluelo Chance (45')</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second Half Action -->
+                        <div class="event-group danger">
+                            <div class="group-header">
+                                <span class="group-title">⚡ Second Half Intensity</span>
+                                <span class="group-time">45' - 70'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="7">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Caldentey Shot (49')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="8">
+                                    <span class="event-icon icon-save">🧤</span>
+                                    <span>Earps Save (53')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="9">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Bonmatí Chance (61')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="10">
+                                    <span class="event-icon icon-sub">🔄</span>
+                                    <span>James On (63')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="11">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Hermoso Shot (69')</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Push -->
+                        <div class="event-group danger">
+                            <div class="group-header">
+                                <span class="group-title">🔥 England's Last Stand</span>
+                                <span class="group-time">70' - 90'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="12">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Bronze Header (73')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="13">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>James Strike (75')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="14">
+                                    <span class="event-icon icon-save">🧤</span>
+                                    <span>Coll Save (88')</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Late Drama -->
+                        <div class="event-group pressure">
+                            <div class="group-header">
+                                <span class="group-title">⏰ Stoppage Time Drama</span>
+                                <span class="group-time">90' - 104'</span>
+                            </div>
+                            <div class="event-list">
+                                <div class="event-chip" data-event-id="15">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Hermoso Chance (89')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="16">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Putellas Shot (89')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="17">
+                                    <span class="event-icon icon-shot">🎯</span>
+                                    <span>Batlle Strike (91')</span>
+                                </div>
+                                <div class="event-chip" data-event-id="18">
+                                    <span class="event-icon icon-save">🧤</span>
+                                    <span>Final Corner (104')</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid View (hidden by default) -->
+                <div class="grid-view" id="grid-view">
+                    <!-- Grid items would be populated here -->
+                </div>
+            </main>
+
+            <!-- Right Panel - Highlight Builder -->
+            <aside class="highlight-builder">
+                <div class="builder-header">
+                    <h2>🎬 Highlight Builder</h2>
+                </div>
+
+                <div class="package-selector">
+                    <button class="package-btn active">
+                        <div>Quick</div>
+                        <div class="package-time">60-90s</div>
+                    </button>
+                    <button class="package-btn">
+                        <div>Standard</div>
+                        <div class="package-time">3-5m</div>
+                    </button>
+                    <button class="package-btn">
+                        <div>Extended</div>
+                        <div class="package-time">8-10m</div>
+                    </button>
+                </div>
+
+                <div class="duration-info">
+                    <div class="duration-text">
+                        <span>Current Duration</span>
+                        <span><strong>2:45</strong> / 5:00</span>
+                    </div>
+                    <div class="duration-bar">
+                        <div class="duration-fill" style="width: 55%;"></div>
+                    </div>
+                </div>
+
+                <div class="selected-events">
+                    <div class="selected-event" draggable="true">
+                        <div class="event-details">
+                            <div class="event-time">4:12</div>
+                            <div class="event-description">Lauren Hemp Shot - England's first chance</div>
+                        </div>
+                        <button class="remove-btn">×</button>
+                    </div>
+                    <div class="selected-event" draggable="true">
+                        <div class="event-details">
+                            <div class="event-time">28:29</div>
+                            <div class="event-description">⚽ GOAL - Olga Carmona (Spain)</div>
+                        </div>
+                        <button class="remove-btn">×</button>
+                    </div>
+                    <div class="selected-event" draggable="true">
+                        <div class="event-details">
+                            <div class="event-time">75:07</div>
+                            <div class="event-description">Lauren James powerful strike</div>
+                        </div>
+                        <button class="remove-btn">×</button>
+                    </div>
+                    <div class="selected-event" draggable="true">
+                        <div class="event-details">
+                            <div class="event-time">88:22</div>
+                            <div class="event-description">Coll crucial save from Bright</div>
+                        </div>
+                        <button class="remove-btn">×</button>
+                    </div>
+                    <div class="selected-event" draggable="true">
+                        <div class="event-details">
+                            <div class="event-time">104:00</div>
+                            <div class="event-description">Final whistle - Spain Champions!</div>
+                        </div>
+                        <button class="remove-btn">×</button>
+                    </div>
+                </div>
+
+                <button class="export-btn">
+                    🎥 Generate Highlight Package
+                </button>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // View switching
+        function switchView(view) {
+            // Update button states
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide views
+            document.getElementById('timeline-view').style.display = view === 'timeline' ? 'block' : 'none';
+            document.getElementById('grid-view').style.display = view === 'grid' ? 'grid' : 'none';
+            
+            // Populate grid view if needed
+            if (view === 'grid') {
+                populateGridView();
+            }
+        }
+
+        // Populate grid view with events
+        function populateGridView() {
+            const gridView = document.getElementById('grid-view');
+            const events = [
+                { time: '4:12', title: 'Hemp Shot', player: 'Lauren Hemp', team: 'England', icon: '🎯' },
+                { time: '28:29', title: 'GOAL!', player: 'Olga Carmona', team: 'Spain', icon: '⚽' },
+                { time: '49:15', title: 'Caldentey Strike', player: 'M. Caldentey', team: 'Spain', icon: '🎯' },
+                { time: '53:10', title: 'Great Save', player: 'Mary Earps', team: 'England', icon: '🧤' },
+                { time: '75:07', title: 'James Chance', player: 'Lauren James', team: 'England', icon: '🎯' },
+                { time: '88:22', title: 'Crucial Save', player: 'Cata Coll', team: 'Spain', icon: '🧤' },
+            ];
+
+            gridView.innerHTML = events.map(event => `
+                <div class="grid-event">
+                    <div class="grid-event-visual">${event.icon}</div>
+                    <div class="grid-event-info">
+                        <div class="grid-event-time">${event.time}</div>
+                        <div class="grid-event-title">${event.title}</div>
+                        <div class="grid-event-player">${event.player}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Event chip click handling
+        document.querySelectorAll('.event-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Add animation
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 100);
+                
+                // Here you would add the event to the highlight builder
+                console.log('Event clicked:', this.textContent);
+            });
+        });
+
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Toggle active state
+                const wasActive = this.classList.contains('active');
+                
+                // If it's an exclusive filter (Priority or Match Phase)
+                if (this.parentElement.querySelector('h3').textContent === 'Priority' || 
+                    this.parentElement.querySelector('h3').textContent === 'Match Phase') {
+                    this.parentElement.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                }
+                
+                if (!wasActive) {
+                    this.classList.add('active');
+                }
+                
+                // Here you would filter the events
+                console.log('Filter applied:', this.dataset.filter);
+            });
+        });
+
+        // Package selector
+        document.querySelectorAll('.package-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.package-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Drag and drop for selected events
+        let draggedElement = null;
+
+        document.querySelectorAll('.selected-event').forEach(event => {
+            event.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.classList.add('dragging');
+            });
+
+            event.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+            });
+
+            event.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(this.parentElement, e.clientY);
+                if (afterElement == null) {
+                    this.parentElement.appendChild(draggedElement);
+                } else {
+                    this.parentElement.insertBefore(draggedElement, afterElement);
+                }
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.selected-event:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Remove button functionality
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.style.transform = 'translateX(100%)';
+                this.parentElement.style.opacity = '0';
+                setTimeout(() => {
+                    this.parentElement.remove();
+                }, 300);
+            });
+        });
+
+        // Export button
+        document.querySelector('.export-btn').addEventListener('click', function() {
+            this.textContent = '✓ Package Ready!';
+            this.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+            
+            setTimeout(() => {
+                this.textContent = '🎥 Generate Highlight Package';
+                this.style.background = '';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
