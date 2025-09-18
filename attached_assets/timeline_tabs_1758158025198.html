@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Timeline - Tab Based View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .timeline-header h1 {
+            font-size: 26px;
+            color: #1a1a1a;
+        }
+
+        .match-info {
+            text-align: right;
+            color: #666;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: #333;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button .badge {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .tab-button.active .badge {
+            background: #764ba2;
+        }
+
+        /* Period Stats Bar */
+        .period-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f9f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .period-stat {
+            text-align: center;
+        }
+
+        .period-stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .period-stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .period-stat.spain .period-stat-value {
+            color: #DC2626;
+        }
+
+        .period-stat.england .period-stat-value {
+            color: #2563EB;
+        }
+
+        /* Timeline */
+        .timeline-wrapper {
+            background: #f9f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            position: relative;
+        }
+
+        .time-scale {
+            display: flex;
+            position: relative;
+            padding: 0 10px 10px 100px; /* Match the lane-events left padding */
+            font-size: 12px;
+            color: #999;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+            height: 20px;
+        }
+        
+        .time-scale span {
+            position: absolute;
+            transform: translateX(-50%);
+        }
+        
+        .time-scale span:first-child {
+            transform: translateX(0);
+        }
+        
+        .time-scale span:last-child {
+            transform: translateX(-100%);
+        }
+
+        .timeline-lanes {
+            position: relative;
+        }
+
+        .timeline-lane {
+            height: 45px;
+            position: relative;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-lane:last-child {
+            border-bottom: none;
+        }
+
+        .lane-label {
+            position: absolute;
+            left: 10px;
+            font-size: 12px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 8px;
+            border-radius: 4px;
+            z-index: 2;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .lane-events {
+            position: absolute;
+            left: 100px;
+            right: 10px;  /* Small right padding */
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Event Markers */
+        .event-marker {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 5;
+            border: 2px solid white;
+        }
+
+        .event-marker:hover {
+            transform: translateY(-50%) scale(1.4);
+            z-index: 50;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Important events */
+        .event-marker.goal {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+            z-index: 20;
+            border: 3px solid white;
+        }
+
+        .event-marker.penalty-saved {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #DC2626, #991B1B) !important;
+            z-index: 18;
+            border: 3px solid white;
+        }
+
+        .event-marker.shot {
+            width: 20px;
+            height: 20px;
+            z-index: 10;
+        }
+
+        /* Team colors */
+        .event-marker.spain {
+            background: #DC2626;
+        }
+
+        .event-marker.spain.routine {
+            background: #F87171;
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+        }
+
+        .event-marker.england {
+            background: #2563EB;
+        }
+
+        .event-marker.england.routine {
+            background: #60A5FA;
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+        }
+
+        .event-marker.post {
+            background: #FB923C !important;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 13px;
+            min-width: 150px;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .tooltip-time {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .tooltip-player {
+            color: #333;
+        }
+
+        .tooltip-team {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .legend-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* No events message */
+        .no-events {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="timeline-header">
+            <div>
+                <h1>⚽ Match Timeline</h1>
+                <div style="color: #666; margin-top: 5px;">Spain 1-0 England • World Cup Final 2023</div>
+            </div>
+            <div class="match-info">
+                <div style="font-size: 24px; font-weight: bold; color: #1a1a1a;">1 - 0</div>
+                <div style="font-size: 12px; margin-top: 4px;">Full Time</div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="showPeriod('full')">
+                Full Match
+                <span class="badge">87</span>
+            </button>
+            <button class="tab-button" onclick="showPeriod('first')">
+                1st Half
+                <span class="badge">41</span>
+            </button>
+            <button class="tab-button" onclick="showPeriod('second')">
+                2nd Half
+                <span class="badge">46</span>
+            </button>
+        </div>
+
+        <!-- Period Statistics -->
+        <div class="period-stats" id="periodStats">
+            <div class="period-stat">
+                <div class="period-stat-value" id="periodTime">0-105'</div>
+                <div class="period-stat-label">Time Range</div>
+            </div>
+            <div class="period-stat spain">
+                <div class="period-stat-value" id="spainShots">14</div>
+                <div class="period-stat-label">Spain Shots</div>
+            </div>
+            <div class="period-stat england">
+                <div class="period-stat-value" id="englandShots">8</div>
+                <div class="period-stat-label">England Shots</div>
+            </div>
+            <div class="period-stat">
+                <div class="period-stat-value" id="totalEvents">87</div>
+                <div class="period-stat-label">Total Events</div>
+            </div>
+            <div class="period-stat">
+                <div class="period-stat-value" id="keyMoments">2</div>
+                <div class="period-stat-label">Key Moments</div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-wrapper">
+            <div class="time-scale" id="timeScale">
+                <span>0'</span>
+                <span>15'</span>
+                <span>30'</span>
+                <span>45'</span>
+                <span>60'</span>
+                <span>75'</span>
+                <span>90'</span>
+                <span>105'</span>
+            </div>
+            
+            <div class="timeline-lanes">
+                <div class="timeline-lane">
+                    <div class="lane-label">Goals/Pens</div>
+                    <div class="lane-events" id="lane-goals"></div>
+                </div>
+                <div class="timeline-lane">
+                    <div class="lane-label">Shots</div>
+                    <div class="lane-events" id="lane-shots"></div>
+                </div>
+                <div class="timeline-lane">
+                    <div class="lane-label">Corners</div>
+                    <div class="lane-events" id="lane-corners"></div>
+                </div>
+                <div class="timeline-lane">
+                    <div class="lane-label">Free Kicks</div>
+                    <div class="lane-events" id="lane-freekicks"></div>
+                </div>
+                <div class="timeline-lane">
+                    <div class="lane-label">Goal Kicks</div>
+                    <div class="lane-events" id="lane-goalkicks"></div>
+                </div>
+                <div class="timeline-lane">
+                    <div class="lane-label">Subs</div>
+                    <div class="lane-events" id="lane-subs"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip -->
+        <div class="tooltip" id="tooltip">
+            <div class="tooltip-time" id="tooltipTime"></div>
+            <div class="tooltip-player" id="tooltipPlayer"></div>
+            <div class="tooltip-team" id="tooltipTeam"></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon" style="background: #DC2626;"></div>
+                <span>Spain</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon" style="background: #2563EB;"></div>
+                <span>England</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon" style="background: linear-gradient(135deg, #FFD700, #FFA500); width: 22px; height: 22px;"></div>
+                <span>Goal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon" style="background: linear-gradient(135deg, #DC2626, #991B1B); width: 22px; height: 22px;"></div>
+                <span>Penalty Saved</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon" style="background: #FB923C;"></div>
+                <span>Hit Post</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon" style="background: #F87171; width: 16px; height: 16px; opacity: 0.8;"></div>
+                <span>Routine Events</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // All event data
+        const allEvents = [
+            // Goals and Penalties
+            { minute: 29, type: 'goal', lane: 'goals', team: 'spain', player: 'Olga Carmona' },
+            { minute: 69, type: 'penalty', lane: 'goals', team: 'spain', player: 'Hermoso (Saved)', saved: true },
+            
+            // Shots - First Half
+            { minute: 4, type: 'shot', lane: 'shots', team: 'england', player: 'Lauren Hemp' },
+            { minute: 15, type: 'shot', lane: 'shots', team: 'england', player: 'Lauren Hemp', post: true },
+            { minute: 17, type: 'shot', lane: 'shots', team: 'spain', player: 'Alba Redondo' },
+            { minute: 19, type: 'shot', lane: 'shots', team: 'england', player: 'Lauren Hemp' },
+            { minute: 24, type: 'shot', lane: 'shots', team: 'spain', player: 'Salma Paralluelo' },
+            { minute: 30, type: 'shot', lane: 'shots', team: 'england', player: 'Lauren James' },
+            { minute: 37, type: 'shot', lane: 'shots', team: 'spain', player: 'Irene Paredes' },
+            { minute: 39, type: 'shot', lane: 'shots', team: 'spain', player: 'Aitana Bonmatí' },
+            { minute: 44, type: 'shot', lane: 'shots', team: 'spain', player: 'Teresa Abelleira' },
+            
+            // Shots - Second Half
+            { minute: 46, type: 'shot', lane: 'shots', team: 'england', player: 'Ella Toone' },
+            { minute: 49, type: 'shot', lane: 'shots', team: 'spain', player: 'Mariona Caldentey' },
+            { minute: 55, type: 'shot', lane: 'shots', team: 'spain', player: 'Jennifer Hermoso' },
+            { minute: 62, type: 'shot', lane: 'shots', team: 'spain', player: 'Salma Paralluelo' },
+            { minute: 73, type: 'shot', lane: 'shots', team: 'spain', player: 'Alexia Putellas' },
+            { minute: 75, type: 'shot', lane: 'shots', team: 'england', player: 'Lauren James' },
+            { minute: 77, type: 'shot', lane: 'shots', team: 'spain', player: 'Ona Batlle' },
+            { minute: 84, type: 'shot', lane: 'shots', team: 'england', player: 'Chloe Kelly' },
+            { minute: 84, type: 'shot', lane: 'shots', team: 'spain', player: 'Aitana Bonmatí' },
+            { minute: 88, type: 'shot', lane: 'shots', team: 'england', player: 'Millie Bright' },
+            
+            // Extra time shots
+            { minute: 92, type: 'shot', lane: 'shots', team: 'spain', player: 'Salma Paralluelo' },
+            
+            // Corners
+            { minute: 12, type: 'corner', lane: 'corners', team: 'england', player: 'Greenwood' },
+            { minute: 34, type: 'corner', lane: 'corners', team: 'spain', player: 'Bonmatí' },
+            { minute: 50, type: 'corner', lane: 'corners', team: 'spain', player: 'Abelleira' },
+            { minute: 56, type: 'corner', lane: 'corners', team: 'spain', player: 'Abelleira' },
+            { minute: 62, type: 'corner', lane: 'corners', team: 'spain', player: 'Hermoso' },
+            { minute: 76, type: 'corner', lane: 'corners', team: 'england', player: 'Greenwood' },
+            { minute: 83, type: 'corner', lane: 'corners', team: 'spain', player: 'Batlle' },
+            { minute: 91, type: 'corner', lane: 'corners', team: 'spain', player: 'Paralluelo' },
+            { minute: 96, type: 'corner', lane: 'corners', team: 'spain', player: 'Navarro' },
+            { minute: 104, type: 'corner', lane: 'corners', team: 'england', player: 'Kelly' },
+            
+            // Free Kicks (selected important ones)
+            { minute: 2, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Abelleira' },
+            { minute: 6, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Walsh' },
+            { minute: 8, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Abelleira' },
+            { minute: 11, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Bronze' },
+            { minute: 15, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Hermoso' },
+            { minute: 18, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Greenwood' },
+            { minute: 20, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Bonmatí' },
+            { minute: 23, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Walsh' },
+            { minute: 25, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Paralluelo' },
+            { minute: 28, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Bonmatí', important: true },
+            { minute: 31, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Hemp' },
+            { minute: 36, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Caldentey' },
+            { minute: 39, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Toone' },
+            { minute: 41, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Walsh' },
+            { minute: 45, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Paredes' },
+            { minute: 48, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Hermoso' },
+            { minute: 52, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Hermoso' },
+            { minute: 56, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Bronze' },
+            { minute: 59, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Caldentey' },
+            { minute: 65, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Walsh' },
+            { minute: 68, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Bonmatí' },
+            { minute: 71, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Putellas' },
+            { minute: 75, type: 'freekick', lane: 'freekicks', team: 'england', player: 'James' },
+            { minute: 80, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Navarro' },
+            { minute: 86, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Kelly' },
+            { minute: 89, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Paralluelo' },
+            { minute: 92, type: 'freekick', lane: 'freekicks', team: 'spain', player: 'Paralluelo' },
+            { minute: 98, type: 'freekick', lane: 'freekicks', team: 'england', player: 'Kelly' },
+            
+            // Goal Kicks
+            { minute: 5, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 10, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 16, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 25, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 33, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 38, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 45, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 49, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 58, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 67, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 73, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 81, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 90, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            { minute: 97, type: 'goalkick', lane: 'goalkicks', team: 'spain', player: 'Coll' },
+            { minute: 101, type: 'goalkick', lane: 'goalkicks', team: 'england', player: 'Earps' },
+            
+            // Substitutions
+            { minute: 63, type: 'sub', lane: 'subs', team: 'england', player: 'James for Toone' },
+            { minute: 70, type: 'sub', lane: 'subs', team: 'spain', player: 'Putellas for Abelleira' },
+            { minute: 78, type: 'sub', lane: 'subs', team: 'england', player: 'Kelly for Daly' },
+            { minute: 82, type: 'sub', lane: 'subs', team: 'spain', player: 'Navarro for Redondo' },
+        ];
+
+        let currentPeriod = 'full';
+        let currentEvents = allEvents;
+
+        function filterEventsByPeriod(period) {
+            switch(period) {
+                case 'first':
+                    return allEvents.filter(e => e.minute <= 45);
+                case 'second':
+                    return allEvents.filter(e => e.minute > 45);  // Includes all stoppage time
+                case 'full':
+                default:
+                    return allEvents;
+            }
+        }
+
+        function getTimeRange(period) {
+            switch(period) {
+                case 'first': return { min: 0, max: 45 };
+                case 'second': return { min: 45, max: 105 };  // Second half includes stoppage time
+                case 'full': 
+                default: return { min: 0, max: 105 };
+            }
+        }
+
+        function calculateEventPosition(minute, period) {
+            const range = getTimeRange(period);
+            const duration = range.max - range.min;
+            const relativeMinute = minute - range.min;
+            
+            // For second half, compress stoppage time slightly
+            if (period === 'second' && minute > 90) {
+                // Map 90-105 to last 10% of timeline
+                const stoppageMinute = minute - 90;
+                const mainPercent = ((90 - range.min) / duration) * 90; // 90% for regular time
+                const stoppagePercent = (stoppageMinute / 15) * 10; // 10% for stoppage
+                return mainPercent + stoppagePercent;
+            }
+            
+            return (relativeMinute / duration) * 100;
+        }
+
+        function updateTimeScale(period) {
+            const scale = document.getElementById('timeScale');
+            scale.innerHTML = '';
+            
+            // Calculate the width of the event area (excluding label area)
+            const eventAreaLeft = 100; // pixels - matches lane-events left offset
+            const containerWidth = scale.offsetWidth - eventAreaLeft - 10; // minus padding
+            
+            let markers = [];
+            switch(period) {
+                case 'first':
+                    markers = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45];
+                    break;
+                case 'second':
+                    markers = [45, 50, 55, 60, 65, 70, 75, 80, 85, 90];
+                    break;
+                case 'full':
+                default:
+                    markers = [0, 15, 30, 45, 60, 75, 90];
+            }
+            
+            const timeRange = getTimeRange(period);
+            
+            markers.forEach((minute, index) => {
+                const span = document.createElement('span');
+                span.textContent = minute + "'";
+                
+                // Calculate position within the event area
+                let position;
+                if (period === 'first') {
+                    position = (minute / 45) * 100;
+                } else if (period === 'second') {
+                    position = ((minute - 45) / 60) * 100;
+                } else {
+                    position = (minute / 105) * 100;
+                }
+                
+                // Offset by the label area width and convert to pixels
+                const pixelPosition = eventAreaLeft + (position / 100 * containerWidth);
+                span.style.left = pixelPosition + 'px';
+                
+                // First marker shouldn't be centered
+                if (index === 0) {
+                    span.style.transform = 'translateX(0)';
+                }
+                
+                scale.appendChild(span);
+            });
+            
+            // Add 90+ marker for second half and full match
+            if (period === 'second' || period === 'full') {
+                const span = document.createElement('span');
+                span.textContent = "90+'";
+                span.style.right = '10px';
+                span.style.left = 'auto';
+                span.style.transform = 'translateX(0)';
+                scale.appendChild(span);
+            }
+        }
+
+        function updateStats(events, period) {
+            const spainShots = events.filter(e => (e.type === 'shot' || e.type === 'goal' || (e.type === 'penalty' && e.saved)) && e.team === 'spain').length;
+            const englandShots = events.filter(e => e.type === 'shot' && e.team === 'england').length;
+            const keyMoments = events.filter(e => e.type === 'goal' || (e.type === 'penalty' && e.saved) || e.post).length;
+            
+            const timeRange = getTimeRange(period);
+            document.getElementById('periodTime').textContent = `${timeRange.min}-${timeRange.max}'`;
+            document.getElementById('spainShots').textContent = spainShots;
+            document.getElementById('englandShots').textContent = englandShots;
+            document.getElementById('totalEvents').textContent = events.length;
+            document.getElementById('keyMoments').textContent = keyMoments;
+        }
+
+        function renderEvents(events, period) {
+            // Clear all lanes
+            const lanes = ['goals', 'shots', 'corners', 'freekicks', 'goalkicks', 'subs'];
+            lanes.forEach(lane => {
+                document.getElementById(`lane-${lane}`).innerHTML = '';
+            });
+
+            const timeRange = getTimeRange(period);
+            const duration = timeRange.max - timeRange.min;
+
+            events.forEach(event => {
+                const lane = document.getElementById(`lane-${event.lane}`);
+                if (!lane) return;
+
+                const marker = document.createElement('div');
+                marker.className = 'event-marker';
+                
+                // Add team class
+                if (event.team) {
+                    marker.classList.add(event.team);
+                }
+                
+                // Add type-specific classes
+                if (event.type === 'goal') {
+                    marker.classList.add('goal');
+                } else if (event.type === 'penalty' && event.saved) {
+                    marker.classList.add('penalty-saved');
+                } else if (event.type === 'shot') {
+                    marker.classList.add('shot');
+                    if (event.post) {
+                        marker.classList.add('post');
+                    }
+                } else if (event.type === 'freekick' || event.type === 'goalkick') {
+                    marker.classList.add('routine');
+                }
+                
+                // Special styling for important free kick
+                if (event.type === 'freekick' && event.important) {
+                    marker.style.border = '3px solid #FFD700';
+                }
+                
+                // Calculate position based on period
+                const percentage = calculateEventPosition(event.minute, period);
+                marker.style.left = `${percentage}%`;
+                
+                // Add hover events
+                marker.addEventListener('mouseenter', (e) => showTooltip(e, event));
+                marker.addEventListener('mouseleave', hideTooltip);
+                
+                lane.appendChild(marker);
+            });
+        }
+
+        function showTooltip(e, event) {
+            const tooltip = document.getElementById('tooltip');
+            const rect = e.target.getBoundingClientRect();
+            
+            document.getElementById('tooltipTime').textContent = `${event.minute}'`;
+            document.getElementById('tooltipPlayer').textContent = event.player || '';
+            document.getElementById('tooltipTeam').textContent = event.team ? 
+                (event.team === 'spain' ? '🇪🇸 Spain' : '🏴󠁧󠁢󠁥󠁮󠁧󠁿 England') : '';
+            
+            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+            tooltip.style.top = `${rect.top - 10}px`;
+            tooltip.style.transform = 'translate(-50%, -100%)';
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        function showPeriod(period) {
+            currentPeriod = period;
+            currentEvents = filterEventsByPeriod(period);
+            
+            // Update active tab
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update timeline
+            updateTimeScale(period);
+            updateStats(currentEvents, period);
+            renderEvents(currentEvents, period);
+        }
+
+        // Initialize with full match view
+        updateTimeScale('full');
+        updateStats(currentEvents, 'full');
+        renderEvents(currentEvents, 'full');
+    </script>
+</body>
+</html>
