@@ -970,7 +970,7 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                   <TableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 shadow-sm border-b">
                     <TableRow>
                       <TableHead className="w-20 text-center min-w-20">Time</TableHead>
-                      <TableHead className="w-auto min-w-60">Event</TableHead>
+                      <TableHead className="w-auto min-w-72">Event</TableHead>
                       <TableHead className="w-32 min-w-32 hidden md:table-cell">Player</TableHead>
                       <TableHead className="w-28 text-center min-w-28">Actions</TableHead>
                     </TableRow>
