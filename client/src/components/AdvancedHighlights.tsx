@@ -1099,7 +1099,7 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
             </CardHeader>
             <CardContent className="p-0 h-[calc(100%-80px)]">
               <Tabs defaultValue="video" className="h-full flex flex-col">
-                <TabsList className="grid w-full grid-cols-2 m-2">
+                <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="video" className="flex items-center gap-2">
                     <Video className="h-4 w-4" />
                     Video
