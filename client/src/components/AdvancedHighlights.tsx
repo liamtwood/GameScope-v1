@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
+import Timeline from './Timeline';
+import { MatchEvent, timestampToSeconds } from '@/lib/types';
 import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle, Clock } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
@@ -19,114 +21,6 @@ interface AdvancedHighlightsProps {
   initialVideoUrl?: string;
 }
 
-interface MatchEvent {
-  id: string;
-  index: number;
-  period: number;
-  timestamp: string;
-  minute: number;
-  second: number;
-  type: {
-    id: number;
-    name: string;
-  };
-  team: {
-    id: number;
-    name: string;
-  };
-  player?: {
-    id: number;
-    name: string;
-  };
-  location?: number[];
-  under_pressure?: boolean;
-  pass?: {
-    recipient?: {
-      id: number;
-      name: string;
-    };
-    length: number;
-    type?: {
-      id: number;
-      name: string;
-    };
-    technique?: {
-      id: number;
-      name: string;
-    };
-    outcome?: {
-      id: number;
-      name: string;
-    };
-    height?: {
-      id: number;
-      name: string;
-    };
-  };
-  shot?: {
-    statsbomb_xg: number;
-    end_location: number[];
-    technique?: {
-      id: number;
-      name: string;
-    };
-    body_part?: {
-      id: number;
-      name: string;
-    };
-    type?: {
-      id: number;
-      name: string;
-    };
-    outcome: {
-      id: number;
-      name: string;
-    };
-    first_time?: boolean;
-    freeze_frame?: any[];
-  };
-  clearance?: {
-    left_foot?: boolean;
-    body_part?: {
-      id: number;
-      name: string;
-    };
-  };
-  duel?: {
-    type?: {
-      id: number;
-      name: string;
-    };
-    outcome?: {
-      id: number;
-      name: string;
-    };
-  };
-  substitution?: {
-    outcome?: {
-      id: number;
-      name: string;
-    };
-    replacement?: {
-      id: number;
-      name: string;
-    };
-  };
-  tactics?: {
-    formation: number;
-    lineup: Array<{
-      player: {
-        id: number;
-        name: string;
-      };
-      position: {
-        id: number;
-        name: string;
-      };
-      jersey_number: number;
-    }>;
-  };
-}
 
 interface SelectedEvent {
   id: string;
@@ -181,12 +75,6 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
     localStorage.setItem('match-second-half-offset', secondHalfOffset.toString());
   }, [secondHalfOffset]);
 
-  // Convert timestamp to seconds
-  const timestampToSeconds = (timestamp: string): number => {
-    const [hours, minutes, seconds] = timestamp.split(':');
-    const [secs, ms] = seconds.split('.');
-    return parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(secs) + (parseInt(ms || '0') / 1000);
-  };
   
   // Video offset handlers
   const handleKickoffOffsetChange = (newOffset: number) => {
@@ -1099,7 +987,7 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
             </CardHeader>
             <CardContent className="p-0 h-[calc(100%-80px)]">
               <Tabs defaultValue="video" className="h-full flex flex-col">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="video" className="flex items-center gap-2">
                     <Video className="h-4 w-4" />
                     Video
@@ -1107,6 +995,10 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                   <TabsTrigger value="builder" className="flex items-center gap-2">
                     <Film className="h-4 w-4" />
                     Builder
+                  </TabsTrigger>
+                  <TabsTrigger value="timeline" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Timeline
                   </TabsTrigger>
                 </TabsList>
                 
@@ -1237,6 +1129,14 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                       Generate Custom Highlights
                     </Button>
                   </div>
+                </TabsContent>
+                
+                <TabsContent value="timeline" className="flex-1 p-0 mt-4">
+                  <Timeline 
+                    events={filteredEvents}
+                    onEventClick={handleEventClick}
+                    data-testid="timeline-tab"
+                  />
                 </TabsContent>
               </Tabs>
             </CardContent>

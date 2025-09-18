@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Fixture } from "@shared/schema";
+import { MatchEvent as TimelineMatchEvent } from "@/lib/types";
+import { Timeline } from "@/components/Timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +78,50 @@ interface MatchEvent {
     target?: string;
   };
 }
+
+// Convert dashboard events to Timeline format
+const convertToTimelineEvents = (dashboardEvents: MatchEvent[]): TimelineMatchEvent[] => {
+  return dashboardEvents.map(event => ({
+    id: event.id,
+    index: parseInt(event.id),
+    period: event.minute <= 45 ? 1 : 2,
+    timestamp: event.timestamp,
+    minute: event.minute,
+    second: event.second,
+    type: {
+      id: 1,
+      name: event.eventType === 'goal' ? 'Shot' : event.eventType === 'pass' ? 'Pass' : event.eventType === 'substitution' ? 'Substitution' : 'Pass'
+    },
+    team: {
+      id: event.team === 'home' ? 1 : 2,
+      name: event.team === 'home' ? 'Home Team' : 'Away Team'
+    },
+    player: event.player ? {
+      id: 1,
+      name: event.player
+    } : undefined,
+    location: event.position,
+    shot: event.eventType === 'goal' || event.eventType === 'shot' ? {
+      statsbomb_xg: 0.5,
+      end_location: event.position,
+      outcome: {
+        id: event.outcome === 'success' ? 97 : 100,
+        name: event.outcome === 'success' ? 'Goal' : 'Off T'
+      }
+    } : undefined,
+    pass: event.eventType === 'pass' ? {
+      length: event.details?.distance || 10,
+      type: {
+        id: 61,
+        name: 'Regular Play'
+      },
+      outcome: {
+        id: event.outcome === 'success' ? 1 : 9,
+        name: event.outcome === 'success' ? 'Complete' : 'Incomplete'
+      }
+    } : undefined
+  }));
+};
 
 interface VideoAnalysisDashboardProps {
   fixtureId: string;
@@ -1019,15 +1065,18 @@ export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProp
         </TabsContent>
 
         <TabsContent value="timeline" className="mt-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center py-12">
-                <Clock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Event Timeline</h3>
-                <p className="text-muted-foreground">Interactive timeline showing all match events with video seek points</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="h-[600px]">
+            <Timeline 
+              events={convertToTimelineEvents(filteredEvents)} 
+              onEventClick={(eventTime, period) => {
+                // Jump to event time in video
+                console.log(`Jump to period ${period} at ${eventTime} seconds`);
+                if (videoRef.current) {
+                  videoRef.current.currentTime = eventTime;
+                }
+              }}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="heatmap" className="mt-6">
