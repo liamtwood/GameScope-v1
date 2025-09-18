@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MatchEventTable } from '@/components/MatchEventTable';
+import { Timeline } from '@/components/Timeline';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { HighlightGenerator } from '@/components/HighlightGenerator';
 import { AdvancedHighlights } from '@/components/AdvancedHighlights';
 import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MatchEvent, timestampToSeconds } from '@/lib/types';
+import matchEvents from '@/data/match-events.json';
 
 interface OppositionTeam {
   id: string;
@@ -81,8 +84,8 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
     // Ensure we don't seek to negative time
     const seekTime = Math.max(0, videoTimeInSeconds);
     
-    // Find the YouTube iframe and seek to the time
-    const iframe = document.querySelector('#youtube-iframe') as HTMLIFrameElement;
+    // Find the YouTube iframe in the currently active tab and seek to the time
+    const iframe = document.querySelector('[data-state="active"] [data-testid="match-video-iframe"]') as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
       iframe.contentWindow.postMessage(
         `{"event":"command","func":"seekTo","args":[${seekTime}, true]}`,
@@ -314,17 +317,50 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
         </TabsContent>
         
         <TabsContent value="timeline">
-          <Card>
-            <CardHeader>
-              <CardTitle>Match Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-gray-500 py-8">
-                <p>Timeline view - showing events chronologically</p>
-                <p className="text-sm mt-2">Will display filtered match events in timeline format</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Timeline - Left Side */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Timeline</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Timeline 
+                    events={matchEvents as MatchEvent[]} 
+                    onEventClick={(eventTime: number, period: number) => handleEventClick(eventTime, period)}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Video Player - Right Side */}
+            <div className="lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Match Video - Timeline Mode</CardTitle>
+                  {videoId && (
+                    <p className="text-sm text-gray-600">
+                      Video ID: {videoId} | Click any event on the timeline to jump to that moment
+                    </p>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    <iframe
+                      id="youtube-iframe"
+                      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      data-testid="match-video-iframe"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="advanced">
