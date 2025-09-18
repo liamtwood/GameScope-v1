@@ -317,49 +317,45 @@ export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps)
         </TabsContent>
         
         <TabsContent value="timeline">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Timeline - Left Side */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Match Timeline</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Timeline 
-                    events={matchEvents as MatchEvent[]} 
-                    onEventClick={(eventTime: number, period: number) => handleEventClick(eventTime, period)}
-                  />
-                </CardContent>
-              </Card>
-            </div>
+          <div className="space-y-6">
+            {/* Timeline Container - Top */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Match Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Timeline 
+                  events={matchEvents as MatchEvent[]} 
+                  onEventClick={(eventTime: number, period: number) => handleEventClick(eventTime, period)}
+                />
+              </CardContent>
+            </Card>
             
-            {/* Video Player - Right Side */}
-            <div className="lg:col-span-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Match Video - Timeline Mode</CardTitle>
-                  {videoId && (
-                    <p className="text-sm text-gray-600">
-                      Video ID: {videoId} | Click any event on the timeline to jump to that moment
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                    <iframe
-                      id="youtube-iframe"
-                      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      data-testid="match-video-iframe"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Video Player - Bottom */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Match Video</CardTitle>
+                {videoId && (
+                  <p className="text-sm text-gray-600">
+                    Video ID: {videoId} | Click any event on the timeline above to jump to that moment
+                  </p>
+                )}
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                  <iframe
+                    id="youtube-iframe"
+                    src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    data-testid="match-video-iframe"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
         
