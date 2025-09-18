@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
-import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle } from 'lucide-react';
+import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle, Clock } from 'lucide-react';
 import matchEvents from '@/data/match-events.json';
 
 interface AdvancedHighlightsProps {
