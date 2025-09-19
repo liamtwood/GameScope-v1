@@ -24,8 +24,8 @@ import { z } from "zod";
 // Create a schema with required name validation and colors
 const createClubSchema = insertClubSchema.extend({
   name: z.string().min(1, "Club name is required"),
-  ownerFirstName: z.string().min(1, "First name is required"),
-  ownerLastName: z.string().min(1, "Last name is required"),
+  ownerFirstName: z.string().optional(),
+  ownerLastName: z.string().optional(),
   colors: z.object({
     primary: z.string().min(1, "Primary color is required"),
     secondary: z.string().optional(),
@@ -151,7 +151,7 @@ export default function Clubs() {
     defaultValues: {
       name: "",
       shortName: "",
-      owner: "admin", // Default owner
+      owner: "", // Optional owner
       ownerFirstName: "",
       ownerLastName: "",
       address: "",
