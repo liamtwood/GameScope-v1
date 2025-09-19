@@ -135,6 +135,42 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Convert position names to acronyms
+  const getPositionAcronym = (position: string): string => {
+    const positionMap: { [key: string]: string } = {
+      'Goalkeeper': 'GK',
+      'Right Back': 'RB',
+      'Right Center Back': 'RCB',
+      'Center Back': 'CB',
+      'Left Center Back': 'LCB',
+      'Left Back': 'LB',
+      'Right Wing Back': 'RWB',
+      'Left Wing Back': 'LWB',
+      'Defensive Midfield': 'DM',
+      'Right Defensive Midfield': 'RDM',
+      'Left Defensive Midfield': 'LDM',
+      'Center Defensive Midfield': 'CDM',
+      'Right Midfield': 'RM',
+      'Center Midfield': 'CM',
+      'Left Midfield': 'LM',
+      'Right Center Midfield': 'RCM',
+      'Left Center Midfield': 'LCM',
+      'Attacking Midfield': 'AM',
+      'Right Attacking Midfield': 'RAM',
+      'Center Attacking Midfield': 'CAM',
+      'Left Attacking Midfield': 'LAM',
+      'Right Wing': 'RW',
+      'Left Wing': 'LW',
+      'Right Center Forward': 'RCF',
+      'Center Forward': 'CF',
+      'Left Center Forward': 'LCF',
+      'Striker': 'ST',
+      'Right Forward': 'RF',
+      'Left Forward': 'LF'
+    };
+    return positionMap[position] || position.slice(0, 3).toUpperCase();
+  };
+
   // Define event categories including nested event types - shots prioritized at top
   const eventCategories = {
     SHOTS: ['Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward', 'High xG Chances', 'Medium xG Chances', 'Low xG Chances'],
@@ -636,51 +672,43 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                   </div>
                 </div>
 
-                {/* Team Filters */}
+                {/* Teams with nested Players */}
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Teams</h3>
-                  <div className="space-y-2">
-                    {teams.map(team => {
-                      const isSelected = selectedTeams.includes(team);
-                      return (
-                        <div 
-                          key={team}
-                          className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
-                          onClick={() => handleTeamToggle(team)}
-                          data-testid={`mobile-team-${team.toLowerCase().replace(/ /g, '-')}`}
-                        >
-                          <Checkbox 
-                            checked={isSelected}
-                            onChange={() => {}}
-                            className="h-4 w-4"
-                          />
-                          <span className="text-sm">{team}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Player Filters */}
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Players</h3>
                   <div className="space-y-3">
                     {teams.map(teamName => {
+                      const isTeamSelected = selectedTeams.includes(teamName);
                       const teamPlayers = teamData[teamName];
-                      if (!teamPlayers) return null;
                       
                       return (
                         <Collapsible key={teamName} className="space-y-2">
-                          <CollapsibleTrigger asChild>
-                            <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full">
-                              <span className="font-medium text-sm">{teamName}</span>
-                              <ChevronDown className="h-4 w-4" />
+                          <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                checked={isTeamSelected}
+                                onChange={() => handleTeamToggle(teamName)}
+                                data-testid={`mobile-team-${teamName.toLowerCase().replace(/ /g, '-')}`}
+                                className="h-4 w-4"
+                              />
+                              <span className="text-sm font-medium">
+                                {teamName.includes('Spain') ? 'Spain Women\'s' : 'England Women\'s'}
+                              </span>
                             </div>
-                          </CollapsibleTrigger>
+                            <CollapsibleTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="px-1"
+                                data-testid={`mobile-team-dropdown-${teamName.toLowerCase().replace(/ /g, '-')}`}
+                              >
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
                           <CollapsibleContent className="pl-2">
                             <div className="space-y-1">
-                              {teamPlayers.startingXI.map(player => {
-                                const isSelected = selectedPlayers.includes(player.id);
+                              {teamPlayers?.startingXI.map(player => {
+                                const isPlayerSelected = selectedPlayers.includes(player.id);
                                 return (
                                   <div 
                                     key={player.id}
@@ -689,13 +717,13 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                                     data-testid={`mobile-player-${player.id}`}
                                   >
                                     <Checkbox 
-                                      checked={isSelected}
+                                      checked={isPlayerSelected}
                                       onChange={() => {}}
                                       className="h-3 w-3"
                                     />
                                     <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
                                     <Badge variant="outline" className="text-xs ml-auto">
-                                      {player.position}
+                                      {getPositionAcronym(player.position)}
                                     </Badge>
                                   </div>
                                 );
@@ -807,60 +835,48 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                 </div>
               </div>
 
-              {/* Team Filter */}
+              {/* Teams with nested Players */}
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Teams</h3>
-                <div className="space-y-2">
-                  {teams.map(teamName => {
-                    const isSelected = selectedTeams.includes(teamName);
-                    const teamEvents = matchEvents.filter(e => e.team.name === teamName).length;
-                    return (
-                      <div 
-                        key={teamName} 
-                        className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => handleTeamToggle(teamName)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            checked={isSelected}
-                            onChange={() => {}}
-                            data-testid={`team-${teamName.toLowerCase().replace(/\s+/g, '-')}`}
-                          />
-                          <span className="text-sm font-medium">
-                            {teamName.includes('Spain') ? 'Spain Women\'s' : 'England Women\'s'}
-                          </span>
-                        </div>
-                        <Badge variant={isSelected ? "default" : "outline"} className="text-xs">
-                          {teamEvents}
-                        </Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Player Filters */}
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Players</h3>
                 <div className="space-y-3">
                   {teams.map(teamName => {
+                    const isTeamSelected = selectedTeams.includes(teamName);
+                    const teamEvents = matchEvents.filter(e => e.team.name === teamName).length;
                     const teamPlayers = teamData[teamName];
-                    if (!teamPlayers) return null;
                     
                     return (
                       <Collapsible key={teamName} className="space-y-2">
-                        <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full">
-                            <span className="font-medium text-sm">
+                        <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              checked={isTeamSelected}
+                              onChange={() => handleTeamToggle(teamName)}
+                              data-testid={`team-${teamName.toLowerCase().replace(/\s+/g, '-')}`}
+                            />
+                            <span className="text-sm font-medium">
                               {teamName.includes('Spain') ? 'Spain Women\'s' : 'England Women\'s'}
                             </span>
-                            <ChevronDown className="h-4 w-4" />
                           </div>
-                        </CollapsibleTrigger>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant={isTeamSelected ? "default" : "outline"} className="text-xs">
+                              {teamEvents}
+                            </Badge>
+                            <CollapsibleTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="px-1"
+                                data-testid={`team-dropdown-${teamName.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
+                        </div>
                         <CollapsibleContent className="pl-2">
                           <div className="space-y-1">
-                            {teamPlayers.startingXI.map(player => {
-                              const isSelected = selectedPlayers.includes(player.id);
+                            {teamPlayers?.startingXI.map(player => {
+                              const isPlayerSelected = selectedPlayers.includes(player.id);
                               return (
                                 <div 
                                   key={player.id}
@@ -869,13 +885,13 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                                   data-testid={`desktop-player-${player.id}`}
                                 >
                                   <Checkbox 
-                                    checked={isSelected}
+                                    checked={isPlayerSelected}
                                     onChange={() => {}}
                                     className="h-3 w-3"
                                   />
                                   <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
                                   <Badge variant="outline" className="text-xs ml-auto">
-                                    {player.position}
+                                    {getPositionAcronym(player.position)}
                                   </Badge>
                                 </div>
                               );
