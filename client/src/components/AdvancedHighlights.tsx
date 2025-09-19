@@ -743,10 +743,10 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
         </Sheet>
       </div>
 
-      {/* Responsive Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_350px] lg:grid-cols-[300px_1fr_400px] gap-4 md:gap-6">
+      {/* Responsive Grid Layout - Left Justified */}
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:justify-start">
         {/* Desktop Filters Sidebar - Hidden on Mobile */}
-        <aside className="hidden lg:block lg:col-span-1">
+        <aside className="hidden lg:block lg:w-80 lg:flex-shrink-0">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Event Filters</CardTitle>
@@ -911,7 +911,7 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
           </Card>
         </aside>
 
-        <main className="lg:col-span-1">
+        <main className="flex-1 lg:min-w-0 lg:max-w-3xl">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -1042,7 +1042,7 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
         </main>
 
         {/* Video and Builder Panel */}
-        <aside className="lg:col-span-1">
+        <aside className="lg:w-96 lg:flex-shrink-0">
           <Card className="h-[680px]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between">
