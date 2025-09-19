@@ -838,6 +838,55 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                   })}
                 </div>
               </div>
+
+              {/* Player Filters */}
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Players</h3>
+                <div className="space-y-3">
+                  {teams.map(teamName => {
+                    const teamPlayers = teamData[teamName];
+                    if (!teamPlayers) return null;
+                    
+                    return (
+                      <Collapsible key={teamName} className="space-y-2">
+                        <CollapsibleTrigger asChild>
+                          <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full">
+                            <span className="font-medium text-sm">
+                              {teamName.includes('Spain') ? 'Spain Women\'s' : 'England Women\'s'}
+                            </span>
+                            <ChevronDown className="h-4 w-4" />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-2">
+                          <div className="space-y-1">
+                            {teamPlayers.startingXI.map(player => {
+                              const isSelected = selectedPlayers.includes(player.id);
+                              return (
+                                <div 
+                                  key={player.id}
+                                  className="flex items-center space-x-2 p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer"
+                                  onClick={() => handlePlayerToggle(player.id)}
+                                  data-testid={`desktop-player-${player.id}`}
+                                >
+                                  <Checkbox 
+                                    checked={isSelected}
+                                    onChange={() => {}}
+                                    className="h-3 w-3"
+                                  />
+                                  <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
+                                  <Badge variant="outline" className="text-xs ml-auto">
+                                    {player.position}
+                                  </Badge>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    );
+                  })}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </aside>
