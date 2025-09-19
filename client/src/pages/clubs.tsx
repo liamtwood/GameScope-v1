@@ -410,7 +410,20 @@ export default function Clubs() {
                           <FormLabel>Owner</FormLabel>
                           <div className="flex gap-2">
                             <FormControl className="flex-1">
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <Select 
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  // Find the selected user and set first/last names
+                                  const selectedUser = adminUsersForCreate.find(
+                                    user => (user.firstName + ' ' + user.lastName) === value
+                                  );
+                                  if (selectedUser) {
+                                    form.setValue('ownerFirstName', selectedUser.firstName);
+                                    form.setValue('ownerLastName', selectedUser.lastName);
+                                  }
+                                }} 
+                                value={field.value || ""}
+                              >
                                 <SelectTrigger data-testid="select-club-owner">
                                   <SelectValue placeholder="Select owner" />
                                 </SelectTrigger>
