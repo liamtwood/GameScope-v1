@@ -712,17 +712,19 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                                 return (
                                   <div 
                                     key={player.id}
-                                    className="flex items-center space-x-2 p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer"
+                                    className="flex items-center justify-between p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer w-full"
                                     onClick={() => handlePlayerToggle(player.id)}
                                     data-testid={`mobile-player-${player.id}`}
                                   >
-                                    <Checkbox 
-                                      checked={isPlayerSelected}
-                                      onChange={() => {}}
-                                      className="h-3 w-3"
-                                    />
-                                    <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
-                                    <Badge variant="outline" className="text-xs ml-auto">
+                                    <div className="flex items-center space-x-2">
+                                      <Checkbox 
+                                        checked={isPlayerSelected}
+                                        onChange={() => {}}
+                                        className="h-3 w-3"
+                                      />
+                                      <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs">
                                       {getPositionAcronym(player.position)}
                                     </Badge>
                                   </div>
@@ -880,17 +882,19 @@ export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://ww
                               return (
                                 <div 
                                   key={player.id}
-                                  className="flex items-center space-x-2 p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer"
+                                  className="flex items-center justify-between p-1 rounded hover:bg-muted/30 transition-colors cursor-pointer w-full"
                                   onClick={() => handlePlayerToggle(player.id)}
                                   data-testid={`desktop-player-${player.id}`}
                                 >
-                                  <Checkbox 
-                                    checked={isPlayerSelected}
-                                    onChange={() => {}}
-                                    className="h-3 w-3"
-                                  />
-                                  <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
-                                  <Badge variant="outline" className="text-xs ml-auto">
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                      checked={isPlayerSelected}
+                                      onChange={() => {}}
+                                      className="h-3 w-3"
+                                    />
+                                    <span className="text-xs">{player.jerseyNumber}. {player.name}</span>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
                                     {getPositionAcronym(player.position)}
                                   </Badge>
                                 </div>
