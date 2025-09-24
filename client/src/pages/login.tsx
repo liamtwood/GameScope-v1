@@ -4,15 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Crosshair, Eye, EyeOff, Users, ChevronDown } from "lucide-react";
+import { Crosshair, Eye, EyeOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
-import type { Team, Club } from "@shared/schema";
+import type { Club } from "@shared/schema";
 
 const credentialsSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -21,33 +20,22 @@ const credentialsSchema = z.object({
 
 const selectionSchema = z.object({
   clubId: z.string().min(1, "Please select a club"),
-  teamId: z.string().optional(),
 });
 
-const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-  clubId: z.string().min(1, "Please select a club"),
-  teamId: z.string().optional(),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+type CredentialsFormData = z.infer<typeof credentialsSchema>;
+type SelectionFormData = z.infer<typeof selectionSchema>;
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [loginStep, setLoginStep] = useState<'credentials' | 'selection'>('credentials');
-  const { selectTeam } = useTeam();
   const { selectClub } = useClub();
 
-  // Fetch clubs and teams for selection
+  // Fetch clubs for selection
   const { data: clubs = [] } = useQuery<Club[]>({
     queryKey: ["/api/clubs"],
   });
 
-  const { data: allTeams = [] } = useQuery<Team[]>({
-    queryKey: ["/api/teams"],
-  });
 
   const credentialsForm = useForm({
     resolver: zodResolver(credentialsSchema),
@@ -61,19 +49,9 @@ export default function Login() {
     resolver: zodResolver(selectionSchema),
     defaultValues: {
       clubId: "",
-      teamId: "",
     },
   });
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      clubId: "",
-      teamId: "",
-    },
-  });
 
   const watchedClubId = selectionForm.watch("clubId");
   const watchedUsername = credentialsForm.watch("username");
@@ -87,8 +65,6 @@ export default function Login() {
     return true; // For other users, allow all clubs
   });
   
-  
-  const availableTeams = allTeams.filter(team => team.clubId === watchedClubId);
 
   const onCredentialsSubmit = async (data: any) => {
     try {
@@ -104,18 +80,13 @@ export default function Login() {
     }
   };
 
-  const onSelectionSubmit = async (data: any) => {
+  const onSelectionSubmit = async (data: SelectionFormData) => {
     try {
-      // Set selected club and team
+      // Set selected club
       const selectedClub = userClubs.find(club => club.id === data.clubId);
-      const selectedTeam = availableTeams.find(team => team.id === data.teamId);
 
       if (selectedClub) {
         selectClub(selectedClub);
-      }
-      
-      if (selectedTeam) {
-        selectTeam(selectedTeam);
       }
 
       // Redirect to dashboard
@@ -256,7 +227,6 @@ export default function Login() {
                         </FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
-                          selectionForm.setValue("teamId", ""); // Reset team selection when club changes
                         }} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="select-club">
@@ -292,44 +262,6 @@ export default function Login() {
                     )}
                   />
 
-                  {watchedClubId && availableTeams.length > 0 && (
-                    <FormField
-                      control={selectionForm.control}
-                      name="teamId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-300 flex items-center gap-2">
-                            <ChevronDown className="h-4 w-4" />
-                            Select Team (Optional)
-                          </FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="select-team">
-                                <SelectValue placeholder="Choose your team" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-slate-700 border-slate-600">
-                              {availableTeams.map((team) => (
-                                <SelectItem key={team.id} value={team.id} className="text-white hover:bg-slate-600">
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">{team.name}</span>
-                                    <span className="text-xs text-slate-400">{team.shortName} • {team.ageGroup}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
-                  {watchedClubId && availableTeams.length === 0 && (
-                    <div className="text-center py-4">
-                      <p className="text-slate-400 text-sm">No teams found for this club</p>
-                    </div>
-                  )}
 
                   <div className="space-y-4 pt-4">
                     <Button
