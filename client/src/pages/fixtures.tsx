@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
+import { MainLayout } from "@/components/layout/main-layout";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
@@ -472,7 +473,10 @@ export default function Fixtures() {
   const fcsaaStats = getFCSAAStats();
 
   return (
-    <>
+    <MainLayout 
+      title="Fixtures" 
+      subtitle="Manage team fixtures and match results"
+    >
       {/* Summary Cards */}
       <div className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -837,6 +841,6 @@ export default function Fixtures() {
           )}
 
         </>
-    </>
+    </MainLayout>
   );
 }

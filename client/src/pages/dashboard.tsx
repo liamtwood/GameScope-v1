@@ -11,6 +11,7 @@ import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());

@@ -7,10 +7,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
 import { ClubProvider } from "@/contexts/club-context";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
-import { ResponsiveWrapper } from "@/components/responsive-wrapper";
-import { MobileLayout } from "@/components/layout/mobile-layout";
-import { MainLayout } from "@/components/layout/main-layout";
-import { useMobile } from "@/hooks/use-mobile";
 
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
@@ -32,50 +28,30 @@ import UserDetails from "@/pages/user-details";
 import MatchAnalysis from "@/pages/match-analysis";
 import NotFound from "@/pages/not-found";
 
-// Mobile components
-import DashboardMobile from "@/pages/mobile/dashboard-mobile";
-import FixturesMobile from "@/pages/mobile/fixtures-mobile";
-
 function Router() {
-  const { isMobile } = useMobile();
-
-  const LayoutWrapper = ({ children, title = "GameScope", subtitle = "AI Video Analysis", mobileComponent }: { 
-    children: React.ReactNode;
-    title?: string;
-    subtitle?: string;
-    mobileComponent?: React.ReactNode;
-  }) => {
-    if (isMobile && mobileComponent) {
-      return <MobileLayout>{mobileComponent}</MobileLayout>;
-    }
-    if (isMobile) {
-      return <MobileLayout>{children}</MobileLayout>;
-    }
-    return <MainLayout title={title} subtitle={subtitle}>{children}</MainLayout>;
-  };
-
   return (
     <Switch>
-      <Route path="/" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
-      <Route path="/home" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
-      <Route path="/teams" component={() => <LayoutWrapper><Teams /></LayoutWrapper>} />
-      <Route path="/dashboard" component={() => <LayoutWrapper mobileComponent={<DashboardMobile />}><Dashboard /></LayoutWrapper>} />
-      <Route path="/club-management" component={() => <LayoutWrapper><ClubManagement /></LayoutWrapper>} />
-      <Route path="/fixtures" component={() => <LayoutWrapper mobileComponent={<FixturesMobile />}><Fixtures /></LayoutWrapper>} />
-      <Route path="/fixtures/:id" component={() => <LayoutWrapper><FixtureDetails /></LayoutWrapper>} />
-      <Route path="/analysis/:fixtureId" component={() => <LayoutWrapper><Analysis /></LayoutWrapper>} />
-      <Route path="/squad" component={() => <LayoutWrapper><Squad /></LayoutWrapper>} />
-      <Route path="/players/:id" component={() => <LayoutWrapper><PlayerDetails /></LayoutWrapper>} />
-      <Route path="/player-profiles" component={() => <LayoutWrapper><PlayerProfiles /></LayoutWrapper>} />
-      <Route path="/users" component={() => <LayoutWrapper><Users /></LayoutWrapper>} />
-      <Route path="/devops-users" component={() => <LayoutWrapper><DevOpsUsers /></LayoutWrapper>} />
-      <Route path="/users/:id" component={() => <LayoutWrapper><UserDetails /></LayoutWrapper>} />
-      <Route path="/statistics" component={() => <LayoutWrapper><Statistics /></LayoutWrapper>} />
-      <Route path="/videos" component={() => <LayoutWrapper><Videos /></LayoutWrapper>} />
-      <Route path="/match-analysis" component={() => <LayoutWrapper><MatchAnalysis /></LayoutWrapper>} />
-      <Route path="/clubs" component={() => <LayoutWrapper><Clubs /></LayoutWrapper>} />
-      <Route path="/settings" component={() => <LayoutWrapper><Settings /></LayoutWrapper>} />
-      <Route component={() => <LayoutWrapper><NotFound /></LayoutWrapper>} />
+      <Route path="/" component={Home} />
+      <Route path="/home" component={Home} />
+      <Route path="/teams" component={Teams} />
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/club-management" component={ClubManagement} />
+      <Route path="/fixtures" component={Fixtures} />
+      <Route path="/fixtures/:id" component={FixtureDetails} />
+      <Route path="/analysis/:fixtureId" component={Analysis} />
+      <Route path="/squad" component={Squad} />
+      <Route path="/players/:id" component={PlayerDetails} />
+      <Route path="/player-profiles" component={PlayerProfiles} />
+      <Route path="/users" component={Users} />
+      <Route path="/devops-users" component={DevOpsUsers} />
+      <Route path="/users/:id" component={UserDetails} />
+      <Route path="/statistics" component={Statistics} />
+      <Route path="/teams" component={Teams} />
+      <Route path="/videos" component={Videos} />
+      <Route path="/match-analysis" component={MatchAnalysis} />
+      <Route path="/clubs" component={Clubs} />
+      <Route path="/settings" component={Settings} />
+      <Route component={NotFound} />
     </Switch>
   );
 }

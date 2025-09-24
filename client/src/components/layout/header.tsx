@@ -26,7 +26,6 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
 
   // Get the appropriate icon for each page
   const getPageIcon = (pageTitle: string) => {
-    if (!pageTitle) return null;
     const titleLower = pageTitle.toLowerCase();
     // Handle exact matches first
     switch (titleLower) {
@@ -107,7 +106,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
               <div>
-                <h3 className="font-semibold text-foreground text-[18px]">{title?.toUpperCase() || ''}</h3>
+                <h3 className="font-semibold text-foreground text-[18px]">{title.toUpperCase()}</h3>
                 <p className="text-muted-foreground mt-1 text-[13px]">{subtitle}</p>
               </div>
             </div>
