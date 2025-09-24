@@ -8,6 +8,7 @@ import { TeamProvider } from "@/contexts/team-context";
 import { ClubProvider } from "@/contexts/club-context";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
 
+import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import ClubManagement from "@/pages/club-management";
@@ -31,7 +32,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Landing} />
+      <Route path="/landing" component={Landing} />
       <Route path="/home" component={Home} />
       <Route path="/teams" component={Teams} />
       <Route path="/dashboard" component={Dashboard} />

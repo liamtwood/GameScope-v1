@@ -69,6 +69,16 @@ html {
   --chart-5: hsl(190 75% 45%);
 }
 
+@layer utilities {
+  .bg-gradient-conic {
+    background: conic-gradient(from 180deg, #4299e1 0deg, #2c5282 90deg, #718096 180deg, #4299e1 360deg);
+  }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(circle, rgba(66, 153, 225, 0.1) 0%, transparent 70%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
