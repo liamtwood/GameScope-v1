@@ -50,16 +50,31 @@ export default function Login() {
   });
 
   const watchedClubId = form.watch("clubId");
+  const watchedUsername = form.watch("username");
+  
+  // Filter clubs based on user access
+  const userClubs = clubs.filter(club => {
+    if (watchedUsername === 'player@gs.com') {
+      return club.name === 'England'; // Only allow England club for player@gs.com
+    }
+    return true; // For other users, allow all clubs
+  });
+  
   const availableTeams = allTeams.filter(team => team.clubId === watchedClubId);
 
-  const onCredentialsSubmit = async (data: { username: string; password: string }) => {
+  const onCredentialsSubmit = async (data: LoginFormData) => {
     try {
-      // Here you would typically validate credentials with your backend
-      // For now, we'll proceed to club/team selection
       console.log("Login attempt:", { username: data.username });
       
-      // Simulate authentication success and move to selection step
-      setLoginStep('selection');
+      // For now, check credentials against our test user
+      if (data.username === 'player@gs.com' && data.password === 'gamescope') {
+        // Authentication successful, move to selection step
+        setLoginStep('selection');
+      } else {
+        // Authentication failed
+        console.error("Invalid credentials");
+        // You could add error state here to show user
+      }
     } catch (error) {
       console.error("Login failed:", error);
       // Handle login error (show error message, etc.)
@@ -69,7 +84,7 @@ export default function Login() {
   const onSelectionSubmit = async (data: LoginFormData) => {
     try {
       // Set selected club and team
-      const selectedClub = clubs.find(club => club.id === data.clubId);
+      const selectedClub = userClubs.find(club => club.id === data.clubId);
       const selectedTeam = availableTeams.find(team => team.id === data.teamId);
 
       if (selectedClub) {
@@ -224,7 +239,7 @@ export default function Login() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-slate-700 border-slate-600">
-                            {clubs.map((club) => (
+                            {userClubs.map((club) => (
                               <SelectItem key={club.id} value={club.id} className="text-white hover:bg-slate-600">
                                 <div className="flex items-center gap-2">
                                   {club.logoPath ? (
