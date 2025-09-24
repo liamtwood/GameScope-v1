@@ -81,10 +81,17 @@ export default function Login() {
   // Filter clubs based on user access
   const userClubs = clubs.filter(club => {
     if (watchedUsername === 'player@gs.com') {
-      return club.name === 'England'; // Only allow England club for player@gs.com
+      // For demo purposes, allow access to any UK-based club
+      return club.country === 'United Kingdom';
     }
     return true; // For other users, allow all clubs
   });
+  
+  // Debug: Show current selection state
+  if (loginStep === 'selection') {
+    console.log("Current clubId:", watchedClubId);
+    console.log("Available clubs count:", userClubs.length);
+  }
   
   const availableTeams = allTeams.filter(team => team.clubId === watchedClubId);
 
@@ -253,9 +260,10 @@ export default function Login() {
                           Select Club
                         </FormLabel>
                         <Select onValueChange={(value) => {
+                          console.log("Club selected:", value);
                           field.onChange(value);
                           selectionForm.setValue("teamId", ""); // Reset team selection when club changes
-                        }} defaultValue={field.value}>
+                        }} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="select-club">
                               <SelectValue placeholder="Choose your club" />
