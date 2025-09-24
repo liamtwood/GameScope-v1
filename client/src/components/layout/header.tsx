@@ -111,7 +111,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
                 <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
               </div>
             </div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            
           </div>
         </div>
       </div>
