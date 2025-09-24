@@ -45,12 +45,7 @@ function Router() {
     subtitle?: string;
     mobileComponent?: React.ReactNode;
   }) => {
-    if (isMobile && mobileComponent) {
-      return <MobileLayout>{mobileComponent}</MobileLayout>;
-    }
-    if (isMobile) {
-      return <MobileLayout>{children}</MobileLayout>;
-    }
+    // Force desktop layout for now to debug the issue
     return <MainLayout title={title} subtitle={subtitle}>{children}</MainLayout>;
   };
 
