@@ -64,16 +64,18 @@ export default function Login() {
 
   const onCredentialsSubmit = async (data: LoginFormData) => {
     try {
-      console.log("Login attempt:", { username: data.username });
+      console.log("Login attempt:", { username: data.username, password: data.password });
+      console.log("Form errors:", form.formState.errors);
       
       // For now, check credentials against our test user
       if (data.username === 'player@gs.com' && data.password === 'gamescope') {
+        console.log("Authentication successful, moving to selection step");
         // Authentication successful, move to selection step
         setLoginStep('selection');
       } else {
         // Authentication failed
-        console.error("Invalid credentials");
-        // You could add error state here to show user
+        console.error("Invalid credentials - got:", data.username, data.password);
+        alert("Invalid credentials. Please use player@gs.com / gamescope");
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -136,7 +138,10 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(onCredentialsSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit((data) => {
+                  console.log("Form submitted with:", data);
+                  onCredentialsSubmit(data);
+                })} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="username"
