@@ -99,7 +99,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       {/* Container below Polk State College - displays current page */}
       <div className="px-6 bg-muted border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
         <div 
-          className="bg-muted p-3 relative"
+          className="bg-muted p-3 relative pt-[9px] pb-[9px]"
           style={title === "VIEW SQUAD MEMBER" ? {} : {}}
         >
           <div className="flex items-center justify-between relative z-10">
