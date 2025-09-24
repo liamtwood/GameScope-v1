@@ -9,6 +9,7 @@ import { ClubProvider } from "@/contexts/club-context";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
 
 import Landing from "@/pages/landing";
+import Login from "@/pages/login";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import ClubManagement from "@/pages/club-management";
@@ -34,6 +35,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/landing" component={Landing} />
+      <Route path="/login" component={Login} />
       <Route path="/home" component={Home} />
       <Route path="/teams" component={Teams} />
       <Route path="/dashboard" component={Dashboard} />

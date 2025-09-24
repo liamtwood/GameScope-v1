@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { Crosshair } from "lucide-react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -23,10 +24,13 @@ export default function Landing() {
       <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md z-50 border-b border-blue-500/20 px-4 sm:px-8 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-conic from-blue-500 via-blue-600 to-gray-500 flex items-center justify-center relative">
-              <div className="absolute w-5 h-5 rounded-full bg-gradient-conic from-blue-500 via-gray-500 to-blue-500"></div>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <Crosshair className="h-8 w-8" style={{ color: '#486D8D' }} />
             </div>
-            <span className="text-xl font-bold tracking-wide">GAMESCOPE</span>
+            <div>
+              <h1 className="text-xl font-bold" style={{ color: '#486D8D' }}>GameScope</h1>
+              <p className="text-xs text-slate-400">AI Video Analysis</p>
+            </div>
           </div>
           
           {/* Desktop Navigation */}
@@ -236,10 +240,13 @@ export default function Landing() {
       <footer className="bg-slate-900 py-16 border-t border-blue-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center">
           <div className="flex justify-center items-center gap-4 mb-8">
-            <div className="w-10 h-10 rounded-full bg-gradient-conic from-blue-500 via-blue-600 to-gray-500 flex items-center justify-center relative">
-              <div className="absolute w-5 h-5 rounded-full bg-gradient-conic from-blue-500 via-gray-500 to-blue-500"></div>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <Crosshair className="h-8 w-8" style={{ color: '#486D8D' }} />
             </div>
-            <span className="text-xl font-bold tracking-wide">GAMESCOPE</span>
+            <div>
+              <h1 className="text-xl font-bold" style={{ color: '#486D8D' }}>GameScope</h1>
+              <p className="text-xs text-slate-400">AI Video Analysis</p>
+            </div>
           </div>
           <p className="text-slate-400 mb-8">
             Democratizing professional-grade sports analysis with AI technology
