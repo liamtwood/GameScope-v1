@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import { MainLayout } from "@/components/layout/main-layout";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureCard } from "@/components/ui/fixture-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,7 +79,10 @@ export default function Dashboard() {
   };
 
   return (
-    <>
+    <MainLayout 
+      title="Dashboard" 
+      subtitle="Overview of team performance and upcoming matches"
+    >
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
@@ -157,6 +161,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-    </>
+    </MainLayout>
   );
 }

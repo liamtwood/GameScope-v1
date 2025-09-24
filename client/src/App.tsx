@@ -59,7 +59,7 @@ function Router() {
       <Route path="/" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
       <Route path="/home" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
       <Route path="/teams" component={() => <LayoutWrapper><Teams /></LayoutWrapper>} />
-      <Route path="/dashboard" component={() => <LayoutWrapper title="Dashboard" subtitle="Overview of team performance and upcoming matches" mobileComponent={<DashboardMobile />}><Dashboard /></LayoutWrapper>} />
+      <Route path="/dashboard" component={() => <LayoutWrapper mobileComponent={<DashboardMobile />}><Dashboard /></LayoutWrapper>} />
       <Route path="/club-management" component={() => <LayoutWrapper><ClubManagement /></LayoutWrapper>} />
       <Route path="/fixtures" component={() => <LayoutWrapper mobileComponent={<FixturesMobile />}><Fixtures /></LayoutWrapper>} />
       <Route path="/fixtures/:id" component={() => <LayoutWrapper><FixtureDetails /></LayoutWrapper>} />
