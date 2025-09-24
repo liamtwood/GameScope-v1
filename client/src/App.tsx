@@ -32,14 +32,22 @@ import UserDetails from "@/pages/user-details";
 import MatchAnalysis from "@/pages/match-analysis";
 import NotFound from "@/pages/not-found";
 
+// Mobile components
+import DashboardMobile from "@/pages/mobile/dashboard-mobile";
+import FixturesMobile from "@/pages/mobile/fixtures-mobile";
+
 function Router() {
   const { isMobile } = useMobile();
 
-  const LayoutWrapper = ({ children, title = "GameScope", subtitle = "AI Video Analysis" }: { 
+  const LayoutWrapper = ({ children, title = "GameScope", subtitle = "AI Video Analysis", mobileComponent }: { 
     children: React.ReactNode;
     title?: string;
     subtitle?: string;
+    mobileComponent?: React.ReactNode;
   }) => {
+    if (isMobile && mobileComponent) {
+      return <MobileLayout>{mobileComponent}</MobileLayout>;
+    }
     if (isMobile) {
       return <MobileLayout>{children}</MobileLayout>;
     }
@@ -51,9 +59,9 @@ function Router() {
       <Route path="/" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
       <Route path="/home" component={() => <LayoutWrapper><Home /></LayoutWrapper>} />
       <Route path="/teams" component={() => <LayoutWrapper><Teams /></LayoutWrapper>} />
-      <Route path="/dashboard" component={() => <LayoutWrapper><Dashboard /></LayoutWrapper>} />
+      <Route path="/dashboard" component={() => <LayoutWrapper mobileComponent={<DashboardMobile />}><Dashboard /></LayoutWrapper>} />
       <Route path="/club-management" component={() => <LayoutWrapper><ClubManagement /></LayoutWrapper>} />
-      <Route path="/fixtures" component={() => <LayoutWrapper><Fixtures /></LayoutWrapper>} />
+      <Route path="/fixtures" component={() => <LayoutWrapper mobileComponent={<FixturesMobile />}><Fixtures /></LayoutWrapper>} />
       <Route path="/fixtures/:id" component={() => <LayoutWrapper><FixtureDetails /></LayoutWrapper>} />
       <Route path="/analysis/:fixtureId" component={() => <LayoutWrapper><Analysis /></LayoutWrapper>} />
       <Route path="/squad" component={() => <LayoutWrapper><Squad /></LayoutWrapper>} />

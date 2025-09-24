@@ -11,20 +11,11 @@ import { TeamStatistics } from "@/lib/types";
 import { Fixture, Player, Team } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
-import { useIsMobile } from "@/hooks/use-mobile";
-import DashboardMobile from "@/pages/mobile/dashboard-mobile";
-
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const { selectedTeam: currentTeam } = useTeam();
   const { selectedClub: currentClub } = useClub();
-  const isMobile = useIsMobile();
-
-  // Return mobile version if on mobile device
-  if (isMobile) {
-    return <DashboardMobile />;
-  }
 
   const { data: players } = useQuery<Player[]>({ 
     queryKey: ["/api/players", currentTeam?.id],
