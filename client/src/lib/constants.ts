@@ -32,7 +32,7 @@ export const NAVIGATION_SECTIONS = [
   {
     title: 'Team',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: 'Home', tooltip: 'Dashboard Overview' },
+      { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', tooltip: 'Dashboard Overview' },
       { id: 'fixtures', label: 'Fixtures', icon: 'Calendar', tooltip: 'Manage Fixtures' },
       { id: 'squad', label: 'Squad', icon: 'Users', tooltip: 'Squad Management' },
       { id: 'videos', label: 'In Progress', icon: 'Video', tooltip: 'In Progress' },
