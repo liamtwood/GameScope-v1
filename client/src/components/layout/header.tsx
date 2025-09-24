@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings } from "lucide-react";
+import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings, LayoutDashboard } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
@@ -32,7 +32,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
       case 'home':
         return <Home className="h-10 w-10 text-club-primary" />;
       case 'dashboard':
-        return <Home className="h-10 w-10 text-club-primary" />;
+        return <LayoutDashboard className="h-10 w-10 text-club-primary" />;
       case 'fixtures':
         return <Calendar className="h-10 w-10 text-club-primary" />;
       case 'squad management':
