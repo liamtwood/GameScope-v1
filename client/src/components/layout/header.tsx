@@ -107,7 +107,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
               {getPageIcon(title)}
               <div>
                 <h3 className="font-semibold text-foreground text-[18px]">{title.toUpperCase()}</h3>
-                <p className="text-muted-foreground mt-1 text-[14px]">{subtitle}</p>
+                <p className="text-muted-foreground mt-1 text-[13px]">{subtitle}</p>
               </div>
             </div>
             
