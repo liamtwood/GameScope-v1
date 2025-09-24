@@ -75,8 +75,8 @@ export default function Login() {
     },
   });
 
-  const watchedClubId = form.watch("clubId");
-  const watchedUsername = form.watch("username");
+  const watchedClubId = selectionForm.watch("clubId");
+  const watchedUsername = credentialsForm.watch("username");
   
   // Filter clubs based on user access
   const userClubs = clubs.filter(club => {
@@ -88,28 +88,21 @@ export default function Login() {
   
   const availableTeams = allTeams.filter(team => team.clubId === watchedClubId);
 
-  const onCredentialsSubmit = async (data: LoginFormData) => {
+  const onCredentialsSubmit = async (data: any) => {
     try {
-      console.log("Login attempt:", { username: data.username, password: data.password });
-      console.log("Form errors:", form.formState.errors);
-      
       // For now, check credentials against our test user
       if (data.username === 'player@gs.com' && data.password === 'gamescope') {
-        console.log("Authentication successful, moving to selection step");
         // Authentication successful, move to selection step
         setLoginStep('selection');
       } else {
-        // Authentication failed
-        console.error("Invalid credentials - got:", data.username, data.password);
         alert("Invalid credentials. Please use player@gs.com / gamescope");
       }
     } catch (error) {
       console.error("Login failed:", error);
-      // Handle login error (show error message, etc.)
     }
   };
 
-  const onSelectionSubmit = async (data: LoginFormData) => {
+  const onSelectionSubmit = async (data: any) => {
     try {
       // Set selected club and team
       const selectedClub = userClubs.find(club => club.id === data.clubId);
@@ -154,8 +147,8 @@ export default function Login() {
           </div>
         </div>
 
-        <Form {...form}>
-          {loginStep === 'credentials' ? (
+        {loginStep === 'credentials' ? (
+          <Form {...credentialsForm}>
             <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center text-white">Welcome Back</CardTitle>
@@ -164,10 +157,7 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={credentialsForm.handleSubmit((data) => {
-                  console.log("Credentials form submitted with:", data);
-                  onCredentialsSubmit({ ...data, clubId: "", teamId: "" });
-                })} className="space-y-4">
+                <form onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} className="space-y-4">
                   <FormField
                     control={credentialsForm.control}
                     name="username"
@@ -241,7 +231,9 @@ export default function Login() {
                 </form>
               </CardContent>
             </Card>
-          ) : (
+          </Form>
+        ) : (
+          <Form {...selectionForm}>
             <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center text-white">Select Your Team</CardTitle>
@@ -250,9 +242,9 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(onSelectionSubmit)} className="space-y-6">
+                <form onSubmit={selectionForm.handleSubmit(onSelectionSubmit)} className="space-y-6">
                   <FormField
-                    control={form.control}
+                    control={selectionForm.control}
                     name="clubId"
                     render={({ field }) => (
                       <FormItem>
@@ -262,7 +254,7 @@ export default function Login() {
                         </FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
-                          form.setValue("teamId", ""); // Reset team selection when club changes
+                          selectionForm.setValue("teamId", ""); // Reset team selection when club changes
                         }} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="select-club">
@@ -300,7 +292,7 @@ export default function Login() {
 
                   {watchedClubId && availableTeams.length > 0 && (
                     <FormField
-                      control={form.control}
+                      control={selectionForm.control}
                       name="teamId"
                       render={({ field }) => (
                         <FormItem>
@@ -360,8 +352,8 @@ export default function Login() {
                 </form>
               </CardContent>
             </Card>
-          )}
-        </Form>
+          </Form>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-8">
