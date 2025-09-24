@@ -14,6 +14,16 @@ import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 import type { Team, Club } from "@shared/schema";
 
+const credentialsSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+const selectionSchema = z.object({
+  clubId: z.string().min(1, "Please select a club"),
+  teamId: z.string().optional(),
+});
+
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
@@ -37,6 +47,22 @@ export default function Login() {
 
   const { data: allTeams = [] } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
+  });
+
+  const credentialsForm = useForm({
+    resolver: zodResolver(credentialsSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const selectionForm = useForm({
+    resolver: zodResolver(selectionSchema),
+    defaultValues: {
+      clubId: "",
+      teamId: "",
+    },
   });
 
   const form = useForm<LoginFormData>({
@@ -138,12 +164,12 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit((data) => {
-                  console.log("Form submitted with:", data);
-                  onCredentialsSubmit(data);
+                <form onSubmit={credentialsForm.handleSubmit((data) => {
+                  console.log("Credentials form submitted with:", data);
+                  onCredentialsSubmit({ ...data, clubId: "", teamId: "" });
                 })} className="space-y-4">
                   <FormField
-                    control={form.control}
+                    control={credentialsForm.control}
                     name="username"
                     render={({ field }) => (
                       <FormItem>
@@ -162,7 +188,7 @@ export default function Login() {
                   />
 
                   <FormField
-                    control={form.control}
+                    control={credentialsForm.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
