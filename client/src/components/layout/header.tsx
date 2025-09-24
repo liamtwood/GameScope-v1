@@ -96,7 +96,6 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
           </div>
         </div>
       </div>
-      
       {/* Container below Polk State College - displays current page */}
       <div className="px-6 bg-muted border-t border-l border-border" style={{ paddingTop: '12.5px', paddingBottom: '12.5px' }}>
         <div 
@@ -107,8 +106,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             <div className="flex items-center space-x-3">
               {getPageIcon(title)}
               <div>
-                <h3 className="font-semibold text-base text-foreground">{title.toUpperCase()}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+                <h3 className="font-semibold text-foreground text-[18px]">{title.toUpperCase()}</h3>
+                <p className="text-muted-foreground mt-1 text-[14px]">{subtitle}</p>
               </div>
             </div>
             
