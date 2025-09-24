@@ -223,7 +223,7 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             )}
             
             {/* Result/Status */}
-            <Badge className={`text-xs px-3 py-1 ${getStatusColor()}`}>
+            <Badge className="inline-flex items-center rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 text-xs px-3 py-1 bg-green-500 text-white ml-[2px] mr-[2px]">
               {getResultDisplay()}
             </Badge>
           </div>
