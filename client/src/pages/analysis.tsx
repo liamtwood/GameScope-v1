@@ -23,6 +23,11 @@ import { useMutation } from "@tanstack/react-query";
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
   const fixtureId = params?.fixtureId || "";
+  
+  // Get the tab query parameter from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  const defaultTab = tabParam === 'videos' ? 'videos' : 'heatmaps';
 
   const { data: fixture, isLoading: fixtureLoading } = useQuery<Fixture>({
     queryKey: ["/api/fixture", fixtureId],
@@ -173,7 +178,7 @@ export default function Analysis() {
       subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'd MMM yyyy')}`}
     >
       {/* Main Analysis Tabs */}
-      <Tabs defaultValue="heatmaps" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         {/* Header with Tabs */}
         <div className="flex items-center justify-between mb-6">
           <Button variant="outline" size="sm" onClick={() => window.history.back()}>

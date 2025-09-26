@@ -17,7 +17,6 @@ type VideoFilter = 'all' | 'recent' | 'analyzed';
 
 export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
-  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -46,12 +45,10 @@ export default function Videos() {
   }) || [];
 
   const handleWatchVideo = (fixture: Fixture) => {
-    setSelectedFixtureId(fixture.id);
+    // Navigate to the analysis page with the videos tab
+    setLocation(`/analysis/${fixture.id}?tab=videos`);
   };
   
-  const handleBackToFixtures = () => {
-    setSelectedFixtureId(null);
-  };
 
   const handleShareVideo = (fixture: Fixture) => {
     toast({
@@ -87,31 +84,6 @@ export default function Videos() {
     { id: 'analyzed' as const, label: 'Analyzed' },
   ];
 
-  // If a fixture is selected, show the video analysis dashboard
-  if (selectedFixtureId) {
-    const selectedFixture = fixtures?.find(f => f.id === selectedFixtureId);
-    return (
-      <MainLayout 
-        title={`Video Analysis: ${selectedFixture?.opponent || 'Match'}`}
-        subtitle={`${selectedFixture ? format(new Date(selectedFixture.date), 'd MMM yyyy') : ''}`}
-      >
-        <div className="mb-4">
-          <Button 
-            variant="outline" 
-            onClick={handleBackToFixtures}
-            className="flex items-center gap-2"
-          >
-            ← Back to In Progress
-          </Button>
-        </div>
-
-        {/* Result Banner */}
-        <MatchScoreBanner fixture={selectedFixture} />
-
-        <VideoAnalysisDashboard fixtureId={selectedFixtureId} />
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout 
