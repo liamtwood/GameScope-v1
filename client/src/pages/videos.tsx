@@ -45,8 +45,8 @@ export default function Videos() {
   }) || [];
 
   const handleWatchVideo = (fixture: Fixture) => {
-    // Navigate to the analysis page with the videos tab
-    setLocation(`/analysis/${fixture.id}?tab=videos`);
+    // Navigate to the match analysis page
+    setLocation(`/match-analysis?fixtureId=${fixture.id}`);
   };
   
 

@@ -23,9 +23,10 @@ interface OppositionTeam {
 interface VideoWithEventsProps {
   url: string;
   onVideoUrlChange: (url: string) => void;
+  fixtureId?: string;
 }
 
-export function VideoWithEvents({ url, onVideoUrlChange }: VideoWithEventsProps) {
+export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
