@@ -207,13 +207,13 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         </CardHeader>
       </Card>
       
-      <Tabs defaultValue="events" className="space-y-6">
+      <Tabs defaultValue="video" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="video">Video Player</TabsTrigger>
           <TabsTrigger value="events">Match Events</TabsTrigger>
           <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
-          <TabsTrigger value="video">Video Player</TabsTrigger>
         </TabsList>
         
         <TabsContent value="events">
