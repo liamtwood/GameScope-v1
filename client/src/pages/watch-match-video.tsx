@@ -63,14 +63,30 @@ export default function WatchMatchVideo() {
   const currentVideo = videos.find(v => v.id === currentVideoId) || videos[0];
   const videoUrl = currentVideo?.url || "https://www.youtube.com/watch?v=gvoQ8gvzuC4";
 
-  // Extract video ID for display
-  const getVideoId = (url: string) => {
-    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
+  // Determine video type and extract necessary info
+  const getVideoType = (url: string) => {
+    if (!url) return { type: 'none', embedUrl: '' };
+    
+    // Check for YouTube
+    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+    const youtubeMatch = url.match(youtubeRegex);
+    if (youtubeMatch) {
+      return {
+        type: 'youtube',
+        embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?enablejsapi=1&controls=1&rel=0&fs=1`
+      };
+    }
+    
+    // Check for direct video files
+    if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
+      return { type: 'direct', embedUrl: url };
+    }
+    
+    // Default to iframe for other URLs
+    return { type: 'iframe', embedUrl: url };
   };
 
-  const videoId = getVideoId(videoUrl);
+  const videoInfo = getVideoType(videoUrl);
 
   // Generate video description
   const getVideoDescription = (video?: VideoData) => {
@@ -161,16 +177,49 @@ export default function WatchMatchVideo() {
         </CardHeader>
         <CardContent>
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            <iframe
-              id="youtube-iframe"
-              src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              data-testid="match-video-iframe"
-            />
+            {videoInfo.type === 'youtube' && (
+              <iframe
+                id="youtube-iframe"
+                src={videoInfo.embedUrl}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                data-testid="match-video-iframe"
+              />
+            )}
+            
+            {videoInfo.type === 'direct' && (
+              <video
+                controls
+                className="w-full h-full"
+                data-testid="match-video-player"
+              >
+                <source src={videoInfo.embedUrl} type="video/mp4" />
+                <source src={videoInfo.embedUrl} type="video/webm" />
+                <source src={videoInfo.embedUrl} type="video/ogg" />
+                Your browser does not support the video tag.
+              </video>
+            )}
+            
+            {videoInfo.type === 'iframe' && videoInfo.embedUrl && (
+              <iframe
+                src={videoInfo.embedUrl}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                data-testid="match-video-iframe"
+              />
+            )}
+            
+            {videoInfo.type === 'none' && (
+              <div className="flex items-center justify-center h-full text-white">
+                <p>No video available</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
