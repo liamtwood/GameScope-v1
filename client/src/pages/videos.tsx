@@ -45,8 +45,8 @@ export default function Videos() {
   }) || [];
 
   const handleWatchVideo = (fixture: Fixture) => {
-    // Navigate to the match analysis page
-    setLocation(`/match-analysis?fixtureId=${fixture.id}`);
+    // Navigate to the watch match video page
+    setLocation(`/watch-match-video?fixtureId=${fixture.id}`);
   };
   
 
