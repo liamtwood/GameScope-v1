@@ -77,6 +77,17 @@ export default function WatchMatchVideo() {
       };
     }
     
+    // Check for Google Drive
+    const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
+    const driveMatch = url.match(driveRegex);
+    if (driveMatch) {
+      const fileId = driveMatch[1];
+      return {
+        type: 'googledrive',
+        embedUrl: `https://drive.google.com/file/d/${fileId}/preview`
+      };
+    }
+    
     // Check for direct video files
     if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
       return { type: 'direct', embedUrl: url };
@@ -180,6 +191,18 @@ export default function WatchMatchVideo() {
             {videoInfo.type === 'youtube' && (
               <iframe
                 id="youtube-iframe"
+                src={videoInfo.embedUrl}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                data-testid="match-video-iframe"
+              />
+            )}
+            
+            {videoInfo.type === 'googledrive' && (
+              <iframe
                 src={videoInfo.embedUrl}
                 width="100%"
                 height="100%"
