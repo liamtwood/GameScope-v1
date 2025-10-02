@@ -6,7 +6,9 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   const onTryForFree = () => {
-    setLocation("/login"); // Redirect to your login page
+    // Temporarily bypass login - go directly to dashboard
+    setLocation("/dashboard");
+    // setLocation("/login"); // Uncomment to re-enable login
   };
 
   const onLearnMore = () => {
