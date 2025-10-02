@@ -11,9 +11,32 @@ import { useLocation } from 'wouter';
 import { useTeam } from '@/contexts/team-context';
 import { useClub } from '@/contexts/club-context';
 
+interface VideoData {
+  id: string;
+  duration: string;
+  location: string;
+  url?: string;
+  filename?: string;
+  uploadedAt?: string;
+}
+
+const DURATION_LABELS: Record<string, string> = {
+  "1st_half": "1st Half",
+  "2nd_half": "2nd Half",
+  "full_game": "Full Game",
+  "training_session": "Training Session",
+};
+
+const LOCATION_LABELS: Record<string, string> = {
+  "halfway_line": "Half Way Line",
+  "behind_goal": "Behind Goal",
+  "corner_flag": "Corner Flag",
+  "sideline": "Sideline",
+  "elevated_view": "Elevated View",
+};
+
 export default function WatchMatchVideo() {
   const [, setLocation] = useLocation();
-  const [videoUrl] = useState<string>("https://www.youtube.com/watch?v=gvoQ8gvzuC4");
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
   
@@ -30,6 +53,11 @@ export default function WatchMatchVideo() {
     queryKey: ["/api/opposition-teams"],
   });
 
+  // Get the video data from fixture's videoLinks
+  const videos = (fixture?.videoLinks as VideoData[]) || [];
+  const currentVideo = videos[0]; // Display the first video
+  const videoUrl = currentVideo?.url || "https://www.youtube.com/watch?v=gvoQ8gvzuC4";
+
   // Extract video ID for display
   const getVideoId = (url: string) => {
     const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
@@ -38,6 +66,14 @@ export default function WatchMatchVideo() {
   };
 
   const videoId = getVideoId(videoUrl);
+
+  // Generate video description
+  const getVideoDescription = () => {
+    if (!currentVideo) return "Match Video";
+    const duration = DURATION_LABELS[currentVideo.duration] || currentVideo.duration;
+    const location = LOCATION_LABELS[currentVideo.location] || currentVideo.location;
+    return `${duration} from ${location}`;
+  };
 
   // Get opponent team from opponents table
   const opponentTeam = oppositionTeams?.find((team: any) => 
@@ -95,11 +131,9 @@ export default function WatchMatchVideo() {
       <Card>
         <CardHeader>
           <CardTitle>Match Video Player</CardTitle>
-          {videoId && (
-            <p className="text-sm text-muted-foreground">
-              Video ID: {videoId}
-            </p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            {getVideoDescription()}
+          </p>
         </CardHeader>
         <CardContent>
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
