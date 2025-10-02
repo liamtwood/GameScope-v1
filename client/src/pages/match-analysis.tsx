@@ -18,7 +18,7 @@ export default function MatchAnalysis() {
   });
 
   // Update page title when fixture is loaded
-  const title = fixture ? `Video Analysis: ${fixture.opponent}` : "Video Analysis";
+  const title = fixture ? `Watch Match Video: ${fixture.opponent}` : "Watch Match Video";
   const subtitle = fixture 
     ? `${format(new Date(fixture.date), 'd MMM yyyy')} • Advanced video analysis with event synchronization`
     : "Advanced video analysis with event synchronization and highlight generation";
