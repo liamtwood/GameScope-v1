@@ -258,7 +258,7 @@ export default function WatchMatchVideo() {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="video">Video Player</TabsTrigger>
           <TabsTrigger value="events">Match Events</TabsTrigger>
-          <TabsTrigger value="stats">Match Stats</TabsTrigger>
+          <TabsTrigger value="stats">Team Statistics</TabsTrigger>
           <TabsTrigger value="spider">Spider Charts</TabsTrigger>
         </TabsList>
 
@@ -368,7 +368,7 @@ export default function WatchMatchVideo() {
         <TabsContent value="stats">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
+              <h3 className="text-lg font-semibold mb-4">Team Statistics</h3>
               {matchStats && matchStats.length > 0 ? (
                 (() => {
                   const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true) || null;
