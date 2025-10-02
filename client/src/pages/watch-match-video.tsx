@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Fixture } from '@shared/schema';
 import { format } from 'date-fns';
@@ -39,6 +40,7 @@ export default function WatchMatchVideo() {
   const [, setLocation] = useLocation();
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   
   // Get fixtureId from URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -55,7 +57,10 @@ export default function WatchMatchVideo() {
 
   // Get the video data from fixture's videoLinks
   const videos = (fixture?.videoLinks as VideoData[]) || [];
-  const currentVideo = videos[0]; // Display the first video
+  
+  // Set default video to first one if not selected
+  const currentVideoId = selectedVideoId || videos[0]?.id;
+  const currentVideo = videos.find(v => v.id === currentVideoId) || videos[0];
   const videoUrl = currentVideo?.url || "https://www.youtube.com/watch?v=gvoQ8gvzuC4";
 
   // Extract video ID for display
@@ -68,10 +73,10 @@ export default function WatchMatchVideo() {
   const videoId = getVideoId(videoUrl);
 
   // Generate video description
-  const getVideoDescription = () => {
-    if (!currentVideo) return "Match Video";
-    const duration = DURATION_LABELS[currentVideo.duration] || currentVideo.duration;
-    const location = LOCATION_LABELS[currentVideo.location] || currentVideo.location;
+  const getVideoDescription = (video?: VideoData) => {
+    if (!video) return "Match Video";
+    const duration = DURATION_LABELS[video.duration] || video.duration;
+    const location = LOCATION_LABELS[video.location] || video.location;
     return `${duration} from ${location}`;
   };
 
@@ -130,9 +135,28 @@ export default function WatchMatchVideo() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Match Video Player</CardTitle>
+          <div className="flex items-center justify-between mb-4">
+            <CardTitle>Match Video Player</CardTitle>
+            {videos.length > 1 && (
+              <Select
+                value={currentVideoId || ''}
+                onValueChange={setSelectedVideoId}
+              >
+                <SelectTrigger className="w-[300px]" data-testid="select-video">
+                  <SelectValue placeholder="Select video" />
+                </SelectTrigger>
+                <SelectContent>
+                  {videos.map((video) => (
+                    <SelectItem key={video.id} value={video.id}>
+                      {getVideoDescription(video)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground">
-            {getVideoDescription()}
+            {getVideoDescription(currentVideo)}
           </p>
         </CardHeader>
         <CardContent>
