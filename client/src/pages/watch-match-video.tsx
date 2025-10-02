@@ -63,13 +63,46 @@ export default function WatchMatchVideo() {
   const currentVideo = videos.find(v => v.id === currentVideoId) || videos[0];
   const videoUrl = currentVideo?.url || "https://www.youtube.com/watch?v=gvoQ8gvzuC4";
 
+  // Normalize object storage URLs to app serving paths
+  const normalizeStorageUrl = (url: string): string => {
+    if (!url) return url;
+    
+    // Check if it's a Google Cloud Storage URL for uploaded videos
+    if (url.startsWith('https://storage.googleapis.com/')) {
+      try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname;
+        
+        // Extract the path after the bucket name
+        // Format: /bucket-name/path/to/file
+        const parts = pathname.split('/');
+        if (parts.length >= 3) {
+          // Check if it's in the uploads directory
+          const uploadsIndex = parts.indexOf('uploads');
+          if (uploadsIndex !== -1) {
+            // Get everything after 'uploads'
+            const uploadPath = parts.slice(uploadsIndex + 1).join('/');
+            return `/uploads/${uploadPath}`;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing storage URL:', e);
+      }
+    }
+    
+    return url;
+  };
+
   // Determine video type and extract necessary info
   const getVideoType = (url: string) => {
     if (!url) return { type: 'none', embedUrl: '' };
     
+    // Normalize storage URLs first
+    const normalizedUrl = normalizeStorageUrl(url);
+    
     // Check for YouTube
     const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
-    const youtubeMatch = url.match(youtubeRegex);
+    const youtubeMatch = normalizedUrl.match(youtubeRegex);
     if (youtubeMatch) {
       return {
         type: 'youtube',
@@ -79,7 +112,7 @@ export default function WatchMatchVideo() {
     
     // Check for Google Drive
     const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
-    const driveMatch = url.match(driveRegex);
+    const driveMatch = normalizedUrl.match(driveRegex);
     if (driveMatch) {
       const fileId = driveMatch[1];
       return {
@@ -88,13 +121,18 @@ export default function WatchMatchVideo() {
       };
     }
     
+    // Check for app-served videos from /uploads/
+    if (normalizedUrl.startsWith('/uploads/')) {
+      return { type: 'direct', embedUrl: normalizedUrl };
+    }
+    
     // Check for direct video files
-    if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
-      return { type: 'direct', embedUrl: url };
+    if (normalizedUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
+      return { type: 'direct', embedUrl: normalizedUrl };
     }
     
     // Default to iframe for other URLs
-    return { type: 'iframe', embedUrl: url };
+    return { type: 'iframe', embedUrl: normalizedUrl };
   };
 
   const videoInfo = getVideoType(videoUrl);
