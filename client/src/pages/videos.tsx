@@ -87,7 +87,7 @@ export default function Videos() {
 
   return (
     <MainLayout 
-      title="In Progress" 
+      title="Match Video" 
       subtitle="Video analysis and match recordings"
     >
       {/* Video Filter */}
