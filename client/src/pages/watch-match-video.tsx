@@ -4,8 +4,11 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchScoreBanner } from '@/components/match-score-banner';
-import { Fixture } from '@shared/schema';
+import { MetricsComparison } from '@/components/metrics-comparison';
+import { MatchEventTable } from '@/components/MatchEventTable';
+import { Fixture, MatchStats } from '@shared/schema';
 import { format } from 'date-fns';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
@@ -53,6 +56,11 @@ export default function WatchMatchVideo() {
 
   const { data: oppositionTeams } = useQuery<any[]>({
     queryKey: ["/api/opposition-teams"],
+  });
+
+  const { data: matchStats } = useQuery<MatchStats[]>({
+    queryKey: ["/api/match-stats", fixtureId],
+    enabled: !!fixtureId,
   });
 
   // Get the video data from fixture's videoLinks
@@ -198,7 +206,17 @@ export default function WatchMatchVideo() {
         />
       )}
 
-      <Card>
+      {/* Tabs for Video Player, Match Events, and Match Stats */}
+      <Tabs defaultValue="video" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="video">Video Player</TabsTrigger>
+          <TabsTrigger value="events">Match Events</TabsTrigger>
+          <TabsTrigger value="stats">Match Stats</TabsTrigger>
+        </TabsList>
+
+        {/* Video Player Tab */}
+        <TabsContent value="video">
+          <Card>
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <CardTitle>Match Video Player</CardTitle>
@@ -283,7 +301,53 @@ export default function WatchMatchVideo() {
             )}
           </div>
         </CardContent>
-      </Card>
+          </Card>
+        </TabsContent>
+
+        {/* Match Events Tab */}
+        <TabsContent value="events">
+          <Card>
+            <CardHeader>
+              <CardTitle>Match Events</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MatchEventTable />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Match Stats Tab */}
+        <TabsContent value="stats">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Match Statistics</h3>
+              {matchStats && matchStats.length > 0 ? (
+                (() => {
+                  const fullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && stat.isTeamStats === true) || null;
+                  const opponentFullGameStats = matchStats.find(stat => stat.period === 'FULL_GAME' && (stat.isTeamStats === false || stat.isTeamStats === null)) || null;
+                  
+                  return fullGameStats ? (
+                    <MetricsComparison
+                      teamStats={fullGameStats}
+                      opponentStats={opponentFullGameStats || undefined}
+                      teamColor={polkStateColor}
+                      opponentColor={oppositionColor}
+                    />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No full game statistics available.</p>
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No match statistics available. Upload match data to view detailed analytics.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </MainLayout>
   );
 }
