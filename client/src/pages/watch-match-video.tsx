@@ -119,6 +119,18 @@ export default function WatchMatchVideo() {
       };
     }
     
+    // Check for FIFA Plus
+    const fifaPlusRegex = /plus\.fifa\.com\/.*\/player\/([a-f0-9-]+)/i;
+    const fifaPlusMatch = normalizedUrl.match(fifaPlusRegex);
+    if (fifaPlusMatch) {
+      // FIFA Plus doesn't support iframe embedding, so we'll provide a link to open externally
+      return {
+        type: 'fifaplus',
+        embedUrl: normalizedUrl,
+        originalUrl: normalizedUrl
+      };
+    }
+    
     // Check for Google Drive
     const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
     const driveMatch = normalizedUrl.match(driveRegex);
@@ -340,6 +352,28 @@ export default function WatchMatchVideo() {
                 allowFullScreen
                 data-testid="match-video-iframe"
               />
+            )}
+
+            {videoInfo.type === 'fifaplus' && (
+              <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold mb-2">FIFA Plus Video</h3>
+                  <p className="text-gray-300 mb-4">FIFA Plus videos cannot be embedded directly.</p>
+                  <p className="text-sm text-gray-400 mb-6">Click the button below to watch on FIFA Plus</p>
+                </div>
+                <a
+                  href={videoInfo.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                  data-testid="link-open-fifaplus"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Watch on FIFA Plus
+                </a>
+              </div>
             )}
             
             {videoInfo.type === 'none' && (
