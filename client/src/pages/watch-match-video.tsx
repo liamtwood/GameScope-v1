@@ -109,6 +109,16 @@ export default function WatchMatchVideo() {
     // Normalize storage URLs first
     const normalizedUrl = normalizeStorageUrl(url);
     
+    // Check for FIFA Plus (check this first before other checks)
+    if (normalizedUrl.includes('plus.fifa.com')) {
+      console.log('Detected FIFA Plus URL:', normalizedUrl);
+      return {
+        type: 'fifaplus',
+        embedUrl: normalizedUrl,
+        originalUrl: normalizedUrl
+      };
+    }
+    
     // Check for YouTube
     const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
     const youtubeMatch = normalizedUrl.match(youtubeRegex);
@@ -116,18 +126,6 @@ export default function WatchMatchVideo() {
       return {
         type: 'youtube',
         embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?enablejsapi=1&controls=1&rel=0&fs=1`
-      };
-    }
-    
-    // Check for FIFA Plus
-    const fifaPlusRegex = /plus\.fifa\.com\/.*\/player\/([a-f0-9-]+)/i;
-    const fifaPlusMatch = normalizedUrl.match(fifaPlusRegex);
-    if (fifaPlusMatch) {
-      // FIFA Plus doesn't support iframe embedding, so we'll provide a link to open externally
-      return {
-        type: 'fifaplus',
-        embedUrl: normalizedUrl,
-        originalUrl: normalizedUrl
       };
     }
     
