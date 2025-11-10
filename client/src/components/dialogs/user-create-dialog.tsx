@@ -67,6 +67,10 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
 
   // Calculate age when date of birth changes
   const dateOfBirth = form.watch("dateOfBirth");
+  const role = form.watch("role");
+  
+  // Determine if player-specific fields should be disabled
+  const isNonPlayerRole = role === "Coach" || role === "Admin";
   
   useEffect(() => {
     if (dateOfBirth) {
@@ -148,6 +152,58 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
               </div>
             )}
 
+            {/* ROLE AND STATUS - 2 columns */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">ROLE AND STATUS</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-role">
+                            <SelectValue placeholder="Player" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                          <SelectItem value="Coach">Coach</SelectItem>
+                          <SelectItem value="Player">Player</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-status">
+                            <SelectValue placeholder="Active" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value="Suspended">Suspended</SelectItem>
+                          <SelectItem value="Retired">Retired</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
             {/* NAME INFORMATION - 3 columns */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">NAME INFORMATION</h3>
@@ -185,7 +241,12 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                     <FormItem>
                       <FormLabel>Shirt Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter shirt name" {...field} data-testid="input-shirt-name" />
+                        <Input 
+                          placeholder="Enter shirt name" 
+                          {...field} 
+                          disabled={isNonPlayerRole}
+                          data-testid="input-shirt-name" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -208,6 +269,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                         <Input 
                           type="date" 
                           {...field} 
+                          disabled={isNonPlayerRole}
                           data-testid="input-date-of-birth"
                         />
                       </FormControl>
@@ -226,6 +288,7 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                           placeholder="Enter age (calculated)" 
                           {...field} 
                           readOnly
+                          disabled={isNonPlayerRole}
                           data-testid="input-age"
                         />
                       </FormControl>
@@ -284,51 +347,6 @@ export function UserCreateDialog({ children, clubId, onSave }: UserCreateDialogP
                       <FormControl>
                         <Input placeholder="Enter phone number" {...field} data-testid="input-phone" />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-role">
-                            <SelectValue placeholder="Player" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Admin">Admin</SelectItem>
-                          <SelectItem value="Coach">Coach</SelectItem>
-                          <SelectItem value="Player">Player</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>User Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-status">
-                            <SelectValue placeholder="Active" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Draft">Draft</SelectItem>
-                          <SelectItem value="Suspended">Suspended</SelectItem>
-                          <SelectItem value="Retired">Retired</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
