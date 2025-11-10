@@ -901,15 +901,18 @@ export default function UserDetails() {
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-4">
-                                <div 
-                                  className="h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold"
-                                  style={{
-                                    backgroundColor: clubPrimaryColor,
-                                    color: textColor
-                                  }}
-                                >
-                                  {userTeam.jerseyNumber || '?'}
-                                </div>
+                                {/* Only show jersey number for players */}
+                                {user?.role === "Player" && (
+                                  <div 
+                                    className="h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold"
+                                    style={{
+                                      backgroundColor: clubPrimaryColor,
+                                      color: textColor
+                                    }}
+                                  >
+                                    {userTeam.jerseyNumber || '?'}
+                                  </div>
+                                )}
                                 <div className="flex-1">
                                   <div className="flex items-center space-x-2">
                                     <h4 className="text-lg font-semibold" data-testid={`text-team-name-${userTeam.team.id}`}>
@@ -924,9 +927,12 @@ export default function UserDetails() {
                                   </div>
                                   <div className="space-y-2">
                                     <div className="flex items-center space-x-3">
-                                      <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${userTeam.team.id}`}>
-                                        {userTeam.position || 'Position not set'}
-                                      </div>
+                                      {/* Only show position for players */}
+                                      {user?.role === "Player" && (
+                                        <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${userTeam.team.id}`}>
+                                          {userTeam.position || 'Position not set'}
+                                        </div>
+                                      )}
                                       <Badge className="bg-blue-100 text-blue-800">
                                         {userTeam.fitnessStatus || 'Fit'}
                                       </Badge>
