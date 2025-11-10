@@ -333,7 +333,7 @@ export const insertUserSchema = createInsertSchema(users)
   });
 export const insertUserTeamSchema = createInsertSchema(userTeams).omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
-    position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"]),
+    position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward", "Head Coach", "Assistant Coach"]),
     fitnessStatus: z.enum(["Fit", "Injured", "Retired"]).default("Fit"),
   });
 export const insertUserClubSchema = createInsertSchema(userClubs).omit({ id: true, createdAt: true, updatedAt: true })

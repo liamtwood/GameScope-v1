@@ -2298,17 +2298,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { teamId, jerseyNumber, position, starPlayer, fitnessStatus } = req.body;
       
-      // Get user to check their role
-      const user = await storage.getUser(req.params.userId);
-      
-      // For coaches and admins, use a default position since they don't play
-      const isNonPlayer = user?.role === 'Coach' || user?.role === 'Admin';
-      
       const teamAssignment = {
         userId: req.params.userId,
         teamId,
         jerseyNumber: jerseyNumber || null,
-        position: isNonPlayer ? 'Forward' : position, // Default position for non-players
+        position,
         starPlayer: starPlayer || false,
         fitnessStatus: fitnessStatus || 'Fit'
       };

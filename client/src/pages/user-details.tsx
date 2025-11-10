@@ -838,7 +838,7 @@ export default function UserDetails() {
                                 </SelectContent>
                               </Select>
                             </div>
-                            {/* Only show Squad Number and Position for Players */}
+                            {/* Squad Number and Position fields based on role */}
                             {user?.role === "Player" && (
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -865,6 +865,20 @@ export default function UserDetails() {
                                     </SelectContent>
                                   </Select>
                                 </div>
+                              </div>
+                            )}
+                            {user?.role === "Coach" && (
+                              <div>
+                                <label className="text-sm font-medium">Position</label>
+                                <Select value={position} onValueChange={setPosition}>
+                                  <SelectTrigger data-testid="select-position">
+                                    <SelectValue placeholder="Select position" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Head Coach">Head Coach</SelectItem>
+                                    <SelectItem value="Assistant Coach">Assistant Coach</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             )}
                             <div className="flex justify-end space-x-2">
@@ -927,12 +941,10 @@ export default function UserDetails() {
                                   </div>
                                   <div className="space-y-2">
                                     <div className="flex items-center space-x-3">
-                                      {/* Only show position for players */}
-                                      {user?.role === "Player" && (
-                                        <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${userTeam.team.id}`}>
-                                          {userTeam.position || 'Position not set'}
-                                        </div>
-                                      )}
+                                      {/* Show position for both players and coaches */}
+                                      <div className="text-lg font-semibold text-gray-900" data-testid={`text-position-${userTeam.team.id}`}>
+                                        {userTeam.position || 'Position not set'}
+                                      </div>
                                       <Badge className="bg-blue-100 text-blue-800">
                                         {userTeam.fitnessStatus || 'Fit'}
                                       </Badge>
