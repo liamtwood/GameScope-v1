@@ -838,32 +838,35 @@ export default function UserDetails() {
                                 </SelectContent>
                               </Select>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium">Squad Number</label>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g. 1"
-                                  value={squadNumber || ""}
-                                  onChange={(e) => setSquadNumber(e.target.value ? parseInt(e.target.value) : undefined)}
-                                  data-testid="input-squad-number"
-                                />
+                            {/* Only show Squad Number and Position for Players */}
+                            {user?.role === "Player" && (
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="text-sm font-medium">Squad Number</label>
+                                  <Input
+                                    type="number"
+                                    placeholder="e.g. 1"
+                                    value={squadNumber || ""}
+                                    onChange={(e) => setSquadNumber(e.target.value ? parseInt(e.target.value) : undefined)}
+                                    data-testid="input-squad-number"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">Position</label>
+                                  <Select value={position} onValueChange={setPosition}>
+                                    <SelectTrigger data-testid="select-position">
+                                      <SelectValue placeholder="Select position" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                                      <SelectItem value="Defender">Defender</SelectItem>
+                                      <SelectItem value="Midfielder">Midfielder</SelectItem>
+                                      <SelectItem value="Forward">Forward</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
                               </div>
-                              <div>
-                                <label className="text-sm font-medium">Position</label>
-                                <Select value={position} onValueChange={setPosition}>
-                                  <SelectTrigger data-testid="select-position">
-                                    <SelectValue placeholder="Select position" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
-                                    <SelectItem value="Defender">Defender</SelectItem>
-                                    <SelectItem value="Midfielder">Midfielder</SelectItem>
-                                    <SelectItem value="Forward">Forward</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
+                            )}
                             <div className="flex justify-end space-x-2">
                               <Button 
                                 variant="outline" 
