@@ -19,10 +19,30 @@ type RoleFilter = 'all' | 'admin' | 'coach' | 'player';
 type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended' | 'Active' | 'Inactive' | 'Suspended' | 'Draft';
 type StarFilter = 'all' | 'star' | 'regular';
 
+type Team = {
+  id: string;
+  name: string;
+  shortName: string;
+  clubId: string;
+  status: string;
+};
+
+type TeamUser = {
+  id: string;
+  userId: string;
+  teamId: string;
+  jerseyNumber: number | null;
+  position: string;
+  starPlayer: boolean;
+  fitnessStatus: string;
+  user: User;
+};
+
 export default function Users() {
   const [activeFilter, setActiveFilter] = useState<RoleFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [starFilter, setStarFilter] = useState<StarFilter>('all');
+  const [teamFilter, setTeamFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingField, setEditingField] = useState<{userId: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -34,7 +54,19 @@ export default function Users() {
   // Fetch club users
   const { data: users = [], isLoading } = useQuery<User[]>({ 
     queryKey: ["/api/club", currentClub?.id, "users"],
-    enabled: !!currentClub?.id 
+    enabled: !!currentClub?.id && teamFilter === 'all'
+  });
+
+  // Fetch teams for the club
+  const { data: teams = [] } = useQuery<Team[]>({
+    queryKey: ["/api/teams"],
+    enabled: !!currentClub?.id
+  });
+
+  // Fetch team users when a specific team is selected
+  const { data: teamUsers = [], isLoading: isLoadingTeamUsers } = useQuery<TeamUser[]>({
+    queryKey: ["/api/team", teamFilter, "users"],
+    enabled: !!currentClub?.id && teamFilter !== 'all'
   });
 
   const createUserMutation = useMutation({
@@ -44,6 +76,9 @@ export default function Users() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      if (teamFilter !== 'all') {
+        queryClient.invalidateQueries({ queryKey: ["/api/team", teamFilter, "users"] });
+      }
       toast({
         title: "User Added",
         description: "New user has been added to the system.",
@@ -65,6 +100,9 @@ export default function Users() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      if (teamFilter !== 'all') {
+        queryClient.invalidateQueries({ queryKey: ["/api/team", teamFilter, "users"] });
+      }
       toast({
         title: "User Updated",
         description: "User information has been updated successfully.",
@@ -85,6 +123,9 @@ export default function Users() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
+      if (teamFilter !== 'all') {
+        queryClient.invalidateQueries({ queryKey: ["/api/team", teamFilter, "users"] });
+      }
       toast({
         title: "Key User Updated",
         description: "User status has been updated successfully.",
@@ -105,6 +146,9 @@ export default function Users() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/club", currentClub?.id, "users"] });
+      if (teamFilter !== 'all') {
+        queryClient.invalidateQueries({ queryKey: ["/api/team", teamFilter, "users"] });
+      }
       toast({
         title: "User Deleted",
         description: "User has been removed from the system.",
@@ -126,7 +170,12 @@ export default function Users() {
     return 'player';
   };
 
-  const filteredUsers = users?.filter(user => {
+  // Get users based on team filter
+  const displayUsers = teamFilter === 'all' 
+    ? users 
+    : teamUsers.map(tu => tu.user);
+
+  const filteredUsers = displayUsers?.filter(user => {
     const matchesFilter = activeFilter === 'all' || getRoleCategory(user.role || 'player') === activeFilter;
     const matchesStatus = statusFilter === 'all' || (user.status || 'active').toLowerCase() === statusFilter;
     const matchesStar = starFilter === 'all';
@@ -326,7 +375,25 @@ export default function Users() {
       {/* Filters */}
       {showFilters && (
         <div className="mb-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Team</label>
+              <Select value={teamFilter} onValueChange={(value: string) => setTeamFilter(value)}>
+                <SelectTrigger className="w-full" data-testid="select-team-filter">
+                  <SelectValue placeholder="All Teams" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teams</SelectItem>
+                  {teams
+                    ?.filter(team => team.clubId === currentClub?.id)
+                    .map((team) => (
+                      <SelectItem key={team.id} value={team.id} data-testid={`option-team-${team.id}`}>
+                        {team.name} ({team.shortName})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Role</label>
               <Select value={activeFilter} onValueChange={(value: RoleFilter) => setActiveFilter(value)}>
@@ -371,7 +438,7 @@ export default function Users() {
       )}
 
       {/* User Cards View */}
-      {isLoading ? (
+      {(isLoading || isLoadingTeamUsers) ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">Loading users...</p>
         </div>
