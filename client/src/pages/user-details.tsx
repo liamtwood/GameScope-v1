@@ -381,62 +381,58 @@ export default function UserDetails() {
           </div>
 
           {/* Player Banner - Separate from Tabs */}
-          <div className="rounded-2xl border-2 shadow-lg overflow-hidden" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
-            <div className="p-6">
-              <div className="w-4/5 mx-auto">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="relative group">
-                      <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                        {(pendingProfilePhoto || user.avatarPath) && (
-                          <AvatarImage 
-                            src={pendingProfilePhoto || user.avatarPath || ''} 
-                            alt={`${user.firstName} ${user.lastName}`}
-                            className="object-cover"
-                          />
-                        )}
-                        <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                          {getUserInitials(`${user.firstName} ${user.lastName}`)}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="absolute -bottom-1 -right-1 z-10">
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={5242880}
-                          onGetUploadParameters={getPhotoUploadURL}
-                          onComplete={handlePhotoUploadComplete}
-                          buttonClassName="bg-white border-2 border-white/30 rounded-full w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer [&_svg]:!w-3 [&_svg]:!h-3"
-                        >
-                          <Pencil className="!h-3 !w-3 text-gray-600" />
-                        </ObjectUploader>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="mb-3">
-                        <div className="text-lg font-medium" style={{ color: textColor }}>{user.firstName}</div>
-                        <div className="text-3xl font-bold" style={{ color: textColor }}>{user.lastName}</div>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge className={`text-xs px-2 py-1 ${getRoleColor()}`}>
-                          {getRoleCategory(user.role || 'player')}
-                        </Badge>
-                        <Badge className={`text-xs px-2 py-1 ${getStatusColor()}`}>
-                          {user.status || 'Active'}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
+          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg mb-6" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
+            <div className="relative z-10 h-full flex items-center px-8">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative group">
+                  <Avatar className="h-20 w-20 bg-slate-600 text-white border-2 border-white/30">
+                    {(pendingProfilePhoto || user.avatarPath) && (
+                      <AvatarImage 
+                        src={pendingProfilePhoto || user.avatarPath || ''} 
+                        alt={`${user.firstName} ${user.lastName}`}
+                        className="object-cover"
+                      />
+                    )}
+                    <AvatarFallback className="bg-slate-600 text-white text-lg font-semibold">
+                      {getUserInitials(`${user.firstName} ${user.lastName}`)}
+                    </AvatarFallback>
+                  </Avatar>
                   
-                  <div className="flex-shrink-0 opacity-80">
-                    <img 
-                      src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
-                      alt={selectedClub?.name || "Club Logo"} 
-                      className="h-16 w-auto object-contain"
-                    />
+                  <div className="absolute -bottom-1 -right-1 z-10">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5242880}
+                      onGetUploadParameters={getPhotoUploadURL}
+                      onComplete={handlePhotoUploadComplete}
+                      buttonClassName="bg-white border-2 border-white/30 rounded-full w-7 h-7 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer [&_svg]:!w-3 [&_svg]:!h-3"
+                    >
+                      <Pencil className="!h-3 !w-3 text-gray-600" />
+                    </ObjectUploader>
                   </div>
                 </div>
+                
+                <div className="flex-1">
+                  <div className="mb-1">
+                    <div className="text-base font-medium" style={{ color: textColor }}>{user.firstName}</div>
+                    <div className="text-2xl font-bold" style={{ color: textColor }}>{user.lastName}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={`text-xs px-2 py-0.5 ${getRoleColor()}`}>
+                      {getRoleCategory(user.role || 'player')}
+                    </Badge>
+                    <Badge className={`text-xs px-2 py-0.5 ${getStatusColor()}`}>
+                      {user.status || 'Active'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex-shrink-0 opacity-80">
+                <img 
+                  src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                  alt={selectedClub?.name || "Club Logo"} 
+                  className="h-20 w-auto object-contain"
+                />
               </div>
             </div>
           </div>
