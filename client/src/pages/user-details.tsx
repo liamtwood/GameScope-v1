@@ -372,52 +372,69 @@ export default function UserDetails() {
         {/* Header with Back Button */}
         <div className="flex items-center justify-between">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             onClick={() => window.history.back()}
-            className="flex items-center space-x-2 border-0 shadow-none bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0"
+            className="flex items-center space-x-2 border-2"
             data-testid="button-back-to-users"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back</span>
           </Button>
-          
-          {!isEditing ? (
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleEdit}
-              data-testid="button-edit-user"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handleSave}
-                disabled={updateUserMutation.isPending}
-                data-testid="button-save-user"
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save
-              </Button>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handleCancel}
-                data-testid="button-cancel-edit"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-            </div>
-          )}
         </div>
 
-        {/* User Banner - Full Width */}
-        <div className="rounded-2xl border-2 shadow-lg overflow-hidden" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
+        {/* User Details Tabs - Above Banner */}
+        <Tabs defaultValue="details" className="w-full">
+              <TabsList className="w-full grid grid-cols-4" data-testid="user-tabs-list">
+                <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
+                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+                <TabsTrigger value="bio" data-testid="tab-bio">Bio</TabsTrigger>
+                <TabsTrigger value="photos" data-testid="tab-photos">Photos</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="details" className="mt-6">
+                <Card>
+                  <CardContent className="p-6">
+                    {/* Edit Buttons */}
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">User Information</h3>
+                      
+                      {!isEditing ? (
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEdit}
+                          data-testid="button-edit-user"
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSave}
+                            disabled={updateUserMutation.isPending}
+                            data-testid="button-save-user"
+                          >
+                            <Save className="mr-2 h-4 w-4" />
+                            Save
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancel}
+                            data-testid="button-cancel-edit"
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* User Banner - Full Width */}
+                    <div className="rounded-2xl border-2 shadow-lg overflow-hidden mb-6" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
           <div className="p-6">
               <div className="w-4/5 mx-auto">
                 <div className="flex items-center justify-between">
@@ -481,19 +498,6 @@ export default function UserDetails() {
             </div>
         </div>
 
-        {/* User Details Tabs */}
-        <Tabs defaultValue="details" className="w-full">
-              <TabsList className="w-full grid grid-cols-4"data-testid="user-tabs-list">
-                <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
-                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
-                <TabsTrigger value="bio" data-testid="tab-bio">Bio</TabsTrigger>
-                <TabsTrigger value="photos" data-testid="tab-photos">Photos</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="details" className="mt-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">User Information</h3>
                     <div className="space-y-6">
                       {/* Row 1: First Name, Last Name, Shirt Name */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
