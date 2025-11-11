@@ -431,7 +431,7 @@ export default function UserDetails() {
                 <img 
                   src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
                   alt={selectedClub?.name || "Club Logo"} 
-                  className="h-20 w-auto object-contain"
+                  className="h-14 w-auto object-contain"
                 />
               </div>
             </div>
