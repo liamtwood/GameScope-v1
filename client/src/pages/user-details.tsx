@@ -359,25 +359,91 @@ export default function UserDetails() {
       subtitle={`${user.firstName} ${user.lastName}`}
     >
       <div className="max-w-6xl mx-auto p-6 space-y-6" data-testid={`user-details-${user.id}`}>
-        <div className="flex items-center justify-between">
+        {/* Back Button and Tabs Row */}
+        <div className="flex items-start gap-4">
           <Button 
             variant="outline" 
             onClick={() => window.history.back()}
-            className="flex items-center space-x-2 border-2"
+            className="flex items-center space-x-2 border-2 flex-shrink-0"
             data-testid="button-back-to-users"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back</span>
           </Button>
+
+          <Tabs defaultValue="details" className="flex-1">
+            <TabsList className="w-full grid grid-cols-4" data-testid="user-tabs-list">
+              <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
+              <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+              <TabsTrigger value="bio" data-testid="tab-bio">Bio</TabsTrigger>
+              <TabsTrigger value="photos" data-testid="tab-photos">Photos</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
+        {/* Player Banner - Separate from Tabs */}
+        <div className="rounded-2xl border-2 shadow-lg overflow-hidden" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
+          <div className="p-6">
+            <div className="w-4/5 mx-auto">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative group">
+                    <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
+                      {(pendingProfilePhoto || user.avatarPath) && (
+                        <AvatarImage 
+                          src={pendingProfilePhoto || user.avatarPath || ''} 
+                          alt={`${user.firstName} ${user.lastName}`}
+                          className="object-cover"
+                        />
+                      )}
+                      <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
+                        {getUserInitials(`${user.firstName} ${user.lastName}`)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="absolute -bottom-1 -right-1 z-10">
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={5242880}
+                        onGetUploadParameters={getPhotoUploadURL}
+                        onComplete={handlePhotoUploadComplete}
+                        buttonClassName="bg-white border-2 border-white/30 rounded-full w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer [&_svg]:!w-3 [&_svg]:!h-3"
+                      >
+                        <Pencil className="!h-3 !w-3 text-gray-600" />
+                      </ObjectUploader>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="mb-3">
+                      <div className="text-lg font-medium" style={{ color: textColor }}>{user.firstName}</div>
+                      <div className="text-3xl font-bold" style={{ color: textColor }}>{user.lastName}</div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className={`text-xs px-2 py-1 ${getRoleColor()}`}>
+                        {getRoleCategory(user.role || 'player')}
+                      </Badge>
+                      <Badge className={`text-xs px-2 py-1 ${getStatusColor()}`}>
+                        {user.status || 'Active'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 opacity-80">
+                  <img 
+                    src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
+                    alt={selectedClub?.name || "Club Logo"} 
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs Content */}
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="w-full grid grid-cols-4" data-testid="user-tabs-list">
-            <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
-            <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
-            <TabsTrigger value="bio" data-testid="tab-bio">Bio</TabsTrigger>
-            <TabsTrigger value="photos" data-testid="tab-photos">Photos</TabsTrigger>
-          </TabsList>
 
           <TabsContent value="details" className="mt-6">
             <Card>
@@ -418,66 +484,6 @@ export default function UserDetails() {
                       </Button>
                     </div>
                   )}
-                </div>
-
-                <div className="rounded-2xl border-2 shadow-lg overflow-hidden mb-6" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
-                  <div className="p-6">
-                    <div className="w-4/5 mx-auto">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="relative group">
-                            <Avatar className="h-24 w-24 bg-slate-600 text-white border-2 border-white/30">
-                              {(pendingProfilePhoto || user.avatarPath) && (
-                                <AvatarImage 
-                                  src={pendingProfilePhoto || user.avatarPath || ''} 
-                                  alt={`${user.firstName} ${user.lastName}`}
-                                  className="object-cover"
-                                />
-                              )}
-                              <AvatarFallback className="bg-slate-600 text-white text-xl font-semibold">
-                                {getUserInitials(`${user.firstName} ${user.lastName}`)}
-                              </AvatarFallback>
-                            </Avatar>
-                            
-                            <div className="absolute -bottom-1 -right-1 z-10">
-                              <ObjectUploader
-                                maxNumberOfFiles={1}
-                                maxFileSize={5242880}
-                                onGetUploadParameters={getPhotoUploadURL}
-                                onComplete={handlePhotoUploadComplete}
-                                buttonClassName="bg-white border-2 border-white/30 rounded-full w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity shadow-lg z-10 cursor-pointer [&_svg]:!w-3 [&_svg]:!h-3"
-                              >
-                                <Pencil className="!h-3 !w-3 text-gray-600" />
-                              </ObjectUploader>
-                            </div>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="mb-3">
-                              <div className="text-lg font-medium" style={{ color: textColor }}>{user.firstName}</div>
-                              <div className="text-3xl font-bold" style={{ color: textColor }}>{user.lastName}</div>
-                            </div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge className={`text-xs px-2 py-1 ${getRoleColor()}`}>
-                                {getRoleCategory(user.role || 'player')}
-                              </Badge>
-                              <Badge className={`text-xs px-2 py-1 ${getStatusColor()}`}>
-                                {user.status || 'Active'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex-shrink-0 opacity-80">
-                          <img 
-                            src={selectedClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png"} 
-                            alt={selectedClub?.name || "Club Logo"} 
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="space-y-6">
