@@ -30,6 +30,7 @@ export default function UserDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<User>>({});
   const [pendingProfilePhoto, setPendingProfilePhoto] = useState<string | null>(null);
+  const [pendingHeadshotPhoto, setPendingHeadshotPhoto] = useState<string | null>(null);
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
@@ -258,6 +259,52 @@ export default function UserDetails() {
       if (uploadedFile.uploadURL) {
         setPendingProfilePhoto(uploadedFile.uploadURL);
         photoUploadMutation.mutate(uploadedFile.uploadURL);
+      }
+    }
+  };
+
+  const headshotUploadMutation = useMutation({
+    mutationFn: async (photoURL: string) => {
+      const response = await fetch(`/api/user/${userId}/headshot`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoURL }),
+      });
+      if (!response.ok) throw new Error('Failed to update player headshot');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user", userId] });
+      setPendingHeadshotPhoto(null);
+      toast({
+        title: "Photo Updated",
+        description: "Player headshot has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update player headshot. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getHeadshotUploadURL = async () => {
+    const response = await fetch(`/api/user-photos/upload`, {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to get upload URL');
+    const data = await response.json();
+    return { method: 'PUT' as const, url: data.uploadURL };
+  };
+
+  const handleHeadshotUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      if (uploadedFile.uploadURL) {
+        setPendingHeadshotPhoto(uploadedFile.uploadURL);
+        headshotUploadMutation.mutate(uploadedFile.uploadURL);
       }
     }
   };
@@ -695,7 +742,7 @@ export default function UserDetails() {
           <TabsContent value="teams" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">Team Assignments</h3>
                   {getAvailableTeams().length > 0 && (
                     <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
@@ -872,7 +919,44 @@ export default function UserDetails() {
             <Card>
               <CardContent className="p-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Player Bio</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Player Bio</h3>
+                    <div className="flex items-center space-x-2">
+                      {isEditing ? (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleCancel}
+                            data-testid="button-cancel-bio"
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            Cancel
+                          </Button>
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={handleSave}
+                            disabled={updateUserMutation.isPending}
+                            data-testid="button-save-bio"
+                          >
+                            <Save className="mr-2 h-4 w-4" />
+                            {updateUserMutation.isPending ? "Saving..." : "Save"}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleEdit}
+                          data-testid="button-edit-bio"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
@@ -982,9 +1066,9 @@ export default function UserDetails() {
                       <div className="flex items-center space-x-6">
                         <div className="flex-shrink-0">
                           <div className="max-w-[160px] border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                            {user.headshotPath ? (
+                            {(pendingHeadshotPhoto || user.headshotPath) ? (
                               <img 
-                                src={user.headshotPath} 
+                                src={pendingHeadshotPhoto || user.headshotPath || ''} 
                                 alt={`${user.firstName} ${user.lastName} full length photo`}
                                 className="w-full h-auto object-contain"
                                 data-testid={`player-profile-photo-${user.id}`}
@@ -1000,12 +1084,18 @@ export default function UserDetails() {
                           <p className="text-sm text-muted-foreground mb-3">
                             Upload a full-length player profile photo. This is used in the player profiles section and official team materials.
                           </p>
-                          <Button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880}
+                            onGetUploadParameters={getHeadshotUploadURL}
+                            onComplete={handleHeadshotUploadComplete}
+                            buttonClassName="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                          >
                             <span className="flex items-center gap-2">
                               <Edit className="h-4 w-4" />
                               Upload Player Photo
                             </span>
-                          </Button>
+                          </ObjectUploader>
                         </div>
                       </div>
                     </div>
