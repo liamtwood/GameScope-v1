@@ -381,7 +381,7 @@ export default function UserDetails() {
           </div>
 
           {/* Player Banner - Separate from Tabs */}
-          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg mb-6" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
+          <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg mb-6 mt-6" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
             <div className="relative z-10 h-full flex items-center px-8">
               <div className="flex items-center gap-4 flex-1">
                 <div className="relative group">
