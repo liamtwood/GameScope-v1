@@ -52,6 +52,9 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         if (titleLower.includes('teams')) {
           return <Shield className="h-10 w-10 text-club-primary" />;
         }
+        if (titleLower.includes('watch match video')) {
+          return <Crosshair className="h-10 w-10" style={{ color: '#486D8D' }} />;
+        }
         return null;
     }
   };
