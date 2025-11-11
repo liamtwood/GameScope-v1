@@ -368,63 +368,57 @@ export default function UserDetails() {
       title="VIEW USER" 
       subtitle={`${user.firstName} ${user.lastName}`}
     >
-      <div className="space-y-0" data-testid={`user-details-${user.id}`}>
-        {/* User Header Card */}
-        <Card className="max-w-3xl relative overflow-hidden border-2 shadow-2xl rounded-t-lg rounded-b-none" style={{...solidStyle, borderColor: clubPrimaryColor}}>
-          <CardContent className="p-0">
-            {/* Back Button Row */}
-            <div className="px-6 py-1 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto p-6 space-y-6" data-testid={`user-details-${user.id}`}>
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={() => window.history.back()}
+            className="flex items-center space-x-2 border-0 shadow-none bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0"
+            data-testid="button-back-to-users"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back</span>
+          </Button>
+          
+          {!isEditing ? (
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleEdit}
+              data-testid="button-edit-user"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          ) : (
+            <div className="flex gap-2">
               <Button 
-                variant="ghost" 
-                onClick={() => window.history.back()}
-                data-testid="button-back-to-users"
-                className="text-white hover:bg-white/10"
-                style={{ color: textColor }}
+                variant="outline"
+                size="sm"
+                onClick={handleSave}
+                disabled={updateUserMutation.isPending}
+                data-testid="button-save-user"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                <Save className="mr-2 h-4 w-4" />
+                Save
               </Button>
-              
-              {!isEditing ? (
-                <Button 
-                  variant="ghost" 
-                  onClick={handleEdit}
-                  data-testid="button-edit-user"
-                  className="text-white hover:bg-white/10"
-                  style={{ color: textColor }}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleSave}
-                    disabled={updateUserMutation.isPending}
-                    data-testid="button-save-user"
-                    className="text-white hover:bg-white/10"
-                    style={{ color: textColor }}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleCancel}
-                    data-testid="button-cancel-edit"
-                    className="text-white hover:bg-white/10"
-                    style={{ color: textColor }}
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
-                </div>
-              )}
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleCancel}
+                data-testid="button-cancel-edit"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
             </div>
-            
-            {/* User Info Section */}
-            <div className="px-6 pt-2 pb-6">
+          )}
+        </div>
+
+        {/* User Banner - Full Width */}
+        <div className="rounded-2xl border-2 shadow-lg overflow-hidden" style={{borderColor: clubPrimaryColor, ...solidStyle}}>
+          <div className="p-6">
               <div className="w-4/5 mx-auto">
                 <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -485,99 +479,20 @@ export default function UserDetails() {
               </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
         {/* User Details Tabs */}
-        <Card className="max-w-3xl border-2 rounded-t-none rounded-b-lg" style={{borderColor: clubPrimaryColor}}>
-          <CardContent className="p-0">
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid grid-cols-4 w-full rounded-none border-b p-0" style={{backgroundColor: clubPrimaryColor}}>
-                <TabsTrigger 
-                  value="details" 
-                  data-testid="tab-user-details"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none border-r p-0 h-12 px-4 shadow-none border-0"
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none !important',
-                    backgroundImage: 'none !important',
-                    background: clubPrimaryColor + ' !important',
-                    filter: 'none !important',
-                    border: 'none !important',
-                    outline: 'none !important',
-                    textShadow: 'none !important',
-                    WebkitBoxShadow: 'none !important',
-                    MozBoxShadow: 'none !important',
-                    WebkitFilter: 'none !important'
-                  } as React.CSSProperties}
-                >
-                  User Details
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="teams" 
-                  data-testid="tab-teams"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none !important',
-                    backgroundImage: 'none !important',
-                    background: clubPrimaryColor + ' !important',
-                    filter: 'none !important',
-                    border: 'none !important',
-                    outline: 'none !important',
-                    textShadow: 'none !important',
-                    WebkitBoxShadow: 'none !important',
-                    MozBoxShadow: 'none !important',
-                    WebkitFilter: 'none !important'
-                  } as React.CSSProperties}
-                >
-                  Teams
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="bio" 
-                  data-testid="tab-bio"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none !important',
-                    backgroundImage: 'none !important',
-                    background: clubPrimaryColor + ' !important',
-                    filter: 'none !important',
-                    border: 'none !important',
-                    outline: 'none !important',
-                    textShadow: 'none !important',
-                    WebkitBoxShadow: 'none !important',
-                    MozBoxShadow: 'none !important',
-                    WebkitFilter: 'none !important'
-                  } as React.CSSProperties}
-                >
-                  Bio
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="photos" 
-                  data-testid="tab-photos"
-                  className="data-[state=inactive]:text-white data-[state=inactive]:hover:text-white/80 data-[state=active]:!bg-card data-[state=active]:text-card-foreground rounded-t-lg rounded-b-none p-0 h-12 px-4 shadow-none border-0"
-                  style={{
-                    backgroundColor: clubPrimaryColor,
-                    boxShadow: 'none !important',
-                    backgroundImage: 'none !important',
-                    background: clubPrimaryColor + ' !important',
-                    filter: 'none !important',
-                    border: 'none !important',
-                    outline: 'none !important',
-                    textShadow: 'none !important',
-                    WebkitBoxShadow: 'none !important',
-                    MozBoxShadow: 'none !important',
-                    WebkitFilter: 'none !important'
-                  } as React.CSSProperties}
-                >
-                  Photos
-                </TabsTrigger>
+        <Tabs defaultValue="details" className="w-full">
+              <TabsList className="w-full grid grid-cols-4"data-testid="user-tabs-list">
+                <TabsTrigger value="details" data-testid="tab-user-details">User Details</TabsTrigger>
+                <TabsTrigger value="teams" data-testid="tab-teams">Teams</TabsTrigger>
+                <TabsTrigger value="bio" data-testid="tab-bio">Bio</TabsTrigger>
+                <TabsTrigger value="photos" data-testid="tab-photos">Photos</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="details" className="p-6 mt-0 min-h-[425px]">
-                <div className="space-y-6">
-                  <div>
+              <TabsContent value="details" className="mt-6">
+                <Card>
+                  <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-4">User Information</h3>
                     <div className="space-y-6">
                       {/* Row 1: First Name, Last Name, Shirt Name */}
@@ -794,13 +709,14 @@ export default function UserDetails() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
 
-              <TabsContent value="teams" className="p-6 mt-0 min-h-[425px]">
-                <div className="space-y-6">
+              <TabsContent value="teams" className="mt-6">
+                <Card>
+                  <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Team Assignments</h3>
                     {getAvailableTeams().length > 0 && (
@@ -974,11 +890,13 @@ export default function UserDetails() {
                       </div>
                     )}
                   </div>
-                </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
-              <TabsContent value="bio" className="p-6 mt-0 min-h-[425px]">
-                <div className="space-y-6">
+              <TabsContent value="bio" className="mt-6">
+                <Card>
+                  <CardContent className="p-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Player Bio</h3>
                     <div className="space-y-6">
@@ -1079,11 +997,13 @@ export default function UserDetails() {
                       </div>
                     </div>
                   </div>
-                </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
-              <TabsContent value="photos" className="p-6 mt-0 min-h-[450px]">
-                <div className="space-y-6">
+              <TabsContent value="photos" className="mt-6">
+                <Card>
+                  <CardContent className="p-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Player Profile Photo</h3>
                     <div className="space-y-6">
@@ -1120,11 +1040,10 @@ export default function UserDetails() {
                       </div>
                     </div>
                   </div>
-                </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
       </div>
     </MainLayout>
   );
