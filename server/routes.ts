@@ -2612,11 +2612,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Auto-create opposition team if it doesn't exist, with website URL and logo if provided
       if (parsedData.opponent) {
-        await storage.getOrCreateOppositionTeam(
+        const oppositionTeam = await storage.getOrCreateOppositionTeam(
           parsedData.opponent, 
           newOpponentWebsite, 
           discoveredLogoUrl
         );
+        // Link the opposition team to the fixture
+        parsedData.oppositionTeamId = oppositionTeam.id;
       }
       
       const fixture = await storage.createFixture(parsedData);
@@ -2630,6 +2632,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/fixtures/:id", async (req, res) => {
     try {
       const fixtureData = insertFixtureSchema.partial().parse(req.body);
+      
+      // If opponent is being updated, ensure oppositionTeamId is set
+      if (fixtureData.opponent && !fixtureData.oppositionTeamId) {
+        const oppositionTeam = await storage.getOrCreateOppositionTeam(fixtureData.opponent);
+        fixtureData.oppositionTeamId = oppositionTeam.id;
+      }
       
       const fixture = await storage.updateFixture(req.params.id, fixtureData);
       res.json(fixture);
