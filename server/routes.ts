@@ -2516,6 +2516,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Team-Competition routes
+  app.get("/api/teams/:teamId/competitions", async (req, res) => {
+    try {
+      const teamCompetitions = await storage.getTeamCompetitions(req.params.teamId);
+      res.json(teamCompetitions);
+    } catch (error) {
+      console.error("Error fetching team competitions:", error);
+      res.status(500).json({ message: "Failed to fetch team competitions" });
+    }
+  });
+
+  app.get("/api/teams/:teamId/competitions/enabled", async (req, res) => {
+    try {
+      const enabledCompetitions = await storage.getEnabledCompetitions(req.params.teamId);
+      res.json(enabledCompetitions);
+    } catch (error) {
+      console.error("Error fetching enabled competitions:", error);
+      res.status(500).json({ message: "Failed to fetch enabled competitions" });
+    }
+  });
+
+  app.put("/api/teams/:teamId/competitions/:competitionId", async (req, res) => {
+    try {
+      const { teamId, competitionId } = req.params;
+      const { isEnabled } = req.body;
+      
+      if (typeof isEnabled !== 'boolean') {
+        return res.status(400).json({ message: "isEnabled must be a boolean" });
+      }
+
+      const teamCompetition = await storage.setTeamCompetition(teamId, competitionId, isEnabled);
+      res.json(teamCompetition);
+    } catch (error) {
+      console.error("Error updating team competition:", error);
+      res.status(500).json({ message: "Failed to update team competition" });
+    }
+  });
+
   // Fixture routes
   app.get("/api/fixtures", async (req, res) => {
     try {

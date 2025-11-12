@@ -12,6 +12,7 @@ import {
   oppositionTeams,
   systemTeams,
   competitions,
+  teamCompetitions,
   matchStats,
   playerStats,
   type Club,
@@ -24,6 +25,7 @@ import {
   type OppositionTeam,
   type SystemTeam,
   type Competition,
+  type TeamCompetition,
   type MatchStats,
   type PlayerStats,
   type InsertClub,
@@ -35,6 +37,7 @@ import {
   type InsertOppositionTeam,
   type InsertSystemTeam,
   type InsertCompetition,
+  type InsertTeamCompetition,
   type InsertMatchStats,
   type InsertPlayerStats,
 } from '@shared/schema';
@@ -103,6 +106,11 @@ export interface IStorage {
   updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition>;
   updateCompetitionLogo(id: string, logoURL: string): Promise<Competition>;
   deleteCompetition(id: string): Promise<void>;
+  
+  // Team-Competition operations
+  getTeamCompetitions(teamId: string): Promise<(TeamCompetition & { competition: Competition })[]>;
+  setTeamCompetition(teamId: string, competitionId: string, isEnabled: boolean): Promise<TeamCompetition>;
+  getEnabledCompetitions(teamId: string): Promise<Competition[]>;
   
   // Fixture operations
   getFixtures(teamId?: string): Promise<Fixture[]>;
@@ -1168,6 +1176,74 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCompetition(id: string): Promise<void> {
     await db.delete(competitions).where(eq(competitions.id, id));
+  }
+
+  // Team-Competition operations
+  async getTeamCompetitions(teamId: string): Promise<(TeamCompetition & { competition: Competition })[]> {
+    const results = await db
+      .select({
+        teamCompetition: teamCompetitions,
+        competition: competitions,
+      })
+      .from(teamCompetitions)
+      .leftJoin(competitions, eq(teamCompetitions.competitionId, competitions.id))
+      .where(eq(teamCompetitions.teamId, teamId));
+
+    return results.map(r => ({
+      ...r.teamCompetition,
+      competition: r.competition!,
+    }));
+  }
+
+  async setTeamCompetition(teamId: string, competitionId: string, isEnabled: boolean): Promise<TeamCompetition> {
+    // Check if the relationship already exists
+    const [existing] = await db
+      .select()
+      .from(teamCompetitions)
+      .where(
+        and(
+          eq(teamCompetitions.teamId, teamId),
+          eq(teamCompetitions.competitionId, competitionId)
+        )
+      );
+
+    if (existing) {
+      // Update existing relationship
+      const [updated] = await db
+        .update(teamCompetitions)
+        .set({ isEnabled, updatedAt: new Date() })
+        .where(eq(teamCompetitions.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new relationship
+      const [created] = await db
+        .insert(teamCompetitions)
+        .values({
+          teamId,
+          competitionId,
+          isEnabled,
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async getEnabledCompetitions(teamId: string): Promise<Competition[]> {
+    const results = await db
+      .select({ competition: competitions })
+      .from(teamCompetitions)
+      .leftJoin(competitions, eq(teamCompetitions.competitionId, competitions.id))
+      .where(
+        and(
+          eq(teamCompetitions.teamId, teamId),
+          eq(teamCompetitions.isEnabled, true)
+        )
+      );
+
+    return results
+      .map(r => r.competition)
+      .filter((c): c is Competition => c !== null);
   }
 
   // Match stats operations

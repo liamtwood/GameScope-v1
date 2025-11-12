@@ -233,6 +233,15 @@ export const competitions = pgTable("competitions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const teamCompetitions = pgTable("team_competitions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  teamId: varchar("team_id").references(() => teams.id).notNull(),
+  competitionId: varchar("competition_id").references(() => competitions.id).notNull(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Enhanced users table - replaces old users and players tables
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -376,6 +385,7 @@ export const insertSystemTeamSchema = createInsertSchema(systemTeams).omit({ id:
     }).optional(),
   });
 export const insertCompetitionSchema = createInsertSchema(competitions).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertTeamCompetitionSchema = createInsertSchema(teamCompetitions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertFixtureSchema = createInsertSchema(fixtures)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
@@ -397,6 +407,7 @@ export type UserParent = typeof userParents.$inferSelect;
 export type OppositionTeam = typeof oppositionTeams.$inferSelect;
 export type SystemTeam = typeof systemTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
+export type TeamCompetition = typeof teamCompetitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
 export type MatchStats = typeof matchStats.$inferSelect;
 export type PlayerStats = typeof playerStats.$inferSelect;
@@ -409,6 +420,7 @@ export type InsertUserParent = z.infer<typeof insertUserParentSchema>;
 export type InsertOppositionTeam = z.infer<typeof insertOppositionTeamSchema>;
 export type InsertSystemTeam = z.infer<typeof insertSystemTeamSchema>;
 export type InsertCompetition = z.infer<typeof insertCompetitionSchema>;
+export type InsertTeamCompetition = z.infer<typeof insertTeamCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertPlayerStats = z.infer<typeof insertPlayerStatsSchema>;

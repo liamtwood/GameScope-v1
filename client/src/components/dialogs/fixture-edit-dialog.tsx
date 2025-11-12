@@ -52,7 +52,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
   // Fetch existing competitions and opposition teams
   const { data: competitions = [] } = useQuery<Competition[]>({
-    queryKey: ["/api/competitions"],
+    queryKey: ["/api/teams", fixture.teamId, "competitions/enabled"],
+    enabled: !!fixture.teamId,
   });
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({

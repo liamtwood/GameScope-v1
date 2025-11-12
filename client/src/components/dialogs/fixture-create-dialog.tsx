@@ -56,7 +56,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   });
 
   const { data: competitions = [], isLoading: isLoadingCompetitions } = useQuery<Competition[]>({
-    queryKey: ["/api/competitions"],
+    queryKey: ["/api/teams", teamId, "competitions/enabled"],
+    enabled: !!teamId,
   });
 
   // Debug logging

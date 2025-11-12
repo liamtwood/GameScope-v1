@@ -524,7 +524,7 @@ export default function Fixtures() {
                 Add Fixture
               </Button>
             </FixtureCreateDialog>
-            <FixtureSettingsDialog>
+            <FixtureSettingsDialog teamId={currentTeam?.id || ""}>
               <Button variant="ghost" data-testid="button-settings">
                 <Settings className="h-4 w-4" />
               </Button>

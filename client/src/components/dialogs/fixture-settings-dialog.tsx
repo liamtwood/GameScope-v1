@@ -23,9 +23,18 @@ type FixtureSettingsFormData = z.infer<typeof fixtureSettingsSchema>;
 
 interface FixtureSettingsDialogProps {
   children: React.ReactNode;
+  teamId: string;
 }
 
-export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) {
+interface TeamCompetition {
+  id: string;
+  teamId: string;
+  competitionId: string;
+  isEnabled: boolean;
+  competition: Competition;
+}
+
+export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
@@ -34,6 +43,11 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
 
   const { data: competitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"]
+  });
+
+  const { data: teamCompetitions = [] } = useQuery<TeamCompetition[]>({
+    queryKey: ["/api/teams", teamId, "competitions"],
+    enabled: !!teamId && open,
   });
 
   const form = useForm<FixtureSettingsFormData>({
@@ -89,6 +103,27 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
     },
   });
 
+  const toggleCompetitionMutation = useMutation({
+    mutationFn: async ({ competitionId, isEnabled }: { competitionId: string; isEnabled: boolean }) => {
+      return apiRequest("PUT", `/api/teams/${teamId}/competitions/${competitionId}`, { isEnabled });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/teams", teamId, "competitions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/teams", teamId, "competitions/enabled"] });
+      toast({
+        title: "Success",
+        description: "Competition visibility updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEditCompetition = (competition: Competition) => {
     setEditingCompetition(competition);
     setEditCompetitionName(competition.name);
@@ -103,6 +138,15 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
   const handleLogoUpload = (competitionId: string, file: File) => {
     setIsUploadingLogo(true);
     uploadCompetitionLogoMutation.mutate({ competitionId, logoFile: file });
+  };
+
+  const handleToggleCompetition = (competitionId: string, currentlyEnabled: boolean) => {
+    toggleCompetitionMutation.mutate({ competitionId, isEnabled: !currentlyEnabled });
+  };
+
+  const isCompetitionEnabled = (competitionId: string): boolean => {
+    const teamComp = teamCompetitions.find(tc => tc.competitionId === competitionId);
+    return teamComp ? teamComp.isEnabled : false;
   };
 
   const onSubmit = async (data: FixtureSettingsFormData) => {
@@ -144,73 +188,81 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
               <h3 className="text-lg font-semibold">Competitions</h3>
               <div className="space-y-4">
                 {competitions.length > 0 ? (
-                  competitions.map((competition) => (
-                    <Card key={competition.id} className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-blue-100 rounded-full">
-                            {competition.logoPath ? (
-                              <img 
-                                src={competition.logoPath} 
-                                alt={competition.name}
-                                className="h-5 w-5 object-contain"
-                              />
-                            ) : (
-                              <Trophy className="h-5 w-5 text-blue-600" />
-                            )}
-                          </div>
-                          <div>
-                            {editingCompetition?.id === competition.id ? (
-                              <div className="flex items-center space-x-2">
-                                <Input
-                                  value={editCompetitionName}
-                                  onChange={(e) => setEditCompetitionName(e.target.value)}
-                                  className="h-8"
-                                  data-testid={`input-edit-competition-${competition.id}`}
+                  competitions.map((competition) => {
+                    const enabled = isCompetitionEnabled(competition.id);
+                    return (
+                      <Card key={competition.id} className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3 flex-1">
+                            <div className="p-2 bg-blue-100 rounded-full">
+                              {competition.logoPath ? (
+                                <img 
+                                  src={competition.logoPath} 
+                                  alt={competition.name}
+                                  className="h-5 w-5 object-contain"
                                 />
-                                <Button
-                                  size="sm"
-                                  onClick={handleSaveCompetitionName}
-                                  disabled={!editCompetitionName.trim()}
-                                  data-testid={`button-save-competition-${competition.id}`}
-                                >
-                                  Save
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEditingCompetition(null);
-                                    setEditCompetitionName("");
-                                  }}
-                                  data-testid={`button-cancel-competition-${competition.id}`}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            ) : (
-                              <h4 className="font-medium text-foreground">{competition.name}</h4>
+                              ) : (
+                                <Trophy className="h-5 w-5 text-blue-600" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              {editingCompetition?.id === competition.id ? (
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                    value={editCompetitionName}
+                                    onChange={(e) => setEditCompetitionName(e.target.value)}
+                                    className="h-8"
+                                    data-testid={`input-edit-competition-${competition.id}`}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    onClick={handleSaveCompetitionName}
+                                    disabled={!editCompetitionName.trim()}
+                                    data-testid={`button-save-competition-${competition.id}`}
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingCompetition(null);
+                                      setEditCompetitionName("");
+                                    }}
+                                    data-testid={`button-cancel-competition-${competition.id}`}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              ) : (
+                                <h4 className="font-medium text-foreground">{competition.name}</h4>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-muted-foreground">{enabled ? 'Visible' : 'Hidden'}</span>
+                              <Switch
+                                checked={enabled}
+                                onCheckedChange={() => handleToggleCompetition(competition.id, enabled)}
+                                data-testid={`toggle-competition-${competition.id}`}
+                              />
+                            </div>
+                            {editingCompetition?.id !== competition.id && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditCompetition(competition)}
+                                data-testid={`button-edit-competition-${competition.id}`}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Badge variant="outline" className="text-xs">
-                            Competition
-                          </Badge>
-                          {editingCompetition?.id !== competition.id && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditCompetition(competition)}
-                              data-testid={`button-edit-competition-${competition.id}`}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))
+                      </Card>
+                    );
+                  })
                 ) : (
                   <div className="text-center py-4">
                     <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
