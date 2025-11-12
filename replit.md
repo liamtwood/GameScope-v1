@@ -28,6 +28,14 @@ The frontend follows a page-based architecture with dedicated routes for:
 
 ## Recent Changes (November 12, 2025)
 
+### Competition Foreign Key Normalization (November 12, 2025)
+- **Updated fixtures table to use competitionId foreign key** instead of storing competition name as text
+- **Database schema change**: `fixtures.competition` (text) → `fixtures.competitionId` (varchar FK to competitions.id)
+- **Frontend updates**: Fixture create and edit dialogs now select competitions by ID from dropdown
+- **New competition creation flow**: Users can add new competitions on-the-fly when creating/editing fixtures
+- **Backend simplification**: Removed auto-create competition logic, now relies on foreign key integrity
+- **Benefits**: Data normalization, referential integrity, easier competition management and updates
+
 ### Logo Storage Migration to Object Storage
 - **Migrated all logo uploads from filesystem to cloud object storage for production compatibility**
 - **Implemented two-step signed URL upload flow**: Client requests signed URL → uploads directly to object storage → server normalizes and saves path
