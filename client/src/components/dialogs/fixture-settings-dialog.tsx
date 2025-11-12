@@ -17,10 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Competition } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 
-const fixtureSettingsSchema = z.object({
-  enableNotifications: z.boolean().default(true),
-  enablePublicResults: z.boolean().default(true),
-});
+const fixtureSettingsSchema = z.object({});
 
 type FixtureSettingsFormData = z.infer<typeof fixtureSettingsSchema>;
 
@@ -41,10 +38,7 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
 
   const form = useForm<FixtureSettingsFormData>({
     resolver: zodResolver(fixtureSettingsSchema),
-    defaultValues: {
-      enableNotifications: true,
-      enablePublicResults: true,
-    },
+    defaultValues: {},
   });
 
   // Mutations for competition management
@@ -145,55 +139,6 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Preferences */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Preferences</h3>
-              
-              <FormField
-                control={form.control}
-                name="enableNotifications"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <FormLabel>Enable Fixture Notifications</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Receive notifications for fixture updates and reminders
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-enable-notifications"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="enablePublicResults"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <FormLabel>Public Results</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Allow fixture results to be publicly visible
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-enable-public-results"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* Competitions Management */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Competitions</h3>
