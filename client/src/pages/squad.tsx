@@ -196,7 +196,7 @@ export default function Squad() {
       return apiRequest("DELETE", `/api/users/${playerId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
       toast({
         title: "Player Deleted",
         description: "Player has been removed from the squad.",
