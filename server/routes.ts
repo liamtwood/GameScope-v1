@@ -1454,10 +1454,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let venue = '';
           
           if (homeTeam && awayTeam) {
-            // Determine which team is the opposition (for now, assume we need teamId to determine this in import)
-            // For preview, we'll show both teams
+            // For preview, show both teams and indicate home/away based on first team
             opposition = `${homeTeam} vs ${awayTeam}`;
-            venue = 'TBD'; // Will be determined during actual import
+            // Assume first team mentioned is home team for preview
+            venue = 'Home/Away (will be determined)';
           } else {
             // Standard format: Opposition/Opponent
             opposition = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
@@ -1523,9 +1523,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Competition
           const competition = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || rowObj['comp'] || rowObj['Comp'] || '';
           
-          // Results (optional)
-          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || rowObj['for'] || null;
-          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || rowObj['against'] || null;
+          // Results (optional) - support multiple formats
+          let goalsFor = null;
+          let goalsAgainst = null;
+          
+          // Format 1: Separate home_score and away_score columns
+          const homeScore = rowObj['home_score'] || rowObj['Home Score'] || rowObj['home score'];
+          const awayScore = rowObj['away_score'] || rowObj['Away Score'] || rowObj['away score'];
+          
+          if (homeScore !== undefined && awayScore !== undefined && homeTeam && awayTeam) {
+            // Determine which score is for which team based on home/away
+            // For preview, we'll show both scores but won't know which is which yet
+            goalsFor = parseInt(homeScore) || null;
+            goalsAgainst = parseInt(awayScore) || null;
+          }
+          
+          // Format 2: Single score column (e.g., "2-1")
+          const scoreStr = rowObj['score'] || rowObj['Score'] || rowObj['ft'] || rowObj['FT'] || rowObj['result'] || rowObj['Result'];
+          if (!goalsFor && !goalsAgainst && scoreStr) {
+            const scoreParts = scoreStr.toString().split('-');
+            if (scoreParts.length === 2) {
+              goalsFor = parseInt(scoreParts[0]) || null;
+              goalsAgainst = parseInt(scoreParts[1]) || null;
+            }
+          }
+          
+          // Format 3: Goals For / Goals Against columns
+          if (!goalsFor && !goalsAgainst) {
+            goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || rowObj['for'] || null;
+            goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || rowObj['against'] || null;
+          }
           
           fixtures.push({
             opposition,
@@ -1733,27 +1760,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
           
-          // Results (optional) - map to homeScore/awayScore based on venue
-          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || null;
-          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || null;
-          
+          // Results (optional) - support multiple score formats
           let homeScore = null;
           let awayScore = null;
+          let goalsFor = null;
+          let goalsAgainst = null;
           
-          if (goalsFor !== null && goalsAgainst !== null) {
-            if (isHome) {
-              // Home game: team score = home score, opposition = away score
-              homeScore = parseInt(goalsFor);
-              awayScore = parseInt(goalsAgainst);
-            } else {
-              // Away game: team score = away score, opposition = home score
-              awayScore = parseInt(goalsFor);
-              homeScore = parseInt(goalsAgainst);
+          // Format 1: Direct home_score and away_score columns (most explicit)
+          const homeScoreCol = rowObj['home_score'] || rowObj['Home Score'] || rowObj['home score'];
+          const awayScoreCol = rowObj['away_score'] || rowObj['Away Score'] || rowObj['away score'];
+          
+          if (homeScoreCol !== undefined && homeScoreCol !== null && homeScoreCol !== '') {
+            homeScore = parseInt(homeScoreCol);
+          }
+          if (awayScoreCol !== undefined && awayScoreCol !== null && awayScoreCol !== '') {
+            awayScore = parseInt(awayScoreCol);
+          }
+          
+          // Format 2: Single score column (e.g., "2-1")
+          if (homeScore === null && awayScore === null) {
+            const scoreStr = rowObj['score'] || rowObj['Score'] || rowObj['ft'] || rowObj['FT'] || rowObj['result'] || rowObj['Result'];
+            if (scoreStr) {
+              const scoreParts = scoreStr.toString().split('-');
+              if (scoreParts.length === 2) {
+                homeScore = parseInt(scoreParts[0]);
+                awayScore = parseInt(scoreParts[1]);
+              }
             }
           }
           
-          // Determine status
-          const status = (goalsFor !== null && goalsAgainst !== null) ? 'COMPLETED' : 'SCHEDULED';
+          // Format 3: Goals For / Goals Against columns (need to map to home/away based on venue)
+          if (homeScore === null && awayScore === null) {
+            goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || rowObj['for'];
+            goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || rowObj['against'];
+            
+            if (goalsFor !== null && goalsFor !== undefined && goalsFor !== '' &&
+                goalsAgainst !== null && goalsAgainst !== undefined && goalsAgainst !== '') {
+              if (isHome) {
+                // Home game: team score = home score, opposition = away score
+                homeScore = parseInt(goalsFor);
+                awayScore = parseInt(goalsAgainst);
+              } else {
+                // Away game: team score = away score, opposition = home score
+                awayScore = parseInt(goalsFor);
+                homeScore = parseInt(goalsAgainst);
+              }
+            }
+          }
+          
+          // Determine status based on whether scores are present
+          const status = (homeScore !== null && !isNaN(homeScore) && awayScore !== null && !isNaN(awayScore)) 
+            ? 'COMPLETED' 
+            : 'SCHEDULED';
           
           // Create fixture
           await storage.createFixture({
