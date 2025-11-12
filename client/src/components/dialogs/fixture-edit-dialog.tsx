@@ -28,7 +28,7 @@ const fixtureEditSchema = z.object({
   kickoffTime: z.string().optional(),
   location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
-  status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED", "NO_CONTEST"]),
+  status: z.enum(["SCHEDULED", "IN_PROGRESS", "COMPLETED", "POSTPONED", "CANCELLED"]),
   competitionId: z.string().min(1, "Competition is required"),
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
@@ -37,8 +37,6 @@ const fixtureEditSchema = z.object({
 });
 
 const opponentCreateSchema = z.object({
-  name: z.string().min(1, "Opponent name is required"),
-  shortName: z.string().min(1, "Short name is required"),
   primaryColor: z.string().min(1, "Primary color is required"),
   logoPath: z.string().optional(),
 });
@@ -55,7 +53,10 @@ interface FixtureEditDialogProps {
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("fixture-details");
-  const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
+  const [newCompetitionName, setNewCompetitionName] = useState("");
+  const [newOpponentName, setNewOpponentName] = useState("");
+  const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
+  const [previousOpponentId, setPreviousOpponentId] = useState<string | undefined>(fixture.oppositionTeamId || "");
   const { toast } = useToast();
 
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -77,10 +78,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   });
 
   const createOpponentMutation = useMutation({
-    mutationFn: async (data: OpponentCreateFormData) => {
+    mutationFn: async (data: OpponentCreateFormData & { name: string }) => {
+      const shortName = data.name.substring(0, 3).toUpperCase();
       return apiRequest("POST", "/api/opposition-teams", {
         name: data.name,
-        shortName: data.shortName,
+        shortName,
         logoPath: data.logoPath || null,
         websiteUrl: "",
         colors: {
@@ -93,6 +95,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       form.setValue("oppositionTeamId", newTeam.id);
       form.setValue("opponent", newTeam.name);
       setActiveTab("fixture-details");
+      setNewOpponentName("");
+      setShowNewOpponentInput(false);
       opponentForm.reset();
       toast({
         title: "Success",
@@ -115,7 +119,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       kickoffTime: "15:00",
       location: "",
       type: fixture.type as "HOME" | "AWAY",
-      status: fixture.status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_CONTEST",
+      status: (fixture.status === "NO_CONTEST" ? "CANCELLED" : fixture.status) as "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "POSTPONED" | "CANCELLED",
       competitionId: fixture.competitionId || "",
       homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
       awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
@@ -127,8 +131,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   const opponentForm = useForm<OpponentCreateFormData>({
     resolver: zodResolver(opponentCreateSchema),
     defaultValues: {
-      name: "",
-      shortName: "",
       primaryColor: "#000000",
       logoPath: "",
     },
@@ -146,7 +148,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       kickoffTime: "15:00",
       location: "",
       type: fixture.type as "HOME" | "AWAY",
-      status: fixture.status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_CONTEST",
+      status: (fixture.status === "NO_CONTEST" ? "CANCELLED" : fixture.status) as "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "POSTPONED" | "CANCELLED",
       competitionId: fixture.competitionId || "",
       homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
       awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
@@ -155,26 +157,44 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     });
   }, [fixture, form]);
 
-  useEffect(() => {
-    const subscription = opponentForm.watch((value, { name }) => {
-      if (name === "name" && value.name) {
-        const shortName = value.name.substring(0, 3).toUpperCase();
-        opponentForm.setValue("shortName", shortName);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [opponentForm]);
 
   const handleSubmit = async (data: FixtureEditFormData) => {
     try {
-      if (showNewCompetitionInput && data.competitionId) {
-        const newCompetition = await createCompetitionMutation.mutateAsync(data.competitionId);
+      if (data.competitionId === "__new__") {
+        if (!newCompetitionName.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter a competition name",
+            variant: "destructive",
+          });
+          return;
+        }
+        const newCompetition = await createCompetitionMutation.mutateAsync(newCompetitionName);
         data.competitionId = newCompetition.id;
+      }
+
+      if (showNewOpponentInput) {
+        toast({
+          title: "Error",
+          description: "Please complete opponent creation or cancel to select an existing opponent",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data.oppositionTeamId) {
+        toast({
+          title: "Error",
+          description: "Please select an opponent",
+          variant: "destructive",
+        });
+        return;
       }
 
       onSave(data);
       setOpen(false);
-      setShowNewCompetitionInput(false);
+      setNewCompetitionName("");
+      setNewOpponentName("");
     } catch (error) {
       console.error("Error updating fixture:", error);
       toast({
@@ -186,7 +206,27 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
   };
 
   const handleOpponentSubmit = (data: OpponentCreateFormData) => {
-    createOpponentMutation.mutate(data);
+    if (!newOpponentName.trim()) {
+      toast({
+        title: "Error",
+        description: "Opponent name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    createOpponentMutation.mutate({ ...data, name: newOpponentName });
+  };
+
+  const handleContinueToOpponentDetails = () => {
+    if (!newOpponentName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter opponent name",
+        variant: "destructive",
+      });
+      return;
+    }
+    setActiveTab("add-opponent");
   };
 
   return (
@@ -298,63 +338,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   />
                 </div>
 
-                {/* Row 2: Competition, Match Type */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="competitionId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Competition</FormLabel>
-                        <FormControl>
-                          {showNewCompetitionInput ? (
-                            <div className="flex gap-2">
-                              <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowNewCompetitionInput(false)}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2">
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                data-testid="select-competition"
-                              >
-                                <SelectTrigger className="flex-1">
-                                  <SelectValue placeholder="Select competition" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {competitions.map((comp) => (
-                                    <SelectItem key={comp.id} value={comp.id}>
-                                      {comp.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowNewCompetitionInput(true)}
-                                data-testid="button-add-new-competition"
-                                title="Add new competition"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                {/* Row 2: Match Type, Status, Home Score, Away Score */}
+                <div className="grid grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="type"
@@ -376,71 +361,32 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* Row 3: Opponent */}
-                <FormField
-                  control={form.control}
-                  name="oppositionTeamId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opponent</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Select
-                            value={field.value || ""}
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              const selectedTeam = oppositionTeams.find(team => team.id === value);
-                              if (selectedTeam) {
-                                form.setValue("opponent", selectedTeam.name);
-                              }
-                            }}
-                            data-testid="select-opponent"
-                          >
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Select opponent" />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-status">
+                              <SelectValue placeholder="Select status" />
                             </SelectTrigger>
-                            <SelectContent>
-                              {oppositionTeams.map((team) => (
-                                <SelectItem key={team.id} value={team.id}>
-                                  <div className="flex items-center gap-2">
-                                    {team.logoPath ? (
-                                      <img 
-                                        src={team.logoPath} 
-                                        alt={`${team.name} logo`}
-                                        className="w-4 h-4 object-cover rounded"
-                                      />
-                                    ) : (
-                                      <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                        {team.shortName}
-                                      </div>
-                                    )}
-                                    {team.name}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setActiveTab("add-opponent")}
-                            data-testid="button-add-new-opponent"
-                            title="Add new opponent"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                            <SelectItem value="COMPLETED">Completed</SelectItem>
+                            <SelectItem value="POSTPONED">Postponed</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                {/* Row 4: Home Score - Away Score */}
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="homeScore"
@@ -452,11 +398,9 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                             type="number"
                             {...field}
                             value={field.value ?? ""}
-                            onChange={(e) => {
-                              const value = e.target.value === "" ? undefined : Number(e.target.value);
-                              field.onChange(value);
-                            }}
+                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
                             data-testid="input-home-score"
+                            placeholder="-"
                           />
                         </FormControl>
                         <FormMessage />
@@ -475,11 +419,9 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                             type="number"
                             {...field}
                             value={field.value ?? ""}
-                            onChange={(e) => {
-                              const value = e.target.value === "" ? undefined : Number(e.target.value);
-                              field.onChange(value);
-                            }}
+                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
                             data-testid="input-away-score"
+                            placeholder="-"
                           />
                         </FormControl>
                         <FormMessage />
@@ -488,42 +430,166 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   />
                 </div>
 
-                {/* Additional fields */}
+                {/* Row 3: Competition */}
                 <FormField
                   control={form.control}
-                  name="venue"
+                  name="competitionId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Venue</FormLabel>
+                      <FormLabel>Competition</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter venue" data-testid="input-venue" />
+                        <div className="flex gap-2">
+                          {field.value === "__new__" ? (
+                            <>
+                              <Input 
+                                value={newCompetitionName}
+                                onChange={(e) => setNewCompetitionName(e.target.value)}
+                                placeholder="Enter new competition name" 
+                                data-testid="input-new-competition"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  field.onChange("");
+                                  setNewCompetitionName("");
+                                }}
+                                data-testid="button-cancel-new-competition"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              data-testid="select-competition"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select competition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {competitions.map((comp) => (
+                                  <SelectItem key={comp.id} value={comp.id}>
+                                    {comp.name}
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Competition</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {/* Row 4: Opposition */}
                 <FormField
                   control={form.control}
-                  name="status"
+                  name="oppositionTeamId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-status">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                          <SelectItem value="COMPLETED">Completed</SelectItem>
-                          <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                          <SelectItem value="NO_CONTEST">No Contest</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Opposition</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          {showNewOpponentInput ? (
+                            <>
+                              <Input 
+                                value={newOpponentName}
+                                onChange={(e) => setNewOpponentName(e.target.value)}
+                                placeholder="Enter opponent name" 
+                                data-testid="input-new-opponent-name"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleContinueToOpponentDetails}
+                                data-testid="button-continue-opponent"
+                              >
+                                Continue
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setShowNewOpponentInput(false);
+                                  setNewOpponentName("");
+                                  if (previousOpponentId) {
+                                    form.setValue("oppositionTeamId", previousOpponentId);
+                                    const selectedTeam = oppositionTeams.find(team => team.id === previousOpponentId);
+                                    if (selectedTeam) {
+                                      form.setValue("opponent", selectedTeam.name);
+                                    }
+                                  }
+                                }}
+                                data-testid="button-cancel-new-opponent"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={(value) => {
+                                if (value === "__new__") {
+                                  setPreviousOpponentId(field.value);
+                                  setShowNewOpponentInput(true);
+                                } else {
+                                  setShowNewOpponentInput(false);
+                                  field.onChange(value);
+                                  const selectedTeam = oppositionTeams.find(team => team.id === value);
+                                  if (selectedTeam) {
+                                    form.setValue("opponent", selectedTeam.name);
+                                  }
+                                }
+                              }}
+                              data-testid="select-opponent"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select opponent" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {oppositionTeams.map((team) => (
+                                  <SelectItem key={team.id} value={team.id}>
+                                    <div className="flex items-center gap-2">
+                                      {team.logoPath ? (
+                                        <img 
+                                          src={team.logoPath} 
+                                          alt={`${team.name} logo`}
+                                          className="w-4 h-4 object-cover rounded"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                          {team.shortName}
+                                        </div>
+                                      )}
+                                      {team.name}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Opponent</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
+                  )}
+                />
+
+                {/* Hidden opponent name field */}
+                <FormField
+                  control={form.control}
+                  name="opponent"
+                  render={({ field }) => (
+                    <input type="hidden" {...field} />
                   )}
                 />
 
@@ -556,31 +622,31 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
           <TabsContent value="add-opponent">
             <Form {...opponentForm}>
               <form onSubmit={opponentForm.handleSubmit(handleOpponentSubmit)} className="space-y-4">
-                <FormField
-                  control={opponentForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opponent Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter opponent name" data-testid="input-opponent-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm font-medium">Creating opponent: {newOpponentName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
+                </div>
+
+                <div className="space-y-2">
+                  <FormLabel>Logo</FormLabel>
+                  <LogoUpload
+                    teamName={newOpponentName || "Opponent"}
+                    currentLogo={opponentForm.watch("logoPath")}
+                    onUploadComplete={(logoPath: string) => {
+                      opponentForm.setValue("logoPath", logoPath);
+                      toast({
+                        title: "Logo Uploaded",
+                        description: "Logo has been uploaded successfully",
+                      });
+                    }}
+                  />
+                </div>
 
                 <FormField
                   control={opponentForm.control}
-                  name="shortName"
+                  name="logoPath"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Auto-derived from name" data-testid="input-opponent-short-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <input type="hidden" {...field} />
                   )}
                 />
 
@@ -591,26 +657,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                     <FormItem>
                       <FormLabel>Primary Color</FormLabel>
                       <FormControl>
-                        <Input type="color" {...field} data-testid="input-opponent-color" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={opponentForm.control}
-                  name="logoPath"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Logo</FormLabel>
-                      <FormControl>
-                        <LogoUpload
-                          teamName={opponentForm.watch("name") || "New Opponent"}
-                          currentLogo={field.value}
-                          onUploadComplete={(logoPath: string) => {
-                            field.onChange(logoPath);
-                          }}
+                        <Input 
+                          {...field} 
+                          type="color" 
+                          className="h-10 w-full cursor-pointer"
+                          data-testid="input-opponent-color"
                         />
                       </FormControl>
                       <FormMessage />
@@ -619,10 +670,24 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                 />
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setActiveTab("fixture-details")}>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setActiveTab("fixture-details");
+                      form.setValue("oppositionTeamId", "");
+                      setNewOpponentName("");
+                      opponentForm.reset();
+                    }}
+                    data-testid="button-cancel-opponent"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createOpponentMutation.isPending} data-testid="button-create-opponent">
+                  <Button 
+                    type="submit" 
+                    disabled={createOpponentMutation.isPending}
+                    data-testid="button-save-opponent"
+                  >
                     {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
                   </Button>
                 </div>

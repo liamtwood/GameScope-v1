@@ -28,13 +28,14 @@ const fixtureCreateSchema = z.object({
   kickoffTime: z.string().min(1, "Kick-off time is required"),
   location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
+  status: z.enum(["SCHEDULED", "IN_PROGRESS", "COMPLETED", "POSTPONED", "CANCELLED"]).default("SCHEDULED"),
+  homeScore: z.coerce.number().optional(),
+  awayScore: z.coerce.number().optional(),
   competitionId: z.string().min(1, "Competition is required"),
   notes: z.string().optional(),
 });
 
 const opponentCreateSchema = z.object({
-  name: z.string().min(1, "Opponent name is required"),
-  shortName: z.string().min(1, "Short name is required"),
   primaryColor: z.string().min(1, "Primary color is required"),
   logoPath: z.string().optional(),
 });
@@ -52,7 +53,10 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("fixture-details");
-  const [showNewCompetitionInput, setShowNewCompetitionInput] = useState(false);
+  const [newCompetitionName, setNewCompetitionName] = useState("");
+  const [newOpponentName, setNewOpponentName] = useState("");
+  const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
+  const [previousOpponentId, setPreviousOpponentId] = useState<string | undefined>("");
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
     queryKey: ["/api/opposition-teams"],
@@ -73,10 +77,11 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   });
 
   const createOpponentMutation = useMutation({
-    mutationFn: async (data: OpponentCreateFormData) => {
+    mutationFn: async (data: OpponentCreateFormData & { name: string }) => {
+      const shortName = data.name.substring(0, 3).toUpperCase();
       return apiRequest("POST", "/api/opposition-teams", {
         name: data.name,
-        shortName: data.shortName,
+        shortName,
         logoPath: data.logoPath || null,
         websiteUrl: "",
         colors: {
@@ -89,6 +94,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       form.setValue("oppositionTeamId", newTeam.id);
       form.setValue("opponent", newTeam.name);
       setActiveTab("fixture-details");
+      setNewOpponentName("");
+      setShowNewOpponentInput(false);
       opponentForm.reset();
       toast({
         title: "Success",
@@ -108,6 +115,9 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       kickoffTime: "15:00",
       location: "",
       type: "HOME",
+      status: "SCHEDULED",
+      homeScore: undefined,
+      awayScore: undefined,
       competitionId: competitions.length > 0 ? competitions[0].id : "",
       notes: "",
     },
@@ -116,28 +126,43 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   const opponentForm = useForm<OpponentCreateFormData>({
     resolver: zodResolver(opponentCreateSchema),
     defaultValues: {
-      name: "",
-      shortName: "",
       primaryColor: "#000000",
       logoPath: "",
     },
   });
 
-  useEffect(() => {
-    const subscription = opponentForm.watch((value, { name }) => {
-      if (name === "name" && value.name) {
-        const shortName = value.name.substring(0, 3).toUpperCase();
-        opponentForm.setValue("shortName", shortName);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [opponentForm]);
 
   const handleSubmit = async (data: FixtureCreateFormData) => {
     try {
-      if (showNewCompetitionInput && data.competitionId) {
-        const newCompetition = await createCompetitionMutation.mutateAsync(data.competitionId);
+      if (data.competitionId === "__new__") {
+        if (!newCompetitionName.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter a competition name",
+            variant: "destructive",
+          });
+          return;
+        }
+        const newCompetition = await createCompetitionMutation.mutateAsync(newCompetitionName);
         data.competitionId = newCompetition.id;
+      }
+
+      if (showNewOpponentInput) {
+        toast({
+          title: "Error",
+          description: "Please complete opponent creation or cancel to select an existing opponent",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data.oppositionTeamId) {
+        toast({
+          title: "Error",
+          description: "Please select an opponent",
+          variant: "destructive",
+        });
+        return;
       }
 
       const [hours, minutes] = data.kickoffTime.split(':').map(Number);
@@ -154,7 +179,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       
       setOpen(false);
       form.reset();
-      setShowNewCompetitionInput(false);
+      setNewCompetitionName("");
+      setNewOpponentName("");
     } catch (error) {
       toast({
         title: "Error",
@@ -165,7 +191,27 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   };
 
   const handleOpponentSubmit = (data: OpponentCreateFormData) => {
-    createOpponentMutation.mutate(data);
+    if (!newOpponentName.trim()) {
+      toast({
+        title: "Error",
+        description: "Opponent name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    createOpponentMutation.mutate({ ...data, name: newOpponentName });
+  };
+
+  const handleContinueToOpponentDetails = () => {
+    if (!newOpponentName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter opponent name",
+        variant: "destructive",
+      });
+      return;
+    }
+    setActiveTab("add-opponent");
   };
 
   return (
@@ -288,63 +334,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   />
                 </div>
 
-                {/* Row 2: Competition, Match Type */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="competitionId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Competition</FormLabel>
-                        <FormControl>
-                          {showNewCompetitionInput ? (
-                            <div className="flex gap-2">
-                              <Input {...field} placeholder="Enter new competition name" data-testid="input-new-competition" />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowNewCompetitionInput(false)}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2">
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                data-testid="select-competition"
-                              >
-                                <SelectTrigger className="flex-1">
-                                  <SelectValue placeholder="Select competition" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {competitions.map((comp) => (
-                                    <SelectItem key={comp.id} value={comp.id}>
-                                      {comp.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowNewCompetitionInput(true)}
-                                data-testid="button-add-new-competition"
-                                title="Add new competition"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                {/* Row 2: Match Type, Status, Home Score, Away Score */}
+                <div className="grid grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="type"
@@ -366,64 +357,224 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-status">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                            <SelectItem value="COMPLETED">Completed</SelectItem>
+                            <SelectItem value="POSTPONED">Postponed</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="homeScore"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Home Score</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="number" 
+                            placeholder="-"
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                            data-testid="input-home-score"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="awayScore"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Away Score</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="number" 
+                            placeholder="-"
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                            data-testid="input-away-score"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                {/* Row 3: Opponent */}
+                {/* Row 3: Competition */}
+                <FormField
+                  control={form.control}
+                  name="competitionId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Competition</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          {field.value === "__new__" ? (
+                            <>
+                              <Input 
+                                value={newCompetitionName}
+                                onChange={(e) => setNewCompetitionName(e.target.value)}
+                                placeholder="Enter new competition name" 
+                                data-testid="input-new-competition"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  field.onChange("");
+                                  setNewCompetitionName("");
+                                }}
+                                data-testid="button-cancel-new-competition"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              data-testid="select-competition"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select competition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {competitions.map((comp) => (
+                                  <SelectItem key={comp.id} value={comp.id}>
+                                    {comp.name}
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Competition</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Row 4: Opposition */}
                 <FormField
                   control={form.control}
                   name="oppositionTeamId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Opponent</FormLabel>
-                      <div className="flex gap-2">
-                        <Select
-                          value={field.value || ""}
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedTeam = oppositionTeams.find(team => team.id === value);
-                            if (selectedTeam) {
-                              form.setValue("opponent", selectedTeam.name);
-                            }
-                          }}
-                          data-testid="select-opponent"
-                        >
-                          <FormControl>
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Select opponent" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {oppositionTeams.map((team) => (
-                              <SelectItem key={team.id} value={team.id}>
-                                <div className="flex items-center gap-2">
-                                  {team.logoPath ? (
-                                    <img 
-                                      src={team.logoPath} 
-                                      alt={`${team.name} logo`}
-                                      className="w-4 h-4 object-cover rounded"
-                                    />
-                                  ) : (
-                                    <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                      {team.shortName}
+                      <FormLabel>Opposition</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          {showNewOpponentInput ? (
+                            <>
+                              <Input 
+                                value={newOpponentName}
+                                onChange={(e) => setNewOpponentName(e.target.value)}
+                                placeholder="Enter opponent name" 
+                                data-testid="input-new-opponent-name"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleContinueToOpponentDetails}
+                                data-testid="button-continue-opponent"
+                              >
+                                Continue
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setShowNewOpponentInput(false);
+                                  setNewOpponentName("");
+                                  if (previousOpponentId) {
+                                    form.setValue("oppositionTeamId", previousOpponentId);
+                                    const selectedTeam = oppositionTeams.find(team => team.id === previousOpponentId);
+                                    if (selectedTeam) {
+                                      form.setValue("opponent", selectedTeam.name);
+                                    }
+                                  }
+                                }}
+                                data-testid="button-cancel-new-opponent"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={(value) => {
+                                if (value === "__new__") {
+                                  setPreviousOpponentId(field.value);
+                                  setShowNewOpponentInput(true);
+                                } else {
+                                  setShowNewOpponentInput(false);
+                                  field.onChange(value);
+                                  const selectedTeam = oppositionTeams.find(team => team.id === value);
+                                  if (selectedTeam) {
+                                    form.setValue("opponent", selectedTeam.name);
+                                  }
+                                }
+                              }}
+                              data-testid="select-opponent"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select opponent" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {oppositionTeams.map((team) => (
+                                  <SelectItem key={team.id} value={team.id}>
+                                    <div className="flex items-center gap-2">
+                                      {team.logoPath ? (
+                                        <img 
+                                          src={team.logoPath} 
+                                          alt={`${team.name} logo`}
+                                          className="w-4 h-4 object-cover rounded"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                          {team.shortName}
+                                        </div>
+                                      )}
+                                      {team.name}
                                     </div>
-                                  )}
-                                  {team.name}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveTab("add-opponent")}
-                          data-testid="button-add-new-opponent"
-                          title="Add new opponent"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Opponent</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -495,31 +646,31 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
           <TabsContent value="add-opponent">
             <Form {...opponentForm}>
               <form onSubmit={opponentForm.handleSubmit(handleOpponentSubmit)} className="space-y-4">
-                <FormField
-                  control={opponentForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opponent Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter opponent name" data-testid="input-opponent-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm font-medium">Creating opponent: {newOpponentName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
+                </div>
+
+                <div className="space-y-2">
+                  <FormLabel>Logo</FormLabel>
+                  <LogoUpload
+                    teamName={newOpponentName || "Opponent"}
+                    currentLogo={opponentForm.watch("logoPath")}
+                    onUploadComplete={(logoPath: string) => {
+                      opponentForm.setValue("logoPath", logoPath);
+                      toast({
+                        title: "Logo Uploaded",
+                        description: "Logo has been uploaded successfully",
+                      });
+                    }}
+                  />
+                </div>
 
                 <FormField
                   control={opponentForm.control}
-                  name="shortName"
+                  name="logoPath"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Auto-generated" data-testid="input-opponent-short-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <input type="hidden" {...field} />
                   )}
                 />
 
@@ -542,34 +693,16 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   )}
                 />
 
-                <div className="space-y-2">
-                  <FormLabel>Logo</FormLabel>
-                  <LogoUpload
-                    teamName={opponentForm.watch("name") || "Opponent"}
-                    currentLogo={opponentForm.watch("logoPath")}
-                    onUploadComplete={(logoPath: string) => {
-                      opponentForm.setValue("logoPath", logoPath);
-                      toast({
-                        title: "Logo Uploaded",
-                        description: "Logo has been uploaded successfully",
-                      });
-                    }}
-                  />
-                </div>
-
-                <FormField
-                  control={opponentForm.control}
-                  name="logoPath"
-                  render={({ field }) => (
-                    <input type="hidden" {...field} />
-                  )}
-                />
-
                 <div className="flex justify-end gap-2 pt-4">
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setActiveTab("fixture-details")}
+                    onClick={() => {
+                      setActiveTab("fixture-details");
+                      form.setValue("oppositionTeamId", "");
+                      setNewOpponentName("");
+                      opponentForm.reset();
+                    }}
                     data-testid="button-cancel-opponent"
                   >
                     Cancel
