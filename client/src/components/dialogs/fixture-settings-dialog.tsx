@@ -319,7 +319,6 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
                 Cancel
               </Button>
               <Button type="submit" data-testid="button-save-settings">
-                <Save className="mr-2 h-4 w-4" />
                 Save Settings
               </Button>
             </div>
