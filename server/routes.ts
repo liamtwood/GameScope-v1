@@ -2621,6 +2621,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parsedData.oppositionTeamId = oppositionTeam.id;
       }
       
+      // Auto-enable competition for the team when a competition is selected
+      if (parsedData.competitionId && parsedData.teamId) {
+        await storage.setTeamCompetition(parsedData.teamId, parsedData.competitionId, true);
+      }
+      
       const fixture = await storage.createFixture(parsedData);
       res.status(201).json(fixture);
     } catch (error) {
@@ -2637,6 +2642,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fixtureData.opponent && !fixtureData.oppositionTeamId) {
         const oppositionTeam = await storage.getOrCreateOppositionTeam(fixtureData.opponent);
         fixtureData.oppositionTeamId = oppositionTeam.id;
+      }
+      
+      // Auto-enable competition for the team when a competition is selected
+      if (fixtureData.competitionId && fixtureData.teamId) {
+        await storage.setTeamCompetition(fixtureData.teamId, fixtureData.competitionId, true);
       }
       
       const fixture = await storage.updateFixture(req.params.id, fixtureData);
