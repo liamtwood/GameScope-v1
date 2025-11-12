@@ -84,9 +84,11 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
       const previewResponse = await apiRequest('POST', '/api/squad/preview-excel', {
         filePath
       });
+      
+      const previewData = await previewResponse.json();
 
       // Process preview data and add validation
-      const processedData: PlayerPreview[] = previewResponse.players.map((player: any) => {
+      const processedData: PlayerPreview[] = previewData.players.map((player: any) => {
         const warnings: string[] = [];
         let status: 'valid' | 'warning' | 'error' = 'valid';
 
@@ -162,14 +164,16 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
         filePath,
         teamId
       });
+      
+      const importData = await importResponse.json();
 
-      if (importResponse.success) {
+      if (importData.success) {
         // Refresh the team players list
         queryClient.invalidateQueries({ queryKey: ["/api/team", teamId, "users"] });
         
         toast({
           title: "Import Successful",
-          description: `Successfully imported ${importResponse.imported} players from Excel file.`,
+          description: `Successfully imported ${importData.imported} players from Excel file.`,
         });
 
         setStep('complete');
