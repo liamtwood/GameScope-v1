@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Calendar, CalendarIcon, Plus, Edit, Check, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 const fixtureEditSchema = z.object({
   opponent: z.string().min(1, "Opponent is required"),
@@ -125,7 +125,12 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     defaultValues: {
       opponent: fixture.opponent,
       venue: fixture.venue,
-      date: new Date(fixture.date),
+      date: (() => {
+        // Parse the date and set it to noon local time to avoid timezone shifts
+        const parsedDate = typeof fixture.date === 'string' ? parseISO(fixture.date) : new Date(fixture.date);
+        parsedDate.setHours(12, 0, 0, 0);
+        return parsedDate;
+      })(),
       timeSlot: "AFTERNOON" as const,
       kickoffTime: "15:00",
       location: "",
@@ -138,6 +143,28 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       oppositionTeamId: fixture.oppositionTeamId || undefined,
     },
   });
+
+  // Reset form when fixture changes to update all fields including competition
+  useEffect(() => {
+    const parsedDate = typeof fixture.date === 'string' ? parseISO(fixture.date) : new Date(fixture.date);
+    parsedDate.setHours(12, 0, 0, 0);
+    
+    form.reset({
+      opponent: fixture.opponent,
+      venue: fixture.venue,
+      date: parsedDate,
+      timeSlot: "AFTERNOON" as const,
+      kickoffTime: "15:00",
+      location: "",
+      type: fixture.type as "HOME" | "AWAY",
+      status: fixture.status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_CONTEST",
+      competitionId: fixture.competitionId || "",
+      homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
+      awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
+      notes: fixture.notes || "",
+      oppositionTeamId: fixture.oppositionTeamId || undefined,
+    });
+  }, [fixture, form]);
 
   // Initialize the selected opponent for logo
   useEffect(() => {
@@ -489,7 +516,11 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                         <Input
                           type="date"
                           value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
-                          onChange={(e) => field.onChange(new Date(e.target.value))}
+                          onChange={(e) => {
+                            // Parse the date and set to noon to avoid timezone shifts
+                            const selectedDate = new Date(e.target.value + 'T12:00:00');
+                            field.onChange(selectedDate);
+                          }}
                           data-testid="input-date"
                         />
                       </PopoverContent>
