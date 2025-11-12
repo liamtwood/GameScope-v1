@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight } from "lucide-react";
-import { Fixture, Team, OppositionTeam, VideoLink, MatchStats } from "@shared/schema";
+import { Fixture, Team, OppositionTeam, VideoLink, MatchStats, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
@@ -24,6 +24,7 @@ export default function Videos() {
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
   const [activeTab, setActiveTab] = useState<string>('video-player');
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>('all');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -52,6 +53,11 @@ export default function Videos() {
     queryKey: ["/api/opposition-teams"] 
   });
 
+  const { data: enabledCompetitions = [] } = useQuery<Competition[]>({
+    queryKey: ["/api/teams", currentTeam?.id, "competitions/enabled"],
+    enabled: !!currentTeam?.id
+  });
+
   // Only show matches that have occurred before tomorrow, sorted by date (oldest first)
   const videoFixtures = useMemo(() => {
     const filtered = fixtures?.filter(f => {
@@ -63,13 +69,16 @@ export default function Videos() {
       const isBeforeTomorrow = matchDate < tomorrow;
       const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
       
-      // Include only matches that occurred before tomorrow
-      return isBeforeTomorrow && hasVideoOrRelevant;
+      // Filter by competition if one is selected
+      const matchesCompetition = selectedCompetitionId === 'all' || f.competitionId === selectedCompetitionId;
+      
+      // Include only matches that occurred before tomorrow and match the competition filter
+      return isBeforeTomorrow && hasVideoOrRelevant && matchesCompetition;
     }) || [];
     
     // Sort by date (oldest/earliest first)
     return filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [fixtures]);
+  }, [fixtures, selectedCompetitionId]);
 
   // Memoized selected fixture
   const selectedFixture = useMemo(() => {
@@ -188,19 +197,36 @@ export default function Videos() {
     >
       {/* View Mode Toggle and Filters */}
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex bg-muted rounded-lg p-1 w-fit">
-          {filterButtons.map((filter) => (
-            <Button
-              key={filter.id}
-              variant={activeFilter === filter.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveFilter(filter.id)}
-              className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-              data-testid={`button-filter-${filter.id}`}
-            >
-              {filter.label}
-            </Button>
-          ))}
+        <div className="flex gap-3 items-center">
+          <div className="flex bg-muted rounded-lg p-1 w-fit">
+            {filterButtons.map((filter) => (
+              <Button
+                key={filter.id}
+                variant={activeFilter === filter.id ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveFilter(filter.id)}
+                className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid={`button-filter-${filter.id}`}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+
+          {/* Competition Filter Dropdown */}
+          <Select value={selectedCompetitionId} onValueChange={setSelectedCompetitionId}>
+            <SelectTrigger className="w-[200px]" data-testid="select-competition-filter">
+              <SelectValue placeholder="All Competitions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Competitions</SelectItem>
+              {enabledCompetitions.map((competition) => (
+                <SelectItem key={competition.id} value={competition.id}>
+                  {competition.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* View Mode Toggle */}
