@@ -163,36 +163,57 @@ export default function Videos() {
       {/* Watch Mode Layout */}
       {viewMode === 'watch' && videoFixtures.length > 0 && (
         <div className="space-y-6">
-          {/* Video Player Section */}
+          {/* Two-Column Layout: Left (Controls) + Right (Video Player) */}
           {selectedFixture && (
             <Card>
               <CardContent className="p-6">
-                <div className="mb-4">
-                  <h2 className="text-2xl font-bold mb-2">{selectedFixture.opponent}</h2>
-                  <div className="flex items-center gap-3">
-                    <p className="text-muted-foreground">{format(new Date(selectedFixture.date), 'd MMMM yyyy, h:mm a')}</p>
-                    {getMatchBadge(selectedFixture)}
-                    <Badge className="bg-gray-100 text-gray-800">
-                      {selectedFixture.type === 'HOME' ? 'Home' : 'Away'}
-                    </Badge>
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Left Column: Match Info + Camera Picker + Tabs (40%) */}
+                  <div className="flex-1 md:w-2/5 space-y-4">
+                    {/* Match Info Header */}
+                    <div>
+                      <h2 className="text-xl font-bold mb-2">{selectedFixture.opponent}</h2>
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <p className="text-muted-foreground">{format(new Date(selectedFixture.date), 'd MMMM yyyy, h:mm a')}</p>
+                        {getMatchBadge(selectedFixture)}
+                        <Badge className="bg-gray-100 text-gray-800">
+                          {selectedFixture.type === 'HOME' ? 'Home' : 'Away'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Camera Angle Picker Placeholder */}
+                    <div className="p-3 border rounded-lg bg-muted/30">
+                      <p className="text-sm font-medium mb-2">Camera Angle</p>
+                      <p className="text-xs text-muted-foreground">Camera picker coming soon</p>
+                    </div>
+
+                    {/* Tabs Placeholder */}
+                    <div className="p-3 border rounded-lg bg-muted/30">
+                      <p className="text-sm font-medium">Tabs: Video Player | Match Events | Team Stats | Spider Charts</p>
+                    </div>
                   </div>
-                </div>
-                <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                  {selectedFixture.hasVideo ? (
-                    <div className="text-center">
-                      <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
-                      <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
-                      <Button onClick={() => handleWatchVideo(selectedFixture)}>
-                        <Play className="w-4 h-4 mr-2" />
-                        Watch Full Match
-                      </Button>
+
+                  {/* Right Column: Video Player (60%) */}
+                  <div className="flex-1 md:w-3/5">
+                    <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                      {selectedFixture.hasVideo ? (
+                        <div className="text-center">
+                          <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
+                          <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
+                          <Button onClick={() => handleWatchVideo(selectedFixture)}>
+                            <Play className="w-4 h-4 mr-2" />
+                            Watch Full Match
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-600">Video will be available after match</p>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="text-center">
-                      <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600">Video will be available after match</p>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
