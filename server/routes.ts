@@ -1422,6 +1422,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "filename and teamId are required" });
       }
 
+      // Get team and club context
+      const team = await storage.getTeam(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      const club = await storage.getClub(team.clubId);
+      if (!club) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+
+      // Use excelTeamName if provided, otherwise use club name
+      const teamNameToMatch = excelTeamName || club.name;
+      console.log(`Will match Excel teams against: ${teamNameToMatch}`);
+
       // Securely resolve the file path
       const filePath = resolveTempUploadPath(filename);
       console.log(`Previewing fixtures from Excel file: ${filePath}`);
@@ -1602,6 +1617,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Team not found" });
       }
 
+      // Get the club to use club name for matching
+      const club = await storage.getClub(team.clubId);
+      if (!club) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+
+      // Use excelTeamName if provided, otherwise use club name
+      const teamNameToMatch = excelTeamName || club.name;
+      console.log(`Will match Excel teams against: ${teamNameToMatch}`);
+
       // Securely resolve the file path
       const filePath = resolveTempUploadPath(filename);
       console.log(`Importing fixtures from Excel file: ${filePath} for team: ${team.name}`);
@@ -1631,9 +1656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let type = '';
           
           if (homeTeam && awayTeam) {
-            // Determine which team is the opposition based on team name
-            // Use excelTeamName if provided, otherwise use database team name
-            const teamNameToMatch = excelTeamName || team.name;
+            // Determine which team is the opposition based on club/team name
             const teamNameLower = teamNameToMatch.toLowerCase();
             const homeTeamLower = homeTeam.toLowerCase();
             const awayTeamLower = awayTeam.toLowerCase();
