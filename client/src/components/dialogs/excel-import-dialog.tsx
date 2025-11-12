@@ -263,9 +263,10 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                   <CardTitle className="text-sm">Expected Excel Format</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm space-y-2">
-                  <p><strong>Required columns:</strong> First Name, Last Name, Position</p>
-                  <p><strong>Optional columns:</strong> Number/Jersey Number, Email, Phone, Age/DOB</p>
+                  <p><strong>Required columns:</strong> First Name/first, Last Name/last, Position</p>
+                  <p><strong>Optional columns:</strong> Number/number, Email, Phone, DOB</p>
                   <p><strong>Supported positions:</strong> GK, DEF, MID, FWD</p>
+                  <p className="text-xs text-muted-foreground">Column names are flexible - both "First Name" and "first" work</p>
                 </CardContent>
               </Card>
             </div>

@@ -1182,8 +1182,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowObj = row as any;
           
           // Name extraction
-          playerData.firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['Name']?.split(' ')[0] || '';
-          playerData.lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
+          playerData.firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['first'] || rowObj['Name']?.split(' ')[0] || '';
+          playerData.lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['last'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
           
           // If no first/last name, try to split full name
           if (!playerData.firstName && !playerData.lastName && rowObj['Name']) {
@@ -1335,8 +1335,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowObj = row as any;
           
           // Name extraction
-          const firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['Name']?.split(' ')[0] || '';
-          const lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
+          const firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['first'] || rowObj['Name']?.split(' ')[0] || '';
+          const lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['last'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
           
           // If no first/last name, try to split full name
           let finalFirstName = firstName;
