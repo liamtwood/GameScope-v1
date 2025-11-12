@@ -3154,6 +3154,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.setTeamCompetition(fixtureData.teamId, fixtureData.competitionId, true);
       }
       
+      // Automatically set status to COMPLETED if both scores are valid numbers (including 0)
+      if (fixtureData.homeScore !== undefined && fixtureData.homeScore !== null && 
+          fixtureData.awayScore !== undefined && fixtureData.awayScore !== null &&
+          !isNaN(fixtureData.homeScore) && !isNaN(fixtureData.awayScore)) {
+        fixtureData.status = 'COMPLETED';
+      }
+      
       const fixture = await storage.updateFixture(req.params.id, fixtureData);
       res.json(fixture);
     } catch (error) {
