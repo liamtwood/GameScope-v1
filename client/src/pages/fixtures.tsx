@@ -463,10 +463,10 @@ export default function Fixtures() {
       {/* Summary Cards */}
       <div className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* FCSAA League Card */}
+            {/* Overall Record Card */}
             <StatsCard
-              title="FCSAA League"
-              value={`${fcsaaStats.wins}-${fcsaaStats.draws}-${fcsaaStats.losses}`}
+              title="Overall Record"
+              value={`${stats.wins}-${stats.draws}-${stats.losses}`}
               icon={Trophy}
               iconColor="text-club-primary"
               subtitle="W-D-L"
