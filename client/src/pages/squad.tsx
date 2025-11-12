@@ -35,7 +35,7 @@ import { useClub } from "@/contexts/club-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCurrentSeason, getEffectiveSeasonStartMonth } from "@/utils/seasonUtils";
 
-type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
+type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD' | 'HC' | 'AC';
 type StatusFilter = 'all' | 'Fit' | 'Injured' | 'Retired';
 type StarFilter = 'all' | 'star' | 'regular';
 
@@ -236,6 +236,14 @@ export default function Squad() {
   });
 
   const getPositionCategory = (position: string): PositionFilter => {
+    if (!position) return 'MID';
+    
+    // Handle coach positions first (case-insensitive)
+    const posLower = position.toLowerCase();
+    if (posLower.includes('head coach') || posLower === 'hc') return 'HC';
+    if (posLower.includes('assistant coach') || posLower === 'ac') return 'AC';
+    
+    // Handle player positions
     if (['GK', 'Goalkeeper', 'goalkeeper'].includes(position)) return 'GK';
     if (['CB', 'LB', 'RB', 'LWB', 'RWB', 'DEF', 'Defender', 'defender'].includes(position)) return 'DEF';
     if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'DM', 'AM', 'MID', 'Midfielder', 'midfield'].includes(position)) return 'MID';
@@ -250,7 +258,9 @@ export default function Squad() {
       case 'DEF': return 2;
       case 'MID': return 3;
       case 'FWD': return 4;
-      default: return 5;
+      case 'HC': return 5;
+      case 'AC': return 6;
+      default: return 7;
     }
   };
 
@@ -465,8 +475,8 @@ export default function Squad() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="grid grid-cols-4 gap-2">
+                <div className="w-full">
+                  <div className="grid grid-cols-4 gap-2 mb-3">
                     <div className="text-center">
                       <p className="text-sm font-medium text-muted-foreground">GK</p>
                       <p className="text-3xl font-bold text-foreground">{getPositionCount('GK')}</p>
@@ -484,6 +494,18 @@ export default function Squad() {
                       <p className="text-3xl font-bold text-foreground">{getPositionCount('FWD')}</p>
                     </div>
                   </div>
+                  {(getPositionCount('HC') > 0 || getPositionCount('AC') > 0) && (
+                    <div className="grid grid-cols-2 gap-2 pt-3 border-t">
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-muted-foreground">Head Coach</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('HC')}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-muted-foreground">Asst Coach</p>
+                        <p className="text-2xl font-bold text-foreground">{getPositionCount('AC')}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="mt-4">
@@ -596,6 +618,8 @@ export default function Squad() {
                       <SelectItem value="DEF">Defense</SelectItem>
                       <SelectItem value="MID">Midfield</SelectItem>
                       <SelectItem value="FWD">Forward</SelectItem>
+                      <SelectItem value="HC">Head Coach</SelectItem>
+                      <SelectItem value="AC">Assistant Coach</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -830,6 +854,8 @@ export default function Squad() {
                       <SelectItem value="DEF">Defense</SelectItem>
                       <SelectItem value="MID">Midfield</SelectItem>
                       <SelectItem value="FWD">Forward</SelectItem>
+                      <SelectItem value="HC">Head Coach</SelectItem>
+                      <SelectItem value="AC">Assistant Coach</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -882,7 +908,7 @@ export default function Squad() {
           ) : filteredPlayers.length > 0 ? (
             <div className="space-y-8">
               {/* Group players by position */}
-              {['GK', 'DEF', 'MID', 'FWD'].map(positionCategory => {
+              {['GK', 'DEF', 'MID', 'FWD', 'HC', 'AC'].map(positionCategory => {
                 const playersInPosition = filteredPlayers.filter(player => 
                   getPositionCategory(player.position) === positionCategory
                 );
@@ -893,7 +919,9 @@ export default function Squad() {
                   'GK': 'Goalkeepers',
                   'DEF': 'Defenders', 
                   'MID': 'Midfielders',
-                  'FWD': 'Forwards'
+                  'FWD': 'Forwards',
+                  'HC': 'Head Coach',
+                  'AC': 'Assistant Coaches'
                 }[positionCategory];
                 
                 return (
