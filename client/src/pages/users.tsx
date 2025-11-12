@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users as UsersIcon, Shield, Settings, Filter } from "lucide-react";
 import { User } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -50,6 +51,10 @@ export default function Users() {
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
   const { selectedClub: currentClub } = useClub();
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   // Fetch club users
   const { data: users = [], isLoading } = useQuery<User[]>({ 
@@ -253,8 +258,15 @@ export default function Users() {
   };
 
   const handleDeleteUser = (user: User) => {
-    if (window.confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName} from the system?`)) {
-      deleteUserMutation.mutate(user.id);
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      deleteUserMutation.mutate(userToDelete.id);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -482,6 +494,25 @@ export default function Users() {
           </UserCreateDialog>
         </div>
       )}
+
+      {/* Delete User Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {userToDelete?.firstName} {userToDelete?.lastName} from the system?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteUser} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }

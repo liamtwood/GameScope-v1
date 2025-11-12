@@ -3384,10 +3384,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Team ID and logoURL are required' });
       }
 
-      console.log('Received logoURL:', logoURL);
       const objectStorageService = new ObjectStorageService();
       const logoPath = objectStorageService.normalizeLogoPath(logoURL);
-      console.log('Normalized logoPath:', logoPath);
       await storage.updateOppositionTeam(teamId, { logoPath });
 
       res.json({ 

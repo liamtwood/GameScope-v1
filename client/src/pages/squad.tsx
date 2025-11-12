@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload, ArrowRightLeft } from "lucide-react";
 import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
@@ -77,6 +78,10 @@ export default function Squad() {
   // Settings dialog state
   const [showSettings, setShowSettings] = useState(false);
   const [tempSelectedSeason, setTempSelectedSeason] = useState<string>(selectedSeason);
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
@@ -355,8 +360,15 @@ export default function Squad() {
   };
 
   const handleDeletePlayer = (player: Player) => {
-    if (window.confirm(`Are you sure you want to delete ${player.firstName} ${player.lastName} from the squad?`)) {
-      deletePlayerMutation.mutate(player.id);
+    setPlayerToDelete(player);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeletePlayer = () => {
+    if (playerToDelete) {
+      deletePlayerMutation.mutate(playerToDelete.id);
+      setDeleteDialogOpen(false);
+      setPlayerToDelete(null);
     }
   };
 
@@ -928,6 +940,25 @@ export default function Squad() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Player Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Player</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {playerToDelete?.firstName} {playerToDelete?.lastName} from the squad?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeletePlayer} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </MainLayout>
   );

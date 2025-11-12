@@ -223,9 +223,26 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
             )}
             
             {/* Result/Status */}
-            <Badge className="inline-flex items-center rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 text-xs px-3 py-1 bg-green-500 text-white ml-[2px] mr-[2px]">
+            <Badge className={`inline-flex items-center rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 text-xs px-3 py-1 ${getStatusColor()} ml-[2px] mr-[2px]`}>
               {getResultDisplay()}
             </Badge>
+
+            {/* Delete button */}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 ml-2"
+                title="Delete fixture"
+                data-testid={`button-delete-fixture-${fixture.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(fixture);
+                }}
+              >
+                <Trash2 className="h-4 w-4 text-destructive hover:text-destructive/80" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
