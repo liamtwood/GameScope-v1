@@ -43,9 +43,7 @@ const createPlayerSchema = z.object({
   emergencyContact: z.string().optional(),
   emergencyContactPhone: z.string().optional(),
   // Team Information
-  position: z.enum(["Goalkeeper", "Defender", "Midfield", "Forward"], {
-    required_error: "Position is required",
-  }),
+  position: z.string().optional(),
   jerseyNumber: z.number().min(0).nullable(),
   fitnessStatus: z.string().default("Fit"),
 });
@@ -85,6 +83,11 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
     },
   });
 
+  // Watch the role field to conditionally disable fields
+  const selectedRole = form.watch("role");
+  const isPlayerRole = selectedRole === "Player";
+  const isCoachRole = selectedRole === "Coach";
+
   const onSubmit = (data: CreatePlayerFormData) => {
     onSave(data);
     setOpen(false);
@@ -98,15 +101,68 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Add New Player</DialogTitle>
+          <DialogTitle>Add New Member</DialogTitle>
           <DialogDescription>
-            Add a new player to the squad roster.
+            Add a new member to the squad roster.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* NAME INFORMATION Section */}
+            {/* ACCOUNT INFORMATION Section - Moved to top */}
             <div className="space-y-4">
+              <h3 className="text-xs font-semibold">ACCOUNT INFORMATION</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-role">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Player">Player</SelectItem>
+                          <SelectItem value="Coach">Coach</SelectItem>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Suspended">Suspended</SelectItem>
+                          <SelectItem value="Retired">Retired</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* NAME INFORMATION Section */}
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="text-xs font-semibold">NAME INFORMATION</h3>
               
               <div className="grid grid-cols-3 gap-4">
@@ -143,7 +199,12 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                     <FormItem>
                       <FormLabel>Shirt Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter shirt name" {...field} data-testid="input-shirt-name" />
+                        <Input 
+                          placeholder="Enter shirt name" 
+                          {...field} 
+                          disabled={!isPlayerRole}
+                          data-testid="input-shirt-name" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,17 +224,26 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Position</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!isPlayerRole && !isCoachRole}>
                         <FormControl>
                           <SelectTrigger data-testid="select-position">
-                            <SelectValue placeholder="Select position" />
+                            <SelectValue placeholder={isCoachRole ? "Select coach role" : "Select position"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
-                          <SelectItem value="Defender">Defender</SelectItem>
-                          <SelectItem value="Midfield">Midfield</SelectItem>
-                          <SelectItem value="Forward">Forward</SelectItem>
+                          {isCoachRole ? (
+                            <>
+                              <SelectItem value="Head Coach">Head Coach</SelectItem>
+                              <SelectItem value="Assistant Coach">Assistant Coach</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                              <SelectItem value="Defender">Defender</SelectItem>
+                              <SelectItem value="Midfield">Midfield</SelectItem>
+                              <SelectItem value="Forward">Forward</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -193,6 +263,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                           {...field} 
                           value={field.value || ""}
                           onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                          disabled={!isPlayerRole}
                           data-testid="input-jersey-number"
                         />
                       </FormControl>
@@ -206,7 +277,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Fitness Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!isPlayerRole}>
                         <FormControl>
                           <SelectTrigger data-testid="select-fitness-status">
                             <SelectValue placeholder="Select status" />
@@ -246,6 +317,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                               field.onChange(defaultDate);
                             }
                           }}
+                          disabled={!isPlayerRole}
                           data-testid="input-date-of-birth" 
                         />
                       </FormControl>
@@ -266,6 +338,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                           {...field} 
                           value={field.value || ""}
                           onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          disabled={!isPlayerRole}
                           data-testid="input-age"
                         />
                       </FormControl>
@@ -334,55 +407,6 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                   )}
                 />
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-role" className="opacity-60">
-                            <SelectValue placeholder="Player" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Player">Player</SelectItem>
-                          <SelectItem value="Coach">Coach</SelectItem>
-                          <SelectItem value="Admin">Admin</SelectItem>
-                          <SelectItem value="Parent">Parent</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>User Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-status">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Draft">Draft</SelectItem>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Suspended">Suspended</SelectItem>
-                          <SelectItem value="Retired">Retired</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
 
 
@@ -396,7 +420,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                 Cancel
               </Button>
               <Button type="submit" data-testid="button-save">
-                Add Player
+                Add Member
               </Button>
             </div>
           </form>
