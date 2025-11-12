@@ -242,9 +242,8 @@ export class ObjectStorageService {
       logoDir = `${logoDir}/`;
     }
     
-    // Check if logoId already includes uploads/ prefix
-    const finalLogoId = logoId.startsWith('uploads/') ? logoId : `uploads/${logoId}`;
-    const logoObjectPath = `${logoDir}${finalLogoId}`;
+    // Logos are stored in the logos/ subdirectory
+    const logoObjectPath = `${logoDir}logos/${logoId}`;
     
     const { bucketName, objectName } = parseObjectPath(logoObjectPath);
     const bucket = objectStorageClient.bucket(bucketName);
