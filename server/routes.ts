@@ -1433,6 +1433,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = XLSX.utils.sheet_to_json(worksheet);
 
       console.log(`Found ${data.length} rows in Excel file`);
+      
+      // Debug: Log column names from first row
+      if (data.length > 0) {
+        console.log("Column names in Excel file:", Object.keys(data[0] as any));
+        console.log("Sample row data:", data[0]);
+      }
 
       const fixtures: any[] = [];
 
