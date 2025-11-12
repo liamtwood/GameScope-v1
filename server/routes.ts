@@ -1524,7 +1524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
           
-          // Date
+          // Date and Time - merge into single timestamp
           let date;
           if (rowObj['Date'] || rowObj['date']) {
             const excelDate = rowObj['Date'] || rowObj['date'];
@@ -1537,17 +1537,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (isNaN(date.getTime())) {
               throw new Error(`Invalid date for ${oppositionName}`);
             }
+            
+            // If time is provided, merge it with the date
+            const timeStr = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
+            if (timeStr) {
+              // Parse time (format: "HH:MM" or "HH:MM AM/PM")
+              const timeParts = timeStr.toString().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+              if (timeParts) {
+                let hours = parseInt(timeParts[1]);
+                const minutes = parseInt(timeParts[2]);
+                const ampm = timeParts[3]?.toUpperCase();
+                
+                // Convert to 24-hour format if needed
+                if (ampm === 'PM' && hours !== 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+                
+                date.setHours(hours, minutes, 0, 0);
+              }
+            }
           } else {
             throw new Error(`No date provided for ${oppositionName}`);
           }
           
-          // Time
-          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
-          
-          // Venue
+          // Venue - map to type field (HOME/AWAY/NEUTRAL)
           let venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || 'Home';
-          venue = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h' ? 'Home' : 
-                  venue.toLowerCase().includes('away') || venue.toLowerCase() === 'a' ? 'Away' : venue;
+          const isHome = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h';
+          const type = isHome ? 'HOME' : 'AWAY';
+          venue = isHome ? 'Home' : 'Away';
           
           // Competition
           const competitionName = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || '';
@@ -1563,8 +1579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (!competition) {
               console.log(`Creating new competition: ${competitionName}`);
               competition = await storage.createCompetition({
-                name: competitionName,
-                type: 'League'
+                name: competitionName
               });
             }
             
@@ -1584,23 +1599,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
           
-          // Results (optional)
+          // Results (optional) - map to homeScore/awayScore based on venue
           const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || null;
           const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || null;
           
+          let homeScore = null;
+          let awayScore = null;
+          
+          if (goalsFor !== null && goalsAgainst !== null) {
+            if (isHome) {
+              // Home game: team score = home score, opposition = away score
+              homeScore = parseInt(goalsFor);
+              awayScore = parseInt(goalsAgainst);
+            } else {
+              // Away game: team score = away score, opposition = home score
+              awayScore = parseInt(goalsFor);
+              homeScore = parseInt(goalsAgainst);
+            }
+          }
+          
           // Determine status
-          const status = (goalsFor !== null && goalsAgainst !== null) ? 'Completed' : 'Scheduled';
+          const status = (goalsFor !== null && goalsAgainst !== null) ? 'COMPLETED' : 'SCHEDULED';
           
           // Create fixture
           await storage.createFixture({
             teamId,
             oppositionTeamId: oppositionTeam.id,
             date,
-            time,
+            type,
             venue,
+            opponent: oppositionName,
             competitionId,
-            goalsFor: goalsFor !== null ? parseInt(goalsFor) : null,
-            goalsAgainst: goalsAgainst !== null ? parseInt(goalsAgainst) : null,
+            homeScore,
+            awayScore,
             status
           });
 
