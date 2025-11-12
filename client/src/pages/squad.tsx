@@ -17,7 +17,7 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload, ArrowRightLeft, UserMinus } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Upload, ArrowRightLeft, UserMinus } from "lucide-react";
 import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
 // Define Player type for compatibility
@@ -71,14 +71,9 @@ export default function Squad() {
       const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub || undefined);
       const newSeason = getCurrentSeason(seasonStartMonth);
       setSelectedSeason(newSeason);
-      setTempSelectedSeason(newSeason);
     }
   }, [currentTeam, currentClub]);
 
-  // Settings dialog state
-  const [showSettings, setShowSettings] = useState(false);
-  const [tempSelectedSeason, setTempSelectedSeason] = useState<string>(selectedSeason);
-  
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
@@ -448,25 +443,6 @@ export default function Squad() {
     queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
   };
 
-  const handleOpenSettings = () => {
-    setTempSelectedSeason(selectedSeason);
-    setShowSettings(true);
-  };
-
-  const handleSaveSettings = () => {
-    setSelectedSeason(tempSelectedSeason);
-    setShowSettings(false);
-    toast({
-      title: "Settings Updated",
-      description: "Squad settings have been saved successfully.",
-    });
-  };
-
-  const handleCancelSettings = () => {
-    setTempSelectedSeason(selectedSeason);
-    setShowSettings(false);
-  };
-
 
   return (
     <MainLayout 
@@ -597,14 +573,6 @@ export default function Squad() {
                 Transfer Players
               </Button>
             </PlayerTransferDialog>
-            
-            <Button 
-              variant="ghost" 
-              onClick={handleOpenSettings}
-              data-testid="button-squad-settings"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
         </div>
         
@@ -976,49 +944,6 @@ export default function Squad() {
         </>
       )}
 
-      {/* Squad Settings Dialog */}
-      <Dialog open={showSettings} onOpenChange={handleCancelSettings}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Squad Settings</DialogTitle>
-            <DialogDescription>
-              Configure squad management preferences and season settings.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Season</label>
-              <SeasonPicker
-                team={currentTeam || undefined}
-                club={currentClub || undefined}
-                selectedSeason={tempSelectedSeason}
-                onSeasonChange={setTempSelectedSeason}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Select the season to view and manage squad data for
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex justify-end space-x-2 pt-4 border-t">
-            <Button 
-              variant="outline" 
-              onClick={handleCancelSettings}
-              data-testid="button-cancel-settings"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSaveSettings}
-              data-testid="button-save-settings"
-            >
-              Save Changes
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Player Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
