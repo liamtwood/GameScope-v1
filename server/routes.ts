@@ -1389,6 +1389,249 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Preview fixtures from Excel file
+  app.post("/api/fixtures/import-excel/preview", async (req, res) => {
+    try {
+      const { filePath, teamId } = req.body;
+      
+      if (!filePath || !teamId) {
+        return res.status(400).json({ message: "filePath and teamId are required" });
+      }
+
+      console.log(`Previewing fixtures from Excel file: ${filePath}`);
+
+      // Read and process the Excel file
+      const workbook = XLSX.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log(`Found ${data.length} rows in Excel file`);
+
+      const fixtures: any[] = [];
+
+      for (const row of data) {
+        try {
+          const rowObj = row as any;
+          
+          // Opposition/Opponent
+          const opposition = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+          
+          // Skip if no opposition
+          if (!opposition) continue;
+          
+          // Date
+          let date = '';
+          if (rowObj['Date'] || rowObj['date']) {
+            const excelDate = rowObj['Date'] || rowObj['date'];
+            // Excel dates are serial numbers - convert to JavaScript Date
+            if (typeof excelDate === 'number') {
+              const jsDate = new Date((excelDate - 25569) * 86400 * 1000);
+              date = jsDate.toISOString().split('T')[0];
+            } else {
+              const parsedDate = new Date(excelDate);
+              if (!isNaN(parsedDate.getTime())) {
+                date = parsedDate.toISOString().split('T')[0];
+              }
+            }
+          }
+          
+          // Time
+          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
+          
+          // Venue
+          let venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || '';
+          venue = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h' ? 'Home' : 
+                  venue.toLowerCase().includes('away') || venue.toLowerCase() === 'a' ? 'Away' : venue;
+          
+          // Competition
+          const competition = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || '';
+          
+          // Results (optional)
+          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || null;
+          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || null;
+          
+          fixtures.push({
+            opposition,
+            date,
+            time,
+            venue,
+            competition,
+            goalsFor: goalsFor !== null ? parseInt(goalsFor) : null,
+            goalsAgainst: goalsAgainst !== null ? parseInt(goalsAgainst) : null,
+            hasResult: goalsFor !== null && goalsAgainst !== null
+          });
+
+        } catch (error) {
+          console.error('Error processing row for preview:', row, error);
+        }
+      }
+
+      console.log(`Preview processed: ${fixtures.length} fixtures`);
+
+      res.json({
+        success: true,
+        total: data.length,
+        fixtures
+      });
+
+    } catch (error) {
+      console.error("Error previewing fixtures Excel file:", error);
+      res.status(500).json({ 
+        message: "Failed to preview Excel file",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Import fixtures from Excel file
+  app.post("/api/fixtures/import-excel", async (req, res) => {
+    try {
+      const { filePath, teamId } = req.body;
+      
+      if (!filePath || !teamId) {
+        return res.status(400).json({ message: "filePath and teamId are required" });
+      }
+
+      // Check if team exists
+      const team = await storage.getTeam(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      console.log(`Importing fixtures from Excel file: ${filePath} for team: ${team.name}`);
+
+      // Read and process the Excel file
+      const workbook = XLSX.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log(`Found ${data.length} rows in Excel file`);
+
+      let importedCount = 0;
+      const errors: string[] = [];
+
+      for (const row of data) {
+        try {
+          const rowObj = row as any;
+          
+          // Opposition/Opponent
+          const oppositionName = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+          
+          if (!oppositionName) {
+            console.log('Skipping row with no opposition:', rowObj);
+            continue;
+          }
+          
+          // Date
+          let date;
+          if (rowObj['Date'] || rowObj['date']) {
+            const excelDate = rowObj['Date'] || rowObj['date'];
+            if (typeof excelDate === 'number') {
+              date = new Date((excelDate - 25569) * 86400 * 1000);
+            } else {
+              date = new Date(excelDate);
+            }
+            
+            if (isNaN(date.getTime())) {
+              throw new Error(`Invalid date for ${oppositionName}`);
+            }
+          } else {
+            throw new Error(`No date provided for ${oppositionName}`);
+          }
+          
+          // Time
+          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
+          
+          // Venue
+          let venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || 'Home';
+          venue = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h' ? 'Home' : 
+                  venue.toLowerCase().includes('away') || venue.toLowerCase() === 'a' ? 'Away' : venue;
+          
+          // Competition
+          const competitionName = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || '';
+          
+          // Find or create competition
+          let competitionId = null;
+          if (competitionName) {
+            const allCompetitions = await storage.getCompetitions();
+            let competition = allCompetitions.find(c => 
+              c.name.toLowerCase() === competitionName.toLowerCase()
+            );
+            
+            if (!competition) {
+              console.log(`Creating new competition: ${competitionName}`);
+              competition = await storage.createCompetition({
+                name: competitionName,
+                type: 'League'
+              });
+            }
+            
+            competitionId = competition.id;
+          }
+          
+          // Find or create opposition team
+          const allOppositionTeams = await storage.getOppositionTeams();
+          let oppositionTeam = allOppositionTeams.find(ot => 
+            ot.name.toLowerCase() === oppositionName.toLowerCase()
+          );
+          
+          if (!oppositionTeam) {
+            console.log(`Creating new opposition team: ${oppositionName}`);
+            oppositionTeam = await storage.createOppositionTeam({
+              name: oppositionName
+            });
+          }
+          
+          // Results (optional)
+          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || null;
+          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || null;
+          
+          // Determine status
+          const status = (goalsFor !== null && goalsAgainst !== null) ? 'Completed' : 'Scheduled';
+          
+          // Create fixture
+          await storage.createFixture({
+            teamId,
+            oppositionTeamId: oppositionTeam.id,
+            date,
+            time,
+            venue,
+            competitionId,
+            goalsFor: goalsFor !== null ? parseInt(goalsFor) : null,
+            goalsAgainst: goalsAgainst !== null ? parseInt(goalsAgainst) : null,
+            status
+          });
+
+          console.log(`Created fixture: vs ${oppositionName} on ${date.toISOString().split('T')[0]}`);
+          importedCount++;
+
+        } catch (error) {
+          const errorMsg = `Failed to import fixture: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
+        }
+      }
+
+      console.log(`Import completed: ${importedCount} fixtures imported, ${errors.length} errors`);
+
+      res.json({
+        success: true,
+        imported: importedCount,
+        errors: errors.length > 0 ? errors : undefined,
+        total: data.length
+      });
+
+    } catch (error) {
+      console.error("Error importing fixtures from Excel:", error);
+      res.status(500).json({ 
+        message: "Failed to import fixtures",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Delete multiple users by IDs
   app.delete("/api/users/bulk", async (req, res) => {
     try {
