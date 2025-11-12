@@ -528,7 +528,7 @@ export default function Squad() {
                 disabled={!currentTeam?.id}
               >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Add Player
+                Add Member
               </Button>
             </PlayerCreateDialog>
             
