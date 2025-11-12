@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
@@ -6,20 +6,38 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay } from "lucide-react";
 import { Fixture, Team, OppositionTeam } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
+type ViewMode = 'tile' | 'watch';
 
 export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('tile');
+  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
+
+  // Load view mode preference from localStorage
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('videoViewMode');
+    if (savedViewMode === 'tile' || savedViewMode === 'watch') {
+      setViewMode(savedViewMode);
+    }
+  }, []);
+
+  // Save view mode preference to localStorage
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('videoViewMode', mode);
+  };
 
   const { data: fixtures, isLoading } = useQuery<Fixture[]>({ 
     queryKey: ["/api/fixtures", currentTeam?.id],
@@ -85,13 +103,22 @@ export default function Videos() {
   ];
 
 
+  // Set default selected fixture to first one when in watch mode
+  useEffect(() => {
+    if (viewMode === 'watch' && videoFixtures.length > 0 && !selectedFixtureId) {
+      setSelectedFixtureId(videoFixtures[0].id);
+    }
+  }, [viewMode, videoFixtures, selectedFixtureId]);
+
+  const selectedFixture = videoFixtures.find(f => f.id === selectedFixtureId) || videoFixtures[0];
+
   return (
     <MainLayout 
       title="Match Video" 
       subtitle="Video analysis and match recordings"
     >
-      {/* Video Filter */}
-      <div className="mb-6">
+      {/* View Mode Toggle and Filters */}
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex bg-muted rounded-lg p-1 w-fit">
           {filterButtons.map((filter) => (
             <Button
@@ -106,16 +133,131 @@ export default function Videos() {
             </Button>
           ))}
         </div>
+
+        {/* View Mode Toggle */}
+        <div className="flex bg-muted rounded-lg p-1">
+          <Button
+            variant={viewMode === 'tile' ? "default" : "ghost"}
+            size="sm"
+            onClick={() => handleViewModeChange('tile')}
+            className={viewMode === 'tile' ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid="button-view-tile"
+          >
+            <Blocks className="h-4 w-4 mr-2" />
+            Tile Mode
+          </Button>
+          <Button
+            variant={viewMode === 'watch' ? "default" : "ghost"}
+            size="sm"
+            onClick={() => handleViewModeChange('watch')}
+            className={viewMode === 'watch' ? "bg-background text-foreground shadow-sm" : ""}
+            data-testid="button-view-watch"
+          >
+            <TvMinimalPlay className="h-4 w-4 mr-2" />
+            Watch Mode
+          </Button>
+        </div>
       </div>
 
 
-      {/* Video Gallery - Grouped by Competition */}
-      <div className="mb-8">
-        {isLoading ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Loading videos...</p>
+      {/* Watch Mode Layout */}
+      {viewMode === 'watch' && videoFixtures.length > 0 && (
+        <div className="space-y-6">
+          {/* Video Player Section */}
+          {selectedFixture && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold mb-2">{selectedFixture.opponent}</h2>
+                  <div className="flex items-center gap-3">
+                    <p className="text-muted-foreground">{format(new Date(selectedFixture.date), 'd MMMM yyyy, h:mm a')}</p>
+                    {getMatchBadge(selectedFixture)}
+                    <Badge className="bg-gray-100 text-gray-800">
+                      {selectedFixture.type === 'HOME' ? 'Home' : 'Away'}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="aspect-video bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                  {selectedFixture.hasVideo ? (
+                    <div className="text-center">
+                      <VideoIcon className="w-16 h-16 text-club-primary mx-auto mb-3" />
+                      <p className="text-lg font-medium text-green-800 mb-3">Video Ready</p>
+                      <Button onClick={() => handleWatchVideo(selectedFixture)}>
+                        <Play className="w-4 w-4 mr-2" />
+                        Watch Full Match
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <VideoIcon className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600">Video will be available after match</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Horizontal Scrolling Fixture Cards */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">All Matches</h3>
+            <ScrollArea className="w-full whitespace-nowrap">
+              <div className="flex gap-4 pb-4">
+                {videoFixtures.map((fixture) => {
+                  const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                  const isSelected = selectedFixtureId === fixture.id;
+                  
+                  return (
+                    <Card 
+                      key={fixture.id}
+                      className={`w-[320px] flex-shrink-0 cursor-pointer transition-all hover:shadow-lg ${
+                        isSelected ? 'ring-2 ring-primary shadow-lg' : ''
+                      }`}
+                      onClick={() => setSelectedFixtureId(fixture.id)}
+                      data-testid={`card-fixture-${fixture.id}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          {opponent?.logoPath ? (
+                            <img 
+                              src={opponent.logoPath} 
+                              alt={`${fixture.opponent} logo`}
+                              className="w-12 h-12 object-contain"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">
+                              {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{fixture.opponent}</h4>
+                            <p className="text-xs text-muted-foreground">{format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          {getMatchBadge(fixture)}
+                          <Badge className="bg-gray-100 text-gray-800 text-xs">
+                            {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </ScrollArea>
           </div>
-        ) : videoFixtures.length > 0 ? (
+        </div>
+      )}
+
+      {/* Tile Mode Layout - Grouped by Competition */}
+      {viewMode === 'tile' && (
+        <div className="mb-8">
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading videos...</p>
+            </div>
+          ) : videoFixtures.length > 0 ? (
           (() => {
             // Group fixtures by competition
             const groupedFixtures = videoFixtures.reduce((groups, fixture) => {
@@ -294,7 +436,8 @@ export default function Videos() {
             <p className="text-muted-foreground">No videos available</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
