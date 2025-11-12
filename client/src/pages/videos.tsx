@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
@@ -6,13 +6,12 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { Fixture, Team, OppositionTeam, VideoLink, MatchStats } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -28,6 +27,7 @@ export default function Videos() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Load view mode preference from localStorage
   useEffect(() => {
@@ -52,19 +52,24 @@ export default function Videos() {
     queryKey: ["/api/opposition-teams"] 
   });
 
-  // Only show matches that have occurred before tomorrow
-  const videoFixtures = fixtures?.filter(f => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0); // Start of tomorrow
-    const matchDate = new Date(f.date);
+  // Only show matches that have occurred before tomorrow, sorted by date (oldest first)
+  const videoFixtures = useMemo(() => {
+    const filtered = fixtures?.filter(f => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0); // Start of tomorrow
+      const matchDate = new Date(f.date);
+      
+      const isBeforeTomorrow = matchDate < tomorrow;
+      const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
+      
+      // Include only matches that occurred before tomorrow
+      return isBeforeTomorrow && hasVideoOrRelevant;
+    }) || [];
     
-    const isBeforeTomorrow = matchDate < tomorrow;
-    const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
-    
-    // Include only matches that occurred before tomorrow
-    return isBeforeTomorrow && hasVideoOrRelevant;
-  }) || [];
+    // Sort by date (oldest/earliest first)
+    return filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [fixtures]);
 
   // Memoized selected fixture
   const selectedFixture = useMemo(() => {
@@ -122,6 +127,17 @@ export default function Videos() {
     setLocation(`/watch-match-video?fixtureId=${fixture.id}${cameraParam}`);
   };
   
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -340, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 340, behavior: 'smooth' });
+    }
+  };
 
   const handleShareVideo = (fixture: Fixture) => {
     toast({
@@ -338,8 +354,32 @@ export default function Videos() {
 
           {/* Horizontal Scrolling Fixture Cards */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">All Matches</h3>
-            <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">All Matches</h3>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={scrollLeft}
+                  data-testid="button-scroll-left"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={scrollRight}
+                  data-testid="button-scroll-right"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div 
+              ref={scrollContainerRef}
+              className="w-full whitespace-nowrap overflow-x-auto scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               <div className="flex gap-4 pb-4">
                 {videoFixtures.map((fixture) => {
                   const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
@@ -383,7 +423,7 @@ export default function Videos() {
                   );
                 })}
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </div>
       )}
