@@ -92,6 +92,14 @@ export default function FixtureDetails() {
     queryKey: ["/api/opposition-teams"],
   });
 
+  const { data: competitions } = useQuery<any[]>({
+    queryKey: ["/api/competitions"],
+  });
+
+  // Get competition name from competitionId
+  const competitionName = fixture?.competitionId 
+    ? competitions?.find(c => c.id === fixture.competitionId)?.name || 'N/A'
+    : 'N/A';
 
   const { data: matchStats } = useQuery<MatchStats[]>({
     queryKey: ["/api/match-stats", fixtureId],
@@ -294,7 +302,7 @@ export default function FixtureDetails() {
                   <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                      <p className="text-lg mt-1">{fixture.competition}</p>
+                      <p className="text-lg mt-1">{competitionName}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Match Type</label>
@@ -477,7 +485,7 @@ export default function FixtureDetails() {
                             <label className="text-sm font-medium text-muted-foreground">Competition</label>
                             <div className="flex items-center gap-2 mt-1">
                               <Trophy className="h-4 w-4 text-muted-foreground" />
-                              <p className="text-lg">{fixture.competition}</p>
+                              <p className="text-lg">{competitionName}</p>
                             </div>
                           </div>
                           <div>
