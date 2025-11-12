@@ -294,19 +294,6 @@ export default function Videos() {
                             </div>
                           )}
                         </div>
-                        {/* Video Information Below Player */}
-                        <div className="mt-4 p-4 border rounded-lg bg-muted/20">
-                          <h3 className="text-sm font-semibold mb-2">Video Information</h3>
-                          {selectedVideo ? (
-                            <div className="space-y-2 text-sm text-muted-foreground">
-                              <p><span className="font-medium">Camera:</span> {selectedVideo.label || selectedCameraAngle.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                              {selectedVideo.duration && <p><span className="font-medium">Duration:</span> {selectedVideo.duration}</p>}
-                              {selectedVideo.location && <p><span className="font-medium">Source:</span> {selectedVideo.location.charAt(0).toUpperCase() + selectedVideo.location.slice(1)}</p>}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No video metadata available</p>
-                          )}
-                        </div>
                       </TabsContent>
 
                       {/* Match Events Tab Content */}
