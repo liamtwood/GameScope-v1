@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, Trash2, Star, User as UserIcon, Pencil, Check, X } from "lucide-react";
+import { Edit, Trash2, Star, User as UserIcon, Pencil, Check, X, UserMinus } from "lucide-react";
 import { User } from "@shared/schema";
 import { useLocation } from "wouter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,12 +24,13 @@ interface PlayerCardProps {
   teamId?: string;
   onEdit?: (player: Player) => void;
   onDelete?: (player: Player) => void;
+  onRemoveFromSquad?: (player: Player) => void;
   onToggleKeyPlayer?: (player: Player) => void;
   onUpdateStatus?: (player: Player, newStatus: string) => void;
   onUpdateJerseyNumber?: (playerId: string, teamId: string, jerseyNumber: number) => void;
 }
 
-export function PlayerCard({ player, teamId, onEdit, onDelete, onToggleKeyPlayer, onUpdateStatus, onUpdateJerseyNumber }: PlayerCardProps) {
+export function PlayerCard({ player, teamId, onEdit, onDelete, onRemoveFromSquad, onToggleKeyPlayer, onUpdateStatus, onUpdateJerseyNumber }: PlayerCardProps) {
   const [, setLocation] = useLocation();
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [isEditingJersey, setIsEditingJersey] = useState(false);
@@ -237,6 +238,23 @@ export function PlayerCard({ player, teamId, onEdit, onDelete, onToggleKeyPlayer
                       : 'text-gray-300 hover:text-orange-300'
                   }`} 
                 />
+              </Button>
+            )}
+
+            {/* Remove from Squad Button */}
+            {onRemoveFromSquad && teamId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveFromSquad(player);
+                }}
+                className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                data-testid={`button-remove-squad-${player.id}`}
+                title="Remove from squad"
+              >
+                <UserMinus className="h-4 w-4" />
               </Button>
             )}
 

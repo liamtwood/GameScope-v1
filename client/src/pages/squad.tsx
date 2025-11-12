@@ -17,7 +17,7 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload, ArrowRightLeft } from "lucide-react";
+import { UserPlus, Star, Edit, Trash2, Check, X, Users, Shield, Target, Trophy, Filter, Settings, Upload, ArrowRightLeft, UserMinus } from "lucide-react";
 import { User, Team, Fixture, Club, Competition } from "@shared/schema";
 
 // Define Player type for compatibility
@@ -82,6 +82,10 @@ export default function Squad() {
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
+  
+  // Remove from squad confirmation dialog state
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [playerToRemove, setPlayerToRemove] = useState<Player | null>(null);
 
   // Fetch team players (with squad numbers and positions)
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({ 
@@ -206,6 +210,26 @@ export default function Squad() {
       toast({
         title: "Error",
         description: "Failed to delete player.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeFromSquadMutation = useMutation({
+    mutationFn: async ({ playerId, teamId }: { playerId: string; teamId: string }) => {
+      return apiRequest("DELETE", `/api/players/${playerId}/teams/${teamId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
+      toast({
+        title: "Player Removed",
+        description: "Player has been removed from the squad.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove player from squad.",
         variant: "destructive",
       });
     },
@@ -369,6 +393,19 @@ export default function Squad() {
       deletePlayerMutation.mutate(playerToDelete.id);
       setDeleteDialogOpen(false);
       setPlayerToDelete(null);
+    }
+  };
+
+  const handleRemoveFromSquad = (player: Player) => {
+    setPlayerToRemove(player);
+    setRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveFromSquad = () => {
+    if (playerToRemove && currentTeam?.id) {
+      removeFromSquadMutation.mutate({ playerId: playerToRemove.id, teamId: currentTeam.id });
+      setRemoveDialogOpen(false);
+      setPlayerToRemove(null);
     }
   };
 
@@ -872,6 +909,7 @@ export default function Squad() {
                             teamId={currentTeam?.id}
                             onEdit={handleViewPlayer}
                             onDelete={handleDeletePlayer}
+                            onRemoveFromSquad={handleRemoveFromSquad}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
                             onUpdateJerseyNumber={handleUpdateJerseyNumber}
                             onUpdateStatus={(player, newStatus) => {
@@ -955,6 +993,25 @@ export default function Squad() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeletePlayer} className="bg-red-600 hover:bg-red-700">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Remove from Squad Confirmation Dialog */}
+      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from Squad</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {playerToRemove?.firstName} {playerToRemove?.lastName} from the squad?
+              The player will remain in the system but will no longer be part of this team.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveFromSquad} className="bg-orange-600 hover:bg-orange-700">
+              Remove
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
