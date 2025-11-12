@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Upload, FileSpreadsheet, Calendar, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -31,6 +33,7 @@ interface FixturePreview {
 export function FixtureImportDialog({ teamId, onImportComplete, children }: FixtureImportDialogProps) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [excelTeamName, setExcelTeamName] = useState('');
   const [previewData, setPreviewData] = useState<FixturePreview[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -39,6 +42,7 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
 
   const resetDialog = () => {
     setFile(null);
+    setExcelTeamName('');
     setPreviewData([]);
     setStep('upload');
     setIsProcessing(false);
@@ -86,7 +90,8 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
       // Get preview data
       const previewResponse = await apiRequest('POST', '/api/fixtures/import-excel/preview', {
         filename,
-        teamId
+        teamId,
+        excelTeamName: excelTeamName.trim() || undefined
       });
       
       const previewData = await previewResponse.json();
@@ -168,7 +173,8 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
       // Import fixtures
       const importResponse = await apiRequest('POST', '/api/fixtures/import-excel', {
         filename,
-        teamId
+        teamId,
+        excelTeamName: excelTeamName.trim() || undefined
       });
       
       const importData = await importResponse.json();
@@ -238,6 +244,29 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
         <div className="flex-1 overflow-auto">
           {step === 'upload' && (
             <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Team Name in Excel</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="excel-team-name">
+                      What is your team called in the Excel file?
+                    </Label>
+                    <Input
+                      id="excel-team-name"
+                      placeholder="e.g., Newcastle, U21, Arsenal"
+                      value={excelTeamName}
+                      onChange={(e) => setExcelTeamName(e.target.value)}
+                      data-testid="input-excel-team-name"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This helps identify which team is yours in the home_team/away_team columns
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
                 <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <div className="space-y-2">

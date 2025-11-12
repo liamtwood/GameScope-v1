@@ -1416,7 +1416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Preview fixtures from Excel file
   app.post("/api/fixtures/import-excel/preview", async (req, res) => {
     try {
-      const { filename, teamId } = req.body;
+      const { filename, teamId, excelTeamName } = req.body;
       
       if (!filename || !teamId) {
         return res.status(400).json({ message: "filename and teamId are required" });
@@ -1590,7 +1590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import fixtures from Excel file
   app.post("/api/fixtures/import-excel", async (req, res) => {
     try {
-      const { filename, teamId } = req.body;
+      const { filename, teamId, excelTeamName } = req.body;
       
       if (!filename || !teamId) {
         return res.status(400).json({ message: "filename and teamId are required" });
@@ -1632,7 +1632,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (homeTeam && awayTeam) {
             // Determine which team is the opposition based on team name
-            const teamNameLower = team.name.toLowerCase();
+            // Use excelTeamName if provided, otherwise use database team name
+            const teamNameToMatch = excelTeamName || team.name;
+            const teamNameLower = teamNameToMatch.toLowerCase();
             const homeTeamLower = homeTeam.toLowerCase();
             const awayTeamLower = awayTeam.toLowerCase();
             
@@ -1646,7 +1648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               isHome = false;
             } else {
               // Can't determine, skip this row
-              console.log(`Skipping row - cannot determine which team is ${team.name}:`, rowObj);
+              console.log(`Skipping row - cannot determine which team is ${teamNameToMatch}:`, rowObj);
               continue;
             }
             
