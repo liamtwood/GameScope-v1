@@ -1196,7 +1196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           playerData.position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
           
           // Jersey Number
-          playerData.jerseyNumber = parseInt(rowObj['Number'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
+          playerData.jerseyNumber = parseInt(rowObj['Number'] || rowObj['number'] || rowObj['num'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
           
           // Age/Date of Birth
           if (rowObj['Age']) {
@@ -1351,7 +1351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
           
           // Jersey Number
-          const jerseyNumber = parseInt(rowObj['Number'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
+          const jerseyNumber = parseInt(rowObj['Number'] || rowObj['number'] || rowObj['num'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
           
           // Email and Phone
           const email = rowObj['Email'] || rowObj['email'] || '';
