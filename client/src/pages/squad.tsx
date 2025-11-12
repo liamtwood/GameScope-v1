@@ -505,7 +505,7 @@ export default function Squad() {
           {/* Player Status */}
           <StatsCard
             title="Player Status"
-            value={`${players?.filter(p => p.status === 'Fit').length || 0}-${players?.filter(p => p.status === 'Injured').length || 0}-${players?.filter(p => p.status === 'Retired').length || 0}`}
+            value={`${players?.filter(p => p.role === 'Player' && p.status === 'Fit').length || 0}-${players?.filter(p => p.role === 'Player' && p.status === 'Injured').length || 0}-${players?.filter(p => p.role === 'Player' && p.status === 'Retired').length || 0}`}
             icon={Users}
             iconColor="text-club-primary"
             subtitle="fit-injured-retired"
