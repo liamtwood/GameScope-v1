@@ -26,9 +26,17 @@ The frontend follows a page-based architecture with dedicated routes for:
 - Statistics (team performance analytics)
 - Videos (match video organization)
 
-## Recent Changes (August 31, 2025)
+## Recent Changes (November 12, 2025)
 
-### Logo Management Integration
+### Logo Storage Migration to Object Storage
+- **Migrated all logo uploads from filesystem to cloud object storage for production compatibility**
+- **Implemented two-step signed URL upload flow**: Client requests signed URL → uploads directly to object storage → server normalizes and saves path
+- **Updated endpoints**: `/api/upload-logo`, `/api/clubs/logo`, `/api/opposition-teams/logo`, `/api/competitions/:id/logo`
+- **Frontend components updated**: `LogoUpload` and `ReliableLogoUpload` now use the three-step object storage flow
+- **Removed filesystem dependencies**: No longer creates or writes to `client/public/assets/team-logos/`
+- **Production-ready**: All logo paths now use `/logos/...` format served through object storage proxy
+
+### Logo Management Integration (August 31, 2025)
 - **Moved logo management functionality from standalone page to Fixtures page**
 - **Added "Logos" tab to Fixtures page alongside Season, Planning, and Videos tabs**
 - **Individual theme controls**: Each team logo container has independent light/dark theme toggles
@@ -51,6 +59,7 @@ The storage layer implements the IStorage interface, providing a clean abstracti
 ## Data Storage Solutions
 
 - **Primary Database**: PostgreSQL via Neon serverless for production scalability
+- **Object Storage**: Replit Object Storage for logos and media files in production
 - **ORM**: Drizzle ORM for type-safe database queries and schema management
 - **Schema Management**: Drizzle Kit for migrations and schema evolution
 - **Connection Pooling**: Neon connection pooling for efficient database connections
@@ -61,6 +70,8 @@ The database schema includes tables for:
 - Fixtures (matches with scores, venues, and status tracking)
 - Match Statistics (detailed performance metrics)
 - Users (authentication and role management)
+
+Logo storage uses Replit Object Storage with signed URLs for secure, production-ready file uploads.
 
 ## Authentication and Authorization
 
