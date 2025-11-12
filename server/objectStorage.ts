@@ -220,9 +220,12 @@ export class ObjectStorageService {
       return rawObjectPath;
     }
   
-    // Extract the entity ID from the path (this includes uploads/ prefix)
+    // Extract the entity ID from the path (this includes logos/ prefix)
     const entityId = rawObjectPath.slice(logoDir.length);
-    return `/logos/${entityId}`;
+    
+    // Strip the logos/ prefix if it exists since we'll add it back
+    const logoId = entityId.startsWith('logos/') ? entityId.slice(6) : entityId;
+    return `/logos/${logoId}`;
   }
 
   // Gets the logo file from the logo path.
