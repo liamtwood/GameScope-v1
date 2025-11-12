@@ -492,6 +492,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route for updating player position in a team
+  app.patch("/api/player/:playerId/team/:teamId/position", async (req, res) => {
+    try {
+      const { playerId, teamId } = req.params;
+      const { position } = req.body;
+      
+      await storage.updateUserTeam(playerId, teamId, { position });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating player position:", error);
+      res.status(500).json({ message: "Failed to update player position" });
+    }
+  });
+
   app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);

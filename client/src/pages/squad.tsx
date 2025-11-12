@@ -195,6 +195,26 @@ export default function Squad() {
     },
   });
 
+  const updatePositionMutation = useMutation({
+    mutationFn: async ({ playerId, teamId, position }: { playerId: string; teamId: string; position: string }) => {
+      return apiRequest("PATCH", `/api/player/${playerId}/team/${teamId}/position`, { position });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
+      toast({
+        title: "Position Updated",
+        description: "Member's position has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update position.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const deletePlayerMutation = useMutation({
     mutationFn: async (playerId: string) => {
       return apiRequest("DELETE", `/api/users/${playerId}`);
@@ -350,6 +370,10 @@ export default function Squad() {
 
   const handleUpdateJerseyNumber = (playerId: string, teamId: string, jerseyNumber: number) => {
     updateJerseyNumberMutation.mutate({ playerId, teamId, jerseyNumber });
+  };
+
+  const handleUpdatePosition = (playerId: string, teamId: string, position: string) => {
+    updatePositionMutation.mutate({ playerId, teamId, position });
   };
 
   const handleStartJerseyEdit = (playerId: string, currentJersey: number | null) => {
@@ -928,6 +952,7 @@ export default function Squad() {
                             onRemoveFromSquad={handleRemoveFromSquad}
                             onToggleKeyPlayer={handleToggleKeyPlayer}
                             onUpdateJerseyNumber={handleUpdateJerseyNumber}
+                            onUpdatePosition={handleUpdatePosition}
                             onUpdateStatus={(player, newStatus) => {
                               handleUpdatePlayer(player.id, { status: newStatus });
                             }}

@@ -28,13 +28,15 @@ interface PlayerCardProps {
   onToggleKeyPlayer?: (player: Player) => void;
   onUpdateStatus?: (player: Player, newStatus: string) => void;
   onUpdateJerseyNumber?: (playerId: string, teamId: string, jerseyNumber: number) => void;
+  onUpdatePosition?: (playerId: string, teamId: string, position: string) => void;
 }
 
-export function PlayerCard({ player, teamId, onEdit, onDelete, onRemoveFromSquad, onToggleKeyPlayer, onUpdateStatus, onUpdateJerseyNumber }: PlayerCardProps) {
+export function PlayerCard({ player, teamId, onEdit, onDelete, onRemoveFromSquad, onToggleKeyPlayer, onUpdateStatus, onUpdateJerseyNumber, onUpdatePosition }: PlayerCardProps) {
   const [, setLocation] = useLocation();
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [isEditingJersey, setIsEditingJersey] = useState(false);
   const [editJerseyValue, setEditJerseyValue] = useState(player.jerseyNumber?.toString() || '');
+  const [isEditingPosition, setIsEditingPosition] = useState(false);
   const { clubPrimary } = useClubTheme();
   
   const getStatusColor = () => {
@@ -90,6 +92,28 @@ export function PlayerCard({ player, teamId, onEdit, onDelete, onRemoveFromSquad
   const handleCancelJersey = () => {
     setEditJerseyValue(player.jerseyNumber?.toString() || '');
     setIsEditingJersey(false);
+  };
+
+  const getPositionOptions = () => {
+    if (player.role === 'Coach') {
+      return [
+        { value: 'Head Coach', label: 'Head Coach' },
+        { value: 'Assistant Coach', label: 'Assistant Coach' },
+      ];
+    }
+    return [
+      { value: 'Goalkeeper', label: 'Goalkeeper' },
+      { value: 'Defender', label: 'Defender' },
+      { value: 'Midfield', label: 'Midfield' },
+      { value: 'Forward', label: 'Forward' },
+    ];
+  };
+
+  const handleUpdatePosition = (newPosition: string) => {
+    if (teamId && onUpdatePosition) {
+      onUpdatePosition(player.id, teamId, newPosition);
+    }
+    setIsEditingPosition(false);
   };
 
   // Function to get player display (jersey number)
@@ -177,9 +201,45 @@ export function PlayerCard({ player, teamId, onEdit, onDelete, onRemoveFromSquad
               <div className="flex items-center space-x-2">
                 <h3 className="font-semibold text-lg text-foreground">{player.firstName} {player.lastName}</h3>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {player.position}
-              </p>
+              <div className="flex items-center space-x-2">
+                {isEditingPosition ? (
+                  <Select
+                    value={player.position || ''}
+                    onValueChange={handleUpdatePosition}
+                  >
+                    <SelectTrigger className="w-40 h-7 text-xs" onClick={(e) => e.stopPropagation()}>
+                      <SelectValue placeholder="Select position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getPositionOptions().map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      {player.position || 'No position'}
+                    </p>
+                    {onUpdatePosition && teamId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditingPosition(true);
+                        }}
+                        className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                        title="Edit position"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
