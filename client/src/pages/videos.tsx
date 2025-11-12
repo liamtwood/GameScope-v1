@@ -24,6 +24,7 @@ export default function Videos() {
   const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
+  const [activeTab, setActiveTab] = useState<string>('video-player');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -220,7 +221,7 @@ export default function Videos() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left Column: Match Info + Camera Picker + Tabs (40%) */}
+                  {/* Left Column: Match Info + Camera Picker (40%) */}
                   <div className="flex-1 md:w-2/5 space-y-4">
                     {/* Match Info Header */}
                     <div>
@@ -261,89 +262,98 @@ export default function Videos() {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
 
+                  {/* Right Column: Tabs + Content (60%) */}
+                  <div className="flex-1 md:w-3/5 space-y-4">
                     {/* Tabs */}
-                    <Tabs defaultValue="video-player" className="w-full">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                       <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="video-player" data-testid="tab-video-player">Player</TabsTrigger>
-                        <TabsTrigger value="match-events" data-testid="tab-match-events">Events</TabsTrigger>
-                        <TabsTrigger value="team-stats" data-testid="tab-team-stats">Stats</TabsTrigger>
-                        <TabsTrigger value="spider-charts" data-testid="tab-spider-charts">Charts</TabsTrigger>
+                        <TabsTrigger value="video-player" data-testid="tab-video-player">Video Player</TabsTrigger>
+                        <TabsTrigger value="match-events" data-testid="tab-match-events">Match Events</TabsTrigger>
+                        <TabsTrigger value="team-stats" data-testid="tab-team-stats">Team Stats</TabsTrigger>
+                        <TabsTrigger value="spider-charts" data-testid="tab-spider-charts">Spider Charts</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="video-player" className="mt-4 space-y-3">
-                        <div className="p-4 border rounded-lg bg-muted/20">
+
+                      {/* Video Player Tab Content */}
+                      <TabsContent value="video-player" className="mt-4">
+                        <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                          {selectedFixture.hasVideo ? (
+                            <div className="text-center">
+                              <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
+                              <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
+                              <Button onClick={() => handleWatchVideo(selectedFixture)}>
+                                <Play className="w-4 h-4 mr-2" />
+                                Watch Full Match
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="text-center">
+                              <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                              <p className="text-gray-600">Video will be available after match</p>
+                            </div>
+                          )}
+                        </div>
+                        {/* Video Information Below Player */}
+                        <div className="mt-4 p-4 border rounded-lg bg-muted/20">
                           <h3 className="text-sm font-semibold mb-2">Video Information</h3>
                           {selectedVideo ? (
                             <div className="space-y-2 text-sm text-muted-foreground">
                               <p><span className="font-medium">Camera:</span> {selectedVideo.label || selectedCameraAngle.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
                               {selectedVideo.duration && <p><span className="font-medium">Duration:</span> {selectedVideo.duration}</p>}
                               {selectedVideo.location && <p><span className="font-medium">Source:</span> {selectedVideo.location.charAt(0).toUpperCase() + selectedVideo.location.slice(1)}</p>}
-                              {selectedVideo.url && <p className="text-xs truncate"><span className="font-medium">URL:</span> {selectedVideo.url}</p>}
                             </div>
                           ) : (
                             <p className="text-sm text-muted-foreground">No video metadata available</p>
                           )}
                         </div>
                       </TabsContent>
+
+                      {/* Match Events Tab Content */}
                       <TabsContent value="match-events" className="mt-4">
-                        <div className="p-4 border rounded-lg bg-muted/20 text-center">
-                          <p className="text-sm text-muted-foreground">Match events timeline coming soon</p>
+                        <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
+                          <p className="text-muted-foreground">Match events timeline coming soon</p>
                         </div>
                       </TabsContent>
+
+                      {/* Team Stats Tab Content */}
                       <TabsContent value="team-stats" className="mt-4">
                         {isLoadingStats ? (
-                          <div className="p-4 border rounded-lg bg-muted/20 text-center">
-                            <p className="text-sm text-muted-foreground">Loading statistics...</p>
+                          <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
+                            <p className="text-muted-foreground">Loading statistics...</p>
                           </div>
                         ) : matchStats && matchStats.length > 0 ? (
                           <div className="space-y-3">
                             {matchStats.map((stat, idx) => (
-                              <div key={idx} className="p-3 border rounded-lg bg-muted/20">
-                                <h4 className="text-sm font-semibold mb-2">
+                              <div key={idx} className="p-4 border rounded-lg bg-muted/20">
+                                <h4 className="text-sm font-semibold mb-3">
                                   {stat.isTeamStats ? 'Team Stats' : 'Opponent Stats'} - {stat.period.replace('_', ' ')}
                                 </h4>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="grid grid-cols-2 gap-3 text-sm">
                                   {stat.possession !== null && <div><span className="font-medium">Possession:</span> {stat.possession}%</div>}
                                   {stat.goals !== null && <div><span className="font-medium">Goals:</span> {stat.goals}</div>}
                                   {stat.shotsOnTarget !== null && <div><span className="font-medium">Shots on Target:</span> {stat.shotsOnTarget}</div>}
+                                  {stat.shotsAttempted !== null && <div><span className="font-medium">Total Shots:</span> {stat.shotsAttempted}</div>}
                                   {stat.passingSuccessRate !== null && <div><span className="font-medium">Pass Accuracy:</span> {stat.passingSuccessRate}%</div>}
+                                  {stat.tackles !== null && <div><span className="font-medium">Tackles:</span> {stat.tackles}</div>}
                                 </div>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="p-4 border rounded-lg bg-muted/20 text-center">
-                            <p className="text-sm text-muted-foreground">No statistics available for this match</p>
+                          <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
+                            <p className="text-muted-foreground">No statistics available for this match</p>
                           </div>
                         )}
                       </TabsContent>
+
+                      {/* Spider Charts Tab Content */}
                       <TabsContent value="spider-charts" className="mt-4">
-                        <div className="p-4 border rounded-lg bg-muted/20 text-center">
-                          <p className="text-sm text-muted-foreground">Performance spider charts coming soon</p>
+                        <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
+                          <p className="text-muted-foreground">Performance spider charts coming soon</p>
                         </div>
                       </TabsContent>
                     </Tabs>
-                  </div>
-
-                  {/* Right Column: Video Player (60%) */}
-                  <div className="flex-1 md:w-3/5">
-                    <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                      {selectedFixture.hasVideo ? (
-                        <div className="text-center">
-                          <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
-                          <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
-                          <Button onClick={() => handleWatchVideo(selectedFixture)}>
-                            <Play className="w-4 h-4 mr-2" />
-                            Watch Full Match
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-600">Video will be available after match</p>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               </CardContent>
