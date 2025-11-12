@@ -319,6 +319,20 @@ export const userParents = pgTable("user_parents", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Video link schema with camera angle support
+export const videoLinkSchema = z.object({
+  id: z.string(),
+  url: z.string().url(),
+  label: z.string(), // e.g., "Full Match", "1st Half", "2nd Half"
+  duration: z.string().optional(), // e.g., "45:00"
+  cameraAngle: z.string().optional(), // e.g., "Halfway Line", "Behind Goal", "Tactical"
+  location: z.enum(["youtube", "drive", "storage", "fifa_plus"]).optional(),
+});
+
+export const videoLinksArraySchema = z.array(videoLinkSchema).optional();
+
+export type VideoLink = z.infer<typeof videoLinkSchema>;
+
 // Insert schemas
 export const insertClubSchema = createInsertSchema(clubs).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTeamSchema = createInsertSchema(teams).omit({ id: true, createdAt: true, updatedAt: true });
@@ -365,7 +379,8 @@ export const insertCompetitionSchema = createInsertSchema(competitions).omit({ i
 export const insertFixtureSchema = createInsertSchema(fixtures)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
-    date: z.string().or(z.date()).transform((val) => new Date(val))
+    date: z.string().or(z.date()).transform((val) => new Date(val)),
+    videoLinks: videoLinksArraySchema,
   });
 export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: true, createdAt: true });
 export const insertPlayerStatsSchema = createInsertSchema(playerStats).omit({ id: true, createdAt: true })
