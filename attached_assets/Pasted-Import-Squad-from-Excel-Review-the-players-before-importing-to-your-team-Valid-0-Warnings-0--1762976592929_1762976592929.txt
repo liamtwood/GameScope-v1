@@ -1,0 +1,76 @@
+Import Squad from Excel
+Review the players before importing to your team
+
+Valid
+0
+Warnings
+0
+Errors
+33
+Status	Name	Position	Jersey #	Email	Warnings
+error		GK	-	-	
+Missing nameMissing jersey numberMissing email
+error		GK	-	-	
+Missing nameMissing jersey numberMissing email
+error		GK	-	-	
+Missing nameMissing jersey numberMissing email
+error		GK	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		DEF	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		MID	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
+error		FWD	-	-	
+Missing nameMissing jersey numberMissing email
