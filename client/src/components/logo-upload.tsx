@@ -65,20 +65,43 @@ export function LogoUpload({ teamName, onUploadComplete, currentLogo }: LogoUplo
       const previewUrl = URL.createObjectURL(processedBlob);
       setPreviewUrl(previewUrl);
 
-      const formData = new FormData();
-      formData.append('logo', processedFile);
-      formData.append('teamName', teamName);
-
-      const response = await fetch('/api/upload-logo', {
+      // Step 1: Get signed upload URL from server
+      const urlResponse = await fetch('/api/upload-logo', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      if (!urlResponse.ok) {
+        throw new Error('Failed to get upload URL');
       }
 
-      const result = await response.json();
+      const { uploadURL } = await urlResponse.json();
+
+      // Step 2: Upload directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: processedFile,
+        headers: {
+          'Content-Type': 'image/png',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to storage');
+      }
+
+      // Step 3: Complete upload and get normalized path
+      const completeResponse = await fetch('/api/upload-logo/complete', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logoURL: uploadURL }),
+      });
+
+      if (!completeResponse.ok) {
+        throw new Error('Failed to complete upload');
+      }
+
+      const result = await completeResponse.json();
       onUploadComplete(result.logoPath);
 
       toast({

@@ -76,31 +76,54 @@ export function ReliableLogoUpload({
       const newPreviewUrl = URL.createObjectURL(processedBlob);
       setPreviewUrl(newPreviewUrl);
 
-      // Prepare form data
-      const formData = new FormData();
-      formData.append('logo', processedFile);
-      
-      if (entityType === 'club') {
-        formData.append('clubId', entityId);
-      } else {
-        formData.append('teamId', entityId);
-      }
+      // Step 1: Get signed upload URL from server
+      const uploadUrlEndpoint = entityType === 'club'
+        ? '/api/clubs/logo/upload-url'
+        : '/api/opposition-teams/logo/upload-url';
 
-      // Upload to appropriate endpoint
-      const endpoint = entityType === 'club' 
-        ? '/api/clubs/logo' 
-        : '/api/opposition-teams/logo';
-
-      const response = await fetch(endpoint, {
+      const urlResponse = await fetch(uploadUrlEndpoint, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      if (!urlResponse.ok) {
+        throw new Error('Failed to get upload URL');
       }
 
-      const result = await response.json();
+      const { uploadURL } = await urlResponse.json();
+
+      // Step 2: Upload directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: processedFile,
+        headers: {
+          'Content-Type': 'image/png',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to storage');
+      }
+
+      // Step 3: Save logo path to database
+      const saveEndpoint = entityType === 'club'
+        ? '/api/clubs/logo'
+        : '/api/opposition-teams/logo';
+
+      const saveResponse = await fetch(saveEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          [entityType === 'club' ? 'clubId' : 'teamId']: entityId,
+          logoURL: uploadURL,
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Failed to save logo');
+      }
+
+      const result = await saveResponse.json();
       
       // Call completion callback
       onUploadComplete?.(result.logoPath);
