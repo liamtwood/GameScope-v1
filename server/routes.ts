@@ -1447,8 +1447,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowObj = row as any;
           
           // UK-style format: home team / away team columns
-          const homeTeam = rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
-          const awayTeam = rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
+          const homeTeam = rowObj['home_team'] || rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
+          const awayTeam = rowObj['away_team'] || rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
           
           let opposition = '';
           let venue = '';
@@ -1475,20 +1475,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let date = '';
           if (rowObj['Date'] || rowObj['date']) {
             const excelDate = rowObj['Date'] || rowObj['date'];
-            // Excel dates are serial numbers - convert to JavaScript Date
+            // Excel dates can be serial numbers or string formats
             if (typeof excelDate === 'number') {
               const jsDate = new Date((excelDate - 25569) * 86400 * 1000);
               date = jsDate.toISOString().split('T')[0];
-            } else {
-              const parsedDate = new Date(excelDate);
-              if (!isNaN(parsedDate.getTime())) {
-                date = parsedDate.toISOString().split('T')[0];
+            } else if (typeof excelDate === 'string') {
+              // Handle DD/MM/YY or DD/MM/YYYY format
+              const parts = excelDate.split('/');
+              if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // months are 0-indexed
+                let year = parseInt(parts[2]);
+                // Convert 2-digit year to 4-digit
+                if (year < 100) {
+                  year += year < 50 ? 2000 : 1900;
+                }
+                const parsedDate = new Date(year, month, day);
+                if (!isNaN(parsedDate.getTime())) {
+                  date = parsedDate.toISOString().split('T')[0];
+                }
+              } else {
+                // Try standard date parsing
+                const parsedDate = new Date(excelDate);
+                if (!isNaN(parsedDate.getTime())) {
+                  date = parsedDate.toISOString().split('T')[0];
+                }
               }
             }
           }
           
-          // Time
-          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'] || '';
+          // Time - can be decimal (Excel time format) or string
+          let timeStr = '';
+          const timeValue = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'];
+          if (timeValue) {
+            if (typeof timeValue === 'number') {
+              // Excel time format (fraction of a day)
+              const totalMinutes = Math.round(timeValue * 24 * 60);
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+              timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            } else {
+              timeStr = timeValue.toString();
+            }
+          }
+          const time = timeStr;
           
           // Competition
           const competition = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || rowObj['comp'] || rowObj['Comp'] || '';
@@ -1565,8 +1595,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowObj = row as any;
           
           // UK-style format: home team / away team columns
-          const homeTeam = rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
-          const awayTeam = rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
+          const homeTeam = rowObj['home_team'] || rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
+          const awayTeam = rowObj['away_team'] || rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
           
           let oppositionName = '';
           let isHome = false;
@@ -1615,31 +1645,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let date;
           if (rowObj['Date'] || rowObj['date']) {
             const excelDate = rowObj['Date'] || rowObj['date'];
+            // Excel dates can be serial numbers or string formats
             if (typeof excelDate === 'number') {
               date = new Date((excelDate - 25569) * 86400 * 1000);
-            } else {
-              date = new Date(excelDate);
+            } else if (typeof excelDate === 'string') {
+              // Handle DD/MM/YY or DD/MM/YYYY format
+              const parts = excelDate.split('/');
+              if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // months are 0-indexed
+                let year = parseInt(parts[2]);
+                // Convert 2-digit year to 4-digit
+                if (year < 100) {
+                  year += year < 50 ? 2000 : 1900;
+                }
+                date = new Date(year, month, day);
+              } else {
+                // Try standard date parsing
+                date = new Date(excelDate);
+              }
             }
             
-            if (isNaN(date.getTime())) {
+            if (!date || isNaN(date.getTime())) {
               throw new Error(`Invalid date for ${oppositionName}`);
             }
             
             // If time is provided, merge it with the date
-            const timeStr = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'] || '';
-            if (timeStr) {
-              // Parse time (format: "HH:MM" or "HH:MM AM/PM")
-              const timeParts = timeStr.toString().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-              if (timeParts) {
-                let hours = parseInt(timeParts[1]);
-                const minutes = parseInt(timeParts[2]);
-                const ampm = timeParts[3]?.toUpperCase();
-                
-                // Convert to 24-hour format if needed
-                if (ampm === 'PM' && hours !== 12) hours += 12;
-                if (ampm === 'AM' && hours === 12) hours = 0;
-                
+            const timeValue = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'];
+            if (timeValue) {
+              if (typeof timeValue === 'number') {
+                // Excel time format (fraction of a day)
+                const totalMinutes = Math.round(timeValue * 24 * 60);
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
                 date.setHours(hours, minutes, 0, 0);
+              } else {
+                // Parse time string (format: "HH:MM" or "HH:MM AM/PM")
+                const timeParts = timeValue.toString().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+                if (timeParts) {
+                  let hours = parseInt(timeParts[1]);
+                  const minutes = parseInt(timeParts[2]);
+                  const ampm = timeParts[3]?.toUpperCase();
+                  
+                  // Convert to 24-hour format if needed
+                  if (ampm === 'PM' && hours !== 12) hours += 12;
+                  if (ampm === 'AM' && hours === 12) hours = 0;
+                  
+                  date.setHours(hours, minutes, 0, 0);
+                }
               }
             }
           } else {
