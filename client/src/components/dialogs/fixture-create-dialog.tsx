@@ -27,7 +27,7 @@ const fixtureCreateSchema = z.object({
   kickoffTime: z.string().min(1, "Kick-off time is required"),
   location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
-  competition: z.string().min(1, "Competition is required"),
+  competitionId: z.string().min(1, "Competition is required"),
   notes: z.string().optional(),
 });
 
@@ -76,6 +76,15 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
     },
   });
 
+  const createCompetitionMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest("POST", "/api/competitions", { name }) as any as Competition;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+    },
+  });
+
   const form = useForm<FixtureCreateFormData>({
     resolver: zodResolver(fixtureCreateSchema),
     defaultValues: {
@@ -86,7 +95,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       kickoffTime: "15:00", // Default to 3:00 PM
       location: "",
       type: "HOME",
-      competition: "FCSAA League",
+      competitionId: competitions.length > 0 ? competitions[0].id : "",
       notes: "",
     },
   });
@@ -137,33 +146,48 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   };
 
   const handleSubmit = async (data: FixtureCreateFormData) => {
-    // Parse the kickoff time and set it on the date
-    const [hours, minutes] = data.kickoffTime.split(':').map(Number);
-    const updatedDate = new Date(data.date);
-    updatedDate.setHours(hours, minutes, 0, 0);
-    
-    const formattedData = {
-      ...data,
-      date: updatedDate,
-      venue: data.location || "", // Map location to venue for backend compatibility
-    };
-    
-    // If we're creating a new opponent and have a website URL, pass that along
-    if (showNewOpponentInput && newOpponentWebsite) {
-      onSave({ 
-        ...formattedData, 
-        teamId, 
-        newOpponentWebsite, 
-        discoveredLogoUrl 
-      } as any);
-    } else {
-      onSave({ ...formattedData, teamId });
+    try {
+      // If user is creating a new competition, create it first
+      if (showNewCompetitionInput && data.competitionId) {
+        const newCompetition = await createCompetitionMutation.mutateAsync(data.competitionId);
+        data.competitionId = newCompetition.id;
+      }
+
+      // Parse the kickoff time and set it on the date
+      const [hours, minutes] = data.kickoffTime.split(':').map(Number);
+      const updatedDate = new Date(data.date);
+      updatedDate.setHours(hours, minutes, 0, 0);
+      
+      const formattedData = {
+        ...data,
+        date: updatedDate,
+        venue: data.location || "", // Map location to venue for backend compatibility
+      };
+      
+      // If we're creating a new opponent and have a website URL, pass that along
+      if (showNewOpponentInput && newOpponentWebsite) {
+        onSave({ 
+          ...formattedData, 
+          teamId, 
+          newOpponentWebsite, 
+          discoveredLogoUrl 
+        } as any);
+      } else {
+        onSave({ ...formattedData, teamId });
+      }
+      
+      setOpen(false);
+      form.reset();
+      setNewOpponentWebsite("");
+      setDiscoveredLogoUrl(null);
+      setShowNewCompetitionInput(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create fixture. Please try again.",
+        variant: "destructive",
+      });
     }
-    
-    setOpen(false);
-    form.reset();
-    setNewOpponentWebsite("");
-    setDiscoveredLogoUrl(null);
   };
 
   return (
@@ -185,7 +209,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="competition"
+                name="competitionId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Competition</FormLabel>
@@ -214,7 +238,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             </SelectTrigger>
                             <SelectContent>
                               {competitions.map((comp) => (
-                                <SelectItem key={comp.id} value={comp.name}>
+                                <SelectItem key={comp.id} value={comp.id}>
                                   {comp.name}
                                 </SelectItem>
                               ))}

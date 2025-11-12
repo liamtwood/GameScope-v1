@@ -27,7 +27,7 @@ const fixtureEditSchema = z.object({
   location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
   status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED", "NO_CONTEST"]),
-  competition: z.string().min(1, "Competition is required"),
+  competitionId: z.string().min(1, "Competition is required"),
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
   notes: z.string().optional(),
@@ -76,6 +76,15 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
     },
   });
 
+  const createCompetitionMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest("POST", "/api/competitions", { name }) as any as Competition;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+    },
+  });
+
   // Handle starting opponent name edit
   const handleStartEditOpponentName = () => {
     if (selectedOpponentForLogo) {
@@ -121,7 +130,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       location: "",
       type: fixture.type as "HOME" | "AWAY",
       status: fixture.status as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_CONTEST",
-      competition: fixture.competition || "",
+      competitionId: fixture.competitionId || "",
       homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
       awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
       notes: fixture.notes || "",
@@ -139,6 +148,12 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
   const handleSubmit = async (data: FixtureEditFormData) => {
     try {
+      // If user is creating a new competition, create it first
+      if (showNewCompetitionInput && data.competitionId) {
+        const newCompetition = await createCompetitionMutation.mutateAsync(data.competitionId);
+        data.competitionId = newCompetition.id;
+      }
+
       // Check if the opponent exists
       let existingTeam = oppositionTeams.find(team => team.name === data.opponent);
       
@@ -159,6 +174,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       // Save fixture data
       onSave(data);
       setOpen(false);
+      setShowNewCompetitionInput(false);
     } catch (error) {
       console.error("Error updating fixture:", error);
     }
@@ -183,7 +199,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="competition"
+                name="competitionId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Competition</FormLabel>
@@ -212,7 +228,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                             </SelectTrigger>
                             <SelectContent>
                               {competitions.map((comp) => (
-                                <SelectItem key={comp.id} value={comp.name}>
+                                <SelectItem key={comp.id} value={comp.id}>
                                   {comp.name}
                                 </SelectItem>
                               ))}

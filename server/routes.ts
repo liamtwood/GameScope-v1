@@ -1108,7 +1108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             opponent: isHome ? awayTeam : homeTeam,
             venue: isHome ? "Home" : "Away",
             type: isHome ? "HOME" : "AWAY",
-            competition: "League", // Default competition
+            competitionId: null, // Will need to be set manually
             homeScore: null,
             awayScore: null,
             status: "SCHEDULED",
@@ -2572,11 +2572,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { newOpponentWebsite, discoveredLogoUrl, ...fixtureData } = req.body;
       const parsedData = insertFixtureSchema.parse(fixtureData);
       
-      // Auto-create competition if it doesn't exist
-      if (parsedData.competition) {
-        await storage.getOrCreateCompetition(parsedData.competition);
-      }
-      
       // Auto-create opposition team if it doesn't exist, with website URL and logo if provided
       if (parsedData.opponent) {
         await storage.getOrCreateOppositionTeam(
@@ -2597,11 +2592,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/fixtures/:id", async (req, res) => {
     try {
       const fixtureData = insertFixtureSchema.partial().parse(req.body);
-      
-      // Auto-create competition if it doesn't exist
-      if (fixtureData.competition) {
-        await storage.getOrCreateCompetition(fixtureData.competition);
-      }
       
       const fixture = await storage.updateFixture(req.params.id, fixtureData);
       res.json(fixture);
