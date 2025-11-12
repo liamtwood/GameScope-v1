@@ -475,8 +475,8 @@ export default function Squad() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div className="w-full">
-                  <div className="grid grid-cols-4 gap-2 mb-3">
+                <div>
+                  <div className="grid grid-cols-4 gap-2">
                     <div className="text-center">
                       <p className="text-sm font-medium text-muted-foreground">GK</p>
                       <p className="text-3xl font-bold text-foreground">{getPositionCount('GK')}</p>
@@ -494,18 +494,6 @@ export default function Squad() {
                       <p className="text-3xl font-bold text-foreground">{getPositionCount('FWD')}</p>
                     </div>
                   </div>
-                  {(getPositionCount('HC') > 0 || getPositionCount('AC') > 0) && (
-                    <div className="grid grid-cols-2 gap-2 pt-3 border-t">
-                      <div className="text-center">
-                        <p className="text-xs font-medium text-muted-foreground">Head Coach</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('HC')}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xs font-medium text-muted-foreground">Asst Coach</p>
-                        <p className="text-2xl font-bold text-foreground">{getPositionCount('AC')}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
               <div className="mt-4">
