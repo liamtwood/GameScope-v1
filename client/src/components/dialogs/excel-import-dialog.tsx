@@ -78,11 +78,11 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
         throw new Error('Failed to upload file');
       }
 
-      const { filePath } = await uploadResponse.json();
+      const { filename } = await uploadResponse.json();
 
       // Get preview data
       const previewResponse = await apiRequest('POST', '/api/squad/preview-excel', {
-        filePath
+        filename
       });
       
       const previewData = await previewResponse.json();
@@ -157,11 +157,11 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
         throw new Error('Failed to upload file');
       }
 
-      const { filePath } = await uploadResponse.json();
+      const { filename } = await uploadResponse.json();
 
       // Import players
       const importResponse = await apiRequest('POST', '/api/squad/import-excel', {
-        filePath,
+        filename,
         teamId
       });
       

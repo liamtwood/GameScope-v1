@@ -145,6 +145,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("Directories already exist");
   }
 
+  // Security: Validate and resolve temp upload paths
+  const TEMP_UPLOAD_DIR = path.resolve("temp-uploads");
+  
+  function resolveTempUploadPath(filename: string): string {
+    // Reject filenames with path separators
+    if (filename !== path.basename(filename)) {
+      throw new Error("Invalid filename: path separators not allowed");
+    }
+    
+    // Construct the full path
+    const candidate = path.join(TEMP_UPLOAD_DIR, filename);
+    
+    // Verify it's within the temp directory
+    const relative = path.relative(TEMP_UPLOAD_DIR, candidate);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      throw new Error("Invalid filename: path traversal detected");
+    }
+    
+    return candidate;
+  }
+
   // Temporary file upload endpoint for Excel files
   app.post("/api/upload-temp", excelUpload.single('file'), async (req, res) => {
     try {
@@ -154,10 +175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Temporary file uploaded: ${req.file.filename}`);
       
-      // Return the file path for processing
+      // Return only the filename (not the full path) for security
       res.json({ 
-        filePath: req.file.path,
-        originalName: req.file.originalname
+        filename: req.file.filename
       });
 
     } catch (error) {
@@ -1146,10 +1166,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Excel file processing for squad import
   app.post("/api/squad/import-excel", async (req, res) => {
     try {
-      const { filePath, teamId } = req.body;
+      const { filename, teamId } = req.body;
       
-      if (!filePath || !teamId) {
-        return res.status(400).json({ message: "filePath and teamId are required" });
+      if (!filename || !teamId) {
+        return res.status(400).json({ message: "filename and teamId are required" });
       }
 
       // Check if team exists
@@ -1158,6 +1178,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Team not found" });
       }
 
+      // Securely resolve the file path
+      const filePath = resolveTempUploadPath(filename);
       console.log(`Processing Excel file: ${filePath} for team: ${team.name}`);
 
       // Read and process the Excel file
@@ -1311,12 +1333,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Excel preview endpoint
   app.post("/api/squad/preview-excel", async (req, res) => {
     try {
-      const { filePath } = req.body;
+      const { filename } = req.body;
       
-      if (!filePath) {
-        return res.status(400).json({ message: "filePath is required" });
+      if (!filename) {
+        return res.status(400).json({ message: "filename is required" });
       }
 
+      // Securely resolve the file path
+      const filePath = resolveTempUploadPath(filename);
       console.log(`Previewing Excel file: ${filePath}`);
 
       // Read and process the Excel file
@@ -1392,12 +1416,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Preview fixtures from Excel file
   app.post("/api/fixtures/import-excel/preview", async (req, res) => {
     try {
-      const { filePath, teamId } = req.body;
+      const { filename, teamId } = req.body;
       
-      if (!filePath || !teamId) {
-        return res.status(400).json({ message: "filePath and teamId are required" });
+      if (!filename || !teamId) {
+        return res.status(400).json({ message: "filename and teamId are required" });
       }
 
+      // Securely resolve the file path
+      const filePath = resolveTempUploadPath(filename);
       console.log(`Previewing fixtures from Excel file: ${filePath}`);
 
       // Read and process the Excel file
@@ -1487,10 +1513,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import fixtures from Excel file
   app.post("/api/fixtures/import-excel", async (req, res) => {
     try {
-      const { filePath, teamId } = req.body;
+      const { filename, teamId } = req.body;
       
-      if (!filePath || !teamId) {
-        return res.status(400).json({ message: "filePath and teamId are required" });
+      if (!filename || !teamId) {
+        return res.status(400).json({ message: "filename and teamId are required" });
       }
 
       // Check if team exists
@@ -1499,6 +1525,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Team not found" });
       }
 
+      // Securely resolve the file path
+      const filePath = resolveTempUploadPath(filename);
       console.log(`Importing fixtures from Excel file: ${filePath} for team: ${team.name}`);
 
       // Read and process the Excel file

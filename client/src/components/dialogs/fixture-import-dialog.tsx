@@ -81,11 +81,11 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
         throw new Error('Failed to upload file');
       }
 
-      const { filePath } = await uploadResponse.json();
+      const { filename } = await uploadResponse.json();
 
       // Get preview data
       const previewResponse = await apiRequest('POST', '/api/fixtures/import-excel/preview', {
-        filePath,
+        filename,
         teamId
       });
       
@@ -163,11 +163,11 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
         throw new Error('Failed to upload file');
       }
 
-      const { filePath } = await uploadResponse.json();
+      const { filename } = await uploadResponse.json();
 
       // Import fixtures
       const importResponse = await apiRequest('POST', '/api/fixtures/import-excel', {
-        filePath,
+        filename,
         teamId
       });
       
