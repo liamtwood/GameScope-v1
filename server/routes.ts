@@ -1446,8 +1446,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const rowObj = row as any;
           
-          // Opposition/Opponent
-          const opposition = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+          // UK-style format: home team / away team columns
+          const homeTeam = rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
+          const awayTeam = rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
+          
+          let opposition = '';
+          let venue = '';
+          
+          if (homeTeam && awayTeam) {
+            // Determine which team is the opposition (for now, assume we need teamId to determine this in import)
+            // For preview, we'll show both teams
+            opposition = `${homeTeam} vs ${awayTeam}`;
+            venue = 'TBD'; // Will be determined during actual import
+          } else {
+            // Standard format: Opposition/Opponent
+            opposition = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+            
+            // Venue
+            venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || '';
+            venue = venue && (venue.toString().toLowerCase().includes('home') || venue.toString().toLowerCase() === 'h') ? 'Home' : 
+                    venue && (venue.toString().toLowerCase().includes('away') || venue.toString().toLowerCase() === 'a') ? 'Away' : venue;
+          }
           
           // Skip if no opposition
           if (!opposition) continue;
@@ -1469,19 +1488,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Time
-          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
-          
-          // Venue
-          let venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || '';
-          venue = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h' ? 'Home' : 
-                  venue.toLowerCase().includes('away') || venue.toLowerCase() === 'a' ? 'Away' : venue;
+          const time = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'] || '';
           
           // Competition
-          const competition = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || '';
+          const competition = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || rowObj['comp'] || rowObj['Comp'] || '';
           
           // Results (optional)
-          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || null;
-          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || null;
+          const goalsFor = rowObj['Goals For'] || rowObj['GF'] || rowObj['goals_for'] || rowObj['For'] || rowObj['for'] || null;
+          const goalsAgainst = rowObj['Goals Against'] || rowObj['GA'] || rowObj['goals_against'] || rowObj['Against'] || rowObj['against'] || null;
           
           fixtures.push({
             opposition,
@@ -1550,8 +1564,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const rowObj = row as any;
           
-          // Opposition/Opponent
-          const oppositionName = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+          // UK-style format: home team / away team columns
+          const homeTeam = rowObj['home team'] || rowObj['Home Team'] || rowObj['home'] || rowObj['Home'] || '';
+          const awayTeam = rowObj['away team'] || rowObj['Away Team'] || rowObj['away'] || rowObj['Away'] || '';
+          
+          let oppositionName = '';
+          let isHome = false;
+          let venue = '';
+          let type = '';
+          
+          if (homeTeam && awayTeam) {
+            // Determine which team is the opposition based on team name
+            const teamNameLower = team.name.toLowerCase();
+            const homeTeamLower = homeTeam.toLowerCase();
+            const awayTeamLower = awayTeam.toLowerCase();
+            
+            if (homeTeamLower.includes(teamNameLower) || teamNameLower.includes(homeTeamLower)) {
+              // User's team is home team
+              oppositionName = awayTeam;
+              isHome = true;
+            } else if (awayTeamLower.includes(teamNameLower) || teamNameLower.includes(awayTeamLower)) {
+              // User's team is away team
+              oppositionName = homeTeam;
+              isHome = false;
+            } else {
+              // Can't determine, skip this row
+              console.log(`Skipping row - cannot determine which team is ${team.name}:`, rowObj);
+              continue;
+            }
+            
+            type = isHome ? 'HOME' : 'AWAY';
+            venue = isHome ? 'Home' : 'Away';
+          } else {
+            // Standard format: Opposition/Opponent
+            oppositionName = rowObj['Opposition'] || rowObj['Opponent'] || rowObj['opposition'] || rowObj['opponent'] || rowObj['Team'] || '';
+            
+            // Venue
+            venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || 'Home';
+            isHome = !!(venue && (venue.toString().toLowerCase().includes('home') || venue.toString().toLowerCase() === 'h'));
+            type = isHome ? 'HOME' : 'AWAY';
+            venue = isHome ? 'Home' : 'Away';
+          }
           
           if (!oppositionName) {
             console.log('Skipping row with no opposition:', rowObj);
@@ -1573,7 +1626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             // If time is provided, merge it with the date
-            const timeStr = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || '';
+            const timeStr = rowObj['Time'] || rowObj['time'] || rowObj['Kick Off'] || rowObj['kick_off'] || rowObj['ko'] || rowObj['KO'] || '';
             if (timeStr) {
               // Parse time (format: "HH:MM" or "HH:MM AM/PM")
               const timeParts = timeStr.toString().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
@@ -1593,14 +1646,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error(`No date provided for ${oppositionName}`);
           }
           
-          // Venue - map to type field (HOME/AWAY/NEUTRAL)
-          let venue = rowObj['Venue'] || rowObj['venue'] || rowObj['H/A'] || rowObj['Home/Away'] || 'Home';
-          const isHome = venue.toLowerCase().includes('home') || venue.toLowerCase() === 'h';
-          const type = isHome ? 'HOME' : 'AWAY';
-          venue = isHome ? 'Home' : 'Away';
-          
           // Competition
-          const competitionName = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || '';
+          const competitionName = rowObj['Competition'] || rowObj['competition'] || rowObj['League'] || rowObj['league'] || rowObj['comp'] || rowObj['Comp'] || '';
           
           // Find or create competition
           let competitionId = null;
