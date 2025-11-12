@@ -68,7 +68,7 @@ export const fixtures = pgTable("fixtures", {
   status: varchar("status", { length: 20 }).notNull().default("SCHEDULED"), // SCHEDULED, COMPLETED, CANCELLED, NO_CONTEST
   homeScore: integer("home_score"),
   awayScore: integer("away_score"),
-  competition: text("competition"),
+  competitionId: varchar("competition_id").references(() => competitions.id),
   notes: text("notes"),
   hasVideo: boolean("has_video").default(false),
   videoLinks: jsonb("video_links"),
