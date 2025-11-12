@@ -245,13 +245,23 @@ export class ObjectStorageService {
       logoDir = `${logoDir}/`;
     }
     
-    // Logos are stored in the logos/ subdirectory
+    // Try primary path: logos are stored in the logos/ subdirectory
     const logoObjectPath = `${logoDir}logos/${logoId}`;
     
     const { bucketName, objectName } = parseObjectPath(logoObjectPath);
     const bucket = objectStorageClient.bucket(bucketName);
-    const logoFile = bucket.file(objectName);
-    const [exists] = await logoFile.exists();
+    let logoFile = bucket.file(objectName);
+    let [exists] = await logoFile.exists();
+    
+    // Fallback: if path is /logos/uploads/... and not found in logos/uploads/,
+    // try looking in uploads/ directory (legacy path format)
+    if (!exists && logoId.startsWith("uploads/")) {
+      const legacyUploadId = logoId.slice("uploads/".length);
+      const legacyObjectPath = `${logoDir}uploads/${legacyUploadId}`;
+      const { bucketName: legacyBucket, objectName: legacyObject } = parseObjectPath(legacyObjectPath);
+      logoFile = bucket.file(legacyObject);
+      [exists] = await logoFile.exists();
+    }
     
     if (!exists) {
       throw new ObjectNotFoundError();
