@@ -191,9 +191,6 @@ export function FixtureSettingsDialog({ children }: FixtureSettingsDialogProps) 
                             ) : (
                               <h4 className="font-medium text-foreground">{competition.name}</h4>
                             )}
-                            {competition.shortName && editingCompetition?.id !== competition.id && (
-                              <p className="text-xs text-muted-foreground mt-1">{competition.shortName}</p>
-                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-1">
