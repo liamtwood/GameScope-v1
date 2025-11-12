@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
@@ -6,13 +6,15 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay } from "lucide-react";
-import { Fixture, Team, OppositionTeam } from "@shared/schema";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera } from "lucide-react";
+import { Fixture, Team, OppositionTeam, VideoLink, MatchStats } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 type ViewMode = 'tile' | 'watch';
@@ -21,6 +23,7 @@ export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
+  const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -62,9 +65,60 @@ export default function Videos() {
     return isBeforeTomorrow && hasVideoOrRelevant;
   }) || [];
 
+  // Memoized selected fixture
+  const selectedFixture = useMemo(() => {
+    if (!selectedFixtureId) {
+      return videoFixtures[0] || null;
+    }
+    return videoFixtures.find(f => f.id === selectedFixtureId) || videoFixtures[0] || null;
+  }, [videoFixtures, selectedFixtureId]);
+
+  // Fetch match stats for selected fixture
+  const { data: matchStats, isLoading: isLoadingStats } = useQuery<MatchStats[]>({
+    queryKey: ['/api/match-stats', selectedFixture?.id],
+    enabled: !!selectedFixture?.id,
+  });
+
+  // Memoized camera options from fixture video links
+  const cameraOptions = useMemo(() => {
+    if (!selectedFixture?.videoLinks || !Array.isArray(selectedFixture.videoLinks)) {
+      // Default camera options
+      return [
+        { value: 'full-match', label: 'Full Match' },
+        { value: '1st-half', label: '1st Half' },
+        { value: '2nd-half', label: '2nd Half' },
+        { value: 'halfway-line', label: 'Halfway Line' },
+        { value: 'behind-goal', label: 'Behind Goal' },
+        { value: 'tactical', label: 'Tactical Camera' },
+      ];
+    }
+    
+    return (selectedFixture.videoLinks as VideoLink[]).map((link: VideoLink) => ({
+      value: link.cameraAngle || link.id,
+      label: link.label || (link.cameraAngle ? link.cameraAngle.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Unknown'),
+    }));
+  }, [selectedFixture]);
+
+  // Memoized selected video link
+  const selectedVideo = useMemo(() => {
+    if (!selectedFixture?.videoLinks || !Array.isArray(selectedFixture.videoLinks)) {
+      return null;
+    }
+    const links = selectedFixture.videoLinks as VideoLink[];
+    return links.find((link: VideoLink) => (link.cameraAngle || link.id) === selectedCameraAngle) || links[0] || null;
+  }, [selectedFixture, selectedCameraAngle]);
+
+  // Effect to set default camera angle when fixture changes
+  useEffect(() => {
+    if (cameraOptions.length > 0 && !cameraOptions.find(opt => opt.value === selectedCameraAngle)) {
+      setSelectedCameraAngle(cameraOptions[0].value);
+    }
+  }, [cameraOptions, selectedCameraAngle]);
+
   const handleWatchVideo = (fixture: Fixture) => {
-    // Navigate to the watch match video page
-    setLocation(`/watch-match-video?fixtureId=${fixture.id}`);
+    // Navigate to the watch match video page with selected camera angle
+    const cameraParam = selectedCameraAngle ? `&camera=${encodeURIComponent(selectedCameraAngle)}` : '';
+    setLocation(`/watch-match-video?fixtureId=${fixture.id}${cameraParam}`);
   };
   
 
@@ -109,8 +163,6 @@ export default function Videos() {
       setSelectedFixtureId(videoFixtures[0].id);
     }
   }, [viewMode, videoFixtures, selectedFixtureId]);
-
-  const selectedFixture = videoFixtures.find(f => f.id === selectedFixtureId) || videoFixtures[0];
 
   return (
     <MainLayout 
@@ -182,16 +234,95 @@ export default function Videos() {
                       </div>
                     </div>
 
-                    {/* Camera Angle Picker Placeholder */}
-                    <div className="p-3 border rounded-lg bg-muted/30">
-                      <p className="text-sm font-medium mb-2">Camera Angle</p>
-                      <p className="text-xs text-muted-foreground">Camera picker coming soon</p>
+                    {/* Camera Angle Picker */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2">
+                        <Camera className="h-4 w-4" />
+                        Camera Angle
+                      </label>
+                      <Select
+                        value={selectedCameraAngle}
+                        onValueChange={setSelectedCameraAngle}
+                        disabled={cameraOptions.length === 0}
+                      >
+                        <SelectTrigger className="w-full" data-testid="select-camera-angle">
+                          <SelectValue placeholder="Select camera angle" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cameraOptions.map((option) => (
+                            <SelectItem 
+                              key={option.value} 
+                              value={option.value}
+                              data-testid={`option-${option.value}`}
+                            >
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    {/* Tabs Placeholder */}
-                    <div className="p-3 border rounded-lg bg-muted/30">
-                      <p className="text-sm font-medium">Tabs: Video Player | Match Events | Team Stats | Spider Charts</p>
-                    </div>
+                    {/* Tabs */}
+                    <Tabs defaultValue="video-player" className="w-full">
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="video-player" data-testid="tab-video-player">Player</TabsTrigger>
+                        <TabsTrigger value="match-events" data-testid="tab-match-events">Events</TabsTrigger>
+                        <TabsTrigger value="team-stats" data-testid="tab-team-stats">Stats</TabsTrigger>
+                        <TabsTrigger value="spider-charts" data-testid="tab-spider-charts">Charts</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="video-player" className="mt-4 space-y-3">
+                        <div className="p-4 border rounded-lg bg-muted/20">
+                          <h3 className="text-sm font-semibold mb-2">Video Information</h3>
+                          {selectedVideo ? (
+                            <div className="space-y-2 text-sm text-muted-foreground">
+                              <p><span className="font-medium">Camera:</span> {selectedVideo.label || selectedCameraAngle.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                              {selectedVideo.duration && <p><span className="font-medium">Duration:</span> {selectedVideo.duration}</p>}
+                              {selectedVideo.location && <p><span className="font-medium">Source:</span> {selectedVideo.location.charAt(0).toUpperCase() + selectedVideo.location.slice(1)}</p>}
+                              {selectedVideo.url && <p className="text-xs truncate"><span className="font-medium">URL:</span> {selectedVideo.url}</p>}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No video metadata available</p>
+                          )}
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="match-events" className="mt-4">
+                        <div className="p-4 border rounded-lg bg-muted/20 text-center">
+                          <p className="text-sm text-muted-foreground">Match events timeline coming soon</p>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="team-stats" className="mt-4">
+                        {isLoadingStats ? (
+                          <div className="p-4 border rounded-lg bg-muted/20 text-center">
+                            <p className="text-sm text-muted-foreground">Loading statistics...</p>
+                          </div>
+                        ) : matchStats && matchStats.length > 0 ? (
+                          <div className="space-y-3">
+                            {matchStats.map((stat, idx) => (
+                              <div key={idx} className="p-3 border rounded-lg bg-muted/20">
+                                <h4 className="text-sm font-semibold mb-2">
+                                  {stat.isTeamStats ? 'Team Stats' : 'Opponent Stats'} - {stat.period.replace('_', ' ')}
+                                </h4>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  {stat.possession !== null && <div><span className="font-medium">Possession:</span> {stat.possession}%</div>}
+                                  {stat.goals !== null && <div><span className="font-medium">Goals:</span> {stat.goals}</div>}
+                                  {stat.shotsOnTarget !== null && <div><span className="font-medium">Shots on Target:</span> {stat.shotsOnTarget}</div>}
+                                  {stat.passingSuccessRate !== null && <div><span className="font-medium">Pass Accuracy:</span> {stat.passingSuccessRate}%</div>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="p-4 border rounded-lg bg-muted/20 text-center">
+                            <p className="text-sm text-muted-foreground">No statistics available for this match</p>
+                          </div>
+                        )}
+                      </TabsContent>
+                      <TabsContent value="spider-charts" className="mt-4">
+                        <div className="p-4 border rounded-lg bg-muted/20 text-center">
+                          <p className="text-sm text-muted-foreground">Performance spider charts coming soon</p>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </div>
 
                   {/* Right Column: Video Player (60%) */}
