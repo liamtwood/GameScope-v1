@@ -468,7 +468,9 @@ export default function Videos() {
           (() => {
             // Group fixtures by competition
             const groupedFixtures = videoFixtures.reduce((groups, fixture) => {
-              const competition = fixture.competition || 'Other';
+              // Find the competition name from the enabledCompetitions list
+              const competitionObj = enabledCompetitions.find(c => c.id === fixture.competitionId);
+              const competition = competitionObj?.name || 'Other';
               if (!groups[competition]) {
                 groups[competition] = [];
               }
