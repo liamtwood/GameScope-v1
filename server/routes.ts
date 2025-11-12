@@ -1770,6 +1770,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             competitionId = competition.id;
+            
+            // Enable competition for this team if not already enabled
+            const teamCompetitions = await storage.getTeamCompetitions(teamId);
+            const isEnabled = teamCompetitions.some(tc => tc.competitionId === competition.id);
+            
+            if (!isEnabled) {
+              await storage.setTeamCompetition(teamId, competition.id, true);
+              console.log(`Enabled competition "${competitionName}" for team`);
+            }
           }
           
           // Find or create opposition team
