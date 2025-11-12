@@ -227,12 +227,15 @@ export class ObjectStorageService {
 
   // Gets the logo file from the logo path.
   async getLogoFile(logoPath: string): Promise<File> {
+    console.log('getLogoFile called with logoPath:', logoPath);
     if (!logoPath.startsWith("/logos/")) {
+      console.log('Logo path does not start with /logos/');
       throw new ObjectNotFoundError();
     }
 
     const parts = logoPath.slice(1).split("/");
     if (parts.length < 2) {
+      console.log('Logo path has insufficient parts:', parts);
       throw new ObjectNotFoundError();
     }
 
@@ -244,11 +247,14 @@ export class ObjectStorageService {
     
     // Logos are stored in the logos/ subdirectory
     const logoObjectPath = `${logoDir}logos/${logoId}`;
+    console.log('Looking for logo at:', logoObjectPath);
     
     const { bucketName, objectName } = parseObjectPath(logoObjectPath);
+    console.log('Bucket:', bucketName, 'Object:', objectName);
     const bucket = objectStorageClient.bucket(bucketName);
     const logoFile = bucket.file(objectName);
     const [exists] = await logoFile.exists();
+    console.log('File exists:', exists);
     
     if (!exists) {
       throw new ObjectNotFoundError();
