@@ -389,11 +389,14 @@ export default function Videos() {
                     <Card 
                       key={fixture.id}
                       className={`w-[320px] flex-shrink-0 cursor-pointer transition-all hover:shadow-lg ${
-                        isSelected ? 'ring-2 ring-primary shadow-lg' : ''
+                        isSelected ? 'relative overflow-hidden group shadow-lg' : ''
                       }`}
                       onClick={() => setSelectedFixtureId(fixture.id)}
                       data-testid={`card-fixture-${fixture.id}`}
                     >
+                      {isSelected && (
+                        <div className="absolute inset-0 rounded-lg border-2 border-red-500 animate-pulse pointer-events-none" />
+                      )}
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                           {opponent?.logoPath ? (
