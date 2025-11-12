@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useTeam } from "@/contexts/team-context";
@@ -95,6 +95,18 @@ export default function Fixtures() {
   const { data: competitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/competitions"]
   });
+
+  // Create competition lookup helper
+  const competitionsById = useMemo(() => {
+    const map = new Map<string, Competition>();
+    competitions.forEach(comp => map.set(comp.id, comp));
+    return map;
+  }, [competitions]);
+
+  const getCompetitionName = (competitionId: string | null | undefined): string => {
+    if (!competitionId) return 'No Competition';
+    return competitionsById.get(competitionId)?.name || 'Unknown Competition';
+  };
 
   // Check for analysis data for all fixtures
   useEffect(() => {
@@ -303,11 +315,12 @@ export default function Fixtures() {
     const matchesFilter = activeFilter === 'all' || 
       fixture.status === activeFilter ||
       (activeFilter === 'COMPLETED' && fixture.status === 'NO_CONTEST');
-    const matchesCompetition = competitionFilter === 'all' || fixture.competition === competitionFilter;
+    const matchesCompetition = competitionFilter === 'all' || fixture.competitionId === competitionFilter;
+    const competitionName = getCompetitionName(fixture.competitionId);
     const matchesSearch = searchTerm === '' || 
       fixture.opponent.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fixture.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (fixture.competition && fixture.competition.toLowerCase().includes(searchTerm.toLowerCase()));
+      competitionName.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesFilter && matchesCompetition && matchesSearch;
   }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
@@ -357,7 +370,7 @@ export default function Fixtures() {
     
     const scheduled = fixtures.filter(f => f.status === 'SCHEDULED').length;
     const completed = fixtures.filter(f => f.status === 'COMPLETED').length;
-    const uniqueCompetitions = new Set(fixtures.map(f => f.competition).filter(Boolean)).size;
+    const uniqueCompetitions = new Set(fixtures.map(f => f.competitionId).filter(Boolean)).size;
     
     // Calculate match results and goals
     let wins = 0, draws = 0, losses = 0, goalsFor = 0, goalsAgainst = 0;
@@ -452,7 +465,9 @@ export default function Fixtures() {
   const getFCSAAStats = () => {
     if (!fixtures) return { completed: 0, wins: 0, draws: 0, losses: 0 };
     
-    const fcsaaFixtures = fixtures.filter(f => f.competition === 'FCSAA League' && f.status === 'COMPLETED');
+    // Find FCSAA League competition ID
+    const fcsaaCompetition = competitions.find(c => c.name === 'FCSAA League');
+    const fcsaaFixtures = fixtures.filter(f => f.competitionId === fcsaaCompetition?.id && f.status === 'COMPLETED');
     let wins = 0, draws = 0, losses = 0;
     
     fcsaaFixtures.forEach(fixture => {
@@ -591,7 +606,7 @@ export default function Fixtures() {
                   <SelectContent>
                     <SelectItem value="all">All Competitions</SelectItem>
                     {competitions.map((competition) => (
-                      <SelectItem key={competition.id} value={competition.name}>
+                      <SelectItem key={competition.id} value={competition.id}>
                         {competition.name}
                       </SelectItem>
                     ))}
@@ -677,11 +692,12 @@ export default function Fixtures() {
                 (() => {
                   // Group fixtures by competition
                   const groupedFixtures = filteredFixtures.reduce((groups, fixture) => {
-                    const competition = fixture.competition || 'No Competition';
-                    if (!groups[competition]) {
-                      groups[competition] = [];
+                    // Look up competition name by ID using helper
+                    const competitionName = getCompetitionName(fixture.competitionId);
+                    if (!groups[competitionName]) {
+                      groups[competitionName] = [];
                     }
-                    groups[competition].push(fixture);
+                    groups[competitionName].push(fixture);
                     return groups;
                   }, {} as Record<string, typeof filteredFixtures>);
 
