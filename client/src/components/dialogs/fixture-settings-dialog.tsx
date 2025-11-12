@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar, Trophy, Edit, Upload } from "lucide-react";
+import { Save, Calendar, Trophy, Edit, Upload, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Competition } from "@shared/schema";
@@ -39,6 +39,7 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -149,6 +150,22 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
     return teamComp ? teamComp.isEnabled : false;
   };
 
+  // Sort competitions alphabetically and filter by search query
+  const filteredCompetitions = useMemo(() => {
+    const sorted = [...competitions].sort((a, b) => 
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    );
+    
+    if (!searchQuery.trim()) {
+      return sorted;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    return sorted.filter(comp => 
+      comp.name.toLowerCase().includes(query)
+    );
+  }, [competitions, searchQuery]);
+
   const onSubmit = async (data: FixtureSettingsFormData) => {
     try {
       // TODO: API call to save fixture settings
@@ -186,9 +203,23 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
             {/* Competitions Management */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Competitions</h3>
+              
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search competitions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  data-testid="input-search-competitions"
+                />
+              </div>
+
               <div className="space-y-4">
-                {competitions.length > 0 ? (
-                  competitions.map((competition) => {
+                {filteredCompetitions.length > 0 ? (
+                  filteredCompetitions.map((competition) => {
                     const enabled = isCompetitionEnabled(competition.id);
                     return (
                       <Card key={competition.id} className="p-4">
@@ -263,6 +294,11 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
                       </Card>
                     );
                   })
+                ) : searchQuery.trim() ? (
+                  <div className="text-center py-4">
+                    <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No competitions match your search</p>
+                  </div>
                 ) : (
                   <div className="text-center py-4">
                     <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
