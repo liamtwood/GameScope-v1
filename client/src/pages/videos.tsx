@@ -221,46 +221,35 @@ export default function Videos() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left Column: Match Info + Camera Picker (40%) */}
+                  {/* Left Column: Match Info (40%) */}
                   <div className="flex-1 md:w-2/5 space-y-4">
                     {/* Match Info Header */}
-                    <div>
-                      <h2 className="text-xl font-bold mb-2">{selectedFixture.opponent}</h2>
-                      <div className="flex flex-wrap items-center gap-2 text-sm">
-                        <p className="text-muted-foreground">{format(new Date(selectedFixture.date), 'd MMMM yyyy, h:mm a')}</p>
-                        {getMatchBadge(selectedFixture)}
-                        <Badge className="bg-gray-100 text-gray-800">
-                          {selectedFixture.type === 'HOME' ? 'Home' : 'Away'}
-                        </Badge>
+                    <div className="flex items-start gap-3">
+                      {(() => {
+                        const opponent = oppositionTeams?.find(team => team.name === selectedFixture.opponent);
+                        return opponent?.logoPath ? (
+                          <img 
+                            src={opponent.logoPath} 
+                            alt={`${selectedFixture.opponent} logo`}
+                            className="w-16 h-16 object-contain flex-shrink-0"
+                            data-testid="img-opponent-logo"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
+                            {selectedFixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                        );
+                      })()}
+                      <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-2">{selectedFixture.opponent}</h2>
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                          <p className="text-muted-foreground">{format(new Date(selectedFixture.date), 'd MMMM yyyy, h:mm a')}</p>
+                          {getMatchBadge(selectedFixture)}
+                          <Badge className="bg-gray-100 text-gray-800">
+                            {selectedFixture.type === 'HOME' ? 'Home' : 'Away'}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Camera Angle Picker */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium flex items-center gap-2">
-                        <Camera className="h-4 w-4" />
-                        Camera Angle
-                      </label>
-                      <Select
-                        value={selectedCameraAngle}
-                        onValueChange={setSelectedCameraAngle}
-                        disabled={cameraOptions.length === 0}
-                      >
-                        <SelectTrigger className="w-full" data-testid="select-camera-angle">
-                          <SelectValue placeholder="Select camera angle" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cameraOptions.map((option) => (
-                            <SelectItem 
-                              key={option.value} 
-                              value={option.value}
-                              data-testid={`option-${option.value}`}
-                            >
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
 
@@ -277,7 +266,7 @@ export default function Videos() {
 
                       {/* Video Player Tab Content */}
                       <TabsContent value="video-player" className="mt-4">
-                        <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                        <div className="aspect-video max-h-[320px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
                           {selectedFixture.hasVideo ? (
                             <div className="text-center">
                               <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
