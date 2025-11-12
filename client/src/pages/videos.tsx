@@ -177,19 +177,19 @@ export default function Videos() {
                     </Badge>
                   </div>
                 </div>
-                <div className="aspect-video bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                <div className="aspect-video max-h-[400px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
                   {selectedFixture.hasVideo ? (
                     <div className="text-center">
-                      <VideoIcon className="w-16 h-16 text-club-primary mx-auto mb-3" />
-                      <p className="text-lg font-medium text-green-800 mb-3">Video Ready</p>
+                      <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
+                      <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
                       <Button onClick={() => handleWatchVideo(selectedFixture)}>
-                        <Play className="w-4 w-4 mr-2" />
+                        <Play className="w-4 h-4 mr-2" />
                         Watch Full Match
                       </Button>
                     </div>
                   ) : (
                     <div className="text-center">
-                      <VideoIcon className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+                      <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-600">Video will be available after match</p>
                     </div>
                   )}
