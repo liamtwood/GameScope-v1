@@ -2608,6 +2608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/fixtures", async (req, res) => {
     try {
       const { newOpponentWebsite, discoveredLogoUrl, ...fixtureData } = req.body;
+      console.log('[DEBUG] Fixture creation data:', { fixtureData, competitionId: fixtureData.competitionId, teamId: fixtureData.teamId });
       const parsedData = insertFixtureSchema.parse(fixtureData);
       
       // Auto-create opposition team if it doesn't exist, with website URL and logo if provided
@@ -2622,8 +2623,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Auto-enable competition for the team when a competition is selected
+      console.log('[DEBUG] Auto-enabling competition:', { competitionId: parsedData.competitionId, teamId: parsedData.teamId });
       if (parsedData.competitionId && parsedData.teamId) {
         await storage.setTeamCompetition(parsedData.teamId, parsedData.competitionId, true);
+        console.log('[DEBUG] Competition auto-enabled successfully');
+      } else {
+        console.log('[DEBUG] Skipping competition auto-enable:', { hasCompetitionId: !!parsedData.competitionId, hasTeamId: !!parsedData.teamId });
       }
       
       const fixture = await storage.createFixture(parsedData);
