@@ -584,49 +584,6 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   />
                 </div>
 
-                {/* Row 5: Match Report and Attendance */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="report"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Match Report</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            {...field} 
-                            placeholder="Enter match report..."
-                            className="min-h-[100px]"
-                            data-testid="textarea-match-report"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="attendance"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Attendance</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
-                            placeholder="e.g., 1469"
-                            data-testid="input-attendance"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
                 {/* Hidden opponent name field */}
                 <FormField
                   control={form.control}

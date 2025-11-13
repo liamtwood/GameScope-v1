@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SpiderChart } from "@/components/spider-chart";
 import { MetricsComparison } from "@/components/metrics-comparison";
@@ -12,17 +15,22 @@ import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { ExcelUpload } from "@/components/excel-upload";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Trophy, MapPin, Edit, Star } from "lucide-react";
+import { ArrowLeft, Trophy, MapPin, Edit, Star, Check, X } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { Fixture, MatchStats, PlayerWithTeamData, Team, Club } from "@shared/schema";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Analysis() {
   const [, params] = useRoute("/analysis/:fixtureId");
   const fixtureId = params?.fixtureId || "";
+  const [isEditingReport, setIsEditingReport] = useState(false);
+  const [editedReport, setEditedReport] = useState("");
+  const [editedAttendance, setEditedAttendance] = useState<number | undefined>();
+  const { toast } = useToast();
   
   // Get the tab query parameter from URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -43,6 +51,10 @@ export default function Analysis() {
     queryKey: ["/api/opposition-teams"],
   });
 
+  const { data: competitions } = useQuery<any[]>({
+    queryKey: ["/api/competitions"],
+  });
+
   const { data: teamPlayersData } = useQuery<any[]>({
     queryKey: ["/api/team", fixture?.teamId, "users"],
     enabled: !!fixture?.teamId,
@@ -60,6 +72,28 @@ export default function Analysis() {
 
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
+
+  // Mutation for updating match report
+  const updateReportMutation = useMutation({
+    mutationFn: async (data: { report?: string; attendance?: number }) => {
+      await apiRequest("PUT", `/api/fixtures/${fixtureId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+      setIsEditingReport(false);
+      toast({
+        title: "Match report updated",
+        description: "The match report has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update match report. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Mutation for toggling star player status
   const toggleStarPlayerMutation = useMutation({
@@ -238,25 +272,95 @@ export default function Analysis() {
         <TabsContent value="report">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-6">Match Report</h3>
-              
-              <div className="space-y-6">
-                {fixture.attendance && (
-                  <div className="border-b pb-4">
-                    <label className="text-sm font-medium text-muted-foreground">Attendance</label>
-                    <p className="text-2xl font-bold mt-2">{fixture.attendance.toLocaleString()}</p>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold">Match Report</h3>
+                {!isEditingReport ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setIsEditingReport(true);
+                      setEditedReport(fixture.report || "");
+                      setEditedAttendance(fixture.attendance ?? undefined);
+                    }}
+                    data-testid="button-edit-report"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit Report
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setIsEditingReport(false)}
+                      data-testid="button-cancel-report"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Cancel
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={() => updateReportMutation.mutate({ 
+                        report: editedReport, 
+                        attendance: editedAttendance 
+                      })}
+                      disabled={updateReportMutation.isPending}
+                      data-testid="button-save-report"
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Save
+                    </Button>
                   </div>
                 )}
-                
-                {fixture.report ? (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Report</label>
-                    <p className="text-base leading-relaxed mt-2 whitespace-pre-wrap">{fixture.report}</p>
-                  </div>
+              </div>
+              
+              <div className="space-y-6">
+                {!isEditingReport ? (
+                  <>
+                    {fixture.attendance && (
+                      <div className="border-b pb-4">
+                        <label className="text-sm font-medium text-muted-foreground">Attendance</label>
+                        <p className="text-2xl font-bold mt-2">{fixture.attendance.toLocaleString()}</p>
+                      </div>
+                    )}
+                    
+                    {fixture.report ? (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Report</label>
+                        <p className="text-base leading-relaxed mt-2 whitespace-pre-wrap">{fixture.report}</p>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No match report available. Click "Edit Report" to add one.</p>
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No match report available.</p>
-                  </div>
+                  <>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">Attendance</label>
+                      <Input 
+                        type="number"
+                        value={editedAttendance ?? ""}
+                        onChange={(e) => setEditedAttendance(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                        placeholder="e.g., 1469"
+                        className="max-w-xs"
+                        data-testid="input-edit-attendance"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">Report</label>
+                      <Textarea 
+                        value={editedReport}
+                        onChange={(e) => setEditedReport(e.target.value)}
+                        placeholder="Enter match report..."
+                        className="min-h-[200px]"
+                        data-testid="textarea-edit-report"
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </CardContent>
@@ -493,7 +597,7 @@ export default function Analysis() {
                   <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Competition</label>
-                      <p className="text-lg mt-1">{fixture.competition}</p>
+                      <p className="text-lg mt-1">{competitions?.find(c => c.id === fixture.competitionId)?.name || 'N/A'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Match Type</label>
