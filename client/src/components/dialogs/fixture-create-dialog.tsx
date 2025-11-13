@@ -222,11 +222,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
-            <TabsTrigger value="match-report">Match Report</TabsTrigger>
-          </TabsList>
-
           <TabsContent value="fixture-details">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -573,6 +568,49 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   />
                 </div>
 
+                {/* Row 5: Match Report and Attendance */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="report"
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Match Report</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field} 
+                            placeholder="Enter match report..."
+                            className="min-h-[100px]"
+                            data-testid="textarea-match-report"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="attendance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Attendance</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                            placeholder="e.g., 1469"
+                            data-testid="input-attendance"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 {/* Hidden opponent name field */}
                 <FormField
                   control={form.control}
@@ -695,66 +733,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                     </div>
                   </Form>
                 </div>
-
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setOpen(false)}
-                    data-testid="button-cancel"
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" data-testid="button-save-fixture">
-                    Create Fixture
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </TabsContent>
-
-          <TabsContent value="match-report">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="report"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Match Report</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          {...field} 
-                          placeholder="Enter match report, e.g., In front of 1,469 spectators, including 146 travelling away fans..."
-                          className="min-h-[200px]"
-                          data-testid="textarea-match-report"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="attendance"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Attendance</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number"
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
-                          placeholder="e.g., 1469"
-                          data-testid="input-attendance"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <div className="flex justify-end gap-2 pt-4">
                   <Button 

@@ -263,13 +263,14 @@ export default function WatchMatchVideo() {
         />
       )}
 
-      {/* Tabs for Video Player, Match Events, Match Stats, and Spider Charts */}
+      {/* Tabs for Video Player, Match Events, Match Stats, Spider Charts, and Match Report */}
       <Tabs defaultValue="video" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="video">Video Player</TabsTrigger>
           <TabsTrigger value="events">Match Events</TabsTrigger>
           <TabsTrigger value="stats">Team Statistics</TabsTrigger>
           <TabsTrigger value="spider">Spider Charts</TabsTrigger>
+          <TabsTrigger value="report">Match Report</TabsTrigger>
         </TabsList>
 
         {/* Video Player Tab */}
@@ -567,6 +568,36 @@ export default function WatchMatchVideo() {
                   <p className="text-muted-foreground">No match statistics available. Upload match data to view spider charts.</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Match Report Tab */}
+        <TabsContent value="report">
+          <Card>
+            <CardHeader>
+              <CardTitle>Match Report</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {fixture?.attendance && (
+                  <div className="border-b pb-4">
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2">Attendance</h4>
+                    <p className="text-2xl font-bold">{fixture.attendance.toLocaleString()}</p>
+                  </div>
+                )}
+                
+                {fixture?.report ? (
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-3">Report</h4>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{fixture.report}</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No match report available.</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
