@@ -269,8 +269,9 @@ export default function FixtureDetails() {
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="details" data-testid="tab-fixture-details">Fixture Details</TabsTrigger>
+            <TabsTrigger value="report" data-testid="tab-report">Match Report</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Upload Video</TabsTrigger>
             <TabsTrigger value="home-lineup" data-testid="tab-home-lineup">Home Lineup</TabsTrigger>
             <TabsTrigger value="away-lineup" data-testid="tab-away-lineup">Away Lineup</TabsTrigger>
@@ -348,6 +349,34 @@ export default function FixtureDetails() {
                   )}
                 </div>
 
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="report" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-6">Match Report</h3>
+                
+                <div className="space-y-6">
+                  {fixture.attendance && (
+                    <div className="border-b pb-4">
+                      <label className="text-sm font-medium text-muted-foreground">Attendance</label>
+                      <p className="text-2xl font-bold mt-2">{fixture.attendance.toLocaleString()}</p>
+                    </div>
+                  )}
+                  
+                  {fixture.report ? (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Report</label>
+                      <p className="text-base leading-relaxed mt-2 whitespace-pre-wrap">{fixture.report}</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No match report available. Edit the fixture to add a match report.</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
