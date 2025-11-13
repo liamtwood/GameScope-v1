@@ -269,23 +269,33 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                                 </Button>
                               </>
                             ) : (
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                data-testid="select-competition"
-                              >
-                                <SelectTrigger className="flex-1">
-                                  <SelectValue placeholder="Select competition" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {competitions.map((comp) => (
-                                    <SelectItem key={comp.id} value={comp.id}>
-                                      {comp.name}
-                                    </SelectItem>
-                                  ))}
-                                  <SelectItem value="__new__">+ New Competition</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <>
+                                <Select
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  data-testid="select-competition"
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select competition" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {competitions.map((comp) => (
+                                      <SelectItem key={comp.id} value={comp.id}>
+                                        {comp.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange("__new__")}
+                                  data-testid="button-add-competition"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </>
                             )}
                           </div>
                         </FormControl>
