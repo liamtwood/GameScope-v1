@@ -153,7 +153,16 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       notes: fixture.notes || "",
       oppositionTeamId: fixture.oppositionTeamId || undefined,
     });
-  }, [fixture, form]);
+
+    // Load opponent data into opponentForm
+    if (fixture.oppositionTeamId && oppositionTeams.length > 0) {
+      const opponent = oppositionTeams.find(t => t.id === fixture.oppositionTeamId);
+      if (opponent) {
+        opponentForm.setValue("logoPath", opponent.logoPath || "");
+        opponentForm.setValue("primaryColor", opponent.colors?.primary || "#000000");
+      }
+    }
+  }, [fixture, form, oppositionTeams, opponentForm]);
 
 
   const handleSubmit = async (data: FixtureEditFormData) => {
@@ -352,6 +361,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                                     const selectedTeam = oppositionTeams.find(team => team.id === value);
                                     if (selectedTeam) {
                                       form.setValue("opponent", selectedTeam.name);
+                                      opponentForm.setValue("logoPath", selectedTeam.logoPath || "");
+                                      opponentForm.setValue("primaryColor", selectedTeam.colors?.primary || "#000000");
                                     }
                                   }
                                 }}
@@ -568,19 +579,21 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   )}
                 />
 
-                {showNewOpponentInput && (
+                {(showNewOpponentInput || form.watch("oppositionTeamId")) && (
                   <div className="border-t pt-4 mt-4">
                     <Form {...opponentForm}>
                       <div className="space-y-4">
-                        <div className="p-4 bg-muted rounded-lg">
-                          <p className="text-sm font-medium">Creating opponent: {newOpponentName || "New Opponent"}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
-                        </div>
+                        {showNewOpponentInput && (
+                          <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm font-medium">Creating opponent: {newOpponentName || "New Opponent"}</p>
+                            <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
+                          </div>
+                        )}
 
                         <div className="space-y-2">
-                          <FormLabel>Logo</FormLabel>
+                          <FormLabel>Opponent Logo</FormLabel>
                           <LogoUpload
-                            teamName={newOpponentName || "Opponent"}
+                            teamName={showNewOpponentInput ? (newOpponentName || "Opponent") : (oppositionTeams.find(t => t.id === form.watch("oppositionTeamId"))?.name || "Opponent")}
                             currentLogo={opponentForm.watch("logoPath")}
                             onUploadComplete={(logoPath: string) => {
                               opponentForm.setValue("logoPath", logoPath);
@@ -605,7 +618,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                           name="primaryColor"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Primary Color</FormLabel>
+                              <FormLabel>Opponent Primary Color</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
@@ -619,31 +632,33 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                           )}
                         />
 
-                        <div className="flex justify-end gap-2">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => {
-                              setShowNewOpponentInput(false);
-                              setNewOpponentName("");
-                              opponentForm.reset();
-                              if (previousOpponentId) {
-                                form.setValue("oppositionTeamId", previousOpponentId);
-                              }
-                            }}
-                            data-testid="button-cancel-opponent"
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            type="button"
-                            onClick={() => handleOpponentSubmit(opponentForm.getValues())}
-                            disabled={createOpponentMutation.isPending}
-                            data-testid="button-save-opponent"
-                          >
-                            {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
-                          </Button>
-                        </div>
+                        {showNewOpponentInput && (
+                          <div className="flex justify-end gap-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => {
+                                setShowNewOpponentInput(false);
+                                setNewOpponentName("");
+                                opponentForm.reset();
+                                if (previousOpponentId) {
+                                  form.setValue("oppositionTeamId", previousOpponentId);
+                                }
+                              }}
+                              data-testid="button-cancel-opponent"
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              type="button"
+                              onClick={() => handleOpponentSubmit(opponentForm.getValues())}
+                              disabled={createOpponentMutation.isPending}
+                              data-testid="button-save-opponent"
+                            >
+                              {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </Form>
                   </div>
