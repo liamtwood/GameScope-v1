@@ -267,15 +267,15 @@ export default function FixtureDetails() {
           />
         )}
 
-        {/* Tabs Content */}
+        {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="details" data-testid="tab-fixture-details">Fixture Details</TabsTrigger>
-            <TabsTrigger value="report" data-testid="tab-report">Match Report</TabsTrigger>
-            <TabsTrigger value="videos" data-testid="tab-videos">Upload Video</TabsTrigger>
+            <TabsTrigger value="details" data-testid="tab-fixture-details">Details</TabsTrigger>
+            <TabsTrigger value="report" data-testid="tab-report">Report</TabsTrigger>
+            <TabsTrigger value="videos" data-testid="tab-videos">Videos</TabsTrigger>
             <TabsTrigger value="home-lineup" data-testid="tab-home-lineup">Home Lineup</TabsTrigger>
             <TabsTrigger value="away-lineup" data-testid="tab-away-lineup">Away Lineup</TabsTrigger>
-            <TabsTrigger value="analysis" data-testid="tab-analysis">GameScope Analysis</TabsTrigger>
+            <TabsTrigger value="analysis" data-testid="tab-analysis">Analysis</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="mt-6">
