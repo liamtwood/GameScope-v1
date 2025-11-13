@@ -55,7 +55,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [newOpponentName, setNewOpponentName] = useState("");
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
-  const [showOpponentDetails, setShowOpponentDetails] = useState(false);
   const [previousOpponentId, setPreviousOpponentId] = useState<string | undefined>("");
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
@@ -95,7 +94,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       form.setValue("opponent", newTeam.name);
       setNewOpponentName("");
       setShowNewOpponentInput(false);
-      setShowOpponentDetails(false);
       opponentForm.reset();
       toast({
         title: "Success",
@@ -200,18 +198,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       return;
     }
     createOpponentMutation.mutate({ ...data, name: newOpponentName });
-  };
-
-  const handleContinueToOpponentDetails = () => {
-    if (!newOpponentName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter opponent name",
-        variant: "destructive",
-      });
-      return;
-    }
-    setShowOpponentDetails(true);
   };
 
   return (
@@ -330,42 +316,13 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                       <FormControl>
                         <div className="flex gap-2">
                           {showNewOpponentInput ? (
-                            <>
-                              <Input 
-                                value={newOpponentName}
-                                onChange={(e) => setNewOpponentName(e.target.value)}
-                                placeholder="Enter opponent name" 
-                                data-testid="input-new-opponent-name"
-                                className="flex-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleContinueToOpponentDetails}
-                                data-testid="button-continue-opponent"
-                              >
-                                Continue
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setShowNewOpponentInput(false);
-                                  setNewOpponentName("");
-                                  if (previousOpponentId) {
-                                    form.setValue("oppositionTeamId", previousOpponentId);
-                                    const selectedTeam = oppositionTeams.find(team => team.id === previousOpponentId);
-                                    if (selectedTeam) {
-                                      form.setValue("opponent", selectedTeam.name);
-                                    }
-                                  }
-                                }}
-                                data-testid="button-cancel-new-opponent"
-                              >
-                                Cancel
-                              </Button>
-                            </>
+                            <Input 
+                              value={newOpponentName}
+                              onChange={(e) => setNewOpponentName(e.target.value)}
+                              placeholder="Enter opponent name" 
+                              data-testid="input-new-opponent-name"
+                              className="flex-1"
+                            />
                           ) : (
                             <>
                               <Select
@@ -607,26 +564,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   )}
                 />
 
-                {/* Row 4: Notes */}
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          {...field} 
-                          placeholder="Add any additional notes or details about this fixture..."
-                          className="min-h-[100px]"
-                          data-testid="textarea-notes"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Hidden fields for form compatibility */}
                 <FormField
                   control={form.control}
@@ -644,12 +581,12 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   )}
                 />
 
-                {showOpponentDetails && (
+                {showNewOpponentInput && (
                   <div className="border-t pt-4 mt-4">
                     <Form {...opponentForm}>
                       <div className="space-y-4">
                         <div className="p-4 bg-muted rounded-lg">
-                          <p className="text-sm font-medium">Creating opponent: {newOpponentName}</p>
+                          <p className="text-sm font-medium">Creating opponent: {newOpponentName || "New Opponent"}</p>
                           <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
                         </div>
 
@@ -700,7 +637,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                             type="button" 
                             variant="outline" 
                             onClick={() => {
-                              setShowOpponentDetails(false);
                               setShowNewOpponentInput(false);
                               setNewOpponentName("");
                               opponentForm.reset();
