@@ -374,48 +374,61 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                               </Button>
                             </>
                           ) : (
-                            <Select
-                              value={field.value || ""}
-                              onValueChange={(value) => {
-                                if (value === "__new__") {
+                            <>
+                              <Select
+                                value={field.value || ""}
+                                onValueChange={(value) => {
+                                  if (value === "__new__") {
+                                    setPreviousOpponentId(field.value);
+                                    setShowNewOpponentInput(true);
+                                  } else {
+                                    setShowNewOpponentInput(false);
+                                    field.onChange(value);
+                                    const selectedTeam = oppositionTeams.find(team => team.id === value);
+                                    if (selectedTeam) {
+                                      form.setValue("opponent", selectedTeam.name);
+                                    }
+                                  }
+                                }}
+                                data-testid="select-opponent"
+                              >
+                                <SelectTrigger className="flex-1">
+                                  <SelectValue placeholder="Select opponent" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {oppositionTeams.map((team) => (
+                                    <SelectItem key={team.id} value={team.id}>
+                                      <div className="flex items-center gap-2">
+                                        {team.logoPath ? (
+                                          <img 
+                                            src={team.logoPath} 
+                                            alt={`${team.name} logo`}
+                                            className="w-4 h-4 object-cover rounded"
+                                          />
+                                        ) : (
+                                          <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                            {team.shortName}
+                                          </div>
+                                        )}
+                                        {team.name}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => {
                                   setPreviousOpponentId(field.value);
                                   setShowNewOpponentInput(true);
-                                } else {
-                                  setShowNewOpponentInput(false);
-                                  field.onChange(value);
-                                  const selectedTeam = oppositionTeams.find(team => team.id === value);
-                                  if (selectedTeam) {
-                                    form.setValue("opponent", selectedTeam.name);
-                                  }
-                                }
-                              }}
-                              data-testid="select-opponent"
-                            >
-                              <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select opponent" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {oppositionTeams.map((team) => (
-                                  <SelectItem key={team.id} value={team.id}>
-                                    <div className="flex items-center gap-2">
-                                      {team.logoPath ? (
-                                        <img 
-                                          src={team.logoPath} 
-                                          alt={`${team.name} logo`}
-                                          className="w-4 h-4 object-cover rounded"
-                                        />
-                                      ) : (
-                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                          {team.shortName}
-                                        </div>
-                                      )}
-                                      {team.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                                <SelectItem value="__new__">+ New Opponent</SelectItem>
-                              </SelectContent>
-                            </Select>
+                                }}
+                                data-testid="button-add-opponent"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </FormControl>
