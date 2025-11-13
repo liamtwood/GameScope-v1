@@ -176,13 +176,6 @@ export default function Videos() {
     return <Badge className="bg-gray-100 text-gray-800">{fixture.status}</Badge>;
   };
 
-  const filterButtons = [
-    { id: 'all' as const, label: 'All Videos' },
-    { id: 'recent' as const, label: 'Recent' },
-    { id: 'analyzed' as const, label: 'Analyzed' },
-  ];
-
-
   // Set default selected fixture to first one when in watch mode
   useEffect(() => {
     if (viewMode === 'watch' && videoFixtures.length > 0 && !selectedFixtureId) {
@@ -198,21 +191,6 @@ export default function Videos() {
       {/* View Mode Toggle and Filters */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-3 items-center">
-          <div className="flex bg-muted rounded-lg p-1 w-fit">
-            {filterButtons.map((filter) => (
-              <Button
-                key={filter.id}
-                variant={activeFilter === filter.id ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveFilter(filter.id)}
-                className={activeFilter === filter.id ? "bg-background text-foreground shadow-sm" : ""}
-                data-testid={`button-filter-${filter.id}`}
-              >
-                {filter.label}
-              </Button>
-            ))}
-          </div>
-
           {/* Competition Filter Dropdown */}
           <Select value={selectedCompetitionId} onValueChange={setSelectedCompetitionId}>
             <SelectTrigger className="w-[200px]" data-testid="select-competition-filter">
