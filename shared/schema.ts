@@ -70,6 +70,8 @@ export const fixtures = pgTable("fixtures", {
   awayScore: integer("away_score"),
   competitionId: varchar("competition_id").references(() => competitions.id),
   notes: text("notes"),
+  report: text("report"),
+  attendance: integer("attendance"),
   hasVideo: boolean("has_video").default(false),
   videoLinks: jsonb("video_links"),
   createdAt: timestamp("created_at").defaultNow(),

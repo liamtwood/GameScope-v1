@@ -33,6 +33,8 @@ const fixtureCreateSchema = z.object({
   awayScore: z.coerce.number().optional(),
   competitionId: z.string().min(1, "Competition is required"),
   notes: z.string().optional(),
+  report: z.string().optional(),
+  attendance: z.coerce.number().optional(),
 });
 
 const opponentCreateSchema = z.object({
@@ -53,6 +55,7 @@ interface FixtureCreateDialogProps {
 export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("fixture-details");
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [newOpponentName, setNewOpponentName] = useState("");
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
@@ -120,6 +123,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       awayScore: undefined,
       competitionId: competitions.length > 0 ? competitions[0].id : "",
       notes: "",
+      report: "",
+      attendance: undefined,
     },
   });
 
@@ -216,8 +221,15 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
           </DialogDescription>
         </DialogHeader>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
+            <TabsTrigger value="match-report">Match Report</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="fixture-details">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 {/* Row 1: Competition, Match Type */}
                 <div className="grid grid-cols-[1fr_200px] gap-4">
                   <FormField
@@ -699,6 +711,68 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 </div>
               </form>
             </Form>
+          </TabsContent>
+
+          <TabsContent value="match-report">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="report"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Match Report</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          placeholder="Enter match report, e.g., In front of 1,469 spectators, including 146 travelling away fans..."
+                          className="min-h-[200px]"
+                          data-testid="textarea-match-report"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="attendance"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Attendance</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                          placeholder="e.g., 1469"
+                          data-testid="input-attendance"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setOpen(false)}
+                    data-testid="button-cancel"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" data-testid="button-save-fixture">
+                    Create Fixture
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

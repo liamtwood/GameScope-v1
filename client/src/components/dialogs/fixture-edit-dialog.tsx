@@ -33,6 +33,8 @@ const fixtureEditSchema = z.object({
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
   notes: z.string().optional(),
+  report: z.string().optional(),
+  attendance: z.coerce.number().optional(),
   oppositionTeamId: z.string().optional(),
 });
 
@@ -53,6 +55,7 @@ interface FixtureEditDialogProps {
 
 export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("fixture-details");
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [newOpponentName, setNewOpponentName] = useState("");
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
@@ -124,6 +127,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
       awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
       notes: fixture.notes || "",
+      report: fixture.report || "",
+      attendance: fixture.attendance !== undefined && fixture.attendance !== null ? fixture.attendance : undefined,
       oppositionTeamId: fixture.oppositionTeamId || undefined,
     },
   });
@@ -154,6 +159,8 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
       homeScore: fixture.homeScore !== undefined && fixture.homeScore !== null ? fixture.homeScore : undefined,
       awayScore: fixture.awayScore !== undefined && fixture.awayScore !== null ? fixture.awayScore : undefined,
       notes: fixture.notes || "",
+      report: fixture.report || "",
+      attendance: fixture.attendance !== undefined && fixture.attendance !== null ? fixture.attendance : undefined,
       oppositionTeamId: fixture.oppositionTeamId || undefined,
     });
 
@@ -241,8 +248,15 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
           </DialogDescription>
         </DialogHeader>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
+            <TabsTrigger value="match-report">Match Report</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="fixture-details">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 {/* Row 1: Competition, Match Type */}
                 <div className="grid grid-cols-[1fr_200px] gap-4">
                   <FormField
@@ -691,6 +705,63 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                 </div>
               </form>
             </Form>
+          </TabsContent>
+
+          <TabsContent value="match-report">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="report"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Match Report</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          placeholder="Enter match report, e.g., In front of 1,469 spectators, including 146 travelling away fans..."
+                          className="min-h-[200px]"
+                          data-testid="textarea-match-report"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="attendance"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Attendance</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value))}
+                          placeholder="e.g., 1469"
+                          data-testid="input-attendance"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" data-testid="button-save-fixture">
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
