@@ -584,123 +584,102 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
                   )}
                 />
 
-                {(showNewOpponentInput || form.watch("oppositionTeamId")) && (
-                  <div className="space-y-6 pt-6">
-                    {showNewOpponentInput && (
-                      <div className="p-4 bg-muted rounded-lg">
-                        <p className="text-sm font-medium">Creating opponent: {newOpponentName || "New Opponent"}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Set colors and upload a logo</p>
+                <div className="space-y-6 pt-6">
+                  <Form {...opponentForm}>
+                    {/* Opposition Colors Section */}
+                    <div className="space-y-4">
+                      <div className="border-b pb-2">
+                        <h4 className="text-sm font-semibold">Opposition Colors</h4>
                       </div>
-                    )}
-
-                    <Form {...opponentForm}>
-                      {/* Opposition Colors Section */}
-                      <div className="space-y-4">
-                        <div className="border-b pb-2">
-                          <h4 className="text-sm font-semibold">Opposition Colors</h4>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={opponentForm.control}
-                            name="primaryColor"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Primary Color</FormLabel>
-                                <FormControl>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={opponentForm.control}
+                          name="primaryColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Primary Color</FormLabel>
+                              <FormControl>
+                                <div className="flex gap-2 items-center">
                                   <Input 
                                     {...field} 
                                     type="color" 
-                                    className="h-10 w-full cursor-pointer"
+                                    className="h-10 w-16 cursor-pointer p-1"
                                     data-testid="input-opponent-primary-color"
                                   />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={opponentForm.control}
-                            name="secondaryColor"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Secondary Color</FormLabel>
-                                <FormControl>
                                   <Input 
-                                    {...field} 
-                                    type="color" 
-                                    className="h-10 w-full cursor-pointer"
-                                    data-testid="input-opponent-secondary-color"
+                                    value={field.value}
+                                    onChange={(e) => field.onChange(e.target.value)}
+                                    placeholder="#000000"
+                                    className="flex-1 font-mono text-sm"
                                   />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Team Logo Section */}
-                      <div className="space-y-4">
-                        <div className="border-b pb-2">
-                          <h4 className="text-sm font-semibold">Team Logo</h4>
-                        </div>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         
                         <FormField
                           control={opponentForm.control}
-                          name="logoPath"
+                          name="secondaryColor"
                           render={({ field }) => (
                             <FormItem>
+                              <FormLabel>Secondary Color</FormLabel>
                               <FormControl>
-                                <LogoUpload
-                                  teamName={showNewOpponentInput ? (newOpponentName || "Opponent") : (oppositionTeams.find(t => t.id === form.watch("oppositionTeamId"))?.name || "Opponent")}
-                                  currentLogo={field.value}
-                                  onUploadComplete={(logoPath: string) => {
-                                    field.onChange(logoPath);
-                                    toast({
-                                      title: "Logo Uploaded",
-                                      description: "Logo has been uploaded successfully",
-                                    });
-                                  }}
-                                />
+                                <div className="flex gap-2 items-center">
+                                  <Input 
+                                    {...field} 
+                                    type="color" 
+                                    className="h-10 w-16 cursor-pointer p-1"
+                                    data-testid="input-opponent-secondary-color"
+                                  />
+                                  <Input 
+                                    value={field.value}
+                                    onChange={(e) => field.onChange(e.target.value)}
+                                    placeholder="#FFFFFF"
+                                    className="flex-1 font-mono text-sm"
+                                  />
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
+                    </div>
 
-                      {showNewOpponentInput && (
-                        <div className="flex justify-end gap-2 pt-4 border-t">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => {
-                              setShowNewOpponentInput(false);
-                              setNewOpponentName("");
-                              opponentForm.reset();
-                              if (previousOpponentId) {
-                                form.setValue("oppositionTeamId", previousOpponentId);
-                              }
-                            }}
-                            data-testid="button-cancel-opponent"
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            type="button"
-                            onClick={() => handleOpponentSubmit(opponentForm.getValues())}
-                            disabled={createOpponentMutation.isPending}
-                            data-testid="button-save-opponent"
-                          >
-                            {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
-                          </Button>
-                        </div>
-                      )}
-                    </Form>
-                  </div>
-                )}
+                    {/* Team Logo Section */}
+                    <div className="space-y-4">
+                      <div className="border-b pb-2">
+                        <h4 className="text-sm font-semibold">Team Logo</h4>
+                      </div>
+                      
+                      <FormField
+                        control={opponentForm.control}
+                        name="logoPath"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <LogoUpload
+                                teamName={showNewOpponentInput ? (newOpponentName || "Opponent") : (oppositionTeams.find(t => t.id === form.watch("oppositionTeamId"))?.name || "Opponent")}
+                                currentLogo={field.value}
+                                onUploadComplete={(logoPath: string) => {
+                                  field.onChange(logoPath);
+                                  toast({
+                                    title: "Logo Uploaded",
+                                    description: "Logo has been uploaded successfully",
+                                  });
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </Form>
+                </div>
 
                 <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
