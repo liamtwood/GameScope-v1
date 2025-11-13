@@ -236,7 +236,161 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
           <TabsContent value="fixture-details">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                {/* Row 1: Date, Time Slot, Kick-off Time */}
+                {/* Row 1: Competition */}
+                <FormField
+                  control={form.control}
+                  name="competitionId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Competition</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          {field.value === "__new__" ? (
+                            <>
+                              <Input 
+                                value={newCompetitionName}
+                                onChange={(e) => setNewCompetitionName(e.target.value)}
+                                placeholder="Enter new competition name" 
+                                data-testid="input-new-competition"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  field.onChange("");
+                                  setNewCompetitionName("");
+                                }}
+                                data-testid="button-cancel-new-competition"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              data-testid="select-competition"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select competition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {competitions.map((comp) => (
+                                  <SelectItem key={comp.id} value={comp.id}>
+                                    {comp.name}
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Competition</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Row 2: Opposition */}
+                <FormField
+                  control={form.control}
+                  name="oppositionTeamId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Opposition</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          {showNewOpponentInput ? (
+                            <>
+                              <Input 
+                                value={newOpponentName}
+                                onChange={(e) => setNewOpponentName(e.target.value)}
+                                placeholder="Enter opponent name" 
+                                data-testid="input-new-opponent-name"
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleContinueToOpponentDetails}
+                                data-testid="button-continue-opponent"
+                              >
+                                Continue
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setShowNewOpponentInput(false);
+                                  setNewOpponentName("");
+                                  if (previousOpponentId) {
+                                    form.setValue("oppositionTeamId", previousOpponentId);
+                                    const selectedTeam = oppositionTeams.find(team => team.id === previousOpponentId);
+                                    if (selectedTeam) {
+                                      form.setValue("opponent", selectedTeam.name);
+                                    }
+                                  }
+                                }}
+                                data-testid="button-cancel-new-opponent"
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={(value) => {
+                                if (value === "__new__") {
+                                  setPreviousOpponentId(field.value);
+                                  setShowNewOpponentInput(true);
+                                } else {
+                                  setShowNewOpponentInput(false);
+                                  field.onChange(value);
+                                  const selectedTeam = oppositionTeams.find(team => team.id === value);
+                                  if (selectedTeam) {
+                                    form.setValue("opponent", selectedTeam.name);
+                                  }
+                                }
+                              }}
+                              data-testid="select-opponent"
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select opponent" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {oppositionTeams.map((team) => (
+                                  <SelectItem key={team.id} value={team.id}>
+                                    <div className="flex items-center gap-2">
+                                      {team.logoPath ? (
+                                        <img 
+                                          src={team.logoPath} 
+                                          alt={`${team.name} logo`}
+                                          className="w-4 h-4 object-cover rounded"
+                                        />
+                                      ) : (
+                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
+                                          {team.shortName}
+                                        </div>
+                                      )}
+                                      {team.name}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                                <SelectItem value="__new__">+ New Opponent</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Row 3: Date, Time Slot, Kick-off Time */}
                 <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
@@ -334,7 +488,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   />
                 </div>
 
-                {/* Row 2: Match Type, Status, Home Score, Away Score */}
+                {/* Row 4: Match Type, Status, Home Score, Away Score */}
                 <div className="grid grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
@@ -425,160 +579,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                     )}
                   />
                 </div>
-
-                {/* Row 3: Competition */}
-                <FormField
-                  control={form.control}
-                  name="competitionId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Competition</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          {field.value === "__new__" ? (
-                            <>
-                              <Input 
-                                value={newCompetitionName}
-                                onChange={(e) => setNewCompetitionName(e.target.value)}
-                                placeholder="Enter new competition name" 
-                                data-testid="input-new-competition"
-                                className="flex-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  field.onChange("");
-                                  setNewCompetitionName("");
-                                }}
-                                data-testid="button-cancel-new-competition"
-                              >
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              data-testid="select-competition"
-                            >
-                              <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select competition" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {competitions.map((comp) => (
-                                  <SelectItem key={comp.id} value={comp.id}>
-                                    {comp.name}
-                                  </SelectItem>
-                                ))}
-                                <SelectItem value="__new__">+ New Competition</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Row 4: Opposition */}
-                <FormField
-                  control={form.control}
-                  name="oppositionTeamId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opposition</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          {showNewOpponentInput ? (
-                            <>
-                              <Input 
-                                value={newOpponentName}
-                                onChange={(e) => setNewOpponentName(e.target.value)}
-                                placeholder="Enter opponent name" 
-                                data-testid="input-new-opponent-name"
-                                className="flex-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleContinueToOpponentDetails}
-                                data-testid="button-continue-opponent"
-                              >
-                                Continue
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setShowNewOpponentInput(false);
-                                  setNewOpponentName("");
-                                  if (previousOpponentId) {
-                                    form.setValue("oppositionTeamId", previousOpponentId);
-                                    const selectedTeam = oppositionTeams.find(team => team.id === previousOpponentId);
-                                    if (selectedTeam) {
-                                      form.setValue("opponent", selectedTeam.name);
-                                    }
-                                  }
-                                }}
-                                data-testid="button-cancel-new-opponent"
-                              >
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <Select
-                              value={field.value || ""}
-                              onValueChange={(value) => {
-                                if (value === "__new__") {
-                                  setPreviousOpponentId(field.value);
-                                  setShowNewOpponentInput(true);
-                                } else {
-                                  setShowNewOpponentInput(false);
-                                  field.onChange(value);
-                                  const selectedTeam = oppositionTeams.find(team => team.id === value);
-                                  if (selectedTeam) {
-                                    form.setValue("opponent", selectedTeam.name);
-                                  }
-                                }
-                              }}
-                              data-testid="select-opponent"
-                            >
-                              <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select opponent" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {oppositionTeams.map((team) => (
-                                  <SelectItem key={team.id} value={team.id}>
-                                    <div className="flex items-center gap-2">
-                                      {team.logoPath ? (
-                                        <img 
-                                          src={team.logoPath} 
-                                          alt={`${team.name} logo`}
-                                          className="w-4 h-4 object-cover rounded"
-                                        />
-                                      ) : (
-                                        <div className="w-4 h-4 bg-muted rounded flex items-center justify-center text-xs">
-                                          {team.shortName}
-                                        </div>
-                                      )}
-                                      {team.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                                <SelectItem value="__new__">+ New Opponent</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 {/* Hidden opponent name field */}
                 <FormField
