@@ -236,62 +236,86 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
           <TabsContent value="fixture-details">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                {/* Row 1: Competition */}
-                <FormField
-                  control={form.control}
-                  name="competitionId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Competition</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          {field.value === "__new__" ? (
-                            <>
-                              <Input 
-                                value={newCompetitionName}
-                                onChange={(e) => setNewCompetitionName(e.target.value)}
-                                placeholder="Enter new competition name" 
-                                data-testid="input-new-competition"
-                                className="flex-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  field.onChange("");
-                                  setNewCompetitionName("");
-                                }}
-                                data-testid="button-cancel-new-competition"
+                {/* Row 1: Competition, Match Type */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="competitionId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Competition</FormLabel>
+                        <FormControl>
+                          <div className="flex gap-2">
+                            {field.value === "__new__" ? (
+                              <>
+                                <Input 
+                                  value={newCompetitionName}
+                                  onChange={(e) => setNewCompetitionName(e.target.value)}
+                                  placeholder="Enter new competition name" 
+                                  data-testid="input-new-competition"
+                                  className="flex-1"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    field.onChange("");
+                                    setNewCompetitionName("");
+                                  }}
+                                  data-testid="button-cancel-new-competition"
+                                >
+                                  Cancel
+                                </Button>
+                              </>
+                            ) : (
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                data-testid="select-competition"
                               >
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              data-testid="select-competition"
-                            >
-                              <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select competition" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {competitions.map((comp) => (
-                                  <SelectItem key={comp.id} value={comp.id}>
-                                    {comp.name}
-                                  </SelectItem>
-                                ))}
-                                <SelectItem value="__new__">+ New Competition</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                <SelectTrigger className="flex-1">
+                                  <SelectValue placeholder="Select competition" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {competitions.map((comp) => (
+                                    <SelectItem key={comp.id} value={comp.id}>
+                                      {comp.name}
+                                    </SelectItem>
+                                  ))}
+                                  <SelectItem value="__new__">+ New Competition</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Match Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-new-type">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="HOME">Home</SelectItem>
+                            <SelectItem value="AWAY">Away</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/* Row 2: Opposition */}
                 <FormField
@@ -488,30 +512,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   />
                 </div>
 
-                {/* Row 4: Match Type, Status, Home Score, Away Score */}
-                <div className="grid grid-cols-4 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Match Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-new-type">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="HOME">Home</SelectItem>
-                            <SelectItem value="AWAY">Away</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                {/* Row 4: Status, Home Score, Away Score */}
+                <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="status"
