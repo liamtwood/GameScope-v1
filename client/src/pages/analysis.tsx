@@ -187,8 +187,9 @@ export default function Analysis() {
           </Button>
           
           <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[840px] grid-cols-7">
+            <TabsList className="grid max-w-[960px] grid-cols-8">
               <TabsTrigger value="heatmaps">Fixture Details</TabsTrigger>
+              <TabsTrigger value="report">Match Report</TabsTrigger>
               <TabsTrigger value="positions">Line-Ups</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
@@ -229,6 +230,35 @@ export default function Analysis() {
                   <p className="text-muted-foreground">No match statistics available. Upload match data to view detailed analytics.</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Match Report Tab */}
+        <TabsContent value="report">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-6">Match Report</h3>
+              
+              <div className="space-y-6">
+                {fixture.attendance && (
+                  <div className="border-b pb-4">
+                    <label className="text-sm font-medium text-muted-foreground">Attendance</label>
+                    <p className="text-2xl font-bold mt-2">{fixture.attendance.toLocaleString()}</p>
+                  </div>
+                )}
+                
+                {fixture.report ? (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Report</label>
+                    <p className="text-base leading-relaxed mt-2 whitespace-pre-wrap">{fixture.report}</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No match report available.</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
