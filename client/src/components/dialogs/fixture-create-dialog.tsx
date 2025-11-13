@@ -52,10 +52,10 @@ interface FixtureCreateDialogProps {
 export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("fixture-details");
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [newOpponentName, setNewOpponentName] = useState("");
   const [showNewOpponentInput, setShowNewOpponentInput] = useState(false);
+  const [showOpponentDetails, setShowOpponentDetails] = useState(false);
   const [previousOpponentId, setPreviousOpponentId] = useState<string | undefined>("");
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
@@ -93,9 +93,9 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
       form.setValue("oppositionTeamId", newTeam.id);
       form.setValue("opponent", newTeam.name);
-      setActiveTab("fixture-details");
       setNewOpponentName("");
       setShowNewOpponentInput(false);
+      setShowOpponentDetails(false);
       opponentForm.reset();
       toast({
         title: "Success",
@@ -211,7 +211,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
       });
       return;
     }
-    setActiveTab("add-opponent");
+    setShowOpponentDetails(true);
   };
 
   return (
@@ -227,15 +227,8 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="fixture-details">Fixture Details</TabsTrigger>
-            <TabsTrigger value="add-opponent">Add New Opponent</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="fixture-details">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 {/* Row 1: Competition, Match Type */}
                 <div className="grid grid-cols-[1fr_200px] gap-4">
                   <FormField
@@ -651,6 +644,88 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                   )}
                 />
 
+                {showOpponentDetails && (
+                  <div className="border-t pt-4 mt-4">
+                    <Form {...opponentForm}>
+                      <div className="space-y-4">
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm font-medium">Creating opponent: {newOpponentName}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <FormLabel>Logo</FormLabel>
+                          <LogoUpload
+                            teamName={newOpponentName || "Opponent"}
+                            currentLogo={opponentForm.watch("logoPath")}
+                            onUploadComplete={(logoPath: string) => {
+                              opponentForm.setValue("logoPath", logoPath);
+                              toast({
+                                title: "Logo Uploaded",
+                                description: "Logo has been uploaded successfully",
+                              });
+                            }}
+                          />
+                        </div>
+
+                        <FormField
+                          control={opponentForm.control}
+                          name="logoPath"
+                          render={({ field }) => (
+                            <input type="hidden" {...field} />
+                          )}
+                        />
+
+                        <FormField
+                          control={opponentForm.control}
+                          name="primaryColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Primary Color</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="color" 
+                                  className="h-10 w-full cursor-pointer"
+                                  data-testid="input-opponent-color"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                              setShowOpponentDetails(false);
+                              setShowNewOpponentInput(false);
+                              setNewOpponentName("");
+                              opponentForm.reset();
+                              if (previousOpponentId) {
+                                form.setValue("oppositionTeamId", previousOpponentId);
+                              }
+                            }}
+                            data-testid="button-cancel-opponent"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            type="button"
+                            onClick={() => handleOpponentSubmit(opponentForm.getValues())}
+                            disabled={createOpponentMutation.isPending}
+                            data-testid="button-save-opponent"
+                          >
+                            {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
+                          </Button>
+                        </div>
+                      </div>
+                    </Form>
+                  </div>
+                )}
+
                 <div className="flex justify-end gap-2 pt-4">
                   <Button 
                     type="button" 
@@ -666,84 +741,6 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
                 </div>
               </form>
             </Form>
-          </TabsContent>
-
-          <TabsContent value="add-opponent">
-            <Form {...opponentForm}>
-              <form onSubmit={opponentForm.handleSubmit(handleOpponentSubmit)} className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm font-medium">Creating opponent: {newOpponentName}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Add a logo and primary color for this team</p>
-                </div>
-
-                <div className="space-y-2">
-                  <FormLabel>Logo</FormLabel>
-                  <LogoUpload
-                    teamName={newOpponentName || "Opponent"}
-                    currentLogo={opponentForm.watch("logoPath")}
-                    onUploadComplete={(logoPath: string) => {
-                      opponentForm.setValue("logoPath", logoPath);
-                      toast({
-                        title: "Logo Uploaded",
-                        description: "Logo has been uploaded successfully",
-                      });
-                    }}
-                  />
-                </div>
-
-                <FormField
-                  control={opponentForm.control}
-                  name="logoPath"
-                  render={({ field }) => (
-                    <input type="hidden" {...field} />
-                  )}
-                />
-
-                <FormField
-                  control={opponentForm.control}
-                  name="primaryColor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Color</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          type="color" 
-                          className="h-10 w-full cursor-pointer"
-                          data-testid="input-opponent-color"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setActiveTab("fixture-details");
-                      form.setValue("oppositionTeamId", "");
-                      setNewOpponentName("");
-                      opponentForm.reset();
-                    }}
-                    data-testid="button-cancel-opponent"
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createOpponentMutation.isPending}
-                    data-testid="button-save-opponent"
-                  >
-                    {createOpponentMutation.isPending ? "Creating..." : "Create Opponent"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
       </DialogContent>
     </Dialog>
   );
