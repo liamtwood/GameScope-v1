@@ -252,7 +252,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 {/* Row 1: Competition, Match Type */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-[1fr_200px] gap-4">
                   <FormField
                     control={form.control}
                     name="competitionId"
