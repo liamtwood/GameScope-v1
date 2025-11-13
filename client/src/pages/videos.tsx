@@ -271,6 +271,25 @@ export default function Videos() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Match Report and Attendance */}
+                    {(selectedFixture.attendance || selectedFixture.report) && (
+                      <div className="space-y-3 pt-4 border-t">
+                        {selectedFixture.attendance && (
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Attendance</label>
+                            <p className="text-lg font-bold">{selectedFixture.attendance.toLocaleString()}</p>
+                          </div>
+                        )}
+                        
+                        {selectedFixture.report && (
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Match Report</label>
+                            <p className="text-sm leading-relaxed mt-1 whitespace-pre-wrap">{selectedFixture.report}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Right Column: Tabs + Content (60%) */}
