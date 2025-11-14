@@ -425,7 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/user/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data with all the new fields
-      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height'];
+      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height', 'highSchool', 'classYear', 'bio', 'avatarPath', 'headshotPath'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
@@ -2769,7 +2769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/users/:id", async (req, res) => {
     try {
       // For PATCH requests, validate the partial data
-      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height'];
+      const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height', 'highSchool', 'classYear', 'bio', 'avatarPath', 'headshotPath'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
           acc[key] = req.body[key];
