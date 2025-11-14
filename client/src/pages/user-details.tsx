@@ -589,7 +589,7 @@ export default function UserDetails() {
                       ) : (
                         <p className="text-lg" data-testid={`text-date-of-birth-${user.id}`}>
                           {user.dateOfBirth 
-                            ? `${format(new Date(user.dateOfBirth), "d MMM yyyy")}`
+                            ? format(new Date(user.dateOfBirth), "dd MMM yyyy").toUpperCase()
                             : "Not provided"
                           }
                         </p>
