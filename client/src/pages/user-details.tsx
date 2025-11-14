@@ -580,7 +580,7 @@ export default function UserDetails() {
                         <Input
                           type="date"
                           value={editData.dateOfBirth ? format(new Date(editData.dateOfBirth), 'yyyy-MM-dd') : ''}
-                          onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value).toISOString() : null)}
+                          onChange={(e) => handleInputChange('dateOfBirth', e.target.value || null)}
                           max={format(new Date(), 'yyyy-MM-dd')}
                           min="1900-01-01"
                           className="[&::-webkit-calendar-picker-indicator]:dark:invert"
