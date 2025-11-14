@@ -443,8 +443,9 @@ export default function PlayerDetails() {
     const dataToSave = { ...editData };
     if (dataToSave.dateOfBirth) {
       if (typeof dataToSave.dateOfBirth === 'string' && !dataToSave.dateOfBirth.includes('T')) {
-        // Convert YYYY-MM-DD to ISO string
-        dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth + 'T00:00:00.000Z').toISOString();
+        // Convert YYYY-MM-DD to ISO string using local time (not UTC) to avoid timezone shifts
+        const [year, month, day] = dataToSave.dateOfBirth.split('-').map(Number);
+        dataToSave.dateOfBirth = new Date(year, month - 1, day).toISOString();
       } else if (dataToSave.dateOfBirth instanceof Date) {
         dataToSave.dateOfBirth = dataToSave.dateOfBirth.toISOString();
       }

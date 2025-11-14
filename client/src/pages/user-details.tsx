@@ -171,9 +171,10 @@ export default function UserDetails() {
         const value = editData[field as keyof User];
         if (field === 'dateOfBirth' && value) {
           // Convert date to ISO string for API transmission
-          if (typeof value === 'string') {
-            // Handle YYYY-MM-DD format from date input
-            (dataToSave as any).dateOfBirth = new Date(value + 'T00:00:00.000Z').toISOString();
+          if (typeof value === 'string' && !value.includes('T')) {
+            // Handle YYYY-MM-DD format from date input using local time (not UTC) to avoid timezone shifts
+            const [year, month, day] = value.split('-').map(Number);
+            (dataToSave as any).dateOfBirth = new Date(year, month - 1, day).toISOString();
           } else if (value instanceof Date) {
             (dataToSave as any).dateOfBirth = value.toISOString();
           } else {
