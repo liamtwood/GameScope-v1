@@ -170,10 +170,14 @@ export default function UserDetails() {
       if (editData[field as keyof User] !== undefined && editData[field as keyof User] !== null) {
         const value = editData[field as keyof User];
         if (field === 'dateOfBirth' && value) {
-          // Convert date string (YYYY-MM-DD) to Date object
+          // Convert date to ISO string for API transmission
           if (typeof value === 'string') {
-            (dataToSave as any).dateOfBirth = new Date(value + 'T00:00:00.000Z');
+            // Handle YYYY-MM-DD format from date input
+            (dataToSave as any).dateOfBirth = new Date(value + 'T00:00:00.000Z').toISOString();
           } else if (value instanceof Date) {
+            (dataToSave as any).dateOfBirth = value.toISOString();
+          } else {
+            // Value might already be ISO string
             (dataToSave as any).dateOfBirth = value;
           }
         } else {
