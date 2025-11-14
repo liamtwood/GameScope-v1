@@ -438,7 +438,19 @@ export default function PlayerDetails() {
       console.warn('No edit data to save');
       return;
     }
-    updatePlayerMutation.mutate(editData);
+    
+    // Convert date string to ISO format if present
+    const dataToSave = { ...editData };
+    if (dataToSave.dateOfBirth) {
+      if (typeof dataToSave.dateOfBirth === 'string' && !dataToSave.dateOfBirth.includes('T')) {
+        // Convert YYYY-MM-DD to ISO string
+        dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth + 'T00:00:00.000Z').toISOString();
+      } else if (dataToSave.dateOfBirth instanceof Date) {
+        dataToSave.dateOfBirth = dataToSave.dateOfBirth.toISOString();
+      }
+    }
+    
+    updatePlayerMutation.mutate(dataToSave);
   };
 
   const handleInputChange = (field: keyof User, value: any) => {
@@ -1137,14 +1149,16 @@ export default function PlayerDetails() {
                               <Input
                                 type="date"
                                 value={editData.dateOfBirth ? new Date(editData.dateOfBirth).toISOString().split('T')[0] : ''}
-                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value ? new Date(e.target.value) : null)}
-                                className="h-6 text-sm font-semibold"
+                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value || null)}
+                                max={format(new Date(), 'yyyy-MM-dd')}
+                                min="1900-01-01"
+                                className="h-6 text-sm font-semibold [&::-webkit-calendar-picker-indicator]:dark:invert"
                                 data-testid={`input-date-of-birth-${player.id}`}
                               />
                             ) : (
                               <span className="text-sm font-semibold text-gray-900" data-testid={`text-date-of-birth-${player.id}`}>
                                 {player.dateOfBirth 
-                                  ? format(new Date(player.dateOfBirth), "d MMM yyyy")
+                                  ? format(new Date(player.dateOfBirth), "dd MMM yyyy").toUpperCase()
                                   : "Not provided"
                                 }
                               </span>
