@@ -167,18 +167,14 @@ export default function UserDetails() {
     const dataToSave: Partial<User> = {};
     
     allowedFields.forEach(field => {
-      if (editData[field as keyof User] !== undefined) {
+      if (editData[field as keyof User] !== undefined && editData[field as keyof User] !== null) {
         const value = editData[field as keyof User];
         if (field === 'dateOfBirth' && value) {
-          if (value instanceof Date) {
-            (dataToSave as any).dateOfBirth = value.toISOString();
-          } else if (typeof value === 'string') {
-            try {
-              const date = new Date(value);
-              (dataToSave as any).dateOfBirth = date.toISOString();
-            } catch (e) {
-              console.error('Invalid date format:', value);
-            }
+          // Convert date string (YYYY-MM-DD) to Date object
+          if (typeof value === 'string') {
+            (dataToSave as any).dateOfBirth = new Date(value + 'T00:00:00.000Z');
+          } else if (value instanceof Date) {
+            (dataToSave as any).dateOfBirth = value;
           }
         } else {
           (dataToSave as any)[field] = value;
