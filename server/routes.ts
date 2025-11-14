@@ -428,7 +428,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height', 'highSchool', 'classYear', 'bio', 'avatarPath', 'headshotPath'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
-          acc[key] = req.body[key];
+          let value = req.body[key];
+          // Convert dateOfBirth string to Date object
+          if (key === 'dateOfBirth' && value && typeof value === 'string') {
+            value = new Date(value);
+          }
+          acc[key] = value;
         }
         return acc;
       }, {} as any);
@@ -2772,7 +2777,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validKeys = ['firstName', 'lastName', 'shirtName', 'email', 'phone', 'emergencyContact', 'emergencyContactPhone', 'gender', 'dateOfBirth', 'status', 'role', 'hometown', 'year', 'height', 'highSchool', 'classYear', 'bio', 'avatarPath', 'headshotPath'];
       const updates = Object.keys(req.body).reduce((acc, key) => {
         if (validKeys.includes(key)) {
-          acc[key] = req.body[key];
+          let value = req.body[key];
+          // Convert dateOfBirth string to Date object
+          if (key === 'dateOfBirth' && value && typeof value === 'string') {
+            value = new Date(value);
+          }
+          acc[key] = value;
         }
         return acc;
       }, {} as any);
