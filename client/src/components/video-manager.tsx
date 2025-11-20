@@ -68,6 +68,11 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  // Sync local state with prop changes (when fixture is re-fetched)
+  useEffect(() => {
+    setVideos(videoLinks);
+  }, [videoLinks]);
 
   const updateVideosMutation = useMutation({
     mutationFn: async (videoData: VideoData[]) => {
