@@ -471,18 +471,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Delete the JSON file from object storage
-      const objectStorageService = new ObjectStorageService();
-      const jsonFile = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
-      await jsonFile.delete();
+      try {
+        const objectStorageService = new ObjectStorageService();
+        const jsonFile = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
+        await jsonFile.delete();
+      } catch (storageError) {
+        // If file doesn't exist in storage, log but continue to clean up metadata
+        if (!(storageError instanceof ObjectNotFoundError)) {
+          throw storageError;
+        }
+        console.log(`Object storage file already deleted for video ${videoId}`);
+      }
 
-      res.json({ message: "JSON events file deleted successfully" });
+      // Update the fixture to remove eventsJsonUrl and eventsJsonFilename from the video
+      const updatedVideoLinks = videoLinks.map((v: any) => {
+        if (v.id === videoId) {
+          const { eventsJsonUrl, eventsJsonFilename, ...rest } = v;
+          return rest;
+        }
+        return v;
+      });
+
+      await storage.updateFixture(fixtureId, { videoLinks: updatedVideoLinks });
+
+      res.json({ 
+        message: "JSON events file deleted successfully",
+        videos: updatedVideoLinks
+      });
     } catch (error) {
       console.error("Error deleting JSON events:", error);
-      
-      if (error instanceof ObjectNotFoundError) {
-        // If file doesn't exist, consider it already deleted
-        return res.json({ message: "JSON events file deleted successfully" });
-      }
       
       res.status(500).json({ 
         message: "Failed to delete JSON events file",

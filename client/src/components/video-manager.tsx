@@ -121,15 +121,13 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         throw new Error(error.message || 'Failed to delete JSON');
       }
 
-      // Update the video to remove eventsJsonUrl and filename
-      const updatedVideos = videos.map(v => 
-        v.id === videoId 
-          ? { ...v, eventsJsonUrl: undefined, eventsJsonFilename: undefined }
-          : v
-      );
-
-      setVideos(updatedVideos);
-      await updateVideosMutation.mutateAsync(updatedVideos);
+      const data = await response.json();
+      
+      // Update local state with the returned video list
+      setVideos(data.videos);
+      
+      // Invalidate the fixture query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId] });
 
       toast({
         title: "Events Deleted",
