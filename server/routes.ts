@@ -293,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Object upload route for logos
+  // Object upload route for logos and videos
   app.post("/api/objects/upload", async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
@@ -302,6 +302,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating upload URL:", error);
       res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
+  // Upload JSON events file for a specific video
+  app.post("/api/fixtures/:fixtureId/videos/:videoId/events", jsonUpload.single('json'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No JSON file uploaded" });
+      }
+
+      const { fixtureId, videoId } = req.params;
+
+      // Read and validate JSON structure
+      const jsonContent = await fs.readFile(req.file.path, 'utf-8');
+      const jsonData = JSON.parse(jsonContent);
+
+      // Upload to object storage
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: jsonContent,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Object storage upload failed: ${uploadResponse.status}`);
+      }
+
+      // Get the normalized path
+      const eventsJsonUrl = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      // Clean up temp file
+      await fs.unlink(req.file.path);
+
+      res.json({
+        message: "JSON events file uploaded successfully",
+        eventsJsonUrl,
+        videoId
+      });
+    } catch (error) {
+      console.error("Error uploading JSON events:", error);
+      
+      // Clean up temp file if it exists
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up temp file:", cleanupError);
+        }
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to upload JSON events file",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

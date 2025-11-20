@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit } from "lucide-react";
+import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit, FileJson } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
 import type { UploadResult } from "@uppy/core";
@@ -40,6 +40,7 @@ interface VideoData {
   isProcessing?: boolean;
   processingProgress?: number;
   processed?: boolean;
+  eventsJsonUrl?: string;
 }
 
 interface NewVideoRow {
@@ -274,6 +275,47 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
   const handleCancelEdit = () => {
     setEditingVideo(null);
+  };
+
+  const handleJsonUpload = async (videoId: string, file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('json', file);
+
+      const response = await fetch(`/api/fixtures/${fixtureId}/videos/${videoId}/events`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload JSON');
+      }
+
+      const data = await response.json();
+
+      // Update the video with the eventsJsonUrl
+      const updatedVideos = videos.map(v => 
+        v.id === videoId 
+          ? { ...v, eventsJsonUrl: data.eventsJsonUrl }
+          : v
+      );
+
+      setVideos(updatedVideos);
+      await updateVideosMutation.mutateAsync(updatedVideos);
+
+      toast({
+        title: "Events Uploaded",
+        description: "JSON events file has been uploaded successfully.",
+      });
+    } catch (error) {
+      console.error("JSON upload error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to upload JSON events file.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getDurationLabel = (value: string) => {
@@ -589,6 +631,11 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                             Processing...
                           </Badge>
                         )}
+                        {video.eventsJsonUrl && (
+                          <Badge variant="default" className="text-xs bg-purple-500">
+                            Events ✓
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground truncate mt-1">
                         {video.filename || video.url}
@@ -599,6 +646,31 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                     {video.url && (
                       <VideoPlayer video={video} />
                     )}
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".json,application/json"
+                        className="hidden"
+                        id={`json-upload-${video.id}`}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleJsonUpload(video.id, file);
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById(`json-upload-${video.id}`)?.click()}
+                        className={video.eventsJsonUrl ? "text-green-600 hover:text-green-700" : "text-purple-600 hover:text-purple-700"}
+                        data-testid={`button-upload-json-${video.id}`}
+                        disabled={video.isProcessing}
+                        title={video.eventsJsonUrl ? "Events uploaded - Click to replace" : "Upload JSON events"}
+                      >
+                        <FileJson className="h-3 w-3" />
+                      </Button>
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
