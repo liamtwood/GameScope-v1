@@ -370,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { fixtureId, videoId } = req.params;
 
       // Get the fixture to find the video
-      const fixture = await storage.getFixtureById(fixtureId);
+      const fixture = await storage.getFixture(fixtureId);
       if (!fixture) {
         return res.status(404).json({ message: "Fixture not found" });
       }
@@ -389,7 +389,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Fetch the JSON file from object storage
       const objectStorageService = new ObjectStorageService();
-      const jsonContent = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
+      const jsonFile = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
+
+      // Download and read the file contents
+      const [buffer] = await jsonFile.download();
+      const jsonContent = buffer.toString('utf-8');
 
       // Parse and return the JSON
       const jsonData = JSON.parse(jsonContent);
