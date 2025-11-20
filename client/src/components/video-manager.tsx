@@ -12,6 +12,7 @@ import type { UploadResult } from "@uppy/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 // Duration options for video recordings
 const DURATION_OPTIONS = [
@@ -66,6 +67,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const updateVideosMutation = useMutation({
     mutationFn: async (videoData: VideoData[]) => {
@@ -495,75 +497,100 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     );
   };
 
-  const VideoPlayer = ({ video }: { video: VideoData }) => (
-    <Dialog>
-      <DialogTrigger asChild>
+  const VideoPlayer = ({ video }: { video: VideoData }) => {
+    // If video has events JSON, navigate to analysis page instead of showing dialog
+    const handlePlayClick = () => {
+      if (video.eventsJsonUrl) {
+        setLocation(`/analysis/${fixtureId}?videoId=${video.id}`);
+      }
+    };
+
+    // If video has events, show as regular button that navigates
+    if (video.eventsJsonUrl) {
+      return (
         <Button
           variant="outline"
           size="sm"
+          onClick={handlePlayClick}
           data-testid={`button-play-${video.id}`}
+          title="View in Analysis"
         >
           <Play className="h-3 w-3" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5" />
-            {video.filename || `${getDurationLabel(video.duration)} - ${getLocationLabel(video.location)}`}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="p-6">
-          {isVideoFile(video.url!, video.filename) ? (
-            <div className="space-y-4">
-              <video 
-                controls 
-                className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
-                preload="metadata"
-                onError={(e) => {
-                  console.error('Video error:', e);
-                  const videoElement = e.target as HTMLVideoElement;
-                  console.error('Video error details:', videoElement.error);
-                }}
-                onLoadStart={() => console.log('Video started loading')}
-                onCanPlay={() => console.log('Video can play')}
-                onLoadedMetadata={() => console.log('Video metadata loaded')}
-              >
-                <source src={getVideoPlaybackUrl(video)} type="video/mp4" />
-                <source src={getVideoPlaybackUrl(video)} type="video/webm" />
-                <source src={getVideoPlaybackUrl(video)} type="video/ogg" />
-                Your browser does not support the video tag.
-              </video>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Original URL:</strong> {video.url}</p>
-                <p><strong>Proxy URL:</strong> {getVideoPlaybackUrl(video)}</p>
-                <p><strong>Filename:</strong> {video.filename}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
+      );
+    }
+
+    // Otherwise, show the dialog with embedded player
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            data-testid={`button-play-${video.id}`}
+          >
+            <Play className="h-3 w-3" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Play className="h-5 w-5" />
+              {video.filename || `${getDurationLabel(video.duration)} - ${getLocationLabel(video.location)}`}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-6">
+            {isVideoFile(video.url!, video.filename) ? (
               <div className="space-y-4">
-                <p className="text-muted-foreground">External video link detected.</p>
-                <Button 
-                  onClick={() => window.open(video.url, '_blank')}
-                  className="flex items-center gap-2"
+                <video 
+                  controls 
+                  className="w-full h-auto max-h-[70vh] bg-black rounded-lg"
+                  preload="metadata"
+                  onError={(e) => {
+                    console.error('Video error:', e);
+                    const videoElement = e.target as HTMLVideoElement;
+                    console.error('Video error details:', videoElement.error);
+                  }}
+                  onLoadStart={() => console.log('Video started loading')}
+                  onCanPlay={() => console.log('Video can play')}
+                  onLoadedMetadata={() => console.log('Video metadata loaded')}
                 >
-                  <Play className="h-4 w-4" />
-                  Open in New Tab
-                </Button>
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-medium mb-2">Video Details:</p>
-                  <p>Duration: {getDurationLabel(video.duration)}</p>
-                  <p>Location: {getLocationLabel(video.location)}</p>
-                  <p className="break-all mt-2">{video.url}</p>
+                  <source src={getVideoPlaybackUrl(video)} type="video/mp4" />
+                  <source src={getVideoPlaybackUrl(video)} type="video/webm" />
+                  <source src={getVideoPlaybackUrl(video)} type="video/ogg" />
+                  Your browser does not support the video tag.
+                </video>
+                <div className="text-xs text-muted-foreground">
+                  <p><strong>Original URL:</strong> {video.url}</p>
+                  <p><strong>Proxy URL:</strong> {getVideoPlaybackUrl(video)}</p>
+                  <p><strong>Filename:</strong> {video.filename}</p>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+            ) : (
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">External video link detected.</p>
+                  <Button 
+                    onClick={() => window.open(video.url, '_blank')}
+                    className="flex items-center gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    Open in New Tab
+                  </Button>
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-2">Video Details:</p>
+                    <p>Duration: {getDurationLabel(video.duration)}</p>
+                    <p>Location: {getLocationLabel(video.location)}</p>
+                    <p className="break-all mt-2">{video.url}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <Card>
