@@ -475,7 +475,7 @@ export default function FixtureDetails() {
             <div className="space-y-6">
               
               {/* Comprehensive Analysis Tabs */}
-              <Tabs defaultValue="fixture-details" className="w-full">
+              <Tabs defaultValue={videoIdParam ? "analysis" : "fixture-details"} className="w-full">
                 <div className="flex justify-center mb-6">
                   <TabsList className="grid w-[900px] grid-cols-8 gap-0">
                     <TabsTrigger value="fixture-details" className="min-w-[100px] px-4 py-3 text-center">Fixture Details</TabsTrigger>
