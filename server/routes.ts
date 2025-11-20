@@ -465,6 +465,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...createStatEvents('Team 2', jsonData.team2)
         ];
       }
+      // If JSON has separate event type arrays (passes, tackles, shots, etc.), combine them
+      else if (typeof jsonData === 'object' && !Array.isArray(jsonData)) {
+        const eventTypes = ['passes', 'free_kicks', 'tackles', 'take_ons', 'dribbles', 'shots', 'corners', 'throw_ins', 'goal_kicks'];
+        eventTypes.forEach(eventType => {
+          if (jsonData[eventType] && Array.isArray(jsonData[eventType])) {
+            // Add event type to each event and add to combined events array
+            const typedEvents = jsonData[eventType].map((event: any) => ({
+              ...event,
+              eventType: eventType.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+            }));
+            events.push(...typedEvents);
+          }
+        });
+        
+        // Sort events by timestamp if available
+        events.sort((a, b) => {
+          if (a.timestamp && b.timestamp) {
+            return a.timestamp.localeCompare(b.timestamp);
+          }
+          if (a.frame && b.frame) {
+            return a.frame - b.frame;
+          }
+          return 0;
+        });
+      }
       // If it's a flat array, use it directly
       else if (Array.isArray(jsonData)) {
         events = jsonData;
