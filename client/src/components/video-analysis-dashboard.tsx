@@ -525,6 +525,16 @@ export function VideoAnalysisDashboard({ fixtureId, videoId }: VideoAnalysisDash
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   
+  // Auto-select the video if videoId is provided
+  useEffect(() => {
+    if (videoId && clips.length > 0) {
+      const matchingClip = clips.find(clip => clip.id === videoId);
+      if (matchingClip && matchingClip.id !== selectedClip?.id) {
+        setSelectedClip(matchingClip);
+      }
+    }
+  }, [videoId, clips]);
+  
   // Filters
   const [selectedEventType, setSelectedEventType] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
