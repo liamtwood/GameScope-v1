@@ -395,9 +395,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [buffer] = await jsonFile.download();
       const jsonContent = buffer.toString('utf-8');
 
-      // Parse and return the JSON
+      // Parse the JSON
       const jsonData = JSON.parse(jsonContent);
-      res.json(jsonData);
+      
+      // Transform JSON to events array format
+      let events: any[] = [];
+      
+      // If JSON has an events array, use it directly
+      if (jsonData.events && Array.isArray(jsonData.events)) {
+        events = jsonData.events;
+      }
+      // If JSON has team1/team2 aggregate stats, create summary events
+      else if (jsonData.team1 && jsonData.team2) {
+        const createStatEvents = (team: string, teamData: any) => {
+          const statEvents: any[] = [];
+          Object.entries(teamData).forEach(([key, value]) => {
+            if (typeof value === 'number') {
+              statEvents.push({
+                type: key,
+                team: team,
+                count: value,
+                description: `${team} - ${key}`
+              });
+            }
+          });
+          return statEvents;
+        };
+        
+        events = [
+          ...createStatEvents('Team 1', jsonData.team1),
+          ...createStatEvents('Team 2', jsonData.team2)
+        ];
+      }
+      // If it's a flat array, use it directly
+      else if (Array.isArray(jsonData)) {
+        events = jsonData;
+      }
+      
+      res.json({ events });
     } catch (error) {
       console.error("Error fetching JSON events:", error);
       
