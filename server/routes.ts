@@ -364,6 +364,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get JSON events file for a specific video
+  app.get("/api/fixtures/:fixtureId/videos/:videoId/events", async (req, res) => {
+    try {
+      const { fixtureId, videoId } = req.params;
+
+      // Get the fixture to find the video
+      const fixture = await storage.getFixtureById(fixtureId);
+      if (!fixture) {
+        return res.status(404).json({ message: "Fixture not found" });
+      }
+
+      // Find the video in the fixture's videoLinks
+      const videoLinks = Array.isArray(fixture.videoLinks) ? fixture.videoLinks : [];
+      const video = videoLinks.find((v: any) => v.id === videoId);
+
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      if (!video.eventsJsonUrl) {
+        return res.status(404).json({ message: "No events JSON file uploaded for this video" });
+      }
+
+      // Fetch the JSON file from object storage
+      const objectStorageService = new ObjectStorageService();
+      const jsonContent = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
+
+      // Parse and return the JSON
+      const jsonData = JSON.parse(jsonContent);
+      res.json(jsonData);
+    } catch (error) {
+      console.error("Error fetching JSON events:", error);
+      
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ message: "Events JSON file not found in storage" });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to fetch JSON events file",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Serve uploaded logos
   app.get("/logos/:logoPath(*)", async (req, res) => {
     try {

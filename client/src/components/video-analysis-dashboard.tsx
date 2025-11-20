@@ -125,6 +125,7 @@ const convertToTimelineEvents = (dashboardEvents: MatchEvent[]): TimelineMatchEv
 
 interface VideoAnalysisDashboardProps {
   fixtureId: string;
+  videoId?: string;
 }
 
 // Pitch coordinate system - based on provided dimensions
@@ -354,7 +355,7 @@ const FIELD_ZONES = [
   { value: 'six_yard_box', label: 'Six Yard Box' }
 ];
 
-export function VideoAnalysisDashboard({ fixtureId }: VideoAnalysisDashboardProps) {
+export function VideoAnalysisDashboard({ fixtureId, videoId }: VideoAnalysisDashboardProps) {
   // Fetch fixture data to get video links
   const { data: fixture } = useQuery<Fixture>({
     queryKey: ["/api/fixture", fixtureId],
