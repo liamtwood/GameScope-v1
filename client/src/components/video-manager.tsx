@@ -505,7 +505,9 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const VideoPlayer = ({ video }: { video: VideoData }) => {
     // If video has events JSON, navigate to analysis tab instead of showing dialog
     const handlePlayClick = () => {
+      console.log('Play clicked for video:', video.id, 'eventsJsonUrl:', video.eventsJsonUrl);
       if (video.eventsJsonUrl) {
+        console.log('Navigating to analysis tab');
         setLocation(`/fixtures/${fixtureId}?tab=analysis&videoId=${video.id}`);
       }
     };
@@ -519,8 +521,9 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
           onClick={handlePlayClick}
           data-testid={`button-play-${video.id}`}
           title="View in Analysis"
+          className="bg-green-50 hover:bg-green-100 border-green-300"
         >
-          <Play className="h-3 w-3" />
+          <Play className="h-3 w-3 text-green-600" />
         </Button>
       );
     }
