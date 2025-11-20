@@ -22,7 +22,13 @@ import { useToast } from "@/hooks/use-toast";
 export default function FixtureDetails() {
   const [, params] = useRoute("/fixtures/:id");
   const fixtureId = params?.id;
-  const [activeTab, setActiveTab] = useState("details");
+  
+  // Get the tab and videoId query parameters from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  const videoIdParam = urlParams.get('videoId');
+  
+  const [activeTab, setActiveTab] = useState(tabParam || "details");
   
   // Get the currently selected club
   const { selectedClub } = useClub();
@@ -680,7 +686,10 @@ export default function FixtureDetails() {
 
                 {/* Video Analysis Dashboard Tab */}
                 <TabsContent value="analysis">
-                  <VideoAnalysisDashboard fixtureId={fixtureId || ""} />
+                  <VideoAnalysisDashboard 
+                    fixtureId={fixtureId || ""} 
+                    videoId={videoIdParam || undefined}
+                  />
                 </TabsContent>
 
                 {/* Videos Tab */}

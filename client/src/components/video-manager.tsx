@@ -498,10 +498,10 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   const VideoPlayer = ({ video }: { video: VideoData }) => {
-    // If video has events JSON, navigate to analysis page instead of showing dialog
+    // If video has events JSON, navigate to analysis tab instead of showing dialog
     const handlePlayClick = () => {
       if (video.eventsJsonUrl) {
-        setLocation(`/analysis/${fixtureId}?videoId=${video.id}`);
+        setLocation(`/fixtures/${fixtureId}?tab=analysis&videoId=${video.id}`);
       }
     };
 
