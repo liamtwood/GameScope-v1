@@ -42,6 +42,7 @@ interface VideoData {
   processingProgress?: number;
   processed?: boolean;
   eventsJsonUrl?: string;
+  eventsJsonFilename?: string;
 }
 
 interface NewVideoRow {
@@ -106,6 +107,42 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     setSelectedVideoForEvents(video);
     setEventsDialogOpen(true);
     await fetchVideoEvents(video.id);
+  };
+
+  // Delete JSON events file
+  const handleDeleteJson = async (videoId: string) => {
+    try {
+      const response = await fetch(`/api/fixtures/${fixtureId}/videos/${videoId}/events`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete JSON');
+      }
+
+      // Update the video to remove eventsJsonUrl and filename
+      const updatedVideos = videos.map(v => 
+        v.id === videoId 
+          ? { ...v, eventsJsonUrl: undefined, eventsJsonFilename: undefined }
+          : v
+      );
+
+      setVideos(updatedVideos);
+      await updateVideosMutation.mutateAsync(updatedVideos);
+
+      toast({
+        title: "Events Deleted",
+        description: "JSON events file has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("JSON delete error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete JSON events file",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateVideosMutation = useMutation({
@@ -335,10 +372,10 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
       const data = await response.json();
 
-      // Update the video with the eventsJsonUrl
+      // Update the video with the eventsJsonUrl and filename
       const updatedVideos = videos.map(v => 
         v.id === videoId 
-          ? { ...v, eventsJsonUrl: data.eventsJsonUrl }
+          ? { ...v, eventsJsonUrl: data.eventsJsonUrl, eventsJsonFilename: file.name }
           : v
       );
 
@@ -347,7 +384,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
       toast({
         title: "Events Uploaded",
-        description: "JSON events file has been uploaded successfully.",
+        description: `${file.name} has been uploaded successfully.`,
       });
     } catch (error) {
       console.error("JSON upload error:", error);
@@ -707,31 +744,50 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                     {video.url && (
                       <VideoPlayer video={video} />
                     )}
-                    <div className="relative">
-                      <input
-                        type="file"
-                        accept=".json,application/json"
-                        className="hidden"
-                        id={`json-upload-${video.id}`}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            handleJsonUpload(video.id, file);
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => document.getElementById(`json-upload-${video.id}`)?.click()}
-                        className={video.eventsJsonUrl ? "text-green-600 hover:text-green-700" : "text-purple-600 hover:text-purple-700"}
-                        data-testid={`button-upload-json-${video.id}`}
-                        disabled={video.isProcessing}
-                        title={video.eventsJsonUrl ? "Events uploaded - Click to replace" : "Upload JSON events"}
-                      >
-                        <FileJson className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    {video.eventsJsonUrl && video.eventsJsonFilename ? (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded">
+                        <FileJson className="h-3 w-3 text-green-600" />
+                        <span className="text-xs text-green-700 dark:text-green-400 max-w-[120px] truncate" title={video.eventsJsonFilename}>
+                          {video.eventsJsonFilename}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteJson(video.id)}
+                          className="h-4 w-4 p-0 text-red-600 hover:text-red-700 hover:bg-red-100"
+                          data-testid={`button-delete-json-${video.id}`}
+                          title="Delete JSON events"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept=".json,application/json"
+                          className="hidden"
+                          id={`json-upload-${video.id}`}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleJsonUpload(video.id, file);
+                            }
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById(`json-upload-${video.id}`)?.click()}
+                          className="text-purple-600 hover:text-purple-700"
+                          data-testid={`button-upload-json-${video.id}`}
+                          disabled={video.isProcessing}
+                          title="Upload JSON events"
+                        >
+                          <FileJson className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
