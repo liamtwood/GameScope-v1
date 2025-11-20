@@ -118,6 +118,7 @@ export interface IStorage {
   createFixture(fixture: InsertFixture): Promise<Fixture>;
   updateFixture(id: string, fixture: Partial<InsertFixture>): Promise<Fixture>;
   updateFixtureVideos(id: string, videos: any[]): Promise<void>;
+  updateFixtureVideoMetadata(fixtureId: string, videoId: string, metadata: Record<string, any>): Promise<any[]>;
   deleteFixture(id: string): Promise<void>;
   
   // Match stats operations
@@ -1047,6 +1048,53 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(fixtures.id, id));
+  }
+
+  async updateFixtureVideoMetadata(fixtureId: string, videoId: string, metadata: Record<string, any>): Promise<any[]> {
+    // Use PostgreSQL's JSONB operations to atomically update a single video in the array
+    const result = await db.execute(sql`
+      WITH video_update AS (
+        SELECT 
+          COALESCE(video_links, '[]'::jsonb) as current_links
+        FROM ${fixtures}
+        WHERE id = ${fixtureId}
+      ),
+      updated_links AS (
+        SELECT 
+          COALESCE(
+            jsonb_agg(
+              CASE 
+                WHEN elem_value->>'id' = ${videoId} 
+                THEN elem_value || ${JSON.stringify(metadata)}::jsonb
+                ELSE elem_value
+              END
+              ORDER BY ordinality
+            ),
+            '[]'::jsonb
+          ) as new_links,
+          bool_or(elem_value->>'id' = ${videoId}) as video_found
+        FROM video_update,
+          jsonb_array_elements(current_links) WITH ORDINALITY as elem(elem_value, ordinality)
+      )
+      UPDATE ${fixtures}
+      SET 
+        video_links = (SELECT new_links FROM updated_links),
+        updated_at = NOW()
+      WHERE id = ${fixtureId}
+        AND EXISTS (SELECT 1 FROM updated_links WHERE video_found = true)
+      RETURNING video_links, 
+        (SELECT video_found FROM updated_links) as video_found
+    `);
+
+    if (!result.rows || result.rows.length === 0) {
+      throw new Error('Fixture not found or video not found in fixture');
+    }
+
+    if (!result.rows[0].video_found) {
+      throw new Error('Video not found in fixture');
+    }
+
+    return result.rows[0].video_links || [];
   }
 
   async deleteFixture(id: string): Promise<void> {

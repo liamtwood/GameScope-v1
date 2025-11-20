@@ -370,15 +370,11 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
       const data = await response.json();
 
-      // Update the video with the eventsJsonUrl and filename
-      const updatedVideos = videos.map(v => 
-        v.id === videoId 
-          ? { ...v, eventsJsonUrl: data.eventsJsonUrl, eventsJsonFilename: file.name }
-          : v
-      );
-
-      setVideos(updatedVideos);
-      await updateVideosMutation.mutateAsync(updatedVideos);
+      // Update local state with the returned video list
+      setVideos(data.videos);
+      
+      // Invalidate the fixture query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId] });
 
       toast({
         title: "Events Uploaded",

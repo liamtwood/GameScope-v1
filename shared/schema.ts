@@ -339,6 +339,7 @@ export const videoLinkSchema = z.object({
   cameraAngle: z.string().optional(), // e.g., "Halfway Line", "Behind Goal", "Tactical"
   location: z.enum(["youtube", "drive", "storage", "fifa_plus"]).optional(),
   eventsJsonUrl: z.string().optional(), // URL to uploaded JSON events file
+  eventsJsonFilename: z.string().optional(), // Filename of uploaded JSON events file
 });
 
 export const videoLinksArraySchema = z.array(videoLinkSchema).optional();

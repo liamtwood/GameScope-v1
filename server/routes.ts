@@ -314,6 +314,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { fixtureId, videoId } = req.params;
 
+      // Validate fixture and video exist before uploading
+      const fixtureCheck = await storage.getFixture(fixtureId);
+      if (!fixtureCheck) {
+        return res.status(404).json({ message: "Fixture not found" });
+      }
+
+      const videoLinksCheck = Array.isArray(fixtureCheck.videoLinks) ? fixtureCheck.videoLinks : [];
+      const videoExists = videoLinksCheck.some((v: any) => v.id === videoId);
+
+      if (!videoExists) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
       // Read and validate JSON structure
       const jsonContent = await fs.readFile(req.file.path, 'utf-8');
       const jsonData = JSON.parse(jsonContent);
@@ -337,13 +350,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get the normalized path
       const eventsJsonUrl = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
+      // Atomically update the video metadata in the database
+      let updatedVideoLinks;
+      try {
+        updatedVideoLinks = await storage.updateFixtureVideoMetadata(
+          fixtureId,
+          videoId,
+          { 
+            eventsJsonUrl, 
+            eventsJsonFilename: req.file.originalname 
+          }
+        );
+      } catch (storageError) {
+        // Handle video not found (e.g., concurrent deletion)
+        if (storageError instanceof Error && 
+            (storageError.message.includes('not found') || storageError.message.includes('Video not found'))) {
+          return res.status(404).json({ 
+            message: "Video not found in fixture. It may have been deleted.",
+            error: storageError.message
+          });
+        }
+        throw storageError;
+      }
+
       // Clean up temp file
       await fs.unlink(req.file.path);
 
       res.json({
         message: "JSON events file uploaded successfully",
         eventsJsonUrl,
-        videoId
+        eventsJsonFilename: req.file.originalname,
+        videoId,
+        videos: updatedVideoLinks
       });
     } catch (error) {
       console.error("Error uploading JSON events:", error);
