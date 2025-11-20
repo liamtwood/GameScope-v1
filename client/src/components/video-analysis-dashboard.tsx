@@ -362,6 +362,11 @@ export function VideoAnalysisDashboard({ fixtureId, videoId }: VideoAnalysisDash
     enabled: !!fixtureId,
   });
   
+  // Fetch JSON events if videoId is provided and video has events
+  const { data: jsonEvents } = useQuery<any>({
+    queryKey: ["/api/fixtures", fixtureId, "videos", videoId, "events"],
+    enabled: !!fixtureId && !!videoId,
+  });
   
   // Convert fixture video links to clips format
   const clips = convertVideoDataToClips(Array.isArray(fixture?.videoLinks) ? fixture.videoLinks : []);
@@ -417,7 +422,102 @@ export function VideoAnalysisDashboard({ fixtureId, videoId }: VideoAnalysisDash
     }
   };
   
-  const matchEvents = generateMatchEvents();
+  // Transform JSON events to MatchEvent[] format
+  const transformJsonToMatchEvents = (jsonData: any): MatchEvent[] => {
+    const events: MatchEvent[] = [];
+    
+    // If JSON has an events array, transform each event
+    if (jsonData.events && Array.isArray(jsonData.events)) {
+      return jsonData.events.map((event: any, index: number) => ({
+        id: event.id || `event-${index}`,
+        timestamp: event.timestamp || `${event.minute || 0}:${(event.second || 0).toString().padStart(2, '0')}`,
+        minute: event.minute || 0,
+        second: event.second || 0,
+        eventType: event.type || event.eventType || 'pass',
+        category: event.category || 'other',
+        player: event.player,
+        team: event.team || 'home',
+        description: event.description || `${event.type || 'Event'}`,
+        outcome: event.outcome || 'neutral',
+        position: event.position || [50, 50],
+        details: event.details
+      }));
+    }
+    
+    // If JSON has team1/team2 aggregate stats, create summary events
+    if (jsonData.team1 && jsonData.team2) {
+      let eventId = 0;
+      
+      // Helper to create stat events
+      const createStatEvent = (
+        minute: number, 
+        team: 'home' | 'away', 
+        statName: string, 
+        statValue: number,
+        eventType: string,
+        category: string
+      ) => {
+        events.push({
+          id: `stat-${eventId++}`,
+          timestamp: `${minute}:00`,
+          minute,
+          second: 0,
+          eventType,
+          category,
+          team,
+          description: `${team === 'home' ? 'Team' : 'Opposition'}: ${statValue} ${statName}`,
+          outcome: 'neutral',
+          position: [50, 50] as [number, number],
+          details: { value: statValue }
+        });
+      };
+      
+      // Create events for key stats (spread across the match timeline)
+      const team1 = jsonData.team1;
+      const team2 = jsonData.team2;
+      
+      // Passes
+      if (team1.totalPasses) {
+        createStatEvent(15, 'home', 'passes', team1.totalPasses, 'pass', 'passing');
+      }
+      if (team2.totalPasses) {
+        createStatEvent(16, 'away', 'passes', team2.totalPasses, 'pass', 'passing');
+      }
+      
+      // Shots
+      if (team1.shots) {
+        createStatEvent(30, 'home', 'shots', team1.shots, 'shot', 'attack');
+      }
+      if (team2.shots) {
+        createStatEvent(31, 'away', 'shots', team2.shots, 'shot', 'attack');
+      }
+      
+      // Tackles
+      if (team1.tackles) {
+        createStatEvent(45, 'home', 'tackles', team1.tackles, 'tackle', 'defense');
+      }
+      if (team2.tackles) {
+        createStatEvent(46, 'away', 'tackles', team2.tackles, 'tackle', 'defense');
+      }
+      
+      // Possession (convert to event at 60 min)
+      if (team1.possession) {
+        createStatEvent(60, 'home', 'possession %', team1.possession, 'possession', 'other');
+      }
+      if (team2.possession) {
+        createStatEvent(61, 'away', 'possession %', team2.possession, 'possession', 'other');
+      }
+      
+      return events.sort((a, b) => a.minute - b.minute || a.second - b.second);
+    }
+    
+    return [];
+  };
+  
+  // Use JSON events if available, otherwise generate synthetic events
+  const matchEvents = jsonEvents 
+    ? transformJsonToMatchEvents(jsonEvents)
+    : generateMatchEvents();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [selectedClip, setSelectedClip] = useState<VideoClip | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
