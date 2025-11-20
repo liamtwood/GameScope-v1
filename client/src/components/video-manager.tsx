@@ -64,6 +64,10 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [newRows, setNewRows] = useState<NewVideoRow[]>([]);
   const [processingVideos, setProcessingVideos] = useState<Set<string>>(new Set());
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
+  const [eventsDialogOpen, setEventsDialogOpen] = useState(false);
+  const [selectedVideoForEvents, setSelectedVideoForEvents] = useState<VideoData | null>(null);
+  const [eventData, setEventData] = useState<any[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -73,6 +77,36 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   useEffect(() => {
     setVideos(videoLinks);
   }, [videoLinks]);
+
+  // Fetch events for a video
+  const fetchVideoEvents = async (videoId: string) => {
+    setLoadingEvents(true);
+    try {
+      const response = await fetch(`/api/fixtures/${fixtureId}/videos/${videoId}/events`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+      const data = await response.json();
+      setEventData(data.events || []);
+    } catch (error) {
+      console.error("Error fetching video events:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load video events. Please try again.",
+        variant: "destructive",
+      });
+      setEventData([]);
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  // Open events dialog
+  const handleViewEvents = async (video: VideoData) => {
+    setSelectedVideoForEvents(video);
+    setEventsDialogOpen(true);
+    await fetchVideoEvents(video.id);
+  };
 
   const updateVideosMutation = useMutation({
     mutationFn: async (videoData: VideoData[]) => {
@@ -503,24 +537,15 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   const VideoPlayer = ({ video }: { video: VideoData }) => {
-    // If video has events JSON, navigate to analysis tab instead of showing dialog
-    const handlePlayClick = () => {
-      console.log('Play clicked for video:', video.id, 'eventsJsonUrl:', video.eventsJsonUrl);
-      if (video.eventsJsonUrl) {
-        console.log('Navigating to analysis tab');
-        setLocation(`/fixtures/${fixtureId}?tab=analysis&videoId=${video.id}`);
-      }
-    };
-
-    // If video has events, show as regular button that navigates
+    // If video has events, show as button that opens events dialog
     if (video.eventsJsonUrl) {
       return (
         <Button
           variant="outline"
           size="sm"
-          onClick={handlePlayClick}
+          onClick={() => handleViewEvents(video)}
           data-testid={`button-play-${video.id}`}
-          title="View in Analysis"
+          title="View Events"
           className="bg-green-50 hover:bg-green-100 border-green-300"
         >
           <Play className="h-3 w-3 text-green-600" />
@@ -601,6 +626,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   };
 
   return (
+    <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-lg font-semibold">In Progress</CardTitle>
@@ -875,5 +901,81 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         </div>
       </CardContent>
     </Card>
+
+      {/* Events Dialog */}
+      <Dialog open={eventsDialogOpen} onOpenChange={setEventsDialogOpen}>
+      <DialogContent className="max-w-3xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileJson className="h-5 w-5 text-green-600" />
+            Video Events
+            {selectedVideoForEvents ? (
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                {selectedVideoForEvents.filename || `${getDurationLabel(selectedVideoForEvents.duration)} - ${getLocationLabel(selectedVideoForEvents.location)}`}
+              </span>
+            ) : null}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="overflow-y-auto max-h-[60vh] p-4">
+          {loadingEvents ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center space-y-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                <p className="text-sm text-muted-foreground">Loading events...</p>
+              </div>
+            </div>
+          ) : eventData.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <FileJson className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No events found for this video</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {eventData.map((event, index) => (
+                <div 
+                  key={index} 
+                  className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {event.timestamp || event.time || 'N/A'}
+                        </Badge>
+                        {event.type && (
+                          <Badge className="text-xs capitalize">
+                            {event.type}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {event.description && (
+                        <p className="text-sm font-medium">{event.description}</p>
+                      )}
+                      
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        {event.player && <p><strong>Player:</strong> {event.player}</p>}
+                        {event.team && <p><strong>Team:</strong> {event.team}</p>}
+                        {event.outcome && <p><strong>Outcome:</strong> {event.outcome}</p>}
+                        {event.zone && <p><strong>Zone:</strong> {event.zone}</p>}
+                      </div>
+                    </div>
+                    
+                    {event.count !== undefined && (
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-green-600">{event.count}</div>
+                        <div className="text-xs text-muted-foreground">count</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
