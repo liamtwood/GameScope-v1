@@ -3562,6 +3562,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // JSON upload endpoint for match statistics
+  app.post("/api/upload-match-stats-json", excelUpload.single('json'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No JSON file uploaded" });
+      }
+
+      if (!req.body.fixtureId) {
+        return res.status(400).json({ message: "Fixture ID is required" });
+      }
+
+      const fixtureId = req.body.fixtureId;
+      
+      // Read and parse the JSON file
+      const jsonContent = await fs.readFile(req.file.path, 'utf-8');
+      const jsonData = JSON.parse(jsonContent);
+
+      // Validate JSON structure
+      if (!jsonData.team1 || !jsonData.team2) {
+        return res.status(400).json({ message: "Invalid JSON structure: missing team1 or team2" });
+      }
+
+      // Helper function to parse string values with units
+      const parseNumericValue = (value: any): number => {
+        if (typeof value === 'number') return Math.round(value);
+        if (typeof value === 'string') {
+          const num = parseFloat(value.replace(/[^\d.-]/g, ''));
+          return isNaN(num) ? 0 : Math.round(num);
+        }
+        return 0;
+      };
+
+      // Map JSON fields to database schema
+      const mapJsonToStats = (teamData: any) => {
+        return {
+          // Passing stats
+          passesAttempted: parseNumericValue(teamData.totalPasses),
+          passesSuccess: parseNumericValue(teamData.succLegPasses),
+          passingSuccessRate: parseNumericValue(teamData.succPercentLegPasses),
+          passingTotalDistance: parseNumericValue(teamData.totalPassDistance), // convert from "835.86 m" to meters
+          passingAverageVelocity: parseNumericValue(teamData.avgPassBallVelocity), // convert from "52.85 kmph"
+          
+          // Possession stats
+          possession: parseNumericValue(teamData.possession),
+          dribbles: parseNumericValue(teamData.dribbles),
+          penetratingDribbles: parseNumericValue(teamData.penetratingDribbles),
+          takeOns: parseNumericValue(teamData.takeOns),
+          firstTouchSuccess: parseNumericValue(teamData.firstTouches),
+          firstTouchSuccessRate: parseNumericValue(teamData.percentTouches),
+          
+          // Attack stats
+          shotsAttempted: parseNumericValue(teamData.shots),
+          
+          // Defence stats
+          tackles: parseNumericValue(teamData.tackles),
+          freeKicks: parseNumericValue(teamData.freeKicks),
+          offsides: parseNumericValue(teamData.offsides),
+          
+          // Team distance
+          totalTeamDistance: parseNumericValue(teamData.totalTeamDistance), // convert from "3494.45 m"
+        };
+      };
+
+      const period = 'FIRST_HALF'; // JSON data is for first half
+      const results = [];
+
+      // Create team1 statistics
+      const team1Stats = mapJsonToStats(jsonData.team1);
+      const team1StatsData = insertMatchStatsSchema.parse({
+        fixtureId,
+        period,
+        isTeamStats: true,
+        ...team1Stats
+      });
+      const createdTeam1Stats = await storage.createMatchStats(team1StatsData);
+      results.push(createdTeam1Stats);
+
+      // Create team2 statistics
+      const team2Stats = mapJsonToStats(jsonData.team2);
+      const team2StatsData = insertMatchStatsSchema.parse({
+        fixtureId,
+        period,
+        isTeamStats: false,
+        ...team2Stats
+      });
+      const createdTeam2Stats = await storage.createMatchStats(team2StatsData);
+      results.push(createdTeam2Stats);
+
+      // Clean up temp file
+      await fs.unlink(req.file.path);
+
+      res.json({
+        message: "JSON match statistics uploaded successfully",
+        period,
+        recordsCreated: results.length
+      });
+    } catch (error) {
+      console.error("Error uploading JSON match statistics:", error);
+      
+      // Clean up temp file if it exists
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up temp file:", cleanupError);
+        }
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to upload JSON match statistics",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Player Statistics routes
   app.get("/api/player-stats/:playerId", async (req, res) => {
     try {
