@@ -447,6 +447,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete JSON events file for a specific video
+  app.delete("/api/fixtures/:fixtureId/videos/:videoId/events", async (req, res) => {
+    try {
+      const { fixtureId, videoId } = req.params;
+
+      // Get the fixture to find the video
+      const fixture = await storage.getFixture(fixtureId);
+      if (!fixture) {
+        return res.status(404).json({ message: "Fixture not found" });
+      }
+
+      // Find the video in the fixture's videoLinks
+      const videoLinks = Array.isArray(fixture.videoLinks) ? fixture.videoLinks : [];
+      const video = videoLinks.find((v: any) => v.id === videoId);
+
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      if (!video.eventsJsonUrl) {
+        return res.status(404).json({ message: "No events JSON file to delete" });
+      }
+
+      // Delete the JSON file from object storage
+      const objectStorageService = new ObjectStorageService();
+      const jsonFile = await objectStorageService.getObjectEntityFile(video.eventsJsonUrl);
+      await jsonFile.delete();
+
+      res.json({ message: "JSON events file deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting JSON events:", error);
+      
+      if (error instanceof ObjectNotFoundError) {
+        // If file doesn't exist, consider it already deleted
+        return res.json({ message: "JSON events file deleted successfully" });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to delete JSON events file",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Serve uploaded logos
   app.get("/logos/:logoPath(*)", async (req, res) => {
     try {
