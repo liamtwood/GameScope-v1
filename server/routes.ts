@@ -136,6 +136,30 @@ const excelUpload = multer({
   },
 });
 
+// Configure multer for JSON uploads
+const jsonUpload = multer({
+  dest: "temp-uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for JSON files
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/json',
+      'text/json',
+      'application/octet-stream', // Some browsers send JSON as octet-stream
+    ];
+    
+    // Also check file extension
+    const isJsonExtension = file.originalname.toLowerCase().endsWith('.json');
+    
+    if (allowedMimes.includes(file.mimetype) || isJsonExtension) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JSON files (.json) are allowed'));
+    }
+  },
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure temp upload directory exists
   try {
@@ -3563,7 +3587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // JSON upload endpoint for match statistics
-  app.post("/api/upload-match-stats-json", excelUpload.single('json'), async (req, res) => {
+  app.post("/api/upload-match-stats-json", jsonUpload.single('json'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No JSON file uploaded" });
