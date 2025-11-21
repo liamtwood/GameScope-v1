@@ -1159,7 +1159,12 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode("grid")}
+                onClick={() => {
+                  if (videoRef.current) {
+                    videoRef.current.pause();
+                  }
+                  setViewMode("grid");
+                }}
                 title="Mode 1: Side-by-side view"
               >
                 <Grid2x2 className="h-4 w-4" />
@@ -1167,7 +1172,12 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setViewMode("list")}
+                onClick={() => {
+                  if (videoRef.current) {
+                    videoRef.current.pause();
+                  }
+                  setViewMode("list");
+                }}
                 title="Mode 2: Video with 3 events below"
               >
                 <List className="h-4 w-4" />
