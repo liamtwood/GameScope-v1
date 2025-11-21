@@ -68,39 +68,6 @@ function getPitchThird(x: number): string {
   return "Unknown";
 }
 
-// Helper function to format event description
-function formatEventDescription(event: any): string {
-  const eventType = event.eventType?.toUpperCase() || "EVENT";
-  const timestamp = event.timestamp || "Unknown time";
-  
-  // Check if this is a passing/movement event with from/to data
-  if (event.from && event.to) {
-    const fromPlayer = event.from.id;
-    const toPlayer = event.to.id;
-    const fromTeam = event.from.team;
-    const toTeam = event.to.team;
-    
-    // Determine success/failure
-    const success = fromTeam === toTeam ? "SUCCESS" : "FAILED";
-    const successColor = success === "SUCCESS" ? "text-green-600" : "text-red-600";
-    
-    // Get pitch position
-    const pitchPosition = getPitchThird(event.from.position[0]);
-    
-    // Direction
-    const direction = event.dir?.toUpperCase() || "UNKNOWN";
-    
-    // Distance and velocity
-    const distance = event.distance ? `${event.distance.toFixed(1)} meters` : "unknown distance";
-    const velocity = event.velocity ? `${event.velocity.toFixed(2)} m/s` : "unknown velocity";
-    
-    return `At ${timestamp}, a ${eventType} was made from Player ${fromPlayer} to Player ${toPlayer}. The ${eventType.toLowerCase()} <span class="${successColor} font-semibold">${success}</span> (${success === "SUCCESS" ? "same team" : "different teams"}), was to the ${direction}, covered ${distance} at ${velocity} velocity, and occurred in the ${pitchPosition}.`;
-  }
-  
-  // Fallback for events without from/to data
-  return `${eventType} at ${timestamp}`;
-}
-
 export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoManagerProps) {
   const [videos, setVideos] = useState<VideoData[]>(videoLinks);
   const [newRows, setNewRows] = useState<NewVideoRow[]>([]);
@@ -1023,36 +990,29 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
             </div>
           ) : (
             <div className="space-y-3">
-              {eventData.map((event, index) => (
-                <div 
-                  key={index} 
-                  className="p-4 border rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors shadow-sm"
-                >
-                  <div className="space-y-3">
-                    {/* Event Type Badge */}
-                    <div className="flex items-center gap-2">
-                      <Badge className="text-xs font-semibold">
-                        {event.eventType || event.type || 'Event'}
-                      </Badge>
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {event.timestamp || event.time || 'N/A'}
-                      </Badge>
-                      {event.frame && (
-                        <Badge variant="secondary" className="text-xs">
-                          Frame {event.frame}
+              {eventData.map((event, index) => {
+                // Calculate derived data
+                const fromTeam = event.from?.team;
+                const toTeam = event.to?.team;
+                const success = fromTeam !== undefined && toTeam !== undefined ? fromTeam === toTeam : null;
+                const pitchThird = event.from?.position ? getPitchThird(event.from.position[0]) : null;
+                
+                return (
+                  <div 
+                    key={index} 
+                    className="border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm"
+                  >
+                    {/* Header */}
+                    <div className="bg-gray-50 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge className="text-xs font-semibold">
+                          {event.eventType || event.type || 'Event'}
                         </Badge>
-                      )}
-                    </div>
-                    
-                    {/* Natural Language Description */}
-                    <p 
-                      className="text-sm leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: formatEventDescription(event) }}
-                    />
-                    
-                    {/* Additional Technical Details */}
-                    {(event.offside || event.first_touch) && (
-                      <div className="flex gap-2 text-xs">
+                        <span className="text-xs text-muted-foreground">
+                          {event.timestamp || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
                         {event.offside === "True" && (
                           <Badge variant="destructive" className="text-xs">
                             Offside
@@ -1063,25 +1023,78 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                             First Touch
                           </Badge>
                         )}
+                        {success !== null && (
+                          <Badge variant={success ? "default" : "destructive"} className="text-xs">
+                            {success ? "SUCCESS" : "FAILED"}
+                          </Badge>
+                        )}
                       </div>
-                    )}
+                    </div>
                     
-                    {/* Position Visualization (if available) */}
-                    {event.from?.position && event.to?.position && (
-                      <div className="text-xs text-muted-foreground bg-gray-100 dark:bg-gray-900 p-2 rounded">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <span className="font-semibold">From:</span> [{event.from.position[0]}, {event.from.position[1]}]
+                    {/* Content */}
+                    <div className="p-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Left Column - Player Info */}
+                        {(event.from || event.to) && (
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-semibold text-muted-foreground uppercase">Players</h4>
+                            {event.from && (
+                              <div className="text-sm">
+                                <span className="text-muted-foreground">From:</span> Player {event.from.id} (Team {event.from.team})
+                              </div>
+                            )}
+                            {event.to && (
+                              <div className="text-sm">
+                                <span className="text-muted-foreground">To:</span> Player {event.to.id} (Team {event.to.team})
+                              </div>
+                            )}
                           </div>
-                          <div>
-                            <span className="font-semibold">To:</span> [{event.to.position[0]}, {event.to.position[1]}]
-                          </div>
+                        )}
+                        
+                        {/* Right Column - Movement Stats */}
+                        <div className="space-y-3">
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase">Stats</h4>
+                          {event.distance !== undefined && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Distance:</span> {event.distance.toFixed(1)}m
+                            </div>
+                          )}
+                          {event.velocity !== undefined && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Velocity:</span> {event.velocity.toFixed(2)} m/s
+                            </div>
+                          )}
+                          {event.dir && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Direction:</span> {event.dir.toUpperCase()}
+                            </div>
+                          )}
+                          {pitchThird && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Position:</span> {pitchThird}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    )}
+                      
+                      {/* Frame and Position Details */}
+                      <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
+                        <div className="flex items-center gap-4">
+                          {event.frame && (
+                            <span>Frame: {event.frame} - {event.frame_end || 'N/A'}</span>
+                          )}
+                          {event.from?.position && (
+                            <span>From Position: [{event.from.position[0]}, {event.from.position[1]}]</span>
+                          )}
+                          {event.to?.position && (
+                            <span>To Position: [{event.to.position[0]}, {event.to.position[1]}]</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
