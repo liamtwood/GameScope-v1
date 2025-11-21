@@ -1448,7 +1448,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                   </Button>
                 </div>
               </div>
-              <div className="w-[80%] mx-auto">
+              <div className="w-[65%] mx-auto">
                 {selectedVideoForEvents?.url ? (
                   <div className="bg-black rounded-lg overflow-hidden aspect-video">
                     <video 
