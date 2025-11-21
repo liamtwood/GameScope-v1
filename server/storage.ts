@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   clubs,
