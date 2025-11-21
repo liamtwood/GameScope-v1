@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit, FileJson } from "lucide-react";
+import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit, FileJson, ChevronDown, ChevronUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
 import type { UploadResult } from "@uppy/core";
@@ -94,6 +94,9 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [eventData, setEventData] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
+  const [expandedEvents, setExpandedEvents] = useState<Set<number>>(new Set());
+  const [editingEventType, setEditingEventType] = useState<number | null>(null);
+  const [editedEventTypes, setEditedEventTypes] = useState<Map<number, string>>(new Map());
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const queryClient = useQueryClient();
@@ -185,6 +188,35 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     
     // Pause the video at the event timestamp
     videoRef.current.pause();
+  };
+
+  // Toggle event expansion
+  const toggleEventExpansion = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering video seek
+    setExpandedEvents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle event type editing
+  const handleEventTypeEdit = (index: number, newType: string) => {
+    setEditedEventTypes(prev => {
+      const newMap = new Map(prev);
+      newMap.set(index, newType);
+      return newMap;
+    });
+    setEditingEventType(null);
+  };
+
+  // Get display event type (edited or original)
+  const getEventType = (event: any, index: number) => {
+    return editedEventTypes.get(index) || event.eventType || event.type || 'EVENT';
   };
 
   const updateVideosMutation = useMutation({
@@ -1058,110 +1090,165 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 const toTeam = event.to?.team;
                 const success = fromTeam !== undefined && toTeam !== undefined ? fromTeam === toTeam : null;
                 const pitchThird = event.from?.position ? getPitchThird(event.from.position[0]) : null;
-                
                 const isSelected = selectedEventIndex === index;
+                const isExpanded = expandedEvents.has(index);
+                const isEditingType = editingEventType === index;
+                const eventType = getEventType(event, index);
+                const distance = event.distance !== undefined ? `${event.distance.toFixed(1)}m` : '';
                 
                 return (
                   <div 
                     key={index} 
-                    onClick={() => handleEventClick(event, index)}
-                    className={`border rounded-lg overflow-hidden shadow-sm cursor-pointer transition-all ${
+                    className={`border rounded-lg overflow-hidden shadow-sm transition-all ${
                       isSelected 
                         ? 'border-green-600 bg-green-50 dark:bg-green-950 ring-2 ring-green-600' 
                         : 'border-gray-200 bg-white dark:bg-gray-800 hover:border-green-400 hover:shadow-md'
                     }`}
                     data-testid={`event-card-${index}`}
                   >
-                    {/* Header */}
-                    <div className="bg-gray-50 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge className="text-xs font-semibold">
-                          {event.eventType || event.type || 'Event'}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
+                    {/* Compact Header */}
+                    <div 
+                      onClick={() => handleEventClick(event, index)}
+                      className="px-4 py-3 cursor-pointer flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-sm font-mono text-muted-foreground whitespace-nowrap">
                           {event.timestamp || 'N/A'}
                         </span>
+                        
+                        {isEditingType ? (
+                          <Input
+                            value={eventType}
+                            onChange={(e) => handleEventTypeEdit(index, e.target.value)}
+                            onBlur={() => setEditingEventType(null)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') setEditingEventType(null);
+                              if (e.key === 'Escape') {
+                                setEditedEventTypes(prev => {
+                                  const newMap = new Map(prev);
+                                  newMap.delete(index);
+                                  return newMap;
+                                });
+                                setEditingEventType(null);
+                              }
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-7 w-32 text-sm font-bold"
+                            autoFocus
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold">{eventType}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingEventType(index);
+                              }}
+                              className="h-5 w-5 p-0"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {distance && (
+                          <span className="text-sm text-muted-foreground">{distance}</span>
+                        )}
+                        
+                        {pitchThird && (
+                          <span className="text-sm text-muted-foreground">{pitchThird}</span>
+                        )}
                       </div>
+                      
                       <div className="flex items-center gap-2">
-                        {event.offside === "True" && (
-                          <Badge variant="destructive" className="text-xs">
-                            Offside
-                          </Badge>
-                        )}
-                        {event.first_touch === "True" && (
-                          <Badge variant="secondary" className="text-xs">
-                            First Touch
-                          </Badge>
-                        )}
                         {success !== null && (
                           <Badge variant={success ? "default" : "destructive"} className="text-xs">
-                            {success ? "SUCCESS" : "FAILED"}
+                            {success ? "SUCCESS" : "FAIL"}
                           </Badge>
                         )}
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => toggleEventExpansion(index, e)}
+                          className="h-6 w-6 p-0"
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
                       </div>
                     </div>
                     
-                    {/* Content */}
-                    <div className="p-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Left Column - Player Info */}
-                        {(event.from || event.to) && (
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-semibold text-muted-foreground uppercase">Players</h4>
-                            {event.from && (
+                    {/* Expanded Details */}
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-2 border-t">
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Left Column - Player Info */}
+                          {(event.from || event.to) && (
+                            <div className="space-y-2">
+                              <h4 className="text-xs font-semibold text-muted-foreground uppercase">Players</h4>
+                              {event.from && (
+                                <div className="text-sm">
+                                  <span className="text-muted-foreground">From:</span> Player {event.from.id} (Team {event.from.team})
+                                </div>
+                              )}
+                              {event.to && (
+                                <div className="text-sm">
+                                  <span className="text-muted-foreground">To:</span> Player {event.to.id} (Team {event.to.team})
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Right Column - Movement Stats */}
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-semibold text-muted-foreground uppercase">Stats</h4>
+                            {event.velocity !== undefined && (
                               <div className="text-sm">
-                                <span className="text-muted-foreground">From:</span> Player {event.from.id} (Team {event.from.team})
+                                <span className="text-muted-foreground">Velocity:</span> {event.velocity.toFixed(2)} m/s
                               </div>
                             )}
-                            {event.to && (
+                            {event.dir && (
                               <div className="text-sm">
-                                <span className="text-muted-foreground">To:</span> Player {event.to.id} (Team {event.to.team})
+                                <span className="text-muted-foreground">Direction:</span> {event.dir.toUpperCase()}
                               </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Additional Badges */}
+                        {(event.offside === "True" || event.first_touch === "True") && (
+                          <div className="flex gap-2 mt-3">
+                            {event.offside === "True" && (
+                              <Badge variant="destructive" className="text-xs">Offside</Badge>
+                            )}
+                            {event.first_touch === "True" && (
+                              <Badge variant="secondary" className="text-xs">First Touch</Badge>
                             )}
                           </div>
                         )}
                         
-                        {/* Right Column - Movement Stats */}
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-semibold text-muted-foreground uppercase">Stats</h4>
-                          {event.distance !== undefined && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Distance:</span> {event.distance.toFixed(1)}m
-                            </div>
-                          )}
-                          {event.velocity !== undefined && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Velocity:</span> {event.velocity.toFixed(2)} m/s
-                            </div>
-                          )}
-                          {event.dir && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Direction:</span> {event.dir.toUpperCase()}
-                            </div>
-                          )}
-                          {pitchThird && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Position:</span> {pitchThird}
-                            </div>
-                          )}
+                        {/* Frame and Position Details */}
+                        <div className="mt-3 pt-3 border-t text-xs text-muted-foreground">
+                          <div className="space-y-1">
+                            {event.frame && (
+                              <div>Frame: {event.frame} - {event.frame_end || 'N/A'}</div>
+                            )}
+                            {event.from?.position && (
+                              <div>From Position: [{event.from.position[0]}, {event.from.position[1]}]</div>
+                            )}
+                            {event.to?.position && (
+                              <div>To Position: [{event.to.position[0]}, {event.to.position[1]}]</div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      
-                      {/* Frame and Position Details */}
-                      <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-                        <div className="flex items-center gap-4">
-                          {event.frame && (
-                            <span>Frame: {event.frame} - {event.frame_end || 'N/A'}</span>
-                          )}
-                          {event.from?.position && (
-                            <span>From Position: [{event.from.position[0]}, {event.from.position[1]}]</span>
-                          )}
-                          {event.to?.position && (
-                            <span>To Position: [{event.to.position[0]}, {event.to.position[1]}]</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}

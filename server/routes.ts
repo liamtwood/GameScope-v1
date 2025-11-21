@@ -467,13 +467,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       // If JSON has separate event type arrays (passes, tackles, shots, etc.), combine them
       else if (typeof jsonData === 'object' && !Array.isArray(jsonData)) {
+        const eventTypeMapping: Record<string, string> = {
+          'passes': 'PASS',
+          'free_kicks': 'FREE KICK',
+          'tackles': 'TACKLE',
+          'take_ons': 'TAKE ON',
+          'dribbles': 'DRIBBLE',
+          'shots': 'SHOT',
+          'corners': 'CORNER',
+          'throw_ins': 'THROW IN',
+          'goal_kicks': 'GOAL KICK'
+        };
+        
         const eventTypes = ['passes', 'free_kicks', 'tackles', 'take_ons', 'dribbles', 'shots', 'corners', 'throw_ins', 'goal_kicks'];
         eventTypes.forEach(eventType => {
           if (jsonData[eventType] && Array.isArray(jsonData[eventType])) {
             // Add event type to each event and add to combined events array
             const typedEvents = jsonData[eventType].map((event: any) => ({
               ...event,
-              eventType: eventType.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+              eventType: eventTypeMapping[eventType] || eventType.toUpperCase()
             }));
             events.push(...typedEvents);
           }
