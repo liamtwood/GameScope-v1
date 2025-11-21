@@ -1448,23 +1448,25 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                   </Button>
                 </div>
               </div>
-              {selectedVideoForEvents?.url ? (
-                <div className="bg-black rounded-lg overflow-hidden aspect-video">
-                  <video 
-                    ref={videoRef}
-                    src={selectedVideoForEvents.url} 
-                    controls 
-                    className="w-full h-full"
-                    data-testid="event-video-player"
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ) : (
-                <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">No video available</p>
-                </div>
-              )}
+              <div className="w-[90%] mx-auto">
+                {selectedVideoForEvents?.url ? (
+                  <div className="bg-black rounded-lg overflow-hidden aspect-video">
+                    <video 
+                      ref={videoRef}
+                      src={selectedVideoForEvents.url} 
+                      controls 
+                      className="w-full h-full"
+                      data-testid="event-video-player"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ) : (
+                  <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">No video available</p>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* 3 Events Below */}
