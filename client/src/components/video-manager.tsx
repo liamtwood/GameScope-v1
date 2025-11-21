@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -68,6 +68,22 @@ function getPitchThird(x: number): string {
   return "Unknown";
 }
 
+// Helper function to parse timestamp string to seconds
+function parseTimestamp(timestamp: string): number {
+  const parts = timestamp.split(':');
+  let seconds = 0;
+  
+  if (parts.length === 3) {
+    // Format: H:MM:SS
+    seconds = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+  } else if (parts.length === 2) {
+    // Format: M:SS
+    seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  }
+  
+  return seconds;
+}
+
 export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoManagerProps) {
   const [videos, setVideos] = useState<VideoData[]>(videoLinks);
   const [newRows, setNewRows] = useState<NewVideoRow[]>([]);
@@ -77,6 +93,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [selectedVideoForEvents, setSelectedVideoForEvents] = useState<VideoData | null>(null);
   const [eventData, setEventData] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
+  const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -148,6 +166,26 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         description: error instanceof Error ? error.message : "Failed to delete JSON events file",
         variant: "destructive",
       });
+    }
+  };
+
+  // Handle clicking on an event to seek video
+  const handleEventClick = (event: any, index: number) => {
+    if (!videoRef.current) return;
+    
+    const timestamp = event.timestamp;
+    if (!timestamp) return;
+    
+    // Parse timestamp and seek video
+    const seconds = parseTimestamp(timestamp);
+    videoRef.current.currentTime = seconds;
+    
+    // Set selected event for visual feedback
+    setSelectedEventIndex(index);
+    
+    // Play the video if it's paused
+    if (videoRef.current.paused) {
+      videoRef.current.play();
     }
   };
 
@@ -982,6 +1020,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
             {selectedVideoForEvents?.url ? (
               <div className="bg-black rounded-lg overflow-hidden aspect-video">
                 <video 
+                  ref={videoRef}
                   src={selectedVideoForEvents.url} 
                   controls 
                   className="w-full h-full"
@@ -1022,10 +1061,18 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 const success = fromTeam !== undefined && toTeam !== undefined ? fromTeam === toTeam : null;
                 const pitchThird = event.from?.position ? getPitchThird(event.from.position[0]) : null;
                 
+                const isSelected = selectedEventIndex === index;
+                
                 return (
                   <div 
                     key={index} 
-                    className="border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm"
+                    onClick={() => handleEventClick(event, index)}
+                    className={`border rounded-lg overflow-hidden shadow-sm cursor-pointer transition-all ${
+                      isSelected 
+                        ? 'border-green-600 bg-green-50 dark:bg-green-950 ring-2 ring-green-600' 
+                        : 'border-gray-200 bg-white dark:bg-gray-800 hover:border-green-400 hover:shadow-md'
+                    }`}
+                    data-testid={`event-card-${index}`}
                   >
                     {/* Header */}
                     <div className="bg-gray-50 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
