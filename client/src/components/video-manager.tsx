@@ -242,6 +242,35 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     if (!isNaN(seconds) && seconds >= 0) {
       videoRef.current.currentTime = seconds;
       videoRef.current.pause();
+      
+      // Find the closest event to this time
+      if (eventData.length > 0) {
+        let closestIndex = 0;
+        let closestDiff = Infinity;
+        
+        eventData.forEach((event, index) => {
+          if (event.timestamp) {
+            const eventSeconds = parseTimestamp(event.timestamp);
+            const diff = Math.abs(eventSeconds - seconds);
+            if (diff < closestDiff) {
+              closestDiff = diff;
+              closestIndex = index;
+            }
+          }
+        });
+        
+        // Select the closest event
+        setSelectedEventIndex(closestIndex);
+        
+        // Scroll to the event
+        setTimeout(() => {
+          const eventElement = document.querySelector(`[data-testid="event-card-${closestIndex}"]`);
+          if (eventElement) {
+            eventElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
+      
       toast({
         title: "Seeked to time",
         description: `Video moved to ${seekTime}`,
