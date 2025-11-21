@@ -962,7 +962,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
       {/* Events Dialog */}
       <Dialog open={eventsDialogOpen} onOpenChange={setEventsDialogOpen}>
-      <DialogContent className="max-w-3xl max-h-[80vh]">
+      <DialogContent className="max-w-6xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileJson className="h-5 w-5 text-green-600" />
@@ -975,7 +975,32 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
           </DialogTitle>
         </DialogHeader>
         
-        <div className="overflow-y-auto max-h-[60vh] p-4">
+        <div className="grid grid-cols-2 gap-4 overflow-hidden">
+          {/* Video Player Column */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Video</h3>
+            {selectedVideoForEvents?.url ? (
+              <div className="bg-black rounded-lg overflow-hidden aspect-video">
+                <video 
+                  src={selectedVideoForEvents.url} 
+                  controls 
+                  className="w-full h-full"
+                  data-testid="event-video-player"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ) : (
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">No video available</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Events List Column */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Events ({eventData.length})</h3>
+            <div className="overflow-y-auto max-h-[calc(90vh-12rem)] pr-2">
           {loadingEvents ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center space-y-2">
@@ -1097,6 +1122,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
               })}
             </div>
           )}
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
