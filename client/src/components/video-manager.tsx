@@ -1176,77 +1176,74 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
           </div>
         </DialogHeader>
         
-        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4 overflow-hidden h-[calc(100vh-120px)]" : "flex flex-col gap-4 overflow-hidden h-[calc(100vh-120px)]"}>
-          {/* Video Player Column */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Video</h3>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="text"
-                  placeholder="mm:ss (e.g., 15:22)"
-                  value={seekTime}
-                  onChange={(e) => setSeekTime(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSeekToTime();
-                    }
-                  }}
-                  className="h-8 w-32 text-sm"
-                  data-testid="input-seek-time"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleSeekToTime}
-                  className="h-8"
-                  data-testid="button-seek"
-                >
-                  Seek
-                </Button>
-              </div>
-            </div>
-            {selectedVideoForEvents?.url ? (
-              <div className="bg-black rounded-lg overflow-hidden aspect-video">
-                <video 
-                  ref={videoRef}
-                  src={selectedVideoForEvents.url} 
-                  controls 
-                  className="w-full h-full"
-                  data-testid="event-video-player"
-                >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            ) : (
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">No video available</p>
-              </div>
-            )}
-          </div>
-          
-          {/* Events List Column */}
-          <div className={viewMode === "grid" ? "space-y-2" : "space-y-3"}>
-            <h3 className="text-sm font-semibold">
-              {viewMode === "grid" ? `Events (${eventData.length})` : "Event Details"}
-            </h3>
-            
-            {viewMode === "grid" ? (
-              // MODE 1: Full scrollable list
-              <div className="overflow-y-auto max-h-[calc(90vh-12rem)] pr-2">
-          {loadingEvents ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center space-y-2">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                <p className="text-sm text-muted-foreground">Loading events...</p>
-              </div>
-            </div>
-          ) : eventData.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileJson className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No events found for this video</p>
-            </div>
-          ) : (
+        {viewMode === "grid" ? (
+          // MODE 1: Side-by-side grid layout
+          <div className="grid grid-cols-2 gap-4 overflow-hidden h-[calc(100vh-120px)]">
+            {/* Video Player Column */}
             <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">Video</h3>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="mm:ss (e.g., 15:22)"
+                    value={seekTime}
+                    onChange={(e) => setSeekTime(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSeekToTime();
+                      }
+                    }}
+                    className="h-8 w-32 text-sm"
+                    data-testid="input-seek-time"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSeekToTime}
+                    className="h-8"
+                    data-testid="button-seek"
+                  >
+                    Seek
+                  </Button>
+                </div>
+              </div>
+              {selectedVideoForEvents?.url ? (
+                <div className="bg-black rounded-lg overflow-hidden aspect-video">
+                  <video 
+                    ref={videoRef}
+                    src={selectedVideoForEvents.url} 
+                    controls 
+                    className="w-full h-full"
+                    data-testid="event-video-player"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ) : (
+                <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">No video available</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Events List Column */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold">Events ({eventData.length})</h3>
+              <div className="overflow-y-auto max-h-[calc(90vh-12rem)] pr-2">
+                {loadingEvents ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center space-y-2">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                      <p className="text-sm text-muted-foreground">Loading events...</p>
+                    </div>
+                  </div>
+                ) : eventData.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileJson className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No events found for this video</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
               {eventData.map((event, index) => {
                 // Calculate derived data
                 const fromTeam = event.from?.team;
@@ -1414,12 +1411,65 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                     )}
                   </div>
                 );
-              })}
-            </div>
-          )}
+                    })}
+                  </div>
+                )}
               </div>
-            ) : (
-              // MODE 2: Show 3 events (previous, current, next)
+            </div>
+          </div>
+        ) : (
+          // MODE 2: Video on top, 3 events below
+          <div className="flex flex-col gap-4 overflow-hidden h-[calc(100vh-120px)]">
+            {/* Video Player on Top */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">Video</h3>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="mm:ss (e.g., 15:22)"
+                    value={seekTime}
+                    onChange={(e) => setSeekTime(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSeekToTime();
+                      }
+                    }}
+                    className="h-8 w-32 text-sm"
+                    data-testid="input-seek-time"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSeekToTime}
+                    className="h-8"
+                    data-testid="button-seek"
+                  >
+                    Seek
+                  </Button>
+                </div>
+              </div>
+              {selectedVideoForEvents?.url ? (
+                <div className="bg-black rounded-lg overflow-hidden aspect-video">
+                  <video 
+                    ref={videoRef}
+                    src={selectedVideoForEvents.url} 
+                    controls 
+                    className="w-full h-full"
+                    data-testid="event-video-player"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ) : (
+                <div className="bg-gray-100 dark:bg-gray-900 rounded-lg aspect-video flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">No video available</p>
+                </div>
+              )}
+            </div>
+            
+            {/* 3 Events Below */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Event Details</h3>
               <div className="overflow-y-auto h-full">
                 {loadingEvents ? (
                   <div className="flex items-center justify-center py-12">
@@ -1437,8 +1487,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                   <div className="grid grid-cols-3 gap-3">
                     {/* Previous Event */}
                     {selectedEventIndex !== null && selectedEventIndex > 0 ? (
-                      <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
-                        <p className="text-xs font-semibold text-muted-foreground mb-2">PREVIOUS</p>
+                      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 opacity-60">
+                        <p className="text-xs font-semibold text-muted-foreground mb-3">PREVIOUS</p>
                         {(() => {
                           const prevEvent = eventData[selectedEventIndex - 1];
                           return (
@@ -1452,15 +1502,15 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                         })()}
                       </div>
                     ) : (
-                      <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <div className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
                         <p className="text-xs text-muted-foreground">No previous event</p>
                       </div>
                     )}
                     
                     {/* Current Event */}
                     {selectedEventIndex !== null ? (
-                      <div className="border-2 border-green-600 rounded-lg p-3 bg-green-50 dark:bg-green-950">
-                        <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2">CURRENT</p>
+                      <div className="border-2 border-green-600 rounded-lg p-4 bg-green-50 dark:bg-green-950">
+                        <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-3">CURRENT</p>
                         {(() => {
                           const currEvent = eventData[selectedEventIndex];
                           const fromTeam = currEvent.from?.team;
@@ -1482,15 +1532,15 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                         })()}
                       </div>
                     ) : (
-                      <div className="border border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <div className="border border-gray-300 rounded-lg p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
                         <p className="text-xs text-muted-foreground">Select an event</p>
                       </div>
                     )}
                     
                     {/* Next Event */}
                     {selectedEventIndex !== null && selectedEventIndex < eventData.length - 1 ? (
-                      <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
-                        <p className="text-xs font-semibold text-muted-foreground mb-2">NEXT</p>
+                      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 opacity-60">
+                        <p className="text-xs font-semibold text-muted-foreground mb-3">NEXT</p>
                         {(() => {
                           const nextEvent = eventData[selectedEventIndex + 1];
                           return (
@@ -1504,16 +1554,16 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                         })()}
                       </div>
                     ) : (
-                      <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                      <div className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
                         <p className="text-xs text-muted-foreground">No next event</p>
                       </div>
                     )}
                   </div>
                 )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
     </>
