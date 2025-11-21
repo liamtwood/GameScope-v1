@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit, FileJson, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Upload, Play, Link, Plus, Save, X, Cog, Edit, FileJson, ChevronDown, ChevronUp, Grid2x2, List } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "./object-uploader";
 import type { UploadResult } from "@uppy/core";
@@ -98,6 +98,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [editingEventType, setEditingEventType] = useState<number | null>(null);
   const [editedEventTypes, setEditedEventTypes] = useState<Map<number, string>>(new Map());
   const [seekTime, setSeekTime] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const queryClient = useQueryClient();
@@ -1142,20 +1143,40 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
 
       {/* Events Dialog */}
       <Dialog open={eventsDialogOpen} onOpenChange={setEventsDialogOpen}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileJson className="h-5 w-5 text-green-600" />
-            Video Events
-            {selectedVideoForEvents ? (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                {selectedVideoForEvents.filename || `${getDurationLabel(selectedVideoForEvents.duration)} - ${getLocationLabel(selectedVideoForEvents.location)}`}
-              </span>
-            ) : null}
-          </DialogTitle>
+      <DialogContent className="max-w-full max-h-screen w-screen h-screen p-4">
+        <DialogHeader className="mb-4">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <FileJson className="h-5 w-5 text-green-600" />
+              Video Events
+              {selectedVideoForEvents ? (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  {selectedVideoForEvents.filename || `${getDurationLabel(selectedVideoForEvents.duration)} - ${getLocationLabel(selectedVideoForEvents.location)}`}
+                </span>
+              ) : null}
+            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                title="Mode 1: Side-by-side view"
+              >
+                <Grid2x2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+                title="Mode 2: Video with 3 events below"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
         
-        <div className="grid grid-cols-2 gap-4 overflow-hidden">
+        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4 overflow-hidden h-[calc(100vh-120px)]" : "flex flex-col gap-4 overflow-hidden h-[calc(100vh-120px)]"}>
           {/* Video Player Column */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
