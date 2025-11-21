@@ -1420,95 +1420,97 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
               </div>
             ) : (
               // MODE 2: Show 3 events (previous, current, next)
-              loadingEvents ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-center space-y-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                    <p className="text-sm text-muted-foreground">Loading events...</p>
+              <div className="overflow-y-auto h-full">
+                {loadingEvents ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center space-y-2">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                      <p className="text-sm text-muted-foreground">Loading events...</p>
+                    </div>
                   </div>
-                </div>
-              ) : eventData.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileJson className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No events found for this video</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-3 h-full">
-                  {/* Previous Event */}
-                  {selectedEventIndex !== null && selectedEventIndex > 0 ? (
-                    <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">PREVIOUS</p>
-                      {(() => {
-                        const prevEvent = eventData[selectedEventIndex - 1];
-                        return (
-                          <div className="space-y-2 text-sm">
-                            <p className="font-mono text-xs">{prevEvent.timestamp}</p>
-                            <p className="font-bold">{getEventType(prevEvent, selectedEventIndex - 1)}</p>
-                            {prevEvent.from && <p className="text-xs text-muted-foreground">From: Player {prevEvent.from.id}</p>}
-                            {prevEvent.to && <p className="text-xs text-muted-foreground">To: Player {prevEvent.to.id}</p>}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                      <p className="text-xs text-muted-foreground">No previous event</p>
-                    </div>
-                  )}
-                  
-                  {/* Current Event */}
-                  {selectedEventIndex !== null ? (
-                    <div className="border-2 border-green-600 rounded-lg p-3 bg-green-50 dark:bg-green-950">
-                      <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2">CURRENT</p>
-                      {(() => {
-                        const currEvent = eventData[selectedEventIndex];
-                        const fromTeam = currEvent.from?.team;
-                        const toTeam = currEvent.to?.team;
-                        const success = fromTeam !== undefined && toTeam !== undefined ? fromTeam === toTeam : null;
-                        return (
-                          <div className="space-y-2 text-sm">
-                            <p className="font-mono text-xs">{currEvent.timestamp}</p>
-                            <p className="font-bold">{getEventType(currEvent, selectedEventIndex)}</p>
-                            {currEvent.from && <p className="text-xs text-muted-foreground">From: Player {currEvent.from.id}</p>}
-                            {currEvent.to && <p className="text-xs text-muted-foreground">To: Player {currEvent.to.id}</p>}
-                            {success !== null && (
-                              <Badge variant={success ? "default" : "destructive"} className="text-xs">
-                                {success ? "SUCCESS" : "FAIL"}
-                              </Badge>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="border border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                      <p className="text-xs text-muted-foreground">Select an event</p>
-                    </div>
-                  )}
-                  
-                  {/* Next Event */}
-                  {selectedEventIndex !== null && selectedEventIndex < eventData.length - 1 ? (
-                    <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">NEXT</p>
-                      {(() => {
-                        const nextEvent = eventData[selectedEventIndex + 1];
-                        return (
-                          <div className="space-y-2 text-sm">
-                            <p className="font-mono text-xs">{nextEvent.timestamp}</p>
-                            <p className="font-bold">{getEventType(nextEvent, selectedEventIndex + 1)}</p>
-                            {nextEvent.from && <p className="text-xs text-muted-foreground">From: Player {nextEvent.from.id}</p>}
-                            {nextEvent.to && <p className="text-xs text-muted-foreground">To: Player {nextEvent.to.id}</p>}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                      <p className="text-xs text-muted-foreground">No next event</p>
-                    </div>
-                  )}
-                </div>
-              )
+                ) : eventData.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileJson className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No events found for this video</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* Previous Event */}
+                    {selectedEventIndex !== null && selectedEventIndex > 0 ? (
+                      <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">PREVIOUS</p>
+                        {(() => {
+                          const prevEvent = eventData[selectedEventIndex - 1];
+                          return (
+                            <div className="space-y-2 text-sm">
+                              <p className="font-mono text-xs">{prevEvent.timestamp}</p>
+                              <p className="font-bold">{getEventType(prevEvent, selectedEventIndex - 1)}</p>
+                              {prevEvent.from && <p className="text-xs text-muted-foreground">From: Player {prevEvent.from.id}</p>}
+                              {prevEvent.to && <p className="text-xs text-muted-foreground">To: Player {prevEvent.to.id}</p>}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <p className="text-xs text-muted-foreground">No previous event</p>
+                      </div>
+                    )}
+                    
+                    {/* Current Event */}
+                    {selectedEventIndex !== null ? (
+                      <div className="border-2 border-green-600 rounded-lg p-3 bg-green-50 dark:bg-green-950">
+                        <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2">CURRENT</p>
+                        {(() => {
+                          const currEvent = eventData[selectedEventIndex];
+                          const fromTeam = currEvent.from?.team;
+                          const toTeam = currEvent.to?.team;
+                          const success = fromTeam !== undefined && toTeam !== undefined ? fromTeam === toTeam : null;
+                          return (
+                            <div className="space-y-2 text-sm">
+                              <p className="font-mono text-xs">{currEvent.timestamp}</p>
+                              <p className="font-bold">{getEventType(currEvent, selectedEventIndex)}</p>
+                              {currEvent.from && <p className="text-xs text-muted-foreground">From: Player {currEvent.from.id}</p>}
+                              {currEvent.to && <p className="text-xs text-muted-foreground">To: Player {currEvent.to.id}</p>}
+                              {success !== null && (
+                                <Badge variant={success ? "default" : "destructive"} className="text-xs">
+                                  {success ? "SUCCESS" : "FAIL"}
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="border border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <p className="text-xs text-muted-foreground">Select an event</p>
+                      </div>
+                    )}
+                    
+                    {/* Next Event */}
+                    {selectedEventIndex !== null && selectedEventIndex < eventData.length - 1 ? (
+                      <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 dark:bg-gray-800 opacity-60">
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">NEXT</p>
+                        {(() => {
+                          const nextEvent = eventData[selectedEventIndex + 1];
+                          return (
+                            <div className="space-y-2 text-sm">
+                              <p className="font-mono text-xs">{nextEvent.timestamp}</p>
+                              <p className="font-bold">{getEventType(nextEvent, selectedEventIndex + 1)}</p>
+                              {nextEvent.from && <p className="text-xs text-muted-foreground">From: Player {nextEvent.from.id}</p>}
+                              {nextEvent.to && <p className="text-xs text-muted-foreground">To: Player {nextEvent.to.id}</p>}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <p className="text-xs text-muted-foreground">No next event</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
