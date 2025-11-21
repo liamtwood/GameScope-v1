@@ -97,6 +97,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [expandedEvents, setExpandedEvents] = useState<Set<number>>(new Set());
   const [editingEventType, setEditingEventType] = useState<number | null>(null);
   const [editedEventTypes, setEditedEventTypes] = useState<Map<number, string>>(new Map());
+  const [seekTime, setSeekTime] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const queryClient = useQueryClient();
@@ -217,6 +218,41 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   // Get display event type (edited or original)
   const getEventType = (event: any, index: number) => {
     return editedEventTypes.get(index) || event.eventType || event.type || 'EVENT';
+  };
+
+  // Handle seek to specific time
+  const handleSeekToTime = () => {
+    if (!videoRef.current || !seekTime) return;
+    
+    // Parse time input (supports formats like "15:22" or "0:15:22" or "1:30:45")
+    const parts = seekTime.split(':').map(p => parseInt(p, 10));
+    let seconds = 0;
+    
+    if (parts.length === 2) {
+      // mm:ss format
+      seconds = parts[0] * 60 + parts[1];
+    } else if (parts.length === 3) {
+      // h:mm:ss format
+      seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 1) {
+      // Just seconds
+      seconds = parts[0];
+    }
+    
+    if (!isNaN(seconds) && seconds >= 0) {
+      videoRef.current.currentTime = seconds;
+      videoRef.current.pause();
+      toast({
+        title: "Seeked to time",
+        description: `Video moved to ${seekTime}`,
+      });
+    } else {
+      toast({
+        title: "Invalid time format",
+        description: "Please use format like 15:22 (mm:ss) or 0:15:22 (h:mm:ss)",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateVideosMutation = useMutation({
@@ -1045,8 +1081,33 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
         
         <div className="grid grid-cols-2 gap-4 overflow-hidden">
           {/* Video Player Column */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold">Video</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Video</h3>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="mm:ss (e.g., 15:22)"
+                  value={seekTime}
+                  onChange={(e) => setSeekTime(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSeekToTime();
+                    }
+                  }}
+                  className="h-8 w-32 text-sm"
+                  data-testid="input-seek-time"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSeekToTime}
+                  className="h-8"
+                  data-testid="button-seek"
+                >
+                  Seek
+                </Button>
+              </div>
+            </div>
             {selectedVideoForEvents?.url ? (
               <div className="bg-black rounded-lg overflow-hidden aspect-video">
                 <video 
