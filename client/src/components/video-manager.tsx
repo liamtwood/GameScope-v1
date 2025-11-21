@@ -99,6 +99,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
   const [editedEventTypes, setEditedEventTypes] = useState<Map<number, string>>(new Map());
   const [seekTime, setSeekTime] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [savedVideoTime, setSavedVideoTime] = useState<number>(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const queryClient = useQueryClient();
@@ -267,6 +268,28 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       video.removeEventListener('timeupdate', handleTimeUpdate);
     };
   }, [eventData, selectedEventIndex]);
+
+  // Restore video time when mode changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || savedVideoTime === 0) return;
+    
+    // Wait for video to be ready
+    const restoreTime = () => {
+      if (video.readyState >= 2) {
+        video.currentTime = savedVideoTime;
+      }
+    };
+    
+    if (video.readyState >= 2) {
+      restoreTime();
+    } else {
+      video.addEventListener('loadedmetadata', restoreTime);
+      return () => {
+        video.removeEventListener('loadedmetadata', restoreTime);
+      };
+    }
+  }, [viewMode, savedVideoTime]);
 
   // Handle seek to specific time
   const handleSeekToTime = () => {
@@ -1161,6 +1184,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 size="sm"
                 onClick={() => {
                   if (videoRef.current) {
+                    setSavedVideoTime(videoRef.current.currentTime);
                     videoRef.current.pause();
                   }
                   setViewMode("grid");
@@ -1174,6 +1198,7 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                 size="sm"
                 onClick={() => {
                   if (videoRef.current) {
+                    setSavedVideoTime(videoRef.current.currentTime);
                     videoRef.current.pause();
                   }
                   setViewMode("list");
