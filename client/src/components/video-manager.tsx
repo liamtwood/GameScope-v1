@@ -220,6 +220,53 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     return editedEventTypes.get(index) || event.eventType || event.type || 'EVENT';
   };
 
+  // Update selected event based on video time
+  const updateEventFromVideoTime = (currentTime: number) => {
+    if (eventData.length === 0) return;
+    
+    // Find the most recent event that has passed
+    let currentEventIndex = -1;
+    let closestTime = -1;
+    
+    eventData.forEach((event, index) => {
+      if (event.timestamp) {
+        const eventSeconds = parseTimestamp(event.timestamp);
+        if (eventSeconds <= currentTime && eventSeconds > closestTime) {
+          closestTime = eventSeconds;
+          currentEventIndex = index;
+        }
+      }
+    });
+    
+    if (currentEventIndex !== -1 && currentEventIndex !== selectedEventIndex) {
+      setSelectedEventIndex(currentEventIndex);
+      
+      // Auto-scroll to keep the current event visible
+      setTimeout(() => {
+        const eventElement = document.querySelector(`[data-testid="event-card-${currentEventIndex}"]`);
+        if (eventElement) {
+          eventElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 50);
+    }
+  };
+
+  // Add video time update listener
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    const handleTimeUpdate = () => {
+      updateEventFromVideoTime(video.currentTime);
+    };
+    
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+    };
+  }, [eventData, selectedEventIndex]);
+
   // Handle seek to specific time
   const handleSeekToTime = () => {
     if (!videoRef.current || !seekTime) return;
