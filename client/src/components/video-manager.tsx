@@ -183,10 +183,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     // Set selected event for visual feedback
     setSelectedEventIndex(index);
     
-    // Play the video if it's paused
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-    }
+    // Pause the video at the event timestamp
+    videoRef.current.pause();
   };
 
   const updateVideosMutation = useMutation({
