@@ -312,30 +312,25 @@ export default function Videos() {
                       <TabsContent value="video-player" className="mt-4">
                         <div className="aspect-video max-h-[320px] bg-black rounded-lg overflow-hidden">
                           {selectedFixture.hasVideo && selectedVideo?.url ? (
-                            <div className="relative w-full h-full group">
+                            <div className="relative w-full h-full group cursor-pointer" onClick={() => handleWatchVideo(selectedFixture)}>
                               <video
                                 src={selectedVideo.url}
-                                controls
-                                className="w-full h-full"
+                                preload="metadata"
+                                className="w-full h-full object-cover"
                                 data-testid="video-preview"
                               >
                                 Your browser does not support the video tag.
                               </video>
+                              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                                <div className="bg-white/90 rounded-full p-4 group-hover:scale-110 transition-transform">
+                                  <Play className="w-8 h-8 text-gray-900" />
+                                </div>
+                              </div>
                               {selectedVideo.label && (
                                 <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                                   {selectedVideo.label}
                                 </div>
                               )}
-                              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => handleWatchVideo(selectedFixture)}
-                                  data-testid="button-fullscreen-video"
-                                >
-                                  <ExternalLink className="w-3 h-3 mr-1" />
-                                  Full Analysis
-                                </Button>
-                              </div>
                             </div>
                           ) : selectedFixture.hasVideo ? (
                             <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
