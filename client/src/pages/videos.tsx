@@ -310,27 +310,70 @@ export default function Videos() {
 
                       {/* Video Player Tab Content */}
                       <TabsContent value="video-player" className="mt-4">
-                        <div className="aspect-video max-h-[320px] bg-black rounded-lg overflow-hidden">
+                        <div className="aspect-video max-h-[320px] bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-lg overflow-hidden">
                           {selectedFixture.hasVideo && selectedVideo?.url ? (
                             <div className="relative w-full h-full group cursor-pointer" onClick={() => handleWatchVideo(selectedFixture)}>
-                              <video
-                                src={`${selectedVideo.url}#t=0.1`}
-                                preload="metadata"
-                                className="w-full h-full object-cover"
-                                data-testid="video-preview"
-                              >
-                                Your browser does not support the video tag.
-                              </video>
-                              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <div className="bg-white/90 rounded-full p-4 group-hover:scale-110 transition-transform">
-                                  <Play className="w-8 h-8 text-gray-900" />
+                              {/* Match Preview with Logos and Score */}
+                              <div className="w-full h-full flex items-center justify-between px-12">
+                                {/* Home Team */}
+                                <div className="flex flex-col items-center gap-2">
+                                  {currentTeam?.clubLogoPath ? (
+                                    <img 
+                                      src={currentTeam.clubLogoPath} 
+                                      alt="Home team logo"
+                                      className="w-20 h-20 object-contain"
+                                      data-testid="img-home-logo-preview"
+                                    />
+                                  ) : (
+                                    <div className="w-20 h-20 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full flex items-center justify-center text-2xl font-bold">
+                                      {currentTeam?.name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() || 'HM'}
+                                    </div>
+                                  )}
+                                  <p className="text-sm font-medium text-center">{currentTeam?.name || 'Home'}</p>
+                                </div>
+
+                                {/* Score & Play Button */}
+                                <div className="flex flex-col items-center gap-3">
+                                  {selectedFixture.status === 'COMPLETED' ? (
+                                    <div className="text-4xl font-bold">
+                                      {selectedFixture.type === 'HOME' 
+                                        ? `${selectedFixture.ourScore ?? '-'} - ${selectedFixture.theirScore ?? '-'}`
+                                        : `${selectedFixture.theirScore ?? '-'} - ${selectedFixture.ourScore ?? '-'}`
+                                      }
+                                    </div>
+                                  ) : (
+                                    <div className="text-lg font-semibold text-muted-foreground">
+                                      {format(new Date(selectedFixture.date), 'MMM d, yyyy')}
+                                    </div>
+                                  )}
+                                  <div className="bg-white/90 dark:bg-gray-900/90 rounded-full p-4 group-hover:scale-110 group-hover:bg-white dark:group-hover:bg-gray-800 transition-all">
+                                    <Play className="w-8 h-8 text-gray-900 dark:text-white" />
+                                  </div>
+                                  {selectedVideo.label && (
+                                    <p className="text-xs text-muted-foreground">{selectedVideo.label}</p>
+                                  )}
+                                </div>
+
+                                {/* Opposition Team */}
+                                <div className="flex flex-col items-center gap-2">
+                                  {(() => {
+                                    const opponent = oppositionTeams?.find(team => team.name === selectedFixture.opponent);
+                                    return opponent?.logoPath ? (
+                                      <img 
+                                        src={opponent.logoPath} 
+                                        alt={`${selectedFixture.opponent} logo`}
+                                        className="w-20 h-20 object-contain"
+                                        data-testid="img-opponent-logo-preview"
+                                      />
+                                    ) : (
+                                      <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full flex items-center justify-center text-2xl font-bold">
+                                        {selectedFixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                                      </div>
+                                    );
+                                  })()}
+                                  <p className="text-sm font-medium text-center">{selectedFixture.opponent}</p>
                                 </div>
                               </div>
-                              {selectedVideo.label && (
-                                <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                                  {selectedVideo.label}
-                                </div>
-                              )}
                             </div>
                           ) : selectedFixture.hasVideo ? (
                             <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
