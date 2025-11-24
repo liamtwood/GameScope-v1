@@ -54,6 +54,10 @@ export default function Videos() {
     queryKey: ["/api/opposition-teams"] 
   });
 
+  const { data: clubs } = useQuery<{ id: string; name: string; logoPath: string | null }[]>({ 
+    queryKey: ["/api/clubs"] 
+  });
+
   const { data: enabledCompetitions = [] } = useQuery<Competition[]>({
     queryKey: ["/api/teams", currentTeam?.id, "competitions/enabled"],
     enabled: !!currentTeam?.id
@@ -317,18 +321,21 @@ export default function Videos() {
                               <div className="w-full h-full flex items-center justify-between px-12">
                                 {/* Home Team */}
                                 <div className="flex flex-col items-center gap-2">
-                                  {currentTeam?.clubLogoPath ? (
-                                    <img 
-                                      src={currentTeam.clubLogoPath} 
-                                      alt="Home team logo"
-                                      className="w-20 h-20 object-contain"
-                                      data-testid="img-home-logo-preview"
-                                    />
-                                  ) : (
-                                    <div className="w-20 h-20 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full flex items-center justify-center text-2xl font-bold">
-                                      {currentTeam?.name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() || 'HM'}
-                                    </div>
-                                  )}
+                                  {(() => {
+                                    const club = clubs?.find(c => c.id === currentTeam?.clubId);
+                                    return club?.logoPath ? (
+                                      <img 
+                                        src={club.logoPath} 
+                                        alt="Club logo"
+                                        className="w-20 h-20 object-contain"
+                                        data-testid="img-club-logo-preview"
+                                      />
+                                    ) : (
+                                      <div className="w-20 h-20 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full flex items-center justify-center text-2xl font-bold">
+                                        {currentTeam?.name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() || 'HM'}
+                                      </div>
+                                    );
+                                  })()}
                                   <p className="text-sm font-medium text-center">{currentTeam?.name || 'Home'}</p>
                                 </div>
 
@@ -337,8 +344,8 @@ export default function Videos() {
                                   {selectedFixture.status === 'COMPLETED' ? (
                                     <div className="text-4xl font-bold">
                                       {selectedFixture.type === 'HOME' 
-                                        ? `${selectedFixture.ourScore ?? '-'} - ${selectedFixture.theirScore ?? '-'}`
-                                        : `${selectedFixture.theirScore ?? '-'} - ${selectedFixture.ourScore ?? '-'}`
+                                        ? `${selectedFixture.homeScore ?? '-'} - ${selectedFixture.awayScore ?? '-'}`
+                                        : `${selectedFixture.awayScore ?? '-'} - ${selectedFixture.homeScore ?? '-'}`
                                       }
                                     </div>
                                   ) : (
