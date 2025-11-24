@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
@@ -7,13 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ExternalLink } from "lucide-react";
-import { Fixture, Team, OppositionTeam, VideoLink, MatchStats, Competition } from "@shared/schema";
+import { Fixture, Team, OppositionTeam, VideoLink, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 type ViewMode = 'tile' | 'watch';
@@ -23,7 +22,6 @@ export default function Videos() {
   const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
-  const [activeTab, setActiveTab] = useState<string>('video-player');
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [, setLocation] = useLocation();
@@ -96,12 +94,6 @@ export default function Videos() {
     }
     return videoFixtures.find(f => f.id === selectedFixtureId) || videoFixtures[0] || null;
   }, [videoFixtures, selectedFixtureId]);
-
-  // Fetch match stats for selected fixture
-  const { data: matchStats, isLoading: isLoadingStats } = useQuery<MatchStats[]>({
-    queryKey: ['/api/match-stats', selectedFixture?.id],
-    enabled: !!selectedFixture?.id,
-  });
 
   // Memoized camera options from fixture video links
   const cameraOptions = useMemo(() => {
@@ -301,20 +293,10 @@ export default function Videos() {
                     )}
                   </div>
 
-                  {/* Right Column: Tabs + Content (60%) */}
-                  <div className="flex-1 md:w-3/5 space-y-4">
-                    {/* Tabs */}
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                      <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="video-player" data-testid="tab-video-player">Video Player</TabsTrigger>
-                        <TabsTrigger value="match-events" data-testid="tab-match-events">Match Events</TabsTrigger>
-                        <TabsTrigger value="team-stats" data-testid="tab-team-stats">Team Stats</TabsTrigger>
-                        <TabsTrigger value="spider-charts" data-testid="tab-spider-charts">Spider Charts</TabsTrigger>
-                      </TabsList>
-
-                      {/* Video Player Tab Content */}
-                      <TabsContent value="video-player" className="mt-4">
-                        <div className="aspect-video max-h-[320px] bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-lg overflow-hidden">
+                  {/* Right Column: Video Preview (60%) */}
+                  <div className="flex-1 md:w-3/5">
+                    {/* Video Preview */}
+                    <div className="aspect-video max-h-[320px] bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-lg overflow-hidden">
                           {selectedFixture.hasVideo && selectedVideo?.url ? (
                             <div className="relative w-full h-full group cursor-pointer" onClick={() => handleWatchVideo(selectedFixture)}>
                               {/* Match Preview with Logos and Score */}
@@ -401,54 +383,7 @@ export default function Videos() {
                               </div>
                             </div>
                           )}
-                        </div>
-                      </TabsContent>
-
-                      {/* Match Events Tab Content */}
-                      <TabsContent value="match-events" className="mt-4">
-                        <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
-                          <p className="text-muted-foreground">Match events timeline coming soon</p>
-                        </div>
-                      </TabsContent>
-
-                      {/* Team Stats Tab Content */}
-                      <TabsContent value="team-stats" className="mt-4">
-                        {isLoadingStats ? (
-                          <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
-                            <p className="text-muted-foreground">Loading statistics...</p>
-                          </div>
-                        ) : matchStats && matchStats.length > 0 ? (
-                          <div className="space-y-3">
-                            {matchStats.map((stat, idx) => (
-                              <div key={idx} className="p-4 border rounded-lg bg-muted/20">
-                                <h4 className="text-sm font-semibold mb-3">
-                                  {stat.isTeamStats ? 'Team Stats' : 'Opponent Stats'} - {stat.period.replace('_', ' ')}
-                                </h4>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                  {stat.possession !== null && <div><span className="font-medium">Possession:</span> {stat.possession}%</div>}
-                                  {stat.goals !== null && <div><span className="font-medium">Goals:</span> {stat.goals}</div>}
-                                  {stat.shotsOnTarget !== null && <div><span className="font-medium">Shots on Target:</span> {stat.shotsOnTarget}</div>}
-                                  {stat.shotsAttempted !== null && <div><span className="font-medium">Total Shots:</span> {stat.shotsAttempted}</div>}
-                                  {stat.passingSuccessRate !== null && <div><span className="font-medium">Pass Accuracy:</span> {stat.passingSuccessRate}%</div>}
-                                  {stat.tackles !== null && <div><span className="font-medium">Tackles:</span> {stat.tackles}</div>}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
-                            <p className="text-muted-foreground">No statistics available for this match</p>
-                          </div>
-                        )}
-                      </TabsContent>
-
-                      {/* Spider Charts Tab Content */}
-                      <TabsContent value="spider-charts" className="mt-4">
-                        <div className="p-6 border rounded-lg bg-muted/20 min-h-[400px] flex items-center justify-center">
-                          <p className="text-muted-foreground">Performance spider charts coming soon</p>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
+                    </div>
                   </div>
                 </div>
               </CardContent>
