@@ -59,7 +59,7 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
   // Mutations for competition management
   const updateCompetitionMutation = useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      return apiRequest("PUT", `/api/competitions/${id}`, { name });
+      return apiRequest("PATCH", `/api/competitions/${id}`, { name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
