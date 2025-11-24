@@ -21,7 +21,6 @@ export default function Videos() {
   const [activeFilter, setActiveFilter] = useState<VideoFilter>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
-  const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [, setLocation] = useLocation();
@@ -95,46 +94,18 @@ export default function Videos() {
     return videoFixtures.find(f => f.id === selectedFixtureId) || videoFixtures[0] || null;
   }, [videoFixtures, selectedFixtureId]);
 
-  // Memoized camera options from fixture video links
-  const cameraOptions = useMemo(() => {
-    if (!selectedFixture?.videoLinks || !Array.isArray(selectedFixture.videoLinks)) {
-      // Default camera options
-      return [
-        { value: 'full-match', label: 'Full Match' },
-        { value: '1st-half', label: '1st Half' },
-        { value: '2nd-half', label: '2nd Half' },
-        { value: 'halfway-line', label: 'Halfway Line' },
-        { value: 'behind-goal', label: 'Behind Goal' },
-        { value: 'tactical', label: 'Tactical Camera' },
-      ];
-    }
-    
-    return (selectedFixture.videoLinks as VideoLink[]).map((link: VideoLink) => ({
-      value: link.cameraAngle || link.id,
-      label: link.label || (link.cameraAngle ? link.cameraAngle.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Unknown'),
-    }));
-  }, [selectedFixture]);
-
-  // Memoized selected video link
+  // Get the first video from the selected fixture for preview
   const selectedVideo = useMemo(() => {
     if (!selectedFixture?.videoLinks || !Array.isArray(selectedFixture.videoLinks)) {
       return null;
     }
     const links = selectedFixture.videoLinks as VideoLink[];
-    return links.find((link: VideoLink) => (link.cameraAngle || link.id) === selectedCameraAngle) || links[0] || null;
-  }, [selectedFixture, selectedCameraAngle]);
-
-  // Effect to set default camera angle when fixture changes
-  useEffect(() => {
-    if (cameraOptions.length > 0 && !cameraOptions.find(opt => opt.value === selectedCameraAngle)) {
-      setSelectedCameraAngle(cameraOptions[0].value);
-    }
-  }, [cameraOptions, selectedCameraAngle]);
+    return links[0] || null;
+  }, [selectedFixture]);
 
   const handleWatchVideo = (fixture: Fixture) => {
-    // Navigate to the watch match video page with selected camera angle
-    const cameraParam = selectedCameraAngle ? `&camera=${encodeURIComponent(selectedCameraAngle)}` : '';
-    setLocation(`/watch-match-video?fixtureId=${fixture.id}${cameraParam}`);
+    // Navigate to the watch match video page
+    setLocation(`/watch-match-video?fixtureId=${fixture.id}`);
   };
   
   const scrollLeft = () => {
@@ -294,26 +265,7 @@ export default function Videos() {
                   </div>
 
                   {/* Right Column: Video Preview (60%) */}
-                  <div className="flex-1 md:w-3/5 space-y-3">
-                    {/* Camera Selector */}
-                    {selectedFixture.hasVideo && cameraOptions.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <Camera className="h-4 w-4 text-muted-foreground" />
-                        <Select value={selectedCameraAngle} onValueChange={setSelectedCameraAngle}>
-                          <SelectTrigger className="w-full" data-testid="select-camera-angle">
-                            <SelectValue placeholder="Choose Camera" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {cameraOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    
+                  <div className="flex-1 md:w-3/5">
                     {/* Video Preview */}
                     <div className="aspect-video max-h-[320px] bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-lg overflow-hidden">
                           {selectedFixture.hasVideo && selectedVideo?.url ? (

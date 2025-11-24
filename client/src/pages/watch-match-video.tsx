@@ -279,27 +279,27 @@ export default function WatchMatchVideo() {
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <CardTitle>Match Video Player</CardTitle>
-            {videos.length > 1 && (
-              <Select
-                value={currentVideoId || ''}
-                onValueChange={setSelectedVideoId}
-              >
-                <SelectTrigger className="w-[300px]" data-testid="select-video">
-                  <SelectValue placeholder="Select video" />
-                </SelectTrigger>
-                <SelectContent>
-                  {videos.map((video) => (
-                    <SelectItem key={video.id} value={video.id}>
-                      {getVideoDescription(video)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {videos.length > 0 && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Choose Camera:</label>
+                <Select
+                  value={currentVideoId || ''}
+                  onValueChange={setSelectedVideoId}
+                >
+                  <SelectTrigger className="w-[250px]" data-testid="select-video">
+                    <SelectValue placeholder="Select camera" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {videos.map((video) => (
+                      <SelectItem key={video.id} value={video.id}>
+                        {(video as any).label || getVideoDescription(video)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">
-            {getVideoDescription(currentVideo)}
-          </p>
         </CardHeader>
         <CardContent>
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
