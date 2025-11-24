@@ -6,7 +6,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ExternalLink } from "lucide-react";
 import { Fixture, Team, OppositionTeam, VideoLink, MatchStats, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
@@ -310,20 +310,50 @@ export default function Videos() {
 
                       {/* Video Player Tab Content */}
                       <TabsContent value="video-player" className="mt-4">
-                        <div className="aspect-video max-h-[320px] bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                          {selectedFixture.hasVideo ? (
-                            <div className="text-center">
-                              <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
-                              <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
-                              <Button onClick={() => handleWatchVideo(selectedFixture)}>
-                                <Play className="w-4 h-4 mr-2" />
-                                Watch Full Match
-                              </Button>
+                        <div className="aspect-video max-h-[320px] bg-black rounded-lg overflow-hidden">
+                          {selectedFixture.hasVideo && selectedVideo?.url ? (
+                            <div className="relative w-full h-full group">
+                              <video
+                                src={selectedVideo.url}
+                                controls
+                                className="w-full h-full"
+                                data-testid="video-preview"
+                              >
+                                Your browser does not support the video tag.
+                              </video>
+                              {selectedVideo.label && (
+                                <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                  {selectedVideo.label}
+                                </div>
+                              )}
+                              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => handleWatchVideo(selectedFixture)}
+                                  data-testid="button-fullscreen-video"
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  Full Analysis
+                                </Button>
+                              </div>
+                            </div>
+                          ) : selectedFixture.hasVideo ? (
+                            <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                              <div className="text-center">
+                                <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
+                                <p className="text-base font-medium text-green-800 mb-2">Video Ready</p>
+                                <Button onClick={() => handleWatchVideo(selectedFixture)}>
+                                  <Play className="w-4 h-4 mr-2" />
+                                  Watch Full Match
+                                </Button>
+                              </div>
                             </div>
                           ) : (
-                            <div className="text-center">
-                              <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                              <p className="text-gray-600">Video will be available after match</p>
+                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <div className="text-center">
+                                <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                <p className="text-gray-600">Video will be available after match</p>
+                              </div>
                             </div>
                           )}
                         </div>
