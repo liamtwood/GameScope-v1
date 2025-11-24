@@ -294,7 +294,26 @@ export default function Videos() {
                   </div>
 
                   {/* Right Column: Video Preview (60%) */}
-                  <div className="flex-1 md:w-3/5">
+                  <div className="flex-1 md:w-3/5 space-y-3">
+                    {/* Camera Selector */}
+                    {selectedFixture.hasVideo && cameraOptions.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Camera className="h-4 w-4 text-muted-foreground" />
+                        <Select value={selectedCameraAngle} onValueChange={setSelectedCameraAngle}>
+                          <SelectTrigger className="w-full" data-testid="select-camera-angle">
+                            <SelectValue placeholder="Choose Camera" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {cameraOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    
                     {/* Video Preview */}
                     <div className="aspect-video max-h-[320px] bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-lg overflow-hidden">
                           {selectedFixture.hasVideo && selectedVideo?.url ? (
