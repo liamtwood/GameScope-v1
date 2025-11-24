@@ -6,7 +6,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Fixture, Team, OppositionTeam, VideoLink, MatchStats, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
@@ -25,6 +25,7 @@ export default function Videos() {
   const [selectedCameraAngle, setSelectedCameraAngle] = useState<string>('full-match');
   const [activeTab, setActiveTab] = useState<string>('video-player');
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>('all');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
@@ -58,7 +59,7 @@ export default function Videos() {
     enabled: !!currentTeam?.id
   });
 
-  // Only show matches that have occurred before tomorrow, sorted by date (oldest first)
+  // Only show matches that have occurred before tomorrow, sorted by date
   const videoFixtures = useMemo(() => {
     const filtered = fixtures?.filter(f => {
       const tomorrow = new Date();
@@ -76,9 +77,13 @@ export default function Videos() {
       return isBeforeTomorrow && hasVideoOrRelevant && matchesCompetition;
     }) || [];
     
-    // Sort by date (oldest/earliest first)
-    return filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [fixtures, selectedCompetitionId]);
+    // Sort by date based on sort order
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+  }, [fixtures, selectedCompetitionId, sortOrder]);
 
   // Memoized selected fixture
   const selectedFixture = useMemo(() => {
@@ -378,7 +383,23 @@ export default function Videos() {
           {/* Horizontal Scrolling Fixture Cards */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">All Matches</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold">All Matches</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  title={sortOrder === 'asc' ? 'Sorted: Earliest First (click for Latest First)' : 'Sorted: Latest First (click for Earliest First)'}
+                  data-testid="button-sort-matches"
+                  className="h-8 px-2"
+                >
+                  {sortOrder === 'asc' ? (
+                    <ArrowUp className="h-4 w-4" />
+                  ) : (
+                    <ArrowDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
