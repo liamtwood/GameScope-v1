@@ -314,7 +314,7 @@ export default function Videos() {
                           {selectedFixture.hasVideo && selectedVideo?.url ? (
                             <div className="relative w-full h-full group cursor-pointer" onClick={() => handleWatchVideo(selectedFixture)}>
                               <video
-                                src={selectedVideo.url}
+                                src={`${selectedVideo.url}#t=0.1`}
                                 preload="metadata"
                                 className="w-full h-full object-cover"
                                 data-testid="video-preview"
