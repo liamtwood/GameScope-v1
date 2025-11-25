@@ -6,7 +6,8 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ExternalLink } from "lucide-react";
+import { Play, Share, Clock, Calendar, Video as VideoIcon, Image, Blocks, TvMinimalPlay, Camera, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ExternalLink, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Fixture, Team, OppositionTeam, VideoLink, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
@@ -22,6 +23,7 @@ export default function Videos() {
   const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>('all');
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -74,8 +76,12 @@ export default function Videos() {
       // Filter by competition if one is selected
       const matchesCompetition = selectedCompetitionId === 'all' || f.competitionId === selectedCompetitionId;
       
-      // Include only matches that occurred before tomorrow and match the competition filter
-      return isBeforeTomorrow && hasVideoOrRelevant && matchesCompetition;
+      // Filter by keyword if one is entered (search opponent name)
+      const keyword = searchKeyword.trim().toLowerCase();
+      const matchesKeyword = !keyword || f.opponent.toLowerCase().includes(keyword);
+      
+      // Include only matches that occurred before tomorrow and match all filters
+      return isBeforeTomorrow && hasVideoOrRelevant && matchesCompetition && matchesKeyword;
     }) || [];
     
     // Sort by date based on sort order
@@ -84,7 +90,7 @@ export default function Videos() {
       const dateB = new Date(b.date).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-  }, [fixtures, selectedCompetitionId, sortOrder]);
+  }, [fixtures, selectedCompetitionId, searchKeyword, sortOrder]);
 
   // Memoized selected fixture
   const selectedFixture = useMemo(() => {
@@ -177,6 +183,19 @@ export default function Videos() {
               ))}
             </SelectContent>
           </Select>
+          
+          {/* Keyword Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search opponent..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              className="pl-9 w-[200px]"
+              data-testid="input-search-keyword"
+            />
+          </div>
         </div>
 
         {/* View Mode Toggle */}
