@@ -606,57 +606,14 @@ export default function Videos() {
                       </div>
                       
                       <CardContent className="p-3">
-                        {/* Match Info Row */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">
-                              {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
-                            </p>
-                            <Badge className="bg-gray-100 text-gray-800 text-xs">
-                              {fixture.type === 'HOME' ? 'Home' : 'Away'}
-                            </Badge>
-                          </div>
-                          {getMatchBadge(fixture)}
-                        </div>
-                        
-                        {/* Action Row */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            {fixture.hasVideo ? (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>Video Available</span>
-                              </>
-                            ) : (
-                              <>
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  {fixture.status === 'SCHEDULED' 
-                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                                    : 'Pending'
-                                  }
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant={fixture.hasVideo ? "default" : "outline"}
-                            className="text-xs px-3 py-1 h-6"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleWatchVideo(fixture);
-                            }}
-                          >
-                            {fixture.hasVideo ? (
-                              <>
-                                <Play className="w-3 h-3 mr-1" />
-                                Analyze
-                              </>
-                            ) : (
-                              'View Match'
-                            )}
-                          </Button>
+                        {/* Match Info */}
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">
+                            {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
+                          </p>
+                          <Badge className="bg-gray-100 text-gray-800 text-xs">
+                            {fixture.type === 'HOME' ? 'Home' : 'Away'}
+                          </Badge>
                         </div>
                       </CardContent>
                     </Card>
