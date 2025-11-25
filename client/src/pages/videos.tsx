@@ -538,118 +538,125 @@ export default function Videos() {
                   {fixtures.map((fixture) => (
                     <Card 
                       key={fixture.id} 
-                      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" 
+                      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group" 
                       data-testid={`card-video-${fixture.id}`}
                       onClick={() => handleWatchVideo(fixture)}
                     >
-                      {/* Video Thumbnail */}
-                      <div className="w-full h-48 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                        {fixture.hasVideo ? (
-                          <div className="text-center">
-                            <VideoIcon className="w-12 h-12 text-club-primary mx-auto mb-2" />
-                            <p className="text-sm font-medium text-green-800">Video Available</p>
+                      {/* Video Preview with Logos and Score */}
+                      <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 flex items-center justify-between px-6">
+                        {/* Club Logo */}
+                        <div className="flex flex-col items-center gap-1">
+                          {(() => {
+                            const club = clubs?.find(c => c.id === currentTeam?.clubId);
+                            return club?.logoPath ? (
+                              <img 
+                                src={club.logoPath} 
+                                alt="Club logo"
+                                className="w-14 h-14 object-contain"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full flex items-center justify-center text-lg font-bold">
+                                {currentTeam?.name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() || 'HM'}
+                              </div>
+                            );
+                          })()}
+                          <p className="text-xs font-medium text-center max-w-[70px] truncate">{currentTeam?.name || 'Home'}</p>
+                        </div>
+
+                        {/* Score & Play Button */}
+                        <div className="flex flex-col items-center gap-2">
+                          {fixture.status === 'COMPLETED' ? (
+                            <div className="text-2xl font-bold">
+                              {fixture.type === 'HOME' 
+                                ? `${fixture.homeScore ?? '-'} - ${fixture.awayScore ?? '-'}`
+                                : `${fixture.awayScore ?? '-'} - ${fixture.homeScore ?? '-'}`
+                              }
+                            </div>
+                          ) : (
+                            <div className="text-sm font-medium text-muted-foreground">
+                              {format(new Date(fixture.date), 'MMM d')}
+                            </div>
+                          )}
+                          <div className="bg-white/90 dark:bg-gray-900/90 rounded-full p-3 group-hover:scale-110 transition-transform">
+                            <Play className="w-5 h-5 text-gray-900 dark:text-white" />
                           </div>
-                        ) : (
-                          <div className="text-center">
-                            <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                            <p className="text-sm text-gray-600">Video will be available after match</p>
-                          </div>
-                        )}
+                          {!fixture.hasVideo && (
+                            <p className="text-xs text-muted-foreground">No video</p>
+                          )}
+                        </div>
+
+                        {/* Opposition Team */}
+                        <div className="flex flex-col items-center gap-1">
+                          {(() => {
+                            const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                            return opponent?.logoPath ? (
+                              <img 
+                                src={opponent.logoPath} 
+                                alt={`${fixture.opponent} logo`}
+                                className="w-14 h-14 object-contain"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full flex items-center justify-center text-lg font-bold">
+                                {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
+                              </div>
+                            );
+                          })()}
+                          <p className="text-xs font-medium text-center max-w-[70px] truncate">{fixture.opponent}</p>
+                        </div>
                       </div>
                       
-                      <CardContent className="p-4">
-                        <div className="grid grid-cols-[80px_1fr_auto] gap-4 items-center">
-                          {/* Column 1: Opponent Logo */}
-                          <div className="flex justify-center">
-                            {(() => {
-                              const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
-                              return opponent?.logoPath ? (
-                                <img 
-                                  src={opponent.logoPath} 
-                                  alt={`${fixture.opponent} logo`}
-                                  className="w-16 h-16 object-contain flex-shrink-0"
-                                  onError={(e) => {
-                                    // Fallback to initials if image fails to load
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    target.nextElementSibling?.classList.remove('hidden');
-                                  }}
-                                />
-                              ) : null;
-                            })()}
-                            <div className={`w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0 ${
-                              oppositionTeams?.find(team => team.name === fixture.opponent)?.logoPath ? 'hidden' : ''
-                            }`}>
-                              {fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase()}
-                            </div>
-                          </div>
-
-                          {/* Column 2: Opponent Info */}
-                          <div className="space-y-1">
-                            {/* Row 1: Opponent Name */}
-                            <h3 className="font-semibold text-foreground text-sm leading-tight">
-                              {fixture.opponent}
-                            </h3>
-                            
-                            {/* Row 2: Date and Time */}
-                            <p className="text-xs text-muted-foreground">
+                      <CardContent className="p-3">
+                        {/* Match Info Row */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium">
                               {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
                             </p>
-                            
-                            {/* Row 3: Result Pill */}
-                            <div>
-                              {getMatchBadge(fixture)}
-                            </div>
-                          </div>
-
-                          {/* Column 3: Home/Away Pill */}
-                          <div className="flex justify-end">
-                            <Badge className="bg-gray-100 text-gray-800">
+                            <Badge className="bg-gray-100 text-gray-800 text-xs">
                               {fixture.type === 'HOME' ? 'Home' : 'Away'}
                             </Badge>
                           </div>
+                          {getMatchBadge(fixture)}
                         </div>
                         
-                        {/* Video Duration Info */}
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                              {fixture.hasVideo ? (
-                                <>
-                                  <Clock className="w-3 h-3" />
-                                  <span>Video Available</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Calendar className="w-3 h-3" />
-                                  <span>
-                                    {fixture.status === 'SCHEDULED' 
-                                      ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
-                                      : 'Pending'
-                                    }
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant={fixture.hasVideo ? "default" : "outline"}
-                              className="text-xs px-3 py-1 h-6"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleWatchVideo(fixture);
-                              }}
-                            >
-                              {fixture.hasVideo ? (
-                                <>
-                                  <Play className="w-3 h-3 mr-1" />
-                                  Analyze
-                                </>
-                              ) : (
-                                'View Match'
-                              )}
-                            </Button>
+                        {/* Action Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            {fixture.hasVideo ? (
+                              <>
+                                <Clock className="w-3 h-3" />
+                                <span>Video Available</span>
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {fixture.status === 'SCHEDULED' 
+                                    ? `In ${Math.ceil((new Date(fixture.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                                    : 'Pending'
+                                  }
+                                </span>
+                              </>
+                            )}
                           </div>
+                          <Button 
+                            size="sm" 
+                            variant={fixture.hasVideo ? "default" : "outline"}
+                            className="text-xs px-3 py-1 h-6"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleWatchVideo(fixture);
+                            }}
+                          >
+                            {fixture.hasVideo ? (
+                              <>
+                                <Play className="w-3 h-3 mr-1" />
+                                Analyze
+                              </>
+                            ) : (
+                              'View Match'
+                            )}
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
