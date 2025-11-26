@@ -43,13 +43,10 @@ export const teams = pgTable("teams", {
   name: text("name").notNull(),
   shortName: varchar("short_name", { length: 10 }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("ACTIVE"),
-  coach: text("coach"),
-  assistantCoach: text("assistant_coach"),
   ageGroup: text("age_group"),
   gender: varchar("gender", { length: 20 }),
-  season: varchar("season", { length: 20 }),
-  seasonStartMonth: varchar("season_start_month", { length: 20 }).default("inherit"), // inherit from club
-  colors: jsonb("colors"), // Primary and secondary team colors
+  seasonStartMonth: varchar("season_start_month", { length: 20 }).default("inherit"),
+  colors: jsonb("colors"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
