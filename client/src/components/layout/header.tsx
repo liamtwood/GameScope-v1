@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings, LayoutDashboard } from "lucide-react";
@@ -5,6 +6,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
 import { useClub } from "@/contexts/club-context";
+import { useTab } from "@/contexts/tab-context";
 import { PageRequirementsDialog } from "@/components/page-requirements-dialog";
 import { BugReportDialog } from "@/components/bug-report-dialog";
 
@@ -22,6 +24,13 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
 
   // Use club context for active club
   const { selectedClub: currentClub } = useClub();
+  
+  // Use tab context to track page title
+  const { setPageTitle, getFullArea } = useTab();
+  
+  useEffect(() => {
+    setPageTitle(title);
+  }, [title, setPageTitle]);
 
   // Use current club's logo instead of hardcoded GameScope
   const logoSrc = currentClub?.logoPath || "/assets/logos/polk-state-logo-transparent.png";
@@ -117,7 +126,7 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
             </div>
             
             <div className="flex items-center gap-1">
-                  <BugReportDialog pageTitle={title} />
+                  <BugReportDialog />
                   <PageRequirementsDialog />
                 </div>
           </div>

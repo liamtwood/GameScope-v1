@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { useClub } from "@/contexts/club-context";
+import { useTab } from "@/contexts/tab-context";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +29,21 @@ export default function FixtureDetails() {
   const tabParam = urlParams.get('tab');
   const videoIdParam = urlParams.get('videoId');
   
-  const [activeTab, setActiveTab] = useState(tabParam || "details");
+  const [activeTab, setActiveTabLocal] = useState(tabParam || "details");
+  
+  // Sync with TabContext
+  const { setActiveTab: setTabContext } = useTab();
+  
+  const setActiveTab = (tab: string) => {
+    setActiveTabLocal(tab);
+    setTabContext(tab);
+  };
+  
+  // Sync on mount and tab change, clear on unmount
+  useEffect(() => {
+    setTabContext(activeTab);
+    return () => setTabContext(null);
+  }, [activeTab, setTabContext]);
   
   // Get the currently selected club
   const { selectedClub } = useClub();

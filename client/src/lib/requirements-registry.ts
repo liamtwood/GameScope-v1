@@ -312,21 +312,79 @@ export const requirementsRegistry: PageRequirements[] = [
     section: "team",
     overview: "Manage team fixtures, schedules, and match planning with video upload capabilities.",
     functionalRequirements: [
-      { id: "FIX-FR-1", title: "Season Tab", description: "View and manage all fixtures for the season. Filter by competition. Create, edit, and delete fixtures." },
-      { id: "FIX-FR-2", title: "Planning Tab", description: "Calendar view of upcoming fixtures with month navigation." },
-      { id: "FIX-FR-3", title: "Videos Tab", description: "Upload and manage match videos for fixtures. Support for multiple camera angles per fixture with labels." },
-      { id: "FIX-FR-4", title: "Logos Tab", description: "Manage team logos with background removal. Individual theme controls per logo container." },
-      { id: "FIX-FR-5", title: "Fixture Creation", description: "Single-screen fixture creation with inline opponent and competition management." },
-      { id: "FIX-FR-6", title: "Competition Management", description: "Create and manage competitions on-the-fly during fixture creation." },
-      { id: "FIX-FR-7", title: "Excel Import", description: "Import fixtures from Excel files with automatic field mapping." },
+      { id: "FIX-FR-1", title: "Tab Navigation", description: "Navigate between Season, Planning, Videos, and Logos tabs." },
+      { id: "FIX-FR-2", title: "Fixture Creation", description: "Single-screen fixture creation with inline opponent and competition management." },
+      { id: "FIX-FR-3", title: "Competition Management", description: "Create and manage competitions on-the-fly during fixture creation." },
+      { id: "FIX-FR-4", title: "Excel Import", description: "Import fixtures from Excel files with automatic field mapping." },
     ],
     acceptanceCriteria: [
       { id: "FIX-AC-1", description: "Fixtures can be created with opponent, date, venue, and competition" },
       { id: "FIX-AC-2", description: "Fixtures can be edited and scores updated" },
-      { id: "FIX-AC-3", description: "Videos can be uploaded with labels and associated with fixtures" },
-      { id: "FIX-AC-4", description: "Multiple camera angles supported per fixture" },
-      { id: "FIX-AC-5", description: "Competitions can be created inline during fixture creation" },
-      { id: "FIX-AC-6", description: "Excel import correctly maps columns to fixture fields" },
+      { id: "FIX-AC-3", description: "Tab state persists during navigation" },
+    ],
+    tabs: [
+      {
+        id: "fixtures-season",
+        name: "Season",
+        overview: "View and manage all fixtures for the current season.",
+        functionalRequirements: [
+          { id: "FIX-SEA-FR-1", title: "Fixture List", description: "Display all fixtures in a table with sortable columns." },
+          { id: "FIX-SEA-FR-2", title: "Competition Filter", description: "Filter fixtures by competition type." },
+          { id: "FIX-SEA-FR-3", title: "Quick Actions", description: "Edit, delete, and view fixture details from the list." },
+          { id: "FIX-SEA-FR-4", title: "Score Display", description: "Show match scores for completed fixtures." },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-SEA-AC-1", description: "All fixtures display in chronological order" },
+          { id: "FIX-SEA-AC-2", description: "Filtering by competition works correctly" },
+          { id: "FIX-SEA-AC-3", description: "Fixture status badges display correctly" },
+        ],
+      },
+      {
+        id: "fixtures-planning",
+        name: "Planning",
+        overview: "Calendar view of upcoming fixtures for match planning.",
+        functionalRequirements: [
+          { id: "FIX-PLN-FR-1", title: "Calendar View", description: "Display fixtures in a monthly calendar format." },
+          { id: "FIX-PLN-FR-2", title: "Month Navigation", description: "Navigate between months to view different periods." },
+          { id: "FIX-PLN-FR-3", title: "Fixture Preview", description: "Click on a date to see fixture details." },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-PLN-AC-1", description: "Calendar displays correct dates and fixtures" },
+          { id: "FIX-PLN-AC-2", description: "Month navigation updates the view" },
+        ],
+      },
+      {
+        id: "fixtures-videos",
+        name: "Videos",
+        overview: "Upload and manage match videos for fixtures.",
+        functionalRequirements: [
+          { id: "FIX-VID-FR-1", title: "Video Upload", description: "Upload match videos and associate with fixtures." },
+          { id: "FIX-VID-FR-2", title: "Camera Angles", description: "Support multiple camera angles per fixture with labels." },
+          { id: "FIX-VID-FR-3", title: "Video Preview", description: "Preview uploaded videos before saving." },
+          { id: "FIX-VID-FR-4", title: "Video Delete", description: "Remove videos from fixtures." },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-VID-AC-1", description: "Videos can be uploaded successfully" },
+          { id: "FIX-VID-AC-2", description: "Multiple camera angles supported per fixture" },
+          { id: "FIX-VID-AC-3", description: "Video labels display correctly" },
+        ],
+      },
+      {
+        id: "fixtures-logos",
+        name: "Logos",
+        overview: "Manage team logos with background removal capabilities.",
+        functionalRequirements: [
+          { id: "FIX-LOG-FR-1", title: "Logo Display", description: "Show all team logos in a grid view." },
+          { id: "FIX-LOG-FR-2", title: "Background Removal", description: "Remove backgrounds from logos using smart, color-based, or manual modes." },
+          { id: "FIX-LOG-FR-3", title: "Theme Controls", description: "Individual light/dark theme toggles per logo container." },
+          { id: "FIX-LOG-FR-4", title: "Image Comparison", description: "Side-by-side view of original vs processed logos." },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-LOG-AC-1", description: "Logos display correctly in containers" },
+          { id: "FIX-LOG-AC-2", description: "Background removal works with different modes" },
+          { id: "FIX-LOG-AC-3", description: "Theme controls persist in localStorage" },
+        ],
+      },
     ],
   },
   {
@@ -688,6 +746,12 @@ function buildPageTree(page: PageRequirements): PageWithChildren {
 export function buildHierarchy(section: PageRequirements['section']): PageWithChildren[] {
   const roots = getRootPages(section);
   return roots.map(root => buildPageTree(root));
+}
+
+export function getTabRequirements(route: string, tabName: string): TabRequirements | null {
+  const page = getRequirementsByRoute(route);
+  if (!page || !page.tabs) return null;
+  return page.tabs.find(tab => tab.name.toLowerCase() === tabName.toLowerCase()) || null;
 }
 
 export const sectionTitles: Record<PageRequirements['section'], string> = {

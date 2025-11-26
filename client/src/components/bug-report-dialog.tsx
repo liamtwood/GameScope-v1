@@ -9,22 +9,20 @@ import { Bug, Lightbulb, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
-interface BugReportDialogProps {
-  pageTitle: string;
-}
+import { useTab } from "@/contexts/tab-context";
 
 type ReportType = 'bug' | 'enhancement';
 
-export function BugReportDialog({ pageTitle }: BugReportDialogProps) {
+export function BugReportDialog() {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { getFullArea } = useTab();
   
   const [formData, setFormData] = useState({
     id: "",
     date: new Date().toISOString().split('T')[0],
     type: "bug" as ReportType,
-    area: pageTitle,
+    area: "",
     description: "",
     priority: "medium" as 'low' | 'medium' | 'high' | 'critical',
     status: "open" as 'open' | 'in_progress' | 'resolved' | 'closed',
@@ -32,17 +30,18 @@ export function BugReportDialog({ pageTitle }: BugReportDialogProps) {
 
   useEffect(() => {
     if (open) {
+      const fullArea = getFullArea();
       setFormData(prev => ({
         ...prev,
         id: `${prev.type === 'bug' ? 'BUG' : 'ENH'}-${String(Date.now()).slice(-4)}`,
         date: new Date().toISOString().split('T')[0],
-        area: pageTitle,
+        area: fullArea,
         description: "",
         priority: "medium",
         status: "open",
       }));
     }
-  }, [open, pageTitle]);
+  }, [open, getFullArea]);
 
   useEffect(() => {
     setFormData(prev => ({
