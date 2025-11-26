@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDevopsDataModelSchema, insertDevopsChangeLogSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -4862,6 +4862,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return null;
     }
   }
+
+  // ============= DevOps Requirements Management API =============
+  
+  // Seed requirements data endpoint
+  app.post("/api/devops/seed", async (req, res) => {
+    try {
+      await storage.seedRequirementsData();
+      res.json({ message: "Requirements data seeded successfully" });
+    } catch (error) {
+      console.error("Error seeding requirements data:", error);
+      res.status(500).json({ message: "Failed to seed requirements data", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Page Requirements CRUD
+  app.get("/api/devops/requirements", async (req, res) => {
+    try {
+      const requirements = await storage.getPageRequirements();
+      res.json(requirements);
+    } catch (error) {
+      console.error("Error fetching requirements:", error);
+      res.status(500).json({ message: "Failed to fetch requirements" });
+    }
+  });
+
+  app.get("/api/devops/requirements/:id", async (req, res) => {
+    try {
+      const requirement = await storage.getPageRequirement(req.params.id);
+      if (!requirement) {
+        return res.status(404).json({ message: "Requirement not found" });
+      }
+      res.json(requirement);
+    } catch (error) {
+      console.error("Error fetching requirement:", error);
+      res.status(500).json({ message: "Failed to fetch requirement" });
+    }
+  });
+
+  app.post("/api/devops/requirements", async (req, res) => {
+    try {
+      const validated = insertPageRequirementsSchema.parse(req.body);
+      const requirement = await storage.createPageRequirement(validated);
+      res.status(201).json(requirement);
+    } catch (error) {
+      console.error("Error creating requirement:", error);
+      res.status(400).json({ message: "Failed to create requirement", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/devops/requirements/:id", async (req, res) => {
+    try {
+      const validated = insertPageRequirementsSchema.partial().parse(req.body);
+      const requirement = await storage.updatePageRequirement(req.params.id, validated);
+      res.json(requirement);
+    } catch (error) {
+      console.error("Error updating requirement:", error);
+      res.status(400).json({ message: "Failed to update requirement", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/devops/requirements/:id", async (req, res) => {
+    try {
+      await storage.deletePageRequirement(req.params.id);
+      res.json({ message: "Requirement deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting requirement:", error);
+      res.status(500).json({ message: "Failed to delete requirement" });
+    }
+  });
+
+  // Data Models CRUD
+  app.get("/api/devops/data-models", async (req, res) => {
+    try {
+      const models = await storage.getDevopsDataModels();
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching data models:", error);
+      res.status(500).json({ message: "Failed to fetch data models" });
+    }
+  });
+
+  app.get("/api/devops/data-models/:id", async (req, res) => {
+    try {
+      const model = await storage.getDevopsDataModel(req.params.id);
+      if (!model) {
+        return res.status(404).json({ message: "Data model not found" });
+      }
+      res.json(model);
+    } catch (error) {
+      console.error("Error fetching data model:", error);
+      res.status(500).json({ message: "Failed to fetch data model" });
+    }
+  });
+
+  app.post("/api/devops/data-models", async (req, res) => {
+    try {
+      const validated = insertDevopsDataModelSchema.parse(req.body);
+      const model = await storage.createDevopsDataModel(validated);
+      res.status(201).json(model);
+    } catch (error) {
+      console.error("Error creating data model:", error);
+      res.status(400).json({ message: "Failed to create data model", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/devops/data-models/:id", async (req, res) => {
+    try {
+      const validated = insertDevopsDataModelSchema.partial().parse(req.body);
+      const model = await storage.updateDevopsDataModel(req.params.id, validated);
+      res.json(model);
+    } catch (error) {
+      console.error("Error updating data model:", error);
+      res.status(400).json({ message: "Failed to update data model", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/devops/data-models/:id", async (req, res) => {
+    try {
+      await storage.deleteDevopsDataModel(req.params.id);
+      res.json({ message: "Data model deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting data model:", error);
+      res.status(500).json({ message: "Failed to delete data model" });
+    }
+  });
+
+  // Change Log CRUD
+  app.get("/api/devops/changelog", async (req, res) => {
+    try {
+      const entries = await storage.getDevopsChangeLogs();
+      res.json(entries);
+    } catch (error) {
+      console.error("Error fetching change log:", error);
+      res.status(500).json({ message: "Failed to fetch change log" });
+    }
+  });
+
+  app.get("/api/devops/changelog/:id", async (req, res) => {
+    try {
+      const entry = await storage.getDevopsChangeLog(req.params.id);
+      if (!entry) {
+        return res.status(404).json({ message: "Change log entry not found" });
+      }
+      res.json(entry);
+    } catch (error) {
+      console.error("Error fetching change log entry:", error);
+      res.status(500).json({ message: "Failed to fetch change log entry" });
+    }
+  });
+
+  app.post("/api/devops/changelog", async (req, res) => {
+    try {
+      const validated = insertDevopsChangeLogSchema.parse(req.body);
+      const entry = await storage.createDevopsChangeLog(validated);
+      res.status(201).json(entry);
+    } catch (error) {
+      console.error("Error creating change log entry:", error);
+      res.status(400).json({ message: "Failed to create change log entry", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/devops/changelog/:id", async (req, res) => {
+    try {
+      const validated = insertDevopsChangeLogSchema.partial().parse(req.body);
+      const entry = await storage.updateDevopsChangeLog(req.params.id, validated);
+      res.json(entry);
+    } catch (error) {
+      console.error("Error updating change log entry:", error);
+      res.status(400).json({ message: "Failed to update change log entry", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/devops/changelog/:id", async (req, res) => {
+    try {
+      await storage.deleteDevopsChangeLog(req.params.id);
+      res.json({ message: "Change log entry deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting change log entry:", error);
+      res.status(500).json({ message: "Failed to delete change log entry" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
