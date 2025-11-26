@@ -76,9 +76,22 @@ export function PageRequirementsDialog() {
   const currentTabReqs = hasTabs && activeTab 
     ? requirements.tabs?.find(t => t.name.toLowerCase() === activeTab.toLowerCase())
     : null;
+  
+  // Controlled tab value: show specific tab's requirements if user is on that tab
+  const [selectedReqTab, setSelectedReqTab] = useState<string>("page");
+  
+  // Update selected tab when dialog opens or activeTab changes
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen && currentTabReqs) {
+      setSelectedReqTab(currentTabReqs.id);
+    } else if (isOpen) {
+      setSelectedReqTab("page");
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button 
           variant="ghost" 
@@ -106,16 +119,18 @@ export function PageRequirementsDialog() {
         </DialogHeader>
         <ScrollArea className="h-[60vh] pr-4">
           {hasTabs ? (
-            <Tabs defaultValue={currentTabReqs ? "tab" : "page"} className="w-full">
+            <Tabs value={selectedReqTab} onValueChange={setSelectedReqTab} className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="page">Page Overview</TabsTrigger>
                 {requirements.tabs?.map(tab => (
                   <TabsTrigger 
                     key={tab.id} 
                     value={tab.id}
-                    className={currentTabReqs?.id === tab.id ? "ring-2 ring-primary" : ""}
                   >
                     {tab.name}
+                    {currentTabReqs?.id === tab.id && (
+                      <span className="ml-1 text-xs text-primary">(current)</span>
+                    )}
                   </TabsTrigger>
                 ))}
               </TabsList>
