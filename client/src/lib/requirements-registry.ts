@@ -17,6 +17,22 @@ export interface ChangeLogEntry {
   description: string;
 }
 
+export interface DataModelField {
+  name: string;
+  type: string;
+  mandatory: boolean;
+  defaultValue?: string;
+  listOfValues?: string[];
+  description?: string;
+}
+
+export interface DataModel {
+  id: string;
+  name: string;
+  description: string;
+  fields: DataModelField[];
+}
+
 export interface PageRequirements {
   id: string;
   title: string;
@@ -63,6 +79,149 @@ export const changeLog: ChangeLogEntry[] = [
     type: "changed",
     area: "Logos",
     description: "Migrated all logo uploads from filesystem to cloud object storage for production compatibility.",
+  },
+];
+
+export const dataModels: DataModel[] = [
+  {
+    id: "fixture",
+    name: "Fixture",
+    description: "Represents a scheduled or completed match between the team and an opponent.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "teamId", type: "UUID (FK)", mandatory: true, description: "Reference to the team playing" },
+      { name: "opponent", type: "Text", mandatory: true, description: "Name of the opposing team" },
+      { name: "oppositionTeamId", type: "UUID (FK)", mandatory: false, description: "Reference to opposition team record" },
+      { name: "date", type: "Timestamp", mandatory: true, description: "Date and time of the match" },
+      { name: "venue", type: "Text", mandatory: true, description: "Location where match is played" },
+      { name: "type", type: "Varchar(20)", mandatory: true, listOfValues: ["HOME", "AWAY", "NEUTRAL"], description: "Match venue type" },
+      { name: "status", type: "Varchar(20)", mandatory: true, defaultValue: "SCHEDULED", listOfValues: ["SCHEDULED", "COMPLETED", "CANCELLED", "NO_CONTEST"], description: "Current match status" },
+      { name: "homeScore", type: "Integer", mandatory: false, description: "Goals scored by home team" },
+      { name: "awayScore", type: "Integer", mandatory: false, description: "Goals scored by away team" },
+      { name: "competitionId", type: "UUID (FK)", mandatory: false, description: "Reference to competition" },
+      { name: "notes", type: "Text", mandatory: false, description: "Additional match notes" },
+      { name: "report", type: "Text", mandatory: false, description: "Match report text" },
+      { name: "attendance", type: "Integer", mandatory: false, description: "Number of attendees" },
+      { name: "hasVideo", type: "Boolean", mandatory: false, defaultValue: "false", description: "Whether match has video" },
+      { name: "videoLinks", type: "JSONB", mandatory: false, description: "Array of video link objects" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "team",
+    name: "Team",
+    description: "Represents a team within a club organization.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "clubId", type: "UUID (FK)", mandatory: true, description: "Reference to parent club" },
+      { name: "name", type: "Text", mandatory: true, description: "Full team name" },
+      { name: "shortName", type: "Varchar(10)", mandatory: true, description: "Abbreviated team name" },
+      { name: "status", type: "Varchar(20)", mandatory: true, defaultValue: "ACTIVE", listOfValues: ["ACTIVE", "INACTIVE", "ARCHIVED"], description: "Team status" },
+      { name: "ageGroup", type: "Text", mandatory: false, description: "Age category (e.g., U18, College)" },
+      { name: "gender", type: "Varchar(20)", mandatory: false, listOfValues: ["Men", "Women", "Mixed"], description: "Team gender category" },
+      { name: "seasonStartMonth", type: "Varchar(20)", mandatory: false, defaultValue: "inherit", description: "When season starts" },
+      { name: "colors", type: "JSONB", mandatory: false, description: "Primary and secondary colors" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "club",
+    name: "Club",
+    description: "Represents a sports club organization that contains multiple teams.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "name", type: "Text", mandatory: true, description: "Full club name" },
+      { name: "shortName", type: "Text", mandatory: true, defaultValue: "PSC", description: "Abbreviated club name" },
+      { name: "owner", type: "Text", mandatory: true, description: "Club owner name" },
+      { name: "logoPath", type: "Text", mandatory: false, description: "Path to club logo" },
+      { name: "address", type: "Text", mandatory: false, description: "Street address" },
+      { name: "city", type: "Text", mandatory: false, description: "City" },
+      { name: "state", type: "Text", mandatory: false, description: "State/Province" },
+      { name: "country", type: "Text", mandatory: false, description: "Country" },
+      { name: "phone", type: "Text", mandatory: false, description: "Contact phone" },
+      { name: "email", type: "Text", mandatory: false, description: "Contact email" },
+      { name: "website", type: "Text", mandatory: false, description: "Website URL" },
+      { name: "colors", type: "JSONB", mandatory: false, description: "Primary and secondary colors" },
+      { name: "timezone", type: "Text", mandatory: false, defaultValue: "UTC", description: "Club timezone" },
+      { name: "seasonStartMonth", type: "Varchar(20)", mandatory: false, defaultValue: "August", description: "Default season start" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "competition",
+    name: "Competition",
+    description: "Represents a league, tournament, or cup competition.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "name", type: "Text", mandatory: true, description: "Competition name (unique)" },
+      { name: "shortName", type: "Varchar(10)", mandatory: false, description: "Abbreviated name" },
+      { name: "logoPath", type: "Text", mandatory: false, description: "Path to competition logo" },
+      { name: "seasonStartMonth", type: "Varchar(20)", mandatory: false, defaultValue: "inherit", description: "Season start month" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "user",
+    name: "User (Player/Coach/Admin)",
+    description: "Represents a user in the system who can be a player, coach, admin, or parent.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "username", type: "Text", mandatory: false, description: "Login username (unique)" },
+      { name: "password", type: "Text", mandatory: false, description: "Hashed password" },
+      { name: "firstName", type: "Text", mandatory: true, description: "First name" },
+      { name: "lastName", type: "Text", mandatory: true, description: "Last name" },
+      { name: "shirtName", type: "Text", mandatory: false, description: "Name on jersey" },
+      { name: "dateOfBirth", type: "Timestamp", mandatory: false, description: "Date of birth" },
+      { name: "gender", type: "Varchar(10)", mandatory: false, listOfValues: ["Male", "Female", "Other"], description: "Gender" },
+      { name: "avatarPath", type: "Text", mandatory: false, description: "Profile photo path" },
+      { name: "headshotPath", type: "Text", mandatory: false, description: "Headshot photo path" },
+      { name: "height", type: "Text", mandatory: false, description: "Height (e.g., 5-7)" },
+      { name: "hometown", type: "Text", mandatory: false, description: "Hometown" },
+      { name: "classYear", type: "Varchar(20)", mandatory: false, listOfValues: ["Freshman", "Sophomore", "Junior", "Senior"], description: "Academic year" },
+      { name: "email", type: "Text", mandatory: false, description: "Email address" },
+      { name: "phone", type: "Text", mandatory: false, description: "Phone number" },
+      { name: "role", type: "Varchar(20)", mandatory: true, defaultValue: "Player", listOfValues: ["Player", "Coach", "Admin", "Parent"], description: "User role" },
+      { name: "status", type: "Varchar(20)", mandatory: false, defaultValue: "Draft", listOfValues: ["Draft", "Active", "Suspended", "Retired"], description: "Account status" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "oppositionTeam",
+    name: "Opposition Team",
+    description: "Represents an opposing team that can be played against in fixtures.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "name", type: "Text", mandatory: true, description: "Team name (unique)" },
+      { name: "shortName", type: "Varchar(10)", mandatory: false, description: "Abbreviated name" },
+      { name: "logoPath", type: "Text", mandatory: false, description: "Path to team logo" },
+      { name: "websiteUrl", type: "Text", mandatory: false, description: "Team website" },
+      { name: "colors", type: "JSONB", mandatory: false, description: "Primary and secondary colors" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
+  },
+  {
+    id: "userTeam",
+    name: "User Team Assignment",
+    description: "Links users to teams with team-specific information like jersey number and position.",
+    fields: [
+      { name: "id", type: "UUID", mandatory: true, defaultValue: "Auto-generated", description: "Unique identifier" },
+      { name: "userId", type: "UUID (FK)", mandatory: true, description: "Reference to user" },
+      { name: "teamId", type: "UUID (FK)", mandatory: true, description: "Reference to team" },
+      { name: "jerseyNumber", type: "Integer", mandatory: false, description: "Player jersey number" },
+      { name: "position", type: "Varchar(20)", mandatory: true, listOfValues: ["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LM", "RM", "LW", "RW", "ST", "CF"], description: "Playing position" },
+      { name: "starPlayer", type: "Boolean", mandatory: false, defaultValue: "false", description: "Key player flag" },
+      { name: "fitnessStatus", type: "Varchar(20)", mandatory: false, defaultValue: "Fit", listOfValues: ["Fit", "Injured", "Retired"], description: "Current fitness" },
+      { name: "joinedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "When joined team" },
+      { name: "leftAt", type: "Timestamp", mandatory: false, description: "When left team" },
+      { name: "createdAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Record creation time" },
+      { name: "updatedAt", type: "Timestamp", mandatory: false, defaultValue: "Now", description: "Last update time" },
+    ],
   },
 ];
 

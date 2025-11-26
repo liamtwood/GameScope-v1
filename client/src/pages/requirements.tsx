@@ -5,14 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   requirementsRegistry, 
   changeLog,
+  dataModels,
   sectionTitles,
   type PageRequirements,
   type PageWithChildren,
-  type ChangeLogEntry
+  type ChangeLogEntry,
+  type DataModel
 } from "@/lib/requirements-registry";
 
 const sectionIcons: Record<PageRequirements['section'], typeof Home> = {
@@ -117,6 +120,81 @@ function ChangeLogItem({ entry }: { entry: ChangeLogEntry }) {
   );
 }
 
+function DataModelCard({ model, onSelect }: { model: DataModel; onSelect: (model: DataModel) => void }) {
+  return (
+    <div 
+      className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+      onClick={() => onSelect(model)}
+      data-testid={`datamodel-${model.id}`}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <Database className="h-4 w-4 text-muted-foreground" />
+        <span className="font-medium">{model.name}</span>
+        <Badge variant="outline" className="ml-auto text-xs">{model.fields.length} fields</Badge>
+      </div>
+      <p className="text-xs text-muted-foreground">{model.description}</p>
+    </div>
+  );
+}
+
+function DataModelPanel({ model }: { model: DataModel }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">{model.description}</p>
+      
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="text-xs font-semibold">Field Name</TableHead>
+              <TableHead className="text-xs font-semibold">Type</TableHead>
+              <TableHead className="text-xs font-semibold text-center">Required</TableHead>
+              <TableHead className="text-xs font-semibold">Default</TableHead>
+              <TableHead className="text-xs font-semibold">Values</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {model.fields.map((field) => (
+              <TableRow key={field.name}>
+                <TableCell className="font-mono text-xs">
+                  {field.name}
+                  {field.description && (
+                    <p className="text-muted-foreground font-sans mt-0.5">{field.description}</p>
+                  )}
+                </TableCell>
+                <TableCell className="text-xs">{field.type}</TableCell>
+                <TableCell className="text-center">
+                  {field.mandatory ? (
+                    <Check className="h-4 w-4 text-green-600 mx-auto" />
+                  ) : (
+                    <X className="h-4 w-4 text-muted-foreground mx-auto" />
+                  )}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {field.defaultValue || "-"}
+                </TableCell>
+                <TableCell className="text-xs">
+                  {field.listOfValues ? (
+                    <div className="flex flex-wrap gap-1">
+                      {field.listOfValues.map((val) => (
+                        <Badge key={val} variant="secondary" className="text-xs">
+                          {val}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
 function RequirementsPanel({ page }: { page: PageRequirements }) {
   return (
     <div className="space-y-6">
@@ -175,7 +253,9 @@ function RequirementsPanel({ page }: { page: PageRequirements }) {
 export default function Requirements() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
+  const [selectedModel, setSelectedModel] = useState<DataModel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [modelSheetOpen, setModelSheetOpen] = useState(false);
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
 
@@ -218,6 +298,11 @@ export default function Requirements() {
   const handleSelectPage = (page: PageRequirements) => {
     setSelectedPage(page);
     setSheetOpen(true);
+  };
+
+  const handleSelectModel = (model: DataModel) => {
+    setSelectedModel(model);
+    setModelSheetOpen(true);
   };
 
   const totalPages = requirementsRegistry.length;
@@ -310,6 +395,27 @@ export default function Requirements() {
           </Card>
         )}
 
+        <Card data-testid="card-datamodels">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-indigo-500">
+                <Database className="h-4 w-4 text-white" />
+              </div>
+              <span>Data Models</span>
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {dataModels.length} objects
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {dataModels.map((model) => (
+                <DataModelCard key={model.id} model={model} onSelect={handleSelectModel} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card data-testid="card-changelog">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-base">
@@ -339,6 +445,20 @@ export default function Requirements() {
           </SheetHeader>
           <ScrollArea className="h-[calc(100vh-100px)] mt-6 pr-4">
             {selectedPage && <RequirementsPanel page={selectedPage} />}
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={modelSheetOpen} onOpenChange={setModelSheetOpen}>
+        <SheetContent className="w-[700px] sm:max-w-[700px]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              {selectedModel?.name}
+            </SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(100vh-100px)] mt-6 pr-4">
+            {selectedModel && <DataModelPanel model={selectedModel} />}
           </ScrollArea>
         </SheetContent>
       </Sheet>
