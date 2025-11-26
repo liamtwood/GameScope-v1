@@ -453,3 +453,91 @@ export type UserWithTeamData = User & {
 export type InsertPlayer = InsertUser;
 export type Player = User;
 export type PlayerWithTeamData = UserWithTeamData;
+
+// DevOps Requirements Management Tables
+export const pageRequirements = pgTable("page_requirements", {
+  id: varchar("id").primaryKey(),
+  title: text("title").notNull(),
+  route: text("route").notNull(),
+  section: varchar("section", { length: 20 }).notNull(), // home, team, club, devops
+  overview: text("overview").notNull(),
+  parentId: varchar("parent_id"),
+  functionalRequirements: jsonb("functional_requirements").notNull().default([]),
+  acceptanceCriteria: jsonb("acceptance_criteria").notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const devopsDataModels = pgTable("devops_data_models", {
+  id: varchar("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  fields: jsonb("fields").notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const devopsChangeLog = pgTable("devops_change_log", {
+  id: varchar("id").primaryKey(),
+  date: text("date").notNull(),
+  type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement
+  area: text("area").notNull(),
+  description: text("description").notNull(),
+  priority: varchar("priority", { length: 20 }), // low, medium, high, critical (for bugs/enhancements)
+  status: varchar("status", { length: 20 }).default("open"), // open, in_progress, resolved, closed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Zod schemas for requirements types
+const functionalRequirementSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+});
+
+const acceptanceCriteriaSchema = z.object({
+  id: z.string(),
+  description: z.string(),
+});
+
+const dataModelFieldSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  mandatory: z.boolean(),
+  defaultValue: z.string().optional(),
+  listOfValues: z.array(z.string()).optional(),
+  description: z.string().optional(),
+});
+
+// Insert schemas for requirements
+export const insertPageRequirementsSchema = createInsertSchema(pageRequirements)
+  .omit({ createdAt: true, updatedAt: true })
+  .extend({
+    section: z.enum(["home", "team", "club", "devops"]),
+    functionalRequirements: z.array(functionalRequirementSchema),
+    acceptanceCriteria: z.array(acceptanceCriteriaSchema),
+  });
+
+export const insertDevopsDataModelSchema = createInsertSchema(devopsDataModels)
+  .omit({ createdAt: true, updatedAt: true })
+  .extend({
+    fields: z.array(dataModelFieldSchema),
+  });
+
+export const insertDevopsChangeLogSchema = createInsertSchema(devopsChangeLog)
+  .omit({ createdAt: true, updatedAt: true })
+  .extend({
+    type: z.enum(["added", "removed", "changed", "fixed", "bug", "enhancement"]),
+    priority: z.enum(["low", "medium", "high", "critical"]).optional(),
+    status: z.enum(["open", "in_progress", "resolved", "closed"]).optional(),
+  });
+
+// Types for requirements
+export type PageRequirementRecord = typeof pageRequirements.$inferSelect;
+export type DevopsDataModel = typeof devopsDataModels.$inferSelect;
+export type DevopsChangeLog = typeof devopsChangeLog.$inferSelect;
+
+export type InsertPageRequirement = z.infer<typeof insertPageRequirementsSchema>;
+export type InsertDevopsDataModel = z.infer<typeof insertDevopsDataModelSchema>;
+export type InsertDevopsChangeLog = z.infer<typeof insertDevopsChangeLogSchema>;

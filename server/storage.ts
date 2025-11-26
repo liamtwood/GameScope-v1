@@ -15,6 +15,9 @@ import {
   teamCompetitions,
   matchStats,
   playerStats,
+  pageRequirements,
+  devopsDataModels,
+  devopsChangeLog,
   type Club,
   type Team,
   type User,
@@ -40,6 +43,12 @@ import {
   type InsertTeamCompetition,
   type InsertMatchStats,
   type InsertPlayerStats,
+  type PageRequirementRecord,
+  type DevopsDataModel as DevopsDataModelRecord,
+  type DevopsChangeLog as DevopsChangeLogRecord,
+  type InsertPageRequirement,
+  type InsertDevopsDataModel,
+  type InsertDevopsChangeLog,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -143,6 +152,30 @@ export interface IStorage {
   getPlayer(id: string): Promise<User | undefined>;
   getPlayers(teamId?: string): Promise<User[]>;
   getTeamPlayers(teamId: string): Promise<(UserTeam & { user: User })[]>;
+  
+  // DevOps Requirements CRUD operations
+  getPageRequirements(): Promise<PageRequirementRecord[]>;
+  getPageRequirement(id: string): Promise<PageRequirementRecord | undefined>;
+  createPageRequirement(req: InsertPageRequirement): Promise<PageRequirementRecord>;
+  updatePageRequirement(id: string, req: Partial<InsertPageRequirement>): Promise<PageRequirementRecord>;
+  deletePageRequirement(id: string): Promise<void>;
+  
+  // DevOps Data Models CRUD operations
+  getDevopsDataModels(): Promise<DevopsDataModelRecord[]>;
+  getDevopsDataModel(id: string): Promise<DevopsDataModelRecord | undefined>;
+  createDevopsDataModel(model: InsertDevopsDataModel): Promise<DevopsDataModelRecord>;
+  updateDevopsDataModel(id: string, model: Partial<InsertDevopsDataModel>): Promise<DevopsDataModelRecord>;
+  deleteDevopsDataModel(id: string): Promise<void>;
+  
+  // DevOps Change Log CRUD operations
+  getDevopsChangeLogs(): Promise<DevopsChangeLogRecord[]>;
+  getDevopsChangeLog(id: string): Promise<DevopsChangeLogRecord | undefined>;
+  createDevopsChangeLog(entry: InsertDevopsChangeLog): Promise<DevopsChangeLogRecord>;
+  updateDevopsChangeLog(id: string, entry: Partial<InsertDevopsChangeLog>): Promise<DevopsChangeLogRecord>;
+  deleteDevopsChangeLog(id: string): Promise<void>;
+  
+  // Seed requirements data from registry
+  seedRequirementsData(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1543,6 +1576,159 @@ export class DatabaseStorage implements IStorage {
     return this.getTeamUsers(teamId);
   }
 
+  // DevOps Page Requirements CRUD
+  async getPageRequirements(): Promise<PageRequirementRecord[]> {
+    return await db.select().from(pageRequirements);
+  }
+
+  async getPageRequirement(id: string): Promise<PageRequirementRecord | undefined> {
+    const [result] = await db.select().from(pageRequirements).where(eq(pageRequirements.id, id));
+    return result;
+  }
+
+  async createPageRequirement(req: InsertPageRequirement): Promise<PageRequirementRecord> {
+    const [result] = await db.insert(pageRequirements).values({
+      ...req,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updatePageRequirement(id: string, req: Partial<InsertPageRequirement>): Promise<PageRequirementRecord> {
+    const [result] = await db.update(pageRequirements)
+      .set({ ...req, updatedAt: new Date() })
+      .where(eq(pageRequirements.id, id))
+      .returning();
+    if (!result) throw new Error("Page requirement not found");
+    return result;
+  }
+
+  async deletePageRequirement(id: string): Promise<void> {
+    await db.delete(pageRequirements).where(eq(pageRequirements.id, id));
+  }
+
+  // DevOps Data Models CRUD
+  async getDevopsDataModels(): Promise<DevopsDataModelRecord[]> {
+    return await db.select().from(devopsDataModels);
+  }
+
+  async getDevopsDataModel(id: string): Promise<DevopsDataModelRecord | undefined> {
+    const [result] = await db.select().from(devopsDataModels).where(eq(devopsDataModels.id, id));
+    return result;
+  }
+
+  async createDevopsDataModel(model: InsertDevopsDataModel): Promise<DevopsDataModelRecord> {
+    const [result] = await db.insert(devopsDataModels).values({
+      ...model,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updateDevopsDataModel(id: string, model: Partial<InsertDevopsDataModel>): Promise<DevopsDataModelRecord> {
+    const [result] = await db.update(devopsDataModels)
+      .set({ ...model, updatedAt: new Date() })
+      .where(eq(devopsDataModels.id, id))
+      .returning();
+    if (!result) throw new Error("Data model not found");
+    return result;
+  }
+
+  async deleteDevopsDataModel(id: string): Promise<void> {
+    await db.delete(devopsDataModels).where(eq(devopsDataModels.id, id));
+  }
+
+  // DevOps Change Log CRUD
+  async getDevopsChangeLogs(): Promise<DevopsChangeLogRecord[]> {
+    return await db.select().from(devopsChangeLog);
+  }
+
+  async getDevopsChangeLog(id: string): Promise<DevopsChangeLogRecord | undefined> {
+    const [result] = await db.select().from(devopsChangeLog).where(eq(devopsChangeLog.id, id));
+    return result;
+  }
+
+  async createDevopsChangeLog(entry: InsertDevopsChangeLog): Promise<DevopsChangeLogRecord> {
+    const [result] = await db.insert(devopsChangeLog).values({
+      ...entry,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updateDevopsChangeLog(id: string, entry: Partial<InsertDevopsChangeLog>): Promise<DevopsChangeLogRecord> {
+    const [result] = await db.update(devopsChangeLog)
+      .set({ ...entry, updatedAt: new Date() })
+      .where(eq(devopsChangeLog.id, id))
+      .returning();
+    if (!result) throw new Error("Change log entry not found");
+    return result;
+  }
+
+  async deleteDevopsChangeLog(id: string): Promise<void> {
+    await db.delete(devopsChangeLog).where(eq(devopsChangeLog.id, id));
+  }
+
+  // Seed requirements data from hardcoded registry
+  async seedRequirementsData(): Promise<void> {
+    // Check if data already exists
+    const existingRequirements = await db.select().from(pageRequirements);
+    if (existingRequirements.length > 0) {
+      console.log('Requirements data already exists, skipping seed');
+      return;
+    }
+
+    console.log('Seeding requirements data...');
+
+    // Import hardcoded data from registry
+    const { requirementsRegistry, dataModels, changeLog } = await import('../client/src/lib/requirements-registry');
+
+    // Seed page requirements
+    for (const req of requirementsRegistry) {
+      await db.insert(pageRequirements).values({
+        id: req.id,
+        title: req.title,
+        route: req.route,
+        section: req.section,
+        overview: req.overview,
+        parentId: req.parentId || null,
+        functionalRequirements: req.functionalRequirements,
+        acceptanceCriteria: req.acceptanceCriteria,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    // Seed data models
+    for (const model of dataModels) {
+      await db.insert(devopsDataModels).values({
+        id: model.id,
+        name: model.name,
+        description: model.description,
+        fields: model.fields,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    // Seed change log
+    for (const entry of changeLog) {
+      await db.insert(devopsChangeLog).values({
+        id: entry.id,
+        date: entry.date,
+        type: entry.type,
+        area: entry.area,
+        description: entry.description,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    console.log('Requirements data seeded successfully');
+  }
 }
 
 export const storage = new DatabaseStorage();
