@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
 import { useClub } from "@/contexts/club-context";
 import { PageRequirementsDialog } from "@/components/page-requirements-dialog";
+import { BugReportDialog } from "@/components/bug-report-dialog";
 
 interface HeaderProps {
   title: string;
@@ -115,7 +116,10 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
               </div>
             </div>
             
-            <PageRequirementsDialog />
+            <div className="flex items-center gap-1">
+                  <BugReportDialog pageTitle={title} />
+                  <PageRequirementsDialog />
+                </div>
           </div>
         </div>
       </div>
