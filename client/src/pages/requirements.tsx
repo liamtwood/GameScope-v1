@@ -1,22 +1,47 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2 } from "lucide-react";
 import { 
   requirementsRegistry, 
-  changeLog,
-  dataModels,
+  changeLog as hardcodedChangeLog,
+  dataModels as hardcodedDataModels,
   sectionTitles,
   type PageRequirements,
   type PageWithChildren,
   type ChangeLogEntry,
-  type DataModel
+  type DataModel,
+  type DataModelField
 } from "@/lib/requirements-registry";
+
+type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement';
+
+type APIChangeLogEntry = ChangeLogEntry;
+
+interface APIDataModel extends DataModel {
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface APIPageRequirement extends PageRequirements {
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 const sectionIcons: Record<PageRequirements['section'], typeof Home> = {
   home: Home,
@@ -32,15 +57,42 @@ const sectionColors: Record<PageRequirements['section'], string> = {
   devops: "bg-orange-500",
 };
 
+const changeTypeConfig: Record<ChangeLogType, { icon: typeof Plus; color: string; label: string }> = {
+  added: { icon: Plus, color: "text-green-600 bg-green-100", label: "Added" },
+  removed: { icon: Minus, color: "text-red-600 bg-red-100", label: "Removed" },
+  changed: { icon: RefreshCw, color: "text-blue-600 bg-blue-100", label: "Changed" },
+  fixed: { icon: Wrench, color: "text-amber-600 bg-amber-100", label: "Fixed" },
+  bug: { icon: Bug, color: "text-rose-600 bg-rose-100", label: "Bug" },
+  enhancement: { icon: Lightbulb, color: "text-cyan-600 bg-cyan-100", label: "Enhancement" },
+};
+
+const priorityColors: Record<string, string> = {
+  low: "bg-gray-100 text-gray-700",
+  medium: "bg-yellow-100 text-yellow-700",
+  high: "bg-orange-100 text-orange-700",
+  critical: "bg-red-100 text-red-700",
+};
+
+const statusColors: Record<string, string> = {
+  open: "bg-blue-100 text-blue-700",
+  in_progress: "bg-purple-100 text-purple-700",
+  resolved: "bg-green-100 text-green-700",
+  closed: "bg-gray-100 text-gray-700",
+};
+
 function PageTreeItem({ 
   page, 
   depth = 0, 
   onSelect,
+  onEdit,
+  onDelete,
   selectedId 
 }: { 
   page: PageWithChildren; 
   depth?: number; 
   onSelect: (page: PageRequirements) => void;
+  onEdit: (page: PageRequirements) => void;
+  onDelete: (page: PageRequirements) => void;
   selectedId: string | null;
 }) {
   const [expanded, setExpanded] = useState(true);
@@ -50,13 +102,12 @@ function PageTreeItem({
   return (
     <div>
       <div 
-        className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors ${
+        className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors group ${
           isSelected 
             ? "bg-primary/10 text-primary" 
             : "hover:bg-muted"
         }`}
         style={{ paddingLeft: `${depth * 1.25 + 0.75}rem` }}
-        onClick={() => onSelect(page)}
         data-testid={`tree-item-${page.id}`}
       >
         {hasChildren ? (
@@ -73,7 +124,28 @@ function PageTreeItem({
         ) : (
           <div className="w-5" />
         )}
-        <span className={`text-sm ${isSelected ? "font-medium" : ""}`}>{page.title}</span>
+        <span 
+          className={`text-sm flex-1 ${isSelected ? "font-medium" : ""}`}
+          onClick={() => onSelect(page)}
+        >
+          {page.title}
+        </span>
+        <div className="hidden group-hover:flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(page); }}
+            className="p-1 hover:bg-muted rounded"
+            data-testid={`btn-edit-req-${page.id}`}
+          >
+            <Edit className="h-3 w-3 text-muted-foreground" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(page); }}
+            className="p-1 hover:bg-destructive/10 rounded"
+            data-testid={`btn-delete-req-${page.id}`}
+          >
+            <Trash2 className="h-3 w-3 text-destructive" />
+          </button>
+        </div>
       </div>
       {hasChildren && expanded && (
         <div>
@@ -83,6 +155,8 @@ function PageTreeItem({
               page={child} 
               depth={depth + 1} 
               onSelect={onSelect}
+              onEdit={onEdit}
+              onDelete={onDelete}
               selectedId={selectedId}
             />
           ))}
@@ -92,47 +166,100 @@ function PageTreeItem({
   );
 }
 
-const changeTypeConfig: Record<ChangeLogEntry['type'], { icon: typeof Plus; color: string; label: string }> = {
-  added: { icon: Plus, color: "text-green-600 bg-green-100", label: "Added" },
-  removed: { icon: Minus, color: "text-red-600 bg-red-100", label: "Removed" },
-  changed: { icon: RefreshCw, color: "text-blue-600 bg-blue-100", label: "Changed" },
-  fixed: { icon: Wrench, color: "text-amber-600 bg-amber-100", label: "Fixed" },
-};
-
-function ChangeLogItem({ entry }: { entry: ChangeLogEntry }) {
-  const config = changeTypeConfig[entry.type];
+function ChangeLogItem({ 
+  entry, 
+  onEdit, 
+  onDelete 
+}: { 
+  entry: APIChangeLogEntry; 
+  onEdit: (entry: APIChangeLogEntry) => void;
+  onDelete: (entry: APIChangeLogEntry) => void;
+}) {
+  const config = changeTypeConfig[entry.type] || changeTypeConfig.changed;
   const Icon = config.icon;
+  const isBugOrEnhancement = entry.type === 'bug' || entry.type === 'enhancement';
   
   return (
-    <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/20" data-testid={`changelog-${entry.id}`}>
+    <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/20 group" data-testid={`changelog-${entry.id}`}>
       <div className={`p-1.5 rounded ${config.color}`}>
         <Icon className="h-3 w-3" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Badge variant="outline" className="text-xs font-mono">{entry.id}</Badge>
           <Badge variant="secondary" className="text-xs">{entry.area}</Badge>
+          {isBugOrEnhancement && entry.priority && (
+            <Badge className={`text-xs ${priorityColors[entry.priority]}`}>
+              {entry.priority}
+            </Badge>
+          )}
+          {isBugOrEnhancement && entry.status && (
+            <Badge className={`text-xs ${statusColors[entry.status]}`}>
+              {entry.status.replace('_', ' ')}
+            </Badge>
+          )}
           <span className="text-xs text-muted-foreground ml-auto">{entry.date}</span>
         </div>
         <p className="text-sm">{entry.description}</p>
+      </div>
+      <div className="hidden group-hover:flex items-center gap-1">
+        <button
+          onClick={() => onEdit(entry)}
+          className="p-1 hover:bg-muted rounded"
+          data-testid={`btn-edit-changelog-${entry.id}`}
+        >
+          <Edit className="h-3 w-3 text-muted-foreground" />
+        </button>
+        <button
+          onClick={() => onDelete(entry)}
+          className="p-1 hover:bg-destructive/10 rounded"
+          data-testid={`btn-delete-changelog-${entry.id}`}
+        >
+          <Trash2 className="h-3 w-3 text-destructive" />
+        </button>
       </div>
     </div>
   );
 }
 
-function DataModelCard({ model, onSelect }: { model: DataModel; onSelect: (model: DataModel) => void }) {
+function DataModelCard({ 
+  model, 
+  onSelect, 
+  onEdit, 
+  onDelete 
+}: { 
+  model: DataModel; 
+  onSelect: (model: DataModel) => void;
+  onEdit: (model: DataModel) => void;
+  onDelete: (model: DataModel) => void;
+}) {
   return (
     <div 
-      className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-      onClick={() => onSelect(model)}
+      className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors group"
       data-testid={`datamodel-${model.id}`}
     >
       <div className="flex items-center gap-2 mb-2">
         <Database className="h-4 w-4 text-muted-foreground" />
-        <span className="font-medium">{model.name}</span>
-        <Badge variant="outline" className="ml-auto text-xs">{model.fields.length} fields</Badge>
+        <span className="font-medium flex-1" onClick={() => onSelect(model)}>{model.name}</span>
+        <div className="hidden group-hover:flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(model); }}
+            className="p-1 hover:bg-muted rounded"
+            data-testid={`btn-edit-model-${model.id}`}
+          >
+            <Edit className="h-3 w-3 text-muted-foreground" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(model); }}
+            className="p-1 hover:bg-destructive/10 rounded"
+            data-testid={`btn-delete-model-${model.id}`}
+          >
+            <Trash2 className="h-3 w-3 text-destructive" />
+          </button>
+        </div>
+        <Badge variant="outline" className="text-xs">{model.fields.length} fields</Badge>
       </div>
-      <p className="text-xs text-muted-foreground">{model.description}</p>
+      <p className="text-xs text-muted-foreground" onClick={() => onSelect(model)}>{model.description}</p>
     </div>
   );
 }
@@ -250,34 +377,528 @@ function RequirementsPanel({ page }: { page: PageRequirements }) {
   );
 }
 
+function ChangeLogDialog({ 
+  open, 
+  onOpenChange, 
+  entry, 
+  onSave 
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  entry: APIChangeLogEntry | null;
+  onSave: (data: Partial<APIChangeLogEntry>) => void;
+}) {
+  const [formData, setFormData] = useState({
+    id: "",
+    date: new Date().toISOString().split('T')[0],
+    type: "added" as ChangeLogType,
+    area: "",
+    description: "",
+    priority: undefined as 'low' | 'medium' | 'high' | 'critical' | undefined,
+    status: "open" as 'open' | 'in_progress' | 'resolved' | 'closed',
+  });
+
+  useEffect(() => {
+    if (entry) {
+      setFormData({
+        id: entry.id,
+        date: entry.date,
+        type: entry.type,
+        area: entry.area,
+        description: entry.description,
+        priority: entry.priority,
+        status: entry.status || "open",
+      });
+    } else {
+      setFormData({
+        id: `CL-${String(Date.now()).slice(-4)}`,
+        date: new Date().toISOString().split('T')[0],
+        type: "added",
+        area: "",
+        description: "",
+        priority: undefined,
+        status: "open",
+      });
+    }
+  }, [entry, open]);
+
+  const isBugOrEnhancement = formData.type === 'bug' || formData.type === 'enhancement';
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>{entry ? "Edit Change Log Entry" : "Add Change Log Entry"}</DialogTitle>
+          <DialogDescription>
+            {entry ? "Update the change log entry details." : "Create a new change log entry, bug, or enhancement."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="id">ID</Label>
+              <Input
+                id="id"
+                value={formData.id}
+                onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                placeholder="CL-001"
+                data-testid="input-changelog-id"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="date">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                data-testid="input-changelog-date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="type">Type</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => setFormData({ ...formData, type: value as ChangeLogType })}
+              >
+                <SelectTrigger data-testid="select-changelog-type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="added">Added</SelectItem>
+                  <SelectItem value="removed">Removed</SelectItem>
+                  <SelectItem value="changed">Changed</SelectItem>
+                  <SelectItem value="fixed">Fixed</SelectItem>
+                  <SelectItem value="bug">Bug</SelectItem>
+                  <SelectItem value="enhancement">Enhancement</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="area">Area</Label>
+              <Input
+                id="area"
+                value={formData.area}
+                onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                placeholder="e.g., Fixtures, Squad"
+                data-testid="input-changelog-area"
+              />
+            </div>
+          </div>
+          {isBugOrEnhancement && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select
+                  value={formData.priority || ""}
+                  onValueChange={(value) => setFormData({ ...formData, priority: value as any })}
+                >
+                  <SelectTrigger data-testid="select-changelog-priority">
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value as any })}
+                >
+                  <SelectTrigger data-testid="select-changelog-status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe the change, bug, or enhancement..."
+              rows={3}
+              data-testid="textarea-changelog-description"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => onSave(formData)} data-testid="btn-save-changelog">
+            {entry ? "Update" : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DataModelDialog({ 
+  open, 
+  onOpenChange, 
+  model, 
+  onSave 
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  model: DataModel | null;
+  onSave: (data: Partial<DataModel>) => void;
+}) {
+  const [formData, setFormData] = useState({
+    id: "",
+    name: "",
+    description: "",
+    fields: [] as DataModelField[],
+  });
+  const [newField, setNewField] = useState({
+    name: "",
+    type: "",
+    mandatory: false,
+    defaultValue: "",
+    description: "",
+    listOfValues: "",
+  });
+
+  useEffect(() => {
+    if (model) {
+      setFormData({
+        id: model.id,
+        name: model.name,
+        description: model.description,
+        fields: model.fields,
+      });
+    } else {
+      setFormData({
+        id: "",
+        name: "",
+        description: "",
+        fields: [],
+      });
+    }
+  }, [model, open]);
+
+  const addField = () => {
+    if (!newField.name || !newField.type) return;
+    const field: DataModelField = {
+      name: newField.name,
+      type: newField.type,
+      mandatory: newField.mandatory,
+      defaultValue: newField.defaultValue || undefined,
+      description: newField.description || undefined,
+      listOfValues: newField.listOfValues ? newField.listOfValues.split(',').map(v => v.trim()) : undefined,
+    };
+    setFormData({ ...formData, fields: [...formData.fields, field] });
+    setNewField({ name: "", type: "", mandatory: false, defaultValue: "", description: "", listOfValues: "" });
+  };
+
+  const removeField = (index: number) => {
+    setFormData({ ...formData, fields: formData.fields.filter((_, i) => i !== index) });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{model ? "Edit Data Model" : "Add Data Model"}</DialogTitle>
+          <DialogDescription>
+            {model ? "Update the data model details and fields." : "Create a new data model with fields."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="model-id">ID</Label>
+              <Input
+                id="model-id"
+                value={formData.id}
+                onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                placeholder="e.g., fixture"
+                data-testid="input-model-id"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="model-name">Name</Label>
+              <Input
+                id="model-name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g., Fixture"
+                data-testid="input-model-name"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="model-description">Description</Label>
+            <Textarea
+              id="model-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe the data model..."
+              rows={2}
+              data-testid="textarea-model-description"
+            />
+          </div>
+          
+          <div className="space-y-3">
+            <Label>Fields ({formData.fields.length})</Label>
+            <div className="border rounded-lg p-3 space-y-3 bg-muted/20">
+              <div className="grid grid-cols-6 gap-2">
+                <Input
+                  placeholder="Name"
+                  value={newField.name}
+                  onChange={(e) => setNewField({ ...newField, name: e.target.value })}
+                  className="text-sm"
+                  data-testid="input-field-name"
+                />
+                <Input
+                  placeholder="Type"
+                  value={newField.type}
+                  onChange={(e) => setNewField({ ...newField, type: e.target.value })}
+                  className="text-sm"
+                  data-testid="input-field-type"
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={newField.mandatory}
+                    onChange={(e) => setNewField({ ...newField, mandatory: e.target.checked })}
+                    id="field-mandatory"
+                  />
+                  <Label htmlFor="field-mandatory" className="text-xs">Required</Label>
+                </div>
+                <Input
+                  placeholder="Default"
+                  value={newField.defaultValue}
+                  onChange={(e) => setNewField({ ...newField, defaultValue: e.target.value })}
+                  className="text-sm"
+                  data-testid="input-field-default"
+                />
+                <Input
+                  placeholder="Values (comma-sep)"
+                  value={newField.listOfValues}
+                  onChange={(e) => setNewField({ ...newField, listOfValues: e.target.value })}
+                  className="text-sm"
+                  data-testid="input-field-values"
+                />
+                <Button size="sm" onClick={addField} data-testid="btn-add-field">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {formData.fields.length > 0 && (
+                <div className="max-h-[200px] overflow-y-auto space-y-1">
+                  {formData.fields.map((field, index) => (
+                    <div key={index} className="flex items-center gap-2 text-xs p-2 bg-background rounded border">
+                      <span className="font-mono">{field.name}</span>
+                      <Badge variant="outline" className="text-xs">{field.type}</Badge>
+                      {field.mandatory && <Badge variant="secondary" className="text-xs">Required</Badge>}
+                      <button
+                        onClick={() => removeField(index)}
+                        className="ml-auto p-1 hover:bg-destructive/10 rounded"
+                      >
+                        <X className="h-3 w-3 text-destructive" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => onSave(formData)} data-testid="btn-save-model">
+            {model ? "Update" : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Requirements() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
   const [selectedModel, setSelectedModel] = useState<DataModel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
+  const [changeLogDialogOpen, setChangeLogDialogOpen] = useState(false);
+  const [editingChangeLog, setEditingChangeLog] = useState<APIChangeLogEntry | null>(null);
+  const [dataModelDialogOpen, setDataModelDialogOpen] = useState(false);
+  const [editingDataModel, setEditingDataModel] = useState<DataModel | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement'; item: any } | null>(null);
+  const [activeTab, setActiveTab] = useState("changelog");
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
 
+  // Fetch data from API with fallback to hardcoded data
+  const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
+    queryKey: ['/api/devops/requirements'],
+  });
+
+  const { data: apiDataModels = [], isLoading: modelsLoading, refetch: refetchModels } = useQuery<APIDataModel[]>({
+    queryKey: ['/api/devops/data-models'],
+  });
+
+  const { data: apiChangeLog = [], isLoading: changeLogLoading, refetch: refetchChangeLog } = useQuery<APIChangeLogEntry[]>({
+    queryKey: ['/api/devops/changelog'],
+  });
+
+  // Seed mutation
+  const seedMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('POST', '/api/devops/seed');
+    },
+    onSuccess: () => {
+      toast({ title: "Data seeded successfully" });
+      refetchReqs();
+      refetchModels();
+      refetchChangeLog();
+    },
+    onError: () => {
+      toast({ title: "Failed to seed data", variant: "destructive" });
+    },
+  });
+
+  // Use API data if available, otherwise fallback to hardcoded
+  const requirementsData = apiRequirements.length > 0 ? apiRequirements : requirementsRegistry;
+  const dataModelsData = apiDataModels.length > 0 ? apiDataModels : hardcodedDataModels;
+  const changeLogData = apiChangeLog.length > 0 ? apiChangeLog : hardcodedChangeLog.map(e => ({ ...e, type: e.type as ChangeLogType }));
+
+  // Mutations for CRUD
+  const createChangeLogMutation = useMutation({
+    mutationFn: async (data: Partial<APIChangeLogEntry>) => {
+      await apiRequest('POST', '/api/devops/changelog', data);
+    },
+    onSuccess: () => {
+      toast({ title: "Change log entry created" });
+      refetchChangeLog();
+      setChangeLogDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create entry", variant: "destructive" });
+    },
+  });
+
+  const updateChangeLogMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<APIChangeLogEntry> }) => {
+      await apiRequest('PATCH', `/api/devops/changelog/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Change log entry updated" });
+      refetchChangeLog();
+      setChangeLogDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to update entry", variant: "destructive" });
+    },
+  });
+
+  const deleteChangeLogMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/devops/changelog/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Change log entry deleted" });
+      refetchChangeLog();
+    },
+    onError: () => {
+      toast({ title: "Failed to delete entry", variant: "destructive" });
+    },
+  });
+
+  const createDataModelMutation = useMutation({
+    mutationFn: async (data: Partial<DataModel>) => {
+      await apiRequest('POST', '/api/devops/data-models', data);
+    },
+    onSuccess: () => {
+      toast({ title: "Data model created" });
+      refetchModels();
+      setDataModelDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create data model", variant: "destructive" });
+    },
+  });
+
+  const updateDataModelMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<DataModel> }) => {
+      await apiRequest('PATCH', `/api/devops/data-models/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Data model updated" });
+      refetchModels();
+      setDataModelDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to update data model", variant: "destructive" });
+    },
+  });
+
+  const deleteDataModelMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/devops/data-models/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Data model deleted" });
+      refetchModels();
+    },
+    onError: () => {
+      toast({ title: "Failed to delete data model", variant: "destructive" });
+    },
+  });
+
+  const deleteRequirementMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/devops/requirements/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Requirement deleted" });
+      refetchReqs();
+    },
+    onError: () => {
+      toast({ title: "Failed to delete requirement", variant: "destructive" });
+    },
+  });
+
   const filteredRegistry = useMemo(() => {
-    if (!searchQuery.trim()) return requirementsRegistry;
+    if (!searchQuery.trim()) return requirementsData;
     
     const query = searchQuery.toLowerCase();
-    return requirementsRegistry.filter(page => {
+    return requirementsData.filter(page => {
       const matchesTitle = page.title.toLowerCase().includes(query);
       const matchesRoute = page.route.toLowerCase().includes(query);
-      const matchesFR = page.functionalRequirements.some(
-        fr => fr.id.toLowerCase().includes(query) || 
-              fr.title.toLowerCase().includes(query) ||
-              fr.description.toLowerCase().includes(query)
+      const fr = page.functionalRequirements as Array<{ id: string; title: string; description: string }>;
+      const ac = page.acceptanceCriteria as Array<{ id: string; description: string }>;
+      const matchesFR = fr.some(
+        req => req.id.toLowerCase().includes(query) || 
+              req.title.toLowerCase().includes(query) ||
+              req.description.toLowerCase().includes(query)
       );
-      const matchesAC = page.acceptanceCriteria.some(
-        ac => ac.id.toLowerCase().includes(query) || 
-              ac.description.toLowerCase().includes(query)
+      const matchesAC = ac.some(
+        item => item.id.toLowerCase().includes(query) || 
+              item.description.toLowerCase().includes(query)
       );
       return matchesTitle || matchesRoute || matchesFR || matchesAC;
     });
-  }, [searchQuery]);
+  }, [searchQuery, requirementsData]);
 
   const getFilteredHierarchy = (section: PageRequirements['section']): PageWithChildren[] => {
     const sectionPages = filteredRegistry.filter(p => p.section === section);
@@ -300,23 +921,92 @@ export default function Requirements() {
     setSheetOpen(true);
   };
 
+  const handleEditPage = (page: PageRequirements) => {
+    toast({ title: "Edit page requirements", description: "Full page editing coming soon" });
+  };
+
+  const handleDeletePage = (page: PageRequirements) => {
+    setItemToDelete({ type: 'requirement', item: page });
+    setDeleteConfirmOpen(true);
+  };
+
   const handleSelectModel = (model: DataModel) => {
     setSelectedModel(model);
     setModelSheetOpen(true);
   };
 
-  const totalPages = requirementsRegistry.length;
-  const totalFRs = requirementsRegistry.reduce(
-    (acc, page) => acc + page.functionalRequirements.length,
+  const handleEditModel = (model: DataModel) => {
+    setEditingDataModel(model);
+    setDataModelDialogOpen(true);
+  };
+
+  const handleDeleteModel = (model: DataModel) => {
+    setItemToDelete({ type: 'datamodel', item: model });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleEditChangeLog = (entry: APIChangeLogEntry) => {
+    setEditingChangeLog(entry);
+    setChangeLogDialogOpen(true);
+  };
+
+  const handleDeleteChangeLog = (entry: APIChangeLogEntry) => {
+    setItemToDelete({ type: 'changelog', item: entry });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleSaveChangeLog = (data: Partial<APIChangeLogEntry>) => {
+    if (editingChangeLog) {
+      updateChangeLogMutation.mutate({ id: editingChangeLog.id, data });
+    } else {
+      createChangeLogMutation.mutate(data);
+    }
+  };
+
+  const handleSaveDataModel = (data: Partial<DataModel>) => {
+    if (editingDataModel) {
+      updateDataModelMutation.mutate({ id: editingDataModel.id, data });
+    } else {
+      createDataModelMutation.mutate(data);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!itemToDelete) return;
+    
+    switch (itemToDelete.type) {
+      case 'changelog':
+        deleteChangeLogMutation.mutate(itemToDelete.item.id);
+        break;
+      case 'datamodel':
+        deleteDataModelMutation.mutate(itemToDelete.item.id);
+        break;
+      case 'requirement':
+        deleteRequirementMutation.mutate(itemToDelete.item.id);
+        break;
+    }
+    setDeleteConfirmOpen(false);
+    setItemToDelete(null);
+  };
+
+  const totalPages = requirementsData.length;
+  const totalFRs = requirementsData.reduce(
+    (acc, page) => acc + (page.functionalRequirements as any[]).length,
     0
   );
-  const totalACs = requirementsRegistry.reduce(
-    (acc, page) => acc + page.acceptanceCriteria.length,
+  const totalACs = requirementsData.reduce(
+    (acc, page) => acc + (page.acceptanceCriteria as any[]).length,
     0
   );
 
+  const bugsAndEnhancements = changeLogData.filter(e => e.type === 'bug' || e.type === 'enhancement');
+  const regularChanges = changeLogData.filter(e => e.type !== 'bug' && e.type !== 'enhancement');
+
+  const isLoading = reqLoading || modelsLoading || changeLogLoading;
+  const hasNoData = apiRequirements.length === 0 && apiDataModels.length === 0 && apiChangeLog.length === 0;
+
   return (
-    <MainLayout title="Requirements" subtitle="View all page requirements and acceptance criteria">
+    <MainLayout title="Requirements" subtitle="View and manage page requirements and documentation">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="relative w-full md:w-96">
@@ -329,7 +1019,23 @@ export default function Requirements() {
               data-testid="input-search-requirements"
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+            {hasNoData && !isLoading && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => seedMutation.mutate()}
+                disabled={seedMutation.isPending}
+                data-testid="btn-seed-data"
+              >
+                {seedMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Database className="h-4 w-4 mr-2" />
+                )}
+                Load Initial Data
+              </Button>
+            )}
             <Badge variant="outline" className="px-3 py-1">
               {totalPages} Pages
             </Badge>
@@ -373,6 +1079,8 @@ export default function Requirements() {
                         key={page.id} 
                         page={page} 
                         onSelect={handleSelectPage}
+                        onEdit={handleEditPage}
+                        onDelete={handleDeletePage}
                         selectedId={selectedPage?.id || null}
                       />
                     ))}
@@ -403,14 +1111,29 @@ export default function Requirements() {
               </div>
               <span>Data Models</span>
               <Badge variant="secondary" className="ml-auto text-xs">
-                {dataModels.length} objects
+                {dataModelsData.length} objects
               </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setEditingDataModel(null); setDataModelDialogOpen(true); }}
+                data-testid="btn-add-datamodel"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {dataModels.map((model) => (
-                <DataModelCard key={model.id} model={model} onSelect={handleSelectModel} />
+              {dataModelsData.map((model) => (
+                <DataModelCard 
+                  key={model.id} 
+                  model={model} 
+                  onSelect={handleSelectModel}
+                  onEdit={handleEditModel}
+                  onDelete={handleDeleteModel}
+                />
               ))}
             </div>
           </CardContent>
@@ -422,18 +1145,62 @@ export default function Requirements() {
               <div className="p-2 rounded-lg bg-slate-500">
                 <History className="h-4 w-4 text-white" />
               </div>
-              <span>Change Log</span>
+              <span>Change Log & Issues</span>
               <Badge variant="secondary" className="ml-auto text-xs">
-                {changeLog.length} changes
+                {changeLogData.length} items
               </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setEditingChangeLog(null); setChangeLogDialogOpen(true); }}
+                data-testid="btn-add-changelog"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="space-y-3">
-              {changeLog.map((entry) => (
-                <ChangeLogItem key={entry.id} entry={entry} />
-              ))}
-            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="changelog">
+                  Changes ({regularChanges.length})
+                </TabsTrigger>
+                <TabsTrigger value="issues">
+                  Bugs & Enhancements ({bugsAndEnhancements.length})
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="changelog">
+                <div className="space-y-3">
+                  {regularChanges.map((entry) => (
+                    <ChangeLogItem 
+                      key={entry.id} 
+                      entry={entry} 
+                      onEdit={handleEditChangeLog}
+                      onDelete={handleDeleteChangeLog}
+                    />
+                  ))}
+                  {regularChanges.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">No change log entries yet</p>
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="issues">
+                <div className="space-y-3">
+                  {bugsAndEnhancements.map((entry) => (
+                    <ChangeLogItem 
+                      key={entry.id} 
+                      entry={entry}
+                      onEdit={handleEditChangeLog}
+                      onDelete={handleDeleteChangeLog}
+                    />
+                  ))}
+                  {bugsAndEnhancements.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">No bugs or enhancements tracked</p>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
@@ -462,6 +1229,43 @@ export default function Requirements() {
           </ScrollArea>
         </SheetContent>
       </Sheet>
+
+      <ChangeLogDialog
+        open={changeLogDialogOpen}
+        onOpenChange={(open) => {
+          setChangeLogDialogOpen(open);
+          if (!open) setEditingChangeLog(null);
+        }}
+        entry={editingChangeLog}
+        onSave={handleSaveChangeLog}
+      />
+
+      <DataModelDialog
+        open={dataModelDialogOpen}
+        onOpenChange={(open) => {
+          setDataModelDialogOpen(open);
+          if (!open) setEditingDataModel(null);
+        }}
+        model={editingDataModel}
+        onSave={handleSaveDataModel}
+      />
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the selected item.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }

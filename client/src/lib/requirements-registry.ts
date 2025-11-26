@@ -12,9 +12,11 @@ export interface FunctionalRequirement {
 export interface ChangeLogEntry {
   id: string;
   date: string;
-  type: 'added' | 'removed' | 'changed' | 'fixed';
+  type: 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement';
   area: string;
   description: string;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  status?: 'open' | 'in_progress' | 'resolved' | 'closed';
 }
 
 export interface DataModelField {
