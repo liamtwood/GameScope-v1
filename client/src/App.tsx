@@ -29,6 +29,7 @@ import DevOpsUsers from "@/pages/devops-users";
 import UserDetails from "@/pages/user-details";
 import MatchAnalysis from "@/pages/match-analysis";
 import WatchMatchVideo from "@/pages/watch-match-video";
+import Requirements from "@/pages/requirements";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/match-analysis" component={MatchAnalysis} />
       <Route path="/clubs" component={Clubs} />
       <Route path="/settings" component={Settings} />
+      <Route path="/requirements" component={Requirements} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, ChevronDown, Landmark, Camera, LayoutDashboard } from "lucide-react";
+import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, ChevronDown, Landmark, Camera, LayoutDashboard, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS } from "@/lib/constants";
 import { useTeam } from "@/contexts/team-context";
@@ -49,6 +49,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     Landmark,
     Camera,
     'layout-dashboard': LayoutDashboard,
+    FileText,
   };
 
   return (
