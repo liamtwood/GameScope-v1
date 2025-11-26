@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TeamProvider } from "@/contexts/team-context";
 import { ClubProvider } from "@/contexts/club-context";
+import { TabProvider } from "@/contexts/tab-context";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
 
 import Landing from "@/pages/landing";
@@ -70,13 +71,15 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ClubProvider>
           <TeamProvider>
-            <TooltipProvider>
-              <ThemeInitializer />
-              <div className="min-h-screen bg-background text-foreground">
-                <Toaster />
-                <Router />
-              </div>
-            </TooltipProvider>
+            <TabProvider>
+              <TooltipProvider>
+                <ThemeInitializer />
+                <div className="min-h-screen bg-background text-foreground">
+                  <Toaster />
+                  <Router />
+                </div>
+              </TooltipProvider>
+            </TabProvider>
           </TeamProvider>
         </ClubProvider>
       </QueryClientProvider>

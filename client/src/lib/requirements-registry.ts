@@ -35,6 +35,14 @@ export interface DataModel {
   fields: DataModelField[];
 }
 
+export interface TabRequirements {
+  id: string;
+  name: string;
+  overview: string;
+  functionalRequirements: FunctionalRequirement[];
+  acceptanceCriteria: Requirement[];
+}
+
 export interface PageRequirements {
   id: string;
   title: string;
@@ -44,6 +52,7 @@ export interface PageRequirements {
   section: 'home' | 'team' | 'club' | 'devops';
   functionalRequirements: FunctionalRequirement[];
   acceptanceCriteria: Requirement[];
+  tabs?: TabRequirements[];
 }
 
 export const changeLog: ChangeLogEntry[] = [
