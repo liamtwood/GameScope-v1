@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, FileText, CheckCircle2, ChevronRight, Home, Users, Landmark, Settings } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle } from "lucide-react";
 import { 
   requirementsRegistry, 
-  buildHierarchy, 
   sectionTitles,
   type PageRequirements,
   type PageWithChildren 
@@ -28,80 +27,125 @@ const sectionColors: Record<PageRequirements['section'], string> = {
   devops: "bg-orange-500",
 };
 
-function RequirementCard({ page, depth = 0 }: { page: PageWithChildren; depth?: number }) {
-  const isChild = depth > 0;
-  const marginClass = depth > 0 ? `ml-${Math.min(depth * 6, 12)}` : "";
+function PageTreeItem({ 
+  page, 
+  depth = 0, 
+  onSelect,
+  selectedId 
+}: { 
+  page: PageWithChildren; 
+  depth?: number; 
+  onSelect: (page: PageRequirements) => void;
+  selectedId: string | null;
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const hasChildren = page.children.length > 0;
+  const isSelected = selectedId === page.id;
   
   return (
-    <>
-      <AccordionItem 
-        value={page.id} 
-        className={isChild ? `${marginClass} border-l-2 border-muted pl-4` : ""}
-        style={depth > 0 ? { marginLeft: `${depth * 1.5}rem` } : {}}
+    <div>
+      <div 
+        className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors ${
+          isSelected 
+            ? "bg-primary/10 text-primary" 
+            : "hover:bg-muted"
+        }`}
+        style={{ paddingLeft: `${depth * 1.25 + 0.75}rem` }}
+        onClick={() => onSelect(page)}
+        data-testid={`tree-item-${page.id}`}
       >
-        <AccordionTrigger className="hover:no-underline">
-          <div className="flex items-center gap-3 text-left">
-            {isChild && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-            <div>
-              <div className="font-medium">{page.title}</div>
-              <div className="text-xs text-muted-foreground">{page.route}</div>
-            </div>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-4 pt-2">
-            <p className="text-sm text-muted-foreground">{page.overview}</p>
-            
-            <div>
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Functional Requirements ({page.functionalRequirements.length})
-              </h4>
-              <div className="space-y-2">
-                {page.functionalRequirements.map((req) => (
-                  <div key={req.id} className="border rounded-lg p-3 bg-muted/30">
-                    <div className="flex items-start gap-2">
-                      <Badge variant="outline" className="text-xs font-mono shrink-0">
-                        {req.id}
-                      </Badge>
-                      <div>
-                        <span className="font-medium text-sm">{req.title}</span>
-                        <p className="text-xs text-muted-foreground mt-1">{req.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {hasChildren ? (
+          <button 
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+            className="p-0.5 hover:bg-muted rounded"
+          >
+            {expanded ? (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+        ) : (
+          <div className="w-5" />
+        )}
+        <span className={`text-sm ${isSelected ? "font-medium" : ""}`}>{page.title}</span>
+      </div>
+      {hasChildren && expanded && (
+        <div>
+          {page.children.map((child) => (
+            <PageTreeItem 
+              key={child.id} 
+              page={child} 
+              depth={depth + 1} 
+              onSelect={onSelect}
+              selectedId={selectedId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-            <div>
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
-                Acceptance Criteria ({page.acceptanceCriteria.length})
-              </h4>
-              <div className="space-y-1">
-                {page.acceptanceCriteria.map((ac) => (
-                  <div key={ac.id} className="flex items-start gap-2 text-sm p-2 rounded hover:bg-muted/50">
-                    <Badge variant="secondary" className="text-xs font-mono shrink-0">
-                      {ac.id}
-                    </Badge>
-                    <span>{ac.description}</span>
-                  </div>
-                ))}
+function RequirementsPanel({ page }: { page: PageRequirements }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Badge variant="outline" className="text-xs font-mono mb-2">
+          {page.route}
+        </Badge>
+        <p className="text-sm text-muted-foreground">{page.overview}</p>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          Functional Requirements ({page.functionalRequirements.length})
+        </h4>
+        <div className="space-y-3">
+          {page.functionalRequirements.map((req) => (
+            <div key={req.id} className="border rounded-lg p-3 bg-muted/30">
+              <div className="flex items-start gap-2">
+                <Badge variant="outline" className="text-xs font-mono shrink-0">
+                  {req.id}
+                </Badge>
+                <div>
+                  <span className="font-medium text-sm">{req.title}</span>
+                  <p className="text-xs text-muted-foreground mt-1">{req.description}</p>
+                </div>
               </div>
             </div>
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-      {page.children.map((child) => (
-        <RequirementCard key={child.id} page={child} depth={depth + 1} />
-      ))}
-    </>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4" />
+          Acceptance Criteria ({page.acceptanceCriteria.length})
+        </h4>
+        <div className="space-y-2">
+          {page.acceptanceCriteria.map((ac) => (
+            <div key={ac.id} className="flex items-start gap-2 text-sm p-2 rounded hover:bg-muted/50">
+              <Circle className="h-3 w-3 mt-1 text-muted-foreground flex-shrink-0" />
+              <span>
+                <Badge variant="secondary" className="text-xs font-mono mr-1">
+                  {ac.id}
+                </Badge>
+                {ac.description}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function Requirements() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
 
@@ -141,16 +185,16 @@ export default function Requirements() {
     return roots.map(root => buildTree(root));
   };
 
-  const totalRequirements = requirementsRegistry.reduce(
-    (acc, page) => acc + page.functionalRequirements.length + page.acceptanceCriteria.length,
-    0
-  );
+  const handleSelectPage = (page: PageRequirements) => {
+    setSelectedPage(page);
+    setSheetOpen(true);
+  };
 
+  const totalPages = requirementsRegistry.length;
   const totalFRs = requirementsRegistry.reduce(
     (acc, page) => acc + page.functionalRequirements.length,
     0
   );
-
   const totalACs = requirementsRegistry.reduce(
     (acc, page) => acc + page.acceptanceCriteria.length,
     0
@@ -172,45 +216,51 @@ export default function Requirements() {
           </div>
           <div className="flex gap-4">
             <Badge variant="outline" className="px-3 py-1">
-              {requirementsRegistry.length} Pages
+              {totalPages} Pages
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
-              {totalFRs} Functional Requirements
+              {totalFRs} FRs
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
-              {totalACs} Acceptance Criteria
+              {totalACs} ACs
             </Badge>
           </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {sections.map((section) => {
             const hierarchy = getFilteredHierarchy(section);
             if (hierarchy.length === 0) return null;
             
             const SectionIcon = sectionIcons[section];
             const sectionColor = sectionColors[section];
+            const pageCount = hierarchy.length + hierarchy.reduce(
+              (acc, h) => acc + countChildren(h), 0
+            );
             
             return (
               <Card key={section} data-testid={`card-section-${section}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-3">
+                  <CardTitle className="flex items-center gap-3 text-base">
                     <div className={`p-2 rounded-lg ${sectionColor}`}>
-                      <SectionIcon className="h-5 w-5 text-white" />
+                      <SectionIcon className="h-4 w-4 text-white" />
                     </div>
                     <span>{sectionTitles[section]}</span>
-                    <Badge variant="secondary" className="ml-auto">
-                      {hierarchy.length + hierarchy.reduce((acc, h) => acc + h.children.length, 0)} pages
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {pageCount}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ScrollArea className="max-h-[600px]">
-                    <Accordion type="multiple" className="w-full">
-                      {hierarchy.map((page) => (
-                        <RequirementCard key={page.id} page={page} />
-                      ))}
-                    </Accordion>
+                <CardContent className="pt-0">
+                  <ScrollArea className="h-[400px]">
+                    {hierarchy.map((page) => (
+                      <PageTreeItem 
+                        key={page.id} 
+                        page={page} 
+                        onSelect={handleSelectPage}
+                        selectedId={selectedPage?.id || null}
+                      />
+                    ))}
                   </ScrollArea>
                 </CardContent>
               </Card>
@@ -230,6 +280,23 @@ export default function Requirements() {
           </Card>
         )}
       </div>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent className="w-[500px] sm:max-w-[500px]">
+          <SheetHeader>
+            <SheetTitle>{selectedPage?.title}</SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(100vh-100px)] mt-6 pr-4">
+            {selectedPage && <RequirementsPanel page={selectedPage} />}
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
     </MainLayout>
+  );
+}
+
+function countChildren(page: PageWithChildren): number {
+  return page.children.reduce(
+    (acc, child) => acc + 1 + countChildren(child), 0
   );
 }
