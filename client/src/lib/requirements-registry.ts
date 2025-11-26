@@ -9,6 +9,14 @@ export interface FunctionalRequirement {
   description: string;
 }
 
+export interface ChangeLogEntry {
+  id: string;
+  date: string;
+  type: 'added' | 'removed' | 'changed' | 'fixed';
+  area: string;
+  description: string;
+}
+
 export interface PageRequirements {
   id: string;
   title: string;
@@ -19,6 +27,44 @@ export interface PageRequirements {
   functionalRequirements: FunctionalRequirement[];
   acceptanceCriteria: Requirement[];
 }
+
+export const changeLog: ChangeLogEntry[] = [
+  {
+    id: "CL-001",
+    date: "2025-11-26",
+    type: "removed",
+    area: "Teams",
+    description: "Removed coach, assistant coach, and season fields from the Teams model as they are no longer needed.",
+  },
+  {
+    id: "CL-002",
+    date: "2025-11-26",
+    type: "added",
+    area: "DevOps",
+    description: "Added Requirements page with hierarchical page structure and slide-out detail panel.",
+  },
+  {
+    id: "CL-003",
+    date: "2025-11-26",
+    type: "added",
+    area: "All Pages",
+    description: "Added info icon (ℹ️) in header bar to display page requirements dialog.",
+  },
+  {
+    id: "CL-004",
+    date: "2025-11-12",
+    type: "changed",
+    area: "Fixtures",
+    description: "Updated fixtures table to use competitionId foreign key instead of storing competition name as text.",
+  },
+  {
+    id: "CL-005",
+    date: "2025-11-12",
+    type: "changed",
+    area: "Logos",
+    description: "Migrated all logo uploads from filesystem to cloud object storage for production compatibility.",
+  },
+];
 
 export const requirementsRegistry: PageRequirements[] = [
   // LANDING/LOGIN (Pre-auth)

@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench } from "lucide-react";
 import { 
   requirementsRegistry, 
+  changeLog,
   sectionTitles,
   type PageRequirements,
-  type PageWithChildren 
+  type PageWithChildren,
+  type ChangeLogEntry
 } from "@/lib/requirements-registry";
 
 const sectionIcons: Record<PageRequirements['section'], typeof Home> = {
@@ -83,6 +85,34 @@ function PageTreeItem({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+const changeTypeConfig: Record<ChangeLogEntry['type'], { icon: typeof Plus; color: string; label: string }> = {
+  added: { icon: Plus, color: "text-green-600 bg-green-100", label: "Added" },
+  removed: { icon: Minus, color: "text-red-600 bg-red-100", label: "Removed" },
+  changed: { icon: RefreshCw, color: "text-blue-600 bg-blue-100", label: "Changed" },
+  fixed: { icon: Wrench, color: "text-amber-600 bg-amber-100", label: "Fixed" },
+};
+
+function ChangeLogItem({ entry }: { entry: ChangeLogEntry }) {
+  const config = changeTypeConfig[entry.type];
+  const Icon = config.icon;
+  
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/20" data-testid={`changelog-${entry.id}`}>
+      <div className={`p-1.5 rounded ${config.color}`}>
+        <Icon className="h-3 w-3" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <Badge variant="outline" className="text-xs font-mono">{entry.id}</Badge>
+          <Badge variant="secondary" className="text-xs">{entry.area}</Badge>
+          <span className="text-xs text-muted-foreground ml-auto">{entry.date}</span>
+        </div>
+        <p className="text-sm">{entry.description}</p>
+      </div>
     </div>
   );
 }
@@ -279,6 +309,27 @@ export default function Requirements() {
             </CardContent>
           </Card>
         )}
+
+        <Card data-testid="card-changelog">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-slate-500">
+                <History className="h-4 w-4 text-white" />
+              </div>
+              <span>Change Log</span>
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {changeLog.length} changes
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              {changeLog.map((entry) => (
+                <ChangeLogItem key={entry.id} entry={entry} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
