@@ -1163,9 +1163,6 @@ export default function Requirements() {
     });
   };
 
-  // Build hierarchy tree from work items
-  const hierarchyTree = useMemo(() => buildHierarchyTree(workItems), [workItems]);
-
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
     queryKey: ['/api/devops/requirements'],
@@ -1192,6 +1189,9 @@ export default function Requirements() {
   const workItemTestCases = workItems.filter(item => item.type === 'test_case');
   const workItemBugs = workItems.filter(item => item.type === 'bug');
   const workItemEnhancements = workItems.filter(item => item.type === 'enhancement');
+
+  // Build hierarchy tree from work items (must be after workItems is fetched)
+  const hierarchyTree = useMemo(() => buildHierarchyTree(workItems), [workItems]);
 
   // Convert work item to test case format for display
   const workItemToTestCase = (item: WorkItem): TestCase => ({
