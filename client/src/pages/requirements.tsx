@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2 } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -93,15 +93,18 @@ const testStatusConfig: Record<TestCase['status'], { color: string; icon: typeof
 };
 
 const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; label: string }> = {
+  epoch: { icon: Target, color: "text-purple-600 bg-purple-100", label: "Epoch" },
+  epic: { icon: Layers, color: "text-indigo-600 bg-indigo-100", label: "Epic" },
+  feature: { icon: Puzzle, color: "text-violet-600 bg-violet-100", label: "Feature" },
+  story: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Story" },
   bug: { icon: Bug, color: "text-rose-600 bg-rose-100", label: "Bug" },
   enhancement: { icon: Lightbulb, color: "text-cyan-600 bg-cyan-100", label: "Enhancement" },
   test_case: { icon: ClipboardList, color: "text-teal-600 bg-teal-100", label: "Test Case" },
-  story: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Story" },
   question: { icon: HelpCircle, color: "text-amber-600 bg-amber-100", label: "Question" },
-  action_item: { icon: ListTodo, color: "text-violet-600 bg-violet-100", label: "Action Item" },
+  action_item: { icon: ListTodo, color: "text-orange-600 bg-orange-100", label: "Action Item" },
 };
 
-const workItemTypes = ['bug', 'enhancement', 'test_case', 'story', 'question', 'action_item'];
+const workItemTypes = ['epoch', 'epic', 'feature', 'story', 'bug', 'enhancement', 'test_case', 'question', 'action_item'];
 
 function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; expanded: boolean; onToggle: () => void }) {
   const config = testStatusConfig[testCase.status];
@@ -1223,10 +1226,13 @@ export default function Requirements() {
   // Work item summary
   const workItemSummary = {
     total: workItems.length,
+    epochs: workItems.filter(item => item.type === 'epoch').length,
+    epics: workItems.filter(item => item.type === 'epic').length,
+    features: workItems.filter(item => item.type === 'feature').length,
+    stories: workItems.filter(item => item.type === 'story').length,
     bugs: workItemBugs.length,
     enhancements: workItemEnhancements.length,
     testCases: workItemTestCases.length,
-    stories: workItems.filter(item => item.type === 'story').length,
     questions: workItems.filter(item => item.type === 'question').length,
     actionItems: workItems.filter(item => item.type === 'action_item').length,
   };
@@ -1572,10 +1578,11 @@ export default function Requirements() {
                 <ListTodo className="h-4 w-4 text-white" />
               </div>
               <span>Unified Work Items</span>
-              <div className="flex gap-2 ml-auto">
-                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
-                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
-                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
+              <div className="flex gap-2 ml-auto flex-wrap">
+                <Badge className="bg-purple-100 text-purple-700">{workItemSummary.epochs} Epochs</Badge>
+                <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
+                <Badge className="bg-violet-100 text-violet-700">{workItemSummary.features} Features</Badge>
+                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.stories} Stories</Badge>
               </div>
             </CardTitle>
           </CardHeader>
@@ -1589,6 +1596,48 @@ export default function Requirements() {
               >
                 All ({workItemSummary.total})
               </Button>
+              <span className="text-muted-foreground text-xs self-center">|</span>
+              <Button
+                variant={workItemTypeFilter === 'epoch' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('epoch')}
+                className={workItemTypeFilter === 'epoch' ? '' : 'text-purple-600'}
+                data-testid="btn-filter-workitems-epoch"
+              >
+                <Target className="h-3 w-3 mr-1" />
+                Epochs
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'epic' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('epic')}
+                className={workItemTypeFilter === 'epic' ? '' : 'text-indigo-600'}
+                data-testid="btn-filter-workitems-epic"
+              >
+                <Layers className="h-3 w-3 mr-1" />
+                Epics
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'feature' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('feature')}
+                className={workItemTypeFilter === 'feature' ? '' : 'text-violet-600'}
+                data-testid="btn-filter-workitems-feature"
+              >
+                <Puzzle className="h-3 w-3 mr-1" />
+                Features
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'story' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('story')}
+                className={workItemTypeFilter === 'story' ? '' : 'text-blue-600'}
+                data-testid="btn-filter-workitems-story"
+              >
+                <FileText className="h-3 w-3 mr-1" />
+                Stories
+              </Button>
+              <span className="text-muted-foreground text-xs self-center">|</span>
               <Button
                 variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
                 size="sm"
@@ -1617,17 +1666,7 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-testcase"
               >
                 <ClipboardList className="h-3 w-3 mr-1" />
-                Test Cases
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'story' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('story')}
-                className={workItemTypeFilter === 'story' ? '' : 'text-blue-600'}
-                data-testid="btn-filter-workitems-story"
-              >
-                <FileText className="h-3 w-3 mr-1" />
-                Stories
+                Tests
               </Button>
             </div>
             <div className="space-y-2">
