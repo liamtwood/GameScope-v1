@@ -1003,8 +1003,9 @@ export default function Requirements() {
     0
   );
 
-  const bugsAndEnhancements = changeLogData.filter(e => e.type === 'bug' || e.type === 'enhancement');
-  const regularChanges = changeLogData.filter(e => e.type !== 'bug' && e.type !== 'enhancement');
+  const issueTypes = ['bug', 'enhancement', 'question', 'action_item'];
+  const issues = changeLogData.filter(e => issueTypes.includes(e.type));
+  const regularChanges = changeLogData.filter(e => !issueTypes.includes(e.type));
 
   const isLoading = reqLoading || modelsLoading || changeLogLoading;
   const hasNoData = apiRequirements.length === 0 && apiDataModels.length === 0 && apiChangeLog.length === 0;
@@ -1171,7 +1172,7 @@ export default function Requirements() {
                   Changes ({regularChanges.length})
                 </TabsTrigger>
                 <TabsTrigger value="issues">
-                  Bugs & Enhancements ({bugsAndEnhancements.length})
+                  Issues ({issues.length})
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="changelog">
@@ -1191,7 +1192,7 @@ export default function Requirements() {
               </TabsContent>
               <TabsContent value="issues">
                 <div className="space-y-3">
-                  {bugsAndEnhancements.map((entry) => (
+                  {issues.map((entry) => (
                     <ChangeLogItem 
                       key={entry.id} 
                       entry={entry}
@@ -1199,8 +1200,8 @@ export default function Requirements() {
                       onDelete={handleDeleteChangeLog}
                     />
                   ))}
-                  {bugsAndEnhancements.length === 0 && (
-                    <p className="text-muted-foreground text-center py-8">No bugs or enhancements tracked</p>
+                  {issues.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">No issues tracked yet</p>
                   )}
                 </div>
               </TabsContent>
