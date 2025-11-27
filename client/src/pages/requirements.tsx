@@ -16,17 +16,19 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
   dataModels as hardcodedDataModels,
+  testCases as hardcodedTestCases,
   sectionTitles,
   type PageRequirements,
   type PageWithChildren,
   type ChangeLogEntry,
   type DataModel,
-  type DataModelField
+  type DataModelField,
+  type TestCase
 } from "@/lib/requirements-registry";
 
 type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
@@ -81,6 +83,82 @@ const statusColors: Record<string, string> = {
   resolved: "bg-green-100 text-green-700",
   closed: "bg-gray-100 text-gray-700",
 };
+
+const testStatusConfig: Record<TestCase['status'], { color: string; icon: typeof Check; label: string }> = {
+  passed: { color: "bg-green-100 text-green-700", icon: Check, label: "Passed" },
+  failed: { color: "bg-red-100 text-red-700", icon: X, label: "Failed" },
+  partial: { color: "bg-yellow-100 text-yellow-700", icon: AlertTriangle, label: "Partial" },
+  blocked: { color: "bg-gray-100 text-gray-700", icon: Circle, label: "Blocked" },
+};
+
+function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; expanded: boolean; onToggle: () => void }) {
+  const config = testStatusConfig[testCase.status];
+  const StatusIcon = config.icon;
+  
+  return (
+    <div className="border rounded-lg overflow-hidden" data-testid={`testcase-${testCase.id}`}>
+      <div 
+        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50"
+        onClick={onToggle}
+      >
+        <button className="p-0.5">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        <Badge variant="outline" className="font-mono text-xs">
+          {testCase.id}
+        </Badge>
+        <span className="font-medium flex-1">{testCase.title}</span>
+        <Badge className={config.color}>
+          <StatusIcon className="h-3 w-3 mr-1" />
+          {config.label}
+        </Badge>
+        {testCase.associatedBug && (
+          <Badge variant="outline" className="text-rose-600 border-rose-300">
+            <Bug className="h-3 w-3 mr-1" />
+            {testCase.associatedBug}
+          </Badge>
+        )}
+      </div>
+      {expanded && (
+        <div className="px-4 pb-4 pt-2 border-t bg-muted/20 space-y-3">
+          <div>
+            <span className="text-xs font-medium text-muted-foreground uppercase">Objective</span>
+            <p className="text-sm mt-1">{testCase.objective}</p>
+          </div>
+          <div>
+            <span className="text-xs font-medium text-muted-foreground uppercase">Steps</span>
+            <ol className="text-sm mt-1 list-decimal list-inside space-y-1">
+              {testCase.steps.map((step, idx) => (
+                <li key={idx} className="text-muted-foreground">{step}</li>
+              ))}
+            </ol>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Expected Result</span>
+              <p className="text-sm mt-1 text-green-700">{testCase.expectedResult}</p>
+            </div>
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Actual Result</span>
+              <p className={`text-sm mt-1 ${testCase.status === 'passed' ? 'text-green-700' : 'text-red-700'}`}>
+                {testCase.actualResult}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t">
+            <span>Tester: {testCase.tester}</span>
+            <span>Date: {testCase.date}</span>
+            {testCase.component && <span>Component: {testCase.component}</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PageTreeItem({ 
   page, 
@@ -749,8 +827,34 @@ export default function Requirements() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement'; item: any } | null>(null);
   const [activeTab, setActiveTab] = useState("changelog");
+  const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
+  const [testCaseFilter, setTestCaseFilter] = useState<TestCase['status'] | 'all'>('all');
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
+  
+  const toggleTestCase = (id: string) => {
+    setExpandedTestCases(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+  
+  const filteredTestCases = testCaseFilter === 'all' 
+    ? hardcodedTestCases 
+    : hardcodedTestCases.filter(tc => tc.status === testCaseFilter);
+  
+  const testCaseSummary = {
+    total: hardcodedTestCases.length,
+    passed: hardcodedTestCases.filter(tc => tc.status === 'passed').length,
+    failed: hardcodedTestCases.filter(tc => tc.status === 'failed').length,
+    partial: hardcodedTestCases.filter(tc => tc.status === 'partial').length,
+    blocked: hardcodedTestCases.filter(tc => tc.status === 'blocked').length,
+  };
 
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
@@ -1140,6 +1244,78 @@ export default function Requirements() {
                   onDelete={handleDeleteModel}
                 />
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-testcases">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-teal-500">
+                <ClipboardList className="h-4 w-4 text-white" />
+              </div>
+              <span>Test Cases</span>
+              <div className="flex gap-2 ml-auto">
+                <Badge className="bg-green-100 text-green-700">{testCaseSummary.passed} Passed</Badge>
+                <Badge className="bg-red-100 text-red-700">{testCaseSummary.failed} Failed</Badge>
+                {testCaseSummary.partial > 0 && <Badge className="bg-yellow-100 text-yellow-700">{testCaseSummary.partial} Partial</Badge>}
+                {testCaseSummary.blocked > 0 && <Badge className="bg-gray-100 text-gray-700">{testCaseSummary.blocked} Blocked</Badge>}
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant={testCaseFilter === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTestCaseFilter('all')}
+                data-testid="btn-filter-all"
+              >
+                All ({testCaseSummary.total})
+              </Button>
+              <Button
+                variant={testCaseFilter === 'passed' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTestCaseFilter('passed')}
+                className={testCaseFilter === 'passed' ? '' : 'text-green-600'}
+                data-testid="btn-filter-passed"
+              >
+                <Check className="h-3 w-3 mr-1" />
+                Passed
+              </Button>
+              <Button
+                variant={testCaseFilter === 'failed' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTestCaseFilter('failed')}
+                className={testCaseFilter === 'failed' ? '' : 'text-red-600'}
+                data-testid="btn-filter-failed"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Failed
+              </Button>
+              <Button
+                variant={testCaseFilter === 'partial' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTestCaseFilter('partial')}
+                className={testCaseFilter === 'partial' ? '' : 'text-yellow-600'}
+                data-testid="btn-filter-partial"
+              >
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Partial
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {filteredTestCases.map((tc) => (
+                <TestCaseItem
+                  key={tc.id}
+                  testCase={tc}
+                  expanded={expandedTestCases.has(tc.id)}
+                  onToggle={() => toggleTestCase(tc.id)}
+                />
+              ))}
+              {filteredTestCases.length === 0 && (
+                <p className="text-muted-foreground text-center py-8">No test cases match the filter</p>
+              )}
             </div>
           </CardContent>
         </Card>
