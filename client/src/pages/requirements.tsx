@@ -30,6 +30,7 @@ import {
   type DataModelField,
   type TestCase
 } from "@/lib/requirements-registry";
+import type { WorkItem, WorkItemLink } from "@shared/schema";
 
 type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
 
@@ -843,18 +844,6 @@ export default function Requirements() {
       return newSet;
     });
   };
-  
-  const filteredTestCases = testCaseFilter === 'all' 
-    ? hardcodedTestCases 
-    : hardcodedTestCases.filter(tc => tc.status === testCaseFilter);
-  
-  const testCaseSummary = {
-    total: hardcodedTestCases.length,
-    passed: hardcodedTestCases.filter(tc => tc.status === 'passed').length,
-    failed: hardcodedTestCases.filter(tc => tc.status === 'failed').length,
-    partial: hardcodedTestCases.filter(tc => tc.status === 'partial').length,
-    blocked: hardcodedTestCases.filter(tc => tc.status === 'blocked').length,
-  };
 
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
@@ -868,6 +857,52 @@ export default function Requirements() {
   const { data: apiChangeLog = [], isLoading: changeLogLoading, refetch: refetchChangeLog } = useQuery<APIChangeLogEntry[]>({
     queryKey: ['/api/devops/changelog'],
   });
+
+  // Fetch unified work items
+  const { data: workItems = [], isLoading: workItemsLoading, refetch: refetchWorkItems } = useQuery<WorkItem[]>({
+    queryKey: ['/api/work-items'],
+  });
+
+  const { data: workItemLinks = [], refetch: refetchWorkItemLinks } = useQuery<WorkItemLink[]>({
+    queryKey: ['/api/work-item-links'],
+  });
+
+  // Extract test cases from work items
+  const workItemTestCases = workItems.filter(item => item.type === 'test_case');
+  const workItemBugs = workItems.filter(item => item.type === 'bug');
+  const workItemEnhancements = workItems.filter(item => item.type === 'enhancement');
+
+  // Convert work item to test case format for display
+  const workItemToTestCase = (item: WorkItem): TestCase => ({
+    id: item.id,
+    title: item.title,
+    objective: item.description || '',
+    steps: (item.steps as string[]) || [],
+    expectedResult: item.expectedResult || '',
+    actualResult: item.actualResult || '',
+    status: item.status as TestCase['status'],
+    tester: item.tester || '',
+    date: item.date || '',
+    associatedBug: workItemLinks.find(link => link.sourceId === item.id)?.targetId || undefined,
+    component: item.area || undefined,
+  });
+
+  // Use work items for test cases if available, fallback to hardcoded
+  const testCaseData = workItemTestCases.length > 0 
+    ? workItemTestCases.map(workItemToTestCase) 
+    : hardcodedTestCases;
+  
+  const filteredTestCases = testCaseFilter === 'all' 
+    ? testCaseData 
+    : testCaseData.filter(tc => tc.status === testCaseFilter);
+  
+  const testCaseSummary = {
+    total: testCaseData.length,
+    passed: testCaseData.filter(tc => tc.status === 'passed').length,
+    failed: testCaseData.filter(tc => tc.status === 'failed').length,
+    partial: testCaseData.filter(tc => tc.status === 'partial').length,
+    blocked: testCaseData.filter(tc => tc.status === 'blocked').length,
+  };
 
   // Seed mutation
   const seedMutation = useMutation({
@@ -1111,7 +1146,7 @@ export default function Requirements() {
   const issues = changeLogData.filter(e => issueTypes.includes(e.type));
   const regularChanges = changeLogData.filter(e => !issueTypes.includes(e.type));
 
-  const isLoading = reqLoading || modelsLoading || changeLogLoading;
+  const isLoading = reqLoading || modelsLoading || changeLogLoading || workItemsLoading;
   const hasNoData = apiRequirements.length === 0 && apiDataModels.length === 0 && apiChangeLog.length === 0;
 
   return (
