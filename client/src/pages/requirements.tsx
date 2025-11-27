@@ -92,6 +92,17 @@ const testStatusConfig: Record<TestCase['status'], { color: string; icon: typeof
   blocked: { color: "bg-gray-100 text-gray-700", icon: Circle, label: "Blocked" },
 };
 
+const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; label: string }> = {
+  bug: { icon: Bug, color: "text-rose-600 bg-rose-100", label: "Bug" },
+  enhancement: { icon: Lightbulb, color: "text-cyan-600 bg-cyan-100", label: "Enhancement" },
+  test_case: { icon: ClipboardList, color: "text-teal-600 bg-teal-100", label: "Test Case" },
+  story: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Story" },
+  question: { icon: HelpCircle, color: "text-amber-600 bg-amber-100", label: "Question" },
+  action_item: { icon: ListTodo, color: "text-violet-600 bg-violet-100", label: "Action Item" },
+};
+
+const workItemTypes = ['bug', 'enhancement', 'test_case', 'story', 'question', 'action_item'];
+
 function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; expanded: boolean; onToggle: () => void }) {
   const config = testStatusConfig[testCase.status];
   const StatusIcon = config.icon;
@@ -154,6 +165,153 @@ function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; ex
             <span>Tester: {testCase.tester}</span>
             <span>Date: {testCase.date}</span>
             {testCase.component && <span>Component: {testCase.component}</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WorkItemCard({ 
+  item, 
+  expanded, 
+  onToggle, 
+  onConvert,
+  linkedItems,
+  isConverting 
+}: { 
+  item: WorkItem; 
+  expanded: boolean; 
+  onToggle: () => void;
+  onConvert: (id: string, newType: string) => void;
+  linkedItems?: WorkItem[];
+  isConverting?: boolean;
+}) {
+  const typeConfig = workItemTypeConfig[item.type] || workItemTypeConfig.enhancement;
+  const TypeIcon = typeConfig.icon;
+  const priorityClass = item.priority ? priorityColors[item.priority] : '';
+  const statusClass = item.status ? statusColors[item.status] || '' : '';
+  
+  return (
+    <div className="border rounded-lg overflow-hidden" data-testid={`workitem-${item.id}`}>
+      <div 
+        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50"
+        onClick={onToggle}
+      >
+        <button className="p-0.5">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        <div className={`p-1.5 rounded ${typeConfig.color}`}>
+          <TypeIcon className="h-3 w-3" />
+        </div>
+        <Badge variant="outline" className="font-mono text-xs">
+          {item.id}
+        </Badge>
+        <span className="font-medium flex-1 truncate">{item.title}</span>
+        {item.priority && (
+          <Badge className={`text-xs ${priorityClass}`}>
+            {item.priority}
+          </Badge>
+        )}
+        {statusClass && (
+          <Badge className={`text-xs ${statusClass}`}>
+            {item.status?.replace('_', ' ')}
+          </Badge>
+        )}
+        {item.area && (
+          <Badge variant="secondary" className="text-xs">
+            {item.area}
+          </Badge>
+        )}
+      </div>
+      {expanded && (
+        <div className="px-4 pb-4 pt-2 border-t bg-muted/20 space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground uppercase">Type:</span>
+            <Select
+              value={item.type}
+              onValueChange={(value) => onConvert(item.id, value)}
+              disabled={isConverting}
+            >
+              <SelectTrigger className="w-[150px] h-7 text-xs" data-testid={`select-type-${item.id}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {workItemTypes.map(type => (
+                  <SelectItem key={type} value={type}>
+                    {workItemTypeConfig[type]?.label || type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {item.convertedFrom && (
+              <Badge variant="outline" className="text-xs text-muted-foreground">
+                <RefreshCw className="h-3 w-3 mr-1" />
+                from {item.convertedFrom}
+              </Badge>
+            )}
+          </div>
+          
+          <div>
+            <span className="text-xs font-medium text-muted-foreground uppercase">Description</span>
+            <p className="text-sm mt-1">{item.description}</p>
+          </div>
+          
+          {item.steps && Array.isArray(item.steps) && item.steps.length > 0 && (() => {
+            const stepsArray = item.steps as string[];
+            return (
+              <div>
+                <span className="text-xs font-medium text-muted-foreground uppercase">Steps</span>
+                <ol className="text-sm mt-1 list-decimal list-inside space-y-1">
+                  {stepsArray.map((step, idx) => (
+                    <li key={idx} className="text-muted-foreground">{step}</li>
+                  ))}
+                </ol>
+              </div>
+            );
+          })()}
+          
+          {(item.expectedResult || item.actualResult) && (
+            <div className="grid grid-cols-2 gap-4">
+              {item.expectedResult && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Expected</span>
+                  <p className="text-sm mt-1 text-green-700">{item.expectedResult}</p>
+                </div>
+              )}
+              {item.actualResult && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Actual</span>
+                  <p className="text-sm mt-1 text-red-700">{item.actualResult}</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {linkedItems && linkedItems.length > 0 && (
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Linked Items</span>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {linkedItems.map(linked => {
+                  const linkedConfig = workItemTypeConfig[linked.type] || workItemTypeConfig.enhancement;
+                  return (
+                    <Badge key={linked.id} variant="outline" className={linkedConfig.color}>
+                      {linked.id}: {linked.title.substring(0, 30)}...
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          
+          <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t">
+            {item.tester && <span>Tester: {item.tester}</span>}
+            {item.date && <span>Date: {item.date}</span>}
+            {item.createdAt && <span className="ml-auto">Created: {new Date(item.createdAt).toLocaleDateString()}</span>}
           </div>
         </div>
       )}
@@ -829,12 +987,26 @@ export default function Requirements() {
   const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement'; item: any } | null>(null);
   const [activeTab, setActiveTab] = useState("changelog");
   const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
+  const [expandedWorkItems, setExpandedWorkItems] = useState<Set<string>>(new Set());
   const [testCaseFilter, setTestCaseFilter] = useState<TestCase['status'] | 'all'>('all');
+  const [workItemTypeFilter, setWorkItemTypeFilter] = useState<string>('all');
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
   
   const toggleTestCase = (id: string) => {
     setExpandedTestCases(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleWorkItem = (id: string) => {
+    setExpandedWorkItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -1020,6 +1192,44 @@ export default function Requirements() {
       toast({ title: "Failed to delete requirement", variant: "destructive" });
     },
   });
+
+  // Work item type conversion mutation
+  const convertWorkItemMutation = useMutation({
+    mutationFn: async ({ id, type }: { id: string; type: string }) => {
+      await apiRequest('POST', `/api/work-items/${id}/convert`, { type });
+    },
+    onSuccess: () => {
+      toast({ title: "Work item type converted" });
+      refetchWorkItems();
+    },
+    onError: () => {
+      toast({ title: "Failed to convert work item type", variant: "destructive" });
+    },
+  });
+
+  // Helper to get linked items for a work item
+  const getLinkedItemsFor = (itemId: string): WorkItem[] => {
+    const linkIds = workItemLinks
+      .filter(link => link.sourceId === itemId || link.targetId === itemId)
+      .map(link => link.sourceId === itemId ? link.targetId : link.sourceId);
+    return workItems.filter(item => linkIds.includes(item.id));
+  };
+
+  // Filter work items by type
+  const filteredWorkItems = workItemTypeFilter === 'all'
+    ? workItems
+    : workItems.filter(item => item.type === workItemTypeFilter);
+
+  // Work item summary
+  const workItemSummary = {
+    total: workItems.length,
+    bugs: workItemBugs.length,
+    enhancements: workItemEnhancements.length,
+    testCases: workItemTestCases.length,
+    stories: workItems.filter(item => item.type === 'story').length,
+    questions: workItems.filter(item => item.type === 'question').length,
+    actionItems: workItems.filter(item => item.type === 'action_item').length,
+  };
 
   const filteredRegistry = useMemo(() => {
     if (!searchQuery.trim()) return requirementsData;
@@ -1350,6 +1560,90 @@ export default function Requirements() {
               ))}
               {filteredTestCases.length === 0 && (
                 <p className="text-muted-foreground text-center py-8">No test cases match the filter</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-workitems">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500">
+                <ListTodo className="h-4 w-4 text-white" />
+              </div>
+              <span>Unified Work Items</span>
+              <div className="flex gap-2 ml-auto">
+                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
+                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
+                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <Button
+                variant={workItemTypeFilter === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('all')}
+                data-testid="btn-filter-workitems-all"
+              >
+                All ({workItemSummary.total})
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('bug')}
+                className={workItemTypeFilter === 'bug' ? '' : 'text-rose-600'}
+                data-testid="btn-filter-workitems-bug"
+              >
+                <Bug className="h-3 w-3 mr-1" />
+                Bugs
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'enhancement' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('enhancement')}
+                className={workItemTypeFilter === 'enhancement' ? '' : 'text-cyan-600'}
+                data-testid="btn-filter-workitems-enhancement"
+              >
+                <Lightbulb className="h-3 w-3 mr-1" />
+                Enhancements
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('test_case')}
+                className={workItemTypeFilter === 'test_case' ? '' : 'text-teal-600'}
+                data-testid="btn-filter-workitems-testcase"
+              >
+                <ClipboardList className="h-3 w-3 mr-1" />
+                Test Cases
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'story' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('story')}
+                className={workItemTypeFilter === 'story' ? '' : 'text-blue-600'}
+                data-testid="btn-filter-workitems-story"
+              >
+                <FileText className="h-3 w-3 mr-1" />
+                Stories
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {filteredWorkItems.map((item) => (
+                <WorkItemCard
+                  key={item.id}
+                  item={item}
+                  expanded={expandedWorkItems.has(item.id)}
+                  onToggle={() => toggleWorkItem(item.id)}
+                  onConvert={(id, newType) => convertWorkItemMutation.mutate({ id, type: newType })}
+                  linkedItems={getLinkedItemsFor(item.id)}
+                  isConverting={convertWorkItemMutation.isPending}
+                />
+              ))}
+              {filteredWorkItems.length === 0 && (
+                <p className="text-muted-foreground text-center py-8">No work items match the filter</p>
               )}
             </div>
           </CardContent>
