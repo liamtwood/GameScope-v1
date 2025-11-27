@@ -5,13 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bug, Lightbulb, Loader2 } from "lucide-react";
+import { Bug, Lightbulb, Loader2, HelpCircle, ListTodo } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTab } from "@/contexts/tab-context";
 
-type ReportType = 'bug' | 'enhancement';
+type ReportType = 'bug' | 'enhancement' | 'question' | 'action_item';
+
+const typeConfig = {
+  bug: { icon: Bug, color: "text-rose-500", label: "Bug", idPrefix: "BUG", title: "Report a Bug" },
+  enhancement: { icon: Lightbulb, color: "text-cyan-500", label: "Enhancement", idPrefix: "ENH", title: "Suggest an Enhancement" },
+  question: { icon: HelpCircle, color: "text-amber-500", label: "Question", idPrefix: "QST", title: "Ask a Question" },
+  action_item: { icon: ListTodo, color: "text-violet-500", label: "Action Item", idPrefix: "ACT", title: "Create Action Item" },
+};
 
 export function BugReportDialog() {
   const [open, setOpen] = useState(false);
@@ -33,7 +40,7 @@ export function BugReportDialog() {
       const fullArea = getFullArea();
       setFormData(prev => ({
         ...prev,
-        id: `${prev.type === 'bug' ? 'BUG' : 'ENH'}-${String(Date.now()).slice(-4)}`,
+        id: `${typeConfig[prev.type].idPrefix}-${String(Date.now()).slice(-4)}`,
         date: new Date().toISOString().split('T')[0],
         area: fullArea,
         description: "",
@@ -46,9 +53,18 @@ export function BugReportDialog() {
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      id: `${prev.type === 'bug' ? 'BUG' : 'ENH'}-${String(Date.now()).slice(-4)}`,
+      id: `${typeConfig[prev.type].idPrefix}-${String(Date.now()).slice(-4)}`,
     }));
   }, [formData.type]);
+
+  const getSuccessMessage = (type: ReportType) => {
+    switch (type) {
+      case 'bug': return "Bug reported";
+      case 'enhancement': return "Enhancement suggested";
+      case 'question': return "Question submitted";
+      case 'action_item': return "Action item created";
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -56,7 +72,7 @@ export function BugReportDialog() {
     },
     onSuccess: () => {
       toast({ 
-        title: formData.type === 'bug' ? "Bug reported" : "Enhancement suggested",
+        title: getSuccessMessage(formData.type),
         description: "Your feedback has been recorded. Thank you!"
       });
       queryClient.invalidateQueries({ queryKey: ['/api/devops/changelog'] });
@@ -98,15 +114,15 @@ export function BugReportDialog() {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {formData.type === 'bug' ? (
-              <Bug className="h-5 w-5 text-rose-500" />
-            ) : (
-              <Lightbulb className="h-5 w-5 text-cyan-500" />
-            )}
-            {formData.type === 'bug' ? 'Report a Bug' : 'Suggest an Enhancement'}
+            {(() => {
+              const config = typeConfig[formData.type];
+              const Icon = config.icon;
+              return <Icon className={`h-5 w-5 ${config.color}`} />;
+            })()}
+            {typeConfig[formData.type].title}
           </DialogTitle>
           <DialogDescription>
-            Help us improve by reporting issues or suggesting new features.
+            Help us improve by reporting issues, asking questions, or tracking action items.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -121,18 +137,17 @@ export function BugReportDialog() {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bug">
-                    <div className="flex items-center gap-2">
-                      <Bug className="h-4 w-4 text-rose-500" />
-                      Bug
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="enhancement">
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-cyan-500" />
-                      Enhancement
-                    </div>
-                  </SelectItem>
+                  {(Object.entries(typeConfig) as [ReportType, typeof typeConfig.bug][]).map(([type, config]) => {
+                    const Icon = config.icon;
+                    return (
+                      <SelectItem key={type} value={type}>
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 ${config.color}`} />
+                          {config.label}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -168,15 +183,20 @@ export function BugReportDialog() {
           
           <div className="space-y-2">
             <Label htmlFor="description">
-              {formData.type === 'bug' ? 'What went wrong?' : 'What would you like to see?'}
+              {formData.type === 'bug' ? 'What went wrong?' : 
+               formData.type === 'question' ? 'What would you like to know?' :
+               formData.type === 'action_item' ? 'What needs to be done?' :
+               'What would you like to see?'}
             </Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder={formData.type === 'bug' 
-                ? "Describe the issue you encountered..." 
-                : "Describe your suggestion or idea..."
+              placeholder={
+                formData.type === 'bug' ? "Describe the issue you encountered..." :
+                formData.type === 'question' ? "Ask your question here..." :
+                formData.type === 'action_item' ? "Describe the action that needs to be completed..." :
+                "Describe your suggestion or idea..."
               }
               rows={4}
               data-testid="textarea-report-description"
@@ -196,7 +216,7 @@ export function BugReportDialog() {
                 Submitting...
               </>
             ) : (
-              <>Submit {formData.type === 'bug' ? 'Bug Report' : 'Suggestion'}</>
+              <>Submit {typeConfig[formData.type].label}</>
             )}
           </Button>
         </DialogFooter>

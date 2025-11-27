@@ -12,7 +12,7 @@ export interface FunctionalRequirement {
 export interface ChangeLogEntry {
   id: string;
   date: string;
-  type: 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement';
+  type: 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
   area: string;
   description: string;
   priority?: 'low' | 'medium' | 'high' | 'critical';

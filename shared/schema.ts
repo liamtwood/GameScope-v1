@@ -480,10 +480,10 @@ export const devopsDataModels = pgTable("devops_data_models", {
 export const devopsChangeLog = pgTable("devops_change_log", {
   id: varchar("id").primaryKey(),
   date: text("date").notNull(),
-  type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement
+  type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement, question, action_item
   area: text("area").notNull(),
   description: text("description").notNull(),
-  priority: varchar("priority", { length: 20 }), // low, medium, high, critical (for bugs/enhancements)
+  priority: varchar("priority", { length: 20 }), // low, medium, high, critical (for bugs/enhancements/questions/action_items)
   status: varchar("status", { length: 20 }).default("open"), // open, in_progress, resolved, closed
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -528,7 +528,7 @@ export const insertDevopsDataModelSchema = createInsertSchema(devopsDataModels)
 export const insertDevopsChangeLogSchema = createInsertSchema(devopsChangeLog)
   .omit({ createdAt: true, updatedAt: true })
   .extend({
-    type: z.enum(["added", "removed", "changed", "fixed", "bug", "enhancement"]),
+    type: z.enum(["added", "removed", "changed", "fixed", "bug", "enhancement", "question", "action_item"]),
     priority: z.enum(["low", "medium", "high", "critical"]).optional(),
     status: z.enum(["open", "in_progress", "resolved", "closed"]).optional(),
   });

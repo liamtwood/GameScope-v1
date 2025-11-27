@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2 } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -29,7 +29,7 @@ import {
   type DataModelField
 } from "@/lib/requirements-registry";
 
-type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement';
+type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
 
 type APIChangeLogEntry = ChangeLogEntry;
 
@@ -64,6 +64,8 @@ const changeTypeConfig: Record<ChangeLogType, { icon: typeof Plus; color: string
   fixed: { icon: Wrench, color: "text-amber-600 bg-amber-100", label: "Fixed" },
   bug: { icon: Bug, color: "text-rose-600 bg-rose-100", label: "Bug" },
   enhancement: { icon: Lightbulb, color: "text-cyan-600 bg-cyan-100", label: "Enhancement" },
+  question: { icon: HelpCircle, color: "text-amber-600 bg-amber-100", label: "Question" },
+  action_item: { icon: ListTodo, color: "text-violet-600 bg-violet-100", label: "Action Item" },
 };
 
 const priorityColors: Record<string, string> = {
@@ -177,7 +179,7 @@ function ChangeLogItem({
 }) {
   const config = changeTypeConfig[entry.type] || changeTypeConfig.changed;
   const Icon = config.icon;
-  const isBugOrEnhancement = entry.type === 'bug' || entry.type === 'enhancement';
+  const isTrackableItem = entry.type === 'bug' || entry.type === 'enhancement' || entry.type === 'question' || entry.type === 'action_item';
   
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/20 group" data-testid={`changelog-${entry.id}`}>
@@ -188,12 +190,12 @@ function ChangeLogItem({
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Badge variant="outline" className="text-xs font-mono">{entry.id}</Badge>
           <Badge variant="secondary" className="text-xs">{entry.area}</Badge>
-          {isBugOrEnhancement && entry.priority && (
+          {isTrackableItem && entry.priority && (
             <Badge className={`text-xs ${priorityColors[entry.priority]}`}>
               {entry.priority}
             </Badge>
           )}
-          {isBugOrEnhancement && entry.status && (
+          {isTrackableItem && entry.status && (
             <Badge className={`text-xs ${statusColors[entry.status]}`}>
               {entry.status.replace('_', ' ')}
             </Badge>
@@ -422,7 +424,7 @@ function ChangeLogDialog({
     }
   }, [entry, open]);
 
-  const isBugOrEnhancement = formData.type === 'bug' || formData.type === 'enhancement';
+  const isTrackableItem = formData.type === 'bug' || formData.type === 'enhancement' || formData.type === 'question' || formData.type === 'action_item';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -473,6 +475,8 @@ function ChangeLogDialog({
                   <SelectItem value="fixed">Fixed</SelectItem>
                   <SelectItem value="bug">Bug</SelectItem>
                   <SelectItem value="enhancement">Enhancement</SelectItem>
+                  <SelectItem value="question">Question</SelectItem>
+                  <SelectItem value="action_item">Action Item</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -487,7 +491,7 @@ function ChangeLogDialog({
               />
             </div>
           </div>
-          {isBugOrEnhancement && (
+          {isTrackableItem && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
