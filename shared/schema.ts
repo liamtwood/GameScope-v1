@@ -489,6 +489,39 @@ export const devopsChangeLog = pgTable("devops_change_log", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Unified Work Items table - supports all trackable item types with easy conversion
+export const workItems = pgTable("work_items", {
+  id: varchar("id").primaryKey(), // Format: TYPE-NNN (e.g., STORY-001, BUG-003, TC-008)
+  type: varchar("type", { length: 20 }).notNull(), // epoch, epic, feature, story, bug, enhancement, test_case, question, action_item
+  parentId: varchar("parent_id"), // For hierarchy (story → feature → epic → epoch)
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("open"), // draft, open, in_progress, resolved, closed, passed, failed, partial, blocked
+  priority: varchar("priority", { length: 20 }), // low, medium, high, critical
+  area: varchar("area", { length: 50 }), // squad, fixtures, video, dashboard, etc.
+  
+  // Test case specific fields
+  steps: jsonb("steps"), // string[] - test steps
+  expectedResult: text("expected_result"),
+  actualResult: text("actual_result"),
+  tester: varchar("tester", { length: 100 }),
+  
+  // Metadata
+  date: text("date"), // For backwards compat with changelog entries
+  convertedFrom: varchar("converted_from"), // Preserves history: "BUG-003" if converted from bug
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Many-to-many links between work items for traceability
+export const workItemLinks = pgTable("work_item_links", {
+  id: varchar("id").primaryKey(), // Auto-generated
+  sourceId: varchar("source_id").notNull(), // FK to work_items
+  targetId: varchar("target_id").notNull(), // FK to work_items
+  linkType: varchar("link_type", { length: 20 }).notNull(), // traces_to, blocks, duplicates, relates_to, parent_of
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Zod schemas for requirements types
 const functionalRequirementSchema = z.object({
   id: z.string(),
@@ -533,6 +566,39 @@ export const insertDevopsChangeLogSchema = createInsertSchema(devopsChangeLog)
     status: z.enum(["open", "in_progress", "resolved", "closed"]).optional(),
   });
 
+// Work Item schemas
+export const workItemTypeEnum = z.enum([
+  "epoch", "epic", "feature", "story", 
+  "bug", "enhancement", "test_case", 
+  "question", "action_item"
+]);
+
+export const workItemStatusEnum = z.enum([
+  "draft", "open", "in_progress", "resolved", "closed",
+  "passed", "failed", "partial", "blocked" // For test cases
+]);
+
+export const workItemPriorityEnum = z.enum(["low", "medium", "high", "critical"]);
+
+export const workItemLinkTypeEnum = z.enum([
+  "traces_to", "blocks", "duplicates", "relates_to", "parent_of"
+]);
+
+export const insertWorkItemSchema = createInsertSchema(workItems)
+  .omit({ createdAt: true, updatedAt: true })
+  .extend({
+    type: workItemTypeEnum,
+    status: workItemStatusEnum.optional(),
+    priority: workItemPriorityEnum.optional(),
+    steps: z.array(z.string()).optional(),
+  });
+
+export const insertWorkItemLinkSchema = createInsertSchema(workItemLinks)
+  .omit({ createdAt: true })
+  .extend({
+    linkType: workItemLinkTypeEnum,
+  });
+
 // Types for requirements
 export type PageRequirementRecord = typeof pageRequirements.$inferSelect;
 export type DevopsDataModel = typeof devopsDataModels.$inferSelect;
@@ -541,3 +607,13 @@ export type DevopsChangeLog = typeof devopsChangeLog.$inferSelect;
 export type InsertPageRequirement = z.infer<typeof insertPageRequirementsSchema>;
 export type InsertDevopsDataModel = z.infer<typeof insertDevopsDataModelSchema>;
 export type InsertDevopsChangeLog = z.infer<typeof insertDevopsChangeLogSchema>;
+
+// Work Item types
+export type WorkItem = typeof workItems.$inferSelect;
+export type WorkItemLink = typeof workItemLinks.$inferSelect;
+export type InsertWorkItem = z.infer<typeof insertWorkItemSchema>;
+export type InsertWorkItemLink = z.infer<typeof insertWorkItemLinkSchema>;
+export type WorkItemType = z.infer<typeof workItemTypeEnum>;
+export type WorkItemStatus = z.infer<typeof workItemStatusEnum>;
+export type WorkItemPriority = z.infer<typeof workItemPriorityEnum>;
+export type WorkItemLinkType = z.infer<typeof workItemLinkTypeEnum>;
