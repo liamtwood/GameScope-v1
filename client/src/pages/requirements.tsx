@@ -106,6 +106,136 @@ const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; labe
 
 const workItemTypes = ['epoch', 'epic', 'feature', 'story', 'bug', 'enhancement', 'test_case', 'question', 'action_item'];
 
+// Hierarchy types for tree view
+const hierarchyTypes = ['epoch', 'epic', 'feature', 'story'];
+
+interface HierarchyNode {
+  item: WorkItem;
+  children: HierarchyNode[];
+}
+
+// Build hierarchy tree from flat work items list
+function buildHierarchyTree(items: WorkItem[]): HierarchyNode[] {
+  const hierarchyItems = items.filter(item => hierarchyTypes.includes(item.type));
+  const itemMap = new Map<string, HierarchyNode>();
+  
+  // Create nodes for all hierarchy items
+  hierarchyItems.forEach(item => {
+    itemMap.set(item.id, { item, children: [] });
+  });
+  
+  // Build parent-child relationships
+  const roots: HierarchyNode[] = [];
+  hierarchyItems.forEach(item => {
+    const node = itemMap.get(item.id)!;
+    if (item.parentId && itemMap.has(item.parentId)) {
+      itemMap.get(item.parentId)!.children.push(node);
+    } else if (!item.parentId || !itemMap.has(item.parentId)) {
+      // Items without parents or with non-hierarchy parents go to root
+      if (item.type === 'epoch') {
+        roots.push(node);
+      }
+    }
+  });
+  
+  // Sort children by ID
+  const sortChildren = (nodes: HierarchyNode[]) => {
+    nodes.sort((a, b) => a.item.id.localeCompare(b.item.id));
+    nodes.forEach(node => sortChildren(node.children));
+  };
+  sortChildren(roots);
+  
+  return roots;
+}
+
+// Hierarchy tree node component
+function HierarchyTreeNode({ 
+  node, 
+  depth = 0,
+  expandedNodes,
+  onToggle,
+  onSelectItem
+}: { 
+  node: HierarchyNode; 
+  depth?: number;
+  expandedNodes: Set<string>;
+  onToggle: (id: string) => void;
+  onSelectItem?: (item: WorkItem) => void;
+}) {
+  const { item, children } = node;
+  const isExpanded = expandedNodes.has(item.id);
+  const hasChildren = children.length > 0;
+  const typeConfig = workItemTypeConfig[item.type] || workItemTypeConfig.story;
+  const TypeIcon = typeConfig.icon;
+  const statusClass = item.status ? statusColors[item.status] || '' : '';
+  
+  return (
+    <div className="select-none" data-testid={`hierarchy-node-${item.id}`}>
+      <div 
+        className={`flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 cursor-pointer transition-colors`}
+        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+        onClick={() => hasChildren && onToggle(item.id)}
+      >
+        {/* Expand/Collapse button */}
+        <button 
+          className={`w-5 h-5 flex items-center justify-center rounded text-xs font-bold ${hasChildren ? 'hover:bg-muted' : 'invisible'}`}
+          onClick={(e) => { e.stopPropagation(); if (hasChildren) onToggle(item.id); }}
+        >
+          {hasChildren && (isExpanded ? '−' : '+')}
+        </button>
+        
+        {/* Type icon */}
+        <div className={`p-1 rounded ${typeConfig.color}`}>
+          <TypeIcon className="h-3 w-3" />
+        </div>
+        
+        {/* ID badge */}
+        <Badge variant="outline" className="font-mono text-xs px-1.5 py-0">
+          {item.id}
+        </Badge>
+        
+        {/* Title */}
+        <span 
+          className="flex-1 text-sm truncate hover:underline"
+          onClick={(e) => { e.stopPropagation(); onSelectItem?.(item); }}
+        >
+          {item.title}
+        </span>
+        
+        {/* Status badge */}
+        {item.status && (
+          <Badge className={`${statusClass} text-xs px-1.5 py-0`}>
+            {item.status.replace('_', ' ')}
+          </Badge>
+        )}
+        
+        {/* Children count */}
+        {hasChildren && (
+          <span className="text-xs text-muted-foreground">
+            ({children.length})
+          </span>
+        )}
+      </div>
+      
+      {/* Children */}
+      {isExpanded && hasChildren && (
+        <div className="border-l ml-4 border-muted">
+          {children.map(child => (
+            <HierarchyTreeNode
+              key={child.item.id}
+              node={child}
+              depth={depth + 1}
+              expandedNodes={expandedNodes}
+              onToggle={onToggle}
+              onSelectItem={onSelectItem}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; expanded: boolean; onToggle: () => void }) {
   const config = testStatusConfig[testCase.status];
   const StatusIcon = config.icon;
@@ -991,6 +1121,7 @@ export default function Requirements() {
   const [activeTab, setActiveTab] = useState("changelog");
   const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
   const [expandedWorkItems, setExpandedWorkItems] = useState<Set<string>>(new Set());
+  const [expandedHierarchyNodes, setExpandedHierarchyNodes] = useState<Set<string>>(new Set(['EPOCH-001'])); // Start with first epoch expanded
   const [testCaseFilter, setTestCaseFilter] = useState<TestCase['status'] | 'all'>('all');
   const [workItemTypeFilter, setWorkItemTypeFilter] = useState<string>('all');
 
@@ -1019,6 +1150,21 @@ export default function Requirements() {
       return newSet;
     });
   };
+
+  const toggleHierarchyNode = (id: string) => {
+    setExpandedHierarchyNodes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  // Build hierarchy tree from work items
+  const hierarchyTree = useMemo(() => buildHierarchyTree(workItems), [workItems]);
 
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
@@ -1571,18 +1717,51 @@ export default function Requirements() {
           </CardContent>
         </Card>
 
-        <Card data-testid="card-workitems">
+        <Card data-testid="card-hierarchy">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500">
-                <ListTodo className="h-4 w-4 text-white" />
+              <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500">
+                <Target className="h-4 w-4 text-white" />
               </div>
-              <span>Unified Work Items</span>
+              <span>Requirements Hierarchy</span>
               <div className="flex gap-2 ml-auto flex-wrap">
                 <Badge className="bg-purple-100 text-purple-700">{workItemSummary.epochs} Epochs</Badge>
                 <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
                 <Badge className="bg-violet-100 text-violet-700">{workItemSummary.features} Features</Badge>
                 <Badge className="bg-blue-100 text-blue-700">{workItemSummary.stories} Stories</Badge>
+              </div>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Click + to expand levels: Epoch → Epic → Feature → Story</p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="border rounded-lg p-2 bg-muted/20">
+              {hierarchyTree.length > 0 ? (
+                hierarchyTree.map(node => (
+                  <HierarchyTreeNode
+                    key={node.item.id}
+                    node={node}
+                    expandedNodes={expandedHierarchyNodes}
+                    onToggle={toggleHierarchyNode}
+                  />
+                ))
+              ) : (
+                <p className="text-muted-foreground text-center py-8">No hierarchy items found. Add Epochs, Epics, Features, or Stories.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-workitems">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-gradient-to-r from-rose-500 to-cyan-500">
+                <ListTodo className="h-4 w-4 text-white" />
+              </div>
+              <span>Work Items</span>
+              <div className="flex gap-2 ml-auto flex-wrap">
+                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
+                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
+                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
               </div>
             </CardTitle>
           </CardHeader>
@@ -1594,50 +1773,8 @@ export default function Requirements() {
                 onClick={() => setWorkItemTypeFilter('all')}
                 data-testid="btn-filter-workitems-all"
               >
-                All ({workItemSummary.total})
+                All
               </Button>
-              <span className="text-muted-foreground text-xs self-center">|</span>
-              <Button
-                variant={workItemTypeFilter === 'epoch' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('epoch')}
-                className={workItemTypeFilter === 'epoch' ? '' : 'text-purple-600'}
-                data-testid="btn-filter-workitems-epoch"
-              >
-                <Target className="h-3 w-3 mr-1" />
-                Epochs
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'epic' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('epic')}
-                className={workItemTypeFilter === 'epic' ? '' : 'text-indigo-600'}
-                data-testid="btn-filter-workitems-epic"
-              >
-                <Layers className="h-3 w-3 mr-1" />
-                Epics
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'feature' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('feature')}
-                className={workItemTypeFilter === 'feature' ? '' : 'text-violet-600'}
-                data-testid="btn-filter-workitems-feature"
-              >
-                <Puzzle className="h-3 w-3 mr-1" />
-                Features
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'story' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('story')}
-                className={workItemTypeFilter === 'story' ? '' : 'text-blue-600'}
-                data-testid="btn-filter-workitems-story"
-              >
-                <FileText className="h-3 w-3 mr-1" />
-                Stories
-              </Button>
-              <span className="text-muted-foreground text-xs self-center">|</span>
               <Button
                 variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
                 size="sm"
@@ -1646,7 +1783,7 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-bug"
               >
                 <Bug className="h-3 w-3 mr-1" />
-                Bugs
+                Bugs ({workItemSummary.bugs})
               </Button>
               <Button
                 variant={workItemTypeFilter === 'enhancement' ? 'default' : 'outline'}
@@ -1656,7 +1793,7 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-enhancement"
               >
                 <Lightbulb className="h-3 w-3 mr-1" />
-                Enhancements
+                Enhancements ({workItemSummary.enhancements})
               </Button>
               <Button
                 variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
@@ -1666,11 +1803,11 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-testcase"
               >
                 <ClipboardList className="h-3 w-3 mr-1" />
-                Tests
+                Tests ({workItemSummary.testCases})
               </Button>
             </div>
             <div className="space-y-2">
-              {filteredWorkItems.map((item) => (
+              {filteredWorkItems.filter(item => !hierarchyTypes.includes(item.type)).map((item) => (
                 <WorkItemCard
                   key={item.id}
                   item={item}
@@ -1681,7 +1818,7 @@ export default function Requirements() {
                   isConverting={convertWorkItemMutation.isPending}
                 />
               ))}
-              {filteredWorkItems.length === 0 && (
+              {filteredWorkItems.filter(item => !hierarchyTypes.includes(item.type)).length === 0 && (
                 <p className="text-muted-foreground text-center py-8">No work items match the filter</p>
               )}
             </div>
