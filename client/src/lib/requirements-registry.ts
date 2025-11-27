@@ -19,6 +19,20 @@ export interface ChangeLogEntry {
   status?: 'open' | 'in_progress' | 'resolved' | 'closed';
 }
 
+export interface TestCase {
+  id: string;
+  title: string;
+  objective: string;
+  steps: string[];
+  expectedResult: string;
+  actualResult: string;
+  status: 'passed' | 'failed' | 'partial' | 'blocked';
+  associatedBug?: string;
+  date: string;
+  tester: string;
+  component?: string;
+}
+
 export interface DataModelField {
   name: string;
   type: string;
@@ -90,6 +104,154 @@ export const changeLog: ChangeLogEntry[] = [
     type: "changed",
     area: "Logos",
     description: "Migrated all logo uploads from filesystem to cloud object storage for production compatibility.",
+  },
+];
+
+export const testCases: TestCase[] = [
+  {
+    id: "TC-001",
+    title: "Create Club",
+    objective: "Verify club creation workflow with all required fields",
+    steps: [
+      "Login to GameScope",
+      "Navigate to dev environment",
+      "Click on Clubs",
+      "Click Add Club",
+      "Enter club details: Club name: Newcastle, Short name: ufc, Owner name: [any], Primary color: Black, Secondary color: White, Phone number: [entered], Email: leam.wood@yahoo.com, Country: United Kingdom",
+      "Upload Newcastle United logo",
+      "Click Create Club"
+    ],
+    expectedResult: "Club created with all details saved and displayed correctly",
+    actualResult: "Club created successfully. Name and country were correctly displayed and used for the filter.",
+    status: "passed",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "Clubs"
+  },
+  {
+    id: "TC-002",
+    title: "Create Team",
+    objective: "Create a team for Newcastle United club",
+    steps: [
+      "Navigate to Teams section",
+      "Click Create Team",
+      "Enter team details: Team name: Under 18, Short name: u18, Head coach: x, Assistant coach: y, Gender: Male, Age group: U18, Season: 25-26",
+      "Click Create Team"
+    ],
+    expectedResult: "Team created and displayed in teams list",
+    actualResult: "System displayed 'Team created successfully' message but team does not appear in the list. Attempted to create the same team again with identical information - received success message again without duplicate error, indicating the team is not being saved to the database.",
+    status: "failed",
+    associatedBug: "BUG-001",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "Teams"
+  },
+  {
+    id: "TC-003",
+    title: "Add User",
+    objective: "Add a new user to the club with required fields",
+    steps: [
+      "Navigate to Club → Club Users",
+      "Click Add User",
+      "Enter user details: First name: Liam, Last name: Wood, Short name: Wood, Email: leam.wood@yahoo.com, Password: [any], Gender: [selected]",
+      "Click Save"
+    ],
+    expectedResult: "User created with only first name, last name, email, and password required. Other fields should be optional.",
+    actualResult: "Received 'Bad request exception' error. Testing revealed that 'short name' field is incorrectly required when it should be optional.",
+    status: "failed",
+    associatedBug: "BUG-002",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
+  },
+  {
+    id: "TC-004",
+    title: "Delete User",
+    objective: "Delete a user (Liam Wood) from the club",
+    steps: [
+      "Navigate to Club → Club Users",
+      "Find user: Liam Wood",
+      "Click three dots menu",
+      "Click Delete User",
+      "Confirmation dialog appears: 'Are you sure you want to delete Bob or Liam Wood? This player may be a part of active squads. Deleting this user will remove them from all teams.'",
+      "Click 'Yes, delete user'"
+    ],
+    expectedResult: "User deleted from system permanently",
+    actualResult: "System displayed 'Liam Wood has been deleted successfully' but user was not actually deleted (confirmed in Test Case 5).",
+    status: "failed",
+    associatedBug: "BUG-003",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
+  },
+  {
+    id: "TC-005",
+    title: "Verify User Deletion",
+    objective: "Confirm user deletion by attempting to recreate the same user",
+    steps: [
+      "Navigate to Club → Club Users",
+      "Click Add User",
+      "Enter same details as deleted user: First name: Liam, Last name: Wood, Short name: Wood, Email: leam.wood@yahoo.com, Password: [any]",
+      "Click Create User"
+    ],
+    expectedResult: "User should be created successfully since previous user was deleted",
+    actualResult: "Received error: 'Email already exists' - confirming that the user was never actually deleted despite success message.",
+    status: "failed",
+    associatedBug: "BUG-003",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
+  },
+  {
+    id: "TC-006",
+    title: "Multiple Users with Different Roles",
+    objective: "Create multiple users with different roles and verify summary tabs display correct information",
+    steps: [
+      "Create three users: Test 1: Player role, Test 2: Admin role, Test 3: Coach role",
+      "Check Club User Management summary tabs for accurate counts"
+    ],
+    expectedResult: "Summary should show: Total users: 3, Role breakdown: 1 admin, 1 coach, 1 player, User status: 3 active, 0 retired, 0 suspended",
+    actualResult: "Partial success: Total users: Shows 4 (incorrect - should be 3), Role breakdown: 1 admin, 1 coach, 1 player (correct), User status: 3 active, 0 retired, 0 suspended (correct), Grouping works correctly on the Club User Management screen",
+    status: "partial",
+    associatedBug: "BUG-004",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
+  },
+  {
+    id: "TC-007",
+    title: "Filter Users by Role",
+    objective: "Verify filtering functionality for user roles and status",
+    steps: [
+      "Click Enable Filter",
+      "Test role filters: Admin, Coach, Players, Sub Admin",
+      "Test status filter: Active"
+    ],
+    expectedResult: "Filters should correctly display users matching selected criteria",
+    actualResult: "All filters work correctly. Users are properly filtered by role and status.",
+    status: "passed",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
+  },
+  {
+    id: "TC-008",
+    title: "Change User Status",
+    objective: "Change user status from Active to Suspended",
+    steps: [
+      "Navigate to Club → Club Users",
+      "Click on Test 2 user (admin role)",
+      "Click Edit",
+      "Change Account Status from Active to Suspended",
+      "Click Save"
+    ],
+    expectedResult: "User status changes to Suspended and summary reflects the change",
+    actualResult: "System displayed 'User details updated successfully' but the user's account status remains Active. No actual change was applied.",
+    status: "failed",
+    associatedBug: "BUG-005",
+    date: "2025-11-11",
+    tester: "Liam Wood",
+    component: "User Management"
   },
 ];
 
