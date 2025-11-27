@@ -18,6 +18,8 @@ import {
   pageRequirements,
   devopsDataModels,
   devopsChangeLog,
+  workItems,
+  workItemLinks,
   type Club,
   type Team,
   type User,
@@ -49,6 +51,10 @@ import {
   type InsertPageRequirement,
   type InsertDevopsDataModel,
   type InsertDevopsChangeLog,
+  type WorkItem as WorkItemRecord,
+  type WorkItemLink as WorkItemLinkRecord,
+  type InsertWorkItem,
+  type InsertWorkItemLink,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -173,6 +179,21 @@ export interface IStorage {
   createDevopsChangeLog(entry: InsertDevopsChangeLog): Promise<DevopsChangeLogRecord>;
   updateDevopsChangeLog(id: string, entry: Partial<InsertDevopsChangeLog>): Promise<DevopsChangeLogRecord>;
   deleteDevopsChangeLog(id: string): Promise<void>;
+  
+  // Work Items CRUD operations
+  getWorkItems(filters?: { type?: string; parentId?: string; area?: string; status?: string }): Promise<WorkItemRecord[]>;
+  getWorkItem(id: string): Promise<WorkItemRecord | undefined>;
+  createWorkItem(item: InsertWorkItem): Promise<WorkItemRecord>;
+  updateWorkItem(id: string, item: Partial<InsertWorkItem>): Promise<WorkItemRecord>;
+  deleteWorkItem(id: string): Promise<void>;
+  convertWorkItemType(id: string, newType: string): Promise<WorkItemRecord>;
+  getWorkItemChildren(parentId: string): Promise<WorkItemRecord[]>;
+  
+  // Work Item Links CRUD operations
+  getWorkItemLinks(itemId?: string): Promise<WorkItemLinkRecord[]>;
+  createWorkItemLink(link: InsertWorkItemLink): Promise<WorkItemLinkRecord>;
+  deleteWorkItemLink(id: string): Promise<void>;
+  getLinkedItems(itemId: string, linkType?: string): Promise<WorkItemRecord[]>;
   
   // Seed requirements data from registry
   seedRequirementsData(): Promise<void>;
@@ -1670,6 +1691,128 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDevopsChangeLog(id: string): Promise<void> {
     await db.delete(devopsChangeLog).where(eq(devopsChangeLog.id, id));
+  }
+
+  // Work Items CRUD
+  async getWorkItems(filters?: { type?: string; parentId?: string; area?: string; status?: string }): Promise<WorkItemRecord[]> {
+    let query = db.select().from(workItems);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.type) conditions.push(eq(workItems.type, filters.type));
+      if (filters.parentId) conditions.push(eq(workItems.parentId, filters.parentId));
+      if (filters.area) conditions.push(eq(workItems.area, filters.area));
+      if (filters.status) conditions.push(eq(workItems.status, filters.status));
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as typeof query;
+      }
+    }
+    
+    return await query;
+  }
+
+  async getWorkItem(id: string): Promise<WorkItemRecord | undefined> {
+    const [result] = await db.select().from(workItems).where(eq(workItems.id, id));
+    return result;
+  }
+
+  async createWorkItem(item: InsertWorkItem): Promise<WorkItemRecord> {
+    const [result] = await db.insert(workItems).values({
+      ...item,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async updateWorkItem(id: string, item: Partial<InsertWorkItem>): Promise<WorkItemRecord> {
+    const [result] = await db.update(workItems)
+      .set({ ...item, updatedAt: new Date() })
+      .where(eq(workItems.id, id))
+      .returning();
+    if (!result) throw new Error("Work item not found");
+    return result;
+  }
+
+  async deleteWorkItem(id: string): Promise<void> {
+    // Also delete any links involving this item
+    await db.delete(workItemLinks).where(
+      sql`${workItemLinks.sourceId} = ${id} OR ${workItemLinks.targetId} = ${id}`
+    );
+    await db.delete(workItems).where(eq(workItems.id, id));
+  }
+
+  async convertWorkItemType(id: string, newType: string): Promise<WorkItemRecord> {
+    const existing = await this.getWorkItem(id);
+    if (!existing) throw new Error("Work item not found");
+    
+    const [result] = await db.update(workItems)
+      .set({ 
+        type: newType,
+        convertedFrom: existing.id,
+        updatedAt: new Date() 
+      })
+      .where(eq(workItems.id, id))
+      .returning();
+    return result;
+  }
+
+  async getWorkItemChildren(parentId: string): Promise<WorkItemRecord[]> {
+    return await db.select().from(workItems).where(eq(workItems.parentId, parentId));
+  }
+
+  // Work Item Links CRUD
+  async getWorkItemLinks(itemId?: string): Promise<WorkItemLinkRecord[]> {
+    if (itemId) {
+      return await db.select().from(workItemLinks).where(
+        sql`${workItemLinks.sourceId} = ${itemId} OR ${workItemLinks.targetId} = ${itemId}`
+      );
+    }
+    return await db.select().from(workItemLinks);
+  }
+
+  async createWorkItemLink(link: InsertWorkItemLink): Promise<WorkItemLinkRecord> {
+    const [result] = await db.insert(workItemLinks).values({
+      ...link,
+      createdAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async deleteWorkItemLink(id: string): Promise<void> {
+    await db.delete(workItemLinks).where(eq(workItemLinks.id, id));
+  }
+
+  async getLinkedItems(itemId: string, linkType?: string): Promise<WorkItemRecord[]> {
+    // Get all links for this item
+    let links: WorkItemLinkRecord[];
+    if (linkType) {
+      links = await db.select().from(workItemLinks).where(
+        and(
+          sql`${workItemLinks.sourceId} = ${itemId} OR ${workItemLinks.targetId} = ${itemId}`,
+          eq(workItemLinks.linkType, linkType)
+        )
+      );
+    } else {
+      links = await db.select().from(workItemLinks).where(
+        sql`${workItemLinks.sourceId} = ${itemId} OR ${workItemLinks.targetId} = ${itemId}`
+      );
+    }
+    
+    // Get the linked item IDs (excluding the current item)
+    const linkedIds = links.map(link => 
+      link.sourceId === itemId ? link.targetId : link.sourceId
+    ).filter(id => id !== itemId);
+    
+    if (linkedIds.length === 0) return [];
+    
+    // Fetch all linked items
+    const items = await db.select().from(workItems).where(
+      sql`${workItems.id} IN (${sql.join(linkedIds.map(id => sql`${id}`), sql`, `)})`
+    );
+    
+    return items;
   }
 
   // Seed requirements data from hardcoded registry
