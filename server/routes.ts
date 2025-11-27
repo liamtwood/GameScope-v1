@@ -5044,6 +5044,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Work Items CRUD endpoints
+  app.get("/api/work-items", async (req, res) => {
+    try {
+      const filters: { type?: string; parentId?: string; area?: string; status?: string } = {};
+      if (req.query.type) filters.type = req.query.type as string;
+      if (req.query.parentId) filters.parentId = req.query.parentId as string;
+      if (req.query.area) filters.area = req.query.area as string;
+      if (req.query.status) filters.status = req.query.status as string;
+      
+      const items = await storage.getWorkItems(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching work items:", error);
+      res.status(500).json({ message: "Failed to fetch work items" });
+    }
+  });
+
+  app.get("/api/work-items/:id", async (req, res) => {
+    try {
+      const item = await storage.getWorkItem(req.params.id);
+      if (!item) {
+        return res.status(404).json({ message: "Work item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error fetching work item:", error);
+      res.status(500).json({ message: "Failed to fetch work item" });
+    }
+  });
+
+  app.get("/api/work-items/:id/children", async (req, res) => {
+    try {
+      const children = await storage.getWorkItemChildren(req.params.id);
+      res.json(children);
+    } catch (error) {
+      console.error("Error fetching work item children:", error);
+      res.status(500).json({ message: "Failed to fetch work item children" });
+    }
+  });
+
+  app.get("/api/work-items/:id/linked", async (req, res) => {
+    try {
+      const linkType = req.query.linkType as string | undefined;
+      const linkedItems = await storage.getLinkedItems(req.params.id, linkType);
+      res.json(linkedItems);
+    } catch (error) {
+      console.error("Error fetching linked items:", error);
+      res.status(500).json({ message: "Failed to fetch linked items" });
+    }
+  });
+
+  app.post("/api/work-items", async (req, res) => {
+    try {
+      const { insertWorkItemSchema } = await import('@shared/schema');
+      const validated = insertWorkItemSchema.parse(req.body);
+      const item = await storage.createWorkItem(validated);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error creating work item:", error);
+      res.status(400).json({ message: "Failed to create work item", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/work-items/:id", async (req, res) => {
+    try {
+      const { insertWorkItemSchema } = await import('@shared/schema');
+      const validated = insertWorkItemSchema.partial().parse(req.body);
+      const item = await storage.updateWorkItem(req.params.id, validated);
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating work item:", error);
+      res.status(400).json({ message: "Failed to update work item", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.post("/api/work-items/:id/convert", async (req, res) => {
+    try {
+      const { type } = req.body;
+      if (!type) {
+        return res.status(400).json({ message: "New type is required" });
+      }
+      const item = await storage.convertWorkItemType(req.params.id, type);
+      res.json(item);
+    } catch (error) {
+      console.error("Error converting work item type:", error);
+      res.status(400).json({ message: "Failed to convert work item type", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/work-items/:id", async (req, res) => {
+    try {
+      await storage.deleteWorkItem(req.params.id);
+      res.json({ message: "Work item deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting work item:", error);
+      res.status(500).json({ message: "Failed to delete work item" });
+    }
+  });
+
+  // Work Item Links CRUD endpoints
+  app.get("/api/work-item-links", async (req, res) => {
+    try {
+      const itemId = req.query.itemId as string | undefined;
+      const links = await storage.getWorkItemLinks(itemId);
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching work item links:", error);
+      res.status(500).json({ message: "Failed to fetch work item links" });
+    }
+  });
+
+  app.post("/api/work-item-links", async (req, res) => {
+    try {
+      const { insertWorkItemLinkSchema } = await import('@shared/schema');
+      const validated = insertWorkItemLinkSchema.parse(req.body);
+      const link = await storage.createWorkItemLink(validated);
+      res.status(201).json(link);
+    } catch (error) {
+      console.error("Error creating work item link:", error);
+      res.status(400).json({ message: "Failed to create work item link", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/work-item-links/:id", async (req, res) => {
+    try {
+      await storage.deleteWorkItemLink(req.params.id);
+      res.json({ message: "Work item link deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting work item link:", error);
+      res.status(500).json({ message: "Failed to delete work item link" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
