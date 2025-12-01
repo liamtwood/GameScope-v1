@@ -69,6 +69,27 @@ Generated: December 1, 2025
 
 ---
 
+#### Select Team (Global Component)
+**Location:** Top-left navigation bar  
+**Section:** home  
+**Overview:** Persistent team selector dropdown that allows users to switch between teams within the currently selected club at any time.
+
+**Functional Requirements:**
+| ID | Title | Description |
+|----|-------|-------------|
+| SELTEAM-FR-1 | Team Dropdown | Display a dropdown in the top-left of the app showing the currently selected team. |
+| SELTEAM-FR-2 | Team Switching | Allow users to switch to any team within the selected club without navigating away from current page. |
+| SELTEAM-FR-3 | Team Persistence | Remember the selected team across page navigation and browser sessions. |
+| SELTEAM-FR-4 | Team Display | Show team name and optional team logo/badge in the selector. |
+
+**Acceptance Criteria:**
+- [SELTEAM-AC-1] Team selector is visible on all pages after login
+- [SELTEAM-AC-2] Switching teams updates all team-specific data on the current page
+- [SELTEAM-AC-3] Selected team persists in localStorage or session
+- [SELTEAM-AC-4] Only teams from the current club are shown in the dropdown
+
+---
+
 ### TEAM SECTION
 
 #### Dashboard
