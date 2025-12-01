@@ -112,6 +112,15 @@ export const changeLog: ChangeLogEntry[] = [
     area: "Logos",
     description: "Migrated all logo uploads from filesystem to cloud object storage for production compatibility.",
   },
+  {
+    id: "CL-006",
+    date: "2025-12-01",
+    type: "question",
+    area: "Fixtures",
+    description: "FIX-FR-9 Videos Tab: Need clarification from AI team on video processing workflow - what are the processing states (Pending → Processing → Ready/Failed), how does PlayerTRACK™ and PlayerEVENT™ integration work, and what progress indicators should the UI display?",
+    priority: "high",
+    status: "open",
+  },
 ];
 
 export const testCases: TestCase[] = [
