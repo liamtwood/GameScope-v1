@@ -522,6 +522,32 @@ export const workItemLinks = pgTable("work_item_links", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Test Runs - a grouping of test case executions against a specific build
+export const testRuns = pgTable("test_runs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  runNumber: integer("run_number").notNull(), // Test Run 1, 2, 3...
+  name: text("name"), // Optional descriptive name
+  date: text("date").notNull(), // Execution date
+  testers: jsonb("testers").notNull().default([]), // Array of tester names
+  buildInfo: text("build_info"), // Version/build identifier
+  notes: text("notes"), // Additional notes about the run
+  status: varchar("status", { length: 20 }).notNull().default("in_progress"), // in_progress, completed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Test Run Results - individual test case outcomes within a test run
+export const testRunResults = pgTable("test_run_results", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  testRunId: varchar("test_run_id").references(() => testRuns.id).notNull(),
+  testCaseId: varchar("test_case_id").notNull(), // Work item ID of the test case
+  outcome: varchar("outcome", { length: 20 }).notNull(), // passed, failed, blocked, skipped
+  notes: text("notes"), // Execution notes
+  executedBy: varchar("executed_by", { length: 100 }), // Which tester executed this specific case
+  executedAt: timestamp("executed_at"), // When this specific test was executed
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Zod schemas for requirements types
 const functionalRequirementSchema = z.object({
   id: z.string(),
@@ -617,3 +643,28 @@ export type WorkItemType = z.infer<typeof workItemTypeEnum>;
 export type WorkItemStatus = z.infer<typeof workItemStatusEnum>;
 export type WorkItemPriority = z.infer<typeof workItemPriorityEnum>;
 export type WorkItemLinkType = z.infer<typeof workItemLinkTypeEnum>;
+
+// Test Run schemas
+export const testRunStatusEnum = z.enum(["in_progress", "completed"]);
+export const testRunOutcomeEnum = z.enum(["passed", "failed", "blocked", "skipped"]);
+
+export const insertTestRunSchema = createInsertSchema(testRuns)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    testers: z.array(z.string()),
+    status: testRunStatusEnum.optional(),
+  });
+
+export const insertTestRunResultSchema = createInsertSchema(testRunResults)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    outcome: testRunOutcomeEnum,
+  });
+
+// Test Run types
+export type TestRun = typeof testRuns.$inferSelect;
+export type TestRunResult = typeof testRunResults.$inferSelect;
+export type InsertTestRun = z.infer<typeof insertTestRunSchema>;
+export type InsertTestRunResult = z.infer<typeof insertTestRunResultSchema>;
+export type TestRunStatus = z.infer<typeof testRunStatusEnum>;
+export type TestRunOutcome = z.infer<typeof testRunOutcomeEnum>;
