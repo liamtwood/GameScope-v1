@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -1964,6 +1964,104 @@ export default function Requirements() {
             </CardContent>
           </Card>
         )}
+
+        <Card data-testid="card-requirements-spreadsheet">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-emerald-500">
+                <TableIcon className="h-4 w-4 text-white" />
+              </div>
+              <span>Requirements Spreadsheet</span>
+              <div className="flex gap-2 ml-auto">
+                <Badge variant="secondary" className="text-xs">
+                  {totalFRs} FRs
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {totalACs} ACs
+                </Badge>
+              </div>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Complete list of all Functional Requirements and Acceptance Criteria across the application</p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Tabs defaultValue="fr" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="fr" data-testid="tab-fr-spreadsheet">
+                  Functional Requirements ({totalFRs})
+                </TabsTrigger>
+                <TabsTrigger value="ac" data-testid="tab-ac-spreadsheet">
+                  Acceptance Criteria ({totalACs})
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="fr">
+                <div className="border rounded-lg overflow-hidden">
+                  <ScrollArea className="h-[500px]">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
+                          <TableHead className="w-[150px] sticky top-0 bg-background">Page</TableHead>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                          <TableHead className="w-[180px] sticky top-0 bg-background">Title</TableHead>
+                          <TableHead className="sticky top-0 bg-background">Description</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {requirementsData.flatMap((page) => 
+                          (page.functionalRequirements as Array<{ id: string; title: string; description: string }>).map((fr) => (
+                            <TableRow key={`${page.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
+                              <TableCell className="font-mono text-xs">{fr.id}</TableCell>
+                              <TableCell className="text-sm font-medium">{page.title}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {page.section}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">{fr.title}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{fr.description}</TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </ScrollArea>
+                </div>
+              </TabsContent>
+              <TabsContent value="ac">
+                <div className="border rounded-lg overflow-hidden">
+                  <ScrollArea className="h-[500px]">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[120px] sticky top-0 bg-background">ID</TableHead>
+                          <TableHead className="w-[150px] sticky top-0 bg-background">Page</TableHead>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                          <TableHead className="sticky top-0 bg-background">Description</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {requirementsData.flatMap((page) => 
+                          (page.acceptanceCriteria as Array<{ id: string; description: string }>).map((ac) => (
+                            <TableRow key={`${page.id}-${ac.id}`} data-testid={`row-ac-${ac.id}`}>
+                              <TableCell className="font-mono text-xs">{ac.id}</TableCell>
+                              <TableCell className="text-sm font-medium">{page.title}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {page.section}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{ac.description}</TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </ScrollArea>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         <Card data-testid="card-datamodels">
           <CardHeader className="pb-3">
