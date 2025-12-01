@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2 } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -146,6 +146,188 @@ function buildHierarchyTree(items: WorkItem[]): HierarchyNode[] {
   sortChildren(roots);
   
   return roots;
+}
+
+// Generate documentation markdown from all requirements data
+function generateDocumentationMarkdown(
+  requirements: PageRequirements[],
+  dataModels: DataModel[],
+  changeLog: ChangeLogEntry[],
+  testCases: TestCase[]
+): string {
+  const now = new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  let md = `# GameScope Requirements Specification
+
+Generated: ${now}
+
+---
+
+## Table of Contents
+1. [Page Requirements](#page-requirements)
+2. [Data Models](#data-models)
+3. [Test Cases](#test-cases)
+4. [Change Log](#change-log)
+
+---
+
+## Page Requirements
+
+`;
+
+  // Group requirements by section
+  const sections: Record<string, PageRequirements[]> = {
+    home: [],
+    team: [],
+    club: [],
+    devops: []
+  };
+  
+  requirements.forEach(req => {
+    if (sections[req.section]) {
+      sections[req.section].push(req);
+    }
+  });
+
+  const sectionNames: Record<string, string> = {
+    home: 'HOME / LANDING',
+    team: 'TEAM SECTION',
+    club: 'CLUB SECTION',
+    devops: 'DEVOPS SECTION'
+  };
+
+  for (const [section, pages] of Object.entries(sections)) {
+    if (pages.length === 0) continue;
+    
+    md += `### ${sectionNames[section]}\n\n`;
+    
+    for (const page of pages) {
+      md += `#### ${page.title}\n`;
+      md += `**Route:** \`${page.route}\`  \n`;
+      md += `**Section:** ${page.section}  \n`;
+      if (page.parentId) {
+        const parent = requirements.find(r => r.id === page.parentId);
+        if (parent) md += `**Parent:** ${parent.title}  \n`;
+      }
+      md += `**Overview:** ${page.overview}\n\n`;
+      
+      if (page.functionalRequirements.length > 0) {
+        md += `**Functional Requirements:**\n`;
+        md += `| ID | Title | Description |\n`;
+        md += `|----|-------|-------------|\n`;
+        for (const fr of page.functionalRequirements) {
+          md += `| ${fr.id} | ${fr.title} | ${fr.description.replace(/\|/g, '\\|')} |\n`;
+        }
+        md += '\n';
+      }
+      
+      if (page.acceptanceCriteria.length > 0) {
+        md += `**Acceptance Criteria:**\n`;
+        for (const ac of page.acceptanceCriteria) {
+          md += `- [${ac.id}] ${ac.description}\n`;
+        }
+        md += '\n';
+      }
+      
+      // Handle tabs if present
+      if (page.tabs && page.tabs.length > 0) {
+        for (const tab of page.tabs) {
+          md += `##### Tab: ${tab.name}\n`;
+          md += `**Overview:** ${tab.overview}\n\n`;
+          
+          if (tab.functionalRequirements.length > 0) {
+            md += `| ID | Title | Description |\n`;
+            md += `|----|-------|-------------|\n`;
+            for (const fr of tab.functionalRequirements) {
+              md += `| ${fr.id} | ${fr.title} | ${fr.description.replace(/\|/g, '\\|')} |\n`;
+            }
+            md += '\n';
+          }
+          
+          if (tab.acceptanceCriteria.length > 0) {
+            md += `**Acceptance Criteria:**\n`;
+            for (const ac of tab.acceptanceCriteria) {
+              md += `- [${ac.id}] ${ac.description}\n`;
+            }
+            md += '\n';
+          }
+        }
+      }
+      
+      md += `---\n\n`;
+    }
+  }
+
+  // Data Models
+  md += `## Data Models\n\n`;
+  
+  for (const model of dataModels) {
+    md += `### ${model.name}\n`;
+    md += `**Description:** ${model.description}\n\n`;
+    md += `| Field | Type | Mandatory | Default | Values | Description |\n`;
+    md += `|-------|------|-----------|---------|--------|-------------|\n`;
+    
+    for (const field of model.fields) {
+      const values = field.listOfValues ? field.listOfValues.join(', ') : '-';
+      const defaultVal = field.defaultValue || '-';
+      md += `| ${field.name} | ${field.type} | ${field.mandatory ? 'Yes' : 'No'} | ${defaultVal} | ${values} | ${field.description || '-'} |\n`;
+    }
+    md += '\n---\n\n';
+  }
+
+  // Test Cases
+  md += `## Test Cases\n\n`;
+  
+  for (const tc of testCases) {
+    const statusEmoji = tc.status === 'passed' ? '✅' : tc.status === 'failed' ? '❌' : tc.status === 'partial' ? '⚠️' : '⏸️';
+    md += `### ${tc.id}: ${tc.title} ${statusEmoji}\n`;
+    md += `**Objective:** ${tc.objective}  \n`;
+    md += `**Component:** ${tc.component || 'N/A'}  \n`;
+    md += `**Status:** ${tc.status.toUpperCase()}  \n`;
+    if (tc.associatedBug) md += `**Associated Bug:** ${tc.associatedBug}  \n`;
+    md += `**Date:** ${tc.date}  \n`;
+    md += `**Tester:** ${tc.tester}\n\n`;
+    
+    md += `**Steps:**\n`;
+    for (let i = 0; i < tc.steps.length; i++) {
+      md += `${i + 1}. ${tc.steps[i]}\n`;
+    }
+    md += '\n';
+    
+    md += `**Expected Result:** ${tc.expectedResult}  \n`;
+    md += `**Actual Result:** ${tc.actualResult}\n\n`;
+    md += `---\n\n`;
+  }
+
+  // Change Log
+  md += `## Change Log\n\n`;
+  md += `| ID | Date | Type | Area | Description |\n`;
+  md += `|----|------|------|------|-------------|\n`;
+  
+  for (const entry of changeLog) {
+    const typeLabel = entry.type.charAt(0).toUpperCase() + entry.type.slice(1).replace('_', ' ');
+    md += `| ${entry.id} | ${entry.date} | ${typeLabel} | ${entry.area} | ${entry.description.replace(/\|/g, '\\|')} |\n`;
+  }
+  md += '\n';
+
+  return md;
+}
+
+// Download documentation as markdown file
+function downloadDocumentation(content: string, filename: string = 'GameScope-Requirements-Specification.md') {
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 // Hierarchy tree node component
@@ -1542,6 +1724,23 @@ export default function Requirements() {
                 Load Initial Data
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const markdown = generateDocumentationMarkdown(
+                  requirementsData,
+                  dataModelsData,
+                  changeLogData,
+                  testCaseData
+                );
+                downloadDocumentation(markdown);
+              }}
+              data-testid="btn-download-docs"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Docs
+            </Button>
             <Badge variant="outline" className="px-3 py-1">
               {totalPages} Pages
             </Badge>
