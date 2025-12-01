@@ -1999,26 +1999,30 @@ export default function Requirements() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
-                          <TableHead className="w-[150px] sticky top-0 bg-background">Page</TableHead>
                           <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                          <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
                           <TableHead className="w-[180px] sticky top-0 bg-background">Title</TableHead>
-                          <TableHead className="sticky top-0 bg-background">Description</TableHead>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {requirementsData.flatMap((page) => 
-                          (page.functionalRequirements as Array<{ id: string; title: string; description: string }>).map((fr) => (
-                            <TableRow key={`${page.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
-                              <TableCell className="font-mono text-xs">{fr.id}</TableCell>
-                              <TableCell className="text-sm font-medium">{page.title}</TableCell>
+                        {requirementsData.flatMap((epic) => 
+                          (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => (
+                            <TableRow key={`${epic.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
                               <TableCell>
                                 <Badge variant="outline" className="text-xs capitalize">
-                                  {page.section}
+                                  {epic.section}
                                 </Badge>
                               </TableCell>
+                              <TableCell className="text-sm font-medium">{epic.title}</TableCell>
+                              <TableCell className="font-mono text-xs">{fr.id}</TableCell>
                               <TableCell className="text-sm">{fr.title}</TableCell>
-                              <TableCell className="text-sm text-muted-foreground">{fr.description}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="text-xs">
+                                  {fr.status || 'New'}
+                                </Badge>
+                              </TableCell>
                             </TableRow>
                           ))
                         )}
@@ -2033,24 +2037,30 @@ export default function Requirements() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[120px] sticky top-0 bg-background">ID</TableHead>
-                          <TableHead className="w-[150px] sticky top-0 bg-background">Page</TableHead>
                           <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                          <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
+                          <TableHead className="w-[120px] sticky top-0 bg-background">ID</TableHead>
                           <TableHead className="sticky top-0 bg-background">Description</TableHead>
+                          <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {requirementsData.flatMap((page) => 
-                          (page.acceptanceCriteria as Array<{ id: string; description: string }>).map((ac) => (
-                            <TableRow key={`${page.id}-${ac.id}`} data-testid={`row-ac-${ac.id}`}>
-                              <TableCell className="font-mono text-xs">{ac.id}</TableCell>
-                              <TableCell className="text-sm font-medium">{page.title}</TableCell>
+                        {requirementsData.flatMap((epic) => 
+                          (epic.acceptanceCriteria as Array<{ id: string; description: string; status?: string }>).map((ac) => (
+                            <TableRow key={`${epic.id}-${ac.id}`} data-testid={`row-ac-${ac.id}`}>
                               <TableCell>
                                 <Badge variant="outline" className="text-xs capitalize">
-                                  {page.section}
+                                  {epic.section}
                                 </Badge>
                               </TableCell>
+                              <TableCell className="text-sm font-medium">{epic.title}</TableCell>
+                              <TableCell className="font-mono text-xs">{ac.id}</TableCell>
                               <TableCell className="text-sm text-muted-foreground">{ac.description}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="text-xs">
+                                  {ac.status || 'New'}
+                                </Badge>
+                              </TableCell>
                             </TableRow>
                           ))
                         )}

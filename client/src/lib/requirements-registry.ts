@@ -1,12 +1,16 @@
+export type RequirementStatus = 'New' | 'Ready' | 'Coded' | 'Tested' | 'Complete';
+
 export interface Requirement {
   id: string;
   description: string;
+  status?: RequirementStatus;
 }
 
 export interface FunctionalRequirement {
   id: string;
   title: string;
   description: string;
+  status?: RequirementStatus;
 }
 
 export interface ChangeLogEntry {
@@ -57,7 +61,7 @@ export interface TabRequirements {
   acceptanceCriteria: Requirement[];
 }
 
-export interface PageRequirements {
+export interface EpicRequirements {
   id: string;
   title: string;
   route: string;
@@ -68,6 +72,9 @@ export interface PageRequirements {
   acceptanceCriteria: Requirement[];
   tabs?: TabRequirements[];
 }
+
+// Backwards compatibility alias
+export type PageRequirements = EpicRequirements;
 
 export const changeLog: ChangeLogEntry[] = [
   {
