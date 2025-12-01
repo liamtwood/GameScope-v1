@@ -507,102 +507,132 @@ export const requirementsRegistry: PageRequirements[] = [
     title: "Fixtures",
     route: "/fixtures",
     section: "team",
-    overview: "Manage team fixtures, schedules, and match planning with video upload capabilities.",
+    overview: "The Fixtures page is the central hub for managing all team matches, including scheduling, results, and video uploads.",
     functionalRequirements: [
-      { id: "FIX-FR-1", title: "Tab Navigation", description: "Navigate between Season, Planning, Videos, and Logos tabs." },
-      { id: "FIX-FR-2", title: "Fixture Creation", description: "Single-screen fixture creation with inline opponent and competition management." },
-      { id: "FIX-FR-3", title: "Competition Management", description: "Create and manage competitions on-the-fly during fixture creation." },
-      { id: "FIX-FR-4", title: "Excel Import", description: "Import fixtures from Excel files with automatic field mapping." },
+      { 
+        id: "FIX-FR-1", 
+        title: "Statistics Cards", 
+        description: "4-column grid displaying: Total Fixtures (Target icon, count, 'All time'), Win Rate (TrendingUp/Down icon based on ≥60%/<40%, percentage, 'This season'), Goal Difference (Plus/Minus icon, signed number, 'GF: X GA: Y'), Competitions (Trophy icon, count, 'Active competitions').",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-2", 
+        title: "Control Bar & Filters", 
+        description: "Control bar with: Left side - Enable Filter button, Search input. Right side - Add Fixture button, Import CSV button, Settings button. Collapsible Filter Panel with Season Picker, Competition dropdown (dynamic + 'All'), Status button group (All/Completed/Scheduled), Location button group (All/Home/Away).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-3", 
+        title: "FixtureCard Display", 
+        description: "Card showing: Team Identity (opposition logo 40x40px), Match Information (opponent name, date/time, competition), Location Badge (HOME green or AWAY blue), Result/Status (Completed: score + W/L/D badge, Scheduled: 'SCHEDULED' badge), Actions (Video icon if hasVideo, Stats icon, Edit, Delete).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-4", 
+        title: "Add/Edit Fixture", 
+        description: "Fixture Create Dialog triggered by Add Fixture button. Fields: Opposition (autocomplete with + Add New Opponent option), Date (DD Mon YYYY), Time (HH:MM optional), Competition (dropdown with + Add New option), Venue (text), Type (Home/Away toggle). Edit mode adds Home Score and Away Score number fields. Inline Opposition Creation when new opponent: Team Name (required), Short Name (max 5 chars), Logo upload, Primary/Secondary colors.",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-5", 
+        title: "Delete Fixture", 
+        description: "Soft delete: Set status to 'Deleted' or add deletedAt timestamp. Fixture no longer appears in list. Associated videos remain archived. Match statistics preserved. Confirmation Dialog shows warning if fixture has videos/analysis attached. Buttons: Cancel (secondary), Delete (danger/red).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-6", 
+        title: "Import Fixtures", 
+        description: "Import from Excel/CSV. Format: Date,Opposition,Competition,Location,Time,KickOff,Score. Upload flow: 1) Click Import, select file 2) Validation (extension, <5MB, structure) 3) Preview with color coding (green=valid, red=error, yellow=warning) 4) Options: Import Valid Only / Fix Errors / Cancel 5) Progress indicator, success message, auto-refresh.",
+        status: "New"
+      },
     ],
     acceptanceCriteria: [
-      { id: "FIX-FR-2-AC-1", description: "Fixtures can be created with opponent, date, venue, and competition" },
-      { id: "FIX-FR-2-AC-2", description: "Fixtures can be edited and scores updated" },
-      { id: "FIX-FR-1-AC-1", description: "Tab state persists during navigation" },
-    ],
-    tabs: [
-      {
-        id: "fixtures-season",
-        name: "Season",
-        overview: "View and manage all fixtures for the current season.",
-        functionalRequirements: [
-          { id: "FIX-SEA-FR-1", title: "Fixture List", description: "Display all fixtures in a table with sortable columns." },
-          { id: "FIX-SEA-FR-2", title: "Competition Filter", description: "Filter fixtures by competition type." },
-          { id: "FIX-SEA-FR-3", title: "Quick Actions", description: "Edit, delete, and view fixture details from the list." },
-          { id: "FIX-SEA-FR-4", title: "Score Display", description: "Show match scores for completed fixtures." },
-        ],
-        acceptanceCriteria: [
-          { id: "FIX-SEA-FR-1-AC-1", description: "All fixtures display in chronological order" },
-          { id: "FIX-SEA-FR-2-AC-1", description: "Filtering by competition works correctly" },
-          { id: "FIX-SEA-FR-1-AC-2", description: "Fixture status badges display correctly" },
-        ],
-      },
-      {
-        id: "fixtures-planning",
-        name: "Planning",
-        overview: "Calendar view of upcoming fixtures for match planning.",
-        functionalRequirements: [
-          { id: "FIX-PLN-FR-1", title: "Calendar View", description: "Display fixtures in a monthly calendar format." },
-          { id: "FIX-PLN-FR-2", title: "Month Navigation", description: "Navigate between months to view different periods." },
-          { id: "FIX-PLN-FR-3", title: "Fixture Preview", description: "Click on a date to see fixture details." },
-        ],
-        acceptanceCriteria: [
-          { id: "FIX-PLN-FR-1-AC-1", description: "Calendar displays correct dates and fixtures" },
-          { id: "FIX-PLN-FR-2-AC-1", description: "Month navigation updates the view" },
-        ],
-      },
-      {
-        id: "fixtures-videos",
-        name: "Videos",
-        overview: "Upload and manage match videos for fixtures.",
-        functionalRequirements: [
-          { id: "FIX-VID-FR-1", title: "Video Upload", description: "Upload match videos and associate with fixtures." },
-          { id: "FIX-VID-FR-2", title: "Camera Angles", description: "Support multiple camera angles per fixture with labels." },
-          { id: "FIX-VID-FR-3", title: "Video Preview", description: "Preview uploaded videos before saving." },
-          { id: "FIX-VID-FR-4", title: "Video Delete", description: "Remove videos from fixtures." },
-        ],
-        acceptanceCriteria: [
-          { id: "FIX-VID-FR-1-AC-1", description: "Videos can be uploaded successfully" },
-          { id: "FIX-VID-FR-2-AC-1", description: "Multiple camera angles supported per fixture" },
-          { id: "FIX-VID-FR-2-AC-2", description: "Video labels display correctly" },
-        ],
-      },
-      {
-        id: "fixtures-logos",
-        name: "Logos",
-        overview: "Manage team logos with background removal capabilities.",
-        functionalRequirements: [
-          { id: "FIX-LOG-FR-1", title: "Logo Display", description: "Show all team logos in a grid view." },
-          { id: "FIX-LOG-FR-2", title: "Background Removal", description: "Remove backgrounds from logos using smart, color-based, or manual modes." },
-          { id: "FIX-LOG-FR-3", title: "Theme Controls", description: "Individual light/dark theme toggles per logo container." },
-          { id: "FIX-LOG-FR-4", title: "Image Comparison", description: "Side-by-side view of original vs processed logos." },
-        ],
-        acceptanceCriteria: [
-          { id: "FIX-LOG-FR-1-AC-1", description: "Logos display correctly in containers" },
-          { id: "FIX-LOG-FR-2-AC-1", description: "Background removal works with different modes" },
-          { id: "FIX-LOG-FR-3-AC-1", description: "Theme controls persist in localStorage" },
-        ],
-      },
+      { id: "FIX-AC-1", description: "All 4 statistics cards display with correct icons and values", status: "New" },
+      { id: "FIX-AC-2", description: "All filters work independently and combine with AND logic", status: "New" },
+      { id: "FIX-AC-3", description: "Search filters by opponent, venue, competition", status: "New" },
+      { id: "FIX-AC-4", description: "Fixtures can be created with opponent, date, venue, and competition", status: "New" },
+      { id: "FIX-AC-5", description: "Fixtures can be edited and scores updated", status: "New" },
+      { id: "FIX-AC-6", description: "Opposition can be created inline during fixture creation", status: "New" },
+      { id: "FIX-AC-7", description: "Excel/CSV import correctly maps columns to fixture fields", status: "New" },
+      { id: "FIX-AC-8", description: "Success message only displays after database confirms save", status: "New" },
+      { id: "FIX-AC-9", description: "Page handles 500+ fixtures without performance issues", status: "New" },
     ],
   },
   {
     id: "fixture-details",
-    title: "View Fixture",
+    title: "View Fixture Detail",
     route: "/fixtures/:id",
     parentId: "fixtures",
     section: "team",
-    overview: "Detailed view of a single fixture with match information, lineup, and video management.",
+    overview: "Detailed view of a single fixture with match header, navigation actions, and tabbed content for match data.",
     functionalRequirements: [
-      { id: "FIXD-FR-1", title: "Match Header", description: "Display both team logos, names, and score (if completed)." },
-      { id: "FIXD-FR-2", title: "Match Details", description: "Show date, time, venue, competition, and match status." },
-      { id: "FIXD-FR-3", title: "Video Management", description: "Upload, view, and delete match videos for this fixture." },
-      { id: "FIXD-FR-4", title: "Match Report", description: "View and edit match report text." },
-      { id: "FIXD-FR-5", title: "Navigation", description: "Quick access to watch video and analysis pages." },
+      { 
+        id: "FIX-FR-7", 
+        title: "Match Report Tab", 
+        description: "Scoreboard with final score and goal scorers. Key facts: Venue, date, time, officials, attendance. Event timeline: Goals, cards, substitutions in chronological order. Export options: PDF and HTML formats.",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-8", 
+        title: "Line-Ups Tab", 
+        description: "Visual formation display (e.g., 4-4-2, 4-3-3). Starting XI with positions on pitch graphic. Substitutes bench with player details. Substitution log with timestamps. Player status tags (captain, yellow card, red card, injured).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-9", 
+        title: "Videos Tab", 
+        description: "Video list for fixture. Each card shows: Thumbnail, title, camera label, duration, upload date. Actions: Add Video (upload with camera label e.g., '1st Half, Half Way Line', '2nd Half, Behind Goal', 'Tactical View'), Process All Videos (AI analysis via PlayerTRACK™ + PlayerEVENT™), View Video (player with controls), Upload JSON Events (manual event data), Edit Video Details, Delete Video. Note: Processing states pending AI team clarification (see CL-006).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-10", 
+        title: "Upload Data Tab", 
+        description: "File upload: CSV, Excel (.xlsx), JSON formats. Data types: Statistics, events, tracking data. Validation: Schema checking, required fields, data types. Error reporting: Row-level errors with field details. Audit logging: Track who uploaded what and when.",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-11", 
+        title: "Statistics Tab", 
+        description: "Side-by-side team comparison. Metric categories: Key (Total Team Distance, Ball Possession), Attack (Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses), Possession (Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Defense (Tackles, Free Kicks, Offsides), Passing (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Display: Home value + % | Away value + % with percentage bars. Category tabs and Period filters (Full Match, 1st Half, 2nd Half).",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-12", 
+        title: "Spider Charts Tab", 
+        description: "Radar chart visualization. Chart categories: Attack (Goals, Shots, Shots on Target, Runs into Boxes, Corners, Dangerous Crosses), Possession (Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Technical (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Features: Home team overlay (solid line, primary color), Away team overlay (dashed line, secondary color), Normalized 0-100 scale, Tooltips with actual values, Toggle show/hide teams. Layout: 3 charts side-by-side desktop, stacked mobile. Period filter synced with Statistics tab.",
+        status: "New"
+      },
+      { 
+        id: "FIX-FR-13", 
+        title: "AI Analysis Tab", 
+        description: "Narrative insights: AI-generated match summary. Tactical themes: Key patterns identified from data. Recommendations: Suggested improvements for team. Confidence indicators: Show AI certainty levels.",
+        status: "New"
+      },
     ],
     acceptanceCriteria: [
-      { id: "FIXD-FR-1-AC-1", description: "All fixture details display correctly" },
-      { id: "FIXD-FR-3-AC-1", description: "Videos can be uploaded and managed" },
-      { id: "FIXD-FR-4-AC-1", description: "Match report can be edited and saved" },
-      { id: "FIXD-FR-5-AC-1", description: "Navigation to video pages works correctly" },
+      { id: "FIX-FR-7-AC-1", description: "Match header and event timeline render correctly", status: "New" },
+      { id: "FIX-FR-7-AC-2", description: "Export produces valid PDF/HTML with all match data", status: "New" },
+      { id: "FIX-FR-8-AC-1", description: "Formation display matches stored metadata", status: "New" },
+      { id: "FIX-FR-8-AC-2", description: "Substitution log enforces player availability rules", status: "New" },
+      { id: "FIX-FR-9-AC-1", description: "Add Video allows file upload with camera label assignment", status: "New" },
+      { id: "FIX-FR-9-AC-2", description: "Process All Videos triggers AI analysis and shows progress", status: "New" },
+      { id: "FIX-FR-9-AC-3", description: "View Video opens player with correct timestamp", status: "New" },
+      { id: "FIX-FR-9-AC-4", description: "Upload JSON Events validates format before import", status: "New" },
+      { id: "FIX-FR-9-AC-5", description: "Edit Video Details saves changes to database", status: "New" },
+      { id: "FIX-FR-9-AC-6", description: "Delete Video shows confirmation and removes from list", status: "New" },
+      { id: "FIX-FR-10-AC-1", description: "Invalid files rejected with specific row/field errors", status: "New" },
+      { id: "FIX-FR-10-AC-2", description: "Upload completes within 60 seconds with audit trail", status: "New" },
+      { id: "FIX-FR-11-AC-1", description: "All 5 category tabs display with correct metrics", status: "New" },
+      { id: "FIX-FR-11-AC-2", description: "Period filter updates all metrics coherently", status: "New" },
+      { id: "FIX-FR-11-AC-3", description: "Percentage bars render correctly for each metric", status: "New" },
+      { id: "FIX-FR-11-AC-4", description: "Stats render within 100ms of filter/tab change", status: "New" },
+      { id: "FIX-FR-12-AC-1", description: "All three charts (Attack, Possession, Technical) render correctly", status: "New" },
+      { id: "FIX-FR-12-AC-2", description: "Each chart displays 6+ metrics with normalized values", status: "New" },
+      { id: "FIX-FR-12-AC-3", description: "Tooltips show actual metric values on hover", status: "New" },
+      { id: "FIX-FR-12-AC-4", description: "Home/Away team overlays are visually distinct", status: "New" },
+      { id: "FIX-FR-12-AC-5", description: "Period filter updates all charts consistently", status: "New" },
+      { id: "FIX-FR-13-AC-1", description: "AI generates coherent narrative from match data", status: "New" },
+      { id: "FIX-FR-13-AC-2", description: "Tactical themes are supported by specific events/stats", status: "New" },
     ],
   },
   {
