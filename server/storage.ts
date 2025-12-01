@@ -20,6 +20,8 @@ import {
   devopsChangeLog,
   workItems,
   workItemLinks,
+  testRuns,
+  testRunResults,
   type Club,
   type Team,
   type User,
@@ -55,6 +57,10 @@ import {
   type WorkItemLink as WorkItemLinkRecord,
   type InsertWorkItem,
   type InsertWorkItemLink,
+  type TestRun as TestRunRecord,
+  type TestRunResult as TestRunResultRecord,
+  type InsertTestRun,
+  type InsertTestRunResult,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -194,6 +200,20 @@ export interface IStorage {
   createWorkItemLink(link: InsertWorkItemLink): Promise<WorkItemLinkRecord>;
   deleteWorkItemLink(id: string): Promise<void>;
   getLinkedItems(itemId: string, linkType?: string): Promise<WorkItemRecord[]>;
+  
+  // Test Run CRUD operations
+  getTestRuns(): Promise<TestRunRecord[]>;
+  getTestRun(id: string): Promise<TestRunRecord | undefined>;
+  createTestRun(run: InsertTestRun): Promise<TestRunRecord>;
+  updateTestRun(id: string, run: Partial<InsertTestRun>): Promise<TestRunRecord>;
+  deleteTestRun(id: string): Promise<void>;
+  
+  // Test Run Results CRUD operations
+  getTestRunResults(testRunId: string): Promise<TestRunResultRecord[]>;
+  createTestRunResult(result: InsertTestRunResult): Promise<TestRunResultRecord>;
+  updateTestRunResult(id: string, result: Partial<InsertTestRunResult>): Promise<TestRunResultRecord>;
+  deleteTestRunResult(id: string): Promise<void>;
+  getTestRunWithResults(id: string): Promise<{ run: TestRunRecord; results: TestRunResultRecord[] } | undefined>;
   
   // Seed requirements data from registry
   seedRequirementsData(): Promise<void>;
@@ -1871,6 +1891,65 @@ export class DatabaseStorage implements IStorage {
     }
 
     console.log('Requirements data seeded successfully');
+  }
+
+  // Test Run CRUD operations
+  async getTestRuns(): Promise<TestRunRecord[]> {
+    return await db.select().from(testRuns).orderBy(sql`${testRuns.runNumber} DESC`);
+  }
+
+  async getTestRun(id: string): Promise<TestRunRecord | undefined> {
+    const [run] = await db.select().from(testRuns).where(eq(testRuns.id, id));
+    return run;
+  }
+
+  async createTestRun(run: InsertTestRun): Promise<TestRunRecord> {
+    const [created] = await db.insert(testRuns).values(run).returning();
+    return created;
+  }
+
+  async updateTestRun(id: string, run: Partial<InsertTestRun>): Promise<TestRunRecord> {
+    const [updated] = await db.update(testRuns)
+      .set({ ...run, updatedAt: new Date() })
+      .where(eq(testRuns.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTestRun(id: string): Promise<void> {
+    // Delete all results first
+    await db.delete(testRunResults).where(eq(testRunResults.testRunId, id));
+    // Then delete the run
+    await db.delete(testRuns).where(eq(testRuns.id, id));
+  }
+
+  // Test Run Results CRUD operations
+  async getTestRunResults(testRunId: string): Promise<TestRunResultRecord[]> {
+    return await db.select().from(testRunResults).where(eq(testRunResults.testRunId, testRunId));
+  }
+
+  async createTestRunResult(result: InsertTestRunResult): Promise<TestRunResultRecord> {
+    const [created] = await db.insert(testRunResults).values(result).returning();
+    return created;
+  }
+
+  async updateTestRunResult(id: string, result: Partial<InsertTestRunResult>): Promise<TestRunResultRecord> {
+    const [updated] = await db.update(testRunResults)
+      .set(result)
+      .where(eq(testRunResults.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTestRunResult(id: string): Promise<void> {
+    await db.delete(testRunResults).where(eq(testRunResults.id, id));
+  }
+
+  async getTestRunWithResults(id: string): Promise<{ run: TestRunRecord; results: TestRunResultRecord[] } | undefined> {
+    const run = await this.getTestRun(id);
+    if (!run) return undefined;
+    const results = await this.getTestRunResults(id);
+    return { run, results };
   }
 }
 
