@@ -591,7 +591,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-7", 
-            title: "Match Report Content", 
+            title: "Match Report", 
             description: "Scoreboard with final score and goal scorers. Key facts: Venue, date, time, officials, attendance. Event timeline: Goals, cards, substitutions in chronological order. Export options: PDF and HTML formats.",
             status: "New"
           },
@@ -608,7 +608,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-8", 
-            title: "Line-Ups Display", 
+            title: "Line-Ups", 
             description: "Visual formation display (e.g., 4-4-2, 4-3-3). Starting XI with positions on pitch graphic. Substitutes bench with player details. Substitution log with timestamps. Player status tags (captain, yellow card, red card, injured).",
             status: "New"
           },
@@ -625,7 +625,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-9", 
-            title: "Video Management", 
+            title: "Videos", 
             description: "Video list for fixture. Each card shows: Thumbnail, title, camera label, duration, upload date. Actions: Add Video (upload with camera label e.g., '1st Half, Half Way Line', '2nd Half, Behind Goal', 'Tactical View'), Process All Videos (AI analysis via PlayerTRACK™ + PlayerEVENT™), View Video (player with controls), Upload JSON Events (manual event data), Edit Video Details, Delete Video. Note: Processing states pending AI team clarification (see CL-006).",
             status: "New"
           },
@@ -646,7 +646,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-10", 
-            title: "Data Upload", 
+            title: "Upload Data", 
             description: "File upload: CSV, Excel (.xlsx), JSON formats. Data types: Statistics, events, tracking data. Validation: Schema checking, required fields, data types. Error reporting: Row-level errors with field details. Audit logging: Track who uploaded what and when.",
             status: "New"
           },
@@ -663,7 +663,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-11", 
-            title: "Statistics Display", 
+            title: "Statistics", 
             description: "Side-by-side team comparison. Metric categories: Key (Total Team Distance, Ball Possession), Attack (Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses), Possession (Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Defense (Tackles, Free Kicks, Offsides), Passing (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Display: Home value + % | Away value + % with percentage bars. Category tabs and Period filters (Full Match, 1st Half, 2nd Half).",
             status: "New"
           },
@@ -682,7 +682,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-12", 
-            title: "Spider Charts Display", 
+            title: "Spider Charts", 
             description: "Radar chart visualization. Chart categories: Attack (Goals, Shots, Shots on Target, Runs into Boxes, Corners, Dangerous Crosses), Possession (Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Technical (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Features: Home team overlay (solid line, primary color), Away team overlay (dashed line, secondary color), Normalized 0-100 scale, Tooltips with actual values, Toggle show/hide teams. Layout: 3 charts side-by-side desktop, stacked mobile. Period filter synced with Statistics tab.",
             status: "New"
           },
@@ -702,7 +702,7 @@ export const requirementsRegistry: PageRequirements[] = [
         functionalRequirements: [
           { 
             id: "FIX-FR-13", 
-            title: "AI Analysis Content", 
+            title: "AI Analysis", 
             description: "Narrative insights: AI-generated match summary. Tactical themes: Key patterns identified from data. Recommendations: Suggested improvements for team. Confidence indicators: Show AI certainty levels.",
             status: "New"
           },
