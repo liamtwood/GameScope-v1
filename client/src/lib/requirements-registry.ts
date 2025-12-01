@@ -446,6 +446,25 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "HOME-AC-2", description: "Selecting a team navigates to team dashboard" },
     ],
   },
+  {
+    id: "select-team",
+    title: "Select Team",
+    route: "/select-team",
+    section: "home",
+    overview: "Persistent team selector dropdown in the top-left navigation bar that allows users to switch between teams within the currently selected club at any time.",
+    functionalRequirements: [
+      { id: "SELTEAM-FR-1", title: "Team Dropdown", description: "Display a dropdown in the top-left of the app showing the currently selected team." },
+      { id: "SELTEAM-FR-2", title: "Team Switching", description: "Allow users to switch to any team within the selected club without navigating away from current page." },
+      { id: "SELTEAM-FR-3", title: "Team Persistence", description: "Remember the selected team across page navigation and browser sessions." },
+      { id: "SELTEAM-FR-4", title: "Team Display", description: "Show team name and optional team logo/badge in the selector." },
+    ],
+    acceptanceCriteria: [
+      { id: "SELTEAM-AC-1", description: "Team selector is visible on all pages after login" },
+      { id: "SELTEAM-AC-2", description: "Switching teams updates all team-specific data on the current page" },
+      { id: "SELTEAM-AC-3", description: "Selected team persists in localStorage or session" },
+      { id: "SELTEAM-AC-4", description: "Only teams from the current club are shown in the dropdown" },
+    ],
+  },
 
   // TEAM SECTION
   {
