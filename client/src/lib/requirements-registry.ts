@@ -416,18 +416,548 @@ export const dataModels: DataModel[] = [
 
 export const requirementsRegistry: PageRequirements[] = [
   // =============================================================================
-  // REQUIREMENTS REGISTRY - CLEARED FOR IMPORT FROM SPECIFICATION DOC v3.0
+  // HOME SECTION - Epic GS-1
   // =============================================================================
-  // This array will be populated from GameScope_Full_Specification_v3.0.docx
-  // 
-  // Structure:
-  // - HOME Section (GS-1): FR-001 to FR-004, AC-001 to AC-018
-  // - TEAM Section: Dashboard (GS-15), Fixtures (GS-5), Squad (GS-4), Match Video (GS-6), Player Profiles (GS-32)
-  // - CLUB Section: Teams (GS-3), Club Users (GS-8), Club Management (GS-2), Settings (GS-30)
-  // - DEVOPS Section (GS-31): All Users, Clubs
-  //
-  // Total: 57 FRs (FR-001 to FR-057), 177 ACs (AC-001 to AC-177)
+  {
+    id: "landing",
+    title: "Landing Page",
+    route: "/",
+    section: "home",
+    overview: "Public landing page showcasing GameScope features and capabilities.",
+    functionalRequirements: [
+      { id: "FR-001", title: "Landing Page", description: "Display key features: video analysis, team management, statistics. Prominent login/signup buttons. Feature highlights with screenshots or illustrations. Testimonials or client logos (optional)." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-001", description: "Landing page loads with feature highlights" },
+      { id: "AC-002", description: "Login button navigates to login page" },
+      { id: "AC-003", description: "Page is responsive across all device sizes" },
+    ],
+  },
+  {
+    id: "login",
+    title: "Login",
+    route: "/login",
+    section: "home",
+    overview: "User authentication page for accessing the application.",
+    functionalRequirements: [
+      { id: "FR-002", title: "Login", description: "Email and password authentication. 'Remember me' option. Forgot password link. SSO integration (future). Validation: Email format required, Password required." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-004", description: "Valid credentials grant access to the application" },
+      { id: "AC-005", description: "Invalid credentials show appropriate error message" },
+      { id: "AC-006", description: "Error messages are user-friendly (not technical)" },
+      { id: "AC-007", description: "Successful login redirects to Home (team selection)" },
+    ],
+  },
+  {
+    id: "home",
+    title: "Home (Team Selection Hub)",
+    route: "/home",
+    section: "home",
+    overview: "Team selection hub where users choose which team to manage before accessing team-specific features.",
+    functionalRequirements: [
+      { id: "FR-003", title: "Home (Team Selection Hub)", description: "Club logo and name displayed prominently. Grid of team cards for the current club. Each card shows: Team name, Age group, Player count, Status badge. Display all teams the user has access to. Club branding applied throughout. Quick access to club-level functions for admins." },
+      { id: "FR-004", title: "Select Team Component", description: "Persistent team selector dropdown in the top-left navigation bar. Allow team switching without navigating away. Remember selected team across sessions. Show team name and optional logo/badge." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-008", description: "All teams for the current club are displayed" },
+      { id: "AC-009", description: "Selecting a team navigates to team dashboard" },
+      { id: "AC-010", description: "Only teams user has permission to view are shown" },
+      { id: "AC-011", description: "Club logo and colors display correctly" },
+      { id: "AC-012", description: "Team selector is visible on all pages after login" },
+      { id: "AC-013", description: "Switching teams updates all team-specific data on current page" },
+      { id: "AC-014", description: "Selected team persists in localStorage or session" },
+      { id: "AC-015", description: "Only teams from current club are shown in dropdown" },
+      { id: "AC-016", description: "Only teams user has permission to access are shown" },
+      { id: "AC-017 (Epic)", description: "Home section pages load in under 3 seconds" },
+      { id: "AC-018 (Epic)", description: "Club branding applied consistently across all Home pages" },
+    ],
+  },
+
   // =============================================================================
+  // TEAM SECTION - Epic GS-15: Dashboard
+  // =============================================================================
+  {
+    id: "dashboard",
+    title: "Dashboard",
+    route: "/dashboard",
+    section: "team",
+    overview: "Overview of team performance, upcoming fixtures, and key metrics at a glance. This is the landing page after selecting a team.",
+    functionalRequirements: [
+      { id: "FR-005", title: "Statistics Cards", description: "4-column grid of key team metrics: Total Players (Users icon, count, 'Active squad members'), Matches Played (Target icon, from fixtures, 'This season'), Win Rate (TrendingUp/Down, percentage, 'W-D-L record'), Next Match (Calendar, days count, 'vs [Opponent]')." },
+      { id: "FR-006", title: "Recent Results Section", description: "Title 'Recent Results' with 'View all' link. Shows last 3-5 completed matches. FixtureCard displays opposition logo, match info, location badge, result/score. Result badges: WIN (green W), LOSS (red L), DRAW (gray D)." },
+      { id: "FR-007", title: "Upcoming Fixtures Section", description: "Title 'Upcoming Fixtures' with 'View all' link. Shows next 3-5 scheduled matches. Shows 'SCHEDULED' badge in blue. No score display for upcoming matches." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-019", description: "All 4 statistics cards display with correct icons" },
+      { id: "AC-020", description: "Stats reflect actual team performance from database" },
+      { id: "AC-021", description: "Win Rate shows TrendingUp (green) if ≥60%, TrendingDown (red) if <40%" },
+      { id: "AC-022", description: "Recent results display accurate scores" },
+      { id: "AC-023", description: "'View all' link navigates to Fixtures page" },
+      { id: "AC-024", description: "Upcoming fixtures show correct dates and opponents" },
+      { id: "AC-025", description: "'View all' link navigates to Fixtures page" },
+      { id: "AC-026 (Epic)", description: "Dashboard loads in under 2 seconds" },
+      { id: "AC-027 (Epic)", description: "Data refreshes automatically when team is changed" },
+    ],
+  },
+
+  // =============================================================================
+  // TEAM SECTION - Epic GS-5: Fixtures
+  // =============================================================================
+  {
+    id: "fixtures",
+    title: "Fixtures",
+    route: "/fixtures",
+    section: "team",
+    overview: "The Fixtures page is the central hub for managing all team matches, including scheduling, results, and video uploads.",
+    functionalRequirements: [
+      { id: "FR-008", title: "Fixtures List View", description: "Statistics Cards (4-column grid): Total Fixtures (Target, count, 'All time'), Win Rate (TrendingUp/Down, percentage, 'This season'), Goal Difference (Plus/Minus, signed number, 'GF: X GA: Y'), Competitions (Trophy, count, 'Active competitions')." },
+      { id: "FR-009", title: "Control Bar", description: "Left: Enable Filter button, Search input. Right: Add Fixture button, Import CSV button, Settings button." },
+      { id: "FR-010", title: "Filter Panel", description: "Collapsible filter panel: Season (Season Picker), Competition (Dropdown, dynamic + 'All'), Status (Button group: All/Completed/Scheduled), Location (Button group: All/Home/Away)." },
+      { id: "FR-011", title: "FixtureCard Component", description: "Team Identity (opposition logo 40x40px), Match Information (opponent name, date/time, competition), Location Badge (HOME green/AWAY blue), Result/Status (Completed: score + W/L/D badge, Scheduled: 'SCHEDULED' badge), Actions (Video icon, Stats icon, Edit, Delete)." },
+      { id: "FR-012", title: "Add/Edit Fixture", description: "Form fields: Opposition (Autocomplete + Add New), Date (DD Mon YYYY), Time (HH:MM optional), Competition (Dropdown + Add New), Venue (text), Type (Home/Away toggle). Edit mode adds Home Score and Away Score. Inline Opposition Creation: Team Name (required), Short Name (max 5), Logo upload, colors." },
+      { id: "FR-013", title: "Delete Fixture", description: "Soft delete: Set status to 'Deleted' or add deletedAt timestamp. Fixture no longer appears in list. Associated videos remain archived. Match statistics preserved. Confirmation Dialog with warning if videos/analysis attached." },
+      { id: "FR-022", title: "Import Fixtures from Excel/CSV", description: "CSV Format: Date,Opposition,Competition,Location,Time,KickOff,Score. Upload flow: 1) Select file, 2) Validation (extension, <5MB, structure), 3) Preview with color coding, 4) Options: Import Valid Only/Fix Errors/Cancel, 5) Progress indicator and success message." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-028", description: "All 4 statistics cards display with correct values" },
+      { id: "AC-029", description: "Win Rate icon reflects performance (green/red/gray)" },
+      { id: "AC-030", description: "Search filters fixtures by opponent, venue, competition" },
+      { id: "AC-031", description: "All buttons trigger correct actions" },
+      { id: "AC-032", description: "All filters work independently" },
+      { id: "AC-033", description: "Filters combine with AND logic" },
+      { id: "AC-034", description: "Filter panel expands/collapses correctly" },
+      { id: "AC-035", description: "Fixture cards display all required elements" },
+      { id: "AC-036", description: "Clicking card navigates to fixture detail" },
+      { id: "AC-037", description: "Form validates all required fields" },
+      { id: "AC-038", description: "Opposition can be created inline during fixture creation" },
+      { id: "AC-039", description: "Edit mode pre-populates all fields" },
+      { id: "AC-040", description: "Success message displays after database confirms save" },
+      { id: "AC-041", description: "Delete shows confirmation dialog" },
+      { id: "AC-042", description: "Deleted fixture removed from list" },
+      { id: "AC-043", description: "Associated videos preserved" },
+      { id: "AC-066", description: "Import accepts .csv and .xlsx files" },
+      { id: "AC-067", description: "Preview shows validation status per row" },
+      { id: "AC-068", description: "Import Valid Only skips error rows" },
+      { id: "AC-069 (Epic)", description: "Fixtures page handles 500+ fixtures without performance issues" },
+      { id: "AC-070 (Epic)", description: "All fixture operations confirm with database before showing success" },
+      { id: "AC-071 (Epic)", description: "Fixture data persists after page refresh" },
+    ],
+  },
+  {
+    id: "fixture-details",
+    title: "View Fixture Detail",
+    route: "/fixtures/:id",
+    parentId: "fixtures",
+    section: "team",
+    overview: "Detailed view of a single fixture with match header, navigation actions, and tabbed content for different aspects of match data.",
+    functionalRequirements: [
+      { id: "FR-014", title: "Fixture Detail Header", description: "Match Header: Both team logos (home left, away right), team names with score (if completed), date/time/venue/competition, status badge (COMPLETED/SCHEDULED/POSTPONED). Navigation: Back button, breadcrumb (Fixtures > [Opposition]), Edit/Delete buttons." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-044", description: "Match header displays both team logos and names" },
+      { id: "AC-045", description: "Score displays only for completed fixtures" },
+      { id: "AC-046", description: "Back button returns to Fixtures list" },
+      { id: "AC-047", description: "Edit/Delete buttons visible for authorized users" },
+    ],
+    tabs: [
+      {
+        id: "match-report",
+        name: "Match Report",
+        overview: "Scoreboard with final score and goal scorers, key facts, event timeline, and export options.",
+        functionalRequirements: [
+          { id: "FR-015", title: "Match Report Tab", description: "Scoreboard with final score and goal scorers. Key facts: Venue, date, time, officials, attendance. Event timeline: Goals, cards, substitutions in chronological order. Export options: PDF and HTML formats." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-048", description: "Match header and event timeline render correctly" },
+          { id: "AC-049", description: "Export produces valid PDF/HTML with all match data" },
+        ],
+      },
+      {
+        id: "line-ups",
+        name: "Line-Ups",
+        overview: "Visual formation display with starting XI positions, substitutes bench, and substitution log.",
+        functionalRequirements: [
+          { id: "FR-016", title: "Line-Ups Tab", description: "Visual formation display (e.g., 4-4-2, 4-3-3). Starting XI with positions on pitch graphic. Substitutes bench with player details. Substitution log with timestamps. Player status tags (captain, yellow card, red card, injured)." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-050", description: "Formation display matches stored metadata" },
+          { id: "AC-051", description: "Substitution log enforces player availability rules" },
+        ],
+      },
+      {
+        id: "videos",
+        name: "Videos",
+        overview: "Video management for this fixture including upload, AI processing, and playback.",
+        functionalRequirements: [
+          { id: "FR-017", title: "Videos Tab", description: "Video Actions: Add Video (upload with camera label), Process All Videos (AI analysis with PlayerTRACK + PlayerEVENT), View Video (player with controls), Upload JSON Events, Edit Video Details, Delete Video. Camera Labels: 1st Half Half Way Line, 1st Half Behind Goal, 2nd Half Half Way Line, 2nd Half Behind Goal, Tactical View." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-052", description: "Add Video allows file upload with camera label assignment" },
+          { id: "AC-053", description: "Process All Videos triggers AI analysis and shows progress" },
+          { id: "AC-054", description: "Upload JSON Events validates format before import" },
+          { id: "AC-055", description: "Edit/Delete actions work with confirmation" },
+        ],
+      },
+      {
+        id: "upload-data",
+        name: "Upload Data",
+        overview: "File upload for statistics, events, and tracking data with validation and error reporting.",
+        functionalRequirements: [
+          { id: "FR-018", title: "Upload Data Tab", description: "File upload: CSV, Excel (.xlsx), JSON formats. Data types: Statistics, events, tracking data. Validation: Schema checking, required fields, data types. Error reporting: Row-level errors with field details. Audit logging: Track who uploaded what and when." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-056", description: "Invalid files rejected with specific row/field errors" },
+          { id: "AC-057", description: "Upload completes within 60 seconds with audit trail" },
+        ],
+      },
+      {
+        id: "statistics",
+        name: "Statistics",
+        overview: "Side-by-side team comparison with metrics organized by category.",
+        functionalRequirements: [
+          { id: "FR-019", title: "Statistics Tab", description: "Metric Categories: Key (Total Team Distance, Ball Possession), Attack (Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses), Possession (Dribbles, Penetrating Dribbles, Take Ons, First Touch Success), Defense (Tackles, Free Kicks, Offsides), Passing (Passes Attempted, Success, Rate, Distance, Velocity). Display: Home value + % | Away value + % with percentage bars. Period filters: Full Match, 1st Half, 2nd Half." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-058", description: "All 5 category tabs display with correct metrics" },
+          { id: "AC-059", description: "Period filter updates all metrics coherently" },
+          { id: "AC-060", description: "Stats render within 100ms of filter change" },
+        ],
+      },
+      {
+        id: "spider-charts",
+        name: "Spider Charts",
+        overview: "Radar chart visualization of the same metrics from the Statistics tab.",
+        functionalRequirements: [
+          { id: "FR-020", title: "Spider Charts Tab", description: "Chart Categories: Attack (Goals, Shots, Shots on Target, Runs into Boxes, Corners, Dangerous Crosses), Possession (Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success), Technical (Passes Attempted, Success, Rate, Distance, Avg Distance, Velocity). Features: Radar/spider chart, home team solid line with club primary color, away team dashed line with opponent color, normalized 0-100 scale, tooltips showing actual values." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-061", description: "All three charts (Attack, Possession, Technical) render correctly" },
+          { id: "AC-062", description: "Each chart displays 6+ metrics with normalized values" },
+          { id: "AC-063", description: "Tooltips show actual metric values on hover" },
+        ],
+      },
+      {
+        id: "ai-analysis",
+        name: "AI Analysis",
+        overview: "AI-generated match insights, tactical themes, and recommendations.",
+        functionalRequirements: [
+          { id: "FR-021", title: "AI Analysis Tab", description: "Narrative insights: AI-generated match summary. Tactical themes: Key patterns identified from data. Recommendations: Suggested improvements for team. Confidence indicators: Show AI certainty levels." },
+        ],
+        acceptanceCriteria: [
+          { id: "AC-064", description: "AI generates coherent narrative from match data" },
+          { id: "AC-065", description: "Tactical themes are supported by specific events/stats" },
+        ],
+      },
+    ],
+  },
+
+  // =============================================================================
+  // TEAM SECTION - Epic GS-4: Squad
+  // =============================================================================
+  {
+    id: "squad",
+    title: "Squad",
+    route: "/squad",
+    section: "team",
+    overview: "Card-based roster view with filtering and quick actions for managing players.",
+    functionalRequirements: [
+      { id: "FR-023", title: "Squad List View", description: "Statistics Cards: Total Players, Star Players (keyPlayer=true), Position Breakdown (2x2 grid: GK/DEF/MID/FWD), Player Status (W-X-Y-Z: fit-injured-n/a-retired). Control Bar: Filter toggle, Add Player, Import Excel, Transfer Players, Settings. Filter Panel: Position, Fit Status, Star Players, Search. Player Cards grouped by position with squad number, star toggle, name, position badge, fit status badge, actions (Edit, Delete, View Profile)." },
+      { id: "FR-024", title: "Add Player", description: "3-column form: First Name*, Last Name*, Shirt Name, Squad Number, Position*, Fit Status*, Date of Birth, Age (calculated), Gender, Email, Password, Phone, Account Status. Validation: Required fields marked, if Email provided Password required (min 8 chars, 1 uppercase, 1 number, 1 special), Email unique across all users." },
+      { id: "FR-025", title: "Edit Player", description: "Same as Add Player Dialog, pre-populated with existing data. All fields pre-populated. Email uniqueness check excludes current player. Password validation only if changed." },
+      { id: "FR-026", title: "Delete Player", description: "Flow: Click Delete → Confirmation dialog → Confirm deletes TeamMember record. Shows player name in confirmation. Cancel closes without deleting." },
+      { id: "FR-027", title: "View Player Details", description: "Route: /squad/:id or /users/:id. Opens User Details page with tabbed interface. Tabs: User Details (name, personal, contact, account info), Teams (memberships, add/remove), Bio (high school, class year, bio text), Photos (profile photo, headshot)." },
+      { id: "FR-028", title: "Transfer Players", description: "Modes: Transfer In (select source team → view players → select → transfer), Transfer Out (select target team → view current → select → transfer). Prompt: 'Are these players going to play for both teams?' Yes: Create new TeamMember, keep original. No: Create new, delete original." },
+      { id: "FR-029", title: "Import Squad from Excel", description: "Accepted columns: First Name (required), Last Name (required), Position (recommended), Jersey Number (recommended), Email (optional), Phone (optional). Upload flow: Drag & drop or click, preview with status badges (Valid/Warning/Error), 'Import X Players' button for valid+warning rows only." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-072", description: "Total Players shows correct count matching database" },
+      { id: "AC-073", description: "Players grouped by position: GK → DEF → MID → FWD" },
+      { id: "AC-074", description: "All filters work independently and combine with AND logic" },
+      { id: "AC-075", description: "Star toggle updates keyPlayer on click and persists" },
+      { id: "AC-076", description: "Form validates all required fields" },
+      { id: "AC-077", description: "Password field disabled when email is blank" },
+      { id: "AC-078", description: "Email uniqueness validated before save" },
+      { id: "AC-079", description: "Success message displays after database confirms save" },
+      { id: "AC-080", description: "Edit dialog pre-populates all fields" },
+      { id: "AC-081", description: "Changes persist after save" },
+      { id: "AC-082", description: "Delete shows confirmation with player name" },
+      { id: "AC-083", description: "Player removed from list after confirmation" },
+      { id: "AC-084", description: "Success message displays after database confirms deletion" },
+      { id: "AC-085", description: "Clicking player card opens detail page" },
+      { id: "AC-086", description: "All four tabs load with correct content" },
+      { id: "AC-087", description: "Transfer In shows players from selected source team" },
+      { id: "AC-088", description: "Transfer Out shows current team players" },
+      { id: "AC-089", description: "'Play for both' option creates dual membership" },
+      { id: "AC-090", description: "Import accepts .xls and .xlsx files" },
+      { id: "AC-091", description: "Preview shows validation status per row" },
+      { id: "AC-092", description: "Only valid/warning rows are imported" },
+      { id: "AC-093 (Epic)", description: "Squad page handles 100+ players without performance issues" },
+      { id: "AC-094 (Epic)", description: "Error messages are user-friendly (not raw exceptions)" },
+      { id: "AC-095 (Epic)", description: "All squad operations confirm with database before showing success" },
+    ],
+  },
+
+  // =============================================================================
+  // TEAM SECTION - Epic GS-6: Match Video
+  // =============================================================================
+  {
+    id: "videos",
+    title: "Match Video",
+    route: "/videos",
+    section: "team",
+    overview: "Browse and view match videos organized by fixture. This page provides read-only access to uploaded videos. Video upload, editing, and deletion is managed via Fixtures → View Fixture → Videos tab.",
+    functionalRequirements: [
+      { id: "FR-030", title: "Video List View", description: "Two Display Modes: Match List (videos grouped by fixture/match), All Videos (flat list). Match List Mode: Matches organized by competition, each section collapsible. Competition header with chevron. Match cards showing: team logos, score, date, video count, status badge. Click match to view videos. Match Card Display: Team badge/logo, opponent name, venue (HOME/AWAY), date & time, status badge (WIN/LOSS/DRAW/SCHEDULED), video count." },
+      { id: "FR-031", title: "Match Videos Page", description: "Route: /watch-match-video. Match Header: Both team logos and names, score (if completed), date/time/venue, link to Fixture Detail for management. Videos Section (Read-Only): Grid of video cards with thumbnail, title, camera label, duration, upload date. Click to play. No edit/delete on this page. Video Player: Full playback controls, fullscreen mode, playback speed control, camera angle switcher." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-096", description: "Match list displays all fixtures with video counts" },
+      { id: "AC-097", description: "Competition grouping expands/collapses correctly" },
+      { id: "AC-098", description: "Clicking match navigates to match videos page" },
+      { id: "AC-099", description: "Video player loads and plays correctly" },
+      { id: "AC-100", description: "Camera angle switcher preserves timestamp when switching" },
+      { id: "AC-101", description: "Edit link navigates to Fixtures page for video management" },
+    ],
+  },
+  {
+    id: "watch-match-video",
+    title: "Watch Match Video",
+    route: "/watch-match-video",
+    parentId: "videos",
+    section: "team",
+    overview: "Video player page for watching match videos with full playback controls and camera angle switching.",
+    functionalRequirements: [
+      { id: "FR-031", title: "Match Videos Page", description: "Match Header with team logos and names, score, date/time/venue. Videos grid with thumbnails, titles, camera labels. Video Player with full playback controls, fullscreen, speed control, camera angle switcher." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-099", description: "Video player loads and plays correctly" },
+      { id: "AC-100", description: "Camera angle switcher preserves timestamp when switching" },
+    ],
+  },
+
+  // =============================================================================
+  // TEAM SECTION - Epic GS-32: Player Profiles
+  // =============================================================================
+  {
+    id: "player-profiles",
+    title: "Player Profiles",
+    route: "/player-profiles",
+    section: "team",
+    overview: "Comprehensive player profile cards with detailed statistics and performance data.",
+    functionalRequirements: [
+      { id: "FR-032", title: "Profile Cards", description: "Grid of player profile cards. Search by name, filter by position/status, sort by name/goals/appearances. Profile Card Display: Player photo (or placeholder), name (bold), position badge, key stats summary (Appearances, Goals, Assists). Click to view full profile." },
+      { id: "FR-033", title: "Player Stat Comparison", description: "Compare 2-4 players side by side. Side-by-side stat comparison. Radar chart visualization. Metrics: Goals, Assists, Appearances, Minutes, Pass accuracy." },
+      { id: "FR-034", title: "Performance Trends", description: "Statistics Section: Appearances (Total, Starts, Sub), Goals (Total, Per game avg), Assists (Total, Per game avg), Minutes Played (Total, Avg per game). Performance Trend Charts: Line charts over time, goals per month/season, fitness status history." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-102", description: "Profile cards show photo, name, position, and key stats" },
+      { id: "AC-103", description: "Search filters players by name" },
+      { id: "AC-104", description: "Clicking card opens player detail" },
+      { id: "AC-105", description: "Can select 2-4 players for comparison" },
+      { id: "AC-106", description: "Comparison displays all metrics side by side" },
+      { id: "AC-107", description: "Radar chart renders correctly" },
+      { id: "AC-108", description: "Performance trend charts render correctly" },
+      { id: "AC-109", description: "Data updates when season filter changes" },
+      { id: "AC-110 (Epic)", description: "Player profiles page loads in under 2 seconds" },
+    ],
+  },
+
+  // =============================================================================
+  // CLUB SECTION - Epic GS-3: Teams
+  // =============================================================================
+  {
+    id: "teams",
+    title: "Teams",
+    route: "/teams",
+    section: "club",
+    overview: "The Teams page displays all teams within the selected club in a card-based grid layout.",
+    functionalRequirements: [
+      { id: "FR-035", title: "Teams Grid", description: "Card-based grid layout grouped by Gender. Each card shows: Team name, Age group, Player count, Matches count, Status badge (ACTIVE green, INACTIVE gray, ARCHIVED red)." },
+      { id: "FR-036", title: "Add Team", description: "Form fields: Team Name (required), Short Name (required, max 10 chars), Gender (required dropdown), Age Group (optional, U12-U21/Senior), Status (required, default Active)." },
+      { id: "FR-037", title: "Edit/Delete Team", description: "Edit: Same as creation dialog, pre-populated. Edit button on card for authorized users. Can change status. Delete: Soft delete (status 'Deleted' or deletedAt). Team removed from lists. Squad members remain as users. Confirmation shows impact summary (X players, Y fixtures, Z videos affected)." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-111", description: "All teams for current club display in grid" },
+      { id: "AC-112", description: "Teams grouped by gender" },
+      { id: "AC-113", description: "Player and match counts are accurate" },
+      { id: "AC-114", description: "Form validates all required fields" },
+      { id: "AC-115", description: "Short name limited to 10 characters" },
+      { id: "AC-116", description: "Status defaults to ACTIVE" },
+      { id: "AC-117", description: "Success toast on creation" },
+      { id: "AC-118", description: "Dialog closes on success" },
+      { id: "AC-119", description: "Edit dialog pre-populates all fields" },
+      { id: "AC-120", description: "Delete shows confirmation with impact summary" },
+      { id: "AC-121", description: "Deleted team removed from grid" },
+    ],
+  },
+
+  // =============================================================================
+  // CLUB SECTION - Epic GS-8: Club Users
+  // =============================================================================
+  {
+    id: "users",
+    title: "Club Users",
+    route: "/users",
+    section: "club",
+    overview: "Manage all users within the club context, including role assignment and team membership.",
+    functionalRequirements: [
+      { id: "FR-038", title: "User List View", description: "Summary Cards: Total Users, By Role (Admin, Coach, Analyst, Parent, Player counts), By Status (Active, Inactive, Suspended). User Table/Cards: Columns (Name, Email, Role, Teams, Status, Last Login), Search by name/email, Filter by role/status, Sort by any column." },
+      { id: "FR-039", title: "Add User", description: "Form fields: Email (required, unique), First Name (required, max 50), Last Name (required, max 50), Role (required dropdown: Admin/Coach/Analyst/Parent/Player), Password (required, min 8 chars with complexity), Account Status (required, default Active)." },
+      { id: "FR-040", title: "Edit User", description: "Same as Add User, pre-populated. Email uniqueness checked excluding current user. Password validation only if changed." },
+      { id: "FR-041", title: "Delete User", description: "Soft delete: accountStatus 'Deleted' or deletedAt. User removed from lists, cannot log in. Associated TeamMember records preserved. Confirmation dialog with warning if assigned to teams. Delete button visible only to Admin users. Cannot delete yourself." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-122", description: "User list displays all club users" },
+      { id: "AC-123", description: "Search filters by name and email" },
+      { id: "AC-124", description: "Filters work independently and combine" },
+      { id: "AC-125", description: "Form validates all required fields" },
+      { id: "AC-126", description: "Email uniqueness validated" },
+      { id: "AC-127", description: "Password meets complexity requirements" },
+      { id: "AC-128", description: "Success message after database confirms save" },
+      { id: "AC-129", description: "Edit dialog pre-populates all fields" },
+      { id: "AC-130", description: "Changes persist after save" },
+      { id: "AC-131", description: "Delete button visible only to Admin users" },
+      { id: "AC-132", description: "Delete shows confirmation dialog" },
+      { id: "AC-133", description: "Cannot delete yourself (current logged-in user)" },
+      { id: "AC-134", description: "User removed from list after deletion" },
+    ],
+  },
+  {
+    id: "user-details",
+    title: "User Details",
+    route: "/users/:id",
+    parentId: "users",
+    section: "club",
+    overview: "Individual user profile page with tabbed interface for managing all aspects of a user's information.",
+    functionalRequirements: [
+      { id: "FR-042", title: "User Header", description: "User avatar (profile photo or initials), full name (First Last), role badge (Admin, Coach, Player, etc.), status indicator (Active/Inactive/Suspended), Edit button (opens edit dialog)." },
+      { id: "FR-043", title: "Navigation", description: "Back button returns to Club Users list. Breadcrumb: Club Users > [User Name]." },
+      { id: "FR-044", title: "User Details Tab", description: "Core user information: Name Info (First Name, Last Name, Shirt Name), Personal Info (DOB, Age calculated, Gender, Height, Hometown), Contact Info (Email, Phone), Account Info (Role, Account Status)." },
+      { id: "FR-045", title: "Teams Tab", description: "List of teams user belongs to. Each row shows: Team name, Squad Number, Position. Add to Team button, Remove from Team with confirmation. Edit squad number and position inline. Add to Team Dialog: Team (dropdown, teams user not in), Squad Number, Position (GK/DEF/MID/FWD required)." },
+      { id: "FR-046", title: "Bio Tab", description: "Extended biographical information: High School (text), Class Year (dropdown), Bio (textarea, free-form)." },
+      { id: "FR-047", title: "Photos Tab", description: "Profile Photo: Main avatar used throughout app. Headshot Photo: Formal photo for team sheets. Upload via drag & drop or file picker. Formats: JPG, PNG, WebP. Max 5MB. Preview before saving." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-135", description: "User header displays avatar, name, role, and status" },
+      { id: "AC-136", description: "Edit button opens edit dialog" },
+      { id: "AC-137", description: "Back button returns to Club Users list" },
+      { id: "AC-138", description: "Breadcrumb displays correctly" },
+      { id: "AC-139", description: "All user details display correctly" },
+      { id: "AC-140", description: "Age calculated from DOB" },
+      { id: "AC-141", description: "Team list shows all user's team memberships" },
+      { id: "AC-142", description: "Add to Team only shows teams user is not already in" },
+      { id: "AC-143", description: "Remove from Team shows confirmation dialog" },
+      { id: "AC-144", description: "Bio fields display and save correctly" },
+      { id: "AC-145", description: "Photo uploads validate format and size" },
+      { id: "AC-146", description: "Preview shows before saving" },
+      { id: "AC-147", description: "Photos persist after page refresh" },
+      { id: "AC-148 (Epic)", description: "User pages load in under 2 seconds" },
+      { id: "AC-149 (Epic)", description: "All user operations confirm with database before showing success" },
+    ],
+  },
+
+  // =============================================================================
+  // CLUB SECTION - Epic GS-2: Club Management
+  // =============================================================================
+  {
+    id: "club-management",
+    title: "Club Management",
+    route: "/club-management",
+    section: "club",
+    overview: "Edit club details, branding, and owner assignment. This is the 'Edit Club' functionality.",
+    functionalRequirements: [
+      { id: "FR-048", title: "Club Details Form", description: "Basic Information: Club Name (required, unique, max 100), Short Name (max 5 chars), Address, City, Country. Club Owner: First Name, Last Name, Phone, Email (creates admin user). Branding: Club Logo (JPG/PNG, max 2MB), Primary Color (default #dc2626), Secondary Color (default #000000), Status (Active/Inactive)." },
+      { id: "FR-049", title: "Auto-Create Admin User", description: "When club owner info provided (First Name, Last Name, Email, Phone): System creates admin user account, uses email as username, generates temporary password, assigns as club owner, sends welcome email with credentials." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-150", description: "Club Name uniqueness checked across all clubs" },
+      { id: "AC-151", description: "Short Name limited to 5 characters" },
+      { id: "AC-152", description: "Logo accepts JPG/PNG only, max 2MB" },
+      { id: "AC-153", description: "Color preview squares display correctly" },
+      { id: "AC-154", description: "Admin user created when owner details provided" },
+    ],
+  },
+
+  // =============================================================================
+  // CLUB SECTION - Epic GS-30: Settings
+  // =============================================================================
+  {
+    id: "settings",
+    title: "Settings",
+    route: "/settings",
+    section: "club",
+    overview: "Club settings and team logo management. Unified interface for managing all team logos within the club context.",
+    functionalRequirements: [
+      { id: "FR-050", title: "Logo Grid View", description: "Page Header: Title 'SETTINGS', subtitle 'Club settings and team logo management'. All Team Logos Section: Unified grid of Club Teams and Opposition Teams. Logo Card: Thumbnail (or initials avatar), team name, type label, status badge ('Has Logo' green / 'No Logo' gray), edit icon. Initials Avatar: First two letters, club primary color background, white text." },
+      { id: "FR-051", title: "Edit Logo Dialog", description: "Fields: Team Name (editable for Opposition only), Short Name (max 5), Logo Upload (PNG/JPG/GIF/WebP, max 10MB), Primary/Secondary Color pickers. Background Removal Tools: Smart Mode (auto-detect white/light), Color Mode (target specific colors), Manual Mode (adjustable 0-100 threshold). Preview shows processed image." },
+      { id: "FR-052", title: "Delete Opposition Logo", description: "Soft delete: status 'Archived'. Logo removed from grid. Historical fixtures preserve opponent reference. Confirmation shows fixture count." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-155", description: "Both Club Teams and Opposition Teams display in unified grid" },
+      { id: "AC-156", description: "Teams without logos display initials avatar" },
+      { id: "AC-157", description: "Clicking card opens edit dialog" },
+      { id: "AC-158", description: "Club Team names are read-only" },
+      { id: "AC-159", description: "Opposition Team names are editable" },
+      { id: "AC-160", description: "Background removal modes work correctly" },
+      { id: "AC-161", description: "Preview shows processed image" },
+      { id: "AC-162", description: "Delete shows confirmation with fixture count" },
+      { id: "AC-163", description: "Deleted opposition removed from grid" },
+      { id: "AC-164", description: "Historical fixtures still show opponent name" },
+    ],
+  },
+
+  // =============================================================================
+  // DEVOPS SECTION - Epic GS-31: All Users
+  // =============================================================================
+  {
+    id: "devops-users",
+    title: "All Users",
+    route: "/devops/users",
+    section: "devops",
+    overview: "Manage all users across the entire GameScope platform (all clubs). Internal only for GameScope administrators.",
+    functionalRequirements: [
+      { id: "FR-053", title: "User List View", description: "Table view of ALL users on platform. Columns: Name, Email, Club, Role, Status, Last Login. Search by name, email. Filter by club, role, status. Sort by any column." },
+      { id: "FR-054", title: "User Actions", description: "View User: See profile, club assignments, activity log. Edit User: Modify details, role, status. Reset Password: Send reset email. Suspend User: Immediately block access. Delete User: Soft delete with confirmation. Move to Club: Transfer to different club." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-165", description: "User list shows ALL users across all clubs" },
+      { id: "AC-166", description: "Search and filter work correctly" },
+      { id: "AC-167", description: "Only accessible to users with DevOps role" },
+      { id: "AC-168", description: "All user actions function correctly" },
+      { id: "AC-169", description: "All actions are logged for audit" },
+    ],
+  },
+
+  // =============================================================================
+  // DEVOPS SECTION - Epic GS-31: Clubs
+  // =============================================================================
+  {
+    id: "devops-clubs",
+    title: "Clubs",
+    route: "/devops/clubs",
+    section: "devops",
+    overview: "Manage all clubs across the entire GameScope platform. Internal only for GameScope administrators.",
+    functionalRequirements: [
+      { id: "FR-055", title: "Club List View", description: "Card or table view of ALL clubs. Each shows: Club logo, name, short name, team count, user count, status badge (ACTIVE green, INACTIVE gray). Search/filter by name, country, status." },
+      { id: "FR-056", title: "Club Actions", description: "View Club: All details, teams, users, activity. Edit Club: Settings, branding, owner. Add Club: Create new with owner. Deactivate Club: Set Inactive. Delete Club: Soft delete (requires typing club name). Impersonate: Log in as club admin (audit logged, time-limited)." },
+      { id: "FR-057", title: "Add Club Form (DevOps)", description: "Same as main app Add Club plus: Subscription Tier (Free/Basic/Pro/Enterprise), Subscription Expiry Date, Video Storage Quota, Internal Notes." },
+      { id: "FR-058", title: "Audit Log", description: "All DevOps actions logged. Fields: id, devopsUserId, action (CREATE/UPDATE/DELETE/IMPERSONATE), entityType, entityId, previousValue (JSON), newValue (JSON), timestamp, ipAddress." },
+    ],
+    acceptanceCriteria: [
+      { id: "AC-170", description: "Club list shows ALL clubs on platform" },
+      { id: "AC-171", description: "Search and filter work correctly" },
+      { id: "AC-172", description: "All club actions function correctly" },
+      { id: "AC-173", description: "Impersonation requires confirmation and is time-limited" },
+      { id: "AC-174", description: "Delete requires typing club name to confirm" },
+      { id: "AC-175", description: "All DevOps-specific fields available in Add Club" },
+      { id: "AC-176", description: "Subscription settings saved correctly" },
+      { id: "AC-177", description: "All DevOps actions create audit log entries" },
+      { id: "AC-178", description: "Audit log includes before/after values" },
+      { id: "AC-179 (Epic)", description: "DevOps module only accessible to DevOps role" },
+      { id: "AC-180 (Epic)", description: "All operations confirm with database before showing success" },
+    ],
+  },
 ];
 
 // PLACEHOLDER: Old registry content removed. Ready for new import.
