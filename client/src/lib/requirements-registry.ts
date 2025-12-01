@@ -411,8 +411,8 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "LAND-FR-2", title: "Call to Action", description: "Prominent login/signup buttons directing users to authentication." },
     ],
     acceptanceCriteria: [
-      { id: "LAND-AC-1", description: "Landing page loads with feature highlights" },
-      { id: "LAND-AC-2", description: "Login button navigates to login page" },
+      { id: "LAND-FR-1-AC-1", description: "Landing page loads with feature highlights" },
+      { id: "LAND-FR-2-AC-1", description: "Login button navigates to login page" },
     ],
   },
   {
@@ -426,8 +426,8 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "LOG-FR-2", title: "Error Handling", description: "Display clear error messages for failed login attempts." },
     ],
     acceptanceCriteria: [
-      { id: "LOG-AC-1", description: "Valid credentials grant access to the application" },
-      { id: "LOG-AC-2", description: "Invalid credentials show appropriate error message" },
+      { id: "LOG-FR-1-AC-1", description: "Valid credentials grant access to the application" },
+      { id: "LOG-FR-2-AC-1", description: "Invalid credentials show appropriate error message" },
     ],
   },
   // HOME SECTION
@@ -442,8 +442,8 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "HOME-FR-2", title: "Club Branding", description: "Display current club logo and colors throughout the interface." },
     ],
     acceptanceCriteria: [
-      { id: "HOME-AC-1", description: "All teams for the current club are displayed" },
-      { id: "HOME-AC-2", description: "Selecting a team navigates to team dashboard" },
+      { id: "HOME-FR-1-AC-1", description: "All teams for the current club are displayed" },
+      { id: "HOME-FR-1-AC-2", description: "Selecting a team navigates to team dashboard" },
     ],
   },
   {
@@ -459,10 +459,10 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "SELTEAM-FR-4", title: "Team Display", description: "Show team name and optional team logo/badge in the selector." },
     ],
     acceptanceCriteria: [
-      { id: "SELTEAM-AC-1", description: "Team selector is visible on all pages after login" },
-      { id: "SELTEAM-AC-2", description: "Switching teams updates all team-specific data on the current page" },
-      { id: "SELTEAM-AC-3", description: "Selected team persists in localStorage or session" },
-      { id: "SELTEAM-AC-4", description: "Only teams from the current club are shown in the dropdown" },
+      { id: "SELTEAM-FR-1-AC-1", description: "Team selector is visible on all pages after login" },
+      { id: "SELTEAM-FR-2-AC-1", description: "Switching teams updates all team-specific data on the current page" },
+      { id: "SELTEAM-FR-3-AC-1", description: "Selected team persists in localStorage or session" },
+      { id: "SELTEAM-FR-4-AC-1", description: "Only teams from the current club are shown in the dropdown" },
     ],
   },
 
@@ -481,9 +481,9 @@ export const requirementsRegistry: PageRequirements[] = [
     ],
     acceptanceCriteria: [
       { id: "DASH-AC-1", description: "Dashboard loads with current team data" },
-      { id: "DASH-AC-2", description: "Stats reflect actual team performance from fixtures" },
-      { id: "DASH-AC-3", description: "Upcoming fixtures show correct dates and opponents" },
-      { id: "DASH-AC-4", description: "Recent results display accurate scores" },
+      { id: "DASH-FR-1-AC-1", description: "Stats reflect actual team performance from fixtures" },
+      { id: "DASH-FR-2-AC-1", description: "Upcoming fixtures show correct dates and opponents" },
+      { id: "DASH-FR-3-AC-1", description: "Recent results display accurate scores" },
     ],
   },
   {
@@ -499,9 +499,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "FIX-FR-4", title: "Excel Import", description: "Import fixtures from Excel files with automatic field mapping." },
     ],
     acceptanceCriteria: [
-      { id: "FIX-AC-1", description: "Fixtures can be created with opponent, date, venue, and competition" },
-      { id: "FIX-AC-2", description: "Fixtures can be edited and scores updated" },
-      { id: "FIX-AC-3", description: "Tab state persists during navigation" },
+      { id: "FIX-FR-2-AC-1", description: "Fixtures can be created with opponent, date, venue, and competition" },
+      { id: "FIX-FR-2-AC-2", description: "Fixtures can be edited and scores updated" },
+      { id: "FIX-FR-1-AC-1", description: "Tab state persists during navigation" },
     ],
     tabs: [
       {
@@ -515,9 +515,9 @@ export const requirementsRegistry: PageRequirements[] = [
           { id: "FIX-SEA-FR-4", title: "Score Display", description: "Show match scores for completed fixtures." },
         ],
         acceptanceCriteria: [
-          { id: "FIX-SEA-AC-1", description: "All fixtures display in chronological order" },
-          { id: "FIX-SEA-AC-2", description: "Filtering by competition works correctly" },
-          { id: "FIX-SEA-AC-3", description: "Fixture status badges display correctly" },
+          { id: "FIX-SEA-FR-1-AC-1", description: "All fixtures display in chronological order" },
+          { id: "FIX-SEA-FR-2-AC-1", description: "Filtering by competition works correctly" },
+          { id: "FIX-SEA-FR-1-AC-2", description: "Fixture status badges display correctly" },
         ],
       },
       {
@@ -530,8 +530,8 @@ export const requirementsRegistry: PageRequirements[] = [
           { id: "FIX-PLN-FR-3", title: "Fixture Preview", description: "Click on a date to see fixture details." },
         ],
         acceptanceCriteria: [
-          { id: "FIX-PLN-AC-1", description: "Calendar displays correct dates and fixtures" },
-          { id: "FIX-PLN-AC-2", description: "Month navigation updates the view" },
+          { id: "FIX-PLN-FR-1-AC-1", description: "Calendar displays correct dates and fixtures" },
+          { id: "FIX-PLN-FR-2-AC-1", description: "Month navigation updates the view" },
         ],
       },
       {
@@ -545,9 +545,9 @@ export const requirementsRegistry: PageRequirements[] = [
           { id: "FIX-VID-FR-4", title: "Video Delete", description: "Remove videos from fixtures." },
         ],
         acceptanceCriteria: [
-          { id: "FIX-VID-AC-1", description: "Videos can be uploaded successfully" },
-          { id: "FIX-VID-AC-2", description: "Multiple camera angles supported per fixture" },
-          { id: "FIX-VID-AC-3", description: "Video labels display correctly" },
+          { id: "FIX-VID-FR-1-AC-1", description: "Videos can be uploaded successfully" },
+          { id: "FIX-VID-FR-2-AC-1", description: "Multiple camera angles supported per fixture" },
+          { id: "FIX-VID-FR-2-AC-2", description: "Video labels display correctly" },
         ],
       },
       {
@@ -561,9 +561,9 @@ export const requirementsRegistry: PageRequirements[] = [
           { id: "FIX-LOG-FR-4", title: "Image Comparison", description: "Side-by-side view of original vs processed logos." },
         ],
         acceptanceCriteria: [
-          { id: "FIX-LOG-AC-1", description: "Logos display correctly in containers" },
-          { id: "FIX-LOG-AC-2", description: "Background removal works with different modes" },
-          { id: "FIX-LOG-AC-3", description: "Theme controls persist in localStorage" },
+          { id: "FIX-LOG-FR-1-AC-1", description: "Logos display correctly in containers" },
+          { id: "FIX-LOG-FR-2-AC-1", description: "Background removal works with different modes" },
+          { id: "FIX-LOG-FR-3-AC-1", description: "Theme controls persist in localStorage" },
         ],
       },
     ],
@@ -583,10 +583,10 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "FIXD-FR-5", title: "Navigation", description: "Quick access to watch video and analysis pages." },
     ],
     acceptanceCriteria: [
-      { id: "FIXD-AC-1", description: "All fixture details display correctly" },
-      { id: "FIXD-AC-2", description: "Videos can be uploaded and managed" },
-      { id: "FIXD-AC-3", description: "Match report can be edited and saved" },
-      { id: "FIXD-AC-4", description: "Navigation to video pages works correctly" },
+      { id: "FIXD-FR-1-AC-1", description: "All fixture details display correctly" },
+      { id: "FIXD-FR-3-AC-1", description: "Videos can be uploaded and managed" },
+      { id: "FIXD-FR-4-AC-1", description: "Match report can be edited and saved" },
+      { id: "FIXD-FR-5-AC-1", description: "Navigation to video pages works correctly" },
     ],
   },
   {
@@ -602,9 +602,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "ANL-FR-3", title: "Tactical Insights", description: "Heat maps, passing networks, and tactical breakdowns." },
     ],
     acceptanceCriteria: [
-      { id: "ANL-AC-1", description: "Formation displays correctly for both teams" },
-      { id: "ANL-AC-2", description: "Player stats are accurate and complete" },
-      { id: "ANL-AC-3", description: "Tactical visualizations render correctly" },
+      { id: "ANL-FR-1-AC-1", description: "Formation displays correctly for both teams" },
+      { id: "ANL-FR-2-AC-1", description: "Player stats are accurate and complete" },
+      { id: "ANL-FR-3-AC-1", description: "Tactical visualizations render correctly" },
     ],
   },
   {
@@ -620,9 +620,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "STAT-FR-4", title: "Competition Breakdown", description: "Statistics filtered by competition." },
     ],
     acceptanceCriteria: [
-      { id: "STAT-AC-1", description: "Team statistics are accurate based on fixture data" },
-      { id: "STAT-AC-2", description: "Player rankings reflect actual performance" },
-      { id: "STAT-AC-3", description: "Charts render correctly with accurate data" },
+      { id: "STAT-FR-1-AC-1", description: "Team statistics are accurate based on fixture data" },
+      { id: "STAT-FR-2-AC-1", description: "Player rankings reflect actual performance" },
+      { id: "STAT-FR-3-AC-1", description: "Charts render correctly with accurate data" },
     ],
   },
   {
@@ -639,10 +639,10 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "SQD-FR-5", title: "Excel/JSON Import", description: "Import player data from Excel or JSON files." },
     ],
     acceptanceCriteria: [
-      { id: "SQD-AC-1", description: "All squad players display with correct information" },
-      { id: "SQD-AC-2", description: "Position filter correctly groups players" },
-      { id: "SQD-AC-3", description: "Player profiles are accessible and complete" },
-      { id: "SQD-AC-4", description: "Excel import correctly populates player data" },
+      { id: "SQD-FR-1-AC-1", description: "All squad players display with correct information" },
+      { id: "SQD-FR-2-AC-1", description: "Position filter correctly groups players" },
+      { id: "SQD-FR-3-AC-1", description: "Player profiles are accessible and complete" },
+      { id: "SQD-FR-5-AC-1", description: "Excel import correctly populates player data" },
     ],
   },
   {
@@ -659,9 +659,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "PLYD-FR-4", title: "Edit Profile", description: "Ability to edit player details." },
     ],
     acceptanceCriteria: [
-      { id: "PLYD-AC-1", description: "All player details display correctly" },
-      { id: "PLYD-AC-2", description: "Statistics reflect actual performance data" },
-      { id: "PLYD-AC-3", description: "Profile edits save successfully" },
+      { id: "PLYD-FR-1-AC-1", description: "All player details display correctly" },
+      { id: "PLYD-FR-3-AC-1", description: "Statistics reflect actual performance data" },
+      { id: "PLYD-FR-4-AC-1", description: "Profile edits save successfully" },
     ],
   },
   {
@@ -679,12 +679,12 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "VID-FR-6", title: "Watch Mode", description: "Horizontal scrolling fixture selector. Larger video preview with match details. Match report and attendance display (when available)." },
     ],
     acceptanceCriteria: [
-      { id: "VID-AC-1", description: "Selecting a competition filters fixtures to only that competition" },
-      { id: "VID-AC-2", description: "Typing in search field immediately filters fixtures by opponent name" },
-      { id: "VID-AC-3", description: "Both team logos display correctly (fallback to initials if no logo)" },
-      { id: "VID-AC-4", description: "Score displays correctly based on home/away fixture type" },
-      { id: "VID-AC-5", description: "Clicking any fixture card navigates to Watch Match Video page" },
-      { id: "VID-AC-6", description: "View mode preference persists across page refreshes" },
+      { id: "VID-FR-2-AC-1", description: "Selecting a competition filters fixtures to only that competition" },
+      { id: "VID-FR-2-AC-2", description: "Typing in search field immediately filters fixtures by opponent name" },
+      { id: "VID-FR-4-AC-1", description: "Both team logos display correctly (fallback to initials if no logo)" },
+      { id: "VID-FR-4-AC-2", description: "Score displays correctly based on home/away fixture type" },
+      { id: "VID-FR-5-AC-1", description: "Clicking any fixture card navigates to Watch Match Video page" },
+      { id: "VID-FR-1-AC-1", description: "View mode preference persists across page refreshes" },
     ],
   },
   {
@@ -704,12 +704,12 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "WMV-FR-7", title: "Match Report Tab", description: "Displays written match report text. Shows attendance figures when available." },
     ],
     acceptanceCriteria: [
-      { id: "WMV-AC-1", description: "Camera selector shows all uploaded video names for the fixture" },
-      { id: "WMV-AC-2", description: "Changing camera selection loads the corresponding video" },
-      { id: "WMV-AC-3", description: "YouTube videos embed and play correctly" },
-      { id: "WMV-AC-4", description: "Google Drive videos embed correctly" },
-      { id: "WMV-AC-5", description: "Direct video files play with native controls" },
-      { id: "WMV-AC-6", description: "FIFA Plus links show 'Open in FIFA Plus' button" },
+      { id: "WMV-FR-2-AC-1", description: "Camera selector shows all uploaded video names for the fixture" },
+      { id: "WMV-FR-2-AC-2", description: "Changing camera selection loads the corresponding video" },
+      { id: "WMV-FR-3-AC-1", description: "YouTube videos embed and play correctly" },
+      { id: "WMV-FR-3-AC-2", description: "Google Drive videos embed correctly" },
+      { id: "WMV-FR-3-AC-3", description: "Direct video files play with native controls" },
+      { id: "WMV-FR-3-AC-4", description: "FIFA Plus links show 'Open in FIFA Plus' button" },
       { id: "WMV-AC-7", description: "Back button returns to Match Video listing page" },
       { id: "WMV-AC-8", description: "All five tabs display appropriate content when selected" },
     ],
@@ -729,11 +729,11 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "MA-FR-6", title: "Click-to-Seek", description: "Clicking an event jumps video to that timestamp." },
     ],
     acceptanceCriteria: [
-      { id: "MA-AC-1", description: "JSON event files can be uploaded and parsed" },
-      { id: "MA-AC-2", description: "Uploaded filename displays in the UI" },
-      { id: "MA-AC-3", description: "Events update as video plays (previous/current/next)" },
-      { id: "MA-AC-4", description: "Clicking an event seeks video to correct timestamp" },
-      { id: "MA-AC-5", description: "Event filters work correctly" },
+      { id: "MA-FR-2-AC-1", description: "JSON event files can be uploaded and parsed" },
+      { id: "MA-FR-2-AC-2", description: "Uploaded filename displays in the UI" },
+      { id: "MA-FR-3-AC-1", description: "Events update as video plays (previous/current/next)" },
+      { id: "MA-FR-6-AC-1", description: "Clicking an event seeks video to correct timestamp" },
+      { id: "MA-FR-5-AC-1", description: "Event filters work correctly" },
     ],
   },
   {
@@ -748,8 +748,8 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "PP-FR-3", title: "Performance Trends", description: "Charts showing player performance over time." },
     ],
     acceptanceCriteria: [
-      { id: "PP-AC-1", description: "All player profiles display with complete information" },
-      { id: "PP-AC-2", description: "Comparison view works correctly" },
+      { id: "PP-FR-1-AC-1", description: "All player profiles display with complete information" },
+      { id: "PP-FR-2-AC-1", description: "Comparison view works correctly" },
     ],
   },
 
@@ -766,9 +766,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "TM-FR-3", title: "Edit Team", description: "Modify team details and settings." },
     ],
     acceptanceCriteria: [
-      { id: "TM-AC-1", description: "All club teams are displayed" },
-      { id: "TM-AC-2", description: "New teams can be created" },
-      { id: "TM-AC-3", description: "Team details can be edited" },
+      { id: "TM-FR-1-AC-1", description: "All club teams are displayed" },
+      { id: "TM-FR-2-AC-1", description: "New teams can be created" },
+      { id: "TM-FR-3-AC-1", description: "Team details can be edited" },
     ],
   },
   {
@@ -783,9 +783,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "CU-FR-3", title: "Invite Users", description: "Send invitations to new users." },
     ],
     acceptanceCriteria: [
-      { id: "CU-AC-1", description: "All club users are displayed with their roles" },
-      { id: "CU-AC-2", description: "Roles can be changed" },
-      { id: "CU-AC-3", description: "Invitations can be sent" },
+      { id: "CU-FR-1-AC-1", description: "All club users are displayed with their roles" },
+      { id: "CU-FR-2-AC-1", description: "Roles can be changed" },
+      { id: "CU-FR-3-AC-1", description: "Invitations can be sent" },
     ],
   },
   {
@@ -800,9 +800,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "CM-FR-3", title: "Contact Information", description: "Manage club address and contact details." },
     ],
     acceptanceCriteria: [
-      { id: "CM-AC-1", description: "Club details can be edited and saved" },
-      { id: "CM-AC-2", description: "Logo uploads successfully" },
-      { id: "CM-AC-3", description: "Colors apply to the UI theme" },
+      { id: "CM-FR-1-AC-1", description: "Club details can be edited and saved" },
+      { id: "CM-FR-2-AC-1", description: "Logo uploads successfully" },
+      { id: "CM-FR-2-AC-2", description: "Colors apply to the UI theme" },
     ],
   },
   {
@@ -817,8 +817,8 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "SET-FR-3", title: "Data Management", description: "Export data, manage storage, and data retention policies." },
     ],
     acceptanceCriteria: [
-      { id: "SET-AC-1", description: "Settings changes are saved and applied" },
-      { id: "SET-AC-2", description: "Notification preferences work correctly" },
+      { id: "SET-FR-1-AC-1", description: "Settings changes are saved and applied" },
+      { id: "SET-FR-2-AC-1", description: "Notification preferences work correctly" },
     ],
   },
 
@@ -835,9 +835,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "DU-FR-3", title: "User Management", description: "Create, edit, and deactivate user accounts." },
     ],
     acceptanceCriteria: [
-      { id: "DU-AC-1", description: "All system users are displayed" },
-      { id: "DU-AC-2", description: "Search and filters work correctly" },
-      { id: "DU-AC-3", description: "User accounts can be managed" },
+      { id: "DU-FR-1-AC-1", description: "All system users are displayed" },
+      { id: "DU-FR-2-AC-1", description: "Search and filters work correctly" },
+      { id: "DU-FR-3-AC-1", description: "User accounts can be managed" },
     ],
   },
   {
@@ -852,9 +852,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "CLB-FR-3", title: "Club Status", description: "Activate, deactivate, or archive clubs." },
     ],
     acceptanceCriteria: [
-      { id: "CLB-AC-1", description: "All clubs are displayed" },
-      { id: "CLB-AC-2", description: "New clubs can be created" },
-      { id: "CLB-AC-3", description: "Club status can be changed" },
+      { id: "CLB-FR-1-AC-1", description: "All clubs are displayed" },
+      { id: "CLB-FR-2-AC-1", description: "New clubs can be created" },
+      { id: "CLB-FR-3-AC-1", description: "Club status can be changed" },
     ],
   },
   {
@@ -870,9 +870,9 @@ export const requirementsRegistry: PageRequirements[] = [
       { id: "REQ-FR-4", title: "Expand/Collapse", description: "Accordion-style expansion to view requirements for each page." },
     ],
     acceptanceCriteria: [
-      { id: "REQ-AC-1", description: "All pages are displayed in correct hierarchy" },
-      { id: "REQ-AC-2", description: "Search filters pages and requirements correctly" },
-      { id: "REQ-AC-3", description: "Requirements display with FR IDs and AC IDs" },
+      { id: "REQ-FR-1-AC-1", description: "All pages are displayed in correct hierarchy" },
+      { id: "REQ-FR-3-AC-1", description: "Search filters pages and requirements correctly" },
+      { id: "REQ-FR-4-AC-1", description: "Requirements display with FR IDs and AC IDs" },
     ],
   },
 ];
