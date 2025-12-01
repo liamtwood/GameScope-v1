@@ -713,19 +713,16 @@ function WorkItemCard({
             <p className="text-sm mt-1">{item.description}</p>
           </div>
           
-          {item.steps && Array.isArray(item.steps) && item.steps.length > 0 && (() => {
-            const stepsArray = item.steps as string[];
-            return (
-              <div>
-                <span className="text-xs font-medium text-muted-foreground uppercase">Steps</span>
-                <ol className="text-sm mt-1 list-decimal list-inside space-y-1">
-                  {stepsArray.map((step, idx) => (
-                    <li key={idx} className="text-muted-foreground">{step}</li>
-                  ))}
-                </ol>
-              </div>
-            );
-          })()}
+          {item.steps && Array.isArray(item.steps) && (item.steps as string[]).length > 0 ? (
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Steps</span>
+              <ol className="text-sm mt-1 list-decimal list-inside space-y-1">
+                {(item.steps as string[]).map((step: string, idx: number) => (
+                  <li key={idx} className="text-muted-foreground">{step}</li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
           
           {(item.expectedResult || item.actualResult) && (
             <div className="grid grid-cols-2 gap-4">
@@ -1013,7 +1010,15 @@ function DataModelPanel({ model }: { model: DataModel }) {
   );
 }
 
-function RequirementsPanel({ page }: { page: PageRequirements }) {
+function RequirementsPanel({ page, selectedFrId }: { page: PageRequirements; selectedFrId?: string | null }) {
+  const filteredFRs = selectedFrId 
+    ? page.functionalRequirements.filter(fr => fr.id === selectedFrId)
+    : page.functionalRequirements;
+  
+  const filteredACs = selectedFrId
+    ? page.acceptanceCriteria.filter(ac => ac.parentFrId === selectedFrId)
+    : page.acceptanceCriteria;
+
   return (
     <div className="space-y-6">
       <div>
@@ -1026,10 +1031,10 @@ function RequirementsPanel({ page }: { page: PageRequirements }) {
       <div>
         <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <FileText className="h-4 w-4" />
-          Functional Requirements ({page.functionalRequirements.length})
+          Functional Requirements ({filteredFRs.length}{selectedFrId ? ` of ${page.functionalRequirements.length}` : ''})
         </h4>
         <div className="space-y-3">
-          {page.functionalRequirements.map((req) => (
+          {filteredFRs.map((req) => (
             <div key={req.id} className="border rounded-lg p-3 bg-muted/30">
               <div className="flex items-start gap-2">
                 <Badge variant="outline" className="text-xs font-mono shrink-0">
@@ -1048,10 +1053,10 @@ function RequirementsPanel({ page }: { page: PageRequirements }) {
       <div>
         <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4" />
-          Acceptance Criteria ({page.acceptanceCriteria.length})
+          Acceptance Criteria ({filteredACs.length}{selectedFrId ? ` for ${selectedFrId}` : ''})
         </h4>
         <div className="space-y-2">
-          {page.acceptanceCriteria.map((ac) => (
+          {filteredACs.map((ac) => (
             <div key={ac.id} className="flex items-start gap-2 text-sm p-2 rounded hover:bg-muted/50">
               <Circle className="h-3 w-3 mt-1 text-muted-foreground flex-shrink-0" />
               <span>
@@ -1062,6 +1067,9 @@ function RequirementsPanel({ page }: { page: PageRequirements }) {
               </span>
             </div>
           ))}
+          {filteredACs.length === 0 && selectedFrId && (
+            <p className="text-xs text-muted-foreground">No acceptance criteria linked to this FR</p>
+          )}
         </div>
       </div>
     </div>
@@ -1428,6 +1436,7 @@ export default function Requirements() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
+  const [selectedFrId, setSelectedFrId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<DataModel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
@@ -1760,8 +1769,9 @@ export default function Requirements() {
     return roots.map(root => buildTree(root));
   };
 
-  const handleSelectPage = (page: PageRequirements) => {
+  const handleSelectPage = (page: PageRequirements, frId?: string) => {
     setSelectedPage(page);
+    setSelectedFrId(frId || null);
     setSheetOpen(true);
   };
 
@@ -2019,7 +2029,7 @@ export default function Requirements() {
                               <TableCell>
                                 <button
                                   className="font-mono text-xs text-primary hover:underline cursor-pointer"
-                                  onClick={() => handleSelectPage(epic)}
+                                  onClick={() => handleSelectPage(epic, fr.id)}
                                   data-testid={`btn-open-fr-${fr.id}`}
                                 >
                                   {fr.id}
@@ -2407,13 +2417,38 @@ export default function Requirements() {
         </Card>
       </div>
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <Sheet open={sheetOpen} onOpenChange={(open) => { setSheetOpen(open); if (!open) setSelectedFrId(null); }}>
         <SheetContent className="w-[500px] sm:max-w-[500px]">
           <SheetHeader>
-            <SheetTitle>{selectedPage?.title}</SheetTitle>
+            <SheetTitle className="flex items-center gap-2">
+              {selectedPage?.title}
+              {selectedFrId && (
+                <Badge variant="outline" className="ml-2 font-mono">
+                  {selectedFrId}
+                </Badge>
+              )}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedFrId ? (
+                <div className="flex items-center gap-2">
+                  <span>Showing single requirement</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSelectedFrId(null)}
+                    className="h-6 px-2 text-xs"
+                    data-testid="btn-show-all-frs"
+                  >
+                    Show all FRs
+                  </Button>
+                </div>
+              ) : (
+                <span>All requirements for this epic</span>
+              )}
+            </SheetDescription>
           </SheetHeader>
           <ScrollArea className="h-[calc(100vh-100px)] mt-6 pr-4">
-            {selectedPage && <RequirementsPanel page={selectedPage} />}
+            {selectedPage && <RequirementsPanel page={selectedPage} selectedFrId={selectedFrId} />}
           </ScrollArea>
         </SheetContent>
       </Sheet>

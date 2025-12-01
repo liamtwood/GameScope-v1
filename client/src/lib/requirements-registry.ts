@@ -4,6 +4,7 @@ export interface Requirement {
   id: string;
   description: string;
   status?: RequirementStatus;
+  parentFrId?: string;
 }
 
 export interface FunctionalRequirement {
