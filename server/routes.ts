@@ -5280,6 +5280,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Seed Test Run 1 with test cases 1-8
+  app.post("/api/test-runs/seed", async (req, res) => {
+    try {
+      // Check if Test Run 1 already exists
+      const existingRuns = await storage.getTestRuns();
+      const existingRun1 = existingRuns.find(r => r.runNumber === 1);
+      if (existingRun1) {
+        return res.json({ message: "Test Run 1 already exists", run: existingRun1 });
+      }
+
+      // Create Test Run 1
+      const run = await storage.createTestRun({
+        runNumber: 1,
+        name: "Initial Test Execution",
+        date: "11-11-2025",
+        testers: ["QA Team"],
+        buildInfo: "v1.0.0-beta",
+        notes: "First test execution run for test cases TC-001 through TC-008",
+        status: "completed",
+      });
+
+      // Get existing work item test cases
+      const workItems = await storage.getWorkItems({ type: 'test_case' });
+      
+      // Map test case IDs to their status for results
+      const testCaseResults: { id: string; outcome: 'passed' | 'failed' | 'blocked' | 'skipped' }[] = [];
+      
+      // Check for TC-001 through TC-008
+      for (let i = 1; i <= 8; i++) {
+        const tcId = `TC-${String(i).padStart(3, '0')}`;
+        const tc = workItems.find(w => w.id === tcId);
+        if (tc) {
+          // Map the test case status to outcome
+          let outcome: 'passed' | 'failed' | 'blocked' | 'skipped' = 'passed';
+          if (tc.status === 'failed') outcome = 'failed';
+          else if (tc.status === 'blocked') outcome = 'blocked';
+          else if (tc.status === 'partial') outcome = 'failed'; // partial maps to failed in runs
+          testCaseResults.push({ id: tcId, outcome });
+        }
+      }
+
+      // Create results for each test case
+      for (const tc of testCaseResults) {
+        await storage.createTestRunResult({
+          testRunId: run.id,
+          testCaseId: tc.id,
+          outcome: tc.outcome,
+          executedBy: "QA Team",
+        });
+      }
+
+      res.status(201).json({ 
+        message: `Test Run 1 created with ${testCaseResults.length} test results`, 
+        run,
+        resultsCount: testCaseResults.length 
+      });
+    } catch (error) {
+      console.error("Error seeding test run:", error);
+      res.status(500).json({ message: "Failed to seed test run", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
