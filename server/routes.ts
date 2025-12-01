@@ -5177,6 +5177,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Runs CRUD endpoints
+  app.get("/api/test-runs", async (req, res) => {
+    try {
+      const runs = await storage.getTestRuns();
+      res.json(runs);
+    } catch (error) {
+      console.error("Error fetching test runs:", error);
+      res.status(500).json({ message: "Failed to fetch test runs" });
+    }
+  });
+
+  app.get("/api/test-runs/:id", async (req, res) => {
+    try {
+      const run = await storage.getTestRunWithResults(req.params.id);
+      if (!run) {
+        return res.status(404).json({ message: "Test run not found" });
+      }
+      res.json(run);
+    } catch (error) {
+      console.error("Error fetching test run:", error);
+      res.status(500).json({ message: "Failed to fetch test run" });
+    }
+  });
+
+  app.post("/api/test-runs", async (req, res) => {
+    try {
+      const { insertTestRunSchema } = await import('@shared/schema');
+      const validated = insertTestRunSchema.parse(req.body);
+      const run = await storage.createTestRun(validated);
+      res.status(201).json(run);
+    } catch (error) {
+      console.error("Error creating test run:", error);
+      res.status(400).json({ message: "Failed to create test run", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/test-runs/:id", async (req, res) => {
+    try {
+      const { insertTestRunSchema } = await import('@shared/schema');
+      const validated = insertTestRunSchema.partial().parse(req.body);
+      const run = await storage.updateTestRun(req.params.id, validated);
+      res.json(run);
+    } catch (error) {
+      console.error("Error updating test run:", error);
+      res.status(400).json({ message: "Failed to update test run", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/test-runs/:id", async (req, res) => {
+    try {
+      await storage.deleteTestRun(req.params.id);
+      res.json({ message: "Test run deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting test run:", error);
+      res.status(500).json({ message: "Failed to delete test run" });
+    }
+  });
+
+  // Test Run Results CRUD endpoints
+  app.get("/api/test-runs/:runId/results", async (req, res) => {
+    try {
+      const results = await storage.getTestRunResults(req.params.runId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching test run results:", error);
+      res.status(500).json({ message: "Failed to fetch test run results" });
+    }
+  });
+
+  app.post("/api/test-run-results", async (req, res) => {
+    try {
+      const { insertTestRunResultSchema } = await import('@shared/schema');
+      const validated = insertTestRunResultSchema.parse(req.body);
+      const result = await storage.createTestRunResult(validated);
+      res.status(201).json(result);
+    } catch (error) {
+      console.error("Error creating test run result:", error);
+      res.status(400).json({ message: "Failed to create test run result", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/test-run-results/:id", async (req, res) => {
+    try {
+      const { insertTestRunResultSchema } = await import('@shared/schema');
+      const validated = insertTestRunResultSchema.partial().parse(req.body);
+      const result = await storage.updateTestRunResult(req.params.id, validated);
+      res.json(result);
+    } catch (error) {
+      console.error("Error updating test run result:", error);
+      res.status(400).json({ message: "Failed to update test run result", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/test-run-results/:id", async (req, res) => {
+    try {
+      await storage.deleteTestRunResult(req.params.id);
+      res.json({ message: "Test run result deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting test run result:", error);
+      res.status(500).json({ message: "Failed to delete test run result" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
