@@ -567,72 +567,151 @@ export const requirementsRegistry: PageRequirements[] = [
     overview: "Detailed view of a single fixture with match header, navigation actions, and tabbed content for match data.",
     functionalRequirements: [
       { 
-        id: "FIX-FR-7", 
-        title: "Match Report Tab", 
-        description: "Scoreboard with final score and goal scorers. Key facts: Venue, date, time, officials, attendance. Event timeline: Goals, cards, substitutions in chronological order. Export options: PDF and HTML formats.",
+        id: "FIXD-FR-1", 
+        title: "Match Header", 
+        description: "Both team logos displayed, team names with score (if completed), date, time, venue, competition, status badge.",
         status: "New"
       },
       { 
-        id: "FIX-FR-8", 
-        title: "Line-Ups Tab", 
-        description: "Visual formation display (e.g., 4-4-2, 4-3-3). Starting XI with positions on pitch graphic. Substitutes bench with player details. Substitution log with timestamps. Player status tags (captain, yellow card, red card, injured).",
-        status: "New"
-      },
-      { 
-        id: "FIX-FR-9", 
-        title: "Videos Tab", 
-        description: "Video list for fixture. Each card shows: Thumbnail, title, camera label, duration, upload date. Actions: Add Video (upload with camera label e.g., '1st Half, Half Way Line', '2nd Half, Behind Goal', 'Tactical View'), Process All Videos (AI analysis via PlayerTRACK™ + PlayerEVENT™), View Video (player with controls), Upload JSON Events (manual event data), Edit Video Details, Delete Video. Note: Processing states pending AI team clarification (see CL-006).",
-        status: "New"
-      },
-      { 
-        id: "FIX-FR-10", 
-        title: "Upload Data Tab", 
-        description: "File upload: CSV, Excel (.xlsx), JSON formats. Data types: Statistics, events, tracking data. Validation: Schema checking, required fields, data types. Error reporting: Row-level errors with field details. Audit logging: Track who uploaded what and when.",
-        status: "New"
-      },
-      { 
-        id: "FIX-FR-11", 
-        title: "Statistics Tab", 
-        description: "Side-by-side team comparison. Metric categories: Key (Total Team Distance, Ball Possession), Attack (Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses), Possession (Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Defense (Tackles, Free Kicks, Offsides), Passing (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Display: Home value + % | Away value + % with percentage bars. Category tabs and Period filters (Full Match, 1st Half, 2nd Half).",
-        status: "New"
-      },
-      { 
-        id: "FIX-FR-12", 
-        title: "Spider Charts Tab", 
-        description: "Radar chart visualization. Chart categories: Attack (Goals, Shots, Shots on Target, Runs into Boxes, Corners, Dangerous Crosses), Possession (Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Technical (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Features: Home team overlay (solid line, primary color), Away team overlay (dashed line, secondary color), Normalized 0-100 scale, Tooltips with actual values, Toggle show/hide teams. Layout: 3 charts side-by-side desktop, stacked mobile. Period filter synced with Statistics tab.",
-        status: "New"
-      },
-      { 
-        id: "FIX-FR-13", 
-        title: "AI Analysis Tab", 
-        description: "Narrative insights: AI-generated match summary. Tactical themes: Key patterns identified from data. Recommendations: Suggested improvements for team. Confidence indicators: Show AI certainty levels.",
+        id: "FIXD-FR-2", 
+        title: "Navigation Actions", 
+        description: "Watch Video button, View Analysis button, Edit Fixture button.",
         status: "New"
       },
     ],
     acceptanceCriteria: [
-      { id: "FIX-FR-7-AC-1", description: "Match header and event timeline render correctly", status: "New" },
-      { id: "FIX-FR-7-AC-2", description: "Export produces valid PDF/HTML with all match data", status: "New" },
-      { id: "FIX-FR-8-AC-1", description: "Formation display matches stored metadata", status: "New" },
-      { id: "FIX-FR-8-AC-2", description: "Substitution log enforces player availability rules", status: "New" },
-      { id: "FIX-FR-9-AC-1", description: "Add Video allows file upload with camera label assignment", status: "New" },
-      { id: "FIX-FR-9-AC-2", description: "Process All Videos triggers AI analysis and shows progress", status: "New" },
-      { id: "FIX-FR-9-AC-3", description: "View Video opens player with correct timestamp", status: "New" },
-      { id: "FIX-FR-9-AC-4", description: "Upload JSON Events validates format before import", status: "New" },
-      { id: "FIX-FR-9-AC-5", description: "Edit Video Details saves changes to database", status: "New" },
-      { id: "FIX-FR-9-AC-6", description: "Delete Video shows confirmation and removes from list", status: "New" },
-      { id: "FIX-FR-10-AC-1", description: "Invalid files rejected with specific row/field errors", status: "New" },
-      { id: "FIX-FR-10-AC-2", description: "Upload completes within 60 seconds with audit trail", status: "New" },
-      { id: "FIX-FR-11-AC-1", description: "All 5 category tabs display with correct metrics", status: "New" },
-      { id: "FIX-FR-11-AC-2", description: "Period filter updates all metrics coherently", status: "New" },
-      { id: "FIX-FR-11-AC-3", description: "Percentage bars render correctly for each metric", status: "New" },
-      { id: "FIX-FR-11-AC-4", description: "Stats render within 100ms of filter/tab change", status: "New" },
-      { id: "FIX-FR-12-AC-1", description: "All three charts (Attack, Possession, Technical) render correctly", status: "New" },
-      { id: "FIX-FR-12-AC-2", description: "Each chart displays 6+ metrics with normalized values", status: "New" },
-      { id: "FIX-FR-12-AC-3", description: "Tooltips show actual metric values on hover", status: "New" },
-      { id: "FIX-FR-12-AC-4", description: "Home/Away team overlays are visually distinct", status: "New" },
-      { id: "FIX-FR-12-AC-5", description: "Period filter updates all charts consistently", status: "New" },
-      { id: "FIX-FR-13-AC-1", description: "AI generates coherent narrative from match data", status: "New" },
-      { id: "FIX-FR-13-AC-2", description: "Tactical themes are supported by specific events/stats", status: "New" },
+      { id: "FIXD-AC-1", description: "Match header displays correctly with all team information", status: "New" },
+      { id: "FIXD-AC-2", description: "Navigation actions route to correct pages", status: "New" },
+    ],
+    tabs: [
+      {
+        id: "match-report",
+        name: "Match Report",
+        overview: "View match scoreboard, key facts, and event timeline with export options.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-7", 
+            title: "Match Report Content", 
+            description: "Scoreboard with final score and goal scorers. Key facts: Venue, date, time, officials, attendance. Event timeline: Goals, cards, substitutions in chronological order. Export options: PDF and HTML formats.",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-7-AC-1", description: "Match header and event timeline render correctly", status: "New" },
+          { id: "FIX-FR-7-AC-2", description: "Export produces valid PDF/HTML with all match data", status: "New" },
+        ],
+      },
+      {
+        id: "line-ups",
+        name: "Line-Ups",
+        overview: "View team formations, starting XI, substitutes, and player status.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-8", 
+            title: "Line-Ups Display", 
+            description: "Visual formation display (e.g., 4-4-2, 4-3-3). Starting XI with positions on pitch graphic. Substitutes bench with player details. Substitution log with timestamps. Player status tags (captain, yellow card, red card, injured).",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-8-AC-1", description: "Formation display matches stored metadata", status: "New" },
+          { id: "FIX-FR-8-AC-2", description: "Substitution log enforces player availability rules", status: "New" },
+        ],
+      },
+      {
+        id: "videos",
+        name: "Videos",
+        overview: "Upload, manage, and view match videos with multiple camera angles and event synchronization.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-9", 
+            title: "Video Management", 
+            description: "Video list for fixture. Each card shows: Thumbnail, title, camera label, duration, upload date. Actions: Add Video (upload with camera label e.g., '1st Half, Half Way Line', '2nd Half, Behind Goal', 'Tactical View'), Process All Videos (AI analysis via PlayerTRACK™ + PlayerEVENT™), View Video (player with controls), Upload JSON Events (manual event data), Edit Video Details, Delete Video. Note: Processing states pending AI team clarification (see CL-006).",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-9-AC-1", description: "Add Video allows file upload with camera label assignment", status: "New" },
+          { id: "FIX-FR-9-AC-2", description: "Process All Videos triggers AI analysis and shows progress", status: "New" },
+          { id: "FIX-FR-9-AC-3", description: "View Video opens player with correct timestamp", status: "New" },
+          { id: "FIX-FR-9-AC-4", description: "Upload JSON Events validates format before import", status: "New" },
+          { id: "FIX-FR-9-AC-5", description: "Edit Video Details saves changes to database", status: "New" },
+          { id: "FIX-FR-9-AC-6", description: "Delete Video shows confirmation and removes from list", status: "New" },
+        ],
+      },
+      {
+        id: "upload-data",
+        name: "Upload Data",
+        overview: "Import match data from CSV, Excel, or JSON files with validation and audit logging.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-10", 
+            title: "Data Upload", 
+            description: "File upload: CSV, Excel (.xlsx), JSON formats. Data types: Statistics, events, tracking data. Validation: Schema checking, required fields, data types. Error reporting: Row-level errors with field details. Audit logging: Track who uploaded what and when.",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-10-AC-1", description: "Invalid files rejected with specific row/field errors", status: "New" },
+          { id: "FIX-FR-10-AC-2", description: "Upload completes within 60 seconds with audit trail", status: "New" },
+        ],
+      },
+      {
+        id: "statistics",
+        name: "Statistics",
+        overview: "Side-by-side team comparison with detailed metrics across multiple categories.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-11", 
+            title: "Statistics Display", 
+            description: "Side-by-side team comparison. Metric categories: Key (Total Team Distance, Ball Possession), Attack (Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses), Possession (Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Defense (Tackles, Free Kicks, Offsides), Passing (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Display: Home value + % | Away value + % with percentage bars. Category tabs and Period filters (Full Match, 1st Half, 2nd Half).",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-11-AC-1", description: "All 5 category tabs display with correct metrics", status: "New" },
+          { id: "FIX-FR-11-AC-2", description: "Period filter updates all metrics coherently", status: "New" },
+          { id: "FIX-FR-11-AC-3", description: "Percentage bars render correctly for each metric", status: "New" },
+          { id: "FIX-FR-11-AC-4", description: "Stats render within 100ms of filter/tab change", status: "New" },
+        ],
+      },
+      {
+        id: "spider-charts",
+        name: "Spider Charts",
+        overview: "Radar chart visualization comparing team performance across Attack, Possession, and Technical metrics.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-12", 
+            title: "Spider Charts Display", 
+            description: "Radar chart visualization. Chart categories: Attack (Goals, Shots, Shots on Target, Runs into Boxes, Corners, Dangerous Crosses), Possession (Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success/Rate), Technical (Passes Attempted/Success/Rate, Total/Avg Distance, Avg Velocity). Features: Home team overlay (solid line, primary color), Away team overlay (dashed line, secondary color), Normalized 0-100 scale, Tooltips with actual values, Toggle show/hide teams. Layout: 3 charts side-by-side desktop, stacked mobile. Period filter synced with Statistics tab.",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-12-AC-1", description: "All three charts (Attack, Possession, Technical) render correctly", status: "New" },
+          { id: "FIX-FR-12-AC-2", description: "Each chart displays 6+ metrics with normalized values", status: "New" },
+          { id: "FIX-FR-12-AC-3", description: "Tooltips show actual metric values on hover", status: "New" },
+          { id: "FIX-FR-12-AC-4", description: "Home/Away team overlays are visually distinct", status: "New" },
+          { id: "FIX-FR-12-AC-5", description: "Period filter updates all charts consistently", status: "New" },
+        ],
+      },
+      {
+        id: "ai-analysis",
+        name: "AI Analysis",
+        overview: "AI-generated match insights, tactical themes, and recommendations.",
+        functionalRequirements: [
+          { 
+            id: "FIX-FR-13", 
+            title: "AI Analysis Content", 
+            description: "Narrative insights: AI-generated match summary. Tactical themes: Key patterns identified from data. Recommendations: Suggested improvements for team. Confidence indicators: Show AI certainty levels.",
+            status: "New"
+          },
+        ],
+        acceptanceCriteria: [
+          { id: "FIX-FR-13-AC-1", description: "AI generates coherent narrative from match data", status: "New" },
+          { id: "FIX-FR-13-AC-2", description: "Tactical themes are supported by specific events/stats", status: "New" },
+        ],
+      },
     ],
   },
   {
