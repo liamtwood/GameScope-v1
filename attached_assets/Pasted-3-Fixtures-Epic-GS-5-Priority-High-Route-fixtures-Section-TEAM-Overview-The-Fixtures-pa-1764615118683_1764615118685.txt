@@ -1,0 +1,95 @@
+3. Fixtures
+Epic: GS-5 | Priority: High
+Route: /fixtures
+Section: TEAM
+Overview
+The Fixtures page is the central hub for managing all team matches, including scheduling, results, and video uploads.
+3.1 Fixtures List View (READ)
+Statistics Cards (4-column grid)
+Card	Icon	Value	Subtitle
+Total Fixtures	Target	Count of all	All time
+Win Rate	TrendingUp/Down	Percentage	This season
+Goal Difference	Plus/Minus	Signed number	GF: X GA: Y
+Competitions	Trophy	Count	Active competitions
+Win Rate icon: TrendingUp (green) if ≥60%, TrendingDown (red) if <40%, neutral (gray) otherwise.
+Control Bar
+•	Left: Enable Filter button, Search input
+•	Right: Add Fixture button, Import CSV button, Settings button
+Filter Panel (collapsible)
+Filter	Type	Options
+Season	Season Picker	Custom component
+Competition	Dropdown	Dynamic + 'All'
+Status	Button group	All / Completed / Scheduled
+Location	Button group	All / Home / Away
+FixtureCard Component
+Element	Content
+Team Identity	Opposition logo/avatar (40x40px)
+Match Information	Opponent name, Date/time, Competition name
+Location Badge	HOME (green) or AWAY (blue)
+Result/Status	Completed: Score + W/L/D badge. Scheduled: 'SCHEDULED' badge
+Actions	Video icon (if hasVideo), Stats icon, Edit, Delete
+3.2 Add/Edit Fixture (CREATE & UPDATE)
+Fixture Create Dialog
+•	Trigger: Add Fixture button
+•	Fields: Opposition (autocomplete), Date, Time, Competition (dropdown), Venue, Type (Home/Away)
+•	Actions: Cancel, Create
+Form Fields
+Field	Type	Required	Notes
+Opposition	Autocomplete	Yes	+ Add New Opponent option
+Date	Date Picker	Yes	DD Mon YYYY format
+Time	Time Picker	No	HH:MM format
+Competition	Dropdown	No	+ Add New option
+Venue	Text	No	Location name
+Type	Toggle	Yes	Home / Away
+Home Score	Number	No	Edit mode only
+Away Score	Number	No	Edit mode only
+Inline Opposition Creation
+When user types an opponent name that doesn't exist, or clicks '+ Add New Opponent':
+•	Team Name* (required)
+•	Short Name (optional, max 5 chars)
+•	Logo upload (file picker)
+•	Primary Color (color picker)
+•	Secondary Color (color picker)
+3.3 Delete Fixture
+MISSING - NEEDS DETAILED SPECIFICATION
+Delete Behavior
+•	Soft delete: Set status to 'Deleted' or add deletedAt timestamp
+•	Fixture no longer appears in fixture list
+•	Associated videos remain in archive (not deleted)
+•	Match statistics preserved for historical reporting
+Confirmation Dialog
+•	Title: 'Delete Fixture'
+•	Message: 'Are you sure you want to delete the fixture vs [Opponent] on [Date]?'
+•	Show warning if fixture has videos or analysis attached
+•	Buttons: Cancel (secondary), Delete (danger/red)
+3.4 View Fixture Detail
+Route: /fixtures/:id
+Match Header
+•	Both team logos displayed
+•	Team names with score (if completed)
+•	Date, time, venue, competition
+•	Status badge
+Navigation Actions
+•	Watch Video button
+•	View Analysis button
+•	Edit Fixture button
+3.5 Import Fixtures from Excel/CSV
+CSV Format
+Date,Opposition,Competition,Location,Time,KickOff,Score
+Example: 2025-08-15,Chelsea,League,Home,Afternoon,15:00,3-1
+Upload Flow
+1.	Click 'Import' button, select .csv/.xlsx file
+2.	File validation (extension, size < 5 MB, structure)
+3.	Data preview with color coding (Green valid, Red error, Yellow warning)
+4.	Options: 'Import Valid Only' / 'Fix Errors' / 'Cancel'
+5.	Progress indicator, success message, automatic refresh
+Acceptance Criteria - Fixtures
+1.	All 4 statistics cards display with correct icons and values
+2.	All filters work independently and combine with AND logic
+3.	Search filters by opponent, venue, competition
+4.	Fixtures can be created with opponent, date, venue, and competition
+5.	Fixtures can be edited and scores updated
+6.	Opposition can be created inline during fixture creation
+7.	Excel/CSV import correctly maps columns to fixture fields
+8.	Success message only displays after database confirms save
+9.	Page handles 500+ fixtures without performance issues

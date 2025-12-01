@@ -1,0 +1,216 @@
+Fixtures
+Epic: GS-5 | Priority: High
+Route: /fixtures
+Section: TEAM
+Overview
+The Fixtures page is the central hub for managing all team matches, including scheduling, results, and video uploads.
+3.1 Fixtures List View (READ)
+Statistics Cards (4-column grid)
+Card	Icon	Value	Subtitle
+Total Fixtures	Target	Count of all	All time
+Win Rate	TrendingUp/Down	Percentage	This season
+Goal Difference	Plus/Minus	Signed number	GF: X GA: Y
+Competitions	Trophy	Count	Active competitions
+Win Rate icon: TrendingUp (green) if ≥60%, TrendingDown (red) if <40%, neutral (gray) otherwise.
+Control Bar
+•	Left: Enable Filter button, Search input
+•	Right: Add Fixture button, Import CSV button, Settings button
+Filter Panel (collapsible)
+Filter	Type	Options
+Season	Season Picker	Custom component
+Competition	Dropdown	Dynamic + 'All'
+Status	Button group	All / Completed / Scheduled
+Location	Button group	All / Home / Away
+FixtureCard Component
+Element	Content
+Team Identity	Opposition logo/avatar (40x40px)
+Match Information	Opponent name, Date/time, Competition name
+Location Badge	HOME (green) or AWAY (blue)
+Result/Status	Completed: Score + W/L/D badge. Scheduled: 'SCHEDULED' badge
+Actions	Video icon (if hasVideo), Stats icon, Edit, Delete
+3.2 Add/Edit Fixture (CREATE & UPDATE)
+Fixture Create Dialog
+•	Trigger: Add Fixture button
+•	Fields: Opposition (autocomplete), Date, Time, Competition (dropdown), Venue, Type (Home/Away)
+•	Actions: Cancel, Create
+Form Fields
+Field	Type	Required	Notes
+Opposition	Autocomplete	Yes	+ Add New Opponent option
+Date	Date Picker	Yes	DD Mon YYYY format
+Time	Time Picker	No	HH:MM format
+Competition	Dropdown	No	+ Add New option
+Venue	Text	No	Location name
+Type	Toggle	Yes	Home / Away
+Home Score	Number	No	Edit mode only
+Away Score	Number	No	Edit mode only
+Inline Opposition Creation
+When user types an opponent name that doesn't exist, or clicks '+ Add New Opponent':
+•	Team Name* (required)
+•	Short Name (optional, max 5 chars)
+•	Logo upload (file picker)
+•	Primary Color (color picker)
+•	Secondary Color (color picker)
+3.3 Delete Fixture
+MISSING - NEEDS DETAILED SPECIFICATION
+Delete Behavior
+•	Soft delete: Set status to 'Deleted' or add deletedAt timestamp
+•	Fixture no longer appears in fixture list
+•	Associated videos remain in archive (not deleted)
+•	Match statistics preserved for historical reporting
+Confirmation Dialog
+•	Title: 'Delete Fixture'
+•	Message: 'Are you sure you want to delete the fixture vs [Opponent] on [Date]?'
+•	Show warning if fixture has videos or analysis attached
+•	Buttons: Cancel (secondary), Delete (danger/red)
+3.4 View Fixture Detail
+Route: /fixtures/:id
+Match Header
+•	Both team logos displayed
+•	Team names with score (if completed)
+•	Date, time, venue, competition
+•	Status badge
+Navigation Actions
+•	Watch Video button
+•	View Analysis button
+•	Edit Fixture button
+Fixture Detail Tabs
+The fixture detail page contains multiple tabs for different aspects of match data:
+FR ID	Tab	Description	Key Features
+FIX-FR-7	Match Report	Scoreboard, key facts (venue, officials), event timeline	Export PDF/HTML
+FIX-FR-8	Line-Ups	Formations, starters, bench, substitutions, player status tags	Visual formation
+FIX-FR-9	Videos	Primary video, alternate angles, tagging, clipping	Angle switching
+FIX-FR-10	Upload Data	CSV/Excel/JSON uploads for stats/events/tracking with validation	Row-level errors
+FIX-FR-11	Statistics	Team vs opponent metrics, period filters, comparison toggles	Segment filtering
+FIX-FR-12	Spider Charts	Radar charts with normalized metrics, saved presets	6+ metrics/side
+FIX-FR-13	AI Analysis	Narrative insights, tactical themes, recommendations	Auto-generated
+FIX-FR-7: Match Report Tab
+•	Scoreboard with final score and goal scorers
+•	Key facts: Venue, date, time, officials, attendance
+•	Event timeline: Goals, cards, substitutions in chronological order
+•	Export options: PDF and HTML formats
+Acceptance Criteria - Match Report
+1.	Match header and event timeline render correctly
+2.	Export produces valid PDF/HTML with all match data
+FIX-FR-8: Line-Ups Tab
+•	Visual formation display (e.g., 4-4-2, 4-3-3)
+•	Starting XI with positions on pitch graphic
+•	Substitutes bench with player details
+•	Substitution log with timestamps
+•	Player status tags (captain, yellow card, red card, injured)
+Acceptance Criteria - Line-Ups
+1.	Formation display matches stored metadata
+2.	Substitution log enforces player availability rules
+FIX-FR-9: Videos Tab
+•	Video list showing all videos for this fixture
+•	Each video card shows: Thumbnail, title, camera label, duration, upload date
+Video Actions
+Action	Description
+Add Video	Upload new video and assign camera label (e.g., '1st Half, Half Way Line', '2nd Half, Behind Goal')
+Process All Videos	Run AI analysis on all videos to auto-generate events (PlayerTRACK™ + PlayerEVENT™)
+View Video	Open video player with playback controls, timestamp sync
+Upload JSON Events	Manual upload of event data in JSON format (for external/manual tagging)
+Edit Video Details	Update title, camera label, description
+Delete Video	Remove video with confirmation dialog
+Camera Label Examples
+•	1st Half, Half Way Line
+•	1st Half, Behind Goal
+•	2nd Half, Half Way Line
+•	2nd Half, Behind Goal
+•	Tactical View
+•	Training Session
+Acceptance Criteria - Videos
+1.	Add Video allows file upload with camera label assignment
+2.	Process All Videos triggers AI analysis and shows progress
+3.	View Video opens player with correct timestamp
+4.	Upload JSON Events validates format before import
+5.	Edit Video Details saves changes to database
+6.	Delete Video shows confirmation and removes from list
+FIX-FR-10: Upload Data Tab
+•	File upload: CSV, Excel (.xlsx), JSON formats
+•	Data types: Statistics, events, tracking data
+•	Validation: Schema checking, required fields, data types
+•	Error reporting: Row-level errors with field details
+•	Audit logging: Track who uploaded what and when
+Acceptance Criteria - Upload Data
+1.	Invalid files rejected with specific row/field errors
+2.	Upload completes within 60 seconds with audit trail
+FIX-FR-11: Statistics Tab
+Side-by-side team comparison with metrics organized by category. Each stat shows value and percentage share for both teams.
+Metric Categories
+Category	Metrics
+Key	Total Team Distance, Ball Possession
+Attack	Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses
+Possession	Dribbles, Penetrating Dribbles, Take Ons, First Touch Success, First Touch Success Rate
+Defense	Tackles, Free Kicks, Offsides
+Passing	Passes Attempted, Passes Success, Passing Success Rate, Passing Total Distance, Passing Average Distance, Passing Average Velocity
+Display Format
+•	Each metric row shows: Home value + % | Away value + %
+•	Percentage bars visualize the share (e.g., 76% vs 24%)
+•	Category tabs to filter view (Key, Attack, Possession, Defense, Passing)
+•	Period filters: Full Match, 1st Half, 2nd Half
+Example Display
+Metric	Home	%	Away	%
+Total Team Distance	30,760m	54%	25,690m	46%
+Ball Possession	76%	—	24%	—
+Shots Attempted	30	97%	1	3%
+Passes Attempted	452	69%	200	31%
+Passing Success Rate	62%	—	51%	—
+Acceptance Criteria - Statistics
+1.	All 5 category tabs display with correct metrics
+2.	Period filter updates all metrics coherently
+3.	Percentage bars render correctly for each metric
+4.	Stats render within 100ms of filter/tab change
+FIX-FR-12: Spider Charts Tab
+Radar chart visualization of the same metrics from the Statistics tab, organized into three chart categories for visual comparison between teams.
+Chart Categories
+Chart	Metrics Displayed
+Attack	Goals, Shots Attempted, Shots on Target, Runs into Boxes, Corner Kicks, Dangerous Crosses
+Possession	Ball Possession, Dribbles, Penetrating Dribbles, Take Ons, First Touch Success, First Touch Success Rate
+Technical	Passes Attempted, Passes Success, Passing Success Rate, Passing Total Distance, Passing Average Distance, Passing Average Velocity
+Chart Features
+•	Radar/spider chart with metrics on each axis
+•	Home team overlay (solid line, club primary color)
+•	Away team overlay (dashed line, club secondary color)
+•	Normalized scale (0-100) for cross-metric comparison
+•	Tooltips showing actual values on hover
+•	Toggle to show/hide each team
+Display Layout
+•	Three charts displayed side-by-side on desktop
+•	Stacked vertically on mobile
+•	Chart tabs: Attack | Possession | Technical
+•	Period filter synced with Statistics tab
+Acceptance Criteria - Spider Charts
+1.	All three charts (Attack, Possession, Technical) render correctly
+2.	Each chart displays 6+ metrics with normalized values
+3.	Tooltips show actual metric values on hover
+4.	Home/Away team overlays are visually distinct
+5.	Period filter updates all charts consistently
+FIX-FR-13: AI Analysis Tab
+•	Narrative insights: AI-generated match summary
+•	Tactical themes: Key patterns identified from data
+•	Recommendations: Suggested improvements for team
+•	Confidence indicators: Show AI certainty levels
+Acceptance Criteria - AI Analysis
+1.	AI generates coherent narrative from match data
+2.	Tactical themes are supported by specific events/stats
+3.5 Import Fixtures from Excel/CSV
+CSV Format
+Date,Opposition,Competition,Location,Time,KickOff,Score
+Example: 2025-08-15,Chelsea,League,Home,Afternoon,15:00,3-1
+Upload Flow
+1.	Click 'Import' button, select .csv/.xlsx file
+2.	File validation (extension, size < 5 MB, structure)
+3.	Data preview with color coding (Green valid, Red error, Yellow warning)
+4.	Options: 'Import Valid Only' / 'Fix Errors' / 'Cancel'
+5.	Progress indicator, success message, automatic refresh
+Acceptance Criteria - Fixtures
+1.	All 4 statistics cards display with correct icons and values
+2.	All filters work independently and combine with AND logic
+3.	Search filters by opponent, venue, competition
+4.	Fixtures can be created with opponent, date, venue, and competition
+5.	Fixtures can be edited and scores updated
+6.	Opposition can be created inline during fixture creation
+7.	Excel/CSV import correctly maps columns to fixture fields
+8.	Success message only displays after database confirms save
+9.	Page handles 500+ fixtures without performance issues
+ 
