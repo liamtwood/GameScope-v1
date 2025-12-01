@@ -177,14 +177,14 @@ Generated: ${now}
 ---
 
 ## Table of Contents
-1. [Page Requirements](#page-requirements)
+1. [Epic Requirements](#epic-requirements)
 2. [Data Models](#data-models)
 3. [Test Cases](#test-cases)
 4. [Change Log](#change-log)
 
 ---
 
-## Page Requirements
+## Epic Requirements
 
 `;
 
@@ -1766,7 +1766,7 @@ export default function Requirements() {
   };
 
   const handleEditPage = (page: PageRequirements) => {
-    toast({ title: "Edit page requirements", description: "Full page editing coming soon" });
+    toast({ title: "Edit epic requirements", description: "Full epic editing coming soon" });
   };
 
   const handleDeletePage = (page: PageRequirements) => {
@@ -1851,7 +1851,7 @@ export default function Requirements() {
   const hasNoData = apiRequirements.length === 0 && apiDataModels.length === 0 && apiChangeLog.length === 0;
 
   return (
-    <MainLayout title="Requirements" subtitle="View and manage page requirements and documentation">
+    <MainLayout title="Requirements" subtitle="View and manage epic requirements and documentation">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="relative w-full md:w-96">
@@ -1899,7 +1899,7 @@ export default function Requirements() {
               Download Docs
             </Button>
             <Badge variant="outline" className="px-3 py-1">
-              {totalPages} Pages
+              {totalPages} Epics
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
               {totalFRs} FRs

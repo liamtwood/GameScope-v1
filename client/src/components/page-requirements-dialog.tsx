@@ -121,7 +121,7 @@ export function PageRequirementsDialog() {
           {hasTabs ? (
             <Tabs value={selectedReqTab} onValueChange={setSelectedReqTab} className="w-full">
               <TabsList className="mb-4">
-                <TabsTrigger value="page">Page Overview</TabsTrigger>
+                <TabsTrigger value="page">Epic Overview</TabsTrigger>
                 {requirements.tabs?.map(tab => (
                   <TabsTrigger 
                     key={tab.id} 
