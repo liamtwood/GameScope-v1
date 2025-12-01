@@ -30,9 +30,18 @@ import {
   type DataModelField,
   type TestCase
 } from "@/lib/requirements-registry";
-import type { WorkItem, WorkItemLink } from "@shared/schema";
+import type { WorkItem, WorkItemLink, TestRun, TestRunResult } from "@shared/schema";
 
 type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
+
+type TestRunOutcome = 'passed' | 'failed' | 'blocked' | 'skipped';
+
+const outcomeConfig: Record<TestRunOutcome, { color: string; icon: typeof Check; label: string }> = {
+  passed: { color: "bg-green-100 text-green-700", icon: Check, label: "Passed" },
+  failed: { color: "bg-red-100 text-red-700", icon: X, label: "Failed" },
+  blocked: { color: "bg-gray-100 text-gray-700", icon: Circle, label: "Blocked" },
+  skipped: { color: "bg-yellow-100 text-yellow-700", icon: AlertTriangle, label: "Skipped" },
+};
 
 type APIChangeLogEntry = ChangeLogEntry;
 
@@ -481,6 +490,134 @@ function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; ex
             <span>Date: {testCase.date}</span>
             {testCase.component && <span>Component: {testCase.component}</span>}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Test Run Item component with expandable results
+function TestRunItem({ 
+  run, 
+  expanded, 
+  onToggle,
+  testCases,
+}: { 
+  run: TestRun; 
+  expanded: boolean; 
+  onToggle: () => void;
+  testCases: TestCase[];
+}) {
+  const testers = (run.testers as string[]) || [];
+  
+  // Fetch results for this run when expanded
+  const { data: results = [] } = useQuery<TestRunResult[]>({
+    queryKey: ['/api/test-runs', run.id, 'results'],
+    enabled: expanded,
+  });
+
+  // Calculate summary from results
+  const summary = {
+    total: results.length,
+    passed: results.filter(r => r.outcome === 'passed').length,
+    failed: results.filter(r => r.outcome === 'failed').length,
+    blocked: results.filter(r => r.outcome === 'blocked').length,
+    skipped: results.filter(r => r.outcome === 'skipped').length,
+  };
+
+  return (
+    <div className="border rounded-lg overflow-hidden" data-testid={`testrun-${run.id}`}>
+      <div 
+        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50"
+        onClick={onToggle}
+      >
+        <button className="p-0.5">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        <Badge variant="outline" className="font-mono text-xs bg-indigo-50">
+          Run #{run.runNumber}
+        </Badge>
+        <span className="font-medium flex-1">{run.name || `Test Run ${run.runNumber}`}</span>
+        <span className="text-xs text-muted-foreground">{run.date}</span>
+        <Badge className={run.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}>
+          {run.status === 'completed' ? 'Completed' : 'In Progress'}
+        </Badge>
+      </div>
+      {expanded && (
+        <div className="px-4 pb-4 pt-2 border-t bg-muted/20 space-y-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Testers</span>
+              <p className="text-sm mt-1">{testers.length > 0 ? testers.join(', ') : 'Not specified'}</p>
+            </div>
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Build Info</span>
+              <p className="text-sm mt-1">{run.buildInfo || 'Not specified'}</p>
+            </div>
+          </div>
+          
+          {run.notes && (
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Notes</span>
+              <p className="text-sm mt-1">{run.notes}</p>
+            </div>
+          )}
+
+          {results.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Test Results</span>
+                <div className="flex gap-2">
+                  <Badge className="bg-green-100 text-green-700">{summary.passed} Passed</Badge>
+                  <Badge className="bg-red-100 text-red-700">{summary.failed} Failed</Badge>
+                  {summary.blocked > 0 && <Badge className="bg-gray-100 text-gray-700">{summary.blocked} Blocked</Badge>}
+                  {summary.skipped > 0 && <Badge className="bg-yellow-100 text-yellow-700">{summary.skipped} Skipped</Badge>}
+                </div>
+              </div>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">Test Case</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead className="w-[100px]">Outcome</TableHead>
+                      <TableHead className="w-[120px]">Executed By</TableHead>
+                      <TableHead className="w-[150px]">Notes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {results.map((result) => {
+                      const tc = testCases.find(t => t.id === result.testCaseId);
+                      const outcomeConf = outcomeConfig[result.outcome as TestRunOutcome] || outcomeConfig.skipped;
+                      const OutcomeIcon = outcomeConf.icon;
+                      return (
+                        <TableRow key={result.id}>
+                          <TableCell className="font-mono text-xs">{result.testCaseId}</TableCell>
+                          <TableCell className="text-sm">{tc?.title || 'Unknown'}</TableCell>
+                          <TableCell>
+                            <Badge className={outcomeConf.color}>
+                              <OutcomeIcon className="h-3 w-3 mr-1" />
+                              {outcomeConf.label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{result.executedBy || '-'}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground truncate max-w-[150px]">{result.notes || '-'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {results.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No test results recorded for this run</p>
+          )}
         </div>
       )}
     </div>
@@ -1367,6 +1504,26 @@ export default function Requirements() {
     queryKey: ['/api/work-item-links'],
   });
 
+  // Fetch test runs
+  const { data: testRuns = [], isLoading: testRunsLoading, refetch: refetchTestRuns } = useQuery<TestRun[]>({
+    queryKey: ['/api/test-runs'],
+  });
+
+  // State for expanded test runs
+  const [expandedTestRuns, setExpandedTestRuns] = useState<Set<string>>(new Set());
+
+  const toggleTestRun = (id: string) => {
+    setExpandedTestRuns(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   // Extract test cases from work items
   const workItemTestCases = workItems.filter(item => item.type === 'test_case');
   const workItemBugs = workItems.filter(item => item.type === 'bug');
@@ -1841,6 +1998,42 @@ export default function Requirements() {
                 />
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-testruns">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-indigo-600">
+                <ClipboardList className="h-4 w-4 text-white" />
+              </div>
+              <span>Test Runs</span>
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {testRuns.length} runs
+              </Badge>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Test executions against specific builds with individual outcomes</p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {testRunsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : testRuns.length > 0 ? (
+              <div className="space-y-2">
+                {testRuns.map((run) => (
+                  <TestRunItem
+                    key={run.id}
+                    run={run}
+                    expanded={expandedTestRuns.has(run.id)}
+                    onToggle={() => toggleTestRun(run.id)}
+                    testCases={testCaseData}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">No test runs recorded yet</p>
+            )}
           </CardContent>
         </Card>
 
