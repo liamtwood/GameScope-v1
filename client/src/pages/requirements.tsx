@@ -2016,7 +2016,15 @@ export default function Requirements() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm font-medium">{epic.title}</TableCell>
-                              <TableCell className="font-mono text-xs">{fr.id}</TableCell>
+                              <TableCell>
+                                <button
+                                  className="font-mono text-xs text-primary hover:underline cursor-pointer"
+                                  onClick={() => handleSelectPage(epic)}
+                                  data-testid={`btn-open-fr-${fr.id}`}
+                                >
+                                  {fr.id}
+                                </button>
+                              </TableCell>
                               <TableCell className="text-sm">{fr.title}</TableCell>
                               <TableCell>
                                 <Badge variant="secondary" className="text-xs">
@@ -2054,7 +2062,15 @@ export default function Requirements() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm font-medium">{epic.title}</TableCell>
-                              <TableCell className="font-mono text-xs">{ac.id}</TableCell>
+                              <TableCell>
+                                <button
+                                  className="font-mono text-xs text-primary hover:underline cursor-pointer"
+                                  onClick={() => handleSelectPage(epic)}
+                                  data-testid={`btn-open-ac-${ac.id}`}
+                                >
+                                  {ac.id}
+                                </button>
+                              </TableCell>
                               <TableCell className="text-sm text-muted-foreground">{ac.description}</TableCell>
                               <TableCell>
                                 <Badge variant="secondary" className="text-xs">
