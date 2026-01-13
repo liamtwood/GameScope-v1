@@ -1,7 +1,10 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, pgSchema, text, varchar, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// FM schema for requirements and devops tables
+export const fmSchema = pgSchema("fm");
 
 export const clubs = pgTable("clubs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -454,8 +457,8 @@ export type InsertPlayer = InsertUser;
 export type Player = User;
 export type PlayerWithTeamData = UserWithTeamData;
 
-// DevOps Requirements Management Tables
-export const pageRequirements = pgTable("page_requirements", {
+// DevOps Requirements Management Tables (FM schema)
+export const pageRequirements = fmSchema.table("page_requirements", {
   id: varchar("id").primaryKey(),
   title: text("title").notNull(),
   route: text("route").notNull(),
@@ -468,7 +471,7 @@ export const pageRequirements = pgTable("page_requirements", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const devopsDataModels = pgTable("devops_data_models", {
+export const devopsDataModels = fmSchema.table("devops_data_models", {
   id: varchar("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
@@ -477,7 +480,7 @@ export const devopsDataModels = pgTable("devops_data_models", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const devopsChangeLog = pgTable("devops_change_log", {
+export const devopsChangeLog = fmSchema.table("devops_change_log", {
   id: varchar("id").primaryKey(),
   date: text("date").notNull(),
   type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement, question, action_item
@@ -489,8 +492,8 @@ export const devopsChangeLog = pgTable("devops_change_log", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Unified Work Items table - supports all trackable item types with easy conversion
-export const workItems = pgTable("work_items", {
+// Unified Work Items table - supports all trackable item types with easy conversion (FM schema)
+export const workItems = fmSchema.table("work_items", {
   id: varchar("id").primaryKey(), // Format: TYPE-NNN (e.g., STORY-001, BUG-003, TC-008)
   type: varchar("type", { length: 20 }).notNull(), // epoch, epic, feature, story, bug, enhancement, test_case, question, action_item
   parentId: varchar("parent_id"), // For hierarchy (story → feature → epic → epoch)
@@ -513,8 +516,8 @@ export const workItems = pgTable("work_items", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Many-to-many links between work items for traceability
-export const workItemLinks = pgTable("work_item_links", {
+// Many-to-many links between work items for traceability (FM schema)
+export const workItemLinks = fmSchema.table("work_item_links", {
   id: varchar("id").primaryKey(), // Auto-generated
   sourceId: varchar("source_id").notNull(), // FK to work_items
   targetId: varchar("target_id").notNull(), // FK to work_items
@@ -522,8 +525,8 @@ export const workItemLinks = pgTable("work_item_links", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Test Runs - a grouping of test case executions against a specific build
-export const testRuns = pgTable("test_runs", {
+// Test Runs - a grouping of test case executions against a specific build (FM schema)
+export const testRuns = fmSchema.table("test_runs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   runNumber: integer("run_number").notNull(), // Test Run 1, 2, 3...
   name: text("name"), // Optional descriptive name
@@ -536,8 +539,8 @@ export const testRuns = pgTable("test_runs", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Test Run Results - individual test case outcomes within a test run
-export const testRunResults = pgTable("test_run_results", {
+// Test Run Results - individual test case outcomes within a test run (FM schema)
+export const testRunResults = fmSchema.table("test_run_results", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   testRunId: varchar("test_run_id").references(() => testRuns.id).notNull(),
   testCaseId: varchar("test_case_id").notNull(), // Work item ID of the test case
