@@ -26,7 +26,16 @@ The frontend follows a page-based architecture with dedicated routes for:
 - Statistics (team performance analytics)
 - Videos (match video organization)
 
-## Recent Changes (November 12, 2025)
+## Recent Changes (January 13, 2026)
+
+### FM Schema for Requirements Tables (January 13, 2026)
+- **Created separate FM schema** for requirements and DevOps-related tables for better organization
+- **Moved tables**: page_requirements, devops_data_models, devops_change_log, work_items, work_item_links, test_runs, test_run_results
+- **Updated Drizzle ORM**: Using `pgSchema("fm")` for the moved tables
+- **Data migration**: All existing data migrated from public schema to fm schema
+- **Current counts**: 17 pages, 238 work items, 7 data models, 14 changelog entries
+
+## Previous Changes (November 12, 2025)
 
 ### Competition Foreign Key Normalization (November 12, 2025)
 - **Updated fixtures table to use competitionId foreign key** instead of storing competition name as text
