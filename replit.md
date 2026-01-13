@@ -30,7 +30,14 @@ The frontend follows a page-based architecture with dedicated routes for:
 
 ### FM Schema for Requirements Tables (January 13, 2026)
 - **Created separate FM schema** for requirements and DevOps-related tables for better organization
-- **Moved tables**: page_requirements, devops_data_models, devops_change_log, work_items, work_item_links, test_runs, test_run_results
+- **Moved and renamed tables**:
+  - page_requirements → fm.page_requirements
+  - devops_data_models → fm.data_models (renamed)
+  - devops_change_log → fm.change_log (renamed)
+  - work_items → fm.work_items
+  - work_item_links → fm.work_item_links
+  - test_runs → fm.test_runs
+  - test_run_results → fm.test_run_results
 - **Updated Drizzle ORM**: Using `pgSchema("fm")` for the moved tables
 - **Data migration**: All existing data migrated from public schema to fm schema
 - **Current counts**: 17 pages, 238 work items, 7 data models, 14 changelog entries

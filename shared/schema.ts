@@ -471,7 +471,7 @@ export const pageRequirements = fmSchema.table("page_requirements", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const devopsDataModels = fmSchema.table("devops_data_models", {
+export const dataModels = fmSchema.table("data_models", {
   id: varchar("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
@@ -480,7 +480,7 @@ export const devopsDataModels = fmSchema.table("devops_data_models", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const devopsChangeLog = fmSchema.table("devops_change_log", {
+export const changeLog = fmSchema.table("change_log", {
   id: varchar("id").primaryKey(),
   date: text("date").notNull(),
   type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement, question, action_item
@@ -581,13 +581,13 @@ export const insertPageRequirementsSchema = createInsertSchema(pageRequirements)
     acceptanceCriteria: z.array(acceptanceCriteriaSchema),
   });
 
-export const insertDevopsDataModelSchema = createInsertSchema(devopsDataModels)
+export const insertDataModelSchema = createInsertSchema(dataModels)
   .omit({ createdAt: true, updatedAt: true })
   .extend({
     fields: z.array(dataModelFieldSchema),
   });
 
-export const insertDevopsChangeLogSchema = createInsertSchema(devopsChangeLog)
+export const insertChangeLogSchema = createInsertSchema(changeLog)
   .omit({ createdAt: true, updatedAt: true })
   .extend({
     type: z.enum(["added", "removed", "changed", "fixed", "bug", "enhancement", "question", "action_item"]),
@@ -630,12 +630,18 @@ export const insertWorkItemLinkSchema = createInsertSchema(workItemLinks)
 
 // Types for requirements
 export type PageRequirementRecord = typeof pageRequirements.$inferSelect;
-export type DevopsDataModel = typeof devopsDataModels.$inferSelect;
-export type DevopsChangeLog = typeof devopsChangeLog.$inferSelect;
+export type DataModel = typeof dataModels.$inferSelect;
+export type ChangeLog = typeof changeLog.$inferSelect;
 
 export type InsertPageRequirement = z.infer<typeof insertPageRequirementsSchema>;
-export type InsertDevopsDataModel = z.infer<typeof insertDevopsDataModelSchema>;
-export type InsertDevopsChangeLog = z.infer<typeof insertDevopsChangeLogSchema>;
+export type InsertDataModel = z.infer<typeof insertDataModelSchema>;
+export type InsertChangeLog = z.infer<typeof insertChangeLogSchema>;
+
+// Legacy aliases for backward compatibility
+export type DevopsDataModel = DataModel;
+export type DevopsChangeLog = ChangeLog;
+export type InsertDevopsDataModel = InsertDataModel;
+export type InsertDevopsChangeLog = InsertChangeLog;
 
 // Work Item types
 export type WorkItem = typeof workItems.$inferSelect;

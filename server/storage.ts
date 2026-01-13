@@ -16,8 +16,8 @@ import {
   matchStats,
   playerStats,
   pageRequirements,
-  devopsDataModels,
-  devopsChangeLog,
+  dataModels,
+  changeLog,
   workItems,
   workItemLinks,
   testRuns,
@@ -48,11 +48,11 @@ import {
   type InsertMatchStats,
   type InsertPlayerStats,
   type PageRequirementRecord,
-  type DevopsDataModel as DevopsDataModelRecord,
-  type DevopsChangeLog as DevopsChangeLogRecord,
+  type DataModel as DevopsDataModelRecord,
+  type ChangeLog as DevopsChangeLogRecord,
   type InsertPageRequirement,
-  type InsertDevopsDataModel,
-  type InsertDevopsChangeLog,
+  type InsertDataModel as InsertDevopsDataModel,
+  type InsertChangeLog as InsertDevopsChangeLog,
   type WorkItem as WorkItemRecord,
   type WorkItemLink as WorkItemLinkRecord,
   type InsertWorkItem,
@@ -1651,16 +1651,16 @@ export class DatabaseStorage implements IStorage {
 
   // DevOps Data Models CRUD
   async getDevopsDataModels(): Promise<DevopsDataModelRecord[]> {
-    return await db.select().from(devopsDataModels);
+    return await db.select().from(dataModels);
   }
 
   async getDevopsDataModel(id: string): Promise<DevopsDataModelRecord | undefined> {
-    const [result] = await db.select().from(devopsDataModels).where(eq(devopsDataModels.id, id));
+    const [result] = await db.select().from(dataModels).where(eq(dataModels.id, id));
     return result;
   }
 
   async createDevopsDataModel(model: InsertDevopsDataModel): Promise<DevopsDataModelRecord> {
-    const [result] = await db.insert(devopsDataModels).values({
+    const [result] = await db.insert(dataModels).values({
       ...model,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -1669,30 +1669,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDevopsDataModel(id: string, model: Partial<InsertDevopsDataModel>): Promise<DevopsDataModelRecord> {
-    const [result] = await db.update(devopsDataModels)
+    const [result] = await db.update(dataModels)
       .set({ ...model, updatedAt: new Date() })
-      .where(eq(devopsDataModels.id, id))
+      .where(eq(dataModels.id, id))
       .returning();
     if (!result) throw new Error("Data model not found");
     return result;
   }
 
   async deleteDevopsDataModel(id: string): Promise<void> {
-    await db.delete(devopsDataModels).where(eq(devopsDataModels.id, id));
+    await db.delete(dataModels).where(eq(dataModels.id, id));
   }
 
   // DevOps Change Log CRUD
   async getDevopsChangeLogs(): Promise<DevopsChangeLogRecord[]> {
-    return await db.select().from(devopsChangeLog);
+    return await db.select().from(changeLog);
   }
 
   async getDevopsChangeLog(id: string): Promise<DevopsChangeLogRecord | undefined> {
-    const [result] = await db.select().from(devopsChangeLog).where(eq(devopsChangeLog.id, id));
+    const [result] = await db.select().from(changeLog).where(eq(changeLog.id, id));
     return result;
   }
 
   async createDevopsChangeLog(entry: InsertDevopsChangeLog): Promise<DevopsChangeLogRecord> {
-    const [result] = await db.insert(devopsChangeLog).values({
+    const [result] = await db.insert(changeLog).values({
       ...entry,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -1701,16 +1701,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDevopsChangeLog(id: string, entry: Partial<InsertDevopsChangeLog>): Promise<DevopsChangeLogRecord> {
-    const [result] = await db.update(devopsChangeLog)
+    const [result] = await db.update(changeLog)
       .set({ ...entry, updatedAt: new Date() })
-      .where(eq(devopsChangeLog.id, id))
+      .where(eq(changeLog.id, id))
       .returning();
     if (!result) throw new Error("Change log entry not found");
     return result;
   }
 
   async deleteDevopsChangeLog(id: string): Promise<void> {
-    await db.delete(devopsChangeLog).where(eq(devopsChangeLog.id, id));
+    await db.delete(changeLog).where(eq(changeLog.id, id));
   }
 
   // Work Items CRUD
@@ -1847,7 +1847,7 @@ export class DatabaseStorage implements IStorage {
     console.log('Seeding requirements data...');
 
     // Import hardcoded data from registry
-    const { requirementsRegistry, dataModels, changeLog } = await import('../client/src/lib/requirements-registry');
+    const { requirementsRegistry, dataModels: dataModelsData, changeLog: changeLogData } = await import('../client/src/lib/requirements-registry');
 
     // Seed page requirements
     for (const req of requirementsRegistry) {
@@ -1866,8 +1866,8 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Seed data models
-    for (const model of dataModels) {
-      await db.insert(devopsDataModels).values({
+    for (const model of dataModelsData) {
+      await db.insert(dataModels).values({
         id: model.id,
         name: model.name,
         description: model.description,
@@ -1878,8 +1878,8 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Seed change log
-    for (const entry of changeLog) {
-      await db.insert(devopsChangeLog).values({
+    for (const entry of changeLogData) {
+      await db.insert(changeLog).values({
         id: entry.id,
         date: entry.date,
         type: entry.type,

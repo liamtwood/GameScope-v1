@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDevopsDataModelSchema, insertDevopsChangeLogSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -4958,7 +4958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/devops/data-models", async (req, res) => {
     try {
-      const validated = insertDevopsDataModelSchema.parse(req.body);
+      const validated = insertDataModelSchema.parse(req.body);
       const model = await storage.createDevopsDataModel(validated);
       res.status(201).json(model);
     } catch (error) {
@@ -4969,7 +4969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/devops/data-models/:id", async (req, res) => {
     try {
-      const validated = insertDevopsDataModelSchema.partial().parse(req.body);
+      const validated = insertDataModelSchema.partial().parse(req.body);
       const model = await storage.updateDevopsDataModel(req.params.id, validated);
       res.json(model);
     } catch (error) {
@@ -5014,7 +5014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/devops/changelog", async (req, res) => {
     try {
-      const validated = insertDevopsChangeLogSchema.parse(req.body);
+      const validated = insertChangeLogSchema.parse(req.body);
       const entry = await storage.createDevopsChangeLog(validated);
       res.status(201).json(entry);
     } catch (error) {
@@ -5025,7 +5025,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/devops/changelog/:id", async (req, res) => {
     try {
-      const validated = insertDevopsChangeLogSchema.partial().parse(req.body);
+      const validated = insertChangeLogSchema.partial().parse(req.body);
       const entry = await storage.updateDevopsChangeLog(req.params.id, validated);
       res.json(entry);
     } catch (error) {
