@@ -1,0 +1,73 @@
+Replit Prompt: Generate Sample FM Data for Fixtures
+Context
+I'm enhancing my Feature Management (FM) module to track widgets and sections. Before building the UI, I want to validate the data model by generating sample data based on what's actually built.
+Focus on the Fixtures functionality only - the Fixtures list page and View Fixture Detail page.
+What I Need
+Look at the actual Fixtures implementation in the codebase - the React components, page layouts, and features - and generate CSV files that map to my FM schema.
+1. fm_widgets.csv
+Identify the reusable UI components used in Fixtures. For each widget:
+csvid,app_id,name,description,data_models
+
+id - kebab-case identifier (e.g., "fixture-card", "stats-cards")
+app_id - "gamescope"
+name - Display name (e.g., "Fixture Card", "Statistics Cards")
+description - What it does, what it displays
+data_models - JSON array of data model IDs it consumes (e.g., ["fixture","competition"])
+
+Think about: What components are reused? What could be reused on other pages?
+2. fm_work_items_sections.csv
+For the existing FRs and ACs related to Fixtures, suggest the new section fields:
+csvwork_item_id,page_id,widget_id,section_title,section_order
+Reference these existing Fixtures FRs:
+
+FR-008: Statistics Summary (Fixtures page)
+FR-009: Control Bar (search, buttons)
+FR-010: Filter Panel
+FR-011: Fixture Cards Display
+FR-012: Add/Edit Fixture Dialog
+FR-013: Delete Fixture
+FR-014: Fixture Detail Header
+FR-015: Match Report Tab
+FR-016: Line-Ups Tab
+FR-017: Videos Tab
+FR-018: Upload Data Tab
+FR-019: Statistics Tab
+FR-020: Spider Charts Tab
+FR-021: AI Analysis Tab
+FR-022: Import Fixtures
+
+Map each FR to:
+
+Which page it belongs to (fixtures or fixture-details)
+Which widget powers it (from your widgets.csv)
+A user-friendly section title
+The order it appears on the page (0, 1, 2...)
+
+3. fm_test_cases.csv (bonus)
+If there are obvious test cases for Fixtures functionality, suggest a few:
+csvid,type,title,description,steps,expected_result,area,parent_id
+
+id - e.g., "TC-101"
+type - "TestCase"
+title - Short name
+description - Objective
+steps - One step per line (plain text, not JSON)
+expected_result - What should happen
+area - "TEAM"
+parent_id - Related FR if applicable
+
+Example Output
+Here's what I'm expecting (partial example):
+fm_widgets.csv:
+csvid,app_id,name,description,data_models
+fixture-card,gamescope,Fixture Card,"Displays match with teams, score, venue badge, result badge","[""fixture"",""oppositionTeam""]"
+fixture-filter-panel,gamescope,Fixture Filter Panel,"Filters for status, competition, venue type, date range","[""fixture"",""competition""]"
+fm_work_items_sections.csv:
+csvwork_item_id,page_id,widget_id,section_title,section_order
+FR-008,fixtures,stats-cards,Statistics Summary,0
+FR-009,fixtures,control-bar,Control Bar,1
+FR-010,fixtures,fixture-filter-panel,Filters,2
+FR-011,fixtures,fixture-card,Fixture List,3
+Goal
+I want to see if this structure accurately captures what's built. If the mapping feels forced or there are components that don't fit the model, note that - it'll help me refine the schema.
+Generate the CSVs based on what you see in the actual codebase.
