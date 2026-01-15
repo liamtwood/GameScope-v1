@@ -3177,7 +3177,9 @@ export default function Requirements() {
               </Button>
             </div>
             <div className="space-y-2">
-              {filteredWorkItems.filter(item => !hierarchyTypes.includes(item.type)).map((item) => (
+              {filteredWorkItems
+                .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
+                .map((item) => (
                 <WorkItemCard
                   key={item.id}
                   item={item}
@@ -3188,7 +3190,9 @@ export default function Requirements() {
                   isConverting={convertWorkItemMutation.isPending}
                 />
               ))}
-              {filteredWorkItems.filter(item => !hierarchyTypes.includes(item.type)).length === 0 && (
+              {filteredWorkItems
+                .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
+                .length === 0 && (
                 <p className="text-muted-foreground text-center py-8">No work items match the filter</p>
               )}
             </div>
