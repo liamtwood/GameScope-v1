@@ -491,9 +491,10 @@ export const pageRequirements = fmSchema.table("page_requirements", {
   appId: text("app_id").references(() => fmApps.id),
   title: text("title").notNull(),
   route: text("route").notNull(),
-  section: varchar("section", { length: 20 }).notNull(), // home, team, club, devops
+  section: varchar("section", { length: 20 }).notNull(), // home, team, club, devops, global
   overview: text("overview").notNull(),
   parentId: varchar("parent_id"),
+  displayOrder: integer("display_order").default(0),
   functionalRequirements: jsonb("functional_requirements").notNull().default([]),
   acceptanceCriteria: jsonb("acceptance_criteria").notNull().default([]),
   createdAt: timestamp("created_at").defaultNow(),

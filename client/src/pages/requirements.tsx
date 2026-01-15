@@ -197,8 +197,15 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
       };
     });
     
-    // Sort pages by title
-    pageNodes.sort((a, b) => a.item.title.localeCompare(b.item.title));
+    // Sort pages by displayOrder, then title
+    pageNodes.sort((a, b) => {
+      const pageA = sectionPages.find(p => p.id === a.item.id);
+      const pageB = sectionPages.find(p => p.id === b.item.id);
+      const orderA = (pageA as any)?.displayOrder ?? 0;
+      const orderB = (pageB as any)?.displayOrder ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.item.title.localeCompare(b.item.title);
+    });
     
     // Create section node
     const sectionNode: HierarchyNode = {
@@ -2787,15 +2794,24 @@ export default function Requirements() {
     const sectionPages = filteredRegistry.filter(p => p.section === section);
     const pageIds = new Set(sectionPages.map(p => p.id));
     
+    const sortByOrder = (pages: PageRequirements[]) => {
+      return [...pages].sort((a, b) => {
+        const orderA = (a as any).displayOrder ?? 0;
+        const orderB = (b as any).displayOrder ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.title.localeCompare(b.title);
+      });
+    };
+    
     const buildTree = (page: PageRequirements): PageWithChildren => {
-      const children = sectionPages.filter(p => p.parentId === page.id);
+      const children = sortByOrder(sectionPages.filter(p => p.parentId === page.id));
       return {
         ...page,
         children: children.map(child => buildTree(child)),
       };
     };
     
-    const roots = sectionPages.filter(p => !p.parentId || !pageIds.has(p.parentId));
+    const roots = sortByOrder(sectionPages.filter(p => !p.parentId || !pageIds.has(p.parentId)));
     return roots.map(root => buildTree(root));
   };
 
