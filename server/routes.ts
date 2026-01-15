@@ -4879,7 +4879,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Page Requirements CRUD
   app.get("/api/devops/requirements", async (req, res) => {
     try {
-      const requirements = await storage.getPageRequirements();
+      const appId = req.query.appId as string | undefined;
+      const requirements = await storage.getPageRequirements(appId);
       res.json(requirements);
     } catch (error) {
       console.error("Error fetching requirements:", error);
@@ -4935,7 +4936,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Data Models CRUD
   app.get("/api/devops/data-models", async (req, res) => {
     try {
-      const models = await storage.getDevopsDataModels();
+      const appId = req.query.appId as string | undefined;
+      const models = await storage.getDevopsDataModels(appId);
       res.json(models);
     } catch (error) {
       console.error("Error fetching data models:", error);
@@ -4991,7 +4993,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Change Log CRUD
   app.get("/api/devops/changelog", async (req, res) => {
     try {
-      const entries = await storage.getDevopsChangeLogs();
+      const appId = req.query.appId as string | undefined;
+      const entries = await storage.getDevopsChangeLogs(appId);
       res.json(entries);
     } catch (error) {
       console.error("Error fetching change log:", error);
@@ -5047,11 +5050,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Work Items CRUD endpoints
   app.get("/api/work-items", async (req, res) => {
     try {
-      const filters: { type?: string; parentId?: string; area?: string; status?: string } = {};
+      const filters: { type?: string; parentId?: string; area?: string; status?: string; appId?: string } = {};
       if (req.query.type) filters.type = req.query.type as string;
       if (req.query.parentId) filters.parentId = req.query.parentId as string;
       if (req.query.area) filters.area = req.query.area as string;
       if (req.query.status) filters.status = req.query.status as string;
+      if (req.query.appId) filters.appId = req.query.appId as string;
       
       const items = await storage.getWorkItems(Object.keys(filters).length > 0 ? filters : undefined);
       res.json(items);

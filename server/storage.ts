@@ -1638,7 +1638,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // DevOps Page Requirements CRUD
-  async getPageRequirements(): Promise<PageRequirementRecord[]> {
+  async getPageRequirements(appId?: string): Promise<PageRequirementRecord[]> {
+    if (appId) {
+      return await db.select().from(pageRequirements).where(eq(pageRequirements.appId, appId));
+    }
     return await db.select().from(pageRequirements);
   }
 
@@ -1670,7 +1673,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // DevOps Data Models CRUD
-  async getDevopsDataModels(): Promise<DevopsDataModelRecord[]> {
+  async getDevopsDataModels(appId?: string): Promise<DevopsDataModelRecord[]> {
+    if (appId) {
+      return await db.select().from(dataModels).where(eq(dataModels.appId, appId));
+    }
     return await db.select().from(dataModels);
   }
 
@@ -1702,7 +1708,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // DevOps Change Log CRUD
-  async getDevopsChangeLogs(): Promise<DevopsChangeLogRecord[]> {
+  async getDevopsChangeLogs(appId?: string): Promise<DevopsChangeLogRecord[]> {
+    if (appId) {
+      return await db.select().from(changeLog).where(eq(changeLog.appId, appId));
+    }
     return await db.select().from(changeLog);
   }
 
@@ -1734,7 +1743,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Work Items CRUD
-  async getWorkItems(filters?: { type?: string; parentId?: string; area?: string; status?: string }): Promise<WorkItemRecord[]> {
+  async getWorkItems(filters?: { type?: string; parentId?: string; area?: string; status?: string; appId?: string }): Promise<WorkItemRecord[]> {
     let query = db.select().from(workItems);
     
     if (filters) {
@@ -1743,6 +1752,7 @@ export class DatabaseStorage implements IStorage {
       if (filters.parentId) conditions.push(eq(workItems.parentId, filters.parentId));
       if (filters.area) conditions.push(eq(workItems.area, filters.area));
       if (filters.status) conditions.push(eq(workItems.status, filters.status));
+      if (filters.appId) conditions.push(eq(workItems.appId, filters.appId));
       
       if (conditions.length > 0) {
         query = query.where(and(...conditions)) as typeof query;

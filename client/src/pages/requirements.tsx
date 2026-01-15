@@ -2396,20 +2396,40 @@ export default function Requirements() {
 
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
-    queryKey: ['/api/devops/requirements'],
+    queryKey: ['/api/devops/requirements', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/devops/requirements?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
   });
 
   const { data: apiDataModels = [], isLoading: modelsLoading, refetch: refetchModels } = useQuery<APIDataModel[]>({
-    queryKey: ['/api/devops/data-models'],
+    queryKey: ['/api/devops/data-models', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/devops/data-models?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
   });
 
   const { data: apiChangeLog = [], isLoading: changeLogLoading, refetch: refetchChangeLog } = useQuery<APIChangeLogEntry[]>({
-    queryKey: ['/api/devops/changelog'],
+    queryKey: ['/api/devops/changelog', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/devops/changelog?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
   });
 
   // Fetch unified work items
   const { data: workItems = [], isLoading: workItemsLoading, refetch: refetchWorkItems } = useQuery<WorkItem[]>({
-    queryKey: ['/api/work-items'],
+    queryKey: ['/api/work-items', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/work-items?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
   });
 
   const { data: workItemLinks = [], refetch: refetchWorkItemLinks } = useQuery<WorkItemLink[]>({
