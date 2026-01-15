@@ -3099,7 +3099,7 @@ export default function Requirements() {
                 <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
                 <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
                 <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
-                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
+                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
                 <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
                 <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
               </div>
@@ -3153,7 +3153,7 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-testcase"
               >
                 <ClipboardList className="h-3 w-3 mr-1" />
-                Tests ({workItemSummary.testCases})
+                TCs ({workItemSummary.testCases})
               </Button>
               <Button
                 variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
