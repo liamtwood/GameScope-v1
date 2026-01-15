@@ -608,6 +608,7 @@ const functionalRequirementSchema = z.object({
 const acceptanceCriteriaSchema = z.object({
   id: z.string(),
   description: z.string(),
+  parentFrId: z.string().optional(),
 });
 
 const dataModelFieldSchema = z.object({
