@@ -2933,7 +2933,7 @@ export default function Requirements() {
   const hasNoData = apiRequirements.length === 0 && apiDataModels.length === 0 && apiChangeLog.length === 0;
 
   return (
-    <MainLayout title="Requirements" subtitle="View and manage epic requirements and documentation">
+    <MainLayout title="Feature Management" subtitle="View and manage epic requirements and documentation">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex gap-3 items-center">
