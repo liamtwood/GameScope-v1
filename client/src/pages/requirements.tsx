@@ -2743,12 +2743,15 @@ export default function Requirements() {
                           <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
                           <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
                           <TableHead className="w-[180px] sticky top-0 bg-background">Title</TableHead>
+                          <TableHead className="w-[60px] sticky top-0 bg-background text-center">ACs</TableHead>
                           <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {requirementsData.flatMap((epic) => 
-                          (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => (
+                          (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => {
+                            const acCount = (epic.acceptanceCriteria as Array<{ id: string; parentFrId?: string }>).filter(ac => ac.parentFrId === fr.id).length;
+                            return (
                             <TableRow key={`${epic.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
                               <TableCell>
                                 <Badge variant="outline" className="text-xs capitalize">
@@ -2766,13 +2769,18 @@ export default function Requirements() {
                                 </button>
                               </TableCell>
                               <TableCell className="text-sm">{fr.title}</TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant={acCount > 0 ? "default" : "outline"} className="text-xs">
+                                  {acCount}
+                                </Badge>
+                              </TableCell>
                               <TableCell>
                                 <Badge variant="secondary" className="text-xs">
                                   {fr.status || 'New'}
                                 </Badge>
                               </TableCell>
                             </TableRow>
-                          ))
+                          );})
                         )}
                       </TableBody>
                     </Table>
