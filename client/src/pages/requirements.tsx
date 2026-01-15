@@ -3295,6 +3295,15 @@ export default function Requirements() {
                 <Badge className="bg-red-100 text-red-700">{testCaseSummary.failed} Failed</Badge>
                 {testCaseSummary.partial > 0 && <Badge className="bg-yellow-100 text-yellow-700">{testCaseSummary.partial} Partial</Badge>}
                 {testCaseSummary.blocked > 0 && <Badge className="bg-gray-100 text-gray-700">{testCaseSummary.blocked} Blocked</Badge>}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTestCaseDialogOpen(true)}
+                  className="h-7"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add TC
+                </Button>
               </div>
             </CardTitle>
           </CardHeader>
@@ -3479,17 +3488,6 @@ export default function Requirements() {
                 <Lightbulb className="h-3 w-3 mr-1" />
                 Enhancements ({workItemSummary.enhancements})
               </Button>
-              <div className="ml-auto">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTestCaseDialogOpen(true)}
-                  className="h-7"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add TC
-                </Button>
-              </div>
             </div>
             <div className="space-y-2">
               {filteredWorkItems
