@@ -104,6 +104,8 @@ const testStatusConfig: Record<TestCase['status'], { color: string; icon: typeof
 const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; label: string }> = {
   epoch: { icon: Target, color: "text-purple-600 bg-purple-100", label: "Epoch" },
   epic: { icon: Layers, color: "text-indigo-600 bg-indigo-100", label: "Epic" },
+  FR: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Functional Requirement" },
+  AC: { icon: CheckCircle2, color: "text-sky-600 bg-sky-100", label: "Acceptance Criteria" },
   feature: { icon: Puzzle, color: "text-violet-600 bg-violet-100", label: "Feature" },
   story: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Story" },
   bug: { icon: Bug, color: "text-rose-600 bg-rose-100", label: "Bug" },
@@ -113,7 +115,7 @@ const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; labe
   action_item: { icon: ListTodo, color: "text-orange-600 bg-orange-100", label: "Action Item" },
 };
 
-const workItemTypes = ['epoch', 'epic', 'feature', 'story', 'bug', 'enhancement', 'test_case', 'question', 'action_item'];
+const workItemTypes = ['epoch', 'epic', 'FR', 'AC', 'feature', 'story', 'bug', 'enhancement', 'test_case', 'question', 'action_item'];
 
 // Hierarchy types for tree view
 const hierarchyTypes = ['epoch', 'epic', 'feature', 'story'];
