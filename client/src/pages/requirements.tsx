@@ -3046,7 +3046,7 @@ export default function Requirements() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Design"
-            value={`${sections.length}-${totalPages}-${workItems.filter(w => w.type?.toLowerCase() === 'epic' && w.appId === selectedAppId).length}`}
+            value={`${new Set(requirementsData.map(p => p.section)).size}-${totalPages}-${workItems.filter(w => w.type?.toLowerCase() === 'epic' && w.appId === selectedAppId).length}`}
             icon={PenTool}
             iconColor="text-purple-600"
             subtitle="Sections-Pages-Epics"
