@@ -143,9 +143,8 @@ function buildHierarchyTree(items: WorkItem[]): HierarchyNode[] {
       itemMap.get(item.parentId)!.children.push(node);
     } else if (!item.parentId || !itemMap.has(item.parentId)) {
       // Items without parents or with non-hierarchy parents go to root
-      if (item.type === 'epoch') {
-        roots.push(node);
-      }
+      // Allow epochs, epics, features, or stories as roots when they have no parent
+      roots.push(node);
     }
   });
   
