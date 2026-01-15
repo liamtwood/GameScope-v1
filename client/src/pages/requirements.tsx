@@ -200,7 +200,7 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
     // Create section node
     const sectionNode: HierarchyNode = {
       item: {
-        id: `section-${sectionKey}`,
+        id: sectionKey,
         type: 'section',
         title: sectionLabels[sectionKey] || sectionKey,
         status: 'active',
@@ -446,18 +446,20 @@ function HierarchyTreeNode({
         
         {/* Type icon */}
         <div className={`p-1 rounded ${typeConfig.color}`}>
-          <TypeIcon className="h-3 w-3" />
+          <TypeIcon className={item.type === 'section' ? "h-4 w-4" : "h-3 w-3"} />
         </div>
         
-        {/* ID badge */}
-        <Badge variant="outline" className="font-mono text-xs px-1.5 py-0">
-          {item.id}
-        </Badge>
+        {/* ID badge - hide for sections since title is the display */}
+        {item.type !== 'section' && (
+          <Badge variant="outline" className="font-mono text-xs px-1.5 py-0">
+            {item.id}
+          </Badge>
+        )}
         
-        {/* Title */}
+        {/* Title - larger for sections */}
         <span 
-          className="flex-1 text-sm truncate hover:underline"
-          onClick={(e) => { e.stopPropagation(); onSelectItem?.(item); }}
+          className={`flex-1 truncate ${item.type === 'section' ? 'text-base font-semibold' : 'text-sm hover:underline'}`}
+          onClick={(e) => { e.stopPropagation(); if (item.type !== 'section') onSelectItem?.(item); }}
         >
           {item.title}
         </span>
