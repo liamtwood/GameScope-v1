@@ -6,6 +6,30 @@ import { z } from "zod";
 // FM schema for requirements and devops tables
 export const fmSchema = pgSchema("fm");
 
+// FM Apps - Multi-app support (GameScope, MAGPIE, etc.)
+export const fmApps = fmSchema.table("apps", {
+  id: text("id").primaryKey(), // e.g., 'gamescope', 'magpie'
+  name: text("name").notNull(),
+  description: text("description"),
+  framework: varchar("framework", { length: 20 }), // 'react', 'angular'
+  status: varchar("status", { length: 20 }).default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// FM Widgets - Reusable UI components
+export const fmWidgets = fmSchema.table("widgets", {
+  id: text("id").primaryKey(), // e.g., 'fixture-card', 'stats-cards'
+  appId: text("app_id").references(() => fmApps.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  dataModels: jsonb("data_models"), // Array of data model IDs this widget consumes
+  configSchema: jsonb("config_schema"), // Optional: JSON schema for widget configuration
+  status: varchar("status", { length: 20 }).default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const clubs = pgTable("clubs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -460,6 +484,7 @@ export type PlayerWithTeamData = UserWithTeamData;
 // DevOps Requirements Management Tables (FM schema)
 export const pageRequirements = fmSchema.table("page_requirements", {
   id: varchar("id").primaryKey(),
+  appId: text("app_id").references(() => fmApps.id),
   title: text("title").notNull(),
   route: text("route").notNull(),
   section: varchar("section", { length: 20 }).notNull(), // home, team, club, devops
@@ -473,6 +498,7 @@ export const pageRequirements = fmSchema.table("page_requirements", {
 
 export const dataModels = fmSchema.table("data_models", {
   id: varchar("id").primaryKey(),
+  appId: text("app_id").references(() => fmApps.id),
   name: text("name").notNull(),
   description: text("description").notNull(),
   fields: jsonb("fields").notNull().default([]),
@@ -499,12 +525,29 @@ export const workItems = fmSchema.table("work_items", {
   parentId: varchar("parent_id"), // For hierarchy (story → feature → epic → epoch)
   title: text("title").notNull(),
   description: text("description").notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("open"), // draft, open, in_progress, resolved, closed, passed, failed, partial, blocked
+  status: varchar("status", { length: 20 }).notNull().default("new"), // new, defined, in_progress, qc, complete
   priority: varchar("priority", { length: 20 }), // low, medium, high, critical
   area: varchar("area", { length: 50 }), // squad, fixtures, video, dashboard, etc.
   
+  // Assignment & Tracking
+  createdBy: text("created_by"),
+  assignedTo: text("assigned_to"),
+  priorityRank: integer("priority_rank"), // 1-5 for sprint ordering
+  size: varchar("size", { length: 10 }), // S, M, L, XL
+  effort: integer("effort"), // 0-99
+  
+  // App, Page, Widget linking
+  appId: text("app_id").references(() => fmApps.id),
+  pageId: varchar("page_id"), // FK to page_requirements.id
+  widgetId: text("widget_id"), // FK to widgets.id
+  
+  // Section info (for ACs placed on pages)
+  sectionTitle: text("section_title"),
+  sectionOrder: integer("section_order"),
+  sectionType: varchar("section_type", { length: 20 }), // section, tab, nested-tab, modal, drawer, dropdown
+  
   // Test case specific fields
-  steps: jsonb("steps"), // string[] - test steps
+  steps: text("steps"), // Plain text, UI handles line-splitting and numbering
   expectedResult: text("expected_result"),
   actualResult: text("actual_result"),
   tester: varchar("tester", { length: 100 }),
@@ -603,9 +646,18 @@ export const workItemTypeEnum = z.enum([
 ]);
 
 export const workItemStatusEnum = z.enum([
-  "draft", "open", "in_progress", "resolved", "closed",
-  "passed", "failed", "partial", "blocked" // For test cases
+  "new", "defined", "in_progress", "qc", "complete",
+  // Legacy values for backward compatibility
+  "draft", "open", "resolved", "closed",
+  // Test case specific
+  "passed", "failed", "partial", "blocked"
 ]);
+
+export const sectionTypeEnum = z.enum([
+  "section", "tab", "nested-tab", "modal", "drawer", "dropdown"
+]);
+
+export const sizeEnum = z.enum(["S", "M", "L", "XL"]);
 
 export const workItemPriorityEnum = z.enum(["low", "medium", "high", "critical"]);
 
@@ -619,7 +671,20 @@ export const insertWorkItemSchema = createInsertSchema(workItems)
     type: workItemTypeEnum,
     status: workItemStatusEnum.optional(),
     priority: workItemPriorityEnum.optional(),
-    steps: z.array(z.string()).optional(),
+    size: sizeEnum.optional(),
+    sectionType: sectionTypeEnum.optional(),
+    steps: z.string().optional(),
+  });
+
+// FM App schemas
+export const insertFmAppSchema = createInsertSchema(fmApps)
+  .omit({ createdAt: true, updatedAt: true });
+
+// FM Widget schemas  
+export const insertFmWidgetSchema = createInsertSchema(fmWidgets)
+  .omit({ createdAt: true, updatedAt: true })
+  .extend({
+    dataModels: z.array(z.string()).optional(),
   });
 
 export const insertWorkItemLinkSchema = createInsertSchema(workItemLinks)
@@ -652,6 +717,16 @@ export type WorkItemType = z.infer<typeof workItemTypeEnum>;
 export type WorkItemStatus = z.infer<typeof workItemStatusEnum>;
 export type WorkItemPriority = z.infer<typeof workItemPriorityEnum>;
 export type WorkItemLinkType = z.infer<typeof workItemLinkTypeEnum>;
+export type SectionType = z.infer<typeof sectionTypeEnum>;
+export type Size = z.infer<typeof sizeEnum>;
+
+// FM App types
+export type FmApp = typeof fmApps.$inferSelect;
+export type InsertFmApp = z.infer<typeof insertFmAppSchema>;
+
+// FM Widget types
+export type FmWidget = typeof fmWidgets.$inferSelect;
+export type InsertFmWidget = z.infer<typeof insertFmWidgetSchema>;
 
 // Test Run schemas
 export const testRunStatusEnum = z.enum(["in_progress", "completed"]);
