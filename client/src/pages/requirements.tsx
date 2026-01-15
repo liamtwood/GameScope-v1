@@ -2339,7 +2339,7 @@ export default function Requirements() {
     localStorage.setItem('fm_selected_app', appId);
   };
 
-  const sections: PageRequirements['section'][] = ['global', 'home', 'team', 'club', 'devops'];
+  const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
   
   const toggleTestCase = (id: string) => {
     setExpandedTestCases(prev => {
