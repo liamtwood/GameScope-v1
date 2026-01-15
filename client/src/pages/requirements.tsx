@@ -2981,23 +2981,6 @@ export default function Requirements() {
                 Load Initial Data
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const markdown = generateDocumentationMarkdown(
-                  requirementsData,
-                  dataModelsData,
-                  changeLogData,
-                  testCaseData
-                );
-                downloadDocumentation(markdown);
-              }}
-              data-testid="btn-download-docs"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download Docs
-            </Button>
             <Badge variant="outline" className="px-3 py-1">
               {totalPages} Epics
             </Badge>
