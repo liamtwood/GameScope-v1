@@ -184,7 +184,7 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
       
       return {
         item: {
-          id: `page-${page.id}`,
+          id: page.id,
           type: 'page',
           title: page.title,
           status: 'active',
