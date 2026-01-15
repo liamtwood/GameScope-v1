@@ -3650,33 +3650,42 @@ export default function Requirements() {
         <SheetContent className="w-[500px] sm:max-w-[500px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              {selectedPage?.title}
-              {selectedFrId && (
-                <Badge variant="outline" className="ml-2 font-mono">
-                  {selectedFrId}
-                </Badge>
-              )}
+              <FileText className="h-5 w-5" />
+              Page Details
             </SheetTitle>
-            <SheetDescription>
-              {selectedFrId ? (
-                <div className="flex items-center gap-2">
-                  <span>Showing single requirement</span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setSelectedFrId(null)}
-                    className="h-6 px-2 text-xs"
-                    data-testid="btn-show-all-frs"
-                  >
-                    Show all FRs
-                  </Button>
-                </div>
-              ) : (
-                <span>All requirements for this epic</span>
-              )}
+            <SheetDescription className="space-y-2">
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Badge variant="outline" className="font-mono text-xs">
+                  Section: {selectedPage?.section ? sectionTitles[selectedPage.section as keyof typeof sectionTitles] : '—'}
+                </Badge>
+                <Badge variant="outline" className="font-mono text-xs">
+                  Page: {selectedPage?.id || '—'}
+                </Badge>
+                <Badge variant="outline" className="font-mono text-xs">
+                  Epic: {selectedPage?.epicId || `EPIC-${selectedPage?.id?.replace('P-', '') || '—'}`}
+                </Badge>
+              </div>
             </SheetDescription>
           </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-100px)] mt-6 pr-4">
+          <div className="mt-4 border-b pb-3">
+            <h3 className="text-lg font-semibold">{selectedPage?.title}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+          </div>
+          {selectedFrId && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-sm text-muted-foreground">Showing single requirement</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setSelectedFrId(null)}
+                className="h-6 px-2 text-xs"
+                data-testid="btn-show-all-frs"
+              >
+                Show all FRs
+              </Button>
+            </div>
+          )}
+          <ScrollArea className="h-[calc(100vh-200px)] mt-4 pr-4">
             {selectedPage && <RequirementsPanel page={selectedPage} selectedFrId={selectedFrId} />}
           </ScrollArea>
         </SheetContent>
