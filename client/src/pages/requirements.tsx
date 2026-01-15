@@ -2286,6 +2286,25 @@ export default function Requirements() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
   const [selectedFrId, setSelectedFrId] = useState<string | null>(null);
+  
+  // Draft state for Page Details editing
+  const [pageDraft, setPageDraft] = useState<{
+    section: PageRequirements['section'];
+    displayOrder: number;
+    overview: string;
+  } | null>(null);
+  const [pageOriginal, setPageOriginal] = useState<{
+    section: PageRequirements['section'];
+    displayOrder: number;
+    overview: string;
+  } | null>(null);
+  
+  // Compute dirty state for page details
+  const isPageDirty = pageDraft && pageOriginal && (
+    pageDraft.section !== pageOriginal.section ||
+    pageDraft.displayOrder !== pageOriginal.displayOrder ||
+    pageDraft.overview !== pageOriginal.overview
+  );
   const [selectedModel, setSelectedModel] = useState<DataModel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
@@ -2792,7 +2811,34 @@ export default function Requirements() {
   const handleSelectPage = (page: PageRequirements, frId?: string) => {
     setSelectedPage(page);
     setSelectedFrId(frId || null);
+    // Initialize draft and original state for editing
+    const initial = {
+      section: page.section,
+      displayOrder: page.displayOrder ?? 0,
+      overview: page.overview || '',
+    };
+    setPageDraft(initial);
+    setPageOriginal(initial);
     setSheetOpen(true);
+  };
+  
+  const handleSavePageDraft = () => {
+    if (selectedPage && pageDraft) {
+      handleUpdatePage({
+        ...selectedPage,
+        section: pageDraft.section,
+        displayOrder: pageDraft.displayOrder,
+        overview: pageDraft.overview,
+      });
+      // Update original to match saved draft
+      setPageOriginal({ ...pageDraft });
+    }
+  };
+  
+  const handleUndoPageDraft = () => {
+    if (pageOriginal) {
+      setPageDraft({ ...pageOriginal });
+    }
   };
 
   const handleEditPage = (page: PageRequirements) => {
@@ -3655,10 +3701,10 @@ export default function Requirements() {
               <div className="flex-1">
                 <Label className="text-xs font-medium text-muted-foreground">Section</Label>
                 <Select 
-                  value={selectedPage?.section || ''} 
+                  value={pageDraft?.section || ''} 
                   onValueChange={(value) => {
-                    if (selectedPage) {
-                      handleUpdatePage({ ...selectedPage, section: value as PageRequirements['section'] });
+                    if (pageDraft) {
+                      setPageDraft({ ...pageDraft, section: value as PageRequirements['section'] });
                     }
                   }}
                 >
@@ -3677,10 +3723,10 @@ export default function Requirements() {
                 <Input
                   type="number"
                   className="mt-1"
-                  value={selectedPage?.displayOrder ?? 0}
+                  value={pageDraft?.displayOrder ?? 0}
                   onChange={(e) => {
-                    if (selectedPage) {
-                      handleUpdatePage({ ...selectedPage, displayOrder: parseInt(e.target.value) || 0 });
+                    if (pageDraft) {
+                      setPageDraft({ ...pageDraft, displayOrder: parseInt(e.target.value) || 0 });
                     }
                   }}
                 />
@@ -3701,10 +3747,10 @@ export default function Requirements() {
               <Label className="text-xs font-medium text-muted-foreground">Page Description</Label>
               <Textarea
                 className="mt-1 min-h-[80px]"
-                value={selectedPage?.overview || ''}
+                value={pageDraft?.overview || ''}
                 onChange={(e) => {
-                  if (selectedPage) {
-                    handleUpdatePage({ ...selectedPage, overview: e.target.value });
+                  if (pageDraft) {
+                    setPageDraft({ ...pageDraft, overview: e.target.value });
                   }
                 }}
                 placeholder="Enter page description..."
@@ -3715,6 +3761,19 @@ export default function Requirements() {
               <Label className="text-xs font-medium text-muted-foreground">Route</Label>
               <p className="text-sm font-mono mt-1">{selectedPage?.route || '—'}</p>
             </div>
+            {/* Save/Undo buttons - appear when dirty */}
+            {isPageDirty && (
+              <div className="flex items-center gap-2 pt-2 border-t">
+                <Button size="sm" onClick={handleSavePageDraft}>
+                  <Check className="h-3 w-3 mr-1" />
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleUndoPageDraft}>
+                  <X className="h-3 w-3 mr-1" />
+                  Undo
+                </Button>
+              </div>
+            )}
           </div>
           <Separator className="my-4" />
           {/* Requirements Section */}
