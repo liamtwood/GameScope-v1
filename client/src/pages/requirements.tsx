@@ -1069,52 +1069,25 @@ function DataModelPanel({ model }: { model: DataModel }) {
 }
 
 function RequirementsPanel({ page, selectedFrId }: { page: PageRequirements; selectedFrId?: string | null }) {
+  const epicLevelACs = page.acceptanceCriteria.filter(ac => !ac.parentFrId);
+  
+  const getAcCountForFr = (frId: string) => {
+    return page.acceptanceCriteria.filter(ac => ac.parentFrId === frId).length;
+  };
+
   const filteredFRs = selectedFrId 
     ? page.functionalRequirements.filter(fr => fr.id === selectedFrId)
     : page.functionalRequirements;
-  
-  const filteredACs = selectedFrId
-    ? page.acceptanceCriteria.filter(ac => ac.parentFrId === selectedFrId)
-    : page.acceptanceCriteria;
 
   return (
     <div className="space-y-6">
       <div>
-        <Badge variant="outline" className="text-xs font-mono mb-2">
-          {page.route}
-        </Badge>
-        <p className="text-sm text-muted-foreground">{page.overview}</p>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          Functional Requirements ({filteredFRs.length}{selectedFrId ? ` of ${page.functionalRequirements.length}` : ''})
-        </h4>
-        <div className="space-y-3">
-          {filteredFRs.map((req) => (
-            <div key={req.id} className="border rounded-lg p-3 bg-muted/30">
-              <div className="flex items-start gap-2">
-                <Badge variant="outline" className="text-xs font-mono shrink-0">
-                  {req.id}
-                </Badge>
-                <div>
-                  <span className="font-medium text-sm">{req.title}</span>
-                  <p className="text-xs text-muted-foreground mt-1">{req.description}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
         <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4" />
-          Acceptance Criteria ({filteredACs.length}{selectedFrId ? ` for ${selectedFrId}` : ''})
+          Acceptance Criteria ({epicLevelACs.length})
         </h4>
         <div className="space-y-2">
-          {filteredACs.map((ac) => (
+          {epicLevelACs.map((ac) => (
             <div key={ac.id} className="flex items-start gap-2 text-sm p-2 rounded hover:bg-muted/50">
               <Circle className="h-3 w-3 mt-1 text-muted-foreground flex-shrink-0" />
               <span>
@@ -1125,9 +1098,33 @@ function RequirementsPanel({ page, selectedFrId }: { page: PageRequirements; sel
               </span>
             </div>
           ))}
-          {filteredACs.length === 0 && selectedFrId && (
-            <p className="text-xs text-muted-foreground">No acceptance criteria linked to this FR</p>
+          {epicLevelACs.length === 0 && (
+            <p className="text-xs text-muted-foreground">No epic-level acceptance criteria</p>
           )}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          Functional Requirements ({filteredFRs.length}{selectedFrId ? ` of ${page.functionalRequirements.length}` : ''})
+        </h4>
+        <div className="space-y-2">
+          {filteredFRs.map((req) => (
+            <div key={req.id} className="border rounded-lg p-3 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs font-mono shrink-0">
+                    {req.id}
+                  </Badge>
+                  <span className="font-medium text-sm">{req.title}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {getAcCountForFr(req.id)} AC
+                </Badge>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
