@@ -853,15 +853,11 @@ function PageTreeItem({
   page, 
   depth = 0, 
   onSelect,
-  onEdit,
-  onDelete,
   selectedId 
 }: { 
   page: PageWithChildren; 
   depth?: number; 
   onSelect: (page: PageRequirements) => void;
-  onEdit: (page: PageRequirements) => void;
-  onDelete: (page: PageRequirements) => void;
   selectedId: string | null;
 }) {
   const [expanded, setExpanded] = useState(true);
@@ -871,13 +867,14 @@ function PageTreeItem({
   return (
     <div>
       <div 
-        className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors group ${
+        className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors ${
           isSelected 
             ? "bg-primary/10 text-primary" 
             : "hover:bg-muted"
         }`}
         style={{ paddingLeft: `${depth * 1.25 + 0.75}rem` }}
         data-testid={`tree-item-${page.id}`}
+        onClick={() => onSelect(page)}
       >
         {hasChildren ? (
           <button 
@@ -893,28 +890,9 @@ function PageTreeItem({
         ) : (
           <div className="w-5" />
         )}
-        <span 
-          className={`text-sm flex-1 ${isSelected ? "font-medium" : ""}`}
-          onClick={() => onSelect(page)}
-        >
+        <span className={`text-sm flex-1 ${isSelected ? "font-medium" : ""}`}>
           {page.title}
         </span>
-        <div className="hidden group-hover:flex items-center gap-1">
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(page); }}
-            className="p-1 hover:bg-muted rounded"
-            data-testid={`btn-edit-req-${page.id}`}
-          >
-            <Edit className="h-3 w-3 text-muted-foreground" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(page); }}
-            className="p-1 hover:bg-destructive/10 rounded"
-            data-testid={`btn-delete-req-${page.id}`}
-          >
-            <Trash2 className="h-3 w-3 text-destructive" />
-          </button>
-        </div>
       </div>
       {hasChildren && expanded && (
         <div>
@@ -924,8 +902,6 @@ function PageTreeItem({
               page={child} 
               depth={depth + 1} 
               onSelect={onSelect}
-              onEdit={onEdit}
-              onDelete={onDelete}
               selectedId={selectedId}
             />
           ))}
@@ -3054,8 +3030,6 @@ export default function Requirements() {
                         key={page.id} 
                         page={page} 
                         onSelect={handleSelectPage}
-                        onEdit={handleEditPage}
-                        onDelete={handleDeletePage}
                         selectedId={selectedPage?.id || null}
                       />
                     ))}
