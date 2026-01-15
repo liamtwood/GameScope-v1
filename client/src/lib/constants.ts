@@ -54,7 +54,7 @@ export const NAVIGATION_SECTIONS = [
     items: [
       { id: 'devops-users', label: 'All Users', icon: 'Users', tooltip: 'System-wide User Management' },
       { id: 'clubs', label: 'Clubs', icon: 'Landmark', tooltip: 'Manage Clubs' },
-      { id: 'requirements', label: 'Feature Management', icon: 'FileText', tooltip: 'View and manage features' },
+      { id: 'requirements', label: 'Feature Management', icon: 'AppWindow', tooltip: 'View and manage features' },
     ]
   }
 ];
