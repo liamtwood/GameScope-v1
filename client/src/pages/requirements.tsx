@@ -2509,10 +2509,10 @@ export default function Requirements() {
     },
   });
 
-  // Use API data if available, otherwise fallback to hardcoded
-  const requirementsData = apiRequirements.length > 0 ? apiRequirements : requirementsRegistry;
-  const dataModelsData = apiDataModels.length > 0 ? apiDataModels : hardcodedDataModels;
-  const changeLogData = apiChangeLog.length > 0 ? apiChangeLog : hardcodedChangeLog.map(e => ({ ...e, type: e.type as ChangeLogType }));
+  // Use API data directly - no fallback to hardcoded data when an app is selected
+  const requirementsData = apiRequirements;
+  const dataModelsData = apiDataModels;
+  const changeLogData = apiChangeLog;
 
   // Build hierarchy tree from work items (must be after requirementsData is defined)
   const hierarchyTree = useMemo(() => buildHierarchyTree(workItems, requirementsData), [workItems, requirementsData]);
