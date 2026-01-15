@@ -2346,7 +2346,7 @@ export default function Requirements() {
     localStorage.setItem('fm_selected_app', appId);
   };
 
-  const sections: PageRequirements['section'][] = ['global', 'home', 'team', 'club', 'devops'];
+  const sections: PageRequirements['section'][] = ['global', 'team', 'club', 'devops'];
   
   const toggleTestCase = (id: string) => {
     setExpandedTestCases(prev => {
@@ -3457,7 +3457,7 @@ export default function Requirements() {
               </div>
               <span>Requirements Hierarchy</span>
               <div className="flex gap-2 ml-auto flex-wrap">
-                <Badge className="bg-slate-100 text-slate-700">5 Sections</Badge>
+                <Badge className="bg-slate-100 text-slate-700">4 Sections</Badge>
                 <Badge className="bg-emerald-100 text-emerald-700">{requirementsData.length} Pages</Badge>
                 <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
                 <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
