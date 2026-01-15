@@ -3659,9 +3659,17 @@ export default function Requirements() {
               </div>
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-4 border-b pb-3">
-            <h3 className="text-lg font-semibold">{selectedPage?.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+          <div className="mt-4 border-b pb-4 space-y-4">
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Page</span>
+              <h3 className="text-lg font-semibold">{selectedPage?.title}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+            </div>
+            <div>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Epic</span>
+              <h4 className="text-base font-medium">{selectedPage?.title}</h4>
+              <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+            </div>
           </div>
           {selectedFrId && (
             <div className="flex items-center gap-2 mt-3">
