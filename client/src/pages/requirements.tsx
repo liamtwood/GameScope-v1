@@ -2426,7 +2426,7 @@ export default function Requirements() {
   // Mutations for CRUD
   const createChangeLogMutation = useMutation({
     mutationFn: async (data: Partial<APIChangeLogEntry>) => {
-      await apiRequest('POST', '/api/devops/changelog', data);
+      await apiRequest('POST', '/api/devops/changelog', { ...data, appId: selectedAppId });
     },
     onSuccess: () => {
       toast({ title: "Change log entry created" });
@@ -2645,6 +2645,7 @@ export default function Requirements() {
         : 1;
       await apiRequest('POST', '/api/test-runs', {
         ...data,
+        appId: selectedAppId,
         runNumber: nextRunNumber,
         status: 'planned',
       });

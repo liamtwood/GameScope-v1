@@ -512,6 +512,7 @@ export const dataModels = fmSchema.table("data_models", {
 
 export const changeLog = fmSchema.table("change_log", {
   id: varchar("id").primaryKey(),
+  appId: text("app_id").references(() => fmApps.id),
   date: text("date").notNull(),
   type: varchar("type", { length: 20 }).notNull(), // added, removed, changed, fixed, bug, enhancement, question, action_item
   area: text("area").notNull(),
@@ -575,6 +576,7 @@ export const workItemLinks = fmSchema.table("work_item_links", {
 // Test Runs - a grouping of test case executions against a specific build (FM schema)
 export const testRuns = fmSchema.table("test_runs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  appId: text("app_id").references(() => fmApps.id),
   runNumber: integer("run_number").notNull(), // Test Run 1, 2, 3...
   name: text("name"), // Optional descriptive name
   date: text("date").notNull(), // Execution date
@@ -589,6 +591,7 @@ export const testRuns = fmSchema.table("test_runs", {
 // Test Run Results - individual test case outcomes within a test run (FM schema)
 export const testRunResults = fmSchema.table("test_run_results", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  appId: text("app_id").references(() => fmApps.id),
   testRunId: varchar("test_run_id").references(() => testRuns.id).notNull(),
   testCaseId: varchar("test_case_id").notNull(), // Work item ID of the test case
   outcome: varchar("outcome", { length: 20 }).notNull(), // passed, failed, blocked, skipped
