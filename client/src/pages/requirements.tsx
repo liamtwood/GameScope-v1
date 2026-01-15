@@ -3014,21 +3014,21 @@ export default function Requirements() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Design"
-            value={`${sections.length}-${totalPages}-${workItems.filter(w => w.type === 'epic').length}`}
+            value={`${sections.length}-${totalPages}-${workItems.filter(w => w.type === 'epic' && w.appId === selectedAppId).length}`}
             icon={PenTool}
             iconColor="text-purple-600"
             subtitle="Sections-Pages-Epics"
           />
           <StatsCard
             title="Features"
-            value={`${workItems.filter(w => w.type === 'fr').length}-${workItems.filter(w => w.type === 'ac').length}`}
+            value={`${workItems.filter(w => w.type === 'fr' && w.appId === selectedAppId).length}-${workItems.filter(w => w.type === 'ac' && w.appId === selectedAppId).length}`}
             icon={Layers}
             iconColor="text-blue-600"
             subtitle="FRs-ACs"
           />
           <StatsCard
             title="Testing"
-            value={`${testCaseData.length}-${testRuns.length}-${workItems.filter(w => w.type === 'bug' && w.status !== 'closed').length}`}
+            value={`${testCaseData.length}-${testRuns.length}-${workItems.filter(w => w.type === 'bug' && w.status !== 'closed' && w.appId === selectedAppId).length}`}
             icon={FlaskConical}
             iconColor="text-teal-600"
             subtitle="TCs-Runs-Open Bugs"
