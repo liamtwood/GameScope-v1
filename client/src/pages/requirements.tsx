@@ -141,9 +141,8 @@ function buildHierarchyTree(items: WorkItem[]): HierarchyNode[] {
     const node = itemMap.get(item.id)!;
     if (item.parentId && itemMap.has(item.parentId)) {
       itemMap.get(item.parentId)!.children.push(node);
-    } else if (!item.parentId || !itemMap.has(item.parentId)) {
-      // Items without parents or with non-hierarchy parents go to root
-      // Allow epochs, epics, features, or stories as roots when they have no parent
+    } else if (item.type === 'epic') {
+      // Only epics appear as roots - all other items should be children of epics
       roots.push(node);
     }
   });
