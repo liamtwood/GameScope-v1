@@ -69,6 +69,7 @@ export interface EpicRequirements {
   overview: string;
   parentId?: string;
   section: 'home' | 'team' | 'club' | 'devops' | 'global';
+  displayOrder?: number;
   functionalRequirements: FunctionalRequirement[];
   acceptanceCriteria: Requirement[];
   tabs?: TabRequirements[];

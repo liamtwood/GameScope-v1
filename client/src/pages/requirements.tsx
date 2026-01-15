@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -2801,6 +2802,11 @@ export default function Requirements() {
     toast({ title: "Edit epic requirements", description: "Full epic editing coming soon" });
   };
 
+  const handleUpdatePage = (page: PageRequirements) => {
+    setSelectedPage(page);
+    updateRequirementMutation.mutate({ id: page.id, data: page });
+  };
+
   const handleDeletePage = (page: PageRequirements) => {
     setItemToDelete({ type: 'requirement', item: page });
     setDeleteConfirmOpen(true);
@@ -3645,32 +3651,70 @@ export default function Requirements() {
               <FileText className="h-5 w-5" />
               Page Details
             </SheetTitle>
-            <SheetDescription className="space-y-2">
-              <div className="flex flex-wrap gap-2 mt-2">
-                <Badge variant="outline" className="font-mono text-xs">
-                  Section: {selectedPage?.section ? sectionTitles[selectedPage.section as keyof typeof sectionTitles] : '—'}
-                </Badge>
-                <Badge variant="outline" className="font-mono text-xs">
-                  Page: {selectedPage?.id || '—'}
-                </Badge>
-                <Badge variant="outline" className="font-mono text-xs">
-                  Epic: {selectedPage?.epicId || `EPIC-${selectedPage?.id?.replace('P-', '') || '—'}`}
-                </Badge>
-              </div>
-            </SheetDescription>
           </SheetHeader>
-          <div className="mt-4 border-b pb-4 space-y-4">
-            <div>
-              <span className="text-xs font-medium text-muted-foreground uppercase">Page</span>
-              <h3 className="text-lg font-semibold">{selectedPage?.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+          <div className="mt-4 space-y-4">
+            {/* Row 1: Section dropdown + Order input */}
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Label className="text-xs font-medium text-muted-foreground">Section</Label>
+                <Select 
+                  value={selectedPage?.section || ''} 
+                  onValueChange={(value) => {
+                    if (selectedPage) {
+                      handleUpdatePage({ ...selectedPage, section: value as PageRequirements['section'] });
+                    }
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(sectionTitles).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-24">
+                <Label className="text-xs font-medium text-muted-foreground">Order</Label>
+                <Input
+                  type="number"
+                  className="mt-1"
+                  value={selectedPage?.displayOrder ?? 0}
+                  onChange={(e) => {
+                    if (selectedPage) {
+                      handleUpdatePage({ ...selectedPage, displayOrder: parseInt(e.target.value) || 0 });
+                    }
+                  }}
+                />
+              </div>
             </div>
+            {/* Row 2: Page ID + Name */}
             <div>
-              <span className="text-xs font-medium text-muted-foreground uppercase">Epic</span>
-              <h4 className="text-base font-medium">{selectedPage?.title}</h4>
-              <p className="text-sm text-muted-foreground mt-1">{selectedPage?.overview}</p>
+              <Label className="text-xs font-medium text-muted-foreground">Page</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="font-mono text-xs shrink-0">
+                  {selectedPage?.id || '—'}
+                </Badge>
+                <span className="text-base font-medium">{selectedPage?.title}</span>
+              </div>
+            </div>
+            {/* Row 3: Editable Page Description */}
+            <div>
+              <Label className="text-xs font-medium text-muted-foreground">Page Description</Label>
+              <Textarea
+                className="mt-1 min-h-[80px]"
+                value={selectedPage?.overview || ''}
+                onChange={(e) => {
+                  if (selectedPage) {
+                    handleUpdatePage({ ...selectedPage, overview: e.target.value });
+                  }
+                }}
+                placeholder="Enter page description..."
+              />
             </div>
           </div>
+          <Separator className="my-4" />
           {selectedFrId && (
             <div className="flex items-center gap-2 mt-3">
               <span className="text-sm text-muted-foreground">Showing single requirement</span>
