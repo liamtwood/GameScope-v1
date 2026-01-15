@@ -117,8 +117,8 @@ const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; labe
 
 const workItemTypes = ['epoch', 'epic', 'FR', 'AC', 'feature', 'story', 'bug', 'enhancement', 'test_case', 'question', 'action_item'];
 
-// Hierarchy types for tree view
-const hierarchyTypes = ['epoch', 'epic', 'feature', 'story'];
+// Hierarchy types for tree view (Epic → FR → AC, plus TCs, Bugs, Enhancements)
+const hierarchyTypes = ['epoch', 'epic', 'FR', 'AC', 'test_case', 'bug', 'enhancement'];
 
 interface HierarchyNode {
   item: WorkItem;
@@ -3364,13 +3364,15 @@ export default function Requirements() {
               </div>
               <span>Requirements Hierarchy</span>
               <div className="flex gap-2 ml-auto flex-wrap">
-                <Badge className="bg-purple-100 text-purple-700">{workItemSummary.epochs} Epochs</Badge>
                 <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
-                <Badge className="bg-violet-100 text-violet-700">{workItemSummary.features} Features</Badge>
-                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.stories} Stories</Badge>
+                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
+                <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
+                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
+                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
+                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
               </div>
             </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Click + to expand levels: Epoch → Epic → Feature → Story</p>
+            <p className="text-xs text-muted-foreground mt-1">Click + to expand levels: Epic → FR → AC → TC/Bug/Enhancement</p>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="border rounded-lg p-2 bg-muted/20">
@@ -3385,7 +3387,7 @@ export default function Requirements() {
                   />
                 ))
               ) : (
-                <p className="text-muted-foreground text-center py-8">No hierarchy items found. Add Epochs, Epics, Features, or Stories.</p>
+                <p className="text-muted-foreground text-center py-8">No hierarchy items found. Add Epics, FRs, ACs, TCs, Bugs, or Enhancements.</p>
               )}
             </div>
           </CardContent>
