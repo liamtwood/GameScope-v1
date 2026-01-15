@@ -2292,18 +2292,21 @@ export default function Requirements() {
     section: PageRequirements['section'];
     displayOrder: number;
     overview: string;
+    epicOverview: string;
   } | null>(null);
   const [pageOriginal, setPageOriginal] = useState<{
     section: PageRequirements['section'];
     displayOrder: number;
     overview: string;
+    epicOverview: string;
   } | null>(null);
   
   // Compute dirty state for page details
   const isPageDirty = pageDraft && pageOriginal && (
     pageDraft.section !== pageOriginal.section ||
     pageDraft.displayOrder !== pageOriginal.displayOrder ||
-    pageDraft.overview !== pageOriginal.overview
+    pageDraft.overview !== pageOriginal.overview ||
+    pageDraft.epicOverview !== pageOriginal.epicOverview
   );
   const [selectedModel, setSelectedModel] = useState<DataModel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -2816,6 +2819,7 @@ export default function Requirements() {
       section: page.section,
       displayOrder: page.displayOrder ?? 0,
       overview: page.overview || '',
+      epicOverview: page.epicOverview || '',
     };
     setPageDraft(initial);
     setPageOriginal(initial);
@@ -2829,6 +2833,7 @@ export default function Requirements() {
         section: pageDraft.section,
         displayOrder: pageDraft.displayOrder,
         overview: pageDraft.overview,
+        epicOverview: pageDraft.epicOverview,
       });
       // Update original to match saved draft
       setPageOriginal({ ...pageDraft });
@@ -3785,6 +3790,19 @@ export default function Requirements() {
                 EPIC-{selectedPage?.id?.replace('P-', '') || '—'}
               </Badge>
               <span className="text-base font-medium">{selectedPage?.title}</span>
+            </div>
+            <div className="mt-2">
+              <Label className="text-xs font-medium text-muted-foreground">Epic Description</Label>
+              <Textarea
+                className="mt-1 min-h-[60px]"
+                value={pageDraft?.epicOverview || ''}
+                onChange={(e) => {
+                  if (pageDraft) {
+                    setPageDraft({ ...pageDraft, epicOverview: e.target.value });
+                  }
+                }}
+                placeholder="Enter epic description..."
+              />
             </div>
           </div>
           {selectedFrId && (

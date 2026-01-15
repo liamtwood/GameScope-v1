@@ -493,6 +493,7 @@ export const pageRequirements = fmSchema.table("page_requirements", {
   route: text("route").notNull(),
   section: varchar("section", { length: 20 }).notNull(), // home, team, club, devops, global
   overview: text("overview").notNull(),
+  epicOverview: text("epic_overview").default(''),
   parentId: varchar("parent_id"),
   displayOrder: integer("display_order").default(0),
   functionalRequirements: jsonb("functional_requirements").notNull().default([]),

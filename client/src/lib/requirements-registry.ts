@@ -67,6 +67,7 @@ export interface EpicRequirements {
   title: string;
   route: string;
   overview: string;
+  epicOverview?: string;
   parentId?: string;
   section: 'home' | 'team' | 'club' | 'devops' | 'global';
   displayOrder?: number;
