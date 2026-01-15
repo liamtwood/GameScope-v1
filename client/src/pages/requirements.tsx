@@ -1981,6 +1981,253 @@ function WorkItemDialog({
   );
 }
 
+function TestCaseDialog({ 
+  open, 
+  onOpenChange, 
+  onSave,
+  existingTCs,
+  frs
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  onSave: (data: { id: string; title: string; description?: string; steps?: string; expectedResult?: string; parentId?: string }) => void;
+  existingTCs: number;
+  frs: { id: string; title: string }[];
+}) {
+  const [formData, setFormData] = useState({
+    id: "",
+    title: "",
+    description: "",
+    steps: "",
+    expectedResult: "",
+    parentId: "",
+  });
+
+  useEffect(() => {
+    if (open) {
+      const nextId = `TC-${String(existingTCs + 1).padStart(3, '0')}`;
+      setFormData({
+        id: nextId,
+        title: "",
+        description: "",
+        steps: "",
+        expectedResult: "",
+        parentId: "",
+      });
+    }
+  }, [open, existingTCs]);
+
+  const handleSave = () => {
+    if (!formData.id || !formData.title) return;
+    onSave({
+      id: formData.id,
+      title: formData.title,
+      description: formData.description || undefined,
+      steps: formData.steps || undefined,
+      expectedResult: formData.expectedResult || undefined,
+      parentId: formData.parentId || undefined,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[550px]">
+        <DialogHeader>
+          <DialogTitle>Add Test Case</DialogTitle>
+          <DialogDescription>
+            Create a new test case. Link it to a functional requirement for traceability.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="tc-id">TC ID</Label>
+              <Input
+                id="tc-id"
+                value={formData.id}
+                onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                placeholder="e.g., TC-009"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tc-fr">Linked FR (optional)</Label>
+              <Select value={formData.parentId} onValueChange={(v) => setFormData({ ...formData, parentId: v })}>
+                <SelectTrigger id="tc-fr">
+                  <SelectValue placeholder="Select FR" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {frs.map(fr => (
+                    <SelectItem key={fr.id} value={fr.id}>{fr.id} - {fr.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tc-title">Title</Label>
+            <Input
+              id="tc-title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="e.g., Verify login with valid credentials"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tc-description">Description</Label>
+            <Textarea
+              id="tc-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Brief description of what this test verifies..."
+              rows={2}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tc-steps">Steps (one per line)</Label>
+            <Textarea
+              id="tc-steps"
+              value={formData.steps}
+              onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
+              placeholder="Navigate to login page&#10;Enter valid username&#10;Enter valid password&#10;Click login button"
+              rows={4}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tc-expected">Expected Result</Label>
+            <Textarea
+              id="tc-expected"
+              value={formData.expectedResult}
+              onChange={(e) => setFormData({ ...formData, expectedResult: e.target.value })}
+              placeholder="User is logged in and redirected to dashboard"
+              rows={2}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave} disabled={!formData.id || !formData.title}>
+            Create TC
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TestRunDialog({ 
+  open, 
+  onOpenChange, 
+  onSave,
+  existingRuns
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  onSave: (data: { name: string; date?: string; testers?: string[]; buildInfo?: string; notes?: string }) => void;
+  existingRuns: number;
+}) {
+  const [formData, setFormData] = useState({
+    name: "",
+    date: "",
+    testers: "",
+    buildInfo: "",
+    notes: "",
+  });
+
+  useEffect(() => {
+    if (open) {
+      const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+      setFormData({
+        name: `Test Run ${existingRuns + 1}`,
+        date: today,
+        testers: "",
+        buildInfo: "",
+        notes: "",
+      });
+    }
+  }, [open, existingRuns]);
+
+  const handleSave = () => {
+    if (!formData.name) return;
+    onSave({
+      name: formData.name,
+      date: formData.date || undefined,
+      testers: formData.testers ? formData.testers.split(',').map(t => t.trim()) : undefined,
+      buildInfo: formData.buildInfo || undefined,
+      notes: formData.notes || undefined,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px]">
+        <DialogHeader>
+          <DialogTitle>Add Test Run</DialogTitle>
+          <DialogDescription>
+            Create a new test run to track test execution results.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="tr-name">Name</Label>
+            <Input
+              id="tr-name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g., Sprint 5 Regression"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="tr-date">Date</Label>
+              <Input
+                id="tr-date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                placeholder="MM-DD-YYYY"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tr-build">Build Info</Label>
+              <Input
+                id="tr-build"
+                value={formData.buildInfo}
+                onChange={(e) => setFormData({ ...formData, buildInfo: e.target.value })}
+                placeholder="e.g., v1.2.0"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tr-testers">Testers (comma-separated)</Label>
+            <Input
+              id="tr-testers"
+              value={formData.testers}
+              onChange={(e) => setFormData({ ...formData, testers: e.target.value })}
+              placeholder="e.g., John, Jane, QA Team"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tr-notes">Notes</Label>
+            <Textarea
+              id="tr-notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="Additional notes about this test run..."
+              rows={2}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave} disabled={!formData.name}>
+            Create Test Run
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Requirements() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
@@ -2004,6 +2251,8 @@ export default function Requirements() {
   const [widgetSheetOpen, setWidgetSheetOpen] = useState(false);
   const [workItemDialogOpen, setWorkItemDialogOpen] = useState(false);
   const [selectedWorkItem, setSelectedWorkItem] = useState<WorkItem | null>(null);
+  const [testCaseDialogOpen, setTestCaseDialogOpen] = useState(false);
+  const [testRunDialogOpen, setTestRunDialogOpen] = useState(false);
   const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
   const [expandedWorkItems, setExpandedWorkItems] = useState<Set<string>>(new Set());
   const [expandedHierarchyNodes, setExpandedHierarchyNodes] = useState<Set<string>>(new Set(['EPOCH-001'])); // Start with first epoch expanded
@@ -2364,6 +2613,49 @@ export default function Requirements() {
     },
     onError: () => {
       toast({ title: "Failed to convert work item type", variant: "destructive" });
+    },
+  });
+
+  // Create test case mutation
+  const createTestCaseMutation = useMutation({
+    mutationFn: async (data: { id: string; title: string; description?: string; steps?: string; expectedResult?: string; parentId?: string }) => {
+      await apiRequest('POST', '/api/work-items', {
+        ...data,
+        type: 'test_case',
+        appId: selectedAppId,
+        status: 'new',
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Test case created" });
+      refetchWorkItems();
+      setTestCaseDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create test case", variant: "destructive" });
+    },
+  });
+
+  // Create test run mutation
+  const createTestRunMutation = useMutation({
+    mutationFn: async (data: { name: string; date?: string; testers?: string[]; buildInfo?: string; notes?: string }) => {
+      const existingRuns = testRuns || [];
+      const nextRunNumber = existingRuns.length > 0 
+        ? Math.max(...existingRuns.map(r => r.runNumber || 0)) + 1 
+        : 1;
+      await apiRequest('POST', '/api/test-runs', {
+        ...data,
+        runNumber: nextRunNumber,
+        status: 'planned',
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Test run created" });
+      refetchTestRuns();
+      setTestRunDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create test run", variant: "destructive" });
     },
   });
 
@@ -2952,9 +3244,20 @@ export default function Requirements() {
                 <ClipboardList className="h-4 w-4 text-white" />
               </div>
               <span>Test Runs</span>
-              <Badge variant="secondary" className="ml-auto text-xs">
-                {testRuns.length} runs
-              </Badge>
+              <div className="flex items-center gap-2 ml-auto">
+                <Badge variant="secondary" className="text-xs">
+                  {testRuns.length} runs
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTestRunDialogOpen(true)}
+                  className="h-7"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add
+                </Button>
+              </div>
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">Test executions against specific builds with individual outcomes</p>
           </CardHeader>
@@ -3175,6 +3478,17 @@ export default function Requirements() {
                 <Lightbulb className="h-3 w-3 mr-1" />
                 Enhancements ({workItemSummary.enhancements})
               </Button>
+              <div className="ml-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTestCaseDialogOpen(true)}
+                  className="h-7"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add TC
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               {filteredWorkItems
@@ -3365,6 +3679,21 @@ export default function Requirements() {
         onSave={handleSaveWorkItem}
         pages={requirementsData.map(p => ({ id: p.id, title: p.title }))}
         widgets={fmWidgets.map(w => ({ id: w.id, name: w.name }))}
+      />
+
+      <TestCaseDialog
+        open={testCaseDialogOpen}
+        onOpenChange={setTestCaseDialogOpen}
+        onSave={(data) => createTestCaseMutation.mutate(data)}
+        existingTCs={workItemSummary.testCases}
+        frs={workItems.filter(w => w.type === 'FR').map(fr => ({ id: fr.id, title: fr.title }))}
+      />
+
+      <TestRunDialog
+        open={testRunDialogOpen}
+        onOpenChange={setTestRunDialogOpen}
+        onSave={(data) => createTestRunMutation.mutate(data)}
+        existingRuns={testRuns.length}
       />
 
       <Sheet open={widgetSheetOpen} onOpenChange={setWidgetSheetOpen}>
