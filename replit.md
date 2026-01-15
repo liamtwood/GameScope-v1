@@ -26,7 +26,18 @@ The frontend follows a page-based architecture with dedicated routes for:
 - Statistics (team performance analytics)
 - Videos (match video organization)
 
-## Recent Changes (January 13, 2026)
+## Recent Changes (January 15, 2026)
+
+### FM Multi-App and Widget Support (January 15, 2026)
+- **Created fm.apps table** with seed data for GameScope and MAGPIE applications
+- **Created fm.widgets table** for reusable UI component tracking with fields: id, appId, name, description, category, isReusable, props, events, dataModels, configSchema, status
+- **Enhanced fm.work_items** with new columns:
+  - Assignment fields: created_by, assigned_to, priority_rank, size (S/M/L/XL), effort
+  - Section tracking: page_id, widget_id, section_title, section_order, section_type (section/tab/nested-tab/modal/drawer/dropdown)
+- **Added app_id foreign key** to fm.page_requirements and fm.data_models for multi-app support
+- **App selector dropdown** in FM header with localStorage persistence for filtering data by application
+- **Widgets card** in FM page with full CRUD operations and detail sheet view
+- **WorkItemDialog** for editing work items with assignment/estimation and section placement panels
 
 ### FM Schema for Requirements Tables (January 13, 2026)
 - **Created separate FM schema** for requirements and DevOps-related tables for better organization
