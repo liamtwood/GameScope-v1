@@ -3786,9 +3786,6 @@ export default function Requirements() {
               </Badge>
               <span className="text-base font-medium">{selectedPage?.title}</span>
             </div>
-            {selectedPage?.overview && (
-              <p className="text-sm text-muted-foreground mt-2 pl-6">{selectedPage.overview}</p>
-            )}
           </div>
           {selectedFrId && (
             <div className="flex items-center gap-2 mt-3">
