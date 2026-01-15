@@ -16,7 +16,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon, AppWindow, Component, Folder } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon, AppWindow, Component, Folder, PenTool, Rocket, FlaskConical } from "lucide-react";
+import { StatsCard } from "@/components/ui/stats-card";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -3007,6 +3008,38 @@ export default function Requirements() {
               {totalACs} ACs
             </Badge>
           </div>
+        </div>
+
+        {/* Summary Stats Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="Design"
+            value={`${sections.length}-${totalPages}-${workItems.filter(w => w.type === 'epic').length}`}
+            icon={PenTool}
+            iconColor="text-purple-600"
+            subtitle="Sections-Pages-Epics"
+          />
+          <StatsCard
+            title="Features"
+            value={`${workItems.filter(w => w.type === 'fr').length}-${workItems.filter(w => w.type === 'ac').length}`}
+            icon={Layers}
+            iconColor="text-blue-600"
+            subtitle="FRs-ACs"
+          />
+          <StatsCard
+            title="Testing"
+            value={`${testCaseData.length}-${testRuns.length}-${workItems.filter(w => w.type === 'bug' && w.status !== 'closed').length}`}
+            icon={FlaskConical}
+            iconColor="text-teal-600"
+            subtitle="TCs-Runs-Open Bugs"
+          />
+          <StatsCard
+            title="Release"
+            value="—"
+            icon={Rocket}
+            iconColor="text-orange-600"
+            subtitle="Coming soon"
+          />
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
