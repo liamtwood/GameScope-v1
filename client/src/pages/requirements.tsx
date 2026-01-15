@@ -2937,32 +2937,20 @@ export default function Requirements() {
     <MainLayout title="Feature Management" subtitle="View and manage epic requirements and documentation">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="flex gap-3 items-center">
-            <div className="flex items-center gap-2">
-              <AppWindow className="h-4 w-4 text-muted-foreground" />
-              <Select value={selectedAppId} onValueChange={handleAppChange}>
-                <SelectTrigger className="w-[180px]" data-testid="select-app">
-                  <SelectValue placeholder="Select app" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fmApps.map((app) => (
-                    <SelectItem key={app.id} value={app.id}>
-                      {app.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by page name or requirement ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                data-testid="input-search-requirements"
-              />
-            </div>
+          <div className="flex items-center gap-2">
+            <AppWindow className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedAppId} onValueChange={handleAppChange}>
+              <SelectTrigger className="w-[180px]" data-testid="select-app">
+                <SelectValue placeholder="Select app" />
+              </SelectTrigger>
+              <SelectContent>
+                {fmApps.map((app) => (
+                  <SelectItem key={app.id} value={app.id}>
+                    {app.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex gap-4 items-center">
             {hasNoData && !isLoading && (
@@ -2981,15 +2969,6 @@ export default function Requirements() {
                 Load Initial Data
               </Button>
             )}
-            <Badge variant="outline" className="px-3 py-1">
-              {totalPages} Epics
-            </Badge>
-            <Badge variant="outline" className="px-3 py-1">
-              {totalFRs} FRs
-            </Badge>
-            <Badge variant="outline" className="px-3 py-1">
-              {totalACs} ACs
-            </Badge>
           </div>
         </div>
 
