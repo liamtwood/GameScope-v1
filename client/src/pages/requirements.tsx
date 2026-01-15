@@ -3713,8 +3713,24 @@ export default function Requirements() {
                 placeholder="Enter page description..."
               />
             </div>
+            {/* Row 4: Route */}
+            <div>
+              <Label className="text-xs font-medium text-muted-foreground">Route</Label>
+              <p className="text-sm font-mono mt-1">{selectedPage?.route || '—'}</p>
+            </div>
           </div>
           <Separator className="my-4" />
+          {/* Requirements Section */}
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Requirements</h3>
+            <div className="flex items-center gap-2 mt-2">
+              <Layers className="h-4 w-4 text-indigo-600" />
+              <Badge variant="outline" className="font-mono text-xs">
+                EPIC-{selectedPage?.id?.replace('P-', '') || '—'}
+              </Badge>
+              <span className="text-base font-medium">{selectedPage?.title}</span>
+            </div>
+          </div>
           {selectedFrId && (
             <div className="flex items-center gap-2 mt-3">
               <span className="text-sm text-muted-foreground">Showing single requirement</span>
