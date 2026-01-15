@@ -1016,7 +1016,9 @@ function RequirementsPanel({ page, selectedFrId }: { page: PageRequirements; sel
     : page.functionalRequirements;
   
   const filteredACs = selectedFrId
-    ? page.acceptanceCriteria.filter(ac => ac.parentFrId === selectedFrId)
+    ? (page.functionalRequirements.length === 1 
+        ? page.acceptanceCriteria 
+        : page.acceptanceCriteria.filter(ac => ac.parentFrId === selectedFrId))
     : page.acceptanceCriteria;
 
   return (
@@ -2750,7 +2752,11 @@ export default function Requirements() {
                       <TableBody>
                         {requirementsData.flatMap((epic) => 
                           (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => {
-                            const acCount = (epic.acceptanceCriteria as Array<{ id: string; parentFrId?: string }>).filter(ac => ac.parentFrId === fr.id).length;
+                            const allACs = epic.acceptanceCriteria as Array<{ id: string; parentFrId?: string }>;
+                            const frCount = (epic.functionalRequirements as Array<{ id: string }>).length;
+                            const acCount = frCount === 1 
+                              ? allACs.length 
+                              : allACs.filter(ac => ac.parentFrId === fr.id).length;
                             return (
                             <TableRow key={`${epic.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
                               <TableCell>
