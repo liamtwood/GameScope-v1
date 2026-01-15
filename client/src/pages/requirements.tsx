@@ -3373,7 +3373,7 @@ export default function Requirements() {
                   className="h-7"
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  Add TC
+                  Add
                 </Button>
               </div>
             </CardTitle>
