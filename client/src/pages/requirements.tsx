@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon, AppWindow, Component } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon, AppWindow, Component, Folder } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -102,6 +102,8 @@ const testStatusConfig: Record<TestCase['status'], { color: string; icon: typeof
 };
 
 const workItemTypeConfig: Record<string, { icon: typeof Bug; color: string; label: string }> = {
+  section: { icon: Folder, color: "text-slate-600 bg-slate-100", label: "Section" },
+  page: { icon: FileText, color: "text-emerald-600 bg-emerald-100", label: "Page" },
   epoch: { icon: Target, color: "text-purple-600 bg-purple-100", label: "Epoch" },
   epic: { icon: Layers, color: "text-indigo-600 bg-indigo-100", label: "Epic" },
   FR: { icon: FileText, color: "text-blue-600 bg-blue-100", label: "Functional Requirement" },
@@ -123,34 +125,101 @@ const hierarchyTypes = ['epoch', 'epic', 'FR', 'AC', 'test_case', 'bug', 'enhanc
 interface HierarchyNode {
   item: WorkItem;
   children: HierarchyNode[];
+  nodeType?: 'section' | 'page' | 'workItem';
 }
 
-// Build hierarchy tree from flat work items list
-function buildHierarchyTree(items: WorkItem[]): HierarchyNode[] {
+const sectionOrder = ['home', 'team', 'club', 'devops'];
+const sectionLabels: Record<string, string> = {
+  home: 'Home',
+  team: 'Team',
+  club: 'Club',
+  devops: 'DevOps'
+};
+
+// Build hierarchy tree with sections and pages: Section → Page → Epic → FR → AC/TC/Bug
+function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): HierarchyNode[] {
   const hierarchyItems = items.filter(item => hierarchyTypes.includes(item.type));
   const itemMap = new Map<string, HierarchyNode>();
   
   // Create nodes for all hierarchy items
   hierarchyItems.forEach(item => {
-    itemMap.set(item.id, { item, children: [] });
+    itemMap.set(item.id, { item, children: [], nodeType: 'workItem' });
   });
   
-  // Build parent-child relationships
-  const roots: HierarchyNode[] = [];
+  // Build parent-child relationships for work items
+  const epicsByPage = new Map<string, HierarchyNode[]>();
   hierarchyItems.forEach(item => {
     const node = itemMap.get(item.id)!;
     if (item.parentId && itemMap.has(item.parentId)) {
       itemMap.get(item.parentId)!.children.push(node);
-    } else if (item.type === 'epic') {
-      // Only epics appear as roots - all other items should be children of epics
-      roots.push(node);
+    } else if (item.type === 'epic' && item.pageId) {
+      // Group epics by page
+      if (!epicsByPage.has(item.pageId)) {
+        epicsByPage.set(item.pageId, []);
+      }
+      epicsByPage.get(item.pageId)!.push(node);
     }
   });
   
-  // Sort children by ID
+  // Group pages by section
+  const pagesBySection = new Map<string, PageRequirements[]>();
+  pages.forEach(page => {
+    if (!pagesBySection.has(page.section)) {
+      pagesBySection.set(page.section, []);
+    }
+    pagesBySection.get(page.section)!.push(page);
+  });
+  
+  // Build section nodes
+  const roots: HierarchyNode[] = [];
+  sectionOrder.forEach(sectionKey => {
+    const sectionPages = pagesBySection.get(sectionKey) || [];
+    if (sectionPages.length === 0) return;
+    
+    // Create page nodes for this section
+    const pageNodes: HierarchyNode[] = sectionPages.map(page => {
+      const pageEpics = epicsByPage.get(page.id) || [];
+      // Sort epics by ID
+      pageEpics.sort((a, b) => a.item.id.localeCompare(b.item.id));
+      
+      return {
+        item: {
+          id: `page-${page.id}`,
+          type: 'page',
+          title: page.title,
+          status: 'active',
+        } as WorkItem,
+        children: pageEpics,
+        nodeType: 'page' as const
+      };
+    });
+    
+    // Sort pages by title
+    pageNodes.sort((a, b) => a.item.title.localeCompare(b.item.title));
+    
+    // Create section node
+    const sectionNode: HierarchyNode = {
+      item: {
+        id: `section-${sectionKey}`,
+        type: 'section',
+        title: sectionLabels[sectionKey] || sectionKey,
+        status: 'active',
+      } as WorkItem,
+      children: pageNodes,
+      nodeType: 'section'
+    };
+    
+    roots.push(sectionNode);
+  });
+  
+  // Sort children recursively
   const sortChildren = (nodes: HierarchyNode[]) => {
-    nodes.sort((a, b) => a.item.id.localeCompare(b.item.id));
-    nodes.forEach(node => sortChildren(node.children));
+    nodes.forEach(node => {
+      if (node.nodeType === 'workItem') {
+        node.children.sort((a, b) => a.item.id.localeCompare(b.item.id));
+      }
+      sortChildren(node.children);
+    });
   };
   sortChildren(roots);
   
@@ -2365,9 +2434,6 @@ export default function Requirements() {
   const workItemBugs = workItems.filter(item => item.type === 'bug');
   const workItemEnhancements = workItems.filter(item => item.type === 'enhancement');
 
-  // Build hierarchy tree from work items (must be after workItems is fetched)
-  const hierarchyTree = useMemo(() => buildHierarchyTree(workItems), [workItems]);
-
   // Convert work item to test case format for display
   const workItemToTestCase = (item: WorkItem): TestCase => ({
     id: item.id,
@@ -2420,6 +2486,9 @@ export default function Requirements() {
   const requirementsData = apiRequirements.length > 0 ? apiRequirements : requirementsRegistry;
   const dataModelsData = apiDataModels.length > 0 ? apiDataModels : hardcodedDataModels;
   const changeLogData = apiChangeLog.length > 0 ? apiChangeLog : hardcodedChangeLog.map(e => ({ ...e, type: e.type as ChangeLogType }));
+
+  // Build hierarchy tree from work items (must be after requirementsData is defined)
+  const hierarchyTree = useMemo(() => buildHierarchyTree(workItems, requirementsData), [workItems, requirementsData]);
 
   // Mutations for CRUD
   const createChangeLogMutation = useMutation({
@@ -3372,15 +3441,16 @@ export default function Requirements() {
               </div>
               <span>Requirements Hierarchy</span>
               <div className="flex gap-2 ml-auto flex-wrap">
+                <Badge className="bg-slate-100 text-slate-700">4 Sections</Badge>
+                <Badge className="bg-emerald-100 text-emerald-700">{requirementsData.length} Pages</Badge>
                 <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
                 <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
                 <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
                 <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
                 <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
-                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
               </div>
             </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Click + to expand levels: Epic → FR → AC → TC/Bug/Enhancement</p>
+            <p className="text-xs text-muted-foreground mt-1">Click + to expand: Section → Page → Epic → FR → AC/TC/Bug</p>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="border rounded-lg p-2 bg-muted/20">
