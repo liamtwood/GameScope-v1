@@ -1069,10 +1069,10 @@ function DataModelPanel({ model }: { model: DataModel }) {
 }
 
 function RequirementsPanel({ page, selectedFrId }: { page: PageRequirements; selectedFrId?: string | null }) {
-  const epicLevelACs = page.acceptanceCriteria.filter(ac => !ac.parentFrId);
+  const epicLevelACs = page.acceptanceCriteria.filter(ac => !ac.parentFrId || ac.id.includes('(Epic)'));
   
   const getAcCountForFr = (frId: string) => {
-    return page.acceptanceCriteria.filter(ac => ac.parentFrId === frId).length;
+    return page.acceptanceCriteria.filter(ac => ac.parentFrId === frId && !ac.id.includes('(Epic)')).length;
   };
 
   const filteredFRs = selectedFrId 
