@@ -68,7 +68,7 @@ export interface EpicRequirements {
   route: string;
   overview: string;
   parentId?: string;
-  section: 'home' | 'team' | 'club' | 'devops';
+  section: 'home' | 'team' | 'club' | 'devops' | 'global';
   functionalRequirements: FunctionalRequirement[];
   acceptanceCriteria: Requirement[];
   tabs?: TabRequirements[];
@@ -1027,4 +1027,5 @@ export const sectionTitles: Record<PageRequirements['section'], string> = {
   team: 'Team',
   club: 'Club',
   devops: 'DevOps',
+  global: 'Global',
 };

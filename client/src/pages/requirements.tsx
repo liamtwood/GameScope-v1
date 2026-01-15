@@ -61,6 +61,7 @@ const sectionIcons: Record<PageRequirements['section'], typeof Home> = {
   team: Users,
   club: Landmark,
   devops: Settings,
+  global: Layers,
 };
 
 const sectionColors: Record<PageRequirements['section'], string> = {
@@ -68,6 +69,7 @@ const sectionColors: Record<PageRequirements['section'], string> = {
   team: "bg-green-500",
   club: "bg-purple-500",
   devops: "bg-orange-500",
+  global: "bg-teal-500",
 };
 
 const changeTypeConfig: Record<ChangeLogType, { icon: typeof Plus; color: string; label: string }> = {
@@ -2337,7 +2339,7 @@ export default function Requirements() {
     localStorage.setItem('fm_selected_app', appId);
   };
 
-  const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
+  const sections: PageRequirements['section'][] = ['global', 'home', 'team', 'club', 'devops'];
   
   const toggleTestCase = (id: string) => {
     setExpandedTestCases(prev => {
