@@ -1,0 +1,482 @@
+# Replit Prompt: Enhance FM with Widgets, Sections, and Work Item Improvements
+
+## Context
+
+I have an existing Feature Management (FM) module in the `fm` schema with these tables:
+- `fm.page_requirements` - Pages/screens with routes
+- `fm.work_items` - Epics, FRs, ACs, Bugs, Tasks, TestCases (discriminated by `type` column)
+- `fm.work_item_links` - Relationships between work items
+- `fm.data_models` - Domain objects with field definitions
+- `fm.change_log` - Change history
+- `fm.test_runs` / `fm.test_run_results` - Test execution tracking
+
+---
+
+## PART 1: Schema Changes
+
+### 1.1 Create fm.apps table
+
+Multi-app support (GameScope, MAGPIE, etc.):
+
+```sql
+CREATE TABLE fm.apps (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  framework TEXT,              -- 'react', 'angular'
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed with initial apps
+INSERT INTO fm.apps (id, name, description, framework) VALUES
+  ('gamescope', 'GameScope', 'Team management and video analysis platform', 'react'),
+  ('magpie', 'MAGPIE', 'Player recruitment and scouting platform', 'react');
+```
+
+### 1.2 Create fm.widgets table
+
+Reusable UI components:
+
+```sql
+CREATE TABLE fm.widgets (
+  id TEXT PRIMARY KEY,
+  app_id TEXT REFERENCES fm.apps(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  data_models JSONB,           -- Array of data model IDs this widget consumes
+  config_schema JSONB,         -- Optional: JSON schema for widget configuration
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 1.3 Add columns to fm.work_items
+
+New columns for linking, sections, and tracking:
+
+```sql
+ALTER TABLE fm.work_items 
+  ADD COLUMN created_by TEXT,
+  ADD COLUMN assigned_to TEXT,
+  ADD COLUMN priority_rank INTEGER,    -- 1 to 5 for ordering
+  ADD COLUMN size TEXT,                -- 'S', 'M', 'L', 'XL'
+  ADD COLUMN effort INTEGER,           -- 0 to 99
+  ADD COLUMN app_id TEXT REFERENCES fm.apps(id),
+  ADD COLUMN page_id TEXT REFERENCES fm.page_requirements(id),
+  ADD COLUMN widget_id TEXT REFERENCES fm.widgets(id),
+  ADD COLUMN section_title TEXT,
+  ADD COLUMN section_order INTEGER,
+  ADD COLUMN section_type TEXT;        -- 'section', 'modal', 'tab', 'drawer', 'dropdown', 'nested-tab'
+```
+
+**section_type values:**
+
+| Type | Description | section_order |
+|------|-------------|---------------|
+| `section` | Main content area on page | Required (0, 1, 2...) |
+| `tab` | Tab within a tab bar | Required (order within tabs) |
+| `nested-tab` | Sub-tab within a parent tab | Required (order within parent) |
+| `modal` | Dialog/popup overlay | NULL (not positioned) |
+| `drawer` | Slide-out panel | NULL |
+| `dropdown` | Menu content | NULL |
+
+### 1.4 Add app_id to existing tables
+
+```sql
+ALTER TABLE fm.page_requirements ADD COLUMN app_id TEXT REFERENCES fm.apps(id);
+ALTER TABLE fm.data_models ADD COLUMN app_id TEXT REFERENCES fm.apps(id);
+```
+
+### 1.5 Data Migration
+
+```sql
+-- Normalize status to lowercase
+UPDATE fm.work_items SET status = lower(status) WHERE status IS NOT NULL;
+
+-- Set all existing records to GameScope app
+UPDATE fm.work_items SET app_id = 'gamescope' WHERE app_id IS NULL;
+UPDATE fm.page_requirements SET app_id = 'gamescope' WHERE app_id IS NULL;
+UPDATE fm.data_models SET app_id = 'gamescope' WHERE app_id IS NULL;
+```
+
+---
+
+## PART 2: Status Values
+
+Use consistent status values across all work item types:
+
+| Status | Description |
+|--------|-------------|
+| `new` | Just created, not yet detailed |
+| `defined` | Fully specified/understood |
+| `in_progress` | Being worked on |
+| `qc` | Ready for testing/verification |
+| `complete` | Done/Released |
+
+These apply to: Epic, FR, AC, Bug, Enhancement, Task, TestCase
+
+---
+
+## PART 3: UI Updates
+
+### 3.1 Add App Selector
+
+Add an app selector dropdown to the FM header:
+- Pulls from `fm.apps` table
+- Filters all FM views to show only items for selected app
+- Persists selection in localStorage
+- Default to 'gamescope' if not set
+
+### 3.2 Add Widgets Tab
+
+Add a "Widgets" tab to Feature Management alongside List, Epics, Objects, Screens.
+
+**Widget List View (left panel):**
+- List of widgets showing: name, usage count (count of ACs with this widget_id)
+- "+ New Widget" button
+- Click to select and show detail
+
+**Widget Detail View (right panel):**
+- Widget name (editable)
+- Description (editable textarea)
+- Data Models consumed (multi-select dropdown from fm.data_models)
+- **Used By section:** List of ACs that reference this widget, grouped by page
+
+**Add/Edit Widget Dialog:**
+- Name (required, text input)
+- Description (textarea)
+- Data Models (multi-select from fm.data_models)
+- App (dropdown from fm.apps, default to current app context)
+
+### 3.3 Update Screens Tab
+
+The Screens tab currently shows 4 columns: Widgets | Pages | Sections | Stories
+
+**Column 1 - Widgets:**
+- Pulls from `fm.widgets` table
+- Shows widget name and usage count
+- Click to filter Pages to those using this widget
+
+**Column 2 - Pages:**
+- Unchanged - pulls from `fm.page_requirements`
+- When selected, Sections column updates
+
+**Column 3 - Sections:**
+- Shows ACs for selected page that have `section_title` populated
+- Sorted by `section_order`
+- Display format: `{section_order}: {section_title}`
+- Shows linked widget name if `widget_id` is set
+
+**Column 4 - Stories:**
+- Shows AC detail when section is selected
+
+### 3.4 Update Work Item Edit Forms
+
+#### For all work item types, add these fields:
+
+**Assignment & Tracking section:**
+- Created By (text, auto-fill current user on create)
+- Assigned To (text)
+- Status (dropdown: new, defined, in_progress, qc, complete)
+
+**Estimation section (collapsible):**
+- Priority (dropdown: low, medium, high, critical) - already exists, ensure it's editable
+- Priority Rank (number input 1-5)
+- Size (dropdown: S, M, L, XL)
+- Effort (number input 0-99)
+
+#### For AC (Acceptance Criteria), add Section Info panel:
+
+**Section Info (collapsible):**
+- Section Title (text input) - Display name on the page
+- Section Order (number input) - Order on page (0, 1, 2...) - leave NULL for modals/drawers
+- Section Type (dropdown: section, tab, nested-tab, modal, drawer, dropdown)
+- Widget (searchable dropdown from fm.widgets)
+
+#### For TestCase, ensure these fields are editable:
+
+- Title (text)
+- Objective (textarea) → maps to `description` field
+- Steps (textarea, one step per line - UI displays with numbers)
+- Expected Result (textarea)
+- Area/Component (dropdown)
+- Linked ACs (multi-select, creates work_item_links with type 'traces_to')
+
+### 3.5 Update Epic Detail View
+
+When viewing an Epic and its child FRs/ACs, if ACs have section info, display hierarchically:
+
+```
+Epic: Personal Landing Pages
+└── FR-001: Personal Landing Page
+    ├── 0: Configure → Widget Configurator
+    ├── 1: Recruitment Targets → Shortlisted Players Widget  
+    ├── 2: Alerts → Performance Alerts Widget
+    ├── 3: Player Watch List → Player Tracker Widget
+    └── 4: My Actions → To Do List Widget
+```
+
+Format: `{section_order}: {section_title} → {widget.name}`
+
+ACs without section info display normally (just title).
+
+### 3.6 Add Test Case UI
+
+**Add Test Case button** (in Issues or dedicated Testing section):
+
+Opens dialog with:
+- Title (text, required)
+- Objective (textarea) → stored in `description`
+- Steps (textarea, one step per line) → stored in `steps` as TEXT
+- Expected Result (textarea) → stored in `expected_result`
+- Area (dropdown: HOME, TEAM, CLUB, DEVOPS)
+- Priority (dropdown)
+- Linked ACs (multi-select from ACs) → creates work_item_links
+
+**Steps display:** When showing steps, split by newline and prepend numbers:
+```
+Input: "Login to GameScope
+Click on Clubs
+Click Add Club"
+
+Display:
+1. Login to GameScope
+2. Click on Clubs
+3. Click Add Club
+```
+
+### 3.7 Add Test Execution UI
+
+**On Test Case detail view, add "Record Result" button:**
+
+Opens dialog:
+- Outcome (dropdown: passed, failed, blocked, skipped)
+- Actual Result (textarea)
+- Tester (text, auto-fill current user)
+- Date (date picker, auto-fill today)
+
+On save:
+- Creates record in `fm.test_run_results`
+- If no active test run, create one automatically or prompt to select/create
+
+**Quick execution mode (optional enhancement):**
+- Button to start a test run
+- Shows test cases one by one
+- Record pass/fail quickly
+- Auto-advances to next test case
+
+### 3.8 Link Bug to Test Case
+
+**When creating a Bug from a failed test:**
+- Pre-fill Area from test case
+- Auto-create work_item_link: Bug `relates_to` TestCase
+- Option to also link to the AC the test case traces_to
+
+**On Bug edit form:**
+- Add "Related Test Case" (searchable dropdown from TestCases)
+- Add "Affected AC" (searchable dropdown from ACs)
+- Add "Affected Widget" (searchable dropdown from widgets)
+- Add "Affected Page" (searchable dropdown from pages)
+
+These create work_item_links with type 'relates_to'.
+
+---
+
+## PART 4: Summary of Changes
+
+### New Tables:
+- `fm.apps` - Multi-app container
+- `fm.widgets` - Reusable UI components
+
+### Modified Tables:
+
+**fm.work_items - new columns:**
+- `created_by` (TEXT)
+- `assigned_to` (TEXT)
+- `priority_rank` (INTEGER 1-5)
+- `size` (TEXT: S/M/L/XL)
+- `effort` (INTEGER 0-99)
+- `app_id` (FK to fm.apps)
+- `page_id` (FK to fm.page_requirements)
+- `widget_id` (FK to fm.widgets)
+- `section_title` (TEXT)
+- `section_order` (INTEGER)
+
+**fm.page_requirements - new columns:**
+- `app_id` (FK to fm.apps)
+
+**fm.data_models - new columns:**
+- `app_id` (FK to fm.apps)
+
+### New UI:
+- App selector in FM header
+- Widgets tab (CRUD for widgets)
+- Test Case create/edit dialog
+- Test execution recording
+- Section info on AC edit
+- Enhanced work item forms with assignment/estimation fields
+- Bug linking to TC/AC/Widget/Page
+
+---
+
+## PART 5: Example Data Flow
+
+**Creating a Widget:**
+```
+Name: "Shortlisted Players Widget"
+Description: "Displays recruitment target players with status"
+Data Models: [Player]
+App: MAGPIE
+```
+
+**Creating an AC with Section Info:**
+```
+Title: "Display shortlisted players with status and actions"
+Parent: FR-001 (Personal Landing Page)
+Section Title: "Recruitment Targets"
+Section Order: 1
+Widget: Shortlisted Players Widget
+Page: personal-landing-page
+Status: defined
+Assigned To: Liam
+Size: M
+```
+
+**Creating a Test Case:**
+```
+Title: "Verify shortlist displays correctly"
+Objective: "Confirm shortlisted players widget shows all target players"
+Steps:
+  Login to MAGPIE
+  Navigate to dashboard
+  View Recruitment Targets section
+  Verify player cards display
+Expected Result: "All shortlisted players shown with name, team, status"
+Area: TEAM
+Linked ACs: [AC-002]
+```
+
+**Recording Test Result:**
+```
+Outcome: passed
+Actual Result: "All 5 shortlisted players displayed correctly"
+Tester: Liam Wood
+Date: 2025-01-13
+```
+
+---
+
+## Technical Notes
+
+- Widgets are app-scoped via `app_id` but FK is nullable for potential cross-app sharing
+- `section_order` uses integers with gaps allowed (0, 10, 20) for easy reordering
+- Section concept is lightweight - just fields on AC, no separate table
+- Steps stored as plain TEXT, UI handles line-splitting and numbering
+- Widget reuse tracked by querying `work_items WHERE widget_id = ?`
+- All dropdowns should be searchable for large lists
+- Status values: new, defined, in_progress, qc, complete
+
+---
+
+## PART 6: Reference Sample Data (Fixtures)
+
+Use this sample data as a guide for how the model should be populated. This was generated by analyzing the actual Fixtures implementation.
+
+### fm_widgets.csv (Fixtures-related)
+
+```csv
+id,app_id,name,description,data_models
+fixture-card,gamescope,Fixture Card,"Displays match with opponent logo, score, result badge (W/D/L), venue type, and action menu","[""fixture"",""oppositionTeam""]"
+stats-cards,gamescope,Statistics Cards,"Row of 4 summary cards showing overall record, goals for, goals against, goal difference","[""fixture""]"
+fixture-filter-panel,gamescope,Fixture Filter Panel,"Filters for status (all/completed/scheduled), competition dropdown, home/away toggle","[""fixture"",""competition""]"
+season-picker,gamescope,Season Picker,"Dropdown to select season (e.g. 2024-25) with navigation arrows","[""fixture""]"
+control-bar,gamescope,Control Bar,"Search input, filter toggle, import button, add fixture button, settings button","[""fixture""]"
+match-score-banner,gamescope,Match Score Banner,"Header showing both team logos, final score, result indication with team colors","[""fixture"",""oppositionTeam"",""club""]"
+metrics-comparison,gamescope,Metrics Comparison,"Side-by-side statistical comparison bars for team vs opponent","[""matchStats""]"
+spider-chart,gamescope,Spider Chart,"Radar chart comparing team vs opponent across multiple metrics (attack/possession/technical)","[""matchStats""]"
+video-manager,gamescope,Video Manager,"List of video links with add/edit/delete, categorization, and player embed","[""fixture""]"
+excel-upload,gamescope,Excel Upload,"Drag-and-drop Excel file upload for match statistics import","[""matchStats""]"
+video-analysis-dashboard,gamescope,Video Analysis Dashboard,"AI-powered video analysis with clips, timestamps, and insights","[""fixture"",""matchStats""]"
+lineup-list,gamescope,Lineup List,"Ordered list of players with jersey numbers, names, positions, and star player badges","[""player""]"
+fixture-create-dialog,gamescope,Fixture Create Dialog,"Form dialog for creating/editing fixtures with opponent, date, venue fields","[""fixture"",""oppositionTeam"",""competition""]"
+fixture-import-dialog,gamescope,Fixture Import Dialog,"Excel import wizard with preview, validation, and column mapping","[""fixture""]"
+match-report-card,gamescope,Match Report Card,"Display card for match report narrative and key events","[""fixture""]"
+```
+
+### fm_work_items_sections.csv (Fixtures-related)
+
+```csv
+work_item_id,page_id,widget_id,section_title,section_order,section_type
+FR-008,fixtures,stats-cards,Statistics Summary,0,section
+FR-009,fixtures,control-bar,Control Bar,1,section
+FR-010,fixtures,fixture-filter-panel,Filters,2,section
+FR-011,fixtures,fixture-card,Fixture List,3,section
+FR-012,fixtures,fixture-create-dialog,Add/Edit Fixture,,modal
+FR-013,fixtures,fixture-card,Delete Fixture,,modal
+FR-014,fixture-details,match-score-banner,Fixture Detail Header,0,section
+FR-015,fixture-details,match-report-card,Match Report,1,tab
+FR-016,fixture-details,lineup-list,Line-Ups,2,tab
+FR-017,fixture-details,video-manager,Videos,3,tab
+FR-018,fixture-details,excel-upload,Upload Data,4,tab
+FR-019,fixture-details,metrics-comparison,Statistics,5,tab
+FR-020,fixture-details,spider-chart,Spider Charts,6,tab
+FR-021,fixture-details,video-analysis-dashboard,AI Analysis,7,tab
+FR-022,fixtures,fixture-import-dialog,Import Fixtures,,modal
+```
+
+### fm_test_cases.csv (Fixtures-related)
+
+```csv
+id,type,title,description,steps,expected_result,area,parent_id
+TC-101,TestCase,Create Fixture,Verify fixture creation with all required fields,"Navigate to Fixtures page
+Click Add Fixture button
+Select opponent from dropdown
+Select competition
+Choose HOME/AWAY
+Set date and time
+Click Save",Fixture created and appears in list sorted by date,TEAM,FR-012
+TC-102,TestCase,Filter Fixtures by Status,Verify status filter shows correct matches,"Navigate to Fixtures page
+Click Enable Filter button
+Select 'Completed' status filter
+Observe fixture list",Only completed fixtures displayed - scheduled fixtures hidden,TEAM,FR-010
+TC-103,TestCase,View Fixture Details,Verify fixture detail page loads correctly,"Navigate to Fixtures page
+Click on a fixture card
+Observe fixture details page",Score banner shows with logos and Analysis tab displays,TEAM,FR-014
+TC-104,TestCase,Upload Match Statistics,Verify Excel upload processes correctly,"Navigate to completed fixture details
+Click Analysis tab
+Click Upload Data sub-tab
+Drag and drop Excel file
+Click Process",Statistics parsed and displayed in Statistics tab,TEAM,FR-018
+TC-105,TestCase,Spider Chart Display,Verify spider charts render with team comparison,"Navigate to completed fixture with stats
+Click Analysis tab
+Click Spider Charts sub-tab
+Toggle between Attack/Possession/Technical",Spider charts display team vs opponent with correct values,TEAM,FR-020
+TC-106,TestCase,Delete Fixture,Verify fixture deletion with confirmation,"Navigate to Fixtures page
+Click three-dot menu on a fixture
+Click Delete
+Confirm deletion in dialog",Fixture removed from list with success toast,TEAM,FR-013
+TC-107,TestCase,Import Fixtures from Excel,Verify bulk fixture import from spreadsheet,"Navigate to Fixtures page
+Click Import button
+Select Excel file with fixtures
+Review imported data
+Click Import",Multiple fixtures created matching spreadsheet data,TEAM,FR-022
+TC-108,TestCase,Season Filtering,Verify season picker filters fixtures correctly,"Navigate to Fixtures page
+Use season picker to select previous season
+Observe fixture list",Only fixtures from selected season displayed,TEAM,FR-010
+```
+
+### Key Observations from Sample Data
+
+1. **Widget Reuse:** `stats-cards` and `fixture-card` are highly reusable across other pages (Dashboard, etc.)
+
+2. **Section Types:**
+   - Main page content uses `section` type with ordered layout
+   - Fixture details uses `tab` type for the tabbed interface
+   - Dialogs use `modal` type with NULL section_order
+
+3. **Nested Tabs:** The Analysis tab contains sub-tabs (Statistics, Spider Charts, AI Analysis, Upload Data). These could use `nested-tab` type if further granularity is needed.
+
+4. **Test Coverage:** Test cases link directly to FRs via `parent_id`, enabling traceability from requirement → test → result.
