@@ -3042,6 +3042,7 @@ export default function Requirements() {
           />
         </div>
 
+        <h2 className="text-lg font-semibold">Pages</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {sections.map((section) => {
             const hierarchy = getFilteredHierarchy(section);
