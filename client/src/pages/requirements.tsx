@@ -2438,7 +2438,12 @@ export default function Requirements() {
 
   // Fetch test runs
   const { data: testRuns = [], isLoading: testRunsLoading, refetch: refetchTestRuns } = useQuery<TestRun[]>({
-    queryKey: ['/api/test-runs'],
+    queryKey: ['/api/test-runs', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/test-runs?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
   });
 
   // State for expanded test runs
@@ -2476,10 +2481,8 @@ export default function Requirements() {
     component: item.area || undefined,
   });
 
-  // Use work items for test cases if available, fallback to hardcoded
-  const testCaseData = workItemTestCases.length > 0 
-    ? workItemTestCases.map(workItemToTestCase) 
-    : hardcodedTestCases;
+  // Use work items for test cases - no fallback to hardcoded
+  const testCaseData = workItemTestCases.map(workItemToTestCase);
   
   const filteredTestCases = testCaseFilter === 'all' 
     ? testCaseData 

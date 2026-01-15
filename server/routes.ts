@@ -5184,7 +5184,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test Runs CRUD endpoints
   app.get("/api/test-runs", async (req, res) => {
     try {
-      const runs = await storage.getTestRuns();
+      const appId = req.query.appId as string | undefined;
+      const runs = await storage.getTestRuns(appId);
       res.json(runs);
     } catch (error) {
       console.error("Error fetching test runs:", error);

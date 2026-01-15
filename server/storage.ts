@@ -1924,7 +1924,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Test Run CRUD operations
-  async getTestRuns(): Promise<TestRunRecord[]> {
+  async getTestRuns(appId?: string): Promise<TestRunRecord[]> {
+    if (appId) {
+      return await db.select().from(testRuns).where(eq(testRuns.appId, appId)).orderBy(sql`${testRuns.runNumber} DESC`);
+    }
     return await db.select().from(testRuns).orderBy(sql`${testRuns.runNumber} DESC`);
   }
 
