@@ -34,10 +34,14 @@ The frontend follows a page-based architecture with dedicated routes for:
 - **Enhanced fm.work_items** with new columns:
   - Assignment fields: created_by, assigned_to, priority_rank, size (S/M/L/XL), effort
   - Section tracking: page_id, widget_id, section_title, section_order, section_type (section/tab/nested-tab/modal/drawer/dropdown)
-- **Added app_id foreign key** to fm.page_requirements and fm.data_models for multi-app support
+- **Added app_id foreign key** to fm.page_requirements, fm.data_models, fm.change_log, fm.test_runs, fm.test_run_results for multi-app support
 - **App selector dropdown** in FM header with localStorage persistence for filtering data by application
 - **Widgets card** in FM page with full CRUD operations and detail sheet view
 - **WorkItemDialog** for editing work items with assignment/estimation and section placement panels
+- **Requirements Hierarchy** displays work items in tree structure:
+  - Hierarchy: **Epic → FR → AC/TC/Bug**
+  - Only Epics appear at top level; all other items are children
+  - Current counts: 17 Epics, 58 FRs, 180 ACs, 8 TCs, 5 Bugs
 
 ### FM Schema for Requirements Tables (January 13, 2026)
 - **Created separate FM schema** for requirements and DevOps-related tables for better organization
