@@ -2383,6 +2383,8 @@ export default function Requirements() {
     total: workItems.length,
     epochs: workItems.filter(item => item.type === 'epoch').length,
     epics: workItems.filter(item => item.type === 'epic').length,
+    frs: workItems.filter(item => item.type === 'FR').length,
+    acs: workItems.filter(item => item.type === 'AC').length,
     features: workItems.filter(item => item.type === 'feature').length,
     stories: workItems.filter(item => item.type === 'story').length,
     bugs: workItemBugs.length,
@@ -3092,9 +3094,12 @@ export default function Requirements() {
               </div>
               <span>Work Items</span>
               <div className="flex gap-2 ml-auto flex-wrap">
+                <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
+                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
+                <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
+                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
                 <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
                 <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
-                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} Tests</Badge>
               </div>
             </CardTitle>
           </CardHeader>
@@ -3107,6 +3112,46 @@ export default function Requirements() {
                 data-testid="btn-filter-workitems-all"
               >
                 All
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'epic' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('epic')}
+                className={workItemTypeFilter === 'epic' ? '' : 'text-indigo-600'}
+                data-testid="btn-filter-workitems-epic"
+              >
+                <Layers className="h-3 w-3 mr-1" />
+                Epics ({workItemSummary.epics})
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'FR' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('FR')}
+                className={workItemTypeFilter === 'FR' ? '' : 'text-blue-600'}
+                data-testid="btn-filter-workitems-fr"
+              >
+                <FileText className="h-3 w-3 mr-1" />
+                FRs ({workItemSummary.frs})
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'AC' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('AC')}
+                className={workItemTypeFilter === 'AC' ? '' : 'text-sky-600'}
+                data-testid="btn-filter-workitems-ac"
+              >
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                ACs ({workItemSummary.acs})
+              </Button>
+              <Button
+                variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setWorkItemTypeFilter('test_case')}
+                className={workItemTypeFilter === 'test_case' ? '' : 'text-teal-600'}
+                data-testid="btn-filter-workitems-testcase"
+              >
+                <ClipboardList className="h-3 w-3 mr-1" />
+                Tests ({workItemSummary.testCases})
               </Button>
               <Button
                 variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
@@ -3127,16 +3172,6 @@ export default function Requirements() {
               >
                 <Lightbulb className="h-3 w-3 mr-1" />
                 Enhancements ({workItemSummary.enhancements})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('test_case')}
-                className={workItemTypeFilter === 'test_case' ? '' : 'text-teal-600'}
-                data-testid="btn-filter-workitems-testcase"
-              >
-                <ClipboardList className="h-3 w-3 mr-1" />
-                Tests ({workItemSummary.testCases})
               </Button>
             </div>
             <div className="space-y-2">
