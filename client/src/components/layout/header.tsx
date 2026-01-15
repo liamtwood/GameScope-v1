@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings, LayoutDashboard } from "lucide-react";
+import { Plus, User, Menu, Crosshair, Home, Calendar, Users, Video, Shield, Landmark, Settings, LayoutDashboard, AppWindow } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useQuery } from "@tanstack/react-query";
 import { OppositionTeam, Club } from "@shared/schema";
@@ -58,6 +58,8 @@ export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderPro
         return <Settings className="h-10 w-10 text-club-primary" />;
       case 'clubs':
         return <Landmark className="h-10 w-10 text-club-primary" />;
+      case 'feature management':
+        return <AppWindow className="h-10 w-10 text-club-primary" />;
       default:
         // Handle pattern matches (like "Club Name - Teams")
         if (titleLower.includes('teams')) {
