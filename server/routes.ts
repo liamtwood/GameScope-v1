@@ -5280,6 +5280,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // FM Apps CRUD
+  app.get("/api/fm/apps", async (req, res) => {
+    try {
+      const apps = await storage.getFmApps();
+      res.json(apps);
+    } catch (error) {
+      console.error("Error fetching FM apps:", error);
+      res.status(500).json({ message: "Failed to fetch FM apps" });
+    }
+  });
+
+  app.get("/api/fm/apps/:id", async (req, res) => {
+    try {
+      const app = await storage.getFmApp(req.params.id);
+      if (!app) {
+        return res.status(404).json({ message: "FM app not found" });
+      }
+      res.json(app);
+    } catch (error) {
+      console.error("Error fetching FM app:", error);
+      res.status(500).json({ message: "Failed to fetch FM app" });
+    }
+  });
+
+  app.post("/api/fm/apps", async (req, res) => {
+    try {
+      const { insertFmAppSchema } = await import('@shared/schema');
+      const validated = insertFmAppSchema.parse(req.body);
+      const app = await storage.createFmApp(validated);
+      res.status(201).json(app);
+    } catch (error) {
+      console.error("Error creating FM app:", error);
+      res.status(400).json({ message: "Failed to create FM app", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/fm/apps/:id", async (req, res) => {
+    try {
+      const { insertFmAppSchema } = await import('@shared/schema');
+      const validated = insertFmAppSchema.partial().parse(req.body);
+      const app = await storage.updateFmApp(req.params.id, validated);
+      res.json(app);
+    } catch (error) {
+      console.error("Error updating FM app:", error);
+      res.status(400).json({ message: "Failed to update FM app", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/fm/apps/:id", async (req, res) => {
+    try {
+      await storage.deleteFmApp(req.params.id);
+      res.json({ message: "FM app deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting FM app:", error);
+      res.status(500).json({ message: "Failed to delete FM app" });
+    }
+  });
+
+  // FM Widgets CRUD
+  app.get("/api/fm/widgets", async (req, res) => {
+    try {
+      const appId = req.query.appId as string | undefined;
+      const widgets = await storage.getFmWidgets(appId);
+      res.json(widgets);
+    } catch (error) {
+      console.error("Error fetching FM widgets:", error);
+      res.status(500).json({ message: "Failed to fetch FM widgets" });
+    }
+  });
+
+  app.get("/api/fm/widgets/:id", async (req, res) => {
+    try {
+      const widget = await storage.getFmWidget(req.params.id);
+      if (!widget) {
+        return res.status(404).json({ message: "FM widget not found" });
+      }
+      res.json(widget);
+    } catch (error) {
+      console.error("Error fetching FM widget:", error);
+      res.status(500).json({ message: "Failed to fetch FM widget" });
+    }
+  });
+
+  app.post("/api/fm/widgets", async (req, res) => {
+    try {
+      const { insertFmWidgetSchema } = await import('@shared/schema');
+      const validated = insertFmWidgetSchema.parse(req.body);
+      const widget = await storage.createFmWidget(validated);
+      res.status(201).json(widget);
+    } catch (error) {
+      console.error("Error creating FM widget:", error);
+      res.status(400).json({ message: "Failed to create FM widget", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/fm/widgets/:id", async (req, res) => {
+    try {
+      const { insertFmWidgetSchema } = await import('@shared/schema');
+      const validated = insertFmWidgetSchema.partial().parse(req.body);
+      const widget = await storage.updateFmWidget(req.params.id, validated);
+      res.json(widget);
+    } catch (error) {
+      console.error("Error updating FM widget:", error);
+      res.status(400).json({ message: "Failed to update FM widget", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/fm/widgets/:id", async (req, res) => {
+    try {
+      await storage.deleteFmWidget(req.params.id);
+      res.json({ message: "FM widget deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting FM widget:", error);
+      res.status(500).json({ message: "Failed to delete FM widget" });
+    }
+  });
+
   // Seed Test Run 1 with test cases 1-8
   app.post("/api/test-runs/seed", async (req, res) => {
     try {

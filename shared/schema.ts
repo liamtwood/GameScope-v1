@@ -23,6 +23,10 @@ export const fmWidgets = fmSchema.table("widgets", {
   appId: text("app_id").references(() => fmApps.id),
   name: text("name").notNull(),
   description: text("description"),
+  category: varchar("category", { length: 50 }).default("general"), // form, display, navigation, action, container, data, feedback, general
+  isReusable: boolean("is_reusable").default(true),
+  props: jsonb("props"), // Array of prop names this widget accepts
+  events: jsonb("events"), // Array of event names this widget emits
   dataModels: jsonb("data_models"), // Array of data model IDs this widget consumes
   configSchema: jsonb("config_schema"), // Optional: JSON schema for widget configuration
   status: varchar("status", { length: 20 }).default("active"),
@@ -685,6 +689,8 @@ export const insertFmWidgetSchema = createInsertSchema(fmWidgets)
   .omit({ createdAt: true, updatedAt: true })
   .extend({
     dataModels: z.array(z.string()).optional(),
+    props: z.array(z.string()).optional(),
+    events: z.array(z.string()).optional(),
   });
 
 export const insertWorkItemLinkSchema = createInsertSchema(workItemLinks)

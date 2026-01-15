@@ -22,6 +22,8 @@ import {
   workItemLinks,
   testRuns,
   testRunResults,
+  fmApps,
+  fmWidgets,
   type Club,
   type Team,
   type User,
@@ -61,6 +63,10 @@ import {
   type TestRunResult as TestRunResultRecord,
   type InsertTestRun,
   type InsertTestRunResult,
+  type FmApp,
+  type FmWidget,
+  type InsertFmApp,
+  type InsertFmWidget,
 } from '@shared/schema';
 
 export interface IStorage {
@@ -214,6 +220,20 @@ export interface IStorage {
   updateTestRunResult(id: string, result: Partial<InsertTestRunResult>): Promise<TestRunResultRecord>;
   deleteTestRunResult(id: string): Promise<void>;
   getTestRunWithResults(id: string): Promise<{ run: TestRunRecord; results: TestRunResultRecord[] } | undefined>;
+  
+  // FM Apps CRUD operations
+  getFmApps(): Promise<FmApp[]>;
+  getFmApp(id: string): Promise<FmApp | undefined>;
+  createFmApp(app: InsertFmApp): Promise<FmApp>;
+  updateFmApp(id: string, app: Partial<InsertFmApp>): Promise<FmApp>;
+  deleteFmApp(id: string): Promise<void>;
+  
+  // FM Widgets CRUD operations
+  getFmWidgets(appId?: string): Promise<FmWidget[]>;
+  getFmWidget(id: string): Promise<FmWidget | undefined>;
+  createFmWidget(widget: InsertFmWidget): Promise<FmWidget>;
+  updateFmWidget(id: string, widget: Partial<InsertFmWidget>): Promise<FmWidget>;
+  deleteFmWidget(id: string): Promise<void>;
   
   // Seed requirements data from registry
   seedRequirementsData(): Promise<void>;
@@ -1950,6 +1970,63 @@ export class DatabaseStorage implements IStorage {
     if (!run) return undefined;
     const results = await this.getTestRunResults(id);
     return { run, results };
+  }
+
+  // FM Apps CRUD operations
+  async getFmApps(): Promise<FmApp[]> {
+    return await db.select().from(fmApps).orderBy(fmApps.name);
+  }
+
+  async getFmApp(id: string): Promise<FmApp | undefined> {
+    const [app] = await db.select().from(fmApps).where(eq(fmApps.id, id));
+    return app;
+  }
+
+  async createFmApp(app: InsertFmApp): Promise<FmApp> {
+    const [created] = await db.insert(fmApps).values(app).returning();
+    return created;
+  }
+
+  async updateFmApp(id: string, app: Partial<InsertFmApp>): Promise<FmApp> {
+    const [updated] = await db.update(fmApps)
+      .set({ ...app, updatedAt: new Date() })
+      .where(eq(fmApps.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteFmApp(id: string): Promise<void> {
+    await db.delete(fmApps).where(eq(fmApps.id, id));
+  }
+
+  // FM Widgets CRUD operations
+  async getFmWidgets(appId?: string): Promise<FmWidget[]> {
+    if (appId) {
+      return await db.select().from(fmWidgets).where(eq(fmWidgets.appId, appId)).orderBy(fmWidgets.name);
+    }
+    return await db.select().from(fmWidgets).orderBy(fmWidgets.name);
+  }
+
+  async getFmWidget(id: string): Promise<FmWidget | undefined> {
+    const [widget] = await db.select().from(fmWidgets).where(eq(fmWidgets.id, id));
+    return widget;
+  }
+
+  async createFmWidget(widget: InsertFmWidget): Promise<FmWidget> {
+    const [created] = await db.insert(fmWidgets).values(widget).returning();
+    return created;
+  }
+
+  async updateFmWidget(id: string, widget: Partial<InsertFmWidget>): Promise<FmWidget> {
+    const [updated] = await db.update(fmWidgets)
+      .set({ ...widget, updatedAt: new Date() })
+      .where(eq(fmWidgets.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteFmWidget(id: string): Promise<void> {
+    await db.delete(fmWidgets).where(eq(fmWidgets.id, id));
   }
 }
 

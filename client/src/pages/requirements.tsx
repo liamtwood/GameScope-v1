@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, ChevronDown, Home, Users, Landmark, Settings, Circle, History, Plus, Minus, RefreshCw, Wrench, Database, Check, X, Edit, Trash2, Bug, Lightbulb, AlertTriangle, Loader2, HelpCircle, ListTodo, ClipboardList, Filter, Target, Layers, Puzzle, Link2, Download, Table2 as TableIcon, AppWindow, Component } from "lucide-react";
 import { 
   requirementsRegistry, 
   changeLog as hardcodedChangeLog,
@@ -30,7 +30,7 @@ import {
   type DataModelField,
   type TestCase
 } from "@/lib/requirements-registry";
-import type { WorkItem, WorkItemLink, TestRun, TestRunResult } from "@shared/schema";
+import type { WorkItem, WorkItemLink, TestRun, TestRunResult, FmApp, FmWidget } from "@shared/schema";
 
 type ChangeLogType = 'added' | 'removed' | 'changed' | 'fixed' | 'bug' | 'enhancement' | 'question' | 'action_item';
 
@@ -1432,6 +1432,413 @@ function DataModelDialog({
   );
 }
 
+const widgetCategories = ['form', 'display', 'navigation', 'action', 'container', 'data', 'feedback', 'general'];
+
+function WidgetDialog({ 
+  open, 
+  onOpenChange, 
+  widget, 
+  onSave 
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  widget: FmWidget | null;
+  onSave: (data: Partial<FmWidget>) => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    category: "general",
+    isReusable: true,
+    props: "",
+    events: "",
+  });
+
+  useEffect(() => {
+    if (widget) {
+      setFormData({
+        name: widget.name,
+        description: widget.description || "",
+        category: widget.category || "general",
+        isReusable: widget.isReusable ?? true,
+        props: Array.isArray(widget.props) ? (widget.props as string[]).join(", ") : "",
+        events: Array.isArray(widget.events) ? (widget.events as string[]).join(", ") : "",
+      });
+    } else {
+      setFormData({
+        name: "",
+        description: "",
+        category: "general",
+        isReusable: true,
+        props: "",
+        events: "",
+      });
+    }
+  }, [widget, open]);
+
+  const handleSave = () => {
+    onSave({
+      name: formData.name,
+      description: formData.description || null,
+      category: formData.category,
+      isReusable: formData.isReusable,
+      props: formData.props ? formData.props.split(",").map(p => p.trim()).filter(Boolean) : [],
+      events: formData.events ? formData.events.split(",").map(e => e.trim()).filter(Boolean) : [],
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>{widget ? "Edit Widget" : "Add Widget"}</DialogTitle>
+          <DialogDescription>
+            {widget ? "Update the widget details." : "Create a new reusable UI component to track across screens."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="widget-name">Name</Label>
+            <Input
+              id="widget-name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g., DataTable, SearchBar, PlayerCard"
+              data-testid="input-widget-name"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="widget-category">Category</Label>
+              <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+                <SelectTrigger id="widget-category" data-testid="select-widget-category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {widgetCategories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 flex items-end">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isReusable}
+                  onChange={(e) => setFormData({ ...formData, isReusable: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm">Reusable component</span>
+              </label>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="widget-description">Description</Label>
+            <Textarea
+              id="widget-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe the widget's purpose and usage..."
+              rows={2}
+              data-testid="textarea-widget-description"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="widget-props">Props (comma-separated)</Label>
+            <Input
+              id="widget-props"
+              value={formData.props}
+              onChange={(e) => setFormData({ ...formData, props: e.target.value })}
+              placeholder="e.g., data, columns, onRowClick, isLoading"
+              data-testid="input-widget-props"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="widget-events">Events (comma-separated)</Label>
+            <Input
+              id="widget-events"
+              value={formData.events}
+              onChange={(e) => setFormData({ ...formData, events: e.target.value })}
+              placeholder="e.g., onClick, onSubmit, onSelect"
+              data-testid="input-widget-events"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave} data-testid="btn-save-widget">
+            {widget ? "Update" : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const sizeOptions = ['S', 'M', 'L', 'XL'] as const;
+const sectionTypeOptions = ['section', 'tab', 'nested-tab', 'modal', 'drawer', 'dropdown'] as const;
+const workItemStatusOptions = ['new', 'defined', 'in_progress', 'qc', 'complete'] as const;
+const workItemPriorityOptions = ['low', 'medium', 'high', 'critical'] as const;
+
+function WorkItemDialog({ 
+  open, 
+  onOpenChange, 
+  workItem, 
+  onSave,
+  pages,
+  widgets
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  workItem: WorkItem | null;
+  onSave: (data: Partial<WorkItem>) => void;
+  pages: { id: string; title: string }[];
+  widgets: { id: string; name: string }[];
+}) {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "new" as string,
+    priority: "medium" as string,
+    assignedTo: "",
+    priorityRank: "" as string,
+    size: "" as string,
+    effort: "" as string,
+    pageId: "" as string,
+    widgetId: "" as string,
+    sectionTitle: "",
+    sectionOrder: "" as string,
+    sectionType: "" as string,
+  });
+
+  useEffect(() => {
+    if (workItem) {
+      setFormData({
+        title: workItem.title,
+        description: workItem.description || "",
+        status: workItem.status || "new",
+        priority: workItem.priority || "medium",
+        assignedTo: workItem.assignedTo || "",
+        priorityRank: workItem.priorityRank?.toString() || "",
+        size: workItem.size || "",
+        effort: workItem.effort?.toString() || "",
+        pageId: workItem.pageId || "",
+        widgetId: workItem.widgetId || "",
+        sectionTitle: workItem.sectionTitle || "",
+        sectionOrder: workItem.sectionOrder?.toString() || "",
+        sectionType: workItem.sectionType || "",
+      });
+    }
+  }, [workItem, open]);
+
+  const handleSave = () => {
+    onSave({
+      title: formData.title,
+      description: formData.description || null,
+      status: formData.status || null,
+      priority: formData.priority || null,
+      assignedTo: formData.assignedTo || null,
+      priorityRank: formData.priorityRank ? parseInt(formData.priorityRank) : null,
+      size: formData.size || null,
+      effort: formData.effort ? parseInt(formData.effort) : null,
+      pageId: formData.pageId || null,
+      widgetId: formData.widgetId || null,
+      sectionTitle: formData.sectionTitle || null,
+      sectionOrder: formData.sectionOrder ? parseInt(formData.sectionOrder) : null,
+      sectionType: formData.sectionType || null,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Work Item: {workItem?.id}</DialogTitle>
+          <DialogDescription>
+            Update work item details including assignment, estimation, and section placement.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="wi-title">Title</Label>
+            <Input
+              id="wi-title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              data-testid="input-wi-title"
+            />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="wi-status">Status</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger id="wi-status">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workItemStatusOptions.map(s => (
+                    <SelectItem key={s} value={s}>{s.replace('_', ' ')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wi-priority">Priority</Label>
+              <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v })}>
+                <SelectTrigger id="wi-priority">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workItemPriorityOptions.map(p => (
+                    <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wi-assigned">Assigned To</Label>
+              <Input
+                id="wi-assigned"
+                value={formData.assignedTo}
+                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                placeholder="Username"
+              />
+            </div>
+          </div>
+          
+          <div className="border-t pt-4 mt-2">
+            <h4 className="text-sm font-medium mb-3">Estimation</h4>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="wi-priority-rank">Priority Rank</Label>
+                <Input
+                  id="wi-priority-rank"
+                  type="number"
+                  value={formData.priorityRank}
+                  onChange={(e) => setFormData({ ...formData, priorityRank: e.target.value })}
+                  placeholder="Sprint order"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-size">Size</Label>
+                <Select value={formData.size} onValueChange={(v) => setFormData({ ...formData, size: v })}>
+                  <SelectTrigger id="wi-size">
+                    <SelectValue placeholder="Size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {sizeOptions.map(s => (
+                      <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-effort">Effort (hours)</Label>
+                <Input
+                  id="wi-effort"
+                  type="number"
+                  value={formData.effort}
+                  onChange={(e) => setFormData({ ...formData, effort: e.target.value })}
+                  placeholder="Hours"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="border-t pt-4 mt-2">
+            <h4 className="text-sm font-medium mb-3">Section Placement</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="wi-page">Screen/Page</Label>
+                <Select value={formData.pageId} onValueChange={(v) => setFormData({ ...formData, pageId: v })}>
+                  <SelectTrigger id="wi-page">
+                    <SelectValue placeholder="Select screen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {pages.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-widget">Widget</Label>
+                <Select value={formData.widgetId} onValueChange={(v) => setFormData({ ...formData, widgetId: v })}>
+                  <SelectTrigger id="wi-widget">
+                    <SelectValue placeholder="Select widget" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {widgets.map(w => (
+                      <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="wi-section-title">Section Title</Label>
+                <Input
+                  id="wi-section-title"
+                  value={formData.sectionTitle}
+                  onChange={(e) => setFormData({ ...formData, sectionTitle: e.target.value })}
+                  placeholder="e.g., Header, Actions"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-section-order">Order</Label>
+                <Input
+                  id="wi-section-order"
+                  type="number"
+                  value={formData.sectionOrder}
+                  onChange={(e) => setFormData({ ...formData, sectionOrder: e.target.value })}
+                  placeholder="0, 10, 20..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-section-type">Section Type</Label>
+                <Select value={formData.sectionType} onValueChange={(v) => setFormData({ ...formData, sectionType: v })}>
+                  <SelectTrigger id="wi-section-type">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {sectionTypeOptions.map(t => (
+                      <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1).replace('-', ' ')}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2 border-t pt-4 mt-2">
+            <Label htmlFor="wi-description">Description</Label>
+            <Textarea
+              id="wi-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Detailed description..."
+              rows={3}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave} data-testid="btn-save-workitem">
+            Update
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Requirements() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1445,13 +1852,27 @@ export default function Requirements() {
   const [dataModelDialogOpen, setDataModelDialogOpen] = useState(false);
   const [editingDataModel, setEditingDataModel] = useState<DataModel | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement'; item: any } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement' | 'widget'; item: any } | null>(null);
   const [activeTab, setActiveTab] = useState("changelog");
+  const [widgetDialogOpen, setWidgetDialogOpen] = useState(false);
+  const [editingWidget, setEditingWidget] = useState<FmWidget | null>(null);
+  const [selectedWidget, setSelectedWidget] = useState<FmWidget | null>(null);
+  const [widgetSheetOpen, setWidgetSheetOpen] = useState(false);
+  const [workItemDialogOpen, setWorkItemDialogOpen] = useState(false);
+  const [selectedWorkItem, setSelectedWorkItem] = useState<WorkItem | null>(null);
   const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
   const [expandedWorkItems, setExpandedWorkItems] = useState<Set<string>>(new Set());
   const [expandedHierarchyNodes, setExpandedHierarchyNodes] = useState<Set<string>>(new Set(['EPOCH-001'])); // Start with first epoch expanded
   const [testCaseFilter, setTestCaseFilter] = useState<TestCase['status'] | 'all'>('all');
   const [workItemTypeFilter, setWorkItemTypeFilter] = useState<string>('all');
+  const [selectedAppId, setSelectedAppId] = useState<string>(() => {
+    return localStorage.getItem('fm_selected_app') || 'gamescope';
+  });
+
+  const handleAppChange = (appId: string) => {
+    setSelectedAppId(appId);
+    localStorage.setItem('fm_selected_app', appId);
+  };
 
   const sections: PageRequirements['section'][] = ['home', 'team', 'club', 'devops'];
   
@@ -1490,6 +1911,21 @@ export default function Requirements() {
       return newSet;
     });
   };
+
+  // Fetch apps for app selector
+  const { data: fmApps = [] } = useQuery<FmApp[]>({
+    queryKey: ['/api/fm/apps'],
+  });
+
+  // Fetch widgets for the selected app
+  const { data: fmWidgets = [], refetch: refetchWidgets } = useQuery<FmWidget[]>({
+    queryKey: ['/api/fm/widgets', selectedAppId],
+    queryFn: async () => {
+      const res = await fetch(`/api/fm/widgets?appId=${selectedAppId}`);
+      return res.json();
+    },
+    enabled: !!selectedAppId,
+  });
 
   // Fetch data from API with fallback to hardcoded data
   const { data: apiRequirements = [], isLoading: reqLoading, refetch: refetchReqs } = useQuery<APIPageRequirement[]>({
@@ -1690,6 +2126,61 @@ export default function Requirements() {
     },
   });
 
+  const createWidgetMutation = useMutation({
+    mutationFn: async (data: Partial<FmWidget>) => {
+      await apiRequest('POST', '/api/fm/widgets', { ...data, appId: selectedAppId });
+    },
+    onSuccess: () => {
+      toast({ title: "Widget created" });
+      refetchWidgets();
+      setWidgetDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create widget", variant: "destructive" });
+    },
+  });
+
+  const updateWidgetMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<FmWidget> }) => {
+      await apiRequest('PATCH', `/api/fm/widgets/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Widget updated" });
+      refetchWidgets();
+      setWidgetDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to update widget", variant: "destructive" });
+    },
+  });
+
+  const deleteWidgetMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/fm/widgets/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Widget deleted" });
+      refetchWidgets();
+    },
+    onError: () => {
+      toast({ title: "Failed to delete widget", variant: "destructive" });
+    },
+  });
+
+  const updateWorkItemMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<WorkItem> }) => {
+      await apiRequest('PATCH', `/api/work-items/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Work item updated" });
+      refetchWorkItems();
+      setWorkItemDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to update work item", variant: "destructive" });
+    },
+  });
+
   // Work item type conversion mutation
   const convertWorkItemMutation = useMutation({
     mutationFn: async ({ id, type }: { id: string; type: string }) => {
@@ -1825,6 +2316,40 @@ export default function Requirements() {
     }
   };
 
+  const handleSelectWidget = (widget: FmWidget) => {
+    setSelectedWidget(widget);
+    setWidgetSheetOpen(true);
+  };
+
+  const handleEditWidget = (widget: FmWidget) => {
+    setEditingWidget(widget);
+    setWidgetDialogOpen(true);
+  };
+
+  const handleDeleteWidget = (widget: FmWidget) => {
+    setItemToDelete({ type: 'widget', item: widget });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleSaveWidget = (data: Partial<FmWidget>) => {
+    if (editingWidget) {
+      updateWidgetMutation.mutate({ id: editingWidget.id, data });
+    } else {
+      createWidgetMutation.mutate(data);
+    }
+  };
+
+  const handleSelectWorkItem = (item: WorkItem) => {
+    setSelectedWorkItem(item);
+    setWorkItemDialogOpen(true);
+  };
+
+  const handleSaveWorkItem = (data: Partial<WorkItem>) => {
+    if (selectedWorkItem) {
+      updateWorkItemMutation.mutate({ id: selectedWorkItem.id, data });
+    }
+  };
+
   const confirmDelete = () => {
     if (!itemToDelete) return;
     
@@ -1837,6 +2362,9 @@ export default function Requirements() {
         break;
       case 'requirement':
         deleteRequirementMutation.mutate(itemToDelete.item.id);
+        break;
+      case 'widget':
+        deleteWidgetMutation.mutate(itemToDelete.item.id);
         break;
     }
     setDeleteConfirmOpen(false);
@@ -1864,15 +2392,32 @@ export default function Requirements() {
     <MainLayout title="Requirements" subtitle="View and manage epic requirements and documentation">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by page name or requirement ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-              data-testid="input-search-requirements"
-            />
+          <div className="flex gap-3 items-center">
+            <div className="flex items-center gap-2">
+              <AppWindow className="h-4 w-4 text-muted-foreground" />
+              <Select value={selectedAppId} onValueChange={handleAppChange}>
+                <SelectTrigger className="w-[180px]" data-testid="select-app">
+                  <SelectValue placeholder="Select app" />
+                </SelectTrigger>
+                <SelectContent>
+                  {fmApps.map((app) => (
+                    <SelectItem key={app.id} value={app.id}>
+                      {app.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by page name or requirement ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                data-testid="input-search-requirements"
+              />
+            </div>
           </div>
           <div className="flex gap-4 items-center">
             {hasNoData && !isLoading && (
@@ -2135,6 +2680,73 @@ export default function Requirements() {
           </CardContent>
         </Card>
 
+        <Card data-testid="card-widgets">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-base">
+              <div className="p-2 rounded-lg bg-violet-500">
+                <Component className="h-4 w-4 text-white" />
+              </div>
+              <span>Widgets</span>
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {fmWidgets.length} components
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setEditingWidget(null); setWidgetDialogOpen(true); }}
+                data-testid="btn-add-widget"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Reusable UI components tracked across screens</p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {fmWidgets.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {fmWidgets.map((widget) => (
+                  <div
+                    key={widget.id}
+                    className="p-3 border rounded-lg hover:bg-muted/50 cursor-pointer group"
+                    onClick={() => handleSelectWidget(widget)}
+                    data-testid={`widget-${widget.id}`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{widget.name}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{widget.description}</div>
+                        <div className="flex gap-1 mt-2">
+                          <Badge variant="outline" className="text-xs">{widget.category || 'general'}</Badge>
+                          {widget.isReusable && <Badge className="text-xs bg-green-100 text-green-700">Reusable</Badge>}
+                        </div>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => { e.stopPropagation(); handleEditWidget(widget); }}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => { e.stopPropagation(); handleDeleteWidget(widget); }}
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">No widgets defined yet. Add reusable components to track them across screens.</p>
+            )}
+          </CardContent>
+        </Card>
+
         <Card data-testid="card-testruns">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-base">
@@ -2268,6 +2880,7 @@ export default function Requirements() {
                     node={node}
                     expandedNodes={expandedHierarchyNodes}
                     onToggle={toggleHierarchyNode}
+                    onSelectItem={handleSelectWorkItem}
                   />
                 ))
               ) : (
@@ -2486,6 +3099,83 @@ export default function Requirements() {
         model={editingDataModel}
         onSave={handleSaveDataModel}
       />
+
+      <WidgetDialog
+        open={widgetDialogOpen}
+        onOpenChange={(open) => {
+          setWidgetDialogOpen(open);
+          if (!open) setEditingWidget(null);
+        }}
+        widget={editingWidget}
+        onSave={handleSaveWidget}
+      />
+
+      <WorkItemDialog
+        open={workItemDialogOpen}
+        onOpenChange={(open) => {
+          setWorkItemDialogOpen(open);
+          if (!open) setSelectedWorkItem(null);
+        }}
+        workItem={selectedWorkItem}
+        onSave={handleSaveWorkItem}
+        pages={requirementsData.map(p => ({ id: p.id, title: p.title }))}
+        widgets={fmWidgets.map(w => ({ id: w.id, name: w.name }))}
+      />
+
+      <Sheet open={widgetSheetOpen} onOpenChange={setWidgetSheetOpen}>
+        <SheetContent className="w-[500px] sm:max-w-[500px]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Component className="h-5 w-5" />
+              {selectedWidget?.name}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedWidget?.description || "Widget details"}
+            </SheetDescription>
+          </SheetHeader>
+          {selectedWidget && (
+            <div className="mt-6 space-y-4">
+              <div className="flex gap-2">
+                <Badge variant="outline">{selectedWidget.category || 'general'}</Badge>
+                {selectedWidget.isReusable && <Badge className="bg-green-100 text-green-700">Reusable</Badge>}
+              </div>
+              {selectedWidget.props && (selectedWidget.props as string[]).length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Props</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {(selectedWidget.props as string[]).map((prop, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">{prop}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {selectedWidget.events && (selectedWidget.events as string[]).length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Events</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {(selectedWidget.events as string[]).map((event, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">{event}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="pt-4 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setWidgetSheetOpen(false);
+                    handleEditWidget(selectedWidget);
+                  }}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit Widget
+                </Button>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
