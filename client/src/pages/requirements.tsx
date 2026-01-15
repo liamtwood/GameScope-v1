@@ -1578,6 +1578,146 @@ function WidgetDialog({
 
 const sizeOptions = ['S', 'M', 'L', 'XL'] as const;
 const sectionTypeOptions = ['section', 'tab', 'nested-tab', 'modal', 'drawer', 'dropdown'] as const;
+const pageSectionOptions = ['home', 'team', 'club', 'devops'] as const;
+
+function RequirementDialog({ 
+  open, 
+  onOpenChange, 
+  requirement, 
+  onSave 
+}: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  requirement: APIPageRequirement | null;
+  onSave: (data: Partial<APIPageRequirement>) => void;
+}) {
+  const [formData, setFormData] = useState({
+    id: "",
+    title: "",
+    route: "",
+    section: "home" as string,
+    overview: "",
+    parentId: "",
+  });
+
+  useEffect(() => {
+    if (requirement) {
+      setFormData({
+        id: requirement.id,
+        title: requirement.title,
+        route: requirement.route || "",
+        section: requirement.section || "home",
+        overview: requirement.overview || "",
+        parentId: requirement.parentId || "",
+      });
+    } else {
+      setFormData({
+        id: "",
+        title: "",
+        route: "",
+        section: "home",
+        overview: "",
+        parentId: "",
+      });
+    }
+  }, [requirement, open]);
+
+  const handleSave = () => {
+    onSave({
+      id: formData.id,
+      title: formData.title,
+      route: formData.route || undefined,
+      section: formData.section as 'home' | 'team' | 'club' | 'devops',
+      overview: formData.overview || undefined,
+      parentId: formData.parentId || undefined,
+      functionalRequirements: requirement?.functionalRequirements || [],
+      acceptanceCriteria: requirement?.acceptanceCriteria || [],
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>{requirement ? "Edit Requirement" : "Add Requirement"}</DialogTitle>
+          <DialogDescription>
+            {requirement ? "Update the page requirement details." : "Create a new page/screen requirement."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="req-id">ID</Label>
+              <Input
+                id="req-id"
+                value={formData.id}
+                onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                placeholder="e.g., dashboard"
+                disabled={!!requirement}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="req-section">Section</Label>
+              <Select value={formData.section} onValueChange={(v) => setFormData({ ...formData, section: v })}>
+                <SelectTrigger id="req-section">
+                  <SelectValue placeholder="Select section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pageSectionOptions.map(s => (
+                    <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="req-title">Title</Label>
+            <Input
+              id="req-title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="e.g., Dashboard Overview"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="req-route">Route</Label>
+            <Input
+              id="req-route"
+              value={formData.route}
+              onChange={(e) => setFormData({ ...formData, route: e.target.value })}
+              placeholder="e.g., /dashboard"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="req-parent">Parent ID (optional)</Label>
+            <Input
+              id="req-parent"
+              value={formData.parentId}
+              onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+              placeholder="e.g., home for nested pages"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="req-overview">Overview</Label>
+            <Textarea
+              id="req-overview"
+              value={formData.overview}
+              onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
+              placeholder="Brief description of this page/screen..."
+              rows={3}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave}>
+            {requirement ? "Update" : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 const workItemStatusOptions = ['new', 'defined', 'in_progress', 'qc', 'complete'] as const;
 const workItemPriorityOptions = ['low', 'medium', 'high', 'critical'] as const;
 
@@ -1855,6 +1995,8 @@ export default function Requirements() {
   const [itemToDelete, setItemToDelete] = useState<{ type: 'changelog' | 'datamodel' | 'requirement' | 'widget'; item: any } | null>(null);
   const [activeTab, setActiveTab] = useState("changelog");
   const [widgetDialogOpen, setWidgetDialogOpen] = useState(false);
+  const [requirementDialogOpen, setRequirementDialogOpen] = useState(false);
+  const [editingRequirement, setEditingRequirement] = useState<APIPageRequirement | null>(null);
   const [editingWidget, setEditingWidget] = useState<FmWidget | null>(null);
   const [selectedWidget, setSelectedWidget] = useState<FmWidget | null>(null);
   const [widgetSheetOpen, setWidgetSheetOpen] = useState(false);
@@ -1982,7 +2124,7 @@ export default function Requirements() {
     id: item.id,
     title: item.title,
     objective: item.description || '',
-    steps: (item.steps as string[]) || [],
+    steps: Array.isArray(item.steps) ? item.steps : [],
     expectedResult: item.expectedResult || '',
     actualResult: item.actualResult || '',
     status: item.status as TestCase['status'],
@@ -2110,6 +2252,34 @@ export default function Requirements() {
     },
     onError: () => {
       toast({ title: "Failed to delete data model", variant: "destructive" });
+    },
+  });
+
+  const createRequirementMutation = useMutation({
+    mutationFn: async (data: Partial<APIPageRequirement>) => {
+      await apiRequest('POST', '/api/devops/requirements', data);
+    },
+    onSuccess: () => {
+      toast({ title: "Requirement created" });
+      refetchReqs();
+      setRequirementDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to create requirement", variant: "destructive" });
+    },
+  });
+
+  const updateRequirementMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<APIPageRequirement> }) => {
+      await apiRequest('PATCH', `/api/devops/requirements/${id}`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Requirement updated" });
+      refetchReqs();
+      setRequirementDialogOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Failed to update requirement", variant: "destructive" });
     },
   });
 
@@ -2339,6 +2509,14 @@ export default function Requirements() {
     }
   };
 
+  const handleSaveRequirement = (data: Partial<APIPageRequirement>) => {
+    if (editingRequirement) {
+      updateRequirementMutation.mutate({ id: editingRequirement.id, data });
+    } else {
+      createRequirementMutation.mutate(data);
+    }
+  };
+
   const handleSelectWorkItem = (item: WorkItem) => {
     setSelectedWorkItem(item);
     setWorkItemDialogOpen(true);
@@ -2526,14 +2704,21 @@ export default function Requirements() {
               <div className="p-2 rounded-lg bg-emerald-500">
                 <TableIcon className="h-4 w-4 text-white" />
               </div>
-              <span>Requirements Spreadsheet</span>
-              <div className="flex gap-2 ml-auto">
+              <span>Functional Requirements</span>
+              <div className="flex gap-2 items-center ml-auto">
                 <Badge variant="secondary" className="text-xs">
                   {totalFRs} FRs
                 </Badge>
                 <Badge variant="secondary" className="text-xs">
                   {totalACs} ACs
                 </Badge>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setEditingRequirement(null);
+                  setRequirementDialogOpen(true);
+                }}>
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add
+                </Button>
               </div>
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">Complete list of all Functional Requirements and Acceptance Criteria across the application</p>
@@ -3110,6 +3295,16 @@ export default function Requirements() {
         onSave={handleSaveWidget}
       />
 
+      <RequirementDialog
+        open={requirementDialogOpen}
+        onOpenChange={(open) => {
+          setRequirementDialogOpen(open);
+          if (!open) setEditingRequirement(null);
+        }}
+        requirement={editingRequirement}
+        onSave={handleSaveRequirement}
+      />
+
       <WorkItemDialog
         open={workItemDialogOpen}
         onOpenChange={(open) => {
@@ -3139,21 +3334,21 @@ export default function Requirements() {
                 <Badge variant="outline">{selectedWidget.category || 'general'}</Badge>
                 {selectedWidget.isReusable && <Badge className="bg-green-100 text-green-700">Reusable</Badge>}
               </div>
-              {selectedWidget.props && (selectedWidget.props as string[]).length > 0 && (
+              {Array.isArray(selectedWidget.props) && selectedWidget.props.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium mb-2">Props</h4>
                   <div className="flex flex-wrap gap-1">
-                    {(selectedWidget.props as string[]).map((prop, i) => (
+                    {selectedWidget.props.map((prop: string, i: number) => (
                       <Badge key={i} variant="secondary" className="text-xs">{prop}</Badge>
                     ))}
                   </div>
                 </div>
               )}
-              {selectedWidget.events && (selectedWidget.events as string[]).length > 0 && (
+              {Array.isArray(selectedWidget.events) && selectedWidget.events.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium mb-2">Events</h4>
                   <div className="flex flex-wrap gap-1">
-                    {(selectedWidget.events as string[]).map((event, i) => (
+                    {selectedWidget.events.map((event: string, i: number) => (
                       <Badge key={i} variant="outline" className="text-xs">{event}</Badge>
                     ))}
                   </div>
