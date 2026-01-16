@@ -3053,10 +3053,10 @@ export default function Requirements() {
           />
           <StatsCard
             title="Design"
-            value={`${new Set(requirementsData.map(p => p.section)).size}-${totalPages}`}
+            value={`${new Set(requirementsData.map(p => p.section)).size}-${totalPages}-${fmWidgets.length}`}
             icon={PenTool}
             iconColor="text-purple-600"
-            subtitle="Sections-Pages"
+            subtitle="Sections-Pages-Widgets"
           />
           <StatsCard
             title="Testing"
