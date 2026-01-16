@@ -3045,18 +3045,18 @@ export default function Requirements() {
         {/* Summary Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Design"
-            value={`${new Set(requirementsData.map(p => p.section)).size}-${totalPages}-${workItems.filter(w => w.type?.toLowerCase() === 'epic' && w.appId === selectedAppId).length}`}
-            icon={PenTool}
-            iconColor="text-purple-600"
-            subtitle="Sections-Pages-Epics"
-          />
-          <StatsCard
             title="Features"
-            value={`${workItems.filter(w => w.type?.toUpperCase() === 'FR' && w.appId === selectedAppId).length}-${workItems.filter(w => w.type?.toUpperCase() === 'AC' && w.appId === selectedAppId).length}`}
+            value={`${workItems.filter(w => w.type?.toLowerCase() === 'epic' && w.appId === selectedAppId).length}-${workItems.filter(w => w.type?.toUpperCase() === 'FR' && w.appId === selectedAppId).length}-${workItems.filter(w => w.type?.toUpperCase() === 'AC' && w.appId === selectedAppId).length}`}
             icon={Layers}
             iconColor="text-blue-600"
-            subtitle="FRs-ACs"
+            subtitle="Epics-FRs-ACs"
+          />
+          <StatsCard
+            title="Design"
+            value={`${new Set(requirementsData.map(p => p.section)).size}-${totalPages}`}
+            icon={PenTool}
+            iconColor="text-purple-600"
+            subtitle="Sections-Pages"
           />
           <StatsCard
             title="Testing"
