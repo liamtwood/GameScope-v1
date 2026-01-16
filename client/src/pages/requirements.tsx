@@ -2626,6 +2626,9 @@ export default function Requirements() {
   const [selectedPage, setSelectedPage] = useState<PageRequirements | null>(null);
   const [selectedFrId, setSelectedFrId] = useState<string | null>(null);
   
+  // Handle URL parameter for page selection (from info icon clicks)
+  const [urlPageIdProcessed, setUrlPageIdProcessed] = useState(false);
+  
   // Draft state for Page Details editing
   const [pageDraft, setPageDraft] = useState<{
     section: PageRequirements['section'];
@@ -2880,6 +2883,43 @@ export default function Requirements() {
 
   // Build hierarchy tree from work items (must be after requirementsData is defined)
   const hierarchyTree = useMemo(() => buildHierarchyTree(workItems, requirementsData), [workItems, requirementsData]);
+
+  // Handle URL parameter for page selection (from info icon in header)
+  useEffect(() => {
+    if (urlPageIdProcessed || requirementsData.length === 0) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageId = urlParams.get('pageId');
+    const route = urlParams.get('route');
+    
+    if (pageId || route) {
+      let page: PageRequirements | undefined;
+      
+      if (pageId) {
+        page = requirementsData.find(p => p.id === pageId);
+      } else if (route) {
+        page = requirementsData.find(p => p.route === route);
+      }
+      
+      if (page) {
+        // Initialize draft and original state for editing
+        const initial = {
+          section: page.section,
+          displayOrder: page.displayOrder ?? 0,
+          overview: page.overview || '',
+          epicOverview: page.epicOverview || '',
+        };
+        setSelectedPage(page);
+        setPageDraft(initial);
+        setPageOriginal(initial);
+        setSheetOpen(true);
+        
+        // Clear the URL parameters without reload
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+      setUrlPageIdProcessed(true);
+    }
+  }, [requirementsData, urlPageIdProcessed]);
 
   // Mutations for CRUD
   const createChangeLogMutation = useMutation({
