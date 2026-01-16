@@ -4018,25 +4018,42 @@ export default function Requirements() {
                 ) : (
                   <div className="mt-2 p-3 border border-dashed rounded-md bg-muted/30">
                     <p className="text-sm text-muted-foreground mb-2">No epic assigned to this page</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedWorkItem({
-                          id: '',
-                          type: 'epic',
-                          title: selectedPage?.title || '',
-                          description: '',
-                          pageId: selectedPage?.id || null,
-                          appId: selectedAppId,
-                          status: 'new',
-                        } as WorkItem);
-                        setWorkItemDialogOpen(true);
+                    <Select
+                      onValueChange={async (epicId) => {
+                        if (!selectedPage?.id) return;
+                        try {
+                          await apiRequest('PATCH', `/api/fm/work-items/${epicId}`, { pageId: selectedPage.id });
+                          queryClient.invalidateQueries({ queryKey: ['/api/fm/work-items'] });
+                          toast({ title: 'Epic assigned to page' });
+                        } catch (error) {
+                          toast({ title: 'Failed to assign epic', variant: 'destructive' });
+                        }
                       }}
                     >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Epic
-                    </Button>
+                      <SelectTrigger className="w-[300px]">
+                        <SelectValue placeholder="Select an epic to assign..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {workItems
+                          .filter(w => w.type === 'epic')
+                          .map(epic => {
+                            const assignedPage = apiRequirements.find((p: APIPageRequirement) => p.id === epic.pageId);
+                            return (
+                              <SelectItem key={epic.id} value={epic.id}>
+                                <div className="flex flex-col">
+                                  <span className="font-mono text-xs">{epic.id}</span>
+                                  <span className="text-sm">{epic.title}</span>
+                                  {assignedPage && (
+                                    <span className="text-xs text-muted-foreground">
+                                      Currently: {assignedPage.id} - {assignedPage.title}
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
               </div>
