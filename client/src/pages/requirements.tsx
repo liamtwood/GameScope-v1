@@ -1969,7 +1969,9 @@ function WorkItemDialog({
   workItem, 
   onSave,
   pages,
-  widgets
+  widgets,
+  allWorkItems,
+  workItemLinks
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
@@ -1977,6 +1979,8 @@ function WorkItemDialog({
   onSave: (data: Partial<WorkItem>) => void;
   pages: { id: string; title: string }[];
   widgets: { id: string; name: string }[];
+  allWorkItems: WorkItem[];
+  workItemLinks: WorkItemLink[];
 }) {
   const [formData, setFormData] = useState({
     title: "",
@@ -2032,117 +2036,134 @@ function WorkItemDialog({
     });
   };
 
+  const childACs = allWorkItems.filter(w => w.type === 'AC' && w.parentId === workItem?.id);
+  const childFRs = allWorkItems.filter(w => w.type === 'FR' && w.parentId === workItem?.id);
+  const linkedBugIds = workItemLinks
+    .filter(l => (l.sourceId === workItem?.id || l.targetId === workItem?.id))
+    .map(l => l.sourceId === workItem?.id ? l.targetId : l.sourceId);
+  const linkedBugs = allWorkItems.filter(w => w.type === 'bug' && linkedBugIds.includes(w.id));
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Work Item: {workItem?.id}</DialogTitle>
           <DialogDescription>
             Update work item details including assignment, estimation, and section placement.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="wi-title">Title</Label>
-            <Input
-              id="wi-title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              data-testid="input-wi-title"
-            />
-          </div>
+        
+        <div className="space-y-2 mb-4">
+          <Label htmlFor="wi-title">Title</Label>
+          <Input
+            id="wi-title"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            data-testid="input-wi-title"
+          />
+        </div>
+        
+        <div className="space-y-2 mb-4">
+          <Label htmlFor="wi-description">Description</Label>
+          <Textarea
+            id="wi-description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Detailed description..."
+            rows={3}
+          />
+        </div>
+
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="ui">UI</TabsTrigger>
+            <TabsTrigger value="acs">ACs ({childACs.length})</TabsTrigger>
+            <TabsTrigger value="frs">FRs ({childFRs.length})</TabsTrigger>
+            <TabsTrigger value="bugs">Bugs ({linkedBugs.length})</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-2">
-            <Label htmlFor="wi-description">Description</Label>
-            <Textarea
-              id="wi-description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Detailed description..."
-              rows={3}
-            />
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="wi-status">Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                <SelectTrigger id="wi-status">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {workItemStatusOptions.map(s => (
-                    <SelectItem key={s} value={s}>{workItemStatusLabels[s] || s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="wi-priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v })}>
-                <SelectTrigger id="wi-priority">
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  {workItemPriorityOptions.map(p => (
-                    <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="wi-assigned">Assigned To</Label>
-              <Input
-                id="wi-assigned"
-                value={formData.assignedTo}
-                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                placeholder="Username"
-              />
-            </div>
-          </div>
-          
-          <div className="border-t pt-4 mt-2">
-            <h4 className="text-sm font-medium mb-3">Estimation</h4>
+          <TabsContent value="details" className="space-y-4 pt-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="wi-priority-rank">Priority Rank</Label>
-                <Input
-                  id="wi-priority-rank"
-                  type="number"
-                  value={formData.priorityRank}
-                  onChange={(e) => setFormData({ ...formData, priorityRank: e.target.value })}
-                  placeholder="Sprint order"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="wi-size">Size</Label>
-                <Select value={formData.size || "__none__"} onValueChange={(v) => setFormData({ ...formData, size: v === "__none__" ? "" : v })}>
-                  <SelectTrigger id="wi-size">
-                    <SelectValue placeholder="Size" />
+                <Label htmlFor="wi-status">Status</Label>
+                <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                  <SelectTrigger id="wi-status">
+                    <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">None</SelectItem>
-                    {sizeOptions.map(s => (
-                      <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
+                    {workItemStatusOptions.map(s => (
+                      <SelectItem key={s} value={s}>{workItemStatusLabels[s] || s}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="wi-effort">Effort (hours)</Label>
+                <Label htmlFor="wi-priority">Priority</Label>
+                <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v })}>
+                  <SelectTrigger id="wi-priority">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workItemPriorityOptions.map(p => (
+                      <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="wi-assigned">Assigned To</Label>
                 <Input
-                  id="wi-effort"
-                  type="number"
-                  value={formData.effort}
-                  onChange={(e) => setFormData({ ...formData, effort: e.target.value })}
-                  placeholder="Hours"
+                  id="wi-assigned"
+                  value={formData.assignedTo}
+                  onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                  placeholder="Username"
                 />
               </div>
             </div>
-          </div>
+            
+            <div className="border-t pt-4 mt-2">
+              <h4 className="text-sm font-medium mb-3">Estimation</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="wi-priority-rank">Priority Rank</Label>
+                  <Input
+                    id="wi-priority-rank"
+                    type="number"
+                    value={formData.priorityRank}
+                    onChange={(e) => setFormData({ ...formData, priorityRank: e.target.value })}
+                    placeholder="Sprint order"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="wi-size">Size</Label>
+                  <Select value={formData.size || "__none__"} onValueChange={(v) => setFormData({ ...formData, size: v === "__none__" ? "" : v })}>
+                    <SelectTrigger id="wi-size">
+                      <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {sizeOptions.map(s => (
+                        <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="wi-effort">Effort (hours)</Label>
+                  <Input
+                    id="wi-effort"
+                    type="number"
+                    value={formData.effort}
+                    onChange={(e) => setFormData({ ...formData, effort: e.target.value })}
+                    placeholder="Hours"
+                  />
+                </div>
+              </div>
+            </div>
+          </TabsContent>
           
-          <div className="border-t pt-4 mt-2">
-            <h4 className="text-sm font-medium mb-3">Section Placement</h4>
+          <TabsContent value="ui" className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="wi-page">Screen/Page</Label>
@@ -2173,7 +2194,7 @@ function WorkItemDialog({
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="wi-section-title">Section Title</Label>
                 <Input
@@ -2208,9 +2229,64 @@ function WorkItemDialog({
                 </Select>
               </div>
             </div>
-          </div>
+          </TabsContent>
           
-        </div>
+          <TabsContent value="acs" className="pt-4">
+            {childACs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No acceptance criteria linked to this work item.</p>
+            ) : (
+              <div className="space-y-2">
+                {childACs.map(ac => (
+                  <div key={ac.id} className="p-3 border rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-mono text-xs">{ac.id}</Badge>
+                      <span className="text-sm font-medium">{ac.title}</span>
+                    </div>
+                    {ac.description && <p className="text-xs text-muted-foreground mt-1">{ac.description}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="frs" className="pt-4">
+            {childFRs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No functional requirements linked to this work item.</p>
+            ) : (
+              <div className="space-y-2">
+                {childFRs.map(fr => (
+                  <div key={fr.id} className="p-3 border rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-mono text-xs">{fr.id}</Badge>
+                      <span className="text-sm font-medium">{fr.title}</span>
+                    </div>
+                    {fr.description && <p className="text-xs text-muted-foreground mt-1">{fr.description}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="bugs" className="pt-4">
+            {linkedBugs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No bugs linked to this work item.</p>
+            ) : (
+              <div className="space-y-2">
+                {linkedBugs.map(bug => (
+                  <div key={bug.id} className="p-3 border rounded-md border-red-200 bg-red-50">
+                    <div className="flex items-center gap-2">
+                      <Bug className="h-4 w-4 text-red-600" />
+                      <Badge variant="outline" className="font-mono text-xs">{bug.id}</Badge>
+                      <span className="text-sm font-medium">{bug.title}</span>
+                    </div>
+                    {bug.description && <p className="text-xs text-muted-foreground mt-1">{bug.description}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave} data-testid="btn-save-workitem">
@@ -4261,6 +4337,8 @@ export default function Requirements() {
         onSave={handleSaveWorkItem}
         pages={requirementsData.map(p => ({ id: p.id, title: p.title }))}
         widgets={fmWidgets.map(w => ({ id: w.id, name: w.name }))}
+        allWorkItems={workItems}
+        workItemLinks={workItemLinks}
       />
 
       <TestCaseDialog
