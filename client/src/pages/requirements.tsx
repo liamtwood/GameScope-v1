@@ -1953,6 +1953,14 @@ function RequirementDialog({
   );
 }
 const workItemStatusOptions = ['new', 'defined', 'rejected', 'dev', 'qc', 'complete'] as const;
+const workItemStatusLabels: Record<string, string> = {
+  'new': 'New',
+  'defined': 'Defined',
+  'rejected': 'Rejected',
+  'dev': 'Dev',
+  'qc': 'QC',
+  'complete': 'Complete',
+};
 const workItemPriorityOptions = ['low', 'medium', 'high', 'critical'] as const;
 
 function WorkItemDialog({ 
@@ -2064,7 +2072,7 @@ function WorkItemDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {workItemStatusOptions.map(s => (
-                    <SelectItem key={s} value={s}>{s.replace('_', ' ')}</SelectItem>
+                    <SelectItem key={s} value={s}>{workItemStatusLabels[s] || s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
