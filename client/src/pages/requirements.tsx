@@ -132,12 +132,13 @@ interface HierarchyNode {
   nodeType?: 'section' | 'page' | 'workItem';
 }
 
-const sectionOrder = ['home', 'team', 'club', 'devops'];
+const sectionOrder = ['home', 'team', 'club', 'devops', 'global'];
 const sectionLabels: Record<string, string> = {
   home: 'Home',
   team: 'Team',
   club: 'Club',
-  devops: 'DevOps'
+  devops: 'DevOps',
+  global: 'Global'
 };
 
 // Build hierarchy tree with sections and pages: Section → Page → Epic → FR → AC/TC/Bug
@@ -184,7 +185,6 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
   const roots: HierarchyNode[] = [];
   sectionOrder.forEach(sectionKey => {
     const sectionPages = pagesBySection.get(sectionKey) || [];
-    if (sectionPages.length === 0) return;
     
     // Sort all pages by page number first
     const sortedPages = [...sectionPages].sort((a, b) => getPageNumber(a.id) - getPageNumber(b.id));
