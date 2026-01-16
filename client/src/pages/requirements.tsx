@@ -3074,644 +3074,742 @@ export default function Requirements() {
           />
         </div>
 
-        <h2 className="text-lg font-semibold">User Interface</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {sections.map((section) => {
-            const hierarchy = getFilteredHierarchy(section);
-            if (hierarchy.length === 0) return null;
-            
-            const SectionIcon = sectionIcons[section];
-            const sectionColor = sectionColors[section];
-            const pageCount = hierarchy.length + hierarchy.reduce(
-              (acc, h) => acc + countChildren(h), 0
-            );
-            
-            return (
-              <Card key={section} data-testid={`card-section-${section}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-3 text-base">
-                    <div className={`p-2 rounded-lg ${sectionColor}`}>
-                      <SectionIcon className="h-4 w-4 text-white" />
-                    </div>
-                    <span>{sectionTitles[section]}</span>
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      {pageCount}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ScrollArea className="h-[400px]">
-                    {hierarchy.map((page) => (
-                      <PageTreeItem 
-                        key={page.id} 
-                        page={page} 
-                        onSelect={handleSelectPage}
-                        selectedId={selectedPage?.id || null}
-                      />
-                    ))}
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        {/* Main 4-Tab Structure */}
+        <Tabs defaultValue="features" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="features" className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Features
+            </TabsTrigger>
+            <TabsTrigger value="design" className="flex items-center gap-2">
+              <PenTool className="h-4 w-4" />
+              Design
+            </TabsTrigger>
+            <TabsTrigger value="testing" className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4" />
+              Testing
+            </TabsTrigger>
+            <TabsTrigger value="release" className="flex items-center gap-2">
+              <Rocket className="h-4 w-4" />
+              Release
+            </TabsTrigger>
+          </TabsList>
 
-        {filteredRegistry.length === 0 && (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No results found</h3>
-              <p className="text-muted-foreground mt-1">
-                Try adjusting your search query
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card data-testid="card-requirements-spreadsheet">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-emerald-500">
-                <TableIcon className="h-4 w-4 text-white" />
-              </div>
-              <span>Functional Requirements</span>
-              <div className="flex gap-2 items-center ml-auto">
-                <Badge variant="secondary" className="text-xs">
-                  {totalFRs} FRs
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {totalACs} ACs
-                </Badge>
-                <Button size="sm" variant="outline" onClick={() => {
-                  setEditingRequirement(null);
-                  setRequirementDialogOpen(true);
-                }}>
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add
-                </Button>
-              </div>
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Complete list of all Functional Requirements and Acceptance Criteria across the application</p>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <Tabs defaultValue="fr" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="fr" data-testid="tab-fr-spreadsheet">
-                  Functional Requirements ({totalFRs})
-                </TabsTrigger>
-                <TabsTrigger value="ac" data-testid="tab-ac-spreadsheet">
-                  Acceptance Criteria ({totalACs})
-                </TabsTrigger>
+          {/* Features Tab */}
+          <TabsContent value="features" className="mt-6">
+            <Tabs defaultValue="work-items" className="w-full">
+              <TabsList>
+                <TabsTrigger value="work-items">Work Items</TabsTrigger>
+                <TabsTrigger value="functional-requirements">Functional Requirements</TabsTrigger>
+                <TabsTrigger value="requirements-hierarchy">Requirements Hierarchy</TabsTrigger>
               </TabsList>
-              <TabsContent value="fr">
-                <div className="border rounded-lg overflow-hidden">
-                  <ScrollArea className="h-[500px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
-                          <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
-                          <TableHead className="w-[180px] sticky top-0 bg-background">Title</TableHead>
-                          <TableHead className="w-[60px] sticky top-0 bg-background text-center">ACs</TableHead>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {requirementsData.flatMap((epic) => 
-                          (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => {
-                            const allACs = epic.acceptanceCriteria as Array<{ id: string; parentFrId?: string }>;
-                            const acCount = allACs.filter(ac => ac.parentFrId === fr.id).length;
-                            return (
-                            <TableRow key={`${epic.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
-                              <TableCell>
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {epic.section}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm font-medium">{epic.title}</TableCell>
-                              <TableCell>
-                                <button
-                                  className="font-mono text-xs text-primary hover:underline cursor-pointer"
-                                  onClick={() => handleSelectPage(epic, fr.id)}
-                                  data-testid={`btn-open-fr-${fr.id}`}
-                                >
-                                  {fr.id}
-                                </button>
-                              </TableCell>
-                              <TableCell className="text-sm">{fr.title}</TableCell>
-                              <TableCell className="text-center">
-                                <Badge variant={acCount > 0 ? "default" : "outline"} className="text-xs">
-                                  {acCount}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="secondary" className="text-xs">
-                                  {fr.status || 'New'}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          );})
-                        )}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                </div>
-              </TabsContent>
-              <TabsContent value="ac">
-                <div className="border rounded-lg overflow-hidden">
-                  <ScrollArea className="h-[500px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
-                          <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
-                          <TableHead className="w-[120px] sticky top-0 bg-background">ID</TableHead>
-                          <TableHead className="sticky top-0 bg-background">Description</TableHead>
-                          <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {requirementsData.flatMap((epic) => 
-                          (epic.acceptanceCriteria as Array<{ id: string; description: string; status?: string }>).map((ac) => (
-                            <TableRow key={`${epic.id}-${ac.id}`} data-testid={`row-ac-${ac.id}`}>
-                              <TableCell>
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {epic.section}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm font-medium">{epic.title}</TableCell>
-                              <TableCell>
-                                <button
-                                  className="font-mono text-xs text-primary hover:underline cursor-pointer"
-                                  onClick={() => handleSelectPage(epic)}
-                                  data-testid={`btn-open-ac-${ac.id}`}
-                                >
-                                  {ac.id}
-                                </button>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">{ac.description}</TableCell>
-                              <TableCell>
-                                <Badge variant="secondary" className="text-xs">
-                                  {ac.status || 'New'}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
 
-        <Card data-testid="card-datamodels">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-indigo-500">
-                <Database className="h-4 w-4 text-white" />
-              </div>
-              <span>Data Models</span>
-              <Badge variant="secondary" className="ml-auto text-xs">
-                {dataModelsData.length} objects
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { setEditingDataModel(null); setDataModelDialogOpen(true); }}
-                data-testid="btn-add-datamodel"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {dataModelsData.map((model) => (
-                <DataModelCard 
-                  key={model.id} 
-                  model={model} 
-                  onSelect={handleSelectModel}
-                  onEdit={handleEditModel}
-                  onDelete={handleDeleteModel}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              <TabsContent value="work-items" className="mt-4">
+                <Card data-testid="card-workitems">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-gradient-to-r from-rose-500 to-cyan-500">
+                        <ListTodo className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Work Items</span>
+                      <div className="flex gap-2 ml-auto flex-wrap">
+                        <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
+                        <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
+                        <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
+                        <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
+                        <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
+                        <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex gap-2 mb-4 flex-wrap">
+                      <Button
+                        variant={workItemTypeFilter === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('all')}
+                        data-testid="btn-filter-workitems-all"
+                      >
+                        All
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'epic' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('epic')}
+                        className={workItemTypeFilter === 'epic' ? '' : 'text-indigo-600'}
+                        data-testid="btn-filter-workitems-epic"
+                      >
+                        <Layers className="h-3 w-3 mr-1" />
+                        Epics ({workItemSummary.epics})
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'FR' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('FR')}
+                        className={workItemTypeFilter === 'FR' ? '' : 'text-blue-600'}
+                        data-testid="btn-filter-workitems-fr"
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        FRs ({workItemSummary.frs})
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'AC' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('AC')}
+                        className={workItemTypeFilter === 'AC' ? '' : 'text-sky-600'}
+                        data-testid="btn-filter-workitems-ac"
+                      >
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        ACs ({workItemSummary.acs})
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('test_case')}
+                        className={workItemTypeFilter === 'test_case' ? '' : 'text-teal-600'}
+                        data-testid="btn-filter-workitems-testcase"
+                      >
+                        <ClipboardList className="h-3 w-3 mr-1" />
+                        TCs ({workItemSummary.testCases})
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('bug')}
+                        className={workItemTypeFilter === 'bug' ? '' : 'text-rose-600'}
+                        data-testid="btn-filter-workitems-bug"
+                      >
+                        <Bug className="h-3 w-3 mr-1" />
+                        Bugs ({workItemSummary.bugs})
+                      </Button>
+                      <Button
+                        variant={workItemTypeFilter === 'enhancement' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setWorkItemTypeFilter('enhancement')}
+                        className={workItemTypeFilter === 'enhancement' ? '' : 'text-cyan-600'}
+                        data-testid="btn-filter-workitems-enhancement"
+                      >
+                        <Lightbulb className="h-3 w-3 mr-1" />
+                        Enhancements ({workItemSummary.enhancements})
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {filteredWorkItems
+                        .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
+                        .map((item) => (
+                        <WorkItemCard
+                          key={item.id}
+                          item={item}
+                          expanded={expandedWorkItems.has(item.id)}
+                          onToggle={() => toggleWorkItem(item.id)}
+                          onConvert={(id, newType) => convertWorkItemMutation.mutate({ id, type: newType })}
+                          linkedItems={getLinkedItemsFor(item.id)}
+                          isConverting={convertWorkItemMutation.isPending}
+                        />
+                      ))}
+                      {filteredWorkItems
+                        .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
+                        .length === 0 && (
+                        <p className="text-muted-foreground text-center py-8">No work items match the filter</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-        <Card data-testid="card-widgets">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-violet-500">
-                <Component className="h-4 w-4 text-white" />
-              </div>
-              <span>Widgets</span>
-              <Badge variant="secondary" className="ml-auto text-xs">
-                {fmWidgets.length} components
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { setEditingWidget(null); setWidgetDialogOpen(true); }}
-                data-testid="btn-add-widget"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add
-              </Button>
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Reusable UI components tracked across screens</p>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {fmWidgets.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {fmWidgets.map((widget) => (
-                  <div
-                    key={widget.id}
-                    className="p-3 border rounded-lg hover:bg-muted/50 cursor-pointer group"
-                    onClick={() => handleSelectWidget(widget)}
-                    data-testid={`widget-${widget.id}`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{widget.name}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{widget.description}</div>
-                        <div className="flex gap-1 mt-2">
-                          <Badge variant="outline" className="text-xs">{widget.category || 'general'}</Badge>
-                          {widget.isReusable && <Badge className="text-xs bg-green-100 text-green-700">Reusable</Badge>}
+              <TabsContent value="functional-requirements" className="mt-4">
+                <Card data-testid="card-requirements-spreadsheet">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-emerald-500">
+                        <TableIcon className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Functional Requirements</span>
+                      <div className="flex gap-2 items-center ml-auto">
+                        <Badge variant="secondary" className="text-xs">
+                          {totalFRs} FRs
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {totalACs} ACs
+                        </Badge>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setEditingRequirement(null);
+                          setRequirementDialogOpen(true);
+                        }}>
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Complete list of all Functional Requirements and Acceptance Criteria across the application</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Tabs defaultValue="fr" className="w-full">
+                      <TabsList className="mb-4">
+                        <TabsTrigger value="fr" data-testid="tab-fr-spreadsheet">
+                          Functional Requirements ({totalFRs})
+                        </TabsTrigger>
+                        <TabsTrigger value="ac" data-testid="tab-ac-spreadsheet">
+                          Acceptance Criteria ({totalACs})
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="fr">
+                        <div className="border rounded-lg overflow-hidden">
+                          <ScrollArea className="h-[500px]">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                                  <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
+                                  <TableHead className="w-[100px] sticky top-0 bg-background">ID</TableHead>
+                                  <TableHead className="w-[180px] sticky top-0 bg-background">Title</TableHead>
+                                  <TableHead className="w-[60px] sticky top-0 bg-background text-center">ACs</TableHead>
+                                  <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {requirementsData.flatMap((epic) => 
+                                  (epic.functionalRequirements as Array<{ id: string; title: string; description: string; status?: string }>).map((fr) => {
+                                    const allACs = epic.acceptanceCriteria as Array<{ id: string; parentFrId?: string }>;
+                                    const acCount = allACs.filter(ac => ac.parentFrId === fr.id).length;
+                                    return (
+                                    <TableRow key={`${epic.id}-${fr.id}`} data-testid={`row-fr-${fr.id}`}>
+                                      <TableCell>
+                                        <Badge variant="outline" className="text-xs capitalize">
+                                          {epic.section}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-sm font-medium">{epic.title}</TableCell>
+                                      <TableCell>
+                                        <button
+                                          className="font-mono text-xs text-primary hover:underline cursor-pointer"
+                                          onClick={() => handleSelectPage(epic, fr.id)}
+                                          data-testid={`btn-open-fr-${fr.id}`}
+                                        >
+                                          {fr.id}
+                                        </button>
+                                      </TableCell>
+                                      <TableCell className="text-sm">{fr.title}</TableCell>
+                                      <TableCell className="text-center">
+                                        <Badge variant={acCount > 0 ? "default" : "outline"} className="text-xs">
+                                          {acCount}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Badge variant="secondary" className="text-xs">
+                                          {fr.status || 'New'}
+                                        </Badge>
+                                      </TableCell>
+                                    </TableRow>
+                                  );})
+                                )}
+                              </TableBody>
+                            </Table>
+                          </ScrollArea>
                         </div>
-                      </div>
-                      <div className="opacity-0 group-hover:opacity-100 flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => { e.stopPropagation(); handleEditWidget(widget); }}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteWidget(widget); }}
-                        >
-                          <Trash2 className="h-3 w-3 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">No widgets defined yet. Add reusable components to track them across screens.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card data-testid="card-testruns">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-indigo-600">
-                <ClipboardList className="h-4 w-4 text-white" />
-              </div>
-              <span>Test Runs</span>
-              <div className="flex items-center gap-2 ml-auto">
-                <Badge variant="secondary" className="text-xs">
-                  {testRuns.length} runs
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTestRunDialogOpen(true)}
-                  className="h-7"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add
-                </Button>
-              </div>
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Test executions against specific builds with individual outcomes</p>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {testRunsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : testRuns.length > 0 ? (
-              <div className="space-y-2">
-                {testRuns.map((run) => (
-                  <TestRunItem
-                    key={run.id}
-                    run={run}
-                    expanded={expandedTestRuns.has(run.id)}
-                    onToggle={() => toggleTestRun(run.id)}
-                    testCases={testCaseData}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">No test runs recorded yet</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card data-testid="card-testcases">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-teal-500">
-                <ClipboardList className="h-4 w-4 text-white" />
-              </div>
-              <span>Test Cases</span>
-              <div className="flex gap-2 ml-auto">
-                <Badge className="bg-green-100 text-green-700">{testCaseSummary.passed} Passed</Badge>
-                <Badge className="bg-red-100 text-red-700">{testCaseSummary.failed} Failed</Badge>
-                {testCaseSummary.partial > 0 && <Badge className="bg-yellow-100 text-yellow-700">{testCaseSummary.partial} Partial</Badge>}
-                {testCaseSummary.blocked > 0 && <Badge className="bg-gray-100 text-gray-700">{testCaseSummary.blocked} Blocked</Badge>}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTestCaseDialogOpen(true)}
-                  className="h-7"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add
-                </Button>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={testCaseFilter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTestCaseFilter('all')}
-                data-testid="btn-filter-all"
-              >
-                All ({testCaseSummary.total})
-              </Button>
-              <Button
-                variant={testCaseFilter === 'passed' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTestCaseFilter('passed')}
-                className={testCaseFilter === 'passed' ? '' : 'text-green-600'}
-                data-testid="btn-filter-passed"
-              >
-                <Check className="h-3 w-3 mr-1" />
-                Passed
-              </Button>
-              <Button
-                variant={testCaseFilter === 'failed' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTestCaseFilter('failed')}
-                className={testCaseFilter === 'failed' ? '' : 'text-red-600'}
-                data-testid="btn-filter-failed"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Failed
-              </Button>
-              <Button
-                variant={testCaseFilter === 'partial' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTestCaseFilter('partial')}
-                className={testCaseFilter === 'partial' ? '' : 'text-yellow-600'}
-                data-testid="btn-filter-partial"
-              >
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                Partial
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {filteredTestCases.map((tc) => (
-                <TestCaseItem
-                  key={tc.id}
-                  testCase={tc}
-                  expanded={expandedTestCases.has(tc.id)}
-                  onToggle={() => toggleTestCase(tc.id)}
-                />
-              ))}
-              {filteredTestCases.length === 0 && (
-                <p className="text-muted-foreground text-center py-8">No test cases match the filter</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-testid="card-hierarchy">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500">
-                <Target className="h-4 w-4 text-white" />
-              </div>
-              <span>Requirements Hierarchy</span>
-              <div className="flex gap-2 ml-auto flex-wrap">
-                <Badge className="bg-slate-100 text-slate-700">4 Sections</Badge>
-                <Badge className="bg-emerald-100 text-emerald-700">{requirementsData.length} Pages</Badge>
-                <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
-                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
-                <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
-                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
-                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
-              </div>
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Click + to expand: Section → Page → Epic → FR → AC/TC/Bug</p>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="border rounded-lg p-2 bg-muted/20">
-              {hierarchyTree.length > 0 ? (
-                hierarchyTree.map(node => (
-                  <HierarchyTreeNode
-                    key={node.item.id}
-                    node={node}
-                    expandedNodes={expandedHierarchyNodes}
-                    onToggle={toggleHierarchyNode}
-                    onSelectItem={handleSelectWorkItem}
-                  />
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No hierarchy items found. Add Epics, FRs, ACs, TCs, Bugs, or Enhancements.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-testid="card-workitems">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-rose-500 to-cyan-500">
-                <ListTodo className="h-4 w-4 text-white" />
-              </div>
-              <span>Work Items</span>
-              <div className="flex gap-2 ml-auto flex-wrap">
-                <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
-                <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
-                <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
-                <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
-                <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
-                <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex gap-2 mb-4 flex-wrap">
-              <Button
-                variant={workItemTypeFilter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('all')}
-                data-testid="btn-filter-workitems-all"
-              >
-                All
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'epic' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('epic')}
-                className={workItemTypeFilter === 'epic' ? '' : 'text-indigo-600'}
-                data-testid="btn-filter-workitems-epic"
-              >
-                <Layers className="h-3 w-3 mr-1" />
-                Epics ({workItemSummary.epics})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'FR' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('FR')}
-                className={workItemTypeFilter === 'FR' ? '' : 'text-blue-600'}
-                data-testid="btn-filter-workitems-fr"
-              >
-                <FileText className="h-3 w-3 mr-1" />
-                FRs ({workItemSummary.frs})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'AC' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('AC')}
-                className={workItemTypeFilter === 'AC' ? '' : 'text-sky-600'}
-                data-testid="btn-filter-workitems-ac"
-              >
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                ACs ({workItemSummary.acs})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'test_case' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('test_case')}
-                className={workItemTypeFilter === 'test_case' ? '' : 'text-teal-600'}
-                data-testid="btn-filter-workitems-testcase"
-              >
-                <ClipboardList className="h-3 w-3 mr-1" />
-                TCs ({workItemSummary.testCases})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'bug' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('bug')}
-                className={workItemTypeFilter === 'bug' ? '' : 'text-rose-600'}
-                data-testid="btn-filter-workitems-bug"
-              >
-                <Bug className="h-3 w-3 mr-1" />
-                Bugs ({workItemSummary.bugs})
-              </Button>
-              <Button
-                variant={workItemTypeFilter === 'enhancement' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setWorkItemTypeFilter('enhancement')}
-                className={workItemTypeFilter === 'enhancement' ? '' : 'text-cyan-600'}
-                data-testid="btn-filter-workitems-enhancement"
-              >
-                <Lightbulb className="h-3 w-3 mr-1" />
-                Enhancements ({workItemSummary.enhancements})
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {filteredWorkItems
-                .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
-                .map((item) => (
-                <WorkItemCard
-                  key={item.id}
-                  item={item}
-                  expanded={expandedWorkItems.has(item.id)}
-                  onToggle={() => toggleWorkItem(item.id)}
-                  onConvert={(id, newType) => convertWorkItemMutation.mutate({ id, type: newType })}
-                  linkedItems={getLinkedItemsFor(item.id)}
-                  isConverting={convertWorkItemMutation.isPending}
-                />
-              ))}
-              {filteredWorkItems
-                .filter(item => workItemTypeFilter !== 'all' ? true : !hierarchyTypes.includes(item.type))
-                .length === 0 && (
-                <p className="text-muted-foreground text-center py-8">No work items match the filter</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-testid="card-changelog">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className="p-2 rounded-lg bg-slate-500">
-                <History className="h-4 w-4 text-white" />
-              </div>
-              <span>Change Log & Issues</span>
-              <Badge variant="secondary" className="ml-auto text-xs">
-                {changeLogData.length} items
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { setEditingChangeLog(null); setChangeLogDialogOpen(true); }}
-                data-testid="btn-add-changelog"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="changelog">
-                  Changes ({regularChanges.length})
-                </TabsTrigger>
-                <TabsTrigger value="issues">
-                  Issues ({issues.length})
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="changelog">
-                <div className="space-y-3">
-                  {regularChanges.map((entry) => (
-                    <ChangeLogItem 
-                      key={entry.id} 
-                      entry={entry} 
-                      onEdit={handleEditChangeLog}
-                      onDelete={handleDeleteChangeLog}
-                    />
-                  ))}
-                  {regularChanges.length === 0 && (
-                    <p className="text-muted-foreground text-center py-8">No change log entries yet</p>
-                  )}
-                </div>
+                      </TabsContent>
+                      <TabsContent value="ac">
+                        <div className="border rounded-lg overflow-hidden">
+                          <ScrollArea className="h-[500px]">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[100px] sticky top-0 bg-background">Section</TableHead>
+                                  <TableHead className="w-[150px] sticky top-0 bg-background">Epic</TableHead>
+                                  <TableHead className="w-[120px] sticky top-0 bg-background">ID</TableHead>
+                                  <TableHead className="sticky top-0 bg-background">Description</TableHead>
+                                  <TableHead className="w-[100px] sticky top-0 bg-background">Status</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {requirementsData.flatMap((epic) => 
+                                  (epic.acceptanceCriteria as Array<{ id: string; description: string; status?: string }>).map((ac) => (
+                                    <TableRow key={`${epic.id}-${ac.id}`} data-testid={`row-ac-${ac.id}`}>
+                                      <TableCell>
+                                        <Badge variant="outline" className="text-xs capitalize">
+                                          {epic.section}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-sm font-medium">{epic.title}</TableCell>
+                                      <TableCell>
+                                        <button
+                                          className="font-mono text-xs text-primary hover:underline cursor-pointer"
+                                          onClick={() => handleSelectPage(epic)}
+                                          data-testid={`btn-open-ac-${ac.id}`}
+                                        >
+                                          {ac.id}
+                                        </button>
+                                      </TableCell>
+                                      <TableCell className="text-sm text-muted-foreground">{ac.description}</TableCell>
+                                      <TableCell>
+                                        <Badge variant="secondary" className="text-xs">
+                                          {ac.status || 'New'}
+                                        </Badge>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))
+                                )}
+                              </TableBody>
+                            </Table>
+                          </ScrollArea>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
               </TabsContent>
-              <TabsContent value="issues">
-                <div className="space-y-3">
-                  {issues.map((entry) => (
-                    <ChangeLogItem 
-                      key={entry.id} 
-                      entry={entry}
-                      onEdit={handleEditChangeLog}
-                      onDelete={handleDeleteChangeLog}
-                    />
-                  ))}
-                  {issues.length === 0 && (
-                    <p className="text-muted-foreground text-center py-8">No issues tracked yet</p>
-                  )}
-                </div>
+
+              <TabsContent value="requirements-hierarchy" className="mt-4">
+                <Card data-testid="card-hierarchy">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500">
+                        <Target className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Requirements Hierarchy</span>
+                      <div className="flex gap-2 ml-auto flex-wrap">
+                        <Badge className="bg-slate-100 text-slate-700">4 Sections</Badge>
+                        <Badge className="bg-emerald-100 text-emerald-700">{requirementsData.length} Pages</Badge>
+                        <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
+                        <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
+                        <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
+                        <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
+                        <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
+                      </div>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Click + to expand: Section → Page → Epic → FR → AC/TC/Bug</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="border rounded-lg p-2 bg-muted/20">
+                      {hierarchyTree.length > 0 ? (
+                        hierarchyTree.map(node => (
+                          <HierarchyTreeNode
+                            key={node.item.id}
+                            node={node}
+                            expandedNodes={expandedHierarchyNodes}
+                            onToggle={toggleHierarchyNode}
+                            onSelectItem={handleSelectWorkItem}
+                          />
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground text-center py-8">No hierarchy items found. Add Epics, FRs, ACs, TCs, Bugs, or Enhancements.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          {/* Design Tab */}
+          <TabsContent value="design" className="mt-6">
+            <Tabs defaultValue="user-interface" className="w-full">
+              <TabsList>
+                <TabsTrigger value="user-interface">User Interface</TabsTrigger>
+                <TabsTrigger value="widgets">Widgets</TabsTrigger>
+                <TabsTrigger value="data-model">Data Model</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="user-interface" className="mt-4 space-y-4">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {sections.map((section) => {
+                    const hierarchy = getFilteredHierarchy(section);
+                    if (hierarchy.length === 0) return null;
+                    
+                    const SectionIcon = sectionIcons[section];
+                    const sectionColor = sectionColors[section];
+                    const pageCount = hierarchy.length + hierarchy.reduce(
+                      (acc, h) => acc + countChildren(h), 0
+                    );
+                    
+                    return (
+                      <Card key={section} data-testid={`card-section-${section}`}>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="flex items-center gap-3 text-base">
+                            <div className={`p-2 rounded-lg ${sectionColor}`}>
+                              <SectionIcon className="h-4 w-4 text-white" />
+                            </div>
+                            <span>{sectionTitles[section]}</span>
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {pageCount}
+                            </Badge>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <ScrollArea className="h-[400px]">
+                            {hierarchy.map((page) => (
+                              <PageTreeItem 
+                                key={page.id} 
+                                page={page} 
+                                onSelect={handleSelectPage}
+                                selectedId={selectedPage?.id || null}
+                              />
+                            ))}
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {filteredRegistry.length === 0 && (
+                  <Card>
+                    <CardContent className="py-12 text-center">
+                      <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium">No results found</h3>
+                      <p className="text-muted-foreground mt-1">
+                        Try adjusting your search query
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="widgets" className="mt-4">
+                <Card data-testid="card-widgets">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-violet-500">
+                        <Component className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Widgets</span>
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {fmWidgets.length} components
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setEditingWidget(null); setWidgetDialogOpen(true); }}
+                        data-testid="btn-add-widget"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Reusable UI components tracked across screens</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {fmWidgets.length > 0 ? (
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {fmWidgets.map((widget) => (
+                          <div
+                            key={widget.id}
+                            className="p-3 border rounded-lg hover:bg-muted/50 cursor-pointer group"
+                            onClick={() => handleSelectWidget(widget)}
+                            data-testid={`widget-${widget.id}`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-sm">{widget.name}</div>
+                                <div className="text-xs text-muted-foreground mt-1">{widget.description}</div>
+                                <div className="flex gap-1 mt-2">
+                                  <Badge variant="outline" className="text-xs">{widget.category || 'general'}</Badge>
+                                  {widget.isReusable && <Badge className="text-xs bg-green-100 text-green-700">Reusable</Badge>}
+                                </div>
+                              </div>
+                              <div className="opacity-0 group-hover:opacity-100 flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); handleEditWidget(widget); }}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteWidget(widget); }}
+                                >
+                                  <Trash2 className="h-3 w-3 text-destructive" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">No widgets defined yet. Add reusable components to track them across screens.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="data-model" className="mt-4">
+                <Card data-testid="card-datamodels">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-indigo-500">
+                        <Database className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Data Models</span>
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {dataModelsData.length} objects
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setEditingDataModel(null); setDataModelDialogOpen(true); }}
+                        data-testid="btn-add-datamodel"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {dataModelsData.map((model) => (
+                        <DataModelCard 
+                          key={model.id} 
+                          model={model} 
+                          onSelect={handleSelectModel}
+                          onEdit={handleEditModel}
+                          onDelete={handleDeleteModel}
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          {/* Testing Tab */}
+          <TabsContent value="testing" className="mt-6">
+            <Tabs defaultValue="test-runs" className="w-full">
+              <TabsList>
+                <TabsTrigger value="test-runs">Test Runs</TabsTrigger>
+                <TabsTrigger value="test-cases">Test Cases</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="test-runs" className="mt-4">
+                <Card data-testid="card-testruns">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-indigo-600">
+                        <ClipboardList className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Test Runs</span>
+                      <div className="flex items-center gap-2 ml-auto">
+                        <Badge variant="secondary" className="text-xs">
+                          {testRuns.length} runs
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTestRunDialogOpen(true)}
+                          className="h-7"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Test executions against specific builds with individual outcomes</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {testRunsLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : testRuns.length > 0 ? (
+                      <div className="space-y-2">
+                        {testRuns.map((run) => (
+                          <TestRunItem
+                            key={run.id}
+                            run={run}
+                            expanded={expandedTestRuns.has(run.id)}
+                            onToggle={() => toggleTestRun(run.id)}
+                            testCases={testCaseData}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">No test runs recorded yet</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="test-cases" className="mt-4">
+                <Card data-testid="card-testcases">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-teal-500">
+                        <ClipboardList className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Test Cases</span>
+                      <div className="flex gap-2 ml-auto">
+                        <Badge className="bg-green-100 text-green-700">{testCaseSummary.passed} Passed</Badge>
+                        <Badge className="bg-red-100 text-red-700">{testCaseSummary.failed} Failed</Badge>
+                        {testCaseSummary.partial > 0 && <Badge className="bg-yellow-100 text-yellow-700">{testCaseSummary.partial} Partial</Badge>}
+                        {testCaseSummary.blocked > 0 && <Badge className="bg-gray-100 text-gray-700">{testCaseSummary.blocked} Blocked</Badge>}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTestCaseDialogOpen(true)}
+                          className="h-7"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex gap-2 mb-4">
+                      <Button
+                        variant={testCaseFilter === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTestCaseFilter('all')}
+                        data-testid="btn-filter-all"
+                      >
+                        All ({testCaseSummary.total})
+                      </Button>
+                      <Button
+                        variant={testCaseFilter === 'passed' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTestCaseFilter('passed')}
+                        className={testCaseFilter === 'passed' ? '' : 'text-green-600'}
+                        data-testid="btn-filter-passed"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Passed
+                      </Button>
+                      <Button
+                        variant={testCaseFilter === 'failed' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTestCaseFilter('failed')}
+                        className={testCaseFilter === 'failed' ? '' : 'text-red-600'}
+                        data-testid="btn-filter-failed"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Failed
+                      </Button>
+                      <Button
+                        variant={testCaseFilter === 'partial' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTestCaseFilter('partial')}
+                        className={testCaseFilter === 'partial' ? '' : 'text-yellow-600'}
+                        data-testid="btn-filter-partial"
+                      >
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        Partial
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {filteredTestCases.map((tc) => (
+                        <TestCaseItem
+                          key={tc.id}
+                          testCase={tc}
+                          expanded={expandedTestCases.has(tc.id)}
+                          onToggle={() => toggleTestCase(tc.id)}
+                        />
+                      ))}
+                      {filteredTestCases.length === 0 && (
+                        <p className="text-muted-foreground text-center py-8">No test cases match the filter</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          {/* Release Tab */}
+          <TabsContent value="release" className="mt-6">
+            <Tabs defaultValue="release-plan" className="w-full">
+              <TabsList>
+                <TabsTrigger value="release-plan">Release Plan</TabsTrigger>
+                <TabsTrigger value="changelog-issues">Change Log & Issues</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="release-plan" className="mt-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-orange-500">
+                        <Rocket className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Release Plan</span>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Plan and track releases, milestones, and deployment schedules</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-muted-foreground text-center py-8">Release planning coming soon</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="changelog-issues" className="mt-4">
+                <Card data-testid="card-changelog">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-3 text-base">
+                      <div className="p-2 rounded-lg bg-slate-500">
+                        <History className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Change Log & Issues</span>
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {changeLogData.length} items
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setEditingChangeLog(null); setChangeLogDialogOpen(true); }}
+                        data-testid="btn-add-changelog"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                      <TabsList className="mb-4">
+                        <TabsTrigger value="changelog">
+                          Changes ({regularChanges.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="issues">
+                          Issues ({issues.length})
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="changelog">
+                        <div className="space-y-3">
+                          {regularChanges.map((entry) => (
+                            <ChangeLogItem 
+                              key={entry.id} 
+                              entry={entry} 
+                              onEdit={handleEditChangeLog}
+                              onDelete={handleDeleteChangeLog}
+                            />
+                          ))}
+                          {regularChanges.length === 0 && (
+                            <p className="text-muted-foreground text-center py-8">No change log entries yet</p>
+                          )}
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="issues">
+                        <div className="space-y-3">
+                          {issues.map((entry) => (
+                            <ChangeLogItem 
+                              key={entry.id} 
+                              entry={entry}
+                              onEdit={handleEditChangeLog}
+                              onDelete={handleDeleteChangeLog}
+                            />
+                          ))}
+                          {issues.length === 0 && (
+                            <p className="text-muted-foreground text-center py-8">No issues tracked yet</p>
+                          )}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={(open) => { setSheetOpen(open); if (!open) setSelectedFrId(null); }}>
