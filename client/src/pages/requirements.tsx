@@ -539,7 +539,7 @@ function HierarchyTreeNode({
   );
 }
 
-function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; expanded: boolean; onToggle: () => void }) {
+function TestCaseItem({ testCase, expanded, onToggle, onEdit }: { testCase: TestCase; expanded: boolean; onToggle: () => void; onEdit: (tc: TestCase) => void }) {
   const config = testStatusConfig[testCase.status];
   const StatusIcon = config.icon;
   
@@ -570,6 +570,17 @@ function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; ex
             {testCase.associatedBug.split(', ').length} {testCase.associatedBug.split(', ').length === 1 ? 'Bug' : 'Bugs'}
           </Badge>
         )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(testCase);
+          }}
+        >
+          <Edit className="h-3 w-3" />
+        </Button>
       </div>
       {expanded && (
         <div className="px-4 pb-4 pt-2 border-t bg-muted/20 space-y-3">
@@ -2302,57 +2313,90 @@ function TestCaseDialog({
   open, 
   onOpenChange, 
   onSave,
+  onUpdate,
   existingTCs,
-  frs
+  frs,
+  editTestCase
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
   onSave: (data: { id: string; title: string; description?: string; steps?: string; expectedResult?: string; parentId?: string }) => void;
+  onUpdate?: (id: string, data: { title: string; description?: string; steps?: string; expectedResult?: string; parentId?: string; status?: string }) => void;
   existingTCs: number;
   frs: { id: string; title: string }[];
+  editTestCase?: TestCase | null;
 }) {
+  const isEditing = !!editTestCase;
   const [formData, setFormData] = useState({
     id: "",
     title: "",
     description: "",
     steps: "",
     expectedResult: "",
+    actualResult: "",
+    status: "new",
     parentId: "",
   });
 
   useEffect(() => {
     if (open) {
-      const nextId = `TC-${String(existingTCs + 1).padStart(3, '0')}`;
-      setFormData({
-        id: nextId,
-        title: "",
-        description: "",
-        steps: "",
-        expectedResult: "",
-        parentId: "",
-      });
+      if (editTestCase) {
+        setFormData({
+          id: editTestCase.id,
+          title: editTestCase.title,
+          description: editTestCase.objective || "",
+          steps: editTestCase.steps.join('\n'),
+          expectedResult: editTestCase.expectedResult || "",
+          actualResult: editTestCase.actualResult || "",
+          status: editTestCase.status || "new",
+          parentId: "",
+        });
+      } else {
+        const nextId = `TC-${String(existingTCs + 1).padStart(3, '0')}`;
+        setFormData({
+          id: nextId,
+          title: "",
+          description: "",
+          steps: "",
+          expectedResult: "",
+          actualResult: "",
+          status: "new",
+          parentId: "",
+        });
+      }
     }
-  }, [open, existingTCs]);
+  }, [open, existingTCs, editTestCase]);
 
   const handleSave = () => {
     if (!formData.id || !formData.title) return;
-    onSave({
-      id: formData.id,
-      title: formData.title,
-      description: formData.description || undefined,
-      steps: formData.steps || undefined,
-      expectedResult: formData.expectedResult || undefined,
-      parentId: formData.parentId || undefined,
-    });
+    if (isEditing && onUpdate) {
+      onUpdate(formData.id, {
+        title: formData.title,
+        description: formData.description || undefined,
+        steps: formData.steps || undefined,
+        expectedResult: formData.expectedResult || undefined,
+        parentId: formData.parentId || undefined,
+        status: formData.status,
+      });
+    } else {
+      onSave({
+        id: formData.id,
+        title: formData.title,
+        description: formData.description || undefined,
+        steps: formData.steps || undefined,
+        expectedResult: formData.expectedResult || undefined,
+        parentId: formData.parentId || undefined,
+      });
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Add Test Case</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Test Case' : 'Add Test Case'}</DialogTitle>
           <DialogDescription>
-            Create a new test case. Link it to a functional requirement for traceability.
+            {isEditing ? 'Update test case details and status.' : 'Create a new test case. Link it to a functional requirement for traceability.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -2364,22 +2408,41 @@ function TestCaseDialog({
                 value={formData.id}
                 onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                 placeholder="e.g., TC-009"
+                disabled={isEditing}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="tc-fr">Linked FR (optional)</Label>
-              <Select value={formData.parentId} onValueChange={(v) => setFormData({ ...formData, parentId: v })}>
-                <SelectTrigger id="tc-fr">
-                  <SelectValue placeholder="Select FR" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">None</SelectItem>
-                  {frs.map(fr => (
-                    <SelectItem key={fr.id} value={fr.id}>{fr.id} - {fr.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {isEditing ? (
+              <div className="space-y-2">
+                <Label htmlFor="tc-status">Status</Label>
+                <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                  <SelectTrigger id="tc-status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="passed">Passed</SelectItem>
+                    <SelectItem value="failed">Failed</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                    <SelectItem value="blocked">Blocked</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="tc-fr">Linked FR (optional)</Label>
+                <Select value={formData.parentId} onValueChange={(v) => setFormData({ ...formData, parentId: v })}>
+                  <SelectTrigger id="tc-fr">
+                    <SelectValue placeholder="Select FR" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {frs.map(fr => (
+                      <SelectItem key={fr.id} value={fr.id}>{fr.id} - {fr.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="tc-title">Title</Label>
@@ -2391,7 +2454,7 @@ function TestCaseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="tc-description">Description</Label>
+            <Label htmlFor="tc-description">Description / Objective</Label>
             <Textarea
               id="tc-description"
               value={formData.description}
@@ -2420,11 +2483,23 @@ function TestCaseDialog({
               rows={2}
             />
           </div>
+          {isEditing && (
+            <div className="space-y-2">
+              <Label htmlFor="tc-actual">Actual Result</Label>
+              <Textarea
+                id="tc-actual"
+                value={formData.actualResult}
+                onChange={(e) => setFormData({ ...formData, actualResult: e.target.value })}
+                placeholder="What actually happened during test execution..."
+                rows={2}
+              />
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave} disabled={!formData.id || !formData.title}>
-            Create TC
+            {isEditing ? 'Save Changes' : 'Create TC'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2590,6 +2665,7 @@ export default function Requirements() {
   const [workItemDialogOpen, setWorkItemDialogOpen] = useState(false);
   const [selectedWorkItem, setSelectedWorkItem] = useState<WorkItem | null>(null);
   const [testCaseDialogOpen, setTestCaseDialogOpen] = useState(false);
+  const [editingTestCase, setEditingTestCase] = useState<TestCase | null>(null);
   const [testRunDialogOpen, setTestRunDialogOpen] = useState(false);
   const [expandedTestCases, setExpandedTestCases] = useState<Set<string>>(new Set());
   const [expandedWorkItems, setExpandedWorkItems] = useState<Set<string>>(new Set());
@@ -3268,6 +3344,29 @@ export default function Requirements() {
     if (selectedWorkItem) {
       updateWorkItemMutation.mutate({ id: selectedWorkItem.id, data });
     }
+  };
+
+  const handleUpdateTestCase = (id: string, data: { title: string; description?: string; steps?: string; expectedResult?: string; status?: string }) => {
+    updateWorkItemMutation.mutate({
+      id,
+      data: {
+        title: data.title,
+        description: data.description,
+        steps: data.steps || null,
+        expectedResult: data.expectedResult,
+        status: data.status,
+      }
+    }, {
+      onSuccess: () => {
+        setTestCaseDialogOpen(false);
+        setEditingTestCase(null);
+      }
+    });
+  };
+
+  const handleEditTestCase = (tc: TestCase) => {
+    setEditingTestCase(tc);
+    setTestCaseDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -4018,6 +4117,7 @@ export default function Requirements() {
                           testCase={tc}
                           expanded={expandedTestCases.has(tc.id)}
                           onToggle={() => toggleTestCase(tc.id)}
+                          onEdit={handleEditTestCase}
                         />
                       ))}
                       {filteredTestCases.length === 0 && (
@@ -4343,10 +4443,15 @@ export default function Requirements() {
 
       <TestCaseDialog
         open={testCaseDialogOpen}
-        onOpenChange={setTestCaseDialogOpen}
+        onOpenChange={(open) => {
+          setTestCaseDialogOpen(open);
+          if (!open) setEditingTestCase(null);
+        }}
         onSave={(data) => createTestCaseMutation.mutate(data)}
+        onUpdate={handleUpdateTestCase}
         existingTCs={workItemSummary.testCases}
         frs={workItems.filter(w => w.type === 'FR').map(fr => ({ id: fr.id, title: fr.title }))}
+        editTestCase={editingTestCase}
       />
 
       <TestRunDialog
