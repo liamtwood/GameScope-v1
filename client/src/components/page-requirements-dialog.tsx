@@ -38,7 +38,7 @@ export function PageRequirementsDialog() {
   });
 
   const { data: workItems = [], isLoading: workItemsLoading } = useQuery<WorkItem[]>({
-    queryKey: ['/api/fm/work-items'],
+    queryKey: ['/api/work-items'],
     enabled: open,
   });
 
