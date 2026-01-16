@@ -460,12 +460,22 @@ function HierarchyTreeNode({
   const TypeIcon = typeConfig.icon;
   const statusClass = item.status ? statusColors[item.status] || '' : '';
   
+  const handleRowClick = () => {
+    // For non-section items, clicking the row opens the item details
+    if (item.type !== 'section') {
+      onSelectItem?.(item);
+    } else if (hasChildren) {
+      // For sections, toggle expand/collapse
+      onToggle(item.id);
+    }
+  };
+
   return (
     <div className="select-none" data-testid={`hierarchy-node-${item.id}`}>
       <div 
         className={`flex items-center gap-2 py-1.5 px-2 rounded hover:bg-muted/50 cursor-pointer transition-colors`}
         style={{ paddingLeft: `${depth * 20 + 8}px` }}
-        onClick={() => hasChildren && onToggle(item.id)}
+        onClick={handleRowClick}
       >
         {/* Expand/Collapse button */}
         <button 
@@ -489,8 +499,7 @@ function HierarchyTreeNode({
         
         {/* Title - larger for sections */}
         <span 
-          className={`flex-1 truncate ${item.type === 'section' ? 'text-base font-semibold' : 'text-sm hover:underline'}`}
-          onClick={(e) => { e.stopPropagation(); if (item.type !== 'section') onSelectItem?.(item); }}
+          className={`flex-1 truncate ${item.type === 'section' ? 'text-base font-semibold' : 'text-sm'}`}
         >
           {item.title}
         </span>
@@ -3017,8 +3026,9 @@ export default function Requirements() {
         return;
       }
     }
-    // For all other work item types, open the work item dialog
-    setSelectedWorkItem(item);
+    // For all other work item types, find the full WorkItem from the data and open the dialog
+    const fullWorkItem = workItems.find(w => w.id === item.id) || item;
+    setSelectedWorkItem(fullWorkItem);
     setWorkItemDialogOpen(true);
   };
 
