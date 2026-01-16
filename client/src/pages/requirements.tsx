@@ -3993,24 +3993,50 @@ export default function Requirements() {
             )}
           </div>
           <Separator className="my-4" />
-          {/* Requirements Section - only show epic if it exists in workItems */}
+          {/* Requirements Section - always show, with Add Epic button if no epic exists */}
           {(() => {
             const existingEpic = workItems.find(w => w.pageId === selectedPage?.id && w.type === 'epic');
-            if (!existingEpic) return null;
             return (
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Requirements</h3>
-                <div className="flex items-center gap-2 mt-2">
-                  <Layers className="h-4 w-4 text-indigo-600" />
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {existingEpic.id}
-                  </Badge>
-                  <span className="text-base font-medium">{existingEpic.title}</span>
-                </div>
-                {pageDraft?.epicOverview && (
-                  <div className="mt-2">
-                    <Label className="text-xs font-medium text-muted-foreground">Epic Description</Label>
-                    <p className="text-sm text-muted-foreground mt-1">{pageDraft.epicOverview}</p>
+                {existingEpic ? (
+                  <>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Layers className="h-4 w-4 text-indigo-600" />
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {existingEpic.id}
+                      </Badge>
+                      <span className="text-base font-medium">{existingEpic.title}</span>
+                    </div>
+                    {pageDraft?.epicOverview && (
+                      <div className="mt-2">
+                        <Label className="text-xs font-medium text-muted-foreground">Epic Description</Label>
+                        <p className="text-sm text-muted-foreground mt-1">{pageDraft.epicOverview}</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="mt-2 p-3 border border-dashed rounded-md bg-muted/30">
+                    <p className="text-sm text-muted-foreground mb-2">No epic assigned to this page</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedWorkItem({
+                          id: '',
+                          type: 'epic',
+                          title: selectedPage?.title || '',
+                          description: '',
+                          pageId: selectedPage?.id || null,
+                          appId: selectedAppId,
+                          status: 'new',
+                        } as WorkItem);
+                        setWorkItemDialogOpen(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Epic
+                    </Button>
                   </div>
                 )}
               </div>
