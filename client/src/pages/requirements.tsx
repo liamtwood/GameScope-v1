@@ -3112,13 +3112,22 @@ export default function Requirements() {
                         <ListTodo className="h-4 w-4 text-white" />
                       </div>
                       <span>Work Items</span>
-                      <div className="flex gap-2 ml-auto flex-wrap">
+                      <div className="flex gap-2 ml-auto flex-wrap items-center">
                         <Badge className="bg-indigo-100 text-indigo-700">{workItemSummary.epics} Epics</Badge>
                         <Badge className="bg-blue-100 text-blue-700">{workItemSummary.frs} FRs</Badge>
                         <Badge className="bg-sky-100 text-sky-700">{workItemSummary.acs} ACs</Badge>
                         <Badge className="bg-teal-100 text-teal-700">{workItemSummary.testCases} TCs</Badge>
                         <Badge className="bg-rose-100 text-rose-700">{workItemSummary.bugs} Bugs</Badge>
                         <Badge className="bg-cyan-100 text-cyan-700">{workItemSummary.enhancements} Enhancements</Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setSelectedWorkItem(null); setWorkItemDialogOpen(true); }}
+                          data-testid="btn-add-workitem"
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add
+                        </Button>
                       </div>
                     </CardTitle>
                   </CardHeader>
