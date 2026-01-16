@@ -537,7 +537,7 @@ function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; ex
         {testCase.associatedBug && (
           <Badge variant="outline" className="text-rose-600 border-rose-300">
             <Bug className="h-3 w-3 mr-1" />
-            {testCase.associatedBug}
+            {testCase.associatedBug.split(', ').length} {testCase.associatedBug.split(', ').length === 1 ? 'Bug' : 'Bugs'}
           </Badge>
         )}
       </div>
