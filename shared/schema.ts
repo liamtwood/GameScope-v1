@@ -656,9 +656,9 @@ export const workItemTypeEnum = z.enum([
 ]);
 
 export const workItemStatusEnum = z.enum([
-  "new", "defined", "in_progress", "qc", "complete",
+  "new", "defined", "rejected", "dev", "qc", "complete",
   // Legacy values for backward compatibility
-  "draft", "open", "resolved", "closed",
+  "draft", "open", "resolved", "closed", "in_progress",
   // Test case specific
   "passed", "failed", "partial", "blocked"
 ]);

@@ -1952,7 +1952,7 @@ function RequirementDialog({
     </Dialog>
   );
 }
-const workItemStatusOptions = ['new', 'defined', 'in_progress', 'qc', 'complete'] as const;
+const workItemStatusOptions = ['new', 'defined', 'rejected', 'dev', 'qc', 'complete'] as const;
 const workItemPriorityOptions = ['low', 'medium', 'high', 'critical'] as const;
 
 function WorkItemDialog({ 
