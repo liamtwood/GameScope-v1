@@ -33,7 +33,7 @@ export function PageRequirementsDialog() {
   const [location] = useLocation();
   
   const { data: pages = [], isLoading: pagesLoading } = useQuery<PageRequirement[]>({
-    queryKey: ['/api/devops/page-requirements'],
+    queryKey: ['/api/devops/requirements'],
     enabled: open,
   });
 
