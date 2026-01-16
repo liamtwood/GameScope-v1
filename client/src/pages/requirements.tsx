@@ -567,6 +567,19 @@ function TestCaseItem({ testCase, expanded, onToggle }: { testCase: TestCase; ex
               </p>
             </div>
           </div>
+          {testCase.associatedBug && (
+            <div className="pt-2 border-t">
+              <span className="text-xs font-medium text-muted-foreground uppercase">Associated Bugs</span>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {testCase.associatedBug.split(', ').map((bugId, idx) => (
+                  <Badge key={idx} variant="outline" className="text-rose-600 border-rose-300 bg-rose-50">
+                    <Bug className="h-3 w-3 mr-1" />
+                    {bugId}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t">
             <span>Tester: {testCase.tester}</span>
             <span>Date: {testCase.date}</span>
@@ -2466,20 +2479,41 @@ export default function Requirements() {
   const workItemBugs = workItems.filter(item => item.type === 'bug');
   const workItemEnhancements = workItems.filter(item => item.type === 'enhancement');
 
+  // Helper to find associated bugs for a test case
+  const findAssociatedBugs = (testCaseId: string): string[] => {
+    const bugIds: string[] = [];
+    // Find links where this test case is either source or target
+    workItemLinks.forEach(link => {
+      if (link.sourceId === testCaseId) {
+        // Check if target is a bug
+        const target = workItemBugs.find(bug => bug.id === link.targetId);
+        if (target) bugIds.push(target.id);
+      } else if (link.targetId === testCaseId) {
+        // Check if source is a bug
+        const source = workItemBugs.find(bug => bug.id === link.sourceId);
+        if (source) bugIds.push(source.id);
+      }
+    });
+    return bugIds;
+  };
+
   // Convert work item to test case format for display
-  const workItemToTestCase = (item: WorkItem): TestCase => ({
-    id: item.id,
-    title: item.title,
-    objective: item.description || '',
-    steps: Array.isArray(item.steps) ? item.steps : [],
-    expectedResult: item.expectedResult || '',
-    actualResult: item.actualResult || '',
-    status: item.status as TestCase['status'],
-    tester: item.tester || '',
-    date: item.date || '',
-    associatedBug: workItemLinks.find(link => link.sourceId === item.id)?.targetId || undefined,
-    component: item.area || undefined,
-  });
+  const workItemToTestCase = (item: WorkItem): TestCase => {
+    const associatedBugIds = findAssociatedBugs(item.id);
+    return {
+      id: item.id,
+      title: item.title,
+      objective: item.description || '',
+      steps: Array.isArray(item.steps) ? item.steps : [],
+      expectedResult: item.expectedResult || '',
+      actualResult: item.actualResult || '',
+      status: item.status as TestCase['status'],
+      tester: item.tester || '',
+      date: item.date || '',
+      associatedBug: associatedBugIds.length > 0 ? associatedBugIds.join(', ') : undefined,
+      component: item.area || undefined,
+    };
+  };
 
   // Use work items for test cases - no fallback to hardcoded
   const testCaseData = workItemTestCases.map(workItemToTestCase);
