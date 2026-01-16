@@ -3009,6 +3009,15 @@ export default function Requirements() {
   };
 
   const handleSelectWorkItem = (item: WorkItem) => {
+    // Handle page type items specially - find the PageRequirements and open the page sheet
+    if (item.type === 'page') {
+      const page = requirementsData.find(p => p.id === item.id);
+      if (page) {
+        handleSelectPage(page);
+        return;
+      }
+    }
+    // For all other work item types, open the work item dialog
     setSelectedWorkItem(item);
     setWorkItemDialogOpen(true);
   };
