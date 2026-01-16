@@ -165,6 +165,12 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
     }
   });
   
+  // Helper to extract page number from ID (e.g., "P-01" -> 1, "P-12" -> 12)
+  const getPageNumber = (pageId: string): number => {
+    const match = pageId.match(/P-(\d+)/i);
+    return match ? parseInt(match[1], 10) : 999;
+  };
+
   // Group pages by section
   const pagesBySection = new Map<string, PageRequirements[]>();
   pages.forEach(page => {
@@ -180,13 +186,19 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
     const sectionPages = pagesBySection.get(sectionKey) || [];
     if (sectionPages.length === 0) return;
     
-    // Create page nodes for this section
-    const pageNodes: HierarchyNode[] = sectionPages.map(page => {
+    // Sort all pages by page number first
+    const sortedPages = [...sectionPages].sort((a, b) => getPageNumber(a.id) - getPageNumber(b.id));
+    
+    // Build page nodes with parent-child relationships
+    const pageNodeMap = new Map<string, HierarchyNode>();
+    
+    // First pass: create all page nodes
+    sortedPages.forEach(page => {
       const pageEpics = epicsByPage.get(page.id) || [];
       // Sort epics by ID
       pageEpics.sort((a, b) => a.item.id.localeCompare(b.item.id));
       
-      return {
+      const pageNode: HierarchyNode = {
         item: {
           id: page.id,
           type: 'page',
@@ -196,16 +208,24 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
         children: pageEpics,
         nodeType: 'page' as const
       };
+      pageNodeMap.set(page.id, pageNode);
     });
     
-    // Sort pages by displayOrder, then title
-    pageNodes.sort((a, b) => {
-      const pageA = sectionPages.find(p => p.id === a.item.id);
-      const pageB = sectionPages.find(p => p.id === b.item.id);
-      const orderA = (pageA as any)?.displayOrder ?? 0;
-      const orderB = (pageB as any)?.displayOrder ?? 0;
-      if (orderA !== orderB) return orderA - orderB;
-      return a.item.title.localeCompare(b.item.title);
+    // Second pass: build parent-child hierarchy for pages
+    const rootPageNodes: HierarchyNode[] = [];
+    sortedPages.forEach(page => {
+      const pageNode = pageNodeMap.get(page.id)!;
+      const parentId = (page as any).parentId;
+      
+      if (parentId && pageNodeMap.has(parentId)) {
+        // This is a child page - add it to parent's children (after epics)
+        const parentNode = pageNodeMap.get(parentId)!;
+        // Insert child pages after any epic children
+        parentNode.children.push(pageNode);
+      } else {
+        // This is a root-level page
+        rootPageNodes.push(pageNode);
+      }
     });
     
     // Create section node
@@ -216,7 +236,7 @@ function buildHierarchyTree(items: WorkItem[], pages: PageRequirements[]): Hiera
         title: sectionLabels[sectionKey] || sectionKey,
         status: 'active',
       } as WorkItem,
-      children: pageNodes,
+      children: rootPageNodes,
       nodeType: 'section'
     };
     
