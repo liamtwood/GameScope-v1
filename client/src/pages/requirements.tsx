@@ -1960,12 +1960,12 @@ function WorkItemDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="wi-size">Size</Label>
-                <Select value={formData.size} onValueChange={(v) => setFormData({ ...formData, size: v })}>
+                <Select value={formData.size || "__none__"} onValueChange={(v) => setFormData({ ...formData, size: v === "__none__" ? "" : v })}>
                   <SelectTrigger id="wi-size">
                     <SelectValue placeholder="Size" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {sizeOptions.map(s => (
                       <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
                     ))}
@@ -1990,12 +1990,12 @@ function WorkItemDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="wi-page">Screen/Page</Label>
-                <Select value={formData.pageId} onValueChange={(v) => setFormData({ ...formData, pageId: v })}>
+                <Select value={formData.pageId || "__none__"} onValueChange={(v) => setFormData({ ...formData, pageId: v === "__none__" ? "" : v })}>
                   <SelectTrigger id="wi-page">
                     <SelectValue placeholder="Select screen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {pages.map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                     ))}
@@ -2004,12 +2004,12 @@ function WorkItemDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="wi-widget">Widget</Label>
-                <Select value={formData.widgetId} onValueChange={(v) => setFormData({ ...formData, widgetId: v })}>
+                <Select value={formData.widgetId || "__none__"} onValueChange={(v) => setFormData({ ...formData, widgetId: v === "__none__" ? "" : v })}>
                   <SelectTrigger id="wi-widget">
                     <SelectValue placeholder="Select widget" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {widgets.map(w => (
                       <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
                     ))}
@@ -2039,12 +2039,12 @@ function WorkItemDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="wi-section-type">Section Type</Label>
-                <Select value={formData.sectionType} onValueChange={(v) => setFormData({ ...formData, sectionType: v })}>
+                <Select value={formData.sectionType || "__none__"} onValueChange={(v) => setFormData({ ...formData, sectionType: v === "__none__" ? "" : v })}>
                   <SelectTrigger id="wi-section-type">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {sectionTypeOptions.map(t => (
                       <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1).replace('-', ' ')}</SelectItem>
                     ))}
