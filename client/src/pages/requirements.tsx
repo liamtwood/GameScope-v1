@@ -3026,10 +3026,20 @@ export default function Requirements() {
         return;
       }
     }
+    // Skip sections - they just expand/collapse
+    if (item.type === 'section') {
+      return;
+    }
     // For all other work item types, find the full WorkItem from the data and open the dialog
-    const fullWorkItem = workItems.find(w => w.id === item.id) || item;
-    setSelectedWorkItem(fullWorkItem);
-    setWorkItemDialogOpen(true);
+    const fullWorkItem = workItems.find(w => w.id === item.id);
+    if (fullWorkItem) {
+      setSelectedWorkItem(fullWorkItem);
+      setWorkItemDialogOpen(true);
+    } else {
+      // Fallback: use the item as-is (might have minimal data)
+      setSelectedWorkItem(item);
+      setWorkItemDialogOpen(true);
+    }
   };
 
   const handleSaveWorkItem = (data: Partial<WorkItem>) => {
