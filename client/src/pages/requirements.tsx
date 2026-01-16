@@ -2044,6 +2044,17 @@ function WorkItemDialog({
             />
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="wi-description">Description</Label>
+            <Textarea
+              id="wi-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Detailed description..."
+              rows={3}
+            />
+          </div>
+          
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="wi-status">Status</Label>
@@ -2191,16 +2202,6 @@ function WorkItemDialog({
             </div>
           </div>
           
-          <div className="space-y-2 border-t pt-4 mt-2">
-            <Label htmlFor="wi-description">Description</Label>
-            <Textarea
-              id="wi-description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Detailed description..."
-              rows={3}
-            />
-          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
