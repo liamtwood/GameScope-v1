@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -1106,6 +1107,142 @@ function DataModelPanel({ model }: { model: DataModel }) {
           </TableBody>
         </Table>
       </div>
+    </div>
+  );
+}
+
+interface EpicAssignmentPanelProps {
+  workItems: WorkItem[];
+  apiRequirements: APIPageRequirement[];
+  selectedPageId: string;
+  selectedPageTitle: string;
+  selectedAppId: string;
+  onOpenWorkItemDialog: (workItem: WorkItem) => void;
+}
+
+function EpicAssignmentPanel({ 
+  workItems, 
+  apiRequirements, 
+  selectedPageId, 
+  selectedPageTitle,
+  selectedAppId,
+  onOpenWorkItemDialog 
+}: EpicAssignmentPanelProps) {
+  const { toast } = useToast();
+  const [showAllEpics, setShowAllEpics] = useState(false);
+  const [pendingEpicId, setPendingEpicId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const allEpics = workItems.filter(w => w.type === 'epic');
+  const unassignedEpics = allEpics.filter(e => !e.pageId);
+  const displayedEpics = showAllEpics ? allEpics : unassignedEpics;
+
+  const pendingEpic = pendingEpicId ? allEpics.find(e => e.id === pendingEpicId) : null;
+  const pendingEpicPage = pendingEpic?.pageId 
+    ? apiRequirements.find((p: APIPageRequirement) => p.id === pendingEpic.pageId) 
+    : null;
+
+  const handleSave = async () => {
+    if (!pendingEpicId || !selectedPageId) return;
+    setIsSaving(true);
+    try {
+      await apiRequest('PATCH', `/api/fm/work-items/${pendingEpicId}`, { pageId: selectedPageId });
+      queryClient.invalidateQueries({ queryKey: ['/api/fm/work-items'] });
+      toast({ title: 'Epic assigned to page' });
+      setPendingEpicId(null);
+    } catch (error) {
+      toast({ title: 'Failed to assign epic', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setPendingEpicId(null);
+  };
+
+  const handleAddNew = () => {
+    onOpenWorkItemDialog({
+      id: '',
+      type: 'epic',
+      title: selectedPageTitle,
+      description: '',
+      pageId: selectedPageId,
+      appId: selectedAppId,
+      status: 'new',
+    } as WorkItem);
+  };
+
+  return (
+    <div className="mt-2 p-3 border border-dashed rounded-md bg-muted/30">
+      <p className="text-sm text-muted-foreground mb-2">No epic assigned to this page</p>
+      
+      {pendingEpicId ? (
+        <div className="space-y-3">
+          <div className="p-2 border rounded-md bg-background">
+            <div className="flex items-center gap-2">
+              <Layers className="h-4 w-4 text-indigo-600" />
+              <Badge variant="outline" className="font-mono text-xs">{pendingEpic?.id}</Badge>
+              <span className="text-sm font-medium">{pendingEpic?.title}</span>
+            </div>
+            {pendingEpicPage && (
+              <p className="text-xs text-amber-600 mt-1">
+                Currently assigned to: {pendingEpicPage.id} - {pendingEpicPage.title}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCancel} disabled={isSaving}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Select onValueChange={(value) => setPendingEpicId(value)}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Select an epic to assign..." />
+              </SelectTrigger>
+              <SelectContent>
+                {displayedEpics.map(epic => {
+                  const assignedPage = apiRequirements.find((p: APIPageRequirement) => p.id === epic.pageId);
+                  return (
+                    <SelectItem key={epic.id} value={epic.id}>
+                      <div className="flex flex-col">
+                        <span className="font-mono text-xs">{epic.id}</span>
+                        <span className="text-sm">{epic.title}</span>
+                        {assignedPage && (
+                          <span className="text-xs text-muted-foreground">
+                            Currently: {assignedPage.id} - {assignedPage.title}
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <Button size="sm" variant="outline" onClick={handleAddNew}>
+              <Plus className="h-4 w-4 mr-1" />
+              New
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox 
+              id="showAllEpics" 
+              checked={showAllEpics} 
+              onCheckedChange={(checked) => setShowAllEpics(checked === true)} 
+            />
+            <label htmlFor="showAllEpics" className="text-xs text-muted-foreground cursor-pointer">
+              Show all epics ({allEpics.length}) instead of unassigned only ({unassignedEpics.length})
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -4016,45 +4153,17 @@ export default function Requirements() {
                     )}
                   </>
                 ) : (
-                  <div className="mt-2 p-3 border border-dashed rounded-md bg-muted/30">
-                    <p className="text-sm text-muted-foreground mb-2">No epic assigned to this page</p>
-                    <Select
-                      onValueChange={async (epicId) => {
-                        if (!selectedPage?.id) return;
-                        try {
-                          await apiRequest('PATCH', `/api/fm/work-items/${epicId}`, { pageId: selectedPage.id });
-                          queryClient.invalidateQueries({ queryKey: ['/api/fm/work-items'] });
-                          toast({ title: 'Epic assigned to page' });
-                        } catch (error) {
-                          toast({ title: 'Failed to assign epic', variant: 'destructive' });
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="w-[300px]">
-                        <SelectValue placeholder="Select an epic to assign..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {workItems
-                          .filter(w => w.type === 'epic')
-                          .map(epic => {
-                            const assignedPage = apiRequirements.find((p: APIPageRequirement) => p.id === epic.pageId);
-                            return (
-                              <SelectItem key={epic.id} value={epic.id}>
-                                <div className="flex flex-col">
-                                  <span className="font-mono text-xs">{epic.id}</span>
-                                  <span className="text-sm">{epic.title}</span>
-                                  {assignedPage && (
-                                    <span className="text-xs text-muted-foreground">
-                                      Currently: {assignedPage.id} - {assignedPage.title}
-                                    </span>
-                                  )}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <EpicAssignmentPanel 
+                    workItems={workItems}
+                    apiRequirements={apiRequirements}
+                    selectedPageId={selectedPage?.id || ''}
+                    selectedPageTitle={selectedPage?.title || ''}
+                    selectedAppId={selectedAppId}
+                    onOpenWorkItemDialog={(workItem) => {
+                      setSelectedWorkItem(workItem);
+                      setWorkItemDialogOpen(true);
+                    }}
+                  />
                 )}
               </div>
             );
