@@ -3401,6 +3401,8 @@ export default function Requirements() {
       }
     }, {
       onSuccess: () => {
+        toast({ title: "Test case updated" });
+        refetchWorkItems();
         setTestCaseDialogOpen(false);
         setEditingTestCase(null);
       }
