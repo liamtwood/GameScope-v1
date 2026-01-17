@@ -2032,9 +2032,9 @@ function WorkItemDialog({
   const handleSave = () => {
     onSave({
       title: formData.title,
-      description: formData.description || null,
-      status: formData.status || null,
-      priority: formData.priority || null,
+      description: formData.description || undefined,
+      status: formData.status || undefined,
+      priority: formData.priority || undefined,
       assignedTo: formData.assignedTo || null,
       priorityRank: formData.priorityRank ? parseInt(formData.priorityRank) : null,
       size: formData.size || null,
@@ -3386,14 +3386,15 @@ export default function Requirements() {
     }
   };
 
-  const handleUpdateTestCase = (id: string, data: { title: string; description?: string; steps?: string; expectedResult?: string; status?: string }) => {
+  const handleUpdateTestCase = (id: string, data: { title: string; description?: string; steps?: string; expectedResult?: string; status?: string; actualResult?: string }) => {
     updateWorkItemMutation.mutate({
       id,
       data: {
         title: data.title,
         description: data.description,
-        steps: data.steps || null,
+        steps: data.steps || undefined,
         expectedResult: data.expectedResult,
+        actualResult: data.actualResult,
         status: data.status,
       }
     }, {
