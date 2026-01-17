@@ -696,11 +696,11 @@ export default function Clubs() {
               data-testid={`card-club-${club.id}`}
             >
             <CardContent className="p-6">
-              {/* Header with Club Circle, Club Info, and Edit Button */}
+              {/* Header with Club Logo, Club Info, and Edit Button */}
               <div className="flex items-start justify-between mb-4">
-                {/* Left side - Large Club Logo Circle */}
+                {/* Left side - Large Club Logo */}
                 <div className="flex items-start space-x-4">
-                  <div className="h-16 w-16 rounded-full overflow-hidden flex items-center justify-center">
+                  <div className="h-16 w-16 rounded-lg overflow-hidden flex items-center justify-center">
                     {club.logoPath ? (
                       <img 
                         src={club.logoPath} 
