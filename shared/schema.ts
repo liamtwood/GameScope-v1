@@ -683,7 +683,7 @@ export const insertWorkItemSchema = createInsertSchema(workItems)
     priority: workItemPriorityEnum.nullish(),
     size: sizeEnum.nullish(),
     sectionType: sectionTypeEnum.nullish(),
-    steps: z.string().nullish(),
+    steps: z.array(z.string()).nullish(),
   });
 
 // FM App schemas
