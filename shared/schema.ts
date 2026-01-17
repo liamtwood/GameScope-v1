@@ -554,7 +554,7 @@ export const workItems = fmSchema.table("work_items", {
   sectionType: varchar("section_type", { length: 20 }), // section, tab, nested-tab, modal, drawer, dropdown
   
   // Test case specific fields
-  steps: text("steps"), // Plain text, UI handles line-splitting and numbering
+  steps: jsonb("steps"), // Array of step strings for test cases
   expectedResult: text("expected_result"),
   actualResult: text("actual_result"),
   tester: varchar("tester", { length: 100 }),

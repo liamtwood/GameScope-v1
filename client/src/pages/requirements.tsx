@@ -3387,12 +3387,14 @@ export default function Requirements() {
   };
 
   const handleUpdateTestCase = (id: string, data: { title: string; description?: string; steps?: string; expectedResult?: string; status?: string; actualResult?: string }) => {
+    // Convert steps string to array for jsonb storage
+    const stepsArray = data.steps ? data.steps.split('\n').filter(s => s.trim()) : [];
     updateWorkItemMutation.mutate({
       id,
       data: {
         title: data.title,
         description: data.description,
-        steps: data.steps || undefined,
+        steps: stepsArray,
         expectedResult: data.expectedResult,
         actualResult: data.actualResult,
         status: data.status,
