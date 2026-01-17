@@ -2430,12 +2430,12 @@ function TestCaseDialog({
             ) : (
               <div className="space-y-2">
                 <Label htmlFor="tc-fr">Linked FR (optional)</Label>
-                <Select value={formData.parentId} onValueChange={(v) => setFormData({ ...formData, parentId: v })}>
+                <Select value={formData.parentId || "none"} onValueChange={(v) => setFormData({ ...formData, parentId: v === "none" ? "" : v })}>
                   <SelectTrigger id="tc-fr">
                     <SelectValue placeholder="Select FR" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {frs.map(fr => (
                       <SelectItem key={fr.id} value={fr.id}>{fr.id} - {fr.title}</SelectItem>
                     ))}
