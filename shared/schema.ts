@@ -255,7 +255,8 @@ export const systemTeams = pgTable("system_teams", {
 
 export const competitions = pgTable("competitions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
+  clubId: varchar("club_id").references(() => clubs.id),
+  name: text("name").notNull(),
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
   seasonStartMonth: varchar("season_start_month", { length: 20 }).default("inherit"), // inherit from team
