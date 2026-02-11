@@ -162,15 +162,21 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
       }
 
       if (showNewOpponentInput) {
-        toast({
-          title: "Error",
-          description: "Please complete opponent creation or cancel to select an existing opponent",
-          variant: "destructive",
-        });
-        return;
+        if (!newOpponentName.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter an opponent name",
+            variant: "destructive",
+          });
+          return;
+        }
+        const opponentData = opponentForm.getValues();
+        const newTeam = await createOpponentMutation.mutateAsync({ ...opponentData, name: newOpponentName });
+        data.oppositionTeamId = newTeam.id;
+        data.opponent = newTeam.name;
       }
 
-      if (!data.oppositionTeamId) {
+      if (!data.oppositionTeamId || data.oppositionTeamId === "pending") {
         toast({
           title: "Error",
           description: "Please select an opponent",
@@ -195,6 +201,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
       form.reset();
       setNewCompetitionName("");
       setNewOpponentName("");
+      setShowNewOpponentInput(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -751,8 +758,19 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" data-testid="button-save-fixture">
-                    Create Fixture
+                  <Button 
+                    type="button"
+                    data-testid="button-save-fixture"
+                    disabled={createCompetitionMutation.isPending || createOpponentMutation.isPending}
+                    onClick={() => {
+                      if (showNewOpponentInput && newOpponentName.trim()) {
+                        form.setValue("opponent", newOpponentName.trim());
+                        form.setValue("oppositionTeamId", "pending");
+                      }
+                      form.handleSubmit(handleSubmit)();
+                    }}
+                  >
+                    {createCompetitionMutation.isPending || createOpponentMutation.isPending ? "Creating..." : "Create Fixture"}
                   </Button>
                 </div>
               </form>
