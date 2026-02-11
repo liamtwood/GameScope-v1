@@ -31,7 +31,7 @@ const fixtureCreateSchema = z.object({
   status: z.enum(["SCHEDULED", "IN_PROGRESS", "COMPLETED", "POSTPONED", "CANCELLED"]).default("SCHEDULED"),
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
-  competitionId: z.string().min(1, "Competition is required"),
+  competitionId: z.string().optional(),
   notes: z.string().optional(),
   report: z.string().optional(),
   attendance: z.coerce.number().optional(),
@@ -131,7 +131,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
       status: "SCHEDULED",
       homeScore: undefined,
       awayScore: undefined,
-      competitionId: competitions.length > 0 ? competitions[0].id : "",
+      competitionId: "",
       notes: "",
       report: "",
       attendance: undefined,
@@ -161,6 +161,9 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
         }
         const newCompetition = await createCompetitionMutation.mutateAsync(newCompetitionName);
         data.competitionId = newCompetition.id;
+      }
+      if (!data.competitionId || data.competitionId === "" || data.competitionId === "__none__") {
+        data.competitionId = undefined;
       }
 
       if (showNewOpponentInput) {
@@ -277,7 +280,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
                             ) : (
                               <>
                                 <Select
-                                  value={field.value}
+                                  value={field.value || ""}
                                   onValueChange={field.onChange}
                                   data-testid="select-competition"
                                 >
@@ -285,6 +288,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
                                     <SelectValue placeholder="Select competition" />
                                   </SelectTrigger>
                                   <SelectContent>
+                                    <SelectItem value="__none__">None</SelectItem>
                                     {competitions.map((comp) => (
                                       <SelectItem key={comp.id} value={comp.id}>
                                         {comp.name}

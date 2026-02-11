@@ -29,7 +29,7 @@ const fixtureEditSchema = z.object({
   location: z.string().optional(),
   type: z.enum(["HOME", "AWAY"]),
   status: z.enum(["SCHEDULED", "IN_PROGRESS", "COMPLETED", "POSTPONED", "CANCELLED"]),
-  competitionId: z.string().min(1, "Competition is required"),
+  competitionId: z.string().optional(),
   homeScore: z.coerce.number().optional(),
   awayScore: z.coerce.number().optional(),
   notes: z.string().optional(),
@@ -200,6 +200,9 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         const newCompetition = await createCompetitionMutation.mutateAsync(newCompetitionName);
         data.competitionId = newCompetition.id;
       }
+      if (!data.competitionId || data.competitionId === "" || data.competitionId === "__none__") {
+        data.competitionId = undefined;
+      }
 
       if (showNewOpponentInput) {
         if (!newOpponentName.trim()) {
@@ -303,7 +306,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                             ) : (
                               <>
                                 <Select
-                                  value={field.value}
+                                  value={field.value || ""}
                                   onValueChange={field.onChange}
                                   data-testid="select-competition"
                                 >
@@ -311,6 +314,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                                     <SelectValue placeholder="Select competition" />
                                   </SelectTrigger>
                                   <SelectContent>
+                                    <SelectItem value="__none__">None</SelectItem>
                                     {competitions.map((comp) => (
                                       <SelectItem key={comp.id} value={comp.id}>
                                         {comp.name}

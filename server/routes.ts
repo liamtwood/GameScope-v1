@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
 import path from "path";
@@ -3215,6 +3217,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/opposition-teams/:id", async (req, res) => {
     try {
+      const linkedFixtures = await db.select({ id: fixtures.id }).from(fixtures).where(eq(fixtures.oppositionTeamId, req.params.id));
+      if (linkedFixtures.length > 0) {
+        return res.status(409).json({
+          message: `Cannot delete: this opponent is used by ${linkedFixtures.length} fixture(s). Remove or reassign those fixtures first.`,
+        });
+      }
       await storage.deleteOppositionTeam(req.params.id);
       res.status(204).send();
     } catch (error) {
@@ -3327,6 +3335,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating competition logo:", error);
       res.status(500).json({ message: "Failed to update competition logo" });
+    }
+  });
+
+  app.delete("/api/competitions/:id", async (req, res) => {
+    try {
+      await storage.deleteCompetition(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting competition:", error);
+      res.status(500).json({ message: "Failed to delete competition" });
     }
   });
 
