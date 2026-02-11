@@ -37,6 +37,9 @@ export default function Analysis() {
   const tabParam = urlParams.get('tab');
   const defaultTab = tabParam === 'videos' ? 'videos' : 'heatmaps';
 
+  const { selectedTeam } = useTeam();
+  const { selectedClub } = useClub();
+
   const { data: fixture, isLoading: fixtureLoading } = useQuery<Fixture>({
     queryKey: ["/api/fixture", fixtureId],
     enabled: !!fixtureId,
@@ -75,9 +78,6 @@ export default function Analysis() {
     starPlayer: tp.starPlayer,
     fitnessStatus: tp.fitnessStatus
   })).filter(p => p.starPlayer).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)) || [];
-
-  const { selectedTeam } = useTeam();
-  const { selectedClub } = useClub();
 
   // Mutation for updating match report
   const updateReportMutation = useMutation({
