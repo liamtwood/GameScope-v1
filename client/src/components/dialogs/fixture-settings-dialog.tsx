@@ -24,6 +24,7 @@ type FixtureSettingsFormData = z.infer<typeof fixtureSettingsSchema>;
 interface FixtureSettingsDialogProps {
   children: React.ReactNode;
   teamId: string;
+  clubId?: string;
 }
 
 interface TeamCompetition {
@@ -34,7 +35,7 @@ interface TeamCompetition {
   competition: Competition;
 }
 
-export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialogProps) {
+export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState("");
@@ -43,7 +44,13 @@ export function FixtureSettingsDialog({ children, teamId }: FixtureSettingsDialo
   const { toast } = useToast();
 
   const { data: competitions = [] } = useQuery<Competition[]>({
-    queryKey: ["/api/competitions"]
+    queryKey: ["/api/competitions", clubId],
+    queryFn: async () => {
+      const url = clubId ? `/api/competitions?clubId=${clubId}` : '/api/competitions';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch competitions');
+      return res.json();
+    }
   });
 
   const { data: teamCompetitions = [] } = useQuery<TeamCompetition[]>({

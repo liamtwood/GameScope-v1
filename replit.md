@@ -43,6 +43,14 @@ The frontend follows a page-based architecture with dedicated routes for:
   - Only Epics appear at top level; all other items are children
   - Current counts: 17 Epics, 58 FRs, 180 ACs, 8 TCs, 5 Bugs
 
+### Club-Specific Competitions (February 11, 2026)
+- **Added clubId column** to competitions table with foreign key to clubs table
+- **Removed unique name constraint** on competitions to allow same name across different clubs
+- **Backend filtering**: GET `/api/competitions?clubId=xxx` returns only that club's competitions
+- **Frontend updates**: Fixtures page, create/edit/settings dialogs all pass current club's ID
+- **Data migration**: Existing competitions assigned to their respective clubs via team_competitions mapping
+- **getOrCreateCompetition**: Updated to match by name+clubId and create with clubId
+
 ### FM Schema for Requirements Tables (January 13, 2026)
 - **Created separate FM schema** for requirements and DevOps-related tables for better organization
 - **Moved and renamed tables**:

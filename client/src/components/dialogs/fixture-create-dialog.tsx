@@ -48,11 +48,12 @@ type OpponentCreateFormData = z.infer<typeof opponentCreateSchema>;
 
 interface FixtureCreateDialogProps {
   teamId: string;
+  clubId?: string;
   onSave: (data: FixtureCreateFormData & { teamId: string }) => void;
   children: React.ReactNode;
 }
 
-export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateDialogProps) {
+export function FixtureCreateDialog({ teamId, clubId, onSave, children }: FixtureCreateDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("fixture-details");
@@ -72,7 +73,7 @@ export function FixtureCreateDialog({ teamId, onSave, children }: FixtureCreateD
 
   const createCompetitionMutation = useMutation({
     mutationFn: async (name: string) => {
-      return apiRequest("POST", "/api/competitions", { name }) as any as Competition;
+      return apiRequest("POST", "/api/competitions", { name, clubId }) as any as Competition;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });

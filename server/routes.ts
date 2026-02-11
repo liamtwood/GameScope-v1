@@ -3268,7 +3268,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Competition routes
   app.get("/api/competitions", async (req, res) => {
     try {
-      const competitions = await storage.getCompetitions();
+      const clubId = req.query.clubId as string | undefined;
+      const competitions = await storage.getCompetitions(clubId);
       res.json(competitions);
     } catch (error) {
       console.error("Error fetching competitions:", error);

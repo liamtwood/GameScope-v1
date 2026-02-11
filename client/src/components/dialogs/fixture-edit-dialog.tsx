@@ -49,11 +49,12 @@ type OpponentCreateFormData = z.infer<typeof opponentCreateSchema>;
 
 interface FixtureEditDialogProps {
   fixture: Fixture;
+  clubId?: string;
   onSave: (data: FixtureEditFormData) => void;
   children: React.ReactNode;
 }
 
-export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDialogProps) {
+export function FixtureEditDialog({ fixture, clubId, onSave, children }: FixtureEditDialogProps) {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("fixture-details");
   const [newCompetitionName, setNewCompetitionName] = useState("");
@@ -73,7 +74,7 @@ export function FixtureEditDialog({ fixture, onSave, children }: FixtureEditDial
 
   const createCompetitionMutation = useMutation({
     mutationFn: async (name: string) => {
-      return apiRequest("POST", "/api/competitions", { name }) as any as Competition;
+      return apiRequest("POST", "/api/competitions", { name, clubId }) as any as Competition;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });

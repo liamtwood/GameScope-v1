@@ -126,9 +126,9 @@ export interface IStorage {
   incrementSystemTeamUsage(id: string): Promise<void>;
   
   // Competition operations
-  getCompetitions(): Promise<Competition[]>;
+  getCompetitions(clubId?: string): Promise<Competition[]>;
   getCompetition(id: string): Promise<Competition | undefined>;
-  getOrCreateCompetition(name: string): Promise<Competition>;
+  getOrCreateCompetition(name: string, clubId?: string): Promise<Competition>;
   createCompetition(competition: InsertCompetition): Promise<Competition>;
   updateCompetition(id: string, competition: Partial<InsertCompetition>): Promise<Competition>;
   updateCompetitionLogo(id: string, logoURL: string): Promise<Competition>;
@@ -1294,7 +1294,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Competition operations
-  async getCompetitions(): Promise<Competition[]> {
+  async getCompetitions(clubId?: string): Promise<Competition[]> {
+    if (clubId) {
+      return await db.select().from(competitions).where(eq(competitions.clubId, clubId));
+    }
     return await db.select().from(competitions);
   }
 
@@ -1303,9 +1306,13 @@ export class DatabaseStorage implements IStorage {
     return competition;
   }
 
-  async getOrCreateCompetition(name: string): Promise<Competition> {
-    // First try to find existing competition
-    const [existingCompetition] = await db.select().from(competitions).where(eq(competitions.name, name));
+  async getOrCreateCompetition(name: string, clubId?: string): Promise<Competition> {
+    // First try to find existing competition (match by name and clubId)
+    const conditions = [eq(competitions.name, name)];
+    if (clubId) {
+      conditions.push(eq(competitions.clubId, clubId));
+    }
+    const [existingCompetition] = await db.select().from(competitions).where(and(...conditions));
     if (existingCompetition) {
       return existingCompetition;
     }
@@ -1314,6 +1321,7 @@ export class DatabaseStorage implements IStorage {
     const id = randomUUID();
     const newCompetition: Competition = {
       id,
+      clubId: clubId || null,
       name,
       shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: null,
@@ -1331,6 +1339,7 @@ export class DatabaseStorage implements IStorage {
     const newCompetition: Competition = {
       ...competition,
       id,
+      clubId: competition.clubId || null,
       shortName: competition.shortName || competition.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: competition.logoPath || null,
       seasonStartMonth: competition.seasonStartMonth || null,

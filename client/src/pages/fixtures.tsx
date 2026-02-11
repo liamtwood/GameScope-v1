@@ -92,7 +92,13 @@ export default function Fixtures() {
   });
 
   const { data: competitions = [] } = useQuery<Competition[]>({
-    queryKey: ["/api/competitions"]
+    queryKey: ["/api/competitions", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/competitions?clubId=${currentClub.id}` : '/api/competitions';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch competitions');
+      return res.json();
+    }
   });
 
   // Create competition lookup helper
@@ -518,6 +524,7 @@ export default function Fixtures() {
           <div className="flex items-center gap-2">
             <FixtureCreateDialog 
               teamId={currentTeam?.id || ""} 
+              clubId={currentClub?.id}
               onSave={(data) => createFixtureMutation.mutate(data)}
             >
               <Button variant="outline" data-testid="button-add-fixture">
@@ -533,7 +540,7 @@ export default function Fixtures() {
                 Import Excel
               </Button>
             </FixtureImportDialog>
-            <FixtureSettingsDialog teamId={currentTeam?.id || ""}>
+            <FixtureSettingsDialog teamId={currentTeam?.id || ""} clubId={currentClub?.id}>
               <Button variant="ghost" data-testid="button-settings">
                 <Settings className="h-4 w-4" />
               </Button>
@@ -679,6 +686,7 @@ export default function Fixtures() {
                           <FixtureEditDialog 
                             key={fixture.id}
                             fixture={fixture}
+                            clubId={currentClub?.id}
                             onSave={(data) => updateFixtureMutation.mutate({ fixtureId: fixture.id, data })}
                           >
                             <div className="w-full">
