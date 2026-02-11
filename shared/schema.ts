@@ -219,7 +219,8 @@ export const playerStats = pgTable("player_stats", {
 
 export const oppositionTeams = pgTable("opposition_teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
+  clubId: varchar("club_id").references(() => clubs.id),
+  name: text("name").notNull(),
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
   websiteUrl: text("website_url"),
