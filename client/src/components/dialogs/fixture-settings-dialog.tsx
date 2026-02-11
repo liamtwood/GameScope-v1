@@ -206,7 +206,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
         description: "Fixture settings have been updated successfully.",
       });
       
-      setOpen(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -306,6 +305,7 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
                                     data-testid={`input-edit-competition-${competition.id}`}
                                   />
                                   <Button
+                                    type="button"
                                     size="sm"
                                     onClick={handleSaveCompetitionName}
                                     disabled={!editCompetitionName.trim()}
