@@ -78,8 +78,9 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
   });
 
   const createCompetitionMutation = useMutation({
-    mutationFn: async (name: string) => {
-      return apiRequest("POST", "/api/competitions", { name, clubId }) as any as Competition;
+    mutationFn: async (name: string): Promise<Competition> => {
+      const res = await apiRequest("POST", "/api/competitions", { name, clubId });
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
@@ -87,9 +88,9 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
   });
 
   const createOpponentMutation = useMutation({
-    mutationFn: async (data: OpponentCreateFormData & { name: string }) => {
+    mutationFn: async (data: OpponentCreateFormData & { name: string }): Promise<OppositionTeam> => {
       const shortName = data.name.substring(0, 3).toUpperCase();
-      return apiRequest("POST", "/api/opposition-teams", {
+      const res = await apiRequest("POST", "/api/opposition-teams", {
         name: data.name,
         shortName,
         logoPath: data.logoPath || null,
@@ -99,7 +100,8 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
           primary: data.primaryColor,
           secondary: data.secondaryColor || "#FFFFFF",
         },
-      }) as any as OppositionTeam;
+      });
+      return res.json();
     },
     onSuccess: (newTeam) => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
