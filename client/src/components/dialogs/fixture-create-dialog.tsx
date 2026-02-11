@@ -380,7 +380,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
                                   <SelectValue placeholder="Select opponent" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {oppositionTeams.map((team) => (
+                                  {oppositionTeams.filter((team) => team.isVisible !== false).map((team) => (
                                     <SelectItem key={team.id} value={team.id}>
                                       <div className="flex items-center gap-2">
                                         {team.logoPath ? (

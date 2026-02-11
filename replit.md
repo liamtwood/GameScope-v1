@@ -43,6 +43,14 @@ The frontend follows a page-based architecture with dedicated routes for:
   - Only Epics appear at top level; all other items are children
   - Current counts: 17 Epics, 58 FRs, 180 ACs, 8 TCs, 5 Bugs
 
+### Opponent Management in Club Settings (February 11, 2026)
+- **Moved opponents management** from Fixtures Settings dialog to Club Management page
+- **Added isVisible column** to opposition_teams table with default true
+- **Full CRUD operations**: Add, edit name, delete opponents on Club Management page
+- **Visible/Hidden toggle**: Each opponent has a visibility switch; hidden opponents don't appear in fixture create/edit dropdowns
+- **Edit dialog preserves selection**: Hidden opponents still appear in edit fixture dropdown if already selected on that fixture
+- **Delete protection**: Cannot delete opponents that have fixtures linked to them
+
 ### Club-Specific Competitions & Opponents (February 11, 2026)
 - **Added clubId column** to competitions and opposition_teams tables with foreign key to clubs table
 - **Removed unique name constraints** on both tables to allow same name across different clubs

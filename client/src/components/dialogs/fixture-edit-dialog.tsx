@@ -406,7 +406,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                                   <SelectValue placeholder="Select opponent" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {oppositionTeams.map((team) => (
+                                  {oppositionTeams.filter((team) => team.isVisible !== false || team.id === fixture.oppositionTeamId).map((team) => (
                                     <SelectItem key={team.id} value={team.id}>
                                       <div className="flex items-center gap-2">
                                         {team.logoPath ? (

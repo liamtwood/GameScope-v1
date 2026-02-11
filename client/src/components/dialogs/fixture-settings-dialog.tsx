@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Calendar, Trophy, Edit, Upload, Search, Plus, Trash2, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Competition, OppositionTeam } from "@shared/schema";
+import { Competition } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 
 const fixtureSettingsSchema = z.object({});
@@ -41,7 +41,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [opponentSearchQuery, setOpponentSearchQuery] = useState("");
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const { toast } = useToast();
 
@@ -55,16 +54,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
     }
   });
 
-  const { data: opponents = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams", clubId],
-    queryFn: async () => {
-      const url = clubId ? `/api/opposition-teams?clubId=${clubId}` : '/api/opposition-teams';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch opponents');
-      return res.json();
-    },
-    enabled: open,
-  });
 
   const { data: teamCompetitions = [] } = useQuery<TeamCompetition[]>({
     queryKey: ["/api/teams", teamId, "competitions"],
@@ -167,31 +156,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
     },
   });
 
-  const deleteOpponentMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/opposition-teams/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      toast({
-        title: "Success",
-        description: "Opponent deleted.",
-      });
-    },
-    onError: (error: Error) => {
-      let message = error.message;
-      try {
-        const jsonPart = message.substring(message.indexOf('{'));
-        const parsed = JSON.parse(jsonPart);
-        message = parsed.message || message;
-      } catch {}
-      toast({
-        title: "Cannot Delete",
-        description: message,
-        variant: "destructive",
-      });
-    },
-  });
 
   const toggleCompetitionMutation = useMutation({
     mutationFn: async ({ competitionId, isEnabled }: { competitionId: string; isEnabled: boolean }) => {
@@ -255,14 +219,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
     );
   }, [competitions, searchQuery]);
 
-  const filteredOpponents = useMemo(() => {
-    const sorted = [...opponents].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-    );
-    if (!opponentSearchQuery.trim()) return sorted;
-    const query = opponentSearchQuery.toLowerCase();
-    return sorted.filter(opp => opp.name.toLowerCase().includes(query));
-  }, [opponents, opponentSearchQuery]);
 
   const onSubmit = async (data: FixtureSettingsFormData) => {
     try {
@@ -449,72 +405,6 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
                   <div className="text-center py-4">
                     <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">No competitions found</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Opponents Management */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Opponents</h3>
-
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search opponents..."
-                  value={opponentSearchQuery}
-                  onChange={(e) => setOpponentSearchQuery(e.target.value)}
-                  className="pl-9"
-                  data-testid="input-search-opponents"
-                />
-              </div>
-
-              <div className="space-y-2">
-                {filteredOpponents.length > 0 ? (
-                  filteredOpponents.map((opponent) => (
-                    <Card key={opponent.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-1.5 bg-gray-100 rounded-full">
-                            {opponent.logoPath ? (
-                              <img
-                                src={opponent.logoPath}
-                                alt={opponent.name}
-                                className="h-5 w-5 object-contain"
-                              />
-                            ) : (
-                              <Users className="h-5 w-5 text-gray-600" />
-                            )}
-                          </div>
-                          <span className="font-medium text-foreground">{opponent.name}</span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm(`Delete "${opponent.name}"? This will fail if they have fixtures.`)) {
-                              deleteOpponentMutation.mutate(opponent.id);
-                            }
-                          }}
-                          disabled={deleteOpponentMutation.isPending}
-                          data-testid={`button-delete-opponent-${opponent.id}`}
-                        >
-                          <Trash2 className="h-3 w-3 text-destructive" />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))
-                ) : opponentSearchQuery.trim() ? (
-                  <div className="text-center py-4">
-                    <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No opponents match your search</p>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No opponents found</p>
                   </div>
                 )}
               </div>

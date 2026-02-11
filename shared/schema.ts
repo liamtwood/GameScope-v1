@@ -224,7 +224,8 @@ export const oppositionTeams = pgTable("opposition_teams", {
   shortName: varchar("short_name", { length: 10 }),
   logoPath: text("logo_path"),
   websiteUrl: text("website_url"),
-  colors: jsonb("colors"), // Primary and secondary team colors
+  colors: jsonb("colors"),
+  isVisible: boolean("is_visible").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
