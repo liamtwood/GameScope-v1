@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2, Calendar } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
@@ -553,6 +554,19 @@ export default function Settings() {
     },
   });
 
+  const toggleOpponentVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: string; isVisible: boolean }) => {
+      return apiRequest("PUT", `/api/opposition-teams/${id}`, { isVisible });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      toast({ title: "Success", description: "Opponent visibility updated." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
+    },
+  });
+
   // Form handlers
   const onCreateOppositionSubmit = (data: OppositionTeamFormData) => {
     createOppositionMutation.mutate(data);
@@ -630,24 +644,34 @@ export default function Settings() {
                       </Badge>
                     </div>
                     
-                    {/* Edit Button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingTeam(team);
-                        setEditFormData({
-                          shortName: team.shortName || '',
-                          website: (team as any).websiteUrl || (team as any).website || '',
-                          primaryColor: (team.colors as any)?.primary || '#6b7280',
-                          secondaryColor: (team.colors as any)?.secondary || '#4b5563'
-                        });
-                        setEditDialogOpen(true);
-                      }}
-                      data-testid={`button-edit-${team.id}`}
-                    >
-                      <Edit3 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      {team.type === 'opposition' && (
+                        <div className="flex items-center space-x-1">
+                          <span className="text-xs text-muted-foreground">{(team as any).isVisible !== false ? 'Visible' : 'Hidden'}</span>
+                          <Switch
+                            checked={(team as any).isVisible !== false}
+                            onCheckedChange={() => toggleOpponentVisibilityMutation.mutate({ id: team.id, isVisible: (team as any).isVisible === false })}
+                          />
+                        </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingTeam(team);
+                          setEditFormData({
+                            shortName: team.shortName || '',
+                            website: (team as any).websiteUrl || (team as any).website || '',
+                            primaryColor: (team.colors as any)?.primary || '#6b7280',
+                            secondaryColor: (team.colors as any)?.secondary || '#4b5563'
+                          });
+                          setEditDialogOpen(true);
+                        }}
+                        data-testid={`button-edit-${team.id}`}
+                      >
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))}

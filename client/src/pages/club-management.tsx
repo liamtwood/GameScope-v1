@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -12,13 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload, Landmark, Search, Trash2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Building2, Users, Trophy, Calendar, Edit, Shield, ArrowLeft, Plus, User, MapPin, Phone, Mail, Globe, Settings, Upload, Landmark } from "lucide-react";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { useTeam } from "@/contexts/team-context";
 import { useClub } from "@/contexts/club-context";
-import type { Club, Team, OppositionTeam } from "@shared/schema";
+import type { Club, Team } from "@shared/schema";
 import { insertTeamSchema, insertClubSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -152,93 +151,6 @@ export default function ClubManagement() {
   const { toast } = useToast();
   const { selectTeam } = useTeam();
   const { selectedClub, clubs, isLoading: clubsLoading } = useClub();
-
-  const [opponentSearchQuery, setOpponentSearchQuery] = useState("");
-  const [newOpponentName, setNewOpponentName] = useState("");
-  const [editingOpponent, setEditingOpponent] = useState<OppositionTeam | null>(null);
-  const [editOpponentName, setEditOpponentName] = useState("");
-
-  const { data: opponents = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams", selectedClub?.id],
-    queryFn: async () => {
-      const url = selectedClub?.id ? `/api/opposition-teams?clubId=${selectedClub.id}` : '/api/opposition-teams';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch opponents');
-      return res.json();
-    },
-    enabled: !!selectedClub,
-  });
-
-  const filteredOpponents = useMemo(() => {
-    const sorted = [...opponents].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-    );
-    if (!opponentSearchQuery.trim()) return sorted;
-    const query = opponentSearchQuery.toLowerCase();
-    return sorted.filter(opp => opp.name.toLowerCase().includes(query));
-  }, [opponents, opponentSearchQuery]);
-
-  const createOpponentMutation = useMutation({
-    mutationFn: async (name: string): Promise<OppositionTeam> => {
-      const res = await apiRequest("POST", "/api/opposition-teams", { name, clubId: selectedClub?.id });
-      return res.json();
-    },
-    onSuccess: (newOpp) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      setNewOpponentName("");
-      toast({ title: "Success", description: `"${newOpp.name}" has been added.` });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateOpponentMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      return apiRequest("PUT", `/api/opposition-teams/${id}`, { name });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      setEditingOpponent(null);
-      setEditOpponentName("");
-      toast({ title: "Success", description: "Opponent updated." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const toggleOpponentVisibilityMutation = useMutation({
-    mutationFn: async ({ id, isVisible }: { id: string; isVisible: boolean }) => {
-      return apiRequest("PUT", `/api/opposition-teams/${id}`, { isVisible });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      toast({ title: "Success", description: "Opponent visibility updated." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteOpponentMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/opposition-teams/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-      toast({ title: "Success", description: "Opponent deleted." });
-    },
-    onError: (error: Error) => {
-      let message = error.message;
-      try {
-        const jsonPart = message.substring(message.indexOf('{'));
-        const parsed = JSON.parse(jsonPart);
-        message = parsed.message || message;
-      } catch {}
-      toast({ title: "Cannot Delete", description: message, variant: "destructive" });
-    },
-  });
 
   // Fetch admin users for owner selection (for editing club)
   const { data: adminUsersForEdit = [] } = useAdminUsers(
@@ -515,158 +427,6 @@ export default function ClubManagement() {
         </CardContent>
         </Card>
       </div>
-
-      {/* Opponents Management */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Opponents
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search opponents..."
-              value={opponentSearchQuery}
-              onChange={(e) => setOpponentSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              placeholder="New opponent name..."
-              value={newOpponentName}
-              onChange={(e) => setNewOpponentName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && newOpponentName.trim()) {
-                  e.preventDefault();
-                  createOpponentMutation.mutate(newOpponentName.trim());
-                }
-              }}
-            />
-            <Button
-              size="sm"
-              onClick={() => {
-                if (newOpponentName.trim()) {
-                  createOpponentMutation.mutate(newOpponentName.trim());
-                }
-              }}
-              disabled={!newOpponentName.trim() || createOpponentMutation.isPending}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-          </div>
-
-          <div className="space-y-2">
-            {filteredOpponents.length > 0 ? (
-              filteredOpponents.map((opponent) => (
-                <Card key={opponent.id} className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3 flex-1">
-                      <div className="p-2 bg-gray-100 rounded-full">
-                        {opponent.logoPath ? (
-                          <img
-                            src={opponent.logoPath}
-                            alt={opponent.name}
-                            className="h-5 w-5 object-contain"
-                          />
-                        ) : (
-                          <Users className="h-5 w-5 text-gray-600" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        {editingOpponent?.id === opponent.id ? (
-                          <div className="flex items-center space-x-2">
-                            <Input
-                              value={editOpponentName}
-                              onChange={(e) => setEditOpponentName(e.target.value)}
-                              className="h-8"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                if (editOpponentName.trim()) {
-                                  updateOpponentMutation.mutate({ id: opponent.id, name: editOpponentName.trim() });
-                                }
-                              }}
-                              disabled={!editOpponentName.trim()}
-                            >
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingOpponent(null);
-                                setEditOpponentName("");
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        ) : (
-                          <h4 className="font-medium text-foreground">{opponent.name}</h4>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-muted-foreground">{opponent.isVisible !== false ? 'Visible' : 'Hidden'}</span>
-                        <Switch
-                          checked={opponent.isVisible !== false}
-                          onCheckedChange={() => toggleOpponentVisibilityMutation.mutate({ id: opponent.id, isVisible: opponent.isVisible === false })}
-                        />
-                      </div>
-                      {editingOpponent?.id !== opponent.id && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingOpponent(opponent);
-                              setEditOpponentName(opponent.name);
-                            }}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (confirm(`Delete "${opponent.name}"? This will fail if they have fixtures.`)) {
-                                deleteOpponentMutation.mutate(opponent.id);
-                              }
-                            }}
-                            disabled={deleteOpponentMutation.isPending}
-                          >
-                            <Trash2 className="h-3 w-3 text-destructive" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))
-            ) : opponentSearchQuery.trim() ? (
-              <div className="text-center py-4">
-                <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No opponents match your search</p>
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No opponents yet. Add your first opponent above.</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Edit Club Dialog */}
       <Dialog open={isEditClubDialogOpen} onOpenChange={setIsEditClubDialogOpen}>
