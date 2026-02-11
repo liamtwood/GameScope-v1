@@ -9,11 +9,13 @@ import { Slider } from "@/components/ui/slider";
 import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Sun, Moon } from "lucide-react";
 import { OppositionTeam } from "@shared/schema";
 import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundRemoval";
+import { useClub } from "@/contexts/club-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
 
 export default function LogoManagement() {
+  const { selectedClub: currentClub } = useClub();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [processing, setProcessing] = useState(false);
@@ -27,7 +29,13 @@ export default function LogoManagement() {
   const { toast } = useToast();
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   const saveMutation = useMutation({

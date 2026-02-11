@@ -63,7 +63,13 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
   const [previousOpponentId, setPreviousOpponentId] = useState<string | undefined>("");
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", clubId],
+    queryFn: async () => {
+      const url = clubId ? `/api/opposition-teams?clubId=${clubId}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -88,6 +94,7 @@ export function FixtureCreateDialog({ teamId, clubId, onSave, children }: Fixtur
         shortName,
         logoPath: data.logoPath || null,
         websiteUrl: "",
+        clubId,
         colors: {
           primary: data.primaryColor,
           secondary: data.secondaryColor || "#FFFFFF",

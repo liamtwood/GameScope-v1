@@ -21,9 +21,11 @@ import { BackgroundRemover, BackgroundRemovalOptions } from "@/utils/backgroundR
 import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
 import { ReliableLogoUpload } from "@/components/reliable-logo-upload";
 import { LogoDisplay } from "@/components/logo-display";
+import { useClub } from "@/contexts/club-context";
 
 export default function Settings() {
   const { toast } = useToast();
+  const { selectedClub: currentClub } = useClub();
 
   // Logo management state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -88,7 +90,13 @@ export default function Settings() {
   });
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   // Combine clubs and opposition teams for logo management, grouped and sorted
@@ -482,7 +490,7 @@ export default function Settings() {
   // Opposition team mutations
   const createOppositionMutation = useMutation({
     mutationFn: async (teamData: OppositionTeamFormData) => {
-      return apiRequest("POST", "/api/opposition-teams", teamData);
+      return apiRequest("POST", "/api/opposition-teams", { ...teamData, clubId: currentClub?.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });

@@ -109,9 +109,9 @@ export interface IStorage {
   removeUserParent(userId: string, parentUserId: string): Promise<void>;
   
   // Opposition team operations
-  getOppositionTeams(): Promise<OppositionTeam[]>;
+  getOppositionTeams(clubId?: string): Promise<OppositionTeam[]>;
   getOppositionTeam(id: string): Promise<OppositionTeam | undefined>;
-  getOrCreateOppositionTeam(name: string, websiteUrl?: string, logoUrl?: string): Promise<OppositionTeam>;
+  getOrCreateOppositionTeam(name: string, clubId?: string, websiteUrl?: string, logoUrl?: string): Promise<OppositionTeam>;
   createOppositionTeam(team: InsertOppositionTeam): Promise<OppositionTeam>;
   updateOppositionTeam(id: string, team: Partial<InsertOppositionTeam>): Promise<OppositionTeam>;
   deleteOppositionTeam(id: string): Promise<void>;
@@ -1190,7 +1190,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Opposition team operations
-  async getOppositionTeams(): Promise<OppositionTeam[]> {
+  async getOppositionTeams(clubId?: string): Promise<OppositionTeam[]> {
+    if (clubId) {
+      return await db.select().from(oppositionTeams).where(eq(oppositionTeams.clubId, clubId));
+    }
     return await db.select().from(oppositionTeams);
   }
 
@@ -1199,9 +1202,13 @@ export class DatabaseStorage implements IStorage {
     return team;
   }
 
-  async getOrCreateOppositionTeam(name: string, websiteUrl?: string, logoUrl?: string): Promise<OppositionTeam> {
-    // First try to find existing team
-    const [existingTeam] = await db.select().from(oppositionTeams).where(eq(oppositionTeams.name, name));
+  async getOrCreateOppositionTeam(name: string, clubId?: string, websiteUrl?: string, logoUrl?: string): Promise<OppositionTeam> {
+    // First try to find existing team (match by name and clubId)
+    const conditions = [eq(oppositionTeams.name, name)];
+    if (clubId) {
+      conditions.push(eq(oppositionTeams.clubId, clubId));
+    }
+    const [existingTeam] = await db.select().from(oppositionTeams).where(and(...conditions));
     if (existingTeam) {
       return existingTeam;
     }
@@ -1210,6 +1217,7 @@ export class DatabaseStorage implements IStorage {
     const id = randomUUID();
     const newTeam: OppositionTeam = {
       id,
+      clubId: clubId || null,
       name,
       shortName: name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: logoUrl || null,
@@ -1227,6 +1235,7 @@ export class DatabaseStorage implements IStorage {
     const id = randomUUID();
     const newTeam: OppositionTeam = {
       id,
+      clubId: team.clubId || null,
       name: team.name,
       shortName: team.shortName || team.name.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase(),
       logoPath: team.logoPath || null,

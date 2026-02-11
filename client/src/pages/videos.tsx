@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Fixture, Team, OppositionTeam, VideoLink, Competition } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useTeam } from "@/contexts/team-context";
+import { useClub } from "@/contexts/club-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +29,7 @@ export default function Videos() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Load view mode preference from localStorage
@@ -50,7 +52,13 @@ export default function Videos() {
   });
 
   const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   const { data: clubs } = useQuery<{ id: string; name: string; logoPath: string | null }[]>({ 

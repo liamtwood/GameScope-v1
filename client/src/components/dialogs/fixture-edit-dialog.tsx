@@ -69,7 +69,13 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
   });
 
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", clubId],
+    queryFn: async () => {
+      const url = clubId ? `/api/opposition-teams?clubId=${clubId}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   const createCompetitionMutation = useMutation({
@@ -89,6 +95,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         shortName,
         logoPath: data.logoPath || null,
         websiteUrl: "",
+        clubId,
         colors: {
           primary: data.primaryColor,
           secondary: data.secondaryColor || "#FFFFFF",

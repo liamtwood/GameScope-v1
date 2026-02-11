@@ -41,7 +41,13 @@ function PDFReportContent({ fixture }: { fixture: Fixture }) {
   
   // Fetch opposition teams for logos
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
   
   const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
@@ -144,7 +150,13 @@ export default function Fixtures() {
   
   // Fetch opposition teams for PDF generation
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
   
   // Set default season when team/club data loads

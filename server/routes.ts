@@ -3169,7 +3169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Opposition team routes
   app.get("/api/opposition-teams", async (req, res) => {
     try {
-      const teams = await storage.getOppositionTeams();
+      const clubId = req.query.clubId as string | undefined;
+      const teams = await storage.getOppositionTeams(clubId);
       res.json(teams);
     } catch (error) {
       console.error("Error fetching opposition teams:", error);

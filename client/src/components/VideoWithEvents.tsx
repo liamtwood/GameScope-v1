@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useClub } from "@/contexts/club-context";
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { Timeline } from '@/components/Timeline';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
@@ -142,8 +143,15 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   };
 
   // Fetch opposition teams to get logos
+  const { selectedClub: currentClub } = useClub();
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   // Find Spain and England teams from the opposition teams

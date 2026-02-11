@@ -18,12 +18,18 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, onToggleSidebar, isMobile }: HeaderProps) {
-  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
-    queryKey: ["/api/opposition-teams"] 
-  });
-
   // Use club context for active club
   const { selectedClub: currentClub } = useClub();
+
+  const { data: oppositionTeams } = useQuery<OppositionTeam[]>({ 
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
+  });
   
   // Use tab context to track page title
   const { setPageTitle, getFullArea } = useTab();

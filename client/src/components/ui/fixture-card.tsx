@@ -5,6 +5,7 @@ import { Edit, Trash2, MoreHorizontal, Video, ChartSpline, FileDown } from "luci
 import { Fixture, OppositionTeam } from "@shared/schema";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { useClub } from "@/contexts/club-context";
 import { LogoDisplay } from "@/components/logo-display";
 import {
   DropdownMenu,
@@ -25,9 +26,16 @@ interface FixtureCardProps {
 }
 
 export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAnalysis, onGenerateReport, showAnimatedBorder = false, hasAnalysisData = false }: FixtureCardProps) {
+  const { selectedClub: currentClub } = useClub();
   // Fetch opposition teams to get logo information
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
-    queryKey: ["/api/opposition-teams"],
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
   });
 
   // Find the opposition team for this fixture
