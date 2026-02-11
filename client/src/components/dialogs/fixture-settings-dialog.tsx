@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar, Trophy, Edit, Upload, Search } from "lucide-react";
+import { Save, Calendar, Trophy, Edit, Upload, Search, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Competition } from "@shared/schema";
@@ -41,6 +41,7 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [newCompetitionName, setNewCompetitionName] = useState("");
   const { toast } = useToast();
 
   const { data: competitions = [] } = useQuery<Competition[]>({
@@ -108,6 +109,28 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
         variant: "destructive",
       });
       setIsUploadingLogo(false);
+    },
+  });
+
+  const createCompetitionMutation = useMutation({
+    mutationFn: async (name: string): Promise<Competition> => {
+      const res = await apiRequest("POST", "/api/competitions", { name, clubId });
+      return res.json();
+    },
+    onSuccess: (newComp) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+      setNewCompetitionName("");
+      toast({
+        title: "Success",
+        description: `"${newComp.name}" has been added.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -222,6 +245,36 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
                   className="pl-9"
                   data-testid="input-search-competitions"
                 />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="New competition name..."
+                  value={newCompetitionName}
+                  onChange={(e) => setNewCompetitionName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newCompetitionName.trim()) {
+                      e.preventDefault();
+                      createCompetitionMutation.mutate(newCompetitionName.trim());
+                    }
+                  }}
+                  data-testid="input-new-competition"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    if (newCompetitionName.trim()) {
+                      createCompetitionMutation.mutate(newCompetitionName.trim());
+                    }
+                  }}
+                  disabled={!newCompetitionName.trim() || createCompetitionMutation.isPending}
+                  data-testid="button-add-competition"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
               </div>
 
               <div className="space-y-4">
