@@ -206,6 +206,7 @@ export function FixtureSettingsDialog({ children, teamId, clubId }: FixtureSetti
         description: "Fixture settings have been updated successfully.",
       });
       
+      setOpen(false);
     } catch (error) {
       toast({
         title: "Error",
