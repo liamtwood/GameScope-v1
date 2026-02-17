@@ -6,7 +6,7 @@ import { Fixture } from '@shared/schema';
 import { format } from 'date-fns';
 
 export default function MatchAnalysis() {
-  const [videoUrl, setVideoUrl] = useState<string>("https://www.youtube.com/watch?v=gvoQ8gvzuC4");
+  const [videoUrl, setVideoUrl] = useState<string>("https://www.youtube.com/watch?v=99bgTARgKD8");
   
   // Get fixtureId from URL query parameters
   const urlParams = new URLSearchParams(window.location.search);

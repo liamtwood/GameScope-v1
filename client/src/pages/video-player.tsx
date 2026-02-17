@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { VideoWithEvents } from '@/components/VideoWithEvents';
 
 export function VideoPlayerPage() {
-  const [videoUrl, setVideoUrl] = useState("https://www.youtube.com/watch?v=gvoQ8gvzuC4");
+  const [videoUrl, setVideoUrl] = useState("https://www.youtube.com/watch?v=99bgTARgKD8");
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-full">
