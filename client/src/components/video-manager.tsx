@@ -158,8 +158,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       // Update local state with the returned video list
       setVideos(data.videos);
       
-      // Invalidate the fixture query to refresh the data
-      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
 
       toast({
         title: "Events Deleted",
@@ -361,7 +361,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
       toast({
         title: "Videos Updated",
         description: "Match videos have been updated successfully.",
@@ -585,8 +586,8 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
       // Update local state with the returned video list
       setVideos(data.videos);
       
-      // Invalidate the fixture query to refresh the data
-      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
 
       toast({
         title: "Events Uploaded",
