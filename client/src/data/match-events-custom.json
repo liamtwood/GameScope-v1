@@ -73,12 +73,12 @@
     "statsbomb_xg": 0.75,
     "end_location": [120.0, 40.0, 1.0],
     "technique": {
-      "id": 93,
-      "name": "Normal"
+      "id": 95,
+      "name": "Head"
     },
     "body_part": {
-      "id": 40,
-      "name": "Right Foot"
+      "id": 37,
+      "name": "Head"
     },
     "type": {
       "id": 87,
