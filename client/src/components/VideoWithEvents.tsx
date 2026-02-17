@@ -10,7 +10,7 @@ import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
-import matchEvents from '@/data/match-events.json';
+import matchEvents from '@/data/match-events-custom.json';
 
 interface OppositionTeam {
   id: string;
