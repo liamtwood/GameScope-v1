@@ -21,7 +21,7 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
-import matchEvents from '@/data/match-events.json';
+import matchEvents from '@/data/match-events-custom.json';
 
 interface MatchEvent {
   id: string;

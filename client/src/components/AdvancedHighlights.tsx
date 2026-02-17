@@ -14,7 +14,7 @@ import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import Timeline from './Timeline';
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
 import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle, Clock } from 'lucide-react';
-import matchEvents from '@/data/match-events.json';
+import matchEvents from '@/data/match-events-custom.json';
 
 interface AdvancedHighlightsProps {
   onEventClick?: (eventTime: number, period: number) => void;
