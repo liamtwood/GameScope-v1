@@ -174,6 +174,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     teamId: 'spain-team-id',
     venue: 'Stadium Australia',
     competition: 'Women\'s World Cup Final',
+    competitionId: null,
+    report: null,
+    attendance: null,
     videoLinks: null,
     notes: 'Women\'s World Cup Final - Historic victory for Spain',
     hasVideo: true
