@@ -1,20 +1,23 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { MatchScoreBanner } from '@/components/match-score-banner';
 import { MetricsComparison } from '@/components/metrics-comparison';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { SpiderChart } from '@/components/spider-chart';
 import { Fixture, MatchStats } from '@shared/schema';
 import { format } from 'date-fns';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit, Save, X } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useTeam } from '@/contexts/team-context';
 import { useClub } from '@/contexts/club-context';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface VideoData {
   id: string;
@@ -45,6 +48,11 @@ export default function WatchMatchVideo() {
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [isEditingReport, setIsEditingReport] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [attendanceText, setAttendanceText] = useState('');
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   // Get fixtureId from URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -68,6 +76,28 @@ export default function WatchMatchVideo() {
   const { data: matchStats } = useQuery<MatchStats[]>({
     queryKey: ["/api/match-stats", fixtureId],
     enabled: !!fixtureId,
+  });
+
+  useEffect(() => {
+    if (fixture) {
+      setReportText(fixture.report || '');
+      setAttendanceText(fixture.attendance?.toString() || '');
+    }
+  }, [fixture]);
+
+  const saveReportMutation = useMutation({
+    mutationFn: async ({ report, attendance }: { report: string; attendance: number | null }) => {
+      return apiRequest("PUT", `/api/fixtures/${fixtureId}`, { report: report || null, attendance });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+      setIsEditingReport(false);
+      toast({ title: "Saved", description: "Match report updated successfully." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to save match report.", variant: "destructive" });
+    },
   });
 
   // Get the video data from fixture's videoLinks
@@ -582,27 +612,82 @@ export default function WatchMatchVideo() {
         <TabsContent value="report">
           <Card>
             <CardHeader>
-              <CardTitle>Match Report</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Match Report</CardTitle>
+                {!isEditingReport ? (
+                  <Button variant="outline" size="sm" onClick={() => setIsEditingReport(true)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsEditingReport(false);
+                        setReportText(fixture?.report || '');
+                        setAttendanceText(fixture?.attendance?.toString() || '');
+                      }}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={saveReportMutation.isPending}
+                      onClick={() => saveReportMutation.mutate({
+                        report: reportText,
+                        attendance: attendanceText ? parseInt(attendanceText) : null,
+                      })}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {saveReportMutation.isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {fixture?.attendance && (
-                  <div className="border-b pb-4">
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-2">Attendance</h4>
-                    <p className="text-2xl font-bold">{fixture.attendance.toLocaleString()}</p>
-                  </div>
-                )}
+                <div className="border-b pb-4">
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-2">Attendance</h4>
+                  {isEditingReport ? (
+                    <input
+                      type="number"
+                      value={attendanceText}
+                      onChange={(e) => setAttendanceText(e.target.value)}
+                      placeholder="Enter attendance"
+                      className="w-48 px-3 py-2 border rounded-md text-lg font-bold"
+                    />
+                  ) : (
+                    <p className="text-2xl font-bold">
+                      {fixture?.attendance ? fixture.attendance.toLocaleString() : <span className="text-muted-foreground text-base font-normal">Not recorded</span>}
+                    </p>
+                  )}
+                </div>
                 
-                {fixture?.report ? (
-                  <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-3">Report</h4>
+                <div>
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-3">Report</h4>
+                  {isEditingReport ? (
+                    <Textarea
+                      value={reportText}
+                      onChange={(e) => setReportText(e.target.value)}
+                      placeholder="Write your match report here..."
+                      className="min-h-[200px]"
+                    />
+                  ) : fixture?.report ? (
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{fixture.report}</p>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No match report available.</p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <p className="text-muted-foreground mb-3">No match report yet.</p>
+                      <Button variant="outline" size="sm" onClick={() => setIsEditingReport(true)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Add Report
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
