@@ -50,7 +50,9 @@ function PDFReportContent({ fixture }: { fixture: Fixture }) {
     }
   });
   
-  const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+  const oppositionTeam = oppositionTeams.find(team => 
+    fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
+  );
   const teamStats = matchStats?.find(stat => stat.isTeamStats === true && stat.fixtureId === fixture.id);
   const opponentStats = matchStats?.find(stat => stat.isTeamStats === false && stat.fixtureId === fixture.id);
   

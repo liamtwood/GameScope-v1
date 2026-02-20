@@ -182,6 +182,7 @@ export default function Settings() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
       queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
       setEditDialogOpen(false);
     },
     onError: (error) => {

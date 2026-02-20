@@ -38,8 +38,9 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
     }
   });
 
-  // Find the opposition team for this fixture
-  const oppositionTeam = oppositionTeams.find(team => team.name === fixture.opponent);
+  const oppositionTeam = oppositionTeams.find(team => 
+    fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
+  );
 
   // Get opponent's primary color
   const getOpponentColor = () => {

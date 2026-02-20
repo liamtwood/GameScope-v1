@@ -3208,6 +3208,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const teamData = insertOppositionTeamSchema.partial().parse(req.body);
       const team = await storage.updateOppositionTeam(req.params.id, teamData);
+
+      if (teamData.name) {
+        await db.update(fixtures)
+          .set({ opponent: teamData.name })
+          .where(eq(fixtures.oppositionTeamId, req.params.id));
+      }
+
       res.json(team);
     } catch (error) {
       console.error("Error updating opposition team:", error);

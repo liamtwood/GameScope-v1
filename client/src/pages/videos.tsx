@@ -245,7 +245,9 @@ export default function Videos() {
                     {/* Match Info Header */}
                     <div className="flex items-start gap-3">
                       {(() => {
-                        const opponent = oppositionTeams?.find(team => team.name === selectedFixture.opponent);
+                        const opponent = oppositionTeams?.find(team => 
+                          selectedFixture.oppositionTeamId ? team.id === selectedFixture.oppositionTeamId : team.name === selectedFixture.opponent
+                        );
                         return opponent?.logoPath ? (
                           <img 
                             src={opponent.logoPath} 
@@ -344,7 +346,9 @@ export default function Videos() {
                                 {/* Opposition Team */}
                                 <div className="flex flex-col items-center gap-2">
                                   {(() => {
-                                    const opponent = oppositionTeams?.find(team => team.name === selectedFixture.opponent);
+                                    const opponent = oppositionTeams?.find(team => 
+                                      selectedFixture.oppositionTeamId ? team.id === selectedFixture.oppositionTeamId : team.name === selectedFixture.opponent
+                                    );
                                     return opponent?.logoPath ? (
                                       <img 
                                         src={opponent.logoPath} 
@@ -434,7 +438,9 @@ export default function Videos() {
             >
               <div className="flex gap-4 pb-4">
                 {videoFixtures.map((fixture) => {
-                  const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                  const opponent = oppositionTeams?.find(team => 
+                    fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
+                  );
                   const isSelected = selectedFixtureId === fixture.id;
                   
                   return (
@@ -596,7 +602,9 @@ export default function Videos() {
                         {/* Opposition Team */}
                         <div className="flex flex-col items-center gap-1">
                           {(() => {
-                            const opponent = oppositionTeams?.find(team => team.name === fixture.opponent);
+                            const opponent = oppositionTeams?.find(team => 
+                              fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
+                            );
                             return opponent?.logoPath ? (
                               <img 
                                 src={opponent.logoPath} 
