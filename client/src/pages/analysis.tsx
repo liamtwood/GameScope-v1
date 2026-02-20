@@ -585,6 +585,7 @@ export default function Analysis() {
                   <h3 className="text-lg font-semibold">Fixture Details</h3>
                   <FixtureEditDialog 
                     fixture={fixture}
+                    clubId={selectedClub?.id}
                     onSave={async (data) => {
                       await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                       queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });

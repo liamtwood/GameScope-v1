@@ -257,6 +257,7 @@ export default function FixtureDetails() {
           <div className="flex items-center space-x-2">
             <FixtureEditDialog 
               fixture={fixture}
+              clubId={selectedClub?.id}
               onSave={async (data) => {
                 await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                 queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
@@ -312,6 +313,7 @@ export default function FixtureDetails() {
                   <h3 className="text-lg font-semibold">Fixture Details</h3>
                   <FixtureEditDialog 
                     fixture={fixture}
+                    clubId={selectedClub?.id}
                     onSave={async (data) => {
                       await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                       queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
@@ -521,6 +523,7 @@ export default function FixtureDetails() {
                         <h3 className="text-lg font-semibold">Fixture Details</h3>
                         <FixtureEditDialog 
                           fixture={fixture}
+                          clubId={selectedClub?.id}
                           onSave={async (data) => {
                             await apiRequest("PUT", `/api/fixtures/${fixture.id}`, data);
                             queryClient.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] });
