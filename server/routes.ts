@@ -3470,6 +3470,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('[DEBUG] Skipping competition auto-enable:', { hasCompetitionId: !!parsedData.competitionId, hasTeamId: !!parsedData.teamId });
       }
       
+      if (parsedData.homeScore !== undefined && parsedData.homeScore !== null && 
+          parsedData.awayScore !== undefined && parsedData.awayScore !== null &&
+          !isNaN(parsedData.homeScore) && !isNaN(parsedData.awayScore)) {
+        parsedData.status = 'COMPLETED';
+      }
+
       const fixture = await storage.createFixture(parsedData);
       res.status(201).json(fixture);
     } catch (error) {
