@@ -1084,7 +1084,7 @@ export default function Settings() {
 
         {/* Team Edit Dialog */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
                 Edit {editingTeam?.type === 'club' ? 'Club' : 'Opponent'}
@@ -1096,115 +1096,129 @@ export default function Settings() {
             
             {editingTeam && (
               <div className="space-y-4">
-                {/* Team Name */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Team Name</label>
-                  <Input
-                    value={editingTeam.name}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Short Name - for both clubs and opposition teams */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Short Name</label>
-                  <Input
-                    value={editFormData.shortName}
-                    onChange={(e) => setEditFormData({...editFormData, shortName: e.target.value})}
-                    placeholder="e.g., PSC, VC"
-                  />
-                </div>
-
-                {/* Website URL - for both clubs and opposition teams */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Website URL (Optional)</label>
-                  <Input
-                    value={editFormData.website}
-                    onChange={(e) => setEditFormData({...editFormData, website: e.target.value})}
-                    placeholder="https://example.com"
-                  />
-                </div>
-
-                {/* Colors - for both clubs and opposition teams */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Primary Color</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="color"
-                        value={editFormData.primaryColor}
-                        onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
-                        className="w-8 h-8 rounded border cursor-pointer"
-                      />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Team Name</label>
                       <Input
-                        value={editFormData.primaryColor}
-                        onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
-                        placeholder="#6b7280"
-                        className="flex-1"
+                        value={editingTeam.name}
+                        readOnly
+                        className="bg-muted"
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Secondary Color (Optional)</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="color"
-                        value={editFormData.secondaryColor}
-                        onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
-                        className="w-8 h-8 rounded border cursor-pointer"
-                      />
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Short Name</label>
                       <Input
-                        value={editFormData.secondaryColor}
-                        onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
-                        placeholder="#4b5563"
-                        className="flex-1"
+                        value={editFormData.shortName}
+                        onChange={(e) => setEditFormData({...editFormData, shortName: e.target.value})}
+                        placeholder="e.g., PSC, VC"
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Website URL (Optional)</label>
+                      <Input
+                        value={editFormData.website}
+                        onChange={(e) => setEditFormData({...editFormData, website: e.target.value})}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Primary Color</label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={editFormData.primaryColor}
+                            onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                            className="w-8 h-8 rounded border cursor-pointer"
+                          />
+                          <Input
+                            value={editFormData.primaryColor}
+                            onChange={(e) => setEditFormData({...editFormData, primaryColor: e.target.value})}
+                            placeholder="#6b7280"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Secondary Color (Optional)</label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={editFormData.secondaryColor}
+                            onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                            className="w-8 h-8 rounded border cursor-pointer"
+                          />
+                          <Input
+                            value={editFormData.secondaryColor}
+                            onChange={(e) => setEditFormData({...editFormData, secondaryColor: e.target.value})}
+                            placeholder="#4b5563"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {editingTeam.logoPath && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Current Logo</label>
+                        <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
+                          <img
+                            src={editingTeam.logoPath}
+                            alt={`${editingTeam.name} logo`}
+                            className="max-w-full max-h-40 object-contain"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center">
+                          Reference this logo when picking colors
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium">Team Logo</label>
+                      <ReliableLogoUpload
+                        entityType={editingTeam.type === 'club' ? 'club' : 'opposition-team'}
+                        entityId={editingTeam.id}
+                        entityName={editingTeam.name}
+                        currentLogo={editingTeam.logoPath || undefined}
+                        onUploadComplete={(logoPath) => {
+                          queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
+                          queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+                          toast({
+                            title: "Logo Updated",
+                            description: "Team logo has been updated successfully!",
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t">
+                      <label className="text-sm font-medium text-muted-foreground">Current Logo Path (Debug)</label>
+                      <Input
+                        value={editingTeam.logoPath || 'No logo uploaded'}
+                        readOnly
+                        className="bg-muted text-xs font-mono"
+                        placeholder="Logo path will appear here"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {editingTeam.logoPath?.startsWith('/objects/') 
+                          ? 'Using Object Storage (Production-ready)' 
+                          : editingTeam.logoPath?.startsWith('/assets/') 
+                            ? 'Using Filesystem (Will break in production)'
+                            : 'No logo uploaded yet'
+                        }
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Logo Path Debug Info */}
-                <div className="space-y-2 pt-4 border-t">
-                  <label className="text-sm font-medium text-muted-foreground">Current Logo Path (Debug)</label>
-                  <Input
-                    value={editingTeam.logoPath || 'No logo uploaded'}
-                    readOnly
-                    className="bg-muted text-xs font-mono"
-                    placeholder="Logo path will appear here"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {editingTeam.logoPath?.startsWith('/objects/') 
-                      ? '✅ Using Object Storage (Production-ready)' 
-                      : editingTeam.logoPath?.startsWith('/assets/') 
-                        ? '⚠️ Using Filesystem (Will break in production)'
-                        : '📝 No logo uploaded yet'
-                    }
-                  </p>
-                </div>
-
-                {/* Logo Upload Section */}
-                <div className="space-y-3 pt-2">
-                  <label className="text-sm font-medium">Team Logo</label>
-                  <ReliableLogoUpload
-                    entityType={editingTeam.type === 'club' ? 'club' : 'opposition-team'}
-                    entityId={editingTeam.id}
-                    entityName={editingTeam.name}
-                    currentLogo={editingTeam.logoPath || undefined}
-                    onUploadComplete={(logoPath) => {
-                      // Refresh the data but keep dialog open
-                      queryClient.invalidateQueries({ queryKey: ["/api/clubs"] });
-                      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
-                      toast({
-                        title: "Logo Updated",
-                        description: "Team logo has been updated successfully!",
-                      });
-                    }}
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-2 pt-4">
+                <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button
                     variant="outline"
                     onClick={() => setEditDialogOpen(false)}

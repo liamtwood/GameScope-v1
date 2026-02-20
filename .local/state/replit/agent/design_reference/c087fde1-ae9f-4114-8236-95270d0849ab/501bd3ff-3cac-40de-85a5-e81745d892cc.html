@@ -1,0 +1,1506 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameScope - Team Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            },
+            fontFamily: {
+                sans: ["Inter", "system-ui", "sans-serif"],
+            }
+        },
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(0 0% 100%);
+            --foreground: hsl(224 71.4% 4.1%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(224 71.4% 4.1%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(224 71.4% 4.1%);
+            --primary: hsl(220.9 39.3% 11%);
+            --primary-foreground: hsl(210 20% 98%);
+            --secondary: hsl(220 14.3% 95.9%);
+            --secondary-foreground: hsl(220.9 39.3% 11%);
+            --muted: hsl(220 14.3% 95.9%);
+            --muted-foreground: hsl(220 8.9% 46.1%);
+            --accent: hsl(220 14.3% 95.9%);
+            --accent-foreground: hsl(220.9 39.3% 11%);
+            --destructive: hsl(0 84.2% 60.2%);
+            --destructive-foreground: hsl(210 20% 98%);
+            --border: hsl(220 13% 91%);
+            --input: hsl(220 13% 91%);
+            --ring: hsl(224 71.4% 4.1%);
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: hsl(224 71.4% 4.1%);
+            --foreground: hsl(210 20% 98%);
+            --card: hsl(224 71.4% 4.1%);
+            --card-foreground: hsl(210 20% 98%);
+            --popover: hsl(224 71.4% 4.1%);
+            --popover-foreground: hsl(210 20% 98%);
+            --primary: hsl(210 20% 98%);
+            --primary-foreground: hsl(220.9 39.3% 11%);
+            --secondary: hsl(215 27.9% 16.9%);
+            --secondary-foreground: hsl(210 20% 98%);
+            --muted: hsl(215 27.9% 16.9%);
+            --muted-foreground: hsl(217.9 10.6% 64.9%);
+            --accent: hsl(215 27.9% 16.9%);
+            --accent-foreground: hsl(210 20% 98%);
+            --destructive: hsl(0 62.8% 30.6%);
+            --destructive-foreground: hsl(210 20% 98%);
+            --border: hsl(215 27.9% 16.9%);
+            --input: hsl(215 27.9% 16.9%);
+            --ring: hsl(216 12.2% 83.9%);
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-background text-foreground">
+    <!-- @COMPONENT: MainLayout -->
+    <div class="flex h-screen bg-gray-50">
+        <!-- @COMPONENT: Sidebar -->
+        <div id="sidebar" class="w-64 bg-white shadow-lg border-r border-border transition-all duration-300">
+            <!-- Sidebar Header -->
+            <div class="p-6 border-b border-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold">
+                        GS
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-foreground">GameScope</h1>
+                        <p class="text-xs text-muted-foreground">Team Management</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Selector -->
+            <div class="p-4 border-b border-border">
+                <div class="bg-secondary rounded-lg p-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-sm text-foreground">WOMEN'S SOCCER</h3>
+                            <p class="text-xs text-muted-foreground">Polk State College</p>
+                        </div>
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="p-4 space-y-2">
+                <a href="#dashboard" class="nav-item active flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary text-primary-foreground" data-section="dashboard">
+                    <i class="fas fa-home w-4"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#fixtures" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" data-section="fixtures">
+                    <i class="fas fa-calendar-alt w-4"></i>
+                    <span class="font-medium">Fixtures</span>
+                </a>
+                <a href="#squad" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" data-section="squad">
+                    <i class="fas fa-users w-4"></i>
+                    <span class="font-medium">Squad</span>
+                </a>
+                <a href="#statistics" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" data-section="statistics">
+                    <i class="fas fa-chart-bar w-4"></i>
+                    <span class="font-medium">Statistics</span>
+                </a>
+                <a href="#videos" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" data-section="videos">
+                    <i class="fas fa-video w-4"></i>
+                    <span class="font-medium">Match Videos</span>
+                </a>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-white">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                        DS
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm text-foreground">Dee Shivraman</p>
+                        <p class="text-xs text-muted-foreground">Head Coach</p>
+                    </div>
+                    <button class="text-muted-foreground hover:text-foreground">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- @COMPONENT: MainContent -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="bg-white border-b border-border px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-foreground" id="page-title">Dashboard</h1>
+                        <p class="text-sm text-muted-foreground" id="page-subtitle">Overview of team performance and upcoming matches</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Quick Add
+                        </button>
+                        <button class="p-2 text-muted-foreground hover:text-foreground">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- @SECTION: Dashboard -->
+                <div id="dashboard-section" class="content-section">
+                    <!-- Stats Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-card rounded-xl p-6 border border-border shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-muted-foreground text-sm font-medium">Total Players</p>
+                                    <p class="text-3xl font-bold text-foreground">23</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center space-x-2">
+                                <span class="text-green-600 text-sm">+2</span>
+                                <span class="text-muted-foreground text-sm">from last season</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-muted-foreground text-sm font-medium">Matches Played</p>
+                                    <p class="text-3xl font-bold text-foreground">5</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-futbol text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center space-x-2">
+                                <span class="text-green-600 text-sm">3W</span>
+                                <span class="text-yellow-600 text-sm">1D</span>
+                                <span class="text-red-600 text-sm">1NC</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-muted-foreground text-sm font-medium">Goals Scored</p>
+                                    <p class="text-3xl font-bold text-foreground">18</p>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-trophy text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center space-x-2">
+                                <span class="text-green-600 text-sm">3.6</span>
+                                <span class="text-muted-foreground text-sm">avg per match</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-muted-foreground text-sm font-medium">Next Match</p>
+                                    <p class="text-lg font-bold text-foreground">2 days</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-muted-foreground text-sm">vs Montgomery College</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Results & Upcoming Matches -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Recent Results -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm">
+                            <div class="p-6 border-b border-border">
+                                <h3 class="text-lg font-semibold text-foreground">Recent Results</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                            W
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Millennia Atlantic University</p>
+                                            <p class="text-sm text-muted-foreground">Aug 22, 2025 • Home</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-green-600">8-0</p>
+                                        <div class="flex items-center space-x-1 text-xs text-muted-foreground">
+                                            <i class="fas fa-video"></i>
+                                            <span>Video</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                            NC
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Monroe University</p>
+                                            <p class="text-sm text-muted-foreground">Aug 24, 2025 • Home</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-lg font-bold text-gray-600">No Contest</p>
+                                        <p class="text-xs text-muted-foreground">Field conditions</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                            W
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Florida College</p>
+                                            <p class="text-sm text-muted-foreground">Aug 16, 2025 • Away</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-green-600">0-7</p>
+                                        <div class="flex items-center space-x-1 text-xs text-muted-foreground">
+                                            <i class="fas fa-video"></i>
+                                            <span>Video</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Matches -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm">
+                            <div class="p-6 border-b border-border">
+                                <h3 class="text-lg font-semibold text-foreground">Upcoming Matches</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Montgomery College (MD)</p>
+                                            <p class="text-sm text-muted-foreground">Aug 29, 2025 • 4:00 PM</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-blue-600">HOME</p>
+                                        <p class="text-xs text-muted-foreground">FCSAA League</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Webber International University JV</p>
+                                            <p class="text-sm text-muted-foreground">Sep 3, 2025 • 4:00 PM</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-blue-600">HOME</p>
+                                        <p class="text-xs text-muted-foreground">FCSAA League</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs">
+                                            <i class="fas fa-plane"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Warner University (Fla.) JV</p>
+                                            <p class="text-sm text-muted-foreground">Sep 9, 2025 • 7:00 PM</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-orange-600">AWAY</p>
+                                        <p class="text-xs text-muted-foreground">Lake Wales, FL</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performers -->
+                    <div class="bg-card rounded-xl border border-border shadow-sm">
+                        <div class="p-6 border-b border-border">
+                            <h3 class="text-lg font-semibold text-foreground">Top Performers</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- Top Scorer -->
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-trophy text-white text-xl"></i>
+                                    </div>
+                                    <h4 class="font-semibold text-foreground">Top Scorer</h4>
+                                    <p class="text-2xl font-bold text-yellow-600 mt-1">Janessa Crespo</p>
+                                    <p class="text-sm text-muted-foreground">12 goals • ST</p>
+                                </div>
+
+                                <!-- Most Assists -->
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-hand-paper text-white text-xl"></i>
+                                    </div>
+                                    <h4 class="font-semibold text-foreground">Most Assists</h4>
+                                    <p class="text-2xl font-bold text-green-600 mt-1">Sofia Salas</p>
+                                    <p class="text-sm text-muted-foreground">6 assists • CAM</p>
+                                </div>
+
+                                <!-- Most Appearances -->
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-medal text-white text-xl"></i>
+                                    </div>
+                                    <h4 class="font-semibold text-foreground">Most Reliable</h4>
+                                    <p class="text-2xl font-bold text-blue-600 mt-1">Multiple Players</p>
+                                    <p class="text-sm text-muted-foreground">6 appearances</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_SECTION: Dashboard -->
+
+                <!-- @SECTION: Fixtures -->
+                <div id="fixtures-section" class="content-section hidden">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-foreground">Match Fixtures</h2>
+                            <p class="text-muted-foreground">Manage team fixtures and results</p>
+                        </div>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Fixture
+                        </button>
+                    </div>
+
+                    <!-- Fixtures Filter -->
+                    <div class="mb-6 flex items-center space-x-4">
+                        <div class="flex bg-muted rounded-lg p-1">
+                            <button class="fixtures-filter active px-3 py-1 rounded-md bg-background text-foreground shadow-sm text-sm font-medium" data-filter="all">All</button>
+                            <button class="fixtures-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-filter="completed">Completed</button>
+                            <button class="fixtures-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-filter="scheduled">Scheduled</button>
+                        </div>
+                        <select class="border border-border rounded-lg px-3 py-2 text-sm">
+                            <option>All Competitions</option>
+                            <option>FCSAA League</option>
+                            <option>FCSAA Pre-Season</option>
+                        </select>
+                    </div>
+
+                    <!-- Fixtures List -->
+                    <div class="space-y-4">
+                        <!-- Completed Match -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm p-6 fixture-item" data-status="completed">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <p class="text-sm font-medium text-muted-foreground">AUG</p>
+                                        <p class="text-2xl font-bold text-foreground">22</p>
+                                    </div>
+                                    <div class="flex items-center space-x-6">
+                                        <div class="text-right">
+                                            <p class="font-semibold text-foreground">Polk State College</p>
+                                            <p class="text-sm text-muted-foreground">Women's Soccer</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-primary">PSC</span>
+                                            </div>
+                                            <div class="text-center bg-green-100 px-3 py-1 rounded-lg">
+                                                <span class="text-2xl font-bold text-green-800">8</span>
+                                                <span class="text-green-600 mx-2">-</span>
+                                                <span class="text-2xl font-bold text-green-800">0</span>
+                                            </div>
+                                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-gray-600">MAU</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Millennia Atlantic University</p>
+                                            <p class="text-sm text-muted-foreground">Away Team</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-foreground">4:00 PM</p>
+                                        <p class="text-xs text-muted-foreground">HOME • FCSAA League</p>
+                                        <div class="flex items-center space-x-1 mt-1">
+                                            <i class="fas fa-video text-blue-600 text-xs"></i>
+                                            <span class="text-xs text-blue-600">Video Available</span>
+                                        </div>
+                                    </div>
+                                    <button class="p-2 text-muted-foreground hover:text-foreground">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Contest Match -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm p-6 fixture-item" data-status="completed">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <p class="text-sm font-medium text-muted-foreground">AUG</p>
+                                        <p class="text-2xl font-bold text-foreground">24</p>
+                                    </div>
+                                    <div class="flex items-center space-x-6">
+                                        <div class="text-right">
+                                            <p class="font-semibold text-foreground">Polk State College</p>
+                                            <p class="text-sm text-muted-foreground">Women's Soccer</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-primary">PSC</span>
+                                            </div>
+                                            <div class="text-center bg-gray-100 px-3 py-1 rounded-lg">
+                                                <span class="text-sm font-medium text-gray-600">NO CONTEST</span>
+                                            </div>
+                                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-gray-600">MU</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Monroe University</p>
+                                            <p class="text-sm text-muted-foreground">Away Team</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-foreground">10:00 AM</p>
+                                        <p class="text-xs text-muted-foreground">HOME • FCSAA League</p>
+                                        <p class="text-xs text-yellow-600">Field conditions</p>
+                                    </div>
+                                    <button class="p-2 text-muted-foreground hover:text-foreground">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Match -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm p-6 fixture-item" data-status="scheduled">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <p class="text-sm font-medium text-muted-foreground">AUG</p>
+                                        <p class="text-2xl font-bold text-foreground">29</p>
+                                    </div>
+                                    <div class="flex items-center space-x-6">
+                                        <div class="text-right">
+                                            <p class="font-semibold text-foreground">Polk State College</p>
+                                            <p class="text-sm text-muted-foreground">Women's Soccer</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-primary">PSC</span>
+                                            </div>
+                                            <div class="text-center bg-blue-100 px-3 py-1 rounded-lg">
+                                                <span class="text-sm font-medium text-blue-600">VS</span>
+                                            </div>
+                                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-gray-600">MC</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Montgomery College (MD)</p>
+                                            <p class="text-sm text-muted-foreground">Away Team</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-foreground">4:00 PM</p>
+                                        <p class="text-xs text-muted-foreground">HOME • FCSAA League</p>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">In 2 days</span>
+                                        </div>
+                                    </div>
+                                    <button class="p-2 text-muted-foreground hover:text-foreground">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- More upcoming matches -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm p-6 fixture-item" data-status="scheduled">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-center">
+                                        <p class="text-sm font-medium text-muted-foreground">SEP</p>
+                                        <p class="text-2xl font-bold text-foreground">03</p>
+                                    </div>
+                                    <div class="flex items-center space-x-6">
+                                        <div class="text-right">
+                                            <p class="font-semibold text-foreground">Polk State College</p>
+                                            <p class="text-sm text-muted-foreground">Women's Soccer</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-primary">PSC</span>
+                                            </div>
+                                            <div class="text-center bg-blue-100 px-3 py-1 rounded-lg">
+                                                <span class="text-sm font-medium text-blue-600">VS</span>
+                                            </div>
+                                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <span class="font-bold text-gray-600">WIU</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Webber International University JV</p>
+                                            <p class="text-sm text-muted-foreground">Away Team</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-foreground">4:00 PM</p>
+                                        <p class="text-xs text-muted-foreground">HOME • FCSAA League</p>
+                                    </div>
+                                    <button class="p-2 text-muted-foreground hover:text-foreground">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_SECTION: Fixtures -->
+
+                <!-- @SECTION: Squad -->
+                <div id="squad-section" class="content-section hidden">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-foreground">Squad Management</h2>
+                            <p class="text-muted-foreground">Manage player roster and profiles</p>
+                        </div>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Add Player
+                        </button>
+                    </div>
+
+                    <!-- Squad Filters -->
+                    <div class="mb-6 flex items-center space-x-4">
+                        <div class="flex bg-muted rounded-lg p-1">
+                            <button class="squad-filter active px-3 py-1 rounded-md bg-background text-foreground shadow-sm text-sm font-medium" data-position="all">All</button>
+                            <button class="squad-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-position="GK">GK</button>
+                            <button class="squad-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-position="DEF">Defense</button>
+                            <button class="squad-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-position="MID">Midfield</button>
+                            <button class="squad-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-position="FWD">Forward</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-search text-muted-foreground"></i>
+                            <input type="text" placeholder="Search players..." class="border border-border rounded-lg px-3 py-2 text-sm w-64 bg-background">
+                        </div>
+                    </div>
+
+                    <!-- Squad Overview Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-card rounded-lg p-4 border border-border">
+                            <p class="text-2xl font-bold text-foreground">23</p>
+                            <p class="text-sm text-muted-foreground">Total Players</p>
+                        </div>
+                        <div class="bg-card rounded-lg p-4 border border-border">
+                            <p class="text-2xl font-bold text-foreground">2</p>
+                            <p class="text-sm text-muted-foreground">Goalkeepers</p>
+                        </div>
+                        <div class="bg-card rounded-lg p-4 border border-border">
+                            <p class="text-2xl font-bold text-foreground">8</p>
+                            <p class="text-sm text-muted-foreground">Defenders</p>
+                        </div>
+                        <div class="bg-card rounded-lg p-4 border border-border">
+                            <p class="text-2xl font-bold text-foreground">13</p>
+                            <p class="text-sm text-muted-foreground">Mid/Forward</p>
+                        </div>
+                    </div>
+
+                    <!-- Squad Table -->
+                    <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-muted border-b border-border">
+                                    <tr>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">#</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Player</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Position</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Year</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Apps</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Goals</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Assists</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Height</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground text-sm">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border">
+                                    <!-- Goalkeepers -->
+                                    <tr class="hover:bg-muted/30 player-row" data-position="GK">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">0</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Kati Nikel</p>
+                                                <p class="text-sm text-muted-foreground">Tampa, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">GK</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Sophomore</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground">0</td>
+                                        <td class="py-4 px-4 text-foreground">0</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'8"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-muted/30 player-row" data-position="GK">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Ashley Miller</p>
+                                                <p class="text-sm text-muted-foreground">Orlando, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">GK</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Freshman</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">2</td>
+                                        <td class="py-4 px-4 text-foreground">0</td>
+                                        <td class="py-4 px-4 text-foreground">0</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'7"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Defenders -->
+                                    <tr class="hover:bg-muted/30 player-row" data-position="DEF">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Lulu Vester</p>
+                                                <p class="text-sm text-muted-foreground">Miami, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">CB</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Senior</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">1</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">2</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'6"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Midfielders -->
+                                    <tr class="hover:bg-muted/30 player-row" data-position="MID">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">18</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Sofia Salas</p>
+                                                <p class="text-sm text-muted-foreground">Sarasota, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">CAM</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Junior</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">4</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold text-green-600">6</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'7"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Forwards -->
+                                    <tr class="hover:bg-muted/30 player-row" data-position="FWD">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">9</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Janessa Crespo</p>
+                                                <p class="text-sm text-muted-foreground">West Palm Beach, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">ST</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Senior</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold text-yellow-600">12</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">3</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'8"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-muted/30 player-row" data-position="FWD">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">10</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Marie Narewski</p>
+                                                <p class="text-sm text-muted-foreground">Fort Myers, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">LW</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Junior</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">8</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">5</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'5"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-muted/30 player-row" data-position="FWD">
+                                        <td class="py-4 px-4">
+                                            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">99</div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div>
+                                                <p class="font-semibold text-foreground">Alex Van Lare</p>
+                                                <p class="text-sm text-muted-foreground">Ocala, FL</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">CF</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-foreground">Junior</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">6</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">9</td>
+                                        <td class="py-4 px-4 text-foreground font-semibold">4</td>
+                                        <td class="py-4 px-4 text-muted-foreground">5'8"</td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-green-600 hover:bg-green-100 rounded">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_SECTION: Squad -->
+
+                <!-- @SECTION: Statistics -->
+                <div id="statistics-section" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-foreground">Team Statistics</h2>
+                        <p class="text-muted-foreground">Performance analytics and metrics</p>
+                    </div>
+
+                    <!-- Statistics Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-card rounded-xl border border-border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-foreground">Season Record</h3>
+                                <i class="fas fa-trophy text-yellow-600"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Wins</span>
+                                    <span class="font-semibold text-green-600">3</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Draws</span>
+                                    <span class="font-semibold text-yellow-600">1</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Losses</span>
+                                    <span class="font-semibold text-red-600">0</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">No Contest</span>
+                                    <span class="font-semibold text-gray-600">1</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-border">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground font-medium">Win Rate</span>
+                                    <span class="font-bold text-green-600">75%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl border border-border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-foreground">Goals Statistics</h3>
+                                <i class="fas fa-futbol text-green-600"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Goals For</span>
+                                    <span class="font-semibold text-green-600">18</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Goals Against</span>
+                                    <span class="font-semibold text-red-600">0</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Goal Difference</span>
+                                    <span class="font-semibold text-green-600">+18</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Avg Goals/Game</span>
+                                    <span class="font-semibold text-foreground">3.6</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl border border-border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-foreground">Clean Sheets</h3>
+                                <i class="fas fa-shield-alt text-blue-600"></i>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-blue-600 mb-2">4</div>
+                                <p class="text-muted-foreground">out of 5 matches</p>
+                                <div class="mt-4 bg-blue-100 rounded-full h-2">
+                                    <div class="bg-blue-600 rounded-full h-2 w-4/5"></div>
+                                </div>
+                                <p class="text-sm text-blue-600 mt-2 font-medium">80% Clean Sheet Rate</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Scorers -->
+                    <div class="bg-card rounded-xl border border-border shadow-sm mb-8">
+                        <div class="p-6 border-b border-border">
+                            <h3 class="text-lg font-semibold text-foreground">Top Scorers</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-yellow-600 text-white rounded-full flex items-center justify-center font-bold">
+                                            1
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Janessa Crespo</p>
+                                            <p class="text-sm text-muted-foreground">Striker • #9</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-yellow-600">12</p>
+                                        <p class="text-sm text-muted-foreground">Goals</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gray-600 text-white rounded-full flex items-center justify-center font-bold">
+                                            2
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Alex Van Lare</p>
+                                            <p class="text-sm text-muted-foreground">Center Forward • #99</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-gray-600">9</p>
+                                        <p class="text-sm text-muted-foreground">Goals</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gray-600 text-white rounded-full flex items-center justify-center font-bold">
+                                            3
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-foreground">Marie Narewski</p>
+                                            <p class="text-sm text-muted-foreground">Left Wing • #10</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-gray-600">8</p>
+                                        <p class="text-sm text-muted-foreground">Goals</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Position Analysis -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-card rounded-xl border border-border shadow-sm">
+                            <div class="p-6 border-b border-border">
+                                <h3 class="text-lg font-semibold text-foreground">Goals by Position</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-purple-600 rounded"></div>
+                                        <span class="text-foreground">Forwards</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="bg-gray-200 rounded-full h-2 w-24">
+                                            <div class="bg-purple-600 rounded-full h-2" style="width: 90%"></div>
+                                        </div>
+                                        <span class="font-semibold text-foreground w-8">16</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-green-600 rounded"></div>
+                                        <span class="text-foreground">Midfielders</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="bg-gray-200 rounded-full h-2 w-24">
+                                            <div class="bg-green-600 rounded-full h-2" style="width: 60%"></div>
+                                        </div>
+                                        <span class="font-semibold text-foreground w-8">11</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-red-600 rounded"></div>
+                                        <span class="text-foreground">Defenders</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="bg-gray-200 rounded-full h-2 w-24">
+                                            <div class="bg-red-600 rounded-full h-2" style="width: 30%"></div>
+                                        </div>
+                                        <span class="font-semibold text-foreground w-8">5</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-blue-600 rounded"></div>
+                                        <span class="text-foreground">Goalkeepers</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="bg-gray-200 rounded-full h-2 w-24">
+                                            <div class="bg-blue-600 rounded-full h-2" style="width: 0%"></div>
+                                        </div>
+                                        <span class="font-semibold text-foreground w-8">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl border border-border shadow-sm">
+                            <div class="p-6 border-b border-border">
+                                <h3 class="text-lg font-semibold text-foreground">Player Appearances</h3>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-muted-foreground">6 Appearances</span>
+                                    <span class="font-medium text-foreground">14 Players (60.9%)</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 rounded-full h-2" style="width: 60.9%"></div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-muted-foreground">5 Appearances</span>
+                                    <span class="font-medium text-foreground">5 Players (21.7%)</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-600 rounded-full h-2" style="width: 21.7%"></div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-muted-foreground">4 Appearances</span>
+                                    <span class="font-medium text-foreground">3 Players (13.0%)</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-orange-600 rounded-full h-2" style="width: 13%"></div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-muted-foreground">2-3 Appearances</span>
+                                    <span class="font-medium text-foreground">1 Player (4.3%)</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-600 rounded-full h-2" style="width: 4.3%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_SECTION: Statistics -->
+
+                <!-- @SECTION: Videos -->
+                <div id="videos-section" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-foreground">Match Videos</h2>
+                        <p class="text-muted-foreground">Video analysis and match recordings</p>
+                    </div>
+
+                    <!-- Video Filter -->
+                    <div class="mb-6 flex items-center space-x-4">
+                        <div class="flex bg-muted rounded-lg p-1">
+                            <button class="video-filter active px-3 py-1 rounded-md bg-background text-foreground shadow-sm text-sm font-medium" data-filter="all">All Videos</button>
+                            <button class="video-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-filter="recent">Recent</button>
+                            <button class="video-filter px-3 py-1 rounded-md text-muted-foreground hover:text-foreground text-sm font-medium" data-filter="analyzed">Analyzed</button>
+                        </div>
+                    </div>
+
+                    <!-- Video Gallery -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Video Card 1 -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                            <!-- Video match recording placeholder from game against Millennia Atlantic University -->
+                            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=225" alt="Soccer match recording thumbnail" class="w-full h-48 object-cover" />
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">WIN 8-0</span>
+                                    <span class="text-xs text-muted-foreground">Aug 22, 2025</span>
+                                </div>
+                                <h3 class="font-semibold text-foreground mb-1">vs Millennia Atlantic University</h3>
+                                <p class="text-sm text-muted-foreground mb-3">Full Match • Home</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 text-xs text-muted-foreground">
+                                        <i class="fas fa-clock"></i>
+                                        <span>90 min</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="bg-primary text-primary-foreground px-3 py-1 text-xs rounded-lg hover:bg-primary/90 transition-colors">
+                                            <i class="fas fa-play mr-1"></i>
+                                            Watch
+                                        </button>
+                                        <button class="text-muted-foreground hover:text-foreground p-1">
+                                            <i class="fas fa-share-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Card 2 -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                            <!-- Video match recording placeholder from game against Florida College -->
+                            <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=225" alt="Soccer field aerial view for match analysis" class="w-full h-48 object-cover" />
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">WIN 0-7</span>
+                                    <span class="text-xs text-muted-foreground">Aug 16, 2025</span>
+                                </div>
+                                <h3 class="font-semibold text-foreground mb-1">vs Florida College</h3>
+                                <p class="text-sm text-muted-foreground mb-3">First Half • Away</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 text-xs text-muted-foreground">
+                                        <i class="fas fa-clock"></i>
+                                        <span>45 min</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="bg-primary text-primary-foreground px-3 py-1 text-xs rounded-lg hover:bg-primary/90 transition-colors">
+                                            <i class="fas fa-play mr-1"></i>
+                                            Watch
+                                        </button>
+                                        <button class="text-muted-foreground hover:text-foreground p-1">
+                                            <i class="fas fa-share-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Card 3 -->
+                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                            <!-- Video match recording placeholder showing second half highlights -->
+                            <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=225" alt="Soccer stadium lights and field for evening match" class="w-full h-48 object-cover" />
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">WIN 0-7</span>
+                                    <span class="text-xs text-muted-foreground">Aug 16, 2025</span>
+                                </div>
+                                <h3 class="font-semibold text-foreground mb-1">vs Florida College</h3>
+                                <p class="text-sm text-muted-foreground mb-3">Second Half • Away</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 text-xs text-muted-foreground">
+                                        <i class="fas fa-clock"></i>
+                                        <span>45 min</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="bg-primary text-primary-foreground px-3 py-1 text-xs rounded-lg hover:bg-primary/90 transition-colors">
+                                            <i class="fas fa-play mr-1"></i>
+                                            Watch
+                                        </button>
+                                        <button class="text-muted-foreground hover:text-foreground p-1">
+                                            <i class="fas fa-share-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder for upcoming video -->
+                        <div class="bg-card rounded-xl border border-dashed border-border shadow-sm overflow-hidden">
+                            <div class="w-full h-48 bg-muted flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-video text-4xl text-muted-foreground mb-2"></i>
+                                    <p class="text-sm text-muted-foreground">Video will be available after match</p>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">UPCOMING</span>
+                                    <span class="text-xs text-muted-foreground">Aug 29, 2025</span>
+                                </div>
+                                <h3 class="font-semibold text-foreground mb-1">vs Montgomery College (MD)</h3>
+                                <p class="text-sm text-muted-foreground mb-3">Full Match • Home</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 text-xs text-muted-foreground">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>In 2 days</span>
+                                    </div>
+                                    <button class="bg-muted text-muted-foreground px-3 py-1 text-xs rounded-lg cursor-not-allowed">
+                                        Pending
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Analytics Summary -->
+                    <div class="mt-8 bg-card rounded-xl border border-border shadow-sm">
+                        <div class="p-6 border-b border-border">
+                            <h3 class="text-lg font-semibold text-foreground">Video Analytics</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-video text-xl"></i>
+                                    </div>
+                                    <p class="text-2xl font-bold text-foreground">3</p>
+                                    <p class="text-sm text-muted-foreground">Videos Available</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-clock text-xl"></i>
+                                    </div>
+                                    <p class="text-2xl font-bold text-foreground">180</p>
+                                    <p class="text-sm text-muted-foreground">Total Minutes</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                        <i class="fas fa-eye text-xl"></i>
+                                    </div>
+                                    <p class="text-2xl font-bold text-foreground">45</p>
+                                    <p class="text-sm text-muted-foreground">Total Views</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_SECTION: Videos -->
+            </main>
+        </div>
+        <!-- @END_COMPONENT: MainContent -->
+    </div>
+    <!-- @END_COMPONENT: MainLayout -->
+
+    <script>
+        // Navigation functionality
+        (function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.content-section');
+            const pageTitle = document.getElementById('page-title');
+            const pageSubtitle = document.getElementById('page-subtitle');
+
+            const sectionTitles = {
+                'dashboard': {
+                    title: 'Dashboard',
+                    subtitle: 'Overview of team performance and upcoming matches'
+                },
+                'fixtures': {
+                    title: 'Fixtures',
+                    subtitle: 'Manage team fixtures and match results'
+                },
+                'squad': {
+                    title: 'Squad Management',
+                    subtitle: 'Manage player roster and profiles'
+                },
+                'statistics': {
+                    title: 'Statistics',
+                    subtitle: 'Performance analytics and team metrics'
+                },
+                'videos': {
+                    title: 'Match Videos',
+                    subtitle: 'Video analysis and match recordings'
+                }
+            };
+
+            function showSection(sectionName) {
+                // Hide all sections
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Show selected section
+                const targetSection = document.getElementById(sectionName + '-section');
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+
+                // Update navigation active state
+                navItems.forEach(item => {
+                    item.classList.remove('active', 'bg-primary', 'text-primary-foreground');
+                    item.classList.add('text-muted-foreground', 'hover:bg-accent', 'hover:text-accent-foreground');
+                });
+
+                const activeItem = document.querySelector(`[data-section="${sectionName}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active', 'bg-primary', 'text-primary-foreground');
+                    activeItem.classList.remove('text-muted-foreground', 'hover:bg-accent', 'hover:text-accent-foreground');
+                }
+
+                // Update page title and subtitle
+                if (sectionTitles[sectionName]) {
+                    pageTitle.textContent = sectionTitles[sectionName].title;
+                    pageSubtitle.textContent = sectionTitles[sectionName].subtitle;
+                }
+            }
+
+            // Add click listeners to navigation items
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    if (section) {
+                        showSection(section);
+                    }
+                });
+            });
+
+            // Fixture filters
+            const fixtureFilters = document.querySelectorAll('.fixtures-filter');
+            const fixtureItems = document.querySelectorAll('.fixture-item');
+
+            fixtureFilters.forEach(filter => {
+                filter.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active filter
+                    fixtureFilters.forEach(f => {
+                        f.classList.remove('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                        f.classList.add('text-muted-foreground', 'hover:text-foreground');
+                    });
+                    this.classList.add('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                    this.classList.remove('text-muted-foreground', 'hover:text-foreground');
+
+                    // Filter fixtures
+                    const filterValue = this.getAttribute('data-filter');
+                    fixtureItems.forEach(item => {
+                        if (filterValue === 'all' || item.getAttribute('data-status') === filterValue) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Squad filters
+            const squadFilters = document.querySelectorAll('.squad-filter');
+            const playerRows = document.querySelectorAll('.player-row');
+
+            squadFilters.forEach(filter => {
+                filter.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active filter
+                    squadFilters.forEach(f => {
+                        f.classList.remove('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                        f.classList.add('text-muted-foreground', 'hover:text-foreground');
+                    });
+                    this.classList.add('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                    this.classList.remove('text-muted-foreground', 'hover:text-foreground');
+
+                    // Filter players by position
+                    const filterValue = this.getAttribute('data-position');
+                    playerRows.forEach(row => {
+                        const position = row.getAttribute('data-position');
+                        if (filterValue === 'all') {
+                            row.style.display = 'table-row';
+                        } else if (filterValue === 'DEF' && ['CB', 'LB', 'RB'].some(pos => position === pos)) {
+                            row.style.display = 'table-row';
+                        } else if (filterValue === 'MID' && ['CM', 'CDM', 'CAM', 'LM', 'RM'].some(pos => position === pos)) {
+                            row.style.display = 'table-row';
+                        } else if (filterValue === 'FWD' && ['ST', 'LW', 'RW', 'CF'].some(pos => position === pos)) {
+                            row.style.display = 'table-row';
+                        } else if (position === filterValue) {
+                            row.style.display = 'table-row';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Video filters
+            const videoFilters = document.querySelectorAll('.video-filter');
+
+            videoFilters.forEach(filter => {
+                filter.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active filter
+                    videoFilters.forEach(f => {
+                        f.classList.remove('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                        f.classList.add('text-muted-foreground', 'hover:text-foreground');
+                    });
+                    this.classList.add('active', 'bg-background', 'text-foreground', 'shadow-sm');
+                    this.classList.remove('text-muted-foreground', 'hover:text-foreground');
+
+                    // TODO: Implement video filtering logic
+                });
+            });
+
+            // Initialize dashboard view
+            showSection('dashboard');
+        })();
+    </script>
+</body>
+</html>
