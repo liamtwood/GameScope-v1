@@ -519,7 +519,18 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Time Slot</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            const timeMapping = {
+                              MORNING: "10:00",
+                              AFTERNOON: "15:00",
+                              EVENING: "20:00"
+                            };
+                            form.setValue("kickoffTime", timeMapping[value as keyof typeof timeMapping]);
+                          }} 
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger data-testid="select-time-slot">
                               <SelectValue placeholder="Select time slot" />
