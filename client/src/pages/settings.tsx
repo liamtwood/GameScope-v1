@@ -660,6 +660,7 @@ export default function Settings() {
                         onClick={() => {
                           setEditingTeam(team);
                           setEditFormData({
+                            name: team.name || '',
                             shortName: team.shortName || '',
                             website: (team as any).websiteUrl || (team as any).website || '',
                             primaryColor: (team.colors as any)?.primary || '#6b7280',
@@ -1101,9 +1102,9 @@ export default function Settings() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Team Name</label>
                       <Input
-                        value={editingTeam.name}
-                        readOnly
-                        className="bg-muted"
+                        value={editFormData.name}
+                        onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                        placeholder="Enter team name"
                       />
                     </div>
 
@@ -1228,6 +1229,7 @@ export default function Settings() {
                   <Button
                     onClick={() => {
                       const updateData = {
+                        name: editFormData.name,
                         shortName: editFormData.shortName,
                         ...(editingTeam.type === 'opposition' 
                           ? { website: editFormData.website } 
