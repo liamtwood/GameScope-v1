@@ -128,8 +128,17 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         parsedDate.setHours(12, 0, 0, 0);
         return parsedDate;
       })(),
-      timeSlot: "AFTERNOON" as const,
-      kickoffTime: "15:00",
+      timeSlot: (() => {
+        const d = typeof fixture.date === 'string' ? parseISO(fixture.date) : new Date(fixture.date);
+        const h = d.getHours();
+        if (h < 12) return "MORNING" as const;
+        if (h < 17) return "AFTERNOON" as const;
+        return "EVENING" as const;
+      })(),
+      kickoffTime: (() => {
+        const d = typeof fixture.date === 'string' ? parseISO(fixture.date) : new Date(fixture.date);
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      })(),
       location: "",
       type: fixture.type as "HOME" | "AWAY",
       status: (fixture.status === "NO_CONTEST" ? "CANCELLED" : fixture.status) as "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "POSTPONED" | "CANCELLED",
@@ -154,14 +163,16 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
 
   useEffect(() => {
     const parsedDate = typeof fixture.date === 'string' ? parseISO(fixture.date) : new Date(fixture.date);
+    const fixtureHours = parsedDate.getHours();
+    const fixtureMinutes = parsedDate.getMinutes();
     parsedDate.setHours(12, 0, 0, 0);
     
     form.reset({
       opponent: fixture.opponent,
       venue: fixture.venue,
       date: parsedDate,
-      timeSlot: "AFTERNOON" as const,
-      kickoffTime: "15:00",
+      timeSlot: fixtureHours < 12 ? "MORNING" as const : fixtureHours < 17 ? "AFTERNOON" as const : "EVENING" as const,
+      kickoffTime: `${String(fixtureHours).padStart(2, '0')}:${String(fixtureMinutes).padStart(2, '0')}`,
       location: "",
       type: fixture.type as "HOME" | "AWAY",
       status: (fixture.status === "NO_CONTEST" ? "CANCELLED" : fixture.status) as "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "POSTPONED" | "CANCELLED",
@@ -228,7 +239,17 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         return;
       }
 
-      onSave(data);
+      const [hours, minutes] = (data.kickoffTime || "15:00").split(':').map(Number);
+      const updatedDate = new Date(data.date);
+      updatedDate.setHours(hours, minutes, 0, 0);
+
+      const formattedData = {
+        ...data,
+        date: updatedDate,
+        venue: data.venue || "",
+      };
+
+      onSave(formattedData);
       setOpen(false);
       setNewCompetitionName("");
       setNewOpponentName("");
