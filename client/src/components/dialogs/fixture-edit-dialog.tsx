@@ -615,13 +615,12 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
 
                 <div className="space-y-6 pt-6">
                   <Form {...opponentForm}>
-                    {/* Opposition Colors Section */}
-                    <div className="space-y-4">
-                      <div className="border-b pb-2">
-                        <h4 className="text-sm font-semibold">Opposition Colors</h4>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="border-b pb-2">
+                          <h4 className="text-sm font-semibold">Opposition Colors</h4>
+                        </div>
+                        
                         <FormField
                           control={opponentForm.control}
                           name="primaryColor"
@@ -676,36 +675,45 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                           )}
                         />
                       </div>
-                    </div>
 
-                    {/* Team Logo Section */}
-                    <div className="space-y-4">
-                      <div className="border-b pb-2">
-                        <h4 className="text-sm font-semibold">Team Logo</h4>
-                      </div>
-                      
-                      <FormField
-                        control={opponentForm.control}
-                        name="logoPath"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <LogoUpload
-                                teamName={showNewOpponentInput ? (newOpponentName || "Opponent") : (oppositionTeams.find(t => t.id === form.watch("oppositionTeamId"))?.name || "Opponent")}
-                                currentLogo={field.value}
-                                onUploadComplete={(logoPath: string) => {
-                                  field.onChange(logoPath);
-                                  toast({
-                                    title: "Logo Uploaded",
-                                    description: "Logo has been uploaded successfully",
-                                  });
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                      <div className="space-y-4">
+                        <div className="border-b pb-2">
+                          <h4 className="text-sm font-semibold">Team Logo</h4>
+                        </div>
+
+                        {opponentForm.watch("logoPath") && (
+                          <div className="border rounded-lg p-3 bg-muted/30 flex items-center justify-center">
+                            <img
+                              src={opponentForm.watch("logoPath")}
+                              alt="Opponent logo"
+                              className="max-w-full max-h-28 object-contain"
+                            />
+                          </div>
                         )}
-                      />
+                        
+                        <FormField
+                          control={opponentForm.control}
+                          name="logoPath"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <LogoUpload
+                                  teamName={showNewOpponentInput ? (newOpponentName || "Opponent") : (oppositionTeams.find(t => t.id === form.watch("oppositionTeamId"))?.name || "Opponent")}
+                                  currentLogo={field.value}
+                                  onUploadComplete={(logoPath: string) => {
+                                    field.onChange(logoPath);
+                                    toast({
+                                      title: "Logo Uploaded",
+                                      description: "Logo has been uploaded successfully",
+                                    });
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
                   </Form>
                 </div>
