@@ -681,38 +681,6 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Squad Import Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Users className="mr-2 h-5 w-5" />
-              Squad Import (Beta)
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Import player squads from external websites. Paste a URL to preview players before importing.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <SquadImportInterface />
-          </CardContent>
-        </Card>
-
-        {/* Fixtures Import Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="mr-2 h-5 w-5" />
-              Fixtures Import (Beta)
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Import fixture schedules from external websites. Paste a URL to preview fixtures before importing.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <FixturesImportInterface />
-          </CardContent>
-        </Card>
-
         {/* Enhancement Modal */}
         <Dialog open={enhanceModalOpen} onOpenChange={setEnhanceModalOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
