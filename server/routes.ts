@@ -1506,46 +1506,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const row of data) {
         try {
           // Extract player data from Excel row
-          // Common column names to look for
           const playerData: any = {};
           
-          // Try different column name variations
-          const rowObj = row as any;
+          // Normalise all keys to lowercase for case-insensitive lookup
+          const rawRow = row as any;
+          const rowObj: Record<string, any> = {};
+          for (const key of Object.keys(rawRow)) {
+            rowObj[key.toLowerCase().trim()] = rawRow[key];
+          }
+
+          // Helper: get first truthy value from a list of lowercase keys
+          const col = (...keys: string[]) => {
+            for (const k of keys) if (rowObj[k] !== undefined && rowObj[k] !== '') return rowObj[k];
+            return undefined;
+          };
           
           // Name extraction
-          playerData.firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['first'] || rowObj['Name']?.split(' ')[0] || '';
-          playerData.lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['last'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
-          
+          playerData.firstName = col('first name', 'firstname', 'first_name', 'first') || col('name')?.split(' ')[0] || '';
+          playerData.lastName = col('last name', 'lastname', 'last_name', 'last') || col('name')?.split(' ').slice(1).join(' ') || '';
+
           // If no first/last name, try to split full name
-          if (!playerData.firstName && !playerData.lastName && rowObj['Name']) {
-            const nameParts = rowObj['Name'].split(' ');
+          if (!playerData.firstName && !playerData.lastName && col('name')) {
+            const nameParts = col('name').split(' ');
             playerData.firstName = nameParts[0] || '';
             playerData.lastName = nameParts.slice(1).join(' ') || '';
           }
 
-          // Position
-          playerData.position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
+          // Position — normalise to GK/DEF/MID/FWD
+          const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
+          const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
+          playerData.position = VALID_POSITIONS.includes(rawPos) ? rawPos : '';
           
           // Jersey Number
-          playerData.jerseyNumber = parseInt(rowObj['Number'] || rowObj['number'] || rowObj['num'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
+          const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
+          playerData.jerseyNumber = rawNum !== undefined ? parseInt(rawNum) : NaN;
           
-          // Age/Date of Birth
-          if (rowObj['Age']) {
-            playerData.age = parseInt(rowObj['Age']);
-          } else if (rowObj['DOB'] || rowObj['Date of Birth']) {
-            const dob = new Date(rowObj['DOB'] || rowObj['Date of Birth']);
+          // Date of Birth
+          const rawDob = col('dob', 'date of birth', 'dateofbirth', 'birthdate', 'birth date');
+          if (rawDob) {
+            const dob = new Date(rawDob);
             if (!isNaN(dob.getTime())) {
               playerData.dateOfBirth = dob.toISOString();
               const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
               playerData.age = age;
             }
+          } else if (col('age')) {
+            playerData.age = parseInt(col('age'));
           }
 
           // Email
-          playerData.email = rowObj['Email'] || rowObj['email'] || '';
+          playerData.email = col('email') || '';
 
           // Phone
-          playerData.phone = rowObj['Phone'] || rowObj['phone'] || rowObj['Phone Number'] || '';
+          playerData.phone = col('phone', 'phone number', 'phonenumber') || '';
 
           // Skip if no name
           if (!playerData.firstName && !playerData.lastName) {
@@ -1665,38 +1678,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const row of data) {
         try {
           // Extract player data from Excel row
-          const rowObj = row as any;
-          
+          // Normalise all keys to lowercase for case-insensitive lookup
+          const rawRow = row as any;
+          const rowObj: Record<string, any> = {};
+          for (const key of Object.keys(rawRow)) {
+            rowObj[key.toLowerCase().trim()] = rawRow[key];
+          }
+
+          // Helper: get first truthy value from a list of lowercase keys
+          const col = (...keys: string[]) => {
+            for (const k of keys) if (rowObj[k] !== undefined && rowObj[k] !== '') return rowObj[k];
+            return undefined;
+          };
+
           // Name extraction
-          const firstName = rowObj['First Name'] || rowObj['FirstName'] || rowObj['first_name'] || rowObj['first'] || rowObj['Name']?.split(' ')[0] || '';
-          const lastName = rowObj['Last Name'] || rowObj['LastName'] || rowObj['last_name'] || rowObj['last'] || rowObj['Name']?.split(' ').slice(1).join(' ') || '';
-          
-          // If no first/last name, try to split full name
-          let finalFirstName = firstName;
-          let finalLastName = lastName;
-          if (!firstName && !lastName && rowObj['Name']) {
-            const nameParts = rowObj['Name'].split(' ');
+          let finalFirstName = col('first name', 'firstname', 'first_name', 'first') || col('name')?.split(' ')[0] || '';
+          let finalLastName = col('last name', 'lastname', 'last_name', 'last') || col('name')?.split(' ').slice(1).join(' ') || '';
+
+          if (!finalFirstName && !finalLastName && col('name')) {
+            const nameParts = col('name').split(' ');
             finalFirstName = nameParts[0] || '';
             finalLastName = nameParts.slice(1).join(' ') || '';
           }
 
-          // Position
-          const position = rowObj['Position'] || rowObj['Pos'] || rowObj['position'] || 'Forward';
+          // Position — normalise to GK/DEF/MID/FWD
+          const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
+          const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
+          const position = VALID_POSITIONS.includes(rawPos) ? rawPos : '';
           
           // Jersey Number
-          const jerseyNumber = parseInt(rowObj['Number'] || rowObj['number'] || rowObj['num'] || rowObj['Jersey'] || rowObj['#'] || rowObj['Jersey Number'] || 0);
-          
+          const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
+          const jerseyNumber = rawNum !== undefined ? parseInt(rawNum) : NaN;
+
           // Email and Phone
-          const email = rowObj['Email'] || rowObj['email'] || '';
-          const phone = rowObj['Phone'] || rowObj['phone'] || rowObj['Phone Number'] || '';
+          const email = col('email') || '';
+          const phone = col('phone', 'phone number', 'phonenumber') || '';
+
+          // DOB
+          const rawDob = col('dob', 'date of birth', 'dateofbirth', 'birthdate', 'birth date');
+          let dob = '';
+          if (rawDob) {
+            const d = new Date(rawDob);
+            if (!isNaN(d.getTime())) {
+              dob = d.toISOString().split('T')[0];
+            }
+          }
 
           players.push({
             firstName: finalFirstName,
             lastName: finalLastName,
             position,
-            jerseyNumber,
+            jerseyNumber: isNaN(jerseyNumber) ? null : jerseyNumber,
             email,
-            phone
+            phone,
+            dob
           });
 
         } catch (error) {
