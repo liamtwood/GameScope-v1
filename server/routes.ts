@@ -1555,6 +1555,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
 
+          // Shirt Name
+          playerData.shirtName = col('shirt name', 'shirtname', 'shirt_name', 'jersey name') || '';
+
           // Contact
           playerData.email = col('email') || '';
           playerData.phone = col('phone', 'phone number', 'phonenumber') || '';
@@ -1593,6 +1596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             user = await storage.createUser({
               firstName: playerData.firstName,
               lastName: playerData.lastName,
+              shirtName: playerData.shirtName || undefined,
               email: playerData.email || '',
               phone: playerData.phone || '',
               gender: playerData.gender || undefined,
