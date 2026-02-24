@@ -1541,29 +1541,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
           playerData.position = POSITION_MAP[rawPos] || 'None';
-          
+
           // Jersey Number
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
-          playerData.jerseyNumber = rawNum !== undefined ? parseInt(rawNum) : NaN;
-          
+          playerData.jerseyNumber = rawNum !== undefined ? parseInt(rawNum) : undefined;
+
           // Date of Birth
           const rawDob = col('dob', 'date of birth', 'dateofbirth', 'birthdate', 'birth date');
           if (rawDob) {
             const dob = new Date(rawDob);
             if (!isNaN(dob.getTime())) {
-              playerData.dateOfBirth = dob.toISOString();
-              const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-              playerData.age = age;
+              playerData.dateOfBirth = dob;
             }
-          } else if (col('age')) {
-            playerData.age = parseInt(col('age'));
           }
 
-          // Email
+          // Contact
           playerData.email = col('email') || '';
-
-          // Phone
           playerData.phone = col('phone', 'phone number', 'phonenumber') || '';
+          playerData.emergencyContact = col('emergency contact', 'emergencycontact', 'emergency_contact') || '';
+          playerData.emergencyContactPhone = col('emergency contact phone', 'emergencycontactphone', 'emergency_contact_phone') || '';
 
           // Gender
           const rawGender = (col('gender', 'sex') || '').toString().trim();
@@ -1573,6 +1569,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'other': 'Other', 'o': 'Other',
           };
           playerData.gender = genderMap[rawGender.toLowerCase()] || undefined;
+
+          // Profile / Bio fields
+          playerData.shirtName = col('shirt name', 'shirtname', 'shirt_name', 'jersey name') || '';
+          playerData.height = col('height') || '';
+          playerData.hometown = col('hometown', 'home town', 'city') || '';
+          playerData.highSchool = col('high school', 'highschool', 'high_school', 'school') || '';
+          playerData.classYear = col('class year', 'classyear', 'class_year', 'class', 'year') || '';
+          playerData.bio = col('bio', 'biography', 'about') || '';
 
           // Skip if no name
           if (!playerData.firstName && !playerData.lastName) {
@@ -1599,12 +1603,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             user = await storage.createUser({
               firstName: playerData.firstName,
               lastName: playerData.lastName,
+              shirtName: playerData.shirtName || undefined,
               email: playerData.email || '',
               phone: playerData.phone || '',
+              emergencyContact: playerData.emergencyContact || undefined,
+              emergencyContactPhone: playerData.emergencyContactPhone || undefined,
+              gender: playerData.gender || undefined,
+              dateOfBirth: playerData.dateOfBirth || undefined,
+              height: playerData.height || undefined,
+              hometown: playerData.hometown || undefined,
+              highSchool: playerData.highSchool || undefined,
+              classYear: playerData.classYear || undefined,
+              bio: playerData.bio || undefined,
               role: 'Player',
               status: 'Active',
-              gender: playerData.gender || undefined,
-              dateOfBirth: playerData.dateOfBirth ? new Date(playerData.dateOfBirth) : undefined
             });
           }
 
