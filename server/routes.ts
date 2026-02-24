@@ -1672,6 +1672,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = XLSX.utils.sheet_to_json(worksheet);
 
       console.log(`Found ${data.length} rows in Excel file for preview`);
+      if (data.length > 0) {
+        console.log('Preview - raw column keys from first row:', Object.keys(data[0] as any));
+        console.log('Preview - first row raw values:', JSON.stringify(data[0]));
+      }
 
       const players: any[] = [];
 

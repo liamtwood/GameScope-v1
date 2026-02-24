@@ -319,7 +319,8 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                   <TableHeader>
                     <TableRow>
                       <TableHead>Status</TableHead>
-                      <TableHead>Name</TableHead>
+                      <TableHead>First Name</TableHead>
+                      <TableHead>Last Name</TableHead>
                       <TableHead>Position</TableHead>
                       <TableHead>Jersey #</TableHead>
                       <TableHead>DOB</TableHead>
@@ -341,9 +342,8 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                             {player.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-medium">
-                          {player.firstName} {player.lastName}
-                        </TableCell>
+                        <TableCell className="font-medium">{player.firstName}</TableCell>
+                        <TableCell className="font-medium">{player.lastName}</TableCell>
                         <TableCell>{player.position || <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell>{player.jerseyNumber ?? <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
