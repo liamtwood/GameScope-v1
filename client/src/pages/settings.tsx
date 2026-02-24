@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2, Calendar } from "lucide-react";
+import { Upload, Wand2, Save, CheckCircle, AlertCircle, Info, Edit3, Image, Link as LinkIcon, ArrowUpDown, Trash2, UploadCloud, ZoomIn, ZoomOut, Plus, Palette, Users, ExternalLink, Loader2, Calendar, Trophy, Search, Edit } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
-import { Club, OppositionTeam, insertOppositionTeamSchema } from "@shared/schema";
+import { Club, OppositionTeam, Competition, insertOppositionTeamSchema } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -23,10 +24,12 @@ import { ThemedLogoContainer } from "@/components/ui/themed-logo-container";
 import { ReliableLogoUpload } from "@/components/reliable-logo-upload";
 import { LogoDisplay } from "@/components/logo-display";
 import { useClub } from "@/contexts/club-context";
+import { useTeam } from "@/contexts/team-context";
 
 export default function Settings() {
   const { toast } = useToast();
   const { selectedClub: currentClub } = useClub();
+  const { selectedTeam: currentTeam } = useTeam();
 
   // Logo management state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -56,6 +59,13 @@ export default function Settings() {
   const [isEditOppositionDialogOpen, setIsEditOppositionDialogOpen] = useState(false);
   const [editingOppositionTeam, setEditingOppositionTeam] = useState<OppositionTeam | null>(null);
   const [extractingColors, setExtractingColors] = useState<string | null>(null);
+
+  // Competition management state
+  const [editingCompetition, setEditingCompetition] = useState<Competition | null>(null);
+  const [editCompetitionName, setEditCompetitionName] = useState("");
+  const [newCompetitionName, setNewCompetitionName] = useState("");
+  const [competitionSearchQuery, setCompetitionSearchQuery] = useState("");
+  const [isUploadingCompetitionLogo, setIsUploadingCompetitionLogo] = useState(false);
 
   // Form schema for opposition teams
   type OppositionTeamFormData = z.infer<typeof insertOppositionTeamSchema>;
@@ -96,6 +106,34 @@ export default function Settings() {
       const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
+  });
+
+  const { data: competitions = [] } = useQuery<Competition[]>({
+    queryKey: ["/api/competitions", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/competitions?clubId=${currentClub.id}` : '/api/competitions';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch competitions');
+      return res.json();
+    }
+  });
+
+  interface TeamCompetition {
+    id: string;
+    teamId: string;
+    competitionId: string;
+    isEnabled: boolean;
+    competition: Competition;
+  }
+
+  const { data: teamCompetitions = [] } = useQuery<TeamCompetition[]>({
+    queryKey: ["/api/teams", currentTeam?.id, "competitions"],
+    enabled: !!currentTeam?.id,
+    queryFn: async () => {
+      const res = await fetch(`/api/teams/${currentTeam?.id}/competitions`);
+      if (!res.ok) throw new Error('Failed to fetch team competitions');
       return res.json();
     }
   });
@@ -568,6 +606,96 @@ export default function Settings() {
     },
   });
 
+  // Competition mutations
+  const createCompetitionMutation = useMutation({
+    mutationFn: async (name: string): Promise<Competition> => {
+      const res = await apiRequest("POST", "/api/competitions", { name, clubId: currentClub?.id });
+      return res.json();
+    },
+    onSuccess: (newComp) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+      setNewCompetitionName("");
+      toast({ title: "Success", description: `"${newComp.name}" has been added.` });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create competition.", variant: "destructive" });
+    },
+  });
+
+  const updateCompetitionMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      return apiRequest("PATCH", `/api/competitions/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+      setEditingCompetition(null);
+      setEditCompetitionName("");
+      toast({ title: "Success", description: "Competition updated successfully." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update competition.", variant: "destructive" });
+    },
+  });
+
+  const deleteCompetitionMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/competitions/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures"] });
+      toast({ title: "Success", description: "Competition deleted. Any fixtures using it now show 'No Competition'." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete competition.", variant: "destructive" });
+    },
+  });
+
+  const toggleCompetitionMutation = useMutation({
+    mutationFn: async ({ competitionId, isEnabled }: { competitionId: string; isEnabled: boolean }) => {
+      return apiRequest("PUT", `/api/teams/${currentTeam?.id}/competitions/${competitionId}`, { isEnabled });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/teams", currentTeam?.id, "competitions"] });
+      toast({ title: "Success", description: "Competition visibility updated." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update competition visibility.", variant: "destructive" });
+    },
+  });
+
+  const uploadCompetitionLogoMutation = useMutation({
+    mutationFn: async ({ competitionId, logoFile }: { competitionId: string; logoFile: File }) => {
+      const formData = new FormData();
+      formData.append('logo', logoFile);
+      formData.append('competitionId', competitionId);
+      return apiRequest("POST", `/api/competitions/${competitionId}/logo`, formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/competitions"] });
+      setIsUploadingCompetitionLogo(false);
+      toast({ title: "Success", description: "Competition logo updated successfully." });
+    },
+    onError: () => {
+      setIsUploadingCompetitionLogo(false);
+      toast({ title: "Error", description: "Failed to upload competition logo.", variant: "destructive" });
+    },
+  });
+
+  const filteredCompetitions = useMemo(() => {
+    const sorted = [...competitions].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    );
+    if (!competitionSearchQuery.trim()) return sorted;
+    const q = competitionSearchQuery.toLowerCase();
+    return sorted.filter(c => c.name.toLowerCase().includes(q));
+  }, [competitions, competitionSearchQuery]);
+
+  const isCompetitionEnabled = (competitionId: string) => {
+    const tc = teamCompetitions.find(t => t.competitionId === competitionId);
+    return tc ? tc.isEnabled : false;
+  };
+
   // Form handlers
   const onCreateOppositionSubmit = (data: OppositionTeamFormData) => {
     createOppositionMutation.mutate(data);
@@ -614,72 +742,304 @@ export default function Settings() {
   return (
     <MainLayout title="Settings" subtitle="Club settings and team logo management">
       <div className="space-y-6">
-        {/* Current Club Logos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Image className="mr-2 h-5 w-5" />
-              All Team Logos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allTeams?.map((team) => (
-                <Card key={team.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center space-x-4">
-                    {/* Logo */}
-                    <LogoDisplay
-                      src={team.logoPath}
-                      alt={`${team.name} logo`}
-                      size="md"
-                    />
-                    
-                    {/* Team Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">{team.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {team.type === 'club' ? 'Club Team' : 'Opposition Team'}
-                      </p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {team.logoPath ? 'Has Logo' : 'No Logo'}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      {team.type === 'opposition' && (
-                        <div className="flex items-center space-x-1">
-                          <span className="text-xs text-muted-foreground">{(team as any).isVisible !== false ? 'Visible' : 'Hidden'}</span>
-                          <Switch
-                            checked={(team as any).isVisible !== false}
-                            onCheckedChange={() => toggleOpponentVisibilityMutation.mutate({ id: team.id, isVisible: (team as any).isVisible === false })}
-                          />
+        <Tabs defaultValue="clubs">
+          <TabsList className="mb-4">
+            <TabsTrigger value="clubs">Clubs</TabsTrigger>
+            <TabsTrigger value="opponents">Opponents</TabsTrigger>
+            <TabsTrigger value="competitions">Competitions</TabsTrigger>
+          </TabsList>
+
+          {/* ── CLUBS TAB ── */}
+          <TabsContent value="clubs">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Image className="mr-2 h-5 w-5" />
+                  Club Logos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {clubs?.sort((a, b) => a.name.localeCompare(b.name)).map((club) => (
+                    <Card key={club.id} className="p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center space-x-4">
+                        <LogoDisplay src={club.logoPath} alt={`${club.name} logo`} size="md" />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground truncate">{club.name}</h3>
+                          <Badge variant="outline" className="text-xs mt-1">
+                            {club.logoPath ? 'Has Logo' : 'No Logo'}
+                          </Badge>
                         </div>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditingTeam(team);
-                          setEditFormData({
-                            name: team.name || '',
-                            shortName: team.shortName || '',
-                            website: (team as any).websiteUrl || (team as any).website || '',
-                            primaryColor: (team.colors as any)?.primary || '#6b7280',
-                            secondaryColor: (team.colors as any)?.secondary || '#4b5563'
-                          });
-                          setEditDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-${team.id}`}
-                      >
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingTeam({ ...club, type: 'club' });
+                            setEditFormData({
+                              name: club.name || '',
+                              shortName: club.shortName || '',
+                              website: (club as any).websiteUrl || '',
+                              primaryColor: (club.colors as any)?.primary || '#6b7280',
+                              secondaryColor: (club.colors as any)?.secondary || '#4b5563'
+                            });
+                            setEditDialogOpen(true);
+                          }}
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ── OPPONENTS TAB ── */}
+          <TabsContent value="opponents">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Users className="mr-2 h-5 w-5" />
+                    Opponents
+                  </CardTitle>
+                  <Button size="sm" onClick={() => setIsCreateOppositionDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Opponent
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {oppositionTeams && oppositionTeams.length > 0 ? (
+                  <div className="space-y-3">
+                    {[...oppositionTeams].sort((a, b) => a.name.localeCompare(b.name)).map((team) => (
+                      <Card key={team.id} className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <LogoDisplay src={team.logoPath} alt={`${team.name} logo`} size="sm" />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground truncate">{team.name}</h3>
+                            {team.shortName && (
+                              <p className="text-xs text-muted-foreground">{team.shortName}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-muted-foreground">
+                              {team.isVisible !== false ? 'Visible' : 'Hidden'}
+                            </span>
+                            <Switch
+                              checked={team.isVisible !== false}
+                              onCheckedChange={() =>
+                                toggleOpponentVisibilityMutation.mutate({
+                                  id: team.id,
+                                  isVisible: team.isVisible === false
+                                })
+                              }
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditOpposition(team)}
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteOpposition(team)}
+                              disabled={deleteOppositionMutation.isPending}
+                            >
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
                   </div>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No opponents added yet</p>
+                    <Button
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => setIsCreateOppositionDialogOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Opponent
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ── COMPETITIONS TAB ── */}
+          <TabsContent value="competitions">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Trophy className="mr-2 h-5 w-5" />
+                  Competitions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search competitions..."
+                    value={competitionSearchQuery}
+                    onChange={(e) => setCompetitionSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                {/* Add new competition */}
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="New competition name..."
+                    value={newCompetitionName}
+                    onChange={(e) => setNewCompetitionName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newCompetitionName.trim()) {
+                        e.preventDefault();
+                        createCompetitionMutation.mutate(newCompetitionName.trim());
+                      }
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (newCompetitionName.trim()) {
+                        createCompetitionMutation.mutate(newCompetitionName.trim());
+                      }
+                    }}
+                    disabled={!newCompetitionName.trim() || createCompetitionMutation.isPending}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add
+                  </Button>
+                </div>
+
+                {/* Competition list */}
+                <div className="space-y-3">
+                  {filteredCompetitions.length > 0 ? (
+                    filteredCompetitions.map((competition) => {
+                      const enabled = isCompetitionEnabled(competition.id);
+                      return (
+                        <Card key={competition.id} className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-3 flex-1">
+                              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                                {competition.logoPath ? (
+                                  <img
+                                    src={competition.logoPath}
+                                    alt={competition.name}
+                                    className="h-5 w-5 object-contain"
+                                  />
+                                ) : (
+                                  <Trophy className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                {editingCompetition?.id === competition.id ? (
+                                  <div className="flex items-center space-x-2">
+                                    <Input
+                                      value={editCompetitionName}
+                                      onChange={(e) => setEditCompetitionName(e.target.value)}
+                                      className="h-8"
+                                    />
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        if (editingCompetition && editCompetitionName.trim()) {
+                                          updateCompetitionMutation.mutate({
+                                            id: editingCompetition.id,
+                                            name: editCompetitionName.trim()
+                                          });
+                                        }
+                                      }}
+                                      disabled={!editCompetitionName.trim()}
+                                    >
+                                      Save
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingCompetition(null);
+                                        setEditCompetitionName("");
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <h4 className="font-medium text-foreground">{competition.name}</h4>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-muted-foreground">
+                                {enabled ? 'Visible' : 'Hidden'}
+                              </span>
+                              <Switch
+                                checked={enabled}
+                                onCheckedChange={() =>
+                                  toggleCompetitionMutation.mutate({
+                                    competitionId: competition.id,
+                                    isEnabled: !enabled
+                                  })
+                                }
+                              />
+                              {editingCompetition?.id !== competition.id && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setEditingCompetition(competition);
+                                      setEditCompetitionName(competition.name);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Delete "${competition.name}"? Fixtures using it will show "No Competition".`)) {
+                                        deleteCompetitionMutation.mutate(competition.id);
+                                      }
+                                    }}
+                                    disabled={deleteCompetitionMutation.isPending}
+                                  >
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })
+                  ) : competitionSearchQuery.trim() ? (
+                    <div className="text-center py-6">
+                      <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No competitions match your search</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No competitions added yet</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Enhancement Modal */}
         <Dialog open={enhanceModalOpen} onOpenChange={setEnhanceModalOpen}>
@@ -1049,6 +1409,102 @@ export default function Settings() {
                 </div>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Opponent Dialog */}
+        <Dialog open={isCreateOppositionDialogOpen} onOpenChange={setIsCreateOppositionDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Opponent</DialogTitle>
+              <DialogDescription>Add a new opposition team.</DialogDescription>
+            </DialogHeader>
+            <Form {...oppositionForm}>
+              <form onSubmit={oppositionForm.handleSubmit(onCreateOppositionSubmit)} className="space-y-4">
+                <FormField
+                  control={oppositionForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Polk State College" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={oppositionForm.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Name (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. PSC" {...field} value={field.value ?? ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => { setIsCreateOppositionDialogOpen(false); oppositionForm.reset(); }}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={createOppositionMutation.isPending}>
+                    {createOppositionMutation.isPending ? 'Adding...' : 'Add Opponent'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Opponent Dialog */}
+        <Dialog open={isEditOppositionDialogOpen} onOpenChange={setIsEditOppositionDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Opponent</DialogTitle>
+              <DialogDescription>Update this opposition team's details.</DialogDescription>
+            </DialogHeader>
+            <Form {...editOppositionForm}>
+              <form onSubmit={editOppositionForm.handleSubmit(onUpdateOppositionSubmit)} className="space-y-4">
+                <FormField
+                  control={editOppositionForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editOppositionForm.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Name (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value ?? ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => { setIsEditOppositionDialogOpen(false); setEditingOppositionTeam(null); editOppositionForm.reset(); }}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={updateOppositionMutation.isPending}>
+                    {updateOppositionMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
 

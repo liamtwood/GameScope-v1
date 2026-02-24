@@ -8,7 +8,6 @@ import { FixtureCard } from "@/components/ui/fixture-card";
 import { StatsCard } from "@/components/ui/stats-card";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
 import { FixtureCreateDialog } from "@/components/dialogs/fixture-create-dialog";
-import { FixtureSettingsDialog } from "@/components/dialogs/fixture-settings-dialog";
 import { FixtureImportDialog } from "@/components/dialogs/fixture-import-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter, Settings } from "lucide-react";
+import { Plus, Target, TrendingUp, TrendingDown, TrendingUpDown, Minus, Trophy, Calendar, Video, MapPin, Clock, Home, Plane, Edit, Upload, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { Fixture, Team, Competition, Club } from "@shared/schema";
 import { FixtureStatus } from "@/lib/types";
@@ -554,11 +553,6 @@ export default function Fixtures() {
                 Import Excel
               </Button>
             </FixtureImportDialog>
-            <FixtureSettingsDialog teamId={currentTeam?.id || ""} clubId={currentClub?.id}>
-              <Button variant="ghost" data-testid="button-settings">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </FixtureSettingsDialog>
           </div>
         </div>
         
