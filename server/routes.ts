@@ -1532,10 +1532,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             playerData.lastName = nameParts.slice(1).join(' ') || '';
           }
 
-          // Position — normalise to GK/DEF/MID/FWD
+          // Position — normalise to GK/DEF/MID/FWD, default to 'None'
           const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
           const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
-          playerData.position = VALID_POSITIONS.includes(rawPos) ? rawPos : '';
+          playerData.position = VALID_POSITIONS.includes(rawPos) ? rawPos : 'None';
           
           // Jersey Number
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
@@ -1701,10 +1701,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             finalLastName = nameParts.slice(1).join(' ') || '';
           }
 
-          // Position — normalise to GK/DEF/MID/FWD
+          // Position — normalise to GK/DEF/MID/FWD, default to 'None'
           const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
           const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
-          const position = VALID_POSITIONS.includes(rawPos) ? rawPos : '';
+          const position = VALID_POSITIONS.includes(rawPos) ? rawPos : 'None';
           
           // Jersey Number
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');

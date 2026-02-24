@@ -88,8 +88,6 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
       
       const previewData = await previewResponse.json();
 
-      const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
-
       // Process preview data and add validation
       const processedData: PlayerPreview[] = previewData.players.map((player: any) => {
         const warnings: string[] = [];
@@ -101,10 +99,10 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
           status = 'error';
         }
 
-        // Required: position must be GK, DEF, MID or FWD
-        if (!player.position || !VALID_POSITIONS.includes(player.position)) {
-          warnings.push('Invalid or missing position (must be GK, DEF, MID, FWD)');
-          status = 'error';
+        // Optional: position — no position column or unrecognised value → defaults to 'None'
+        if (!player.position || player.position === 'None') {
+          warnings.push('No position (will default to None)');
+          if (status === 'valid') status = 'warning';
         }
 
         // Optional: jersey number — warning only
@@ -273,10 +271,10 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                   <CardTitle className="text-sm">Expected Excel Format</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm space-y-2">
-                  <p><strong>Required columns:</strong> First Name/first, Last Name/last, Position</p>
-                  <p><strong>Optional columns:</strong> Number/number, Email, Phone, DOB</p>
-                  <p><strong>Supported positions:</strong> GK, DEF, MID, FWD</p>
-                  <p className="text-xs text-muted-foreground">Column names are flexible - both "First Name" and "first" work</p>
+                  <p><strong>Required columns:</strong> First Name/first, Last Name/last</p>
+                  <p><strong>Optional columns:</strong> Position, Number/number, Email, Phone, DOB</p>
+                  <p><strong>Supported positions:</strong> GK, DEF, MID, FWD (defaults to None if missing)</p>
+                  <p className="text-xs text-muted-foreground">Column names are case-insensitive — "First Name", "first name" and "first" all work</p>
                 </CardContent>
               </Card>
             </div>
