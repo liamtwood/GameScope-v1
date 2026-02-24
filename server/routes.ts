@@ -1565,6 +1565,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Phone
           playerData.phone = col('phone', 'phone number', 'phonenumber') || '';
 
+          // Gender
+          const rawGender = (col('gender', 'sex') || '').toString().trim();
+          const genderMap: Record<string, string> = {
+            'male': 'Male', 'm': 'Male',
+            'female': 'Female', 'f': 'Female',
+            'other': 'Other', 'o': 'Other',
+          };
+          playerData.gender = genderMap[rawGender.toLowerCase()] || undefined;
+
           // Skip if no name
           if (!playerData.firstName && !playerData.lastName) {
             console.log('Skipping row with no name:', rowObj);
@@ -1594,6 +1603,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               phone: playerData.phone || '',
               role: 'Player',
               status: 'Active',
+              gender: playerData.gender || undefined,
               dateOfBirth: playerData.dateOfBirth ? new Date(playerData.dateOfBirth) : undefined
             });
           }
@@ -1728,6 +1738,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const email = col('email') || '';
           const phone = col('phone', 'phone number', 'phonenumber') || '';
 
+          // Gender
+          const rawGender = (col('gender', 'sex') || '').toString().trim();
+          const genderMap: Record<string, string> = {
+            'male': 'Male', 'm': 'Male',
+            'female': 'Female', 'f': 'Female',
+            'other': 'Other', 'o': 'Other',
+          };
+          const gender = genderMap[rawGender.toLowerCase()] || '';
+
           // DOB
           const rawDob = col('dob', 'date of birth', 'dateofbirth', 'birthdate', 'birth date');
           let dob = '';
@@ -1745,6 +1764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             jerseyNumber: isNaN(jerseyNumber) ? null : jerseyNumber,
             email,
             phone,
+            gender,
             dob
           });
 

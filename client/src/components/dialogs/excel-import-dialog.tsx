@@ -21,6 +21,7 @@ interface PlayerPreview {
   jerseyNumber: number | null;
   email?: string;
   phone?: string;
+  gender?: string;
   dob?: string;
   status: 'valid' | 'warning' | 'error';
   warnings?: string[];
@@ -93,10 +94,16 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
         const warnings: string[] = [];
         let status: 'valid' | 'warning' | 'error' = 'valid';
 
-        // Required: first name + last name
-        if (!player.firstName || !player.lastName) {
-          warnings.push('Missing name');
-          status = 'error';
+        // Name missing — warning only (still importable)
+        if (!player.firstName && !player.lastName) {
+          warnings.push('Missing first and last name');
+          if (status === 'valid') status = 'warning';
+        } else if (!player.firstName) {
+          warnings.push('Missing first name');
+          if (status === 'valid') status = 'warning';
+        } else if (!player.lastName) {
+          warnings.push('Missing last name');
+          if (status === 'valid') status = 'warning';
         }
 
         // Optional: position — no position column or unrecognised value → defaults to 'None'
@@ -124,6 +131,7 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
           jerseyNumber: player.jerseyNumber ?? null,
           email: player.email || '',
           phone: player.phone || '',
+          gender: player.gender || '',
           dob: player.dob || '',
           status,
           warnings: warnings.length > 0 ? warnings : undefined
@@ -272,7 +280,7 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                 </CardHeader>
                 <CardContent className="text-sm space-y-2">
                   <p><strong>Required columns:</strong> First Name/first, Last Name/last</p>
-                  <p><strong>Optional columns:</strong> Position, Number/number, Email, Phone, DOB</p>
+                  <p><strong>Optional columns:</strong> Position, Number/number, Gender, Email, Phone, DOB</p>
                   <p><strong>Supported positions:</strong> GK / Goalkeeper, DEF / Defender, MID / Midfielder, FWD / Forward (defaults to None if missing or unrecognised)</p>
                   <p className="text-xs text-muted-foreground">Column names are case-insensitive — "First Name", "first name" and "first" all work</p>
                 </CardContent>
