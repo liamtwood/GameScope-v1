@@ -1533,9 +1533,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           // Position — normalise to GK/DEF/MID/FWD, default to 'None'
-          const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
+          const POSITION_MAP: Record<string, string> = {
+            'GK': 'GK', 'GOALKEEPER': 'GK', 'GOAL KEEPER': 'GK', 'KEEPER': 'GK',
+            'DEF': 'DEF', 'DEFENDER': 'DEF', 'DEFENCE': 'DEF', 'DEFENSE': 'DEF', 'CB': 'DEF', 'LB': 'DEF', 'RB': 'DEF',
+            'MID': 'MID', 'MIDFIELDER': 'MID', 'MIDFIELD': 'MID', 'CM': 'MID', 'DM': 'MID', 'AM': 'MID',
+            'FWD': 'FWD', 'FORWARD': 'FWD', 'STRIKER': 'FWD', 'ATTACKER': 'FWD', 'ST': 'FWD', 'CF': 'FWD', 'LW': 'FWD', 'RW': 'FWD',
+          };
           const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
-          playerData.position = VALID_POSITIONS.includes(rawPos) ? rawPos : 'None';
+          playerData.position = POSITION_MAP[rawPos] || 'None';
           
           // Jersey Number
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
@@ -1706,9 +1711,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           // Position — normalise to GK/DEF/MID/FWD, default to 'None'
-          const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
+          const POSITION_MAP: Record<string, string> = {
+            'GK': 'GK', 'GOALKEEPER': 'GK', 'GOAL KEEPER': 'GK', 'KEEPER': 'GK',
+            'DEF': 'DEF', 'DEFENDER': 'DEF', 'DEFENCE': 'DEF', 'DEFENSE': 'DEF', 'CB': 'DEF', 'LB': 'DEF', 'RB': 'DEF',
+            'MID': 'MID', 'MIDFIELDER': 'MID', 'MIDFIELD': 'MID', 'CM': 'MID', 'DM': 'MID', 'AM': 'MID',
+            'FWD': 'FWD', 'FORWARD': 'FWD', 'STRIKER': 'FWD', 'ATTACKER': 'FWD', 'ST': 'FWD', 'CF': 'FWD', 'LW': 'FWD', 'RW': 'FWD',
+          };
           const rawPos = (col('position', 'pos') || '').toString().trim().toUpperCase();
-          const position = VALID_POSITIONS.includes(rawPos) ? rawPos : 'None';
+          const position = POSITION_MAP[rawPos] || 'None';
           
           // Jersey Number
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');

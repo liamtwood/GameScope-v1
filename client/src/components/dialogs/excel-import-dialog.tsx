@@ -273,7 +273,7 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                 <CardContent className="text-sm space-y-2">
                   <p><strong>Required columns:</strong> First Name/first, Last Name/last</p>
                   <p><strong>Optional columns:</strong> Position, Number/number, Email, Phone, DOB</p>
-                  <p><strong>Supported positions:</strong> GK, DEF, MID, FWD (defaults to None if missing)</p>
+                  <p><strong>Supported positions:</strong> GK / Goalkeeper, DEF / Defender, MID / Midfielder, FWD / Forward (defaults to None if missing or unrecognised)</p>
                   <p className="text-xs text-muted-foreground">Column names are case-insensitive — "First Name", "first name" and "first" all work</p>
                 </CardContent>
               </Card>
