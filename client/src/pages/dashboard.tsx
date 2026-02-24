@@ -34,7 +34,11 @@ export default function Dashboard() {
   });
 
 
-  const recentFixtures = fixtures?.filter(f => f.status === 'COMPLETED').slice(0, 3) || [];
+  const now = new Date();
+  const recentFixtures = fixtures
+    ?.filter(f => f.status === 'COMPLETED' && new Date(f.date) <= now)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3) || [];
   const upcomingFixtures = fixtures?.filter(f => {
     const fixtureDate = new Date(f.date);
     const today = new Date();
