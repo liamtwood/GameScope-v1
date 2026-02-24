@@ -17,6 +17,7 @@ interface ExcelImportDialogProps {
 interface PlayerPreview {
   firstName: string;
   lastName: string;
+  shirtName?: string;
   position: string;
   jerseyNumber: number | null;
   email?: string;
@@ -94,39 +95,16 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
         const warnings: string[] = [];
         let status: 'valid' | 'warning' | 'error' = 'valid';
 
-        // Name missing — warning only (still importable)
+        // Only warn when both first AND last name are missing
         if (!player.firstName && !player.lastName) {
           warnings.push('Missing first and last name');
-          if (status === 'valid') status = 'warning';
-        } else if (!player.firstName) {
-          warnings.push('Missing first name');
-          if (status === 'valid') status = 'warning';
-        } else if (!player.lastName) {
-          warnings.push('Missing last name');
-          if (status === 'valid') status = 'warning';
-        }
-
-        // Optional: position — no position column or unrecognised value → defaults to 'None'
-        if (!player.position || player.position === 'None') {
-          warnings.push('No position (will default to None)');
-          if (status === 'valid') status = 'warning';
-        }
-
-        // Optional: jersey number — warning only
-        if (player.jerseyNumber === null || player.jerseyNumber === undefined || isNaN(player.jerseyNumber)) {
-          warnings.push('No jersey number');
-          if (status === 'valid') status = 'warning';
-        }
-
-        // Optional: email — warning only
-        if (!player.email) {
-          warnings.push('No email');
-          if (status === 'valid') status = 'warning';
+          status = 'warning';
         }
 
         return {
           firstName: player.firstName || '',
           lastName: player.lastName || '',
+          shirtName: player.shirtName || '',
           position: player.position || '',
           jerseyNumber: player.jerseyNumber ?? null,
           email: player.email || '',
@@ -329,50 +307,39 @@ export function ExcelImportDialog({ teamId, onImportComplete, children }: ExcelI
                       <TableHead>Status</TableHead>
                       <TableHead>First Name</TableHead>
                       <TableHead>Last Name</TableHead>
+                      <TableHead>Shirt Name</TableHead>
                       <TableHead>Position</TableHead>
                       <TableHead>Jersey #</TableHead>
+                      <TableHead>Gender</TableHead>
                       <TableHead>DOB</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Warnings</TableHead>
+                      <TableHead>Phone</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {previewData.map((player, index) => (
-                      <TableRow key={index} className={player.status === 'error' ? 'bg-red-50 dark:bg-red-950/20' : player.status === 'warning' ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}>
+                    {previewData.map((player, index) => {
+                      const empty = <span className="text-muted-foreground">—</span>;
+                      return (
+                      <TableRow key={index} className={player.status === 'warning' ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}>
                         <TableCell>
-                          <Badge 
-                            variant={
-                              player.status === 'valid' ? 'default' : 
-                              player.status === 'warning' ? 'secondary' : 
-                              'destructive'
-                            }
-                          >
-                            {player.status}
+                          <Badge variant={player.status === 'warning' ? 'secondary' : 'default'}>
+                            {player.warnings ? (
+                              <span title={player.warnings.join(', ')}>{player.status}</span>
+                            ) : player.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-medium">{player.firstName}</TableCell>
-                        <TableCell className="font-medium">{player.lastName}</TableCell>
-                        <TableCell>{player.position || <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell>{player.jerseyNumber ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {player.dob || '—'}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {player.email || '—'}
-                        </TableCell>
-                        <TableCell>
-                          {player.warnings && (
-                            <div className="space-y-1">
-                              {player.warnings.map((warning, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {warning}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </TableCell>
+                        <TableCell className="font-medium">{player.firstName || empty}</TableCell>
+                        <TableCell className="font-medium">{player.lastName || empty}</TableCell>
+                        <TableCell className="text-sm">{player.shirtName || empty}</TableCell>
+                        <TableCell>{player.position || empty}</TableCell>
+                        <TableCell>{player.jerseyNumber ?? empty}</TableCell>
+                        <TableCell className="text-sm">{player.gender || empty}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{player.dob || empty}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{player.email || empty}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{player.phone || empty}</TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

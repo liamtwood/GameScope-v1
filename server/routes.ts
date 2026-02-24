@@ -1732,6 +1732,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rawNum = col('number', 'num', 'jersey', '#', 'jersey number', 'jersey #');
           const jerseyNumber = rawNum !== undefined ? parseInt(rawNum) : NaN;
 
+          // Shirt Name
+          const shirtName = col('shirt name', 'shirtname', 'shirt_name', 'jersey name') || '';
+
           // Email and Phone
           const email = col('email') || '';
           const phone = col('phone', 'phone number', 'phonenumber') || '';
@@ -1758,6 +1761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           players.push({
             firstName: finalFirstName,
             lastName: finalLastName,
+            shirtName,
             position,
             jerseyNumber: isNaN(jerseyNumber) ? null : jerseyNumber,
             email,
