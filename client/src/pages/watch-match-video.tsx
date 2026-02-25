@@ -14,7 +14,7 @@ import { Fixture, MatchStats } from '@shared/schema';
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Edit, Save, X, Download, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Edit, Save, X, Download, Trash2, CheckCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useTeam } from '@/contexts/team-context';
 import { useClub } from '@/contexts/club-context';
@@ -326,7 +326,7 @@ export default function WatchMatchVideo() {
       title={title}
       subtitle={subtitle}
     >
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <Button 
           variant="outline" 
           size="sm" 
@@ -334,8 +334,17 @@ export default function WatchMatchVideo() {
           data-testid="button-back-videos"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Match Video
+          Back
         </Button>
+        {fixtureId && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setLocation(`/match-analysis?fixtureId=${fixtureId}`)}
+          >
+            Event Analysis
+          </Button>
+        )}
       </div>
 
       {/* Match Result Header */}

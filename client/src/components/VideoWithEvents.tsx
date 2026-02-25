@@ -9,6 +9,8 @@ import { AdvancedHighlights } from '@/components/AdvancedHighlights';
 import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
 import importedMatchEvents from '@/data/match-events-custom.json';
 
@@ -29,6 +31,7 @@ interface VideoWithEventsProps {
 
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
+  const [urlInput, setUrlInput] = useState('');
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
   const [isShowingHighlights, setIsShowingHighlights] = useState<boolean>(false);
@@ -394,26 +397,75 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         <TabsContent value="video">
           <Card>
             <CardHeader>
-              <CardTitle>Match Video - Full Screen</CardTitle>
+              <CardTitle>Match Video</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Use the Events, Timeline, or Advanced tabs to click events and jump to that moment in the video.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Inline URL input */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Paste a YouTube URL to load a different video…"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && urlInput.trim()) {
+                      onVideoUrlChange(urlInput.trim());
+                      setUrlInput('');
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (urlInput.trim()) {
+                      onVideoUrlChange(urlInput.trim());
+                      setUrlInput('');
+                    }
+                  }}
+                  disabled={!urlInput.trim()}
+                >
+                  Load
+                </Button>
+                {videoId && (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
+                  >
+                    ↗ Watch on YouTube
+                  </a>
+                )}
+              </div>
+
+              {/* Video player */}
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                {videoId ? (
+                  <iframe
+                    id="youtube-iframe"
+                    src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    data-testid="match-video-iframe"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-white text-sm">
+                    Paste a YouTube URL above to load the video
+                  </div>
+                )}
+              </div>
+
               {videoId && (
-                <p className="text-sm text-gray-600">
-                  Video ID: {videoId}
+                <p className="text-xs text-muted-foreground">
+                  If the video shows "blocked" — paste any embeddable YouTube URL above and use the Events or Timeline tab to control it.
                 </p>
               )}
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                <iframe
-                  id="youtube-iframe"
-                  src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&fs=1`}
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  data-testid="match-video-iframe"
-                />
-              </div>
             </CardContent>
           </Card>
         </TabsContent>

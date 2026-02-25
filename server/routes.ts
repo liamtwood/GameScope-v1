@@ -3502,19 +3502,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/fixture/:id", async (req, res) => {
-    try {
-      const fixture = await storage.getFixture(req.params.id);
-      if (!fixture) {
-        return res.status(404).json({ message: "Fixture not found" });
-      }
-      res.json(fixture);
-    } catch (error) {
-      console.error("Error fetching fixture:", error);
-      res.status(500).json({ message: "Failed to fetch fixture" });
-    }
-  });
-
   app.post("/api/fixtures", async (req, res) => {
     try {
       const { newOpponentWebsite, discoveredLogoUrl, ...fixtureData } = req.body;
