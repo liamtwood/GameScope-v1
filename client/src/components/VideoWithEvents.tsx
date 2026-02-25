@@ -18,10 +18,13 @@ interface VideoWithEventsProps {
   fixtureId?: string;
 }
 
+type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
+
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
   
@@ -29,19 +32,10 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
     const savedSecondHalf = localStorage.getItem('match-second-half-offset');
-    
-    if (savedKickoff) {
-      const offset = parseFloat(savedKickoff);
-      setKickoffOffset(offset);
-    }
-    
-    if (savedSecondHalf) {
-      const offset = parseFloat(savedSecondHalf);
-      setSecondHalfOffset(offset);
-    }
+    if (savedKickoff) setKickoffOffset(parseFloat(savedKickoff));
+    if (savedSecondHalf) setSecondHalfOffset(parseFloat(savedSecondHalf));
   }, []);
   
-  // Save offsets to localStorage when they change
   useEffect(() => {
     localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
   }, [kickoffOffset]);
@@ -50,18 +44,13 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     localStorage.setItem('match-second-half-offset', secondHalfOffset.toString());
   }, [secondHalfOffset]);
   
-  const handleKickoffOffsetChange = (newOffset: number) => {
-    setKickoffOffset(newOffset);
-  };
-  
-  const handleSecondHalfOffsetChange = (newOffset: number) => {
-    setSecondHalfOffset(newOffset);
-  };
-  
-  // Platform detection helpers
-  const getPlatform = (inputUrl: string): 'youtube' | 'dailymotion' | 'unknown' => {
+  // Platform detection
+  const getPlatform = (inputUrl: string): Platform => {
+    if (!inputUrl) return 'unknown';
     if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
     if (/dailymotion\.com/.test(inputUrl)) return 'dailymotion';
+    // Direct video file — MP4, WebM, OGG, HLS (.m3u8), DASH (.mpd), or blob
+    if (/\.(mp4|webm|ogv|m3u8|mpd)(\?|$)/i.test(inputUrl) || inputUrl.startsWith('blob:')) return 'direct';
     return 'unknown';
   };
 
@@ -76,15 +65,14 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   };
 
   const getEmbedUrl = (inputUrl: string): string | null => {
-    const platform = getPlatform(inputUrl);
-    if (platform === 'youtube') {
+    const p = getPlatform(inputUrl);
+    if (p === 'youtube') {
       const id = getYouTubeId(inputUrl);
       return id ? `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=1&rel=0&autoplay=0` : null;
     }
-    if (platform === 'dailymotion') {
+    if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      // Use geo.dailymotion.com directly — the old /embed/video/ URL redirects
-      // to this domain and drops the ?api=postMessage param in the process
+      // Use geo.dailymotion.com directly to avoid redirect stripping api=postMessage
       return id ? `https://geo.dailymotion.com/player.html?video=${id}` : null;
     }
     return null;
@@ -94,23 +82,25 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const embedUrl = getEmbedUrl(url);
 
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
-    const videoTimeInSeconds = eventPeriod === 2
+    const videoTime = eventPeriod === 2
       ? eventTimeInSeconds + secondHalfOffset
       : eventTimeInSeconds + kickoffOffset;
+    const seekTime = Math.max(0, videoTime);
+    setCurrentSeekTime(seekTime);
 
-    setCurrentSeekTime(videoTimeInSeconds);
-    const seekTime = Math.max(0, videoTimeInSeconds);
-
-    const iframe = iframeRef.current;
-    if (iframe && iframe.contentWindow) {
+    if (platform === 'direct' && videoRef.current) {
+      // Native HTML5 video — instant, reliable seek
+      videoRef.current.currentTime = seekTime;
+      videoRef.current.play().catch(() => {});
+    } else if (iframeRef.current?.contentWindow) {
       if (platform === 'dailymotion') {
-        iframe.contentWindow.postMessage(
+        iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ command: 'seek', parameters: [seekTime] }),
           '*'
         );
       } else {
         // YouTube
-        iframe.contentWindow.postMessage(
+        iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
           '*'
         );
@@ -118,24 +108,19 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
   };
 
-  // Handle highlight event selection
   const handleHighlightSelect = (highlight: any) => {
-    const eventTimeInSeconds = highlight.startTime;
-    const eventPeriod = highlight.event.period;
-    handleEventClick(eventTimeInSeconds, eventPeriod);
+    handleEventClick(highlight.startTime, highlight.event.period);
   };
 
-  // Handle highlight package generation
   const handlePackageGenerate = (highlightPackage: any) => {
     console.log('Generated highlight package:', highlightPackage);
-    // Could add toast notification or other feedback here
   };
   
   const handleViewHighlightsVideo = (videoUrl: string, _highlightPackage: any) => {
     onVideoUrlChange(videoUrl);
   };
 
-  // Fetch per-fixture match events from DB (falls back to imported JSON if none stored)
+  // Fetch per-fixture match events from DB
   const { data: fixtureMatchEvents } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null }>({
     queryKey: ["/api/fixtures", fixtureId, "match-events"],
     queryFn: async () => {
@@ -150,13 +135,20 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
   const activeEvents: any[] = fixtureMatchEvents?.events ?? [];
 
+  const platformLabel: Record<Platform, string> = {
+    youtube: 'YouTube',
+    dailymotion: 'Dailymotion',
+    direct: 'direct video',
+    unknown: '',
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
       <Card className="mb-6">
         <CardContent className="pt-4 pb-3">
           <div className="flex items-center gap-2">
             <Input
-              placeholder="Paste a YouTube URL to load the match video…"
+              placeholder="Paste a YouTube, Dailymotion, or direct MP4/HLS URL…"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               onKeyDown={(e) => {
@@ -193,30 +185,47 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
               videoUrl={url}
               onVideoUrlChange={onVideoUrlChange}
               kickoffOffset={kickoffOffset}
-              onKickoffOffsetChange={handleKickoffOffsetChange}
+              onKickoffOffsetChange={setKickoffOffset}
               secondHalfOffset={secondHalfOffset}
-              onSecondHalfOffsetChange={handleSecondHalfOffsetChange}
+              onSecondHalfOffsetChange={setSecondHalfOffset}
               onEventClick={handleEventClick}
             />
           </div>
           {!url && (
             <p className="text-xs text-muted-foreground mt-2">
-              Supports YouTube and Dailymotion URLs. Paste one above and click Load Video.
+              Supports YouTube, Dailymotion, and direct video URLs (.mp4, .m3u8, etc). Paste one above and click Load Video.
             </p>
           )}
-          {url && currentSeekTime !== null && (
+          {url && platform !== 'unknown' && (
             <p className="text-xs text-muted-foreground mt-1">
-              Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
+              {platformLabel[platform]} loaded
+              {currentSeekTime !== null && (
+                <> · Last seek: {Math.floor(currentSeekTime / 60)}:{String(Math.round(currentSeekTime % 60)).padStart(2, '0')}</>
+              )}
+            </p>
+          )}
+          {url && platform === 'unknown' && (
+            <p className="text-xs text-amber-500 mt-1">
+              Unrecognised URL format. Try YouTube, Dailymotion, or a direct .mp4/.m3u8 link.
             </p>
           )}
         </CardContent>
       </Card>
       
-      {/* Single persistent video player — always loaded, always seekable */}
+      {/* Single persistent video player */}
       <Card className="mb-6">
         <CardContent className="p-0">
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            {embedUrl ? (
+            {platform === 'direct' ? (
+              <video
+                ref={videoRef}
+                key={url}
+                src={url}
+                controls
+                className="w-full h-full"
+                preload="metadata"
+              />
+            ) : embedUrl ? (
               <iframe
                 ref={iframeRef}
                 key={embedUrl}
@@ -229,8 +238,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 data-testid="match-video-iframe"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-white/60 text-sm">
-                Paste a YouTube or Dailymotion URL above and click Load Video
+              <div className="flex flex-col items-center justify-center h-full text-white/60 text-sm gap-2">
+                <p>Paste a video URL above and click Load Video</p>
+                <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
               </div>
             )}
           </div>
@@ -277,7 +287,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           <AdvancedHighlights onEventClick={handleEventClick} events={activeEvents} />
         </TabsContent>
       </Tabs>
-      
     </div>
   );
 }
