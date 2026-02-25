@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { Timeline } from '@/components/Timeline';
@@ -9,7 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MatchEvent } from '@/lib/types';
+import { List, X } from 'lucide-react';
 
 
 interface VideoWithEventsProps {
@@ -20,13 +22,41 @@ interface VideoWithEventsProps {
 
 type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
 
+type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
+
+// Colour coding for event types in the overlay
+function eventBadgeClass(typeName: string): string {
+  const t = typeName.toLowerCase();
+  if (t === 'goal') return 'bg-green-600 text-white';
+  if (t.includes('shot')) return 'bg-amber-500 text-black';
+  if (t.includes('card') || t === 'foul committed') return 'bg-red-600 text-white';
+  if (t.includes('pass')) return 'bg-blue-600/80 text-white';
+  if (t === 'carry') return 'bg-slate-600 text-white/80';
+  return 'bg-white/15 text-white/80';
+}
+
+function eventMatchesChip(typeName: string, chip: OverlayChip): boolean {
+  if (chip === 'all') return true;
+  const t = typeName.toLowerCase();
+  if (chip === 'goal') return t === 'goal';
+  if (chip === 'shot') return t.includes('shot');
+  if (chip === 'card') return t.includes('card') || t === 'foul committed';
+  return true;
+}
+
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
+
+  // Overlay state
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayFilter, setOverlayFilter] = useState('');
+  const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
   
   // Load saved offsets from localStorage
   useEffect(() => {
@@ -49,7 +79,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     if (!inputUrl) return 'unknown';
     if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
     if (/dailymotion\.com/.test(inputUrl)) return 'dailymotion';
-    // Direct video file — MP4, WebM, OGG, HLS (.m3u8), DASH (.mpd), or blob
     if (/\.(mp4|webm|ogv|m3u8|mpd)(\?|$)/i.test(inputUrl) || inputUrl.startsWith('blob:')) return 'direct';
     return 'unknown';
   };
@@ -72,7 +101,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
     if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      // Use geo.dailymotion.com directly to avoid redirect stripping api=postMessage
       return id ? `https://geo.dailymotion.com/player.html?video=${id}` : null;
     }
     return null;
@@ -89,7 +117,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     setCurrentSeekTime(seekTime);
 
     if (platform === 'direct' && videoRef.current) {
-      // Native HTML5 video — instant, reliable seek
       videoRef.current.currentTime = seekTime;
       videoRef.current.play().catch(() => {});
     } else if (iframeRef.current?.contentWindow) {
@@ -99,7 +126,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           '*'
         );
       } else {
-        // YouTube
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
           '*'
@@ -135,12 +161,31 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
   const activeEvents: any[] = fixtureMatchEvents?.events ?? [];
 
+  // Overlay filtered events
+  const overlayEvents = useMemo(() => {
+    let evts = activeEvents;
+    if (overlayChip !== 'all') {
+      evts = evts.filter(e => eventMatchesChip(e.type?.name ?? '', overlayChip));
+    }
+    if (overlayFilter.trim()) {
+      const q = overlayFilter.toLowerCase();
+      evts = evts.filter(e =>
+        (e.type?.name ?? '').toLowerCase().includes(q) ||
+        (e.player?.name ?? '').toLowerCase().includes(q) ||
+        (e.team?.name ?? '').toLowerCase().includes(q)
+      );
+    }
+    return evts;
+  }, [activeEvents, overlayChip, overlayFilter]);
+
   const platformLabel: Record<Platform, string> = {
     youtube: 'YouTube',
     dailymotion: 'Dailymotion',
     direct: 'direct video',
     unknown: '',
   };
+
+  const hasVideo = platform === 'direct' ? !!url : !!embedUrl;
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
@@ -212,10 +257,25 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         </CardContent>
       </Card>
       
-      {/* Single persistent video player */}
+      {/* Video player with optional overlay */}
       <Card className="mb-6">
         <CardContent className="p-0">
-          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+          <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+            {/* Overlay toggle button — sits inside the relative container */}
+            {activeEvents.length > 0 && (
+              <div className="absolute z-20 top-2 right-2">
+                <Button
+                  size="sm"
+                  variant={showOverlay ? 'default' : 'secondary'}
+                  className="gap-1.5 opacity-90 hover:opacity-100 shadow"
+                  onClick={() => setShowOverlay(v => !v)}
+                >
+                  {showOverlay ? <X className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
+                  {showOverlay ? 'Hide Overlay' : 'Events Overlay'}
+                </Button>
+              </div>
+            )}
+            {/* Video layer — always 100% */}
             {platform === 'direct' ? (
               <video
                 ref={videoRef}
@@ -243,7 +303,118 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
               </div>
             )}
+
+            {/* Events overlay panel — floats over the right 34% */}
+            {showOverlay && activeEvents.length > 0 && (
+              <div
+                ref={overlayRef}
+                className="absolute top-0 right-0 bottom-0 flex flex-col"
+                style={{
+                  width: '34%',
+                  background: 'rgba(10,10,20,0.82)',
+                  backdropFilter: 'blur(4px)',
+                  borderLeft: '1px solid rgba(255,255,255,0.08)',
+                  pointerEvents: 'auto',
+                }}
+              >
+                {/* Header */}
+                <div className="flex-shrink-0 px-2 pt-2 pb-1 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-white/70 text-[10px] font-semibold uppercase tracking-wider">
+                      {overlayEvents.length.toLocaleString()} / {activeEvents.length.toLocaleString()} events
+                    </span>
+                    <button
+                      onClick={() => setShowOverlay(false)}
+                      className="text-white/40 hover:text-white/80 transition-colors"
+                      aria-label="Close overlay"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                  {/* Search filter */}
+                  <input
+                    className="w-full text-xs bg-white/10 text-white placeholder:text-white/30 rounded px-2 py-1 outline-none border border-white/10 focus:border-white/30 mb-1.5"
+                    placeholder="Filter by type or player…"
+                    value={overlayFilter}
+                    onChange={e => setOverlayFilter(e.target.value)}
+                  />
+                  {/* Quick filter chips */}
+                  <div className="flex gap-1 flex-wrap">
+                    {(['all', 'goal', 'shot', 'card'] as OverlayChip[]).map(chip => (
+                      <button
+                        key={chip}
+                        onClick={() => setOverlayChip(chip)}
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors capitalize ${
+                          overlayChip === chip
+                            ? 'bg-white/20 border-white/40 text-white font-semibold'
+                            : 'border-white/15 text-white/50 hover:text-white/80 hover:border-white/30'
+                        }`}
+                      >
+                        {chip === 'all' ? 'All' : chip === 'goal' ? '⚽ Goals' : chip === 'shot' ? '🎯 Shots' : '🟨 Cards'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scrollable event list */}
+                <div className="flex-1 overflow-y-auto">
+                  {overlayEvents.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-white/30 text-xs">
+                      No events match
+                    </div>
+                  ) : (
+                    overlayEvents.map((event: any) => {
+                      const minutes = event.minute ?? 0;
+                      const seconds = event.second ?? 0;
+                      const totalSeconds = minutes * 60 + seconds;
+                      const period = event.period ?? 1;
+                      const typeName: string = event.type?.name ?? 'Unknown';
+                      const playerName: string = event.player?.name ?? '';
+
+                      return (
+                        <button
+                          key={event.id ?? event.index}
+                          onClick={() => handleEventClick(totalSeconds, period)}
+                          className="w-full flex items-center gap-1.5 px-2 py-[3px] text-left hover:bg-white/10 transition-colors group"
+                          style={{ minHeight: 26 }}
+                        >
+                          {/* Timestamp */}
+                          <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
+                            {minutes}'{seconds > 0 ? String(seconds).padStart(2, '0') + '"' : ''}
+                          </span>
+                          {/* Type badge */}
+                          <span className={`text-[9px] px-1 py-0 rounded shrink-0 font-medium leading-5 ${eventBadgeClass(typeName)}`}>
+                            {typeName.length > 12 ? typeName.slice(0, 11) + '…' : typeName}
+                          </span>
+                          {/* Player name */}
+                          {playerName && (
+                            <span className="text-white/60 text-[10px] truncate group-hover:text-white/90 transition-colors">
+                              {playerName}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Toggle button sits outside aspect-video when no video loaded */}
+          {activeEvents.length > 0 && !hasVideo && (
+            <div className="flex justify-end p-2">
+              <Button
+                size="sm"
+                variant={showOverlay ? 'default' : 'outline'}
+                className="gap-1.5"
+                onClick={() => setShowOverlay(v => !v)}
+              >
+                <List className="h-3.5 w-3.5" />
+                Events Overlay
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
