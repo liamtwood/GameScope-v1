@@ -65,6 +65,7 @@ export default function Settings() {
   const [editCompetitionName, setEditCompetitionName] = useState("");
   const [newCompetitionName, setNewCompetitionName] = useState("");
   const [competitionSearchQuery, setCompetitionSearchQuery] = useState("");
+  const [opponentSearchQuery, setOpponentSearchQuery] = useState("");
   const [isUploadingCompetitionLogo, setIsUploadingCompetitionLogo] = useState(false);
 
   // Form schema for opposition teams
@@ -810,10 +811,21 @@ export default function Settings() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search opponents..."
+                    value={opponentSearchQuery}
+                    onChange={(e) => setOpponentSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
                 {oppositionTeams && oppositionTeams.length > 0 ? (
                   <div className="space-y-3">
-                    {[...oppositionTeams].sort((a, b) => a.name.localeCompare(b.name)).map((team) => (
+                    {[...oppositionTeams]
+                      .filter((t) => !opponentSearchQuery.trim() || t.name.toLowerCase().includes(opponentSearchQuery.toLowerCase()))
+                      .sort((a, b) => a.name.localeCompare(b.name)).map((team) => (
                       <Card key={team.id} className="p-4">
                         <div className="flex items-center space-x-3">
                           <LogoDisplay src={team.logoPath} alt={`${team.name} logo`} size="sm" />
