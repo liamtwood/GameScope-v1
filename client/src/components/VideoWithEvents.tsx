@@ -58,6 +58,39 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     setSecondHalfOffset(newOffset);
   };
   
+  // Platform detection helpers
+  const getPlatform = (inputUrl: string): 'youtube' | 'dailymotion' | 'unknown' => {
+    if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
+    if (/dailymotion\.com/.test(inputUrl)) return 'dailymotion';
+    return 'unknown';
+  };
+
+  const getYouTubeId = (inputUrl: string) => {
+    const match = inputUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getDailymotionId = (inputUrl: string) => {
+    const match = inputUrl.match(/dailymotion\.com\/(?:video|embed\/video)\/([^/?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getEmbedUrl = (inputUrl: string): string | null => {
+    const platform = getPlatform(inputUrl);
+    if (platform === 'youtube') {
+      const id = getYouTubeId(inputUrl);
+      return id ? `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=1&rel=0&autoplay=0` : null;
+    }
+    if (platform === 'dailymotion') {
+      const id = getDailymotionId(inputUrl);
+      return id ? `https://www.dailymotion.com/embed/video/${id}?api=postMessage&controls=1` : null;
+    }
+    return null;
+  };
+
+  const platform = getPlatform(url);
+  const embedUrl = getEmbedUrl(url);
+
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
     const videoTimeInSeconds = eventPeriod === 2
       ? eventTimeInSeconds + secondHalfOffset
@@ -68,21 +101,20 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
     const iframe = iframeRef.current;
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
-        '*'
-      );
+      if (platform === 'dailymotion') {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ command: 'seek', parameters: [seekTime] }),
+          '*'
+        );
+      } else {
+        // YouTube
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
+          '*'
+        );
+      }
     }
   };
-
-  // Extract video ID for display
-  const getVideoId = (url: string) => {
-    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  };
-
-  const videoId = getVideoId(url);
 
   // Handle highlight event selection
   const handleHighlightSelect = (highlight: any) => {
@@ -152,7 +184,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
               >
-                ↗ Watch on YouTube
+                ↗ Watch video
               </a>
             )}
             <VideoAnalysisSettings
@@ -167,7 +199,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           </div>
           {!url && (
             <p className="text-xs text-muted-foreground mt-2">
-              No video loaded — paste any YouTube URL above and click Load Video.
+              Supports YouTube and Dailymotion URLs. Paste one above and click Load Video.
             </p>
           )}
           {url && currentSeekTime !== null && (
@@ -182,11 +214,11 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       <Card className="mb-6">
         <CardContent className="p-0">
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            {videoId ? (
+            {embedUrl ? (
               <iframe
                 ref={iframeRef}
-                key={videoId}
-                src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&rel=0&autoplay=0`}
+                key={embedUrl}
+                src={embedUrl}
                 width="100%"
                 height="100%"
                 frameBorder="0"
@@ -196,7 +228,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
               />
             ) : (
               <div className="flex items-center justify-center h-full text-white/60 text-sm">
-                Paste a YouTube URL above and click Load Video
+                Paste a YouTube or Dailymotion URL above and click Load Video
               </div>
             )}
           </div>
