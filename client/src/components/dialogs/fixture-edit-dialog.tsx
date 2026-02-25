@@ -148,7 +148,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
       notes: fixture.notes || "",
       report: fixture.report || "",
       attendance: fixture.attendance !== undefined && fixture.attendance !== null ? fixture.attendance : undefined,
-      oppositionTeamId: fixture.oppositionTeamId || undefined,
+      oppositionTeamId: fixture.oppositionTeamId || (!fixture.oppositionTeamId && fixture.opponent === "None" ? "__none__" : undefined),
     },
   });
 
@@ -182,7 +182,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
       notes: fixture.notes || "",
       report: fixture.report || "",
       attendance: fixture.attendance !== undefined && fixture.attendance !== null ? fixture.attendance : undefined,
-      oppositionTeamId: fixture.oppositionTeamId || undefined,
+      oppositionTeamId: fixture.oppositionTeamId || (!fixture.oppositionTeamId && fixture.opponent === "None" ? "__none__" : undefined),
     });
 
     // Load opponent data into opponentForm
@@ -230,7 +230,10 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         data.opponent = newTeam.name;
       }
 
-      if (!data.oppositionTeamId || data.oppositionTeamId === "pending") {
+      if (data.oppositionTeamId === "__none__") {
+        data.opponent = "None";
+        data.oppositionTeamId = undefined;
+      } else if (!data.oppositionTeamId || data.oppositionTeamId === "pending") {
         toast({
           title: "Error",
           description: "Please select an opponent",
@@ -409,6 +412,10 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                                   if (value === "__new__") {
                                     setPreviousOpponentId(field.value);
                                     setShowNewOpponentInput(true);
+                                  } else if (value === "__none__") {
+                                    setShowNewOpponentInput(false);
+                                    field.onChange("__none__");
+                                    form.setValue("opponent", "None");
                                   } else {
                                     setShowNewOpponentInput(false);
                                     field.onChange(value);
@@ -427,6 +434,9 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                                   <SelectValue placeholder="Select opponent" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                  <SelectItem value="__none__">
+                                    <span className="text-muted-foreground italic">None (Practice / Training)</span>
+                                  </SelectItem>
                                   {oppositionTeams.filter((team) => team.isVisible !== false || team.id === fixture.oppositionTeamId).map((team) => (
                                     <SelectItem key={team.id} value={team.id}>
                                       <div className="flex items-center gap-2">
