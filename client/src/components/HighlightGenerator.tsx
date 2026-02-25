@@ -21,7 +21,6 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
-import importedMatchEvents from '@/data/match-events-custom.json';
 
 interface MatchEvent {
   id: string;
@@ -101,7 +100,7 @@ interface HighlightGeneratorProps {
 }
 
 export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onViewHighlightsVideo, events: eventsOverride }: HighlightGeneratorProps) {
-  const matchEvents = (eventsOverride ?? importedMatchEvents) as any[];
+  const matchEvents = (eventsOverride ?? []) as any[];
   const [selectedPackageType, setSelectedPackageType] = useState<string>("standard");
   const [generating, setGenerating] = useState(false);
   const [generatedPackages, setGeneratedPackages] = useState<HighlightPackage[]>([]);

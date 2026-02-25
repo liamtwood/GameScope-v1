@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Clock, Target, TrendingUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import importedMatchEvents from '@/data/match-events-custom.json';
 
 interface MatchEvent {
   id: string;
@@ -64,7 +63,7 @@ interface MatchEventTableProps {
 }
 
 export function MatchEventTable({ onEventClick, events: eventsOverride }: MatchEventTableProps) {
-  const eventsData = (eventsOverride ?? importedMatchEvents) as MatchEvent[];
+  const eventsData = (eventsOverride ?? []) as MatchEvent[];
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEventType, setSelectedEventType] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
@@ -199,6 +198,13 @@ export function MatchEventTable({ onEventClick, events: eventsOverride }: MatchE
       </CardHeader>
 
       <CardContent className="p-0">
+        {eventsData.length === 0 && (
+          <div className="p-10 text-center text-muted-foreground">
+            <Clock className="h-8 w-8 mx-auto mb-2 opacity-40" />
+            <p className="font-medium">No events loaded</p>
+            <p className="text-sm mt-1">Select a fixture with imported StatsBomb events to see the event timeline.</p>
+          </div>
+        )}
         <div className="h-[600px] overflow-y-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
@@ -237,7 +243,7 @@ export function MatchEventTable({ onEventClick, events: eventsOverride }: MatchE
                   </TableCell>
                   
                   <TableCell className="px-2 text-center font-semibold text-xs">
-                    {event.team.name.includes("England") ? "ENG" : "ESP"}
+                    {event.team.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 3)}
                   </TableCell>
                   
                   <TableCell className="px-2">

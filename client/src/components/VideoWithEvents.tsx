@@ -158,7 +158,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     retry: false,
   });
 
-  const activeEvents: any[] = fixtureMatchEvents?.events ?? importedMatchEvents;
+  const activeEvents: any[] = fixtureMatchEvents?.events ?? [];
 
   // Fetch opposition teams to get logos
   const { selectedClub: currentClub } = useClub();
