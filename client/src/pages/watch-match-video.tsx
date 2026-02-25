@@ -56,6 +56,7 @@ export default function WatchMatchVideo() {
   const [eventsUrl, setEventsUrl] = useState('');
   const [lineupsUrl, setLineupsUrl] = useState('');
   const [showImportForm, setShowImportForm] = useState(false);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -158,7 +159,7 @@ export default function WatchMatchVideo() {
   // Set default video to first one if not selected
   const currentVideoId = selectedVideoId || videos[0]?.id;
   const currentVideo = videos.find(v => v.id === currentVideoId) || videos[0];
-  const videoUrl = currentVideo?.url || "https://www.youtube.com/watch?v=gvoQ8gvzuC4";
+  const videoUrl = currentVideo?.url || '';
 
   // Normalize object storage URLs to app serving paths
   const normalizeStorageUrl = (url: string): string => {
@@ -199,7 +200,6 @@ export default function WatchMatchVideo() {
     
     // Check for FIFA Plus (check this first before other checks)
     if (normalizedUrl.includes('plus.fifa.com')) {
-      console.log('Detected FIFA Plus URL:', normalizedUrl);
       return {
         type: 'fifaplus',
         embedUrl: normalizedUrl,
@@ -214,6 +214,16 @@ export default function WatchMatchVideo() {
       return {
         type: 'youtube',
         embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?enablejsapi=1&controls=1&rel=0&fs=1`
+      };
+    }
+
+    // Check for Dailymotion
+    const dailymotionRegex = /dailymotion\.com\/(?:video|embed\/video)\/([^/?#]+)/;
+    const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
+    if (dailymotionMatch) {
+      return {
+        type: 'iframe',
+        embedUrl: `https://geo.dailymotion.com/player.html?video=${dailymotionMatch[1]}`
       };
     }
     
@@ -233,8 +243,8 @@ export default function WatchMatchVideo() {
       return { type: 'direct', embedUrl: normalizedUrl };
     }
     
-    // Check for direct video files
-    if (normalizedUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
+    // Check for direct video files (mp4, webm, HLS, DASH, etc.)
+    if (normalizedUrl.match(/\.(mp4|webm|ogg|mov|m3u8|mpd)(\?.*)?$/i)) {
       return { type: 'direct', embedUrl: normalizedUrl };
     }
     
@@ -396,6 +406,42 @@ export default function WatchMatchVideo() {
                 </Select>
               </div>
             )}
+          </div>
+          {/* Video URL input — paste a URL to save it to this fixture */}
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Paste a YouTube, Dailymotion, or direct video URL to set the match video…"
+              value={videoUrlInput}
+              onChange={(e) => setVideoUrlInput(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              variant="default"
+              size="sm"
+              disabled={!videoUrlInput.trim() || !fixtureId}
+              onClick={async () => {
+                const newUrl = videoUrlInput.trim();
+                const newVideo = {
+                  id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+                  url: newUrl,
+                  duration: 'full_game',
+                  location: 'halfway_line',
+                  uploadedAt: new Date().toISOString(),
+                };
+                // Prepend new URL, keep existing ones
+                const updated = [newVideo, ...videos.filter(v => v.url !== newUrl)];
+                await fetch(`/api/fixtures/${fixtureId}/videos`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ videos: updated }),
+                });
+                queryClient.invalidateQueries({ queryKey: ['/api/fixture', fixtureId] });
+                setVideoUrlInput('');
+                toast({ title: 'Video URL saved', description: 'The video will now load for this fixture.' });
+              }}
+            >
+              Set Video
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
