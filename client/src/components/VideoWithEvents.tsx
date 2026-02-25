@@ -185,8 +185,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     unknown: '',
   };
 
-  const hasVideo = platform === 'direct' ? !!url : !!embedUrl;
-
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
       <Card className="mb-6">
@@ -257,97 +255,94 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         </CardContent>
       </Card>
       
-      {/* Video player with optional overlay */}
-      <Card className="mb-6">
-        <CardContent className="p-0">
-          <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-            {/* Overlay toggle button — sits inside the relative container */}
-            {activeEvents.length > 0 && (
-              <div className="absolute z-20 top-2 right-2">
-                <Button
-                  size="sm"
-                  variant={showOverlay ? 'default' : 'secondary'}
-                  className="gap-1.5 opacity-90 hover:opacity-100 shadow"
-                  onClick={() => setShowOverlay(v => !v)}
-                >
-                  {showOverlay ? <X className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
-                  {showOverlay ? 'Hide Overlay' : 'Events Overlay'}
-                </Button>
-              </div>
-            )}
-            {/* Video layer — always 100% */}
-            {platform === 'direct' ? (
-              <video
-                ref={videoRef}
-                key={url}
-                src={url}
-                controls
-                className="w-full h-full"
-                preload="metadata"
-              />
-            ) : embedUrl ? (
-              <iframe
-                ref={iframeRef}
-                key={embedUrl}
-                src={embedUrl}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-                data-testid="match-video-iframe"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-white/60 text-sm gap-2">
-                <p>Paste a video URL above and click Load Video</p>
-                <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
-              </div>
-            )}
+      {/* Video player with optional side panel */}
+      <Card className="mb-6 overflow-hidden">
+        {/* Toggle button row — always above the video */}
+        {activeEvents.length > 0 && (
+          <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
+            <span className="text-xs text-muted-foreground">
+              {activeEvents.length.toLocaleString()} events loaded
+            </span>
+            <Button
+              size="sm"
+              variant={showOverlay ? 'default' : 'outline'}
+              className="gap-1.5 h-7 text-xs"
+              onClick={() => setShowOverlay(v => !v)}
+            >
+              {showOverlay ? <X className="h-3 w-3" /> : <List className="h-3 w-3" />}
+              {showOverlay ? 'Hide Events' : 'Show Events'}
+            </Button>
+          </div>
+        )}
 
-            {/* Events overlay panel — floats over the right 34% */}
-            {showOverlay && activeEvents.length > 0 && (
+        <CardContent className="p-0">
+          {/* Side-by-side layout: video left, events panel right */}
+          <div className={`flex bg-black ${showOverlay ? 'items-stretch' : ''}`} style={{ minHeight: showOverlay ? 480 : undefined }}>
+
+            {/* Video — fills remaining width */}
+            <div className={showOverlay ? 'flex-1 min-w-0' : 'w-full aspect-video'}>
+              {platform === 'direct' ? (
+                <video
+                  ref={videoRef}
+                  key={url}
+                  src={url}
+                  controls
+                  className="w-full h-full"
+                  preload="metadata"
+                  style={showOverlay ? { height: '100%' } : {}}
+                />
+              ) : embedUrl ? (
+                <iframe
+                  ref={iframeRef}
+                  key={embedUrl}
+                  src={embedUrl}
+                  width="100%"
+                  height="100%"
+                  style={!showOverlay ? { aspectRatio: '16/9', display: 'block' } : { height: '100%' }}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  data-testid="match-video-iframe"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-white/60 text-sm gap-2" style={{ aspectRatio: '16/9' }}>
+                  <p>Paste a video URL above and click Load Video</p>
+                  <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
+                </div>
+              )}
+            </div>
+
+            {/* Events panel — fixed width, same height as video */}
+            {showOverlay && (
               <div
                 ref={overlayRef}
-                className="absolute top-0 right-0 bottom-0 flex flex-col"
-                style={{
-                  width: '34%',
-                  background: 'rgba(10,10,20,0.82)',
-                  backdropFilter: 'blur(4px)',
-                  borderLeft: '1px solid rgba(255,255,255,0.08)',
-                  pointerEvents: 'auto',
-                }}
+                className="flex flex-col bg-gray-950 border-l border-white/10"
+                style={{ width: 280, flexShrink: 0 }}
               >
-                {/* Header */}
-                <div className="flex-shrink-0 px-2 pt-2 pb-1 border-b border-white/10">
+                {/* Panel header */}
+                <div className="flex-shrink-0 px-2 pt-2 pb-1.5 border-b border-white/10 bg-gray-900/60">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-white/70 text-[10px] font-semibold uppercase tracking-wider">
+                    <span className="text-white/60 text-[10px] font-semibold uppercase tracking-wider">
                       {overlayEvents.length.toLocaleString()} / {activeEvents.length.toLocaleString()} events
                     </span>
-                    <button
-                      onClick={() => setShowOverlay(false)}
-                      className="text-white/40 hover:text-white/80 transition-colors"
-                      aria-label="Close overlay"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
                   </div>
-                  {/* Search filter */}
+                  {/* Search input */}
                   <input
                     className="w-full text-xs bg-white/10 text-white placeholder:text-white/30 rounded px-2 py-1 outline-none border border-white/10 focus:border-white/30 mb-1.5"
                     placeholder="Filter by type or player…"
                     value={overlayFilter}
                     onChange={e => setOverlayFilter(e.target.value)}
                   />
-                  {/* Quick filter chips */}
+                  {/* Quick-filter chips */}
                   <div className="flex gap-1 flex-wrap">
                     {(['all', 'goal', 'shot', 'card'] as OverlayChip[]).map(chip => (
                       <button
                         key={chip}
                         onClick={() => setOverlayChip(chip)}
-                        className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors capitalize ${
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${
                           overlayChip === chip
                             ? 'bg-white/20 border-white/40 text-white font-semibold'
-                            : 'border-white/15 text-white/50 hover:text-white/80 hover:border-white/30'
+                            : 'border-white/15 text-white/40 hover:text-white/70 hover:border-white/25'
                         }`}
                       >
                         {chip === 'all' ? 'All' : chip === 'goal' ? '⚽ Goals' : chip === 'shot' ? '🎯 Shots' : '🟨 Cards'}
@@ -356,10 +351,10 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                   </div>
                 </div>
 
-                {/* Scrollable event list */}
+                {/* Scrollable event rows */}
                 <div className="flex-1 overflow-y-auto">
                   {overlayEvents.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-white/30 text-xs">
+                    <div className="flex items-center justify-center h-20 text-white/30 text-xs">
                       No events match
                     </div>
                   ) : (
@@ -375,20 +370,17 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                         <button
                           key={event.id ?? event.index}
                           onClick={() => handleEventClick(totalSeconds, period)}
-                          className="w-full flex items-center gap-1.5 px-2 py-[3px] text-left hover:bg-white/10 transition-colors group"
+                          className="w-full flex items-center gap-1.5 px-2 text-left hover:bg-white/8 transition-colors group border-b border-white/5"
                           style={{ minHeight: 26 }}
                         >
-                          {/* Timestamp */}
                           <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
                             {minutes}'{seconds > 0 ? String(seconds).padStart(2, '0') + '"' : ''}
                           </span>
-                          {/* Type badge */}
-                          <span className={`text-[9px] px-1 py-0 rounded shrink-0 font-medium leading-5 ${eventBadgeClass(typeName)}`}>
-                            {typeName.length > 12 ? typeName.slice(0, 11) + '…' : typeName}
+                          <span className={`text-[9px] px-1 py-px rounded shrink-0 font-medium ${eventBadgeClass(typeName)}`}>
+                            {typeName.length > 11 ? typeName.slice(0, 10) + '…' : typeName}
                           </span>
-                          {/* Player name */}
                           {playerName && (
-                            <span className="text-white/60 text-[10px] truncate group-hover:text-white/90 transition-colors">
+                            <span className="text-white/55 text-[10px] truncate group-hover:text-white/80 transition-colors">
                               {playerName}
                             </span>
                           )}
@@ -400,21 +392,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
               </div>
             )}
           </div>
-
-          {/* Toggle button sits outside aspect-video when no video loaded */}
-          {activeEvents.length > 0 && !hasVideo && (
-            <div className="flex justify-end p-2">
-              <Button
-                size="sm"
-                variant={showOverlay ? 'default' : 'outline'}
-                className="gap-1.5"
-                onClick={() => setShowOverlay(v => !v)}
-              >
-                <List className="h-3.5 w-3.5" />
-                Events Overlay
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
