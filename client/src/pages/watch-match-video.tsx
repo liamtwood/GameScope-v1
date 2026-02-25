@@ -14,7 +14,7 @@ import { Fixture, MatchStats } from '@shared/schema';
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Edit, Save, X, Download, Trash2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Edit, Save, X, Download, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useTeam } from '@/contexts/team-context';
 import { useClub } from '@/contexts/club-context';
