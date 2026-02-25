@@ -213,27 +213,63 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       />
       
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Video Analysis</span>
-            <div className="flex items-center gap-4">
-              {currentSeekTime !== null && (
-                <span className="text-sm font-normal text-blue-600">
-                  Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
-                </span>
-              )}
-              <VideoAnalysisSettings
-                videoUrl={url}
-                onVideoUrlChange={onVideoUrlChange}
-                kickoffOffset={kickoffOffset}
-                onKickoffOffsetChange={handleKickoffOffsetChange}
-                secondHalfOffset={secondHalfOffset}
-                onSecondHalfOffsetChange={handleSecondHalfOffsetChange}
-                onEventClick={handleEventClick}
-              />
-            </div>
-          </CardTitle>
-        </CardHeader>
+        <CardContent className="pt-4 pb-3">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Paste a YouTube URL to load the match video…"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && urlInput.trim()) {
+                  onVideoUrlChange(urlInput.trim());
+                  setUrlInput('');
+                }
+              }}
+              className="flex-1"
+            />
+            <Button
+              variant="default"
+              onClick={() => {
+                if (urlInput.trim()) {
+                  onVideoUrlChange(urlInput.trim());
+                  setUrlInput('');
+                }
+              }}
+              disabled={!urlInput.trim()}
+            >
+              Load Video
+            </Button>
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
+              >
+                ↗ Watch on YouTube
+              </a>
+            )}
+            <VideoAnalysisSettings
+              videoUrl={url}
+              onVideoUrlChange={onVideoUrlChange}
+              kickoffOffset={kickoffOffset}
+              onKickoffOffsetChange={handleKickoffOffsetChange}
+              secondHalfOffset={secondHalfOffset}
+              onSecondHalfOffsetChange={handleSecondHalfOffsetChange}
+              onEventClick={handleEventClick}
+            />
+          </div>
+          {!url && (
+            <p className="text-xs text-muted-foreground mt-2">
+              No video loaded — paste any YouTube URL above and click Load Video.
+            </p>
+          )}
+          {url && currentSeekTime !== null && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Last seek: {Math.floor(currentSeekTime / 60)}:{(currentSeekTime % 60).toFixed(0).padStart(2, '0')}
+            </p>
+          )}
+        </CardContent>
       </Card>
       
       <Tabs defaultValue="video" className="space-y-6">
