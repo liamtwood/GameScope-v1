@@ -83,7 +83,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
     if (platform === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      return id ? `https://www.dailymotion.com/embed/video/${id}?api=postMessage&controls=1` : null;
+      // Use geo.dailymotion.com directly — the old /embed/video/ URL redirects
+      // to this domain and drops the ?api=postMessage param in the process
+      return id ? `https://geo.dailymotion.com/player.html?video=${id}` : null;
     }
     return null;
   };
@@ -222,7 +224,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 width="100%"
                 height="100%"
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowFullScreen
                 data-testid="match-video-iframe"
               />
