@@ -13,6 +13,7 @@ import {
   systemTeams,
   competitions,
   teamCompetitions,
+  matchEvents,
   matchStats,
   playerStats,
   pageRequirements,
@@ -35,6 +36,8 @@ import {
   type SystemTeam,
   type Competition,
   type TeamCompetition,
+  type MatchEvents,
+  type InsertMatchEvents,
   type MatchStats,
   type PlayerStats,
   type InsertClub,
@@ -148,6 +151,11 @@ export interface IStorage {
   updateFixtureVideoMetadata(fixtureId: string, videoId: string, metadata: Record<string, any>): Promise<any[]>;
   deleteFixture(id: string): Promise<void>;
   
+  // Match events operations
+  getMatchEvents(fixtureId: string): Promise<MatchEvents | undefined>;
+  saveMatchEvents(fixtureId: string, data: { events: any[]; lineups?: any[] | null; source?: string }): Promise<MatchEvents>;
+  deleteMatchEvents(fixtureId: string): Promise<void>;
+
   // Match stats operations
   getMatchStats(fixtureId: string): Promise<MatchStats[]>;
   createMatchStats(stats: InsertMatchStats): Promise<MatchStats>;
@@ -1463,6 +1471,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Match stats operations
+  async getMatchEvents(fixtureId: string): Promise<MatchEvents | undefined> {
+    const [result] = await db.select().from(matchEvents).where(eq(matchEvents.fixtureId, fixtureId));
+    return result;
+  }
+
+  async saveMatchEvents(fixtureId: string, data: { events: any[]; lineups?: any[] | null; source?: string }): Promise<MatchEvents> {
+    await db.delete(matchEvents).where(eq(matchEvents.fixtureId, fixtureId));
+    const id = randomUUID();
+    const [result] = await db.insert(matchEvents).values({
+      id,
+      fixtureId,
+      events: data.events,
+      lineups: data.lineups ?? null,
+      source: data.source || 'statsbomb',
+      importedAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async deleteMatchEvents(fixtureId: string): Promise<void> {
+    await db.delete(matchEvents).where(eq(matchEvents.fixtureId, fixtureId));
+  }
+
   async getMatchStats(fixtureId: string): Promise<MatchStats[]> {
     return await db.select().from(matchStats).where(eq(matchStats.fixtureId, fixtureId));
   }

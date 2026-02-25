@@ -12,7 +12,9 @@ import { MatchEventTable } from '@/components/MatchEventTable';
 import { SpiderChart } from '@/components/spider-chart';
 import { Fixture, MatchStats } from '@shared/schema';
 import { format } from 'date-fns';
-import { ArrowLeft, Edit, Save, X } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Edit, Save, X, Download, Trash2, CheckCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useTeam } from '@/contexts/team-context';
 import { useClub } from '@/contexts/club-context';
@@ -51,6 +53,9 @@ export default function WatchMatchVideo() {
   const [isEditingReport, setIsEditingReport] = useState(false);
   const [reportText, setReportText] = useState('');
   const [attendanceText, setAttendanceText] = useState('');
+  const [eventsUrl, setEventsUrl] = useState('');
+  const [lineupsUrl, setLineupsUrl] = useState('');
+  const [showImportForm, setShowImportForm] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -76,6 +81,53 @@ export default function WatchMatchVideo() {
   const { data: matchStats } = useQuery<MatchStats[]>({
     queryKey: ["/api/match-stats", fixtureId],
     enabled: !!fixtureId,
+  });
+
+  const { data: fixtureMatchEvents, isLoading: eventsLoading } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null; importedAt: string; eventCount?: number }>({
+    queryKey: ["/api/fixtures", fixtureId, "match-events"],
+    queryFn: async () => {
+      if (!fixtureId) throw new Error("No fixtureId");
+      const res = await fetch(`/api/fixtures/${fixtureId}/match-events`);
+      if (!res.ok) throw new Error("No events stored");
+      return res.json();
+    },
+    enabled: !!fixtureId,
+    retry: false,
+  });
+
+  const importEventsMutation = useMutation({
+    mutationFn: async ({ eventsUrl, lineupsUrl }: { eventsUrl: string; lineupsUrl?: string }) => {
+      const res = await fetch(`/api/fixtures/${fixtureId}/match-events/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventsUrl, lineupsUrl: lineupsUrl || undefined, source: 'statsbomb' }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Import failed');
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId, "match-events"] });
+      setShowImportForm(false);
+      toast({ title: "Events imported", description: `${data.eventCount} events imported successfully.` });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Import failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteEventsMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/fixtures/${fixtureId}/match-events`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId, "match-events"] });
+      toast({ title: "Events cleared", description: "Match events have been removed." });
+    },
   });
 
   useEffect(() => {
@@ -425,10 +477,92 @@ export default function WatchMatchVideo() {
         <TabsContent value="events">
           <Card>
             <CardHeader>
-              <CardTitle>Match Events</CardTitle>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Match Events</CardTitle>
+                  {fixtureMatchEvents && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      <CheckCircle className="inline h-3 w-3 text-green-500 mr-1" />
+                      {Array.isArray(fixtureMatchEvents.events) ? fixtureMatchEvents.events.length : 0} events from {fixtureMatchEvents.source || 'statsbomb'}
+                      {fixtureMatchEvents.importedAt && ` · imported ${new Date(fixtureMatchEvents.importedAt).toLocaleDateString()}`}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {fixtureMatchEvents && !showImportForm && (
+                    <Button variant="outline" size="sm" onClick={() => setShowImportForm(true)}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Re-import
+                    </Button>
+                  )}
+                  {fixtureMatchEvents && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteEventsMutation.mutate()}
+                      disabled={deleteEventsMutation.isPending}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <MatchEventTable onEventClick={() => {}} />
+              {(!fixtureMatchEvents || showImportForm) && !eventsLoading ? (
+                <div className="space-y-6">
+                  {!fixtureMatchEvents && (
+                    <div className="text-center py-6 border-2 border-dashed rounded-lg">
+                      <Download className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                      <h3 className="font-semibold text-lg mb-1">No events imported yet</h3>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        Import StatsBomb event data to enable event timeline, highlights, and video sync.
+                      </p>
+                    </div>
+                  )}
+                  <div className="max-w-lg mx-auto space-y-4 p-4 border rounded-lg bg-muted/30">
+                    <h3 className="font-semibold">Import StatsBomb Events</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventsUrl">Events JSON URL <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="eventsUrl"
+                        placeholder="https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/7580.json"
+                        value={eventsUrl}
+                        onChange={(e) => setEventsUrl(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">StatsBomb open-data events URL or any publicly accessible JSON URL</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lineupsUrl">Lineups JSON URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                      <Input
+                        id="lineupsUrl"
+                        placeholder="https://raw.githubusercontent.com/statsbomb/open-data/master/data/lineups/7580.json"
+                        value={lineupsUrl}
+                        onChange={(e) => setLineupsUrl(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => importEventsMutation.mutate({ eventsUrl, lineupsUrl: lineupsUrl || undefined })}
+                        disabled={!eventsUrl.trim() || importEventsMutation.isPending}
+                        className="flex-1"
+                      >
+                        {importEventsMutation.isPending ? 'Importing...' : 'Import Events'}
+                      </Button>
+                      {showImportForm && (
+                        <Button variant="outline" onClick={() => setShowImportForm(false)}>
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : eventsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">Loading events...</div>
+              ) : (
+                <MatchEventTable onEventClick={() => {}} events={fixtureMatchEvents?.events} />
+              )}
             </CardContent>
           </Card>
         </TabsContent>

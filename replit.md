@@ -26,6 +26,19 @@ The frontend follows a page-based architecture with dedicated routes for:
 - Statistics (team performance analytics)
 - Videos (match video organization)
 
+## Recent Changes (February 25, 2026)
+
+### StatsBomb Events Import System (February 25, 2026)
+- **Added `match_events` database table**: Stores StatsBomb-format event data per fixture (fixtureId, events JSONB, lineups JSONB, source, importedAt). One row per fixture using upsert pattern.
+- **New API endpoints**:
+  - `GET /api/fixtures/:fixtureId/match-events` — fetch stored events for a fixture (404 if none)
+  - `POST /api/fixtures/:fixtureId/match-events/import` — fetch JSON from a URL server-side and store it
+  - `DELETE /api/fixtures/:fixtureId/match-events` — clear stored events
+- **VideoWithEvents component updated**: When `fixtureId` is provided, loads events from DB via API; falls back to `match-events-custom.json` if none stored
+- **MatchEventTable, HighlightGenerator, AdvancedHighlights**: All accept optional `events` prop (fall back to hardcoded JSON if not provided)
+- **Match Events tab in watch-match-video page**: Import form with Events URL + Lineups URL fields; shows event count/source/date when events are loaded; Re-import and Clear buttons
+- **Demo fixture**: France vs Argentina, 2018 FIFA World Cup Round of 16 (4-3), June 30 2018, Kazan Arena. YouTube: https://www.youtube.com/watch?v=J41d0cHAfSM. StatsBomb 3549 events imported. Fixture ID: `4d4e1b87-19ae-423b-819c-b99bed372c1d` under Polk State College team `b4fcae5b-a928-4fc7-83e9-2a410593faf4`.
+
 ## Recent Changes (January 15, 2026)
 
 ### FM Multi-App and Widget Support (January 15, 2026)

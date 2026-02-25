@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Clock, Target, TrendingUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import matchEvents from '@/data/match-events-custom.json';
+import importedMatchEvents from '@/data/match-events-custom.json';
 
 interface MatchEvent {
   id: string;
@@ -60,9 +60,11 @@ interface MatchEvent {
 
 interface MatchEventTableProps {
   onEventClick: (timeInSeconds: number, eventPeriod?: number) => void;
+  events?: any[];
 }
 
-export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
+export function MatchEventTable({ onEventClick, events: eventsOverride }: MatchEventTableProps) {
+  const eventsData = (eventsOverride ?? importedMatchEvents) as MatchEvent[];
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEventType, setSelectedEventType] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
@@ -84,19 +86,19 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
 
   // Get unique event types and teams for filtering
   const { eventTypes, teams } = useMemo(() => {
-    const typeSet = new Set(matchEvents.map(event => event.type.name));
-    const teamSet = new Set(matchEvents.map(event => event.team.name));
+    const typeSet = new Set(eventsData.map(event => event.type.name));
+    const teamSet = new Set(eventsData.map(event => event.team.name));
     const types = Array.from(typeSet);
     const teamNames = Array.from(teamSet);
     return {
       eventTypes: types.sort(),
       teams: teamNames.sort()
     };
-  }, []);
+  }, [eventsData]);
 
   // Filter events based on search and filters
   const filteredEvents = useMemo(() => {
-    return matchEvents.filter(event => {
+    return eventsData.filter(event => {
       const matchesSearch = 
         event.type.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (event.player?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,7 +110,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
 
       return matchesSearch && matchesEventType && matchesTeam;
     });
-  }, [searchTerm, selectedEventType, selectedTeam]);
+  }, [searchTerm, selectedEventType, selectedTeam, eventsData]);
 
   const handleEventClick = (event: MatchEvent) => {
     const timeInSeconds = timestampToSeconds(event.timestamp);
@@ -276,7 +278,7 @@ export function MatchEventTable({ onEventClick }: MatchEventTableProps) {
       
       {/* Summary */}
       <div className="px-6 py-3 border-t bg-gray-50 text-sm text-gray-600">
-        Showing {filteredEvents.length} of {matchEvents.length} events
+        Showing {filteredEvents.length} of {eventsData.length} events
       </div>
     </Card>
   );

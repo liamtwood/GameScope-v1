@@ -5568,6 +5568,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Match Events endpoints
+  app.get("/api/fixtures/:fixtureId/match-events", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const events = await storage.getMatchEvents(fixtureId);
+      if (!events) {
+        return res.status(404).json({ message: "No events found for this fixture" });
+      }
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching match events:", error);
+      res.status(500).json({ message: "Failed to fetch match events" });
+    }
+  });
+
+  app.post("/api/fixtures/:fixtureId/match-events/import", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const { eventsUrl, lineupsUrl, source } = req.body;
+
+      if (!eventsUrl) {
+        return res.status(400).json({ message: "eventsUrl is required" });
+      }
+
+      const eventsResponse = await fetch(eventsUrl);
+      if (!eventsResponse.ok) {
+        return res.status(400).json({ message: `Failed to fetch events from URL: ${eventsResponse.status} ${eventsResponse.statusText}` });
+      }
+      const events = await eventsResponse.json();
+
+      let lineups: any[] | null = null;
+      if (lineupsUrl) {
+        const lineupsResponse = await fetch(lineupsUrl);
+        if (lineupsResponse.ok) {
+          lineups = await lineupsResponse.json();
+        }
+      }
+
+      const saved = await storage.saveMatchEvents(fixtureId, {
+        events,
+        lineups,
+        source: source || "statsbomb",
+      });
+
+      res.json({
+        message: "Events imported successfully",
+        fixtureId,
+        eventCount: Array.isArray(events) ? events.length : 0,
+        hasLineups: !!lineups,
+        importedAt: saved.importedAt,
+      });
+    } catch (error) {
+      console.error("Error importing match events:", error);
+      res.status(500).json({ message: "Failed to import match events", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/fixtures/:fixtureId/match-events", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      await storage.deleteMatchEvents(fixtureId);
+      res.json({ message: "Events deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting match events:", error);
+      res.status(500).json({ message: "Failed to delete match events" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

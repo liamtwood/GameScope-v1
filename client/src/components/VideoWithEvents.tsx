@@ -10,7 +10,7 @@ import { MatchScoreBanner } from '@/components/match-score-banner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
-import matchEvents from '@/data/match-events-custom.json';
+import importedMatchEvents from '@/data/match-events-custom.json';
 
 interface OppositionTeam {
   id: string;
@@ -142,6 +142,21 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     onVideoUrlChange("https://www.youtube.com/watch?v=gvoQ8gvzuC4"); // Original match video
   };
 
+  // Fetch per-fixture match events from DB (falls back to imported JSON if none stored)
+  const { data: fixtureMatchEvents } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null }>({
+    queryKey: ["/api/fixtures", fixtureId, "match-events"],
+    queryFn: async () => {
+      if (!fixtureId) throw new Error("No fixtureId");
+      const res = await fetch(`/api/fixtures/${fixtureId}/match-events`);
+      if (!res.ok) throw new Error("No events stored");
+      return res.json();
+    },
+    enabled: !!fixtureId,
+    retry: false,
+  });
+
+  const activeEvents: any[] = fixtureMatchEvents?.events ?? importedMatchEvents;
+
   // Fetch opposition teams to get logos
   const { selectedClub: currentClub } = useClub();
   const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
@@ -231,7 +246,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Event Table - Left Side */}
             <div className="lg:col-span-2">
-              <MatchEventTable onEventClick={handleEventClick} />
+              <MatchEventTable onEventClick={handleEventClick} events={activeEvents} />
             </div>
             
             {/* Video Player - Right Side */}
@@ -272,6 +287,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 onHighlightSelect={handleHighlightSelect}
                 onPackageGenerate={handlePackageGenerate}
                 onViewHighlightsVideo={handleViewHighlightsVideo}
+                events={activeEvents}
               />
             </div>
             
@@ -337,7 +353,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
               </CardHeader>
               <CardContent>
                 <Timeline 
-                  events={matchEvents as MatchEvent[]} 
+                  events={activeEvents as MatchEvent[]} 
                   onEventClick={(eventTime: number, period: number) => handleEventClick(eventTime, period)}
                 />
               </CardContent>
@@ -372,7 +388,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         </TabsContent>
         
         <TabsContent value="advanced">
-          <AdvancedHighlights onEventClick={handleEventClick} />
+          <AdvancedHighlights onEventClick={handleEventClick} events={activeEvents} />
         </TabsContent>
         
         <TabsContent value="video">

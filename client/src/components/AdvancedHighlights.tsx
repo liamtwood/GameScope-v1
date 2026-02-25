@@ -14,13 +14,13 @@ import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import Timeline from './Timeline';
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
 import { X, Play, ChevronDown, Target, TrendingUp, Film, Video, Settings, Filter, Menu, AlertCircle, Clock } from 'lucide-react';
-import matchEvents from '@/data/match-events-custom.json';
+import importedMatchEvents from '@/data/match-events-custom.json';
 
 interface AdvancedHighlightsProps {
   onEventClick?: (eventTime: number, period: number) => void;
   initialVideoUrl?: string;
+  events?: any[];
 }
-
 
 interface SelectedEvent {
   id: string;
@@ -30,7 +30,8 @@ interface SelectedEvent {
   period: number;
 }
 
-export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://www.youtube.com/watch?v=gvoQ8gvzuC4" }: AdvancedHighlightsProps) {
+export function AdvancedHighlights({ onEventClick, initialVideoUrl = "https://www.youtube.com/watch?v=gvoQ8gvzuC4", events: eventsOverride }: AdvancedHighlightsProps) {
+  const matchEvents = (eventsOverride ?? importedMatchEvents) as any[];
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([
     'Shot - Goal', 'Shot - Saved', 'Shot - Blocked', 'Shot Off Target', 'Shot - Post', 'Shot - Wayward', 
     'High xG Chances', 'Medium xG Chances', 'Low xG Chances'

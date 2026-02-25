@@ -106,6 +106,15 @@ export const fixtures = pgTable("fixtures", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const matchEvents = pgTable("match_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fixtureId: varchar("fixture_id").references(() => fixtures.id).notNull().unique(),
+  events: jsonb("events").notNull(),
+  lineups: jsonb("lineups"),
+  source: varchar("source", { length: 50 }).default("statsbomb"),
+  importedAt: timestamp("imported_at").defaultNow(),
+});
+
 export const matchStats = pgTable("match_stats", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   fixtureId: varchar("fixture_id").references(() => fixtures.id).notNull(),
@@ -427,6 +436,7 @@ export const insertFixtureSchema = createInsertSchema(fixtures)
     date: z.string().or(z.date()).transform((val) => new Date(val)),
     videoLinks: videoLinksArraySchema,
   });
+export const insertMatchEventsSchema = createInsertSchema(matchEvents).omit({ id: true, importedAt: true });
 export const insertMatchStatsSchema = createInsertSchema(matchStats).omit({ id: true, createdAt: true });
 export const insertPlayerStatsSchema = createInsertSchema(playerStats).omit({ id: true, createdAt: true })
   .extend({
@@ -444,6 +454,8 @@ export type SystemTeam = typeof systemTeams.$inferSelect;
 export type Competition = typeof competitions.$inferSelect;
 export type TeamCompetition = typeof teamCompetitions.$inferSelect;
 export type Fixture = typeof fixtures.$inferSelect;
+export type MatchEvents = typeof matchEvents.$inferSelect;
+export type InsertMatchEvents = z.infer<typeof insertMatchEventsSchema>;
 export type MatchStats = typeof matchStats.$inferSelect;
 export type PlayerStats = typeof playerStats.$inferSelect;
 export type User = typeof users.$inferSelect;
