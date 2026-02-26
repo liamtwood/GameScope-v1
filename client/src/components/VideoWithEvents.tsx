@@ -21,8 +21,8 @@ interface VideoWithEventsProps {
 type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
 type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
 
-// Registered Dailymotion Player ID — required for the postMessage API to work
-const DM_PLAYER_ID = '82a7a6de4a92ad3ddb07';
+// Dailymotion Player ID — use registered ID when available, fall back to generic player.html
+const DM_PLAYER_ID = '';
 
 function eventBadgeClass(typeName: string): string {
   const t = typeName.toLowerCase();
@@ -113,8 +113,11 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
     if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      // Registered player URL — required for the postMessage command API to work
-      return id ? `https://geo.dailymotion.com/player/${DM_PLAYER_ID}.html?video=${id}&api=postMessage&id=dm-player` : null;
+      if (!id) return null;
+      const base = DM_PLAYER_ID
+        ? `https://geo.dailymotion.com/player/${DM_PLAYER_ID}.html`
+        : `https://geo.dailymotion.com/player.html`;
+      return `${base}?video=${id}&api=postMessage&id=dm-player`;
     }
     return null;
   };
@@ -137,7 +140,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.play().catch(() => {});
 
     } else if (platform === 'dailymotion' && iframeRef.current?.contentWindow) {
-      // Registered Dailymotion player supports postMessage — send seek as plain object
       iframeRef.current.contentWindow.postMessage(
         { command: 'seek', time: seekTime },
         'https://geo.dailymotion.com'
