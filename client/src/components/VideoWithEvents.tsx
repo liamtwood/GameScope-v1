@@ -90,8 +90,13 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   };
 
   const getDailymotionId = (inputUrl: string) => {
-    const match = inputUrl.match(/dailymotion\.com\/(?:video|embed\/video)\/([^/?#]+)/);
-    return match ? match[1] : null;
+    // /video/ID or /embed/video/ID path formats
+    const pathMatch = inputUrl.match(/dailymotion\.com\/(?:video|embed\/video)\/([^/?#&]+)/);
+    if (pathMatch) return pathMatch[1];
+    // geo.dailymotion.com/player.html?video=ID or player/{pid}.html?video=ID
+    const paramMatch = inputUrl.match(/[?&]video=([^&]+)/);
+    if (paramMatch) return paramMatch[1];
+    return null;
   };
 
   const getEmbedUrl = (inputUrl: string): string | null => {
@@ -104,7 +109,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
     if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      return id ? `https://geo.dailymotion.com/player.html?video=${id}` : null;
+      // api=postMessage enables the command API; id= is required for targeting the player
+      return id ? `https://geo.dailymotion.com/player.html?video=${id}&api=postMessage&id=dm-player` : null;
     }
     return null;
   };
@@ -124,8 +130,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.play().catch(() => {});
     } else if (iframeRef.current?.contentWindow) {
       if (platform === 'dailymotion') {
+        // Dailymotion expects a plain object (not JSON string) with command + time
         iframeRef.current.contentWindow.postMessage(
-          JSON.stringify({ command: 'seek', parameters: [seekTime] }),
+          { command: 'seek', time: seekTime },
           'https://geo.dailymotion.com'
         );
       } else {
