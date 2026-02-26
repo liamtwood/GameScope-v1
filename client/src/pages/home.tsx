@@ -104,18 +104,6 @@ export default function Home() {
 
   return (
     <MainLayout title="Club Dashboard" subtitle={currentClub?.name ?? "Club overview"}>
-      {/* Club header */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="h-16 w-16 flex-shrink-0">
-          <LogoDisplay
-            src={currentClub?.logoPath}
-            alt={currentClub?.name ?? "Club"}
-            fallbackText={currentClub?.shortName ?? "CLUB"}
-            size="lg"
-          />
-        </div>
-      </div>
-
       {/* Teams */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
