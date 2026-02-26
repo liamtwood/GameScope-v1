@@ -22,6 +22,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const currentPath = (location === "/" || location === "/home") ? "home" : location.slice(1);
   const { selectedTeam, selectTeam } = useTeam();
   const { selectedClub: currentClub, selectClub } = useClub();
+
+  // Redirect "/" to "home" item highlighting
+  const activeItemId = (location === "/" || location === "/home") ? "home" : location.slice(1);
   
   // Get club primary color for menu highlighting
   const clubPrimaryColor = (currentClub?.colors as any)?.primary || '#dc2626';
@@ -172,10 +175,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             <div className="space-y-1">
               {section.items.map((item) => {
                 const Icon = iconMap[item.icon as keyof typeof iconMap];
-                const isActive = currentPath === item.id;
+                const isActive = activeItemId === item.id;
                 
                 // Build href
-                const href = `/${item.id}`;
+                const href = item.id === "home" ? "/" : `/${item.id}`;
                 
                 return (
                   <Link
