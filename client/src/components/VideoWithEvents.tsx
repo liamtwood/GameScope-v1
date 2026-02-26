@@ -58,8 +58,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const kickoffOffsetRef = useRef<number>(0);
-  const dmPlayerRef = useRef<any>(null);
-  const dmContainerRef = useRef<HTMLDivElement>(null);
+  // For Dailymotion: track the start= offset to rebuild the iframe src on seek
+  const [dmStartTime, setDmStartTime] = useState<number>(0);
 
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
@@ -132,61 +132,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const platform = getPlatform(url);
   const embedUrl = getEmbedUrl(url);
 
-  // Load Dailymotion Player SDK and create player when platform is dailymotion
+  // When kickoffOffset loads and this is a Dailymotion video, set the initial start time
   useEffect(() => {
-    if (platform !== 'dailymotion') return;
-    const videoId = getDailymotionId(url);
-    if (!videoId || !dmContainerRef.current) return;
-
-    dmPlayerRef.current = null;
-
-    const initPlayer = async () => {
-      const win = window as any;
-
-      // Load SDK script if not already present
-      if (!win.dailymotion) {
-        await new Promise<void>((resolve, reject) => {
-          const existing = document.getElementById('dm-sdk');
-          if (existing) { resolve(); return; }
-          const s = document.createElement('script');
-          s.id = 'dm-sdk';
-          s.src = 'https://geo.dailymotion.com/player-sdk.js';
-          s.onload = () => resolve();
-          s.onerror = reject;
-          document.head.appendChild(s);
-        });
-      }
-
-      try {
-        // Destroy previous player if any
-        if (dmPlayerRef.current?.destroy) dmPlayerRef.current.destroy();
-
-        const player = await win.dailymotion.createPlayer(dmContainerRef.current, {
-          video: videoId,
-          params: { controls: true, mute: false },
-        });
-
-        dmPlayerRef.current = player;
-
-        // Seek to kickoff offset once player is ready
-        player.on('video_start', () => {
-          const offset = kickoffOffsetRef.current;
-          if (offset > 0) player.seek(offset);
-        });
-      } catch (err) {
-        console.error('[DM SDK] createPlayer failed:', err);
-      }
-    };
-
-    initPlayer();
-
-    return () => {
-      if (dmPlayerRef.current?.destroy) {
-        dmPlayerRef.current.destroy();
-        dmPlayerRef.current = null;
-      }
-    };
-  }, [platform, url]);
+    if (platform === 'dailymotion' && kickoffOffset > 0) {
+      setDmStartTime(prev => prev === 0 ? kickoffOffset : prev);
+    }
+  }, [platform, kickoffOffset]);
 
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
     const videoTime = eventPeriod === 2
@@ -202,10 +153,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.currentTime = seekTime;
       videoRef.current.play().catch(() => {});
 
-    } else if (platform === 'dailymotion' && dmPlayerRef.current) {
-      // Dailymotion Player SDK — real JavaScript seek API
-      dmPlayerRef.current.seek(seekTime);
-      dmPlayerRef.current.play();
+    } else if (platform === 'dailymotion') {
+      // Rebuild the DM embed URL with start=N — iframe remounts at the new time
+      setDmStartTime(Math.floor(seekTime));
 
     } else if (platform === 'youtube' && iframeRef.current?.contentWindow) {
       // YouTube IFrame API — seekTo via postMessage requires enablejsapi=1 in src
@@ -402,12 +352,15 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 preload="metadata"
               />
             ) : platform === 'dailymotion' && getDailymotionId(url) ? (
-              // Dailymotion: SDK-managed player — SDK injects its own iframe into this div
-              <div
-                ref={dmContainerRef}
-                key={url}
+              // Dailymotion: iframe with start= param — remounts at the correct time on seek
+              <iframe
+                ref={iframeRef}
+                key={`dm-${url}-${dmStartTime}`}
+                src={`https://geo.dailymotion.com/player.html?video=${getDailymotionId(url)}&start=${dmStartTime}&controls=1`}
                 className="absolute inset-0 w-full h-full"
-                style={{ border: 'none' }}
+                style={{ border: 'none', display: 'block' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
                 data-testid="match-video-iframe"
               />
             ) : embedUrl ? (
