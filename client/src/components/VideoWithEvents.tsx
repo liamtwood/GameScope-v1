@@ -58,6 +58,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const kickoffOffsetRef = useRef<number>(0);
+  const dmPlayerRef = useRef<any>(null);
+  const dmContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
@@ -130,30 +132,60 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const platform = getPlatform(url);
   const embedUrl = getEmbedUrl(url);
 
-  // When a Dailymotion player signals it's ready, seek to kickoff offset
+  // Load Dailymotion Player SDK and create player when platform is dailymotion
   useEffect(() => {
     if (platform !== 'dailymotion') return;
-    const onMessage = (evt: MessageEvent) => {
+    const videoId = getDailymotionId(url);
+    if (!videoId || !dmContainerRef.current) return;
+
+    dmPlayerRef.current = null;
+
+    const initPlayer = async () => {
+      const win = window as any;
+
+      // Load SDK script if not already present
+      if (!win.dailymotion) {
+        await new Promise<void>((resolve, reject) => {
+          const existing = document.getElementById('dm-sdk');
+          if (existing) { resolve(); return; }
+          const s = document.createElement('script');
+          s.id = 'dm-sdk';
+          s.src = 'https://geo.dailymotion.com/player-sdk.js';
+          s.onload = () => resolve();
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+
       try {
-        const data = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data;
-        const isReady = data?.event === 'ready' || data?.type === 'ready' || data?.event === 'apiready';
-        if (isReady) {
+        // Destroy previous player if any
+        if (dmPlayerRef.current?.destroy) dmPlayerRef.current.destroy();
+
+        const player = await win.dailymotion.createPlayer(dmContainerRef.current, {
+          video: videoId,
+          params: { controls: true, mute: false },
+        });
+
+        dmPlayerRef.current = player;
+
+        // Seek to kickoff offset once player is ready
+        player.on('video_start', () => {
           const offset = kickoffOffsetRef.current;
-          if (offset > 0 && iframeRef.current?.contentWindow) {
-            setTimeout(() => {
-              iframeRef.current?.contentWindow?.postMessage(
-                JSON.stringify({ command: 'seek', parameters: [offset] }),
-                '*'
-              );
-            }, 500);
-          }
-        }
-      } catch {
-        // ignore non-JSON messages
+          if (offset > 0) player.seek(offset);
+        });
+      } catch (err) {
+        console.error('[DM SDK] createPlayer failed:', err);
       }
     };
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
+
+    initPlayer();
+
+    return () => {
+      if (dmPlayerRef.current?.destroy) {
+        dmPlayerRef.current.destroy();
+        dmPlayerRef.current = null;
+      }
+    };
   }, [platform, url]);
 
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
@@ -170,16 +202,10 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.currentTime = seekTime;
       videoRef.current.play().catch(() => {});
 
-    } else if (platform === 'dailymotion' && iframeRef.current?.contentWindow) {
-      // Dailymotion generic player postMessage API: JSON-stringified, parameters.position
-      const dmWin = iframeRef.current.contentWindow;
-      dmWin.postMessage(JSON.stringify({ command: 'seek', parameters: [seekTime] }), '*');
-      // Some DM player builds need an explicit play after seek
-      setTimeout(() => {
-        if (iframeRef.current?.contentWindow) {
-          iframeRef.current.contentWindow.postMessage(JSON.stringify({ command: 'play' }), '*');
-        }
-      }, 300);
+    } else if (platform === 'dailymotion' && dmPlayerRef.current) {
+      // Dailymotion Player SDK — real JavaScript seek API
+      dmPlayerRef.current.seek(seekTime);
+      dmPlayerRef.current.play();
 
     } else if (platform === 'youtube' && iframeRef.current?.contentWindow) {
       // YouTube IFrame API — seekTo via postMessage requires enablejsapi=1 in src
@@ -375,6 +401,15 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 className="absolute inset-0 w-full h-full"
                 preload="metadata"
               />
+            ) : platform === 'dailymotion' && getDailymotionId(url) ? (
+              // Dailymotion: SDK-managed player — SDK injects its own iframe into this div
+              <div
+                ref={dmContainerRef}
+                key={url}
+                className="absolute inset-0 w-full h-full"
+                style={{ border: 'none' }}
+                data-testid="match-video-iframe"
+              />
             ) : embedUrl ? (
               <iframe
                 ref={iframeRef}
@@ -385,21 +420,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowFullScreen
                 data-testid="match-video-iframe"
-                onLoad={() => {
-                  // Fallback: seek to kickoff offset 2 s after the iframe loads,
-                  // in case the player doesn't fire a ready postMessage event.
-                  if (platform === 'dailymotion') {
-                    const offset = kickoffOffsetRef.current;
-                    if (offset > 0) {
-                      setTimeout(() => {
-                        iframeRef.current?.contentWindow?.postMessage(
-                          JSON.stringify({ command: 'seek', parameters: [offset] }),
-                          '*'
-                        );
-                      }, 2000);
-                    }
-                  }
-                }}
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60 text-sm gap-2">
