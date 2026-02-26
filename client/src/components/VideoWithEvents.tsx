@@ -140,10 +140,15 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.play().catch(() => {});
 
     } else if (platform === 'dailymotion' && iframeRef.current?.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(
-        { command: 'seek', time: seekTime },
-        'https://geo.dailymotion.com'
-      );
+      // Dailymotion generic player postMessage API: JSON-stringified, parameters.position
+      const dmWin = iframeRef.current.contentWindow;
+      dmWin.postMessage(JSON.stringify({ command: 'seek', parameters: [seekTime] }), '*');
+      // Some DM player builds need an explicit play after seek
+      setTimeout(() => {
+        if (iframeRef.current?.contentWindow) {
+          iframeRef.current.contentWindow.postMessage(JSON.stringify({ command: 'play' }), '*');
+        }
+      }, 300);
 
     } else if (platform === 'youtube' && iframeRef.current?.contentWindow) {
       // YouTube IFrame API — seekTo via postMessage requires enablejsapi=1 in src
