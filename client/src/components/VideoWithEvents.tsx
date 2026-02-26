@@ -57,6 +57,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const [overlayFilter, setOverlayFilter] = useState('');
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const kickoffOffsetRef = useRef<number>(0);
 
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
@@ -64,6 +65,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     if (savedKickoff) setKickoffOffset(parseFloat(savedKickoff));
     if (savedSecondHalf) setSecondHalfOffset(parseFloat(savedSecondHalf));
   }, []);
+
+  // Keep ref in sync so event listeners can read the latest value without re-registering
+  useEffect(() => { kickoffOffsetRef.current = kickoffOffset; }, [kickoffOffset]);
 
   useEffect(() => {
     localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
@@ -79,6 +83,33 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
+
+  // When a Dailymotion player signals it's ready, seek to kickoff offset
+  useEffect(() => {
+    if (platform !== 'dailymotion') return;
+    const onMessage = (evt: MessageEvent) => {
+      try {
+        const data = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data;
+        const isReady = data?.event === 'ready' || data?.type === 'ready' || data?.event === 'apiready';
+        if (isReady) {
+          const offset = kickoffOffsetRef.current;
+          if (offset > 0 && iframeRef.current?.contentWindow) {
+            // Small delay to let the player finish initialising
+            setTimeout(() => {
+              iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ command: 'seek', parameters: [offset] }),
+                '*'
+              );
+            }, 500);
+          }
+        }
+      } catch {
+        // ignore non-JSON messages
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [platform, url]);
 
   const getPlatform = (inputUrl: string): Platform => {
     if (!inputUrl) return 'unknown';
@@ -354,6 +385,21 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowFullScreen
                 data-testid="match-video-iframe"
+                onLoad={() => {
+                  // Fallback: seek to kickoff offset 2 s after the iframe loads,
+                  // in case the player doesn't fire a ready postMessage event.
+                  if (platform === 'dailymotion') {
+                    const offset = kickoffOffsetRef.current;
+                    if (offset > 0) {
+                      setTimeout(() => {
+                        iframeRef.current?.contentWindow?.postMessage(
+                          JSON.stringify({ command: 'seek', parameters: [offset] }),
+                          '*'
+                        );
+                      }, 2000);
+                    }
+                  }
+                }}
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60 text-sm gap-2">
