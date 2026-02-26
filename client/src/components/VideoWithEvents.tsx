@@ -84,32 +84,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
 
-  // When a Dailymotion player signals it's ready, seek to kickoff offset
-  useEffect(() => {
-    if (platform !== 'dailymotion') return;
-    const onMessage = (evt: MessageEvent) => {
-      try {
-        const data = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data;
-        const isReady = data?.event === 'ready' || data?.type === 'ready' || data?.event === 'apiready';
-        if (isReady) {
-          const offset = kickoffOffsetRef.current;
-          if (offset > 0 && iframeRef.current?.contentWindow) {
-            // Small delay to let the player finish initialising
-            setTimeout(() => {
-              iframeRef.current?.contentWindow?.postMessage(
-                JSON.stringify({ command: 'seek', parameters: [offset] }),
-                '*'
-              );
-            }, 500);
-          }
-        }
-      } catch {
-        // ignore non-JSON messages
-      }
-    };
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, [platform, url]);
 
   const getPlatform = (inputUrl: string): Platform => {
     if (!inputUrl) return 'unknown';
@@ -155,6 +129,32 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
   const platform = getPlatform(url);
   const embedUrl = getEmbedUrl(url);
+
+  // When a Dailymotion player signals it's ready, seek to kickoff offset
+  useEffect(() => {
+    if (platform !== 'dailymotion') return;
+    const onMessage = (evt: MessageEvent) => {
+      try {
+        const data = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data;
+        const isReady = data?.event === 'ready' || data?.type === 'ready' || data?.event === 'apiready';
+        if (isReady) {
+          const offset = kickoffOffsetRef.current;
+          if (offset > 0 && iframeRef.current?.contentWindow) {
+            setTimeout(() => {
+              iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ command: 'seek', parameters: [offset] }),
+                '*'
+              );
+            }, 500);
+          }
+        }
+      } catch {
+        // ignore non-JSON messages
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [platform, url]);
 
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
     const videoTime = eventPeriod === 2
