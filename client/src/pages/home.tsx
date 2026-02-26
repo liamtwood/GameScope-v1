@@ -114,15 +114,6 @@ export default function Home() {
             size="lg"
           />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{currentClub?.name ?? "Club"}</h1>
-          {currentClub?.city && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {currentClub.city}{currentClub.state ? `, ${currentClub.state}` : ""}
-            </p>
-          )}
-        </div>
       </div>
 
       {/* Teams */}
