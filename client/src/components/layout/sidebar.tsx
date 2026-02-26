@@ -19,7 +19,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [location] = useLocation();
-  const currentPath = location === "/" ? "home" : location.slice(1);
+  const currentPath = (location === "/" || location === "/home") ? "home" : location.slice(1);
   const { selectedTeam, selectTeam } = useTeam();
   const { selectedClub: currentClub, selectClub } = useClub();
   
@@ -175,7 +175,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 const isActive = currentPath === item.id;
                 
                 // Build href
-                const href = item.id === 'home' ? '/' : `/${item.id}`;
+                const href = `/${item.id}`;
                 
                 return (
                   <Link
