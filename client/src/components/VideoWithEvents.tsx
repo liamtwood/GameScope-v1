@@ -53,6 +53,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayFilter, setOverlayFilter] = useState('');
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
+  const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
@@ -118,30 +119,36 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const platform = getPlatform(url);
   const embedUrl = getEmbedUrl(url);
 
-  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
+  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
     const videoTime = eventPeriod === 2
       ? eventTimeInSeconds + secondHalfOffset
       : eventTimeInSeconds + kickoffOffset;
     const seekTime = Math.max(0, videoTime);
     setCurrentSeekTime(seekTime);
+    if (eventId) setLastClickedId(eventId);
+
+    console.log('[seek]', { platform, seekTime, eventTimeInSeconds, eventPeriod, url });
 
     if (platform === 'direct' && videoRef.current) {
       videoRef.current.currentTime = seekTime;
       videoRef.current.play().catch(() => {});
-    } else if (iframeRef.current?.contentWindow) {
-      if (platform === 'dailymotion') {
-        // Dailymotion expects a plain object (not JSON string) with command + time
-        iframeRef.current.contentWindow.postMessage(
-          { command: 'seek', time: seekTime },
-          'https://geo.dailymotion.com'
-        );
-      } else {
-        // YouTube: targetOrigin must be 'https://www.youtube.com' for commands to be accepted
-        iframeRef.current.contentWindow.postMessage(
-          JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
-          'https://www.youtube.com'
-        );
+
+    } else if (platform === 'dailymotion') {
+      // geo.dailymotion.com requires a registered player ID for postMessage.
+      // The most reliable approach: reload the iframe at the requested position.
+      const id = getDailymotionId(url);
+      if (id && iframeRef.current) {
+        const newSrc = `https://geo.dailymotion.com/player.html?video=${id}&start=${Math.floor(seekTime)}&autoplay=1`;
+        console.log('[seek] DM src →', newSrc);
+        iframeRef.current.src = newSrc;
       }
+
+    } else if (platform === 'youtube' && iframeRef.current?.contentWindow) {
+      // YouTube IFrame API — seekTo via postMessage requires enablejsapi=1 in src
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
+        'https://www.youtube.com'
+      );
     }
   };
 
@@ -420,11 +427,16 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                       const typeName: string = event.type?.name ?? 'Unknown';
                       const playerName: string = event.player?.name ?? '';
 
+                      const rowId = String(event.id ?? event.index);
+                      const isActive = lastClickedId === rowId;
+
                       return (
                         <button
-                          key={event.id ?? event.index}
-                          onClick={() => handleEventClick(totalSeconds, period)}
-                          className="w-full flex items-center gap-1.5 px-2 text-left hover:bg-white/10 active:bg-white/15 transition-colors group border-b border-white/5 cursor-pointer"
+                          key={rowId}
+                          onClick={() => handleEventClick(totalSeconds, period, rowId)}
+                          className={`w-full flex items-center gap-1.5 px-2 text-left transition-colors group border-b border-white/5 cursor-pointer ${
+                            isActive ? 'bg-white/20' : 'hover:bg-white/10 active:bg-white/15'
+                          }`}
                           style={{ minHeight: 26 }}
                         >
                           <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
