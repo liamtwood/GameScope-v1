@@ -8,7 +8,7 @@ import { useClub } from "@/contexts/club-context";
 import { useTeam } from "@/contexts/team-context";
 import { format } from "date-fns";
 import { Trophy, Calendar, Users, ChevronRight, MapPin } from "lucide-react";
-import { Team, Fixture } from "@shared/schema";
+import { Team, Fixture, OppositionTeam } from "@shared/schema";
 import { TeamStatistics } from "@/lib/types";
 
 export default function Home() {
@@ -17,6 +17,15 @@ export default function Home() {
   const [, setLocation] = useLocation();
 
   const { data: allTeams = [] } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams", currentClub?.id],
+    queryFn: async () => {
+      const url = currentClub?.id ? `/api/opposition-teams?clubId=${currentClub.id}` : '/api/opposition-teams';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch opposition teams');
+      return res.json();
+    }
+  });
 
   const clubTeams = allTeams.filter(t => t.clubId === currentClub?.id);
 
@@ -84,6 +93,13 @@ export default function Home() {
     const ours = isHome ? fixture.homeScore : fixture.awayScore;
     const theirs = isHome ? fixture.awayScore : fixture.homeScore;
     return `${ours}–${theirs}`;
+  };
+
+  const getOpponentLogo = (fixture: Fixture) => {
+    const oppositionTeam = oppositionTeams.find(team => 
+      fixture.oppositionTeamId ? team.id === fixture.oppositionTeamId : team.name === fixture.opponent
+    );
+    return oppositionTeam?.logoPath;
   };
 
   return (
@@ -203,8 +219,20 @@ export default function Home() {
                         {format(new Date(fixture.date), "h:mm a")}
                       </div>
                     </div>
+                    
+                    <div className="h-10 w-10 shrink-0">
+                      <LogoDisplay
+                        src={getOpponentLogo(fixture)}
+                        alt={fixture.opponent}
+                        size="md"
+                        noBorder
+                      />
+                    </div>
+
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-foreground truncate">vs {fixture.opponent}</div>
+                      <div className="font-medium text-sm text-foreground truncate">
+                        {fixture.type === 'HOME' ? 'vs' : 'at'} {fixture.opponent}
+                      </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0">{fixture.type}</Badge>
                         {fixture.competition && (
@@ -245,8 +273,20 @@ export default function Home() {
                         {format(new Date(fixture.date), "yyyy")}
                       </div>
                     </div>
+
+                    <div className="h-10 w-10 shrink-0">
+                      <LogoDisplay
+                        src={getOpponentLogo(fixture)}
+                        alt={fixture.opponent}
+                        size="md"
+                        noBorder
+                      />
+                    </div>
+
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-foreground truncate">vs {fixture.opponent}</div>
+                      <div className="font-medium text-sm text-foreground truncate">
+                        {fixture.type === 'HOME' ? 'vs' : 'at'} {fixture.opponent}
+                      </div>
                       <div className="text-[10px] text-muted-foreground truncate">{fixture.teamName}</div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
