@@ -352,11 +352,11 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                 preload="metadata"
               />
             ) : platform === 'dailymotion' && getDailymotionId(url) ? (
-              // Dailymotion: iframe with start= param — remounts at the correct time on seek
+              // Dailymotion: standard embed URL with start= — remounts at the correct time on seek
               <iframe
                 ref={iframeRef}
                 key={`dm-${url}-${dmStartTime}`}
-                src={`https://geo.dailymotion.com/player.html?video=${getDailymotionId(url)}&start=${dmStartTime}&controls=1`}
+                src={`https://www.dailymotion.com/embed/video/${getDailymotionId(url)}?start=${dmStartTime}&autoplay=1`}
                 className="absolute inset-0 w-full h-full"
                 style={{ border: 'none', display: 'block' }}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
