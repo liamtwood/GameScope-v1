@@ -9,10 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { MatchEvent } from '@/lib/types';
-import { List, X } from 'lucide-react';
-
+import { List, X, Maximize2, Minimize2 } from 'lucide-react';
 
 interface VideoWithEventsProps {
   url: string;
@@ -21,10 +19,8 @@ interface VideoWithEventsProps {
 }
 
 type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
-
 type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
 
-// Colour coding for event types in the overlay
 function eventBadgeClass(typeName: string): string {
   const t = typeName.toLowerCase();
   if (t === 'goal') return 'bg-green-600 text-white';
@@ -47,34 +43,39 @@ function eventMatchesChip(typeName: string, chip: OverlayChip): boolean {
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const [kickoffOffset, setKickoffOffset] = useState<number>(0);
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
 
-  // Overlay state
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayFilter, setOverlayFilter] = useState('');
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
-  
-  // Load saved offsets from localStorage
+
   useEffect(() => {
     const savedKickoff = localStorage.getItem('match-kickoff-offset');
     const savedSecondHalf = localStorage.getItem('match-second-half-offset');
     if (savedKickoff) setKickoffOffset(parseFloat(savedKickoff));
     if (savedSecondHalf) setSecondHalfOffset(parseFloat(savedSecondHalf));
   }, []);
-  
+
   useEffect(() => {
     localStorage.setItem('match-kickoff-offset', kickoffOffset.toString());
   }, [kickoffOffset]);
-  
+
   useEffect(() => {
     localStorage.setItem('match-second-half-offset', secondHalfOffset.toString());
   }, [secondHalfOffset]);
-  
-  // Platform detection
+
+  // Track native fullscreen changes (e.g. user presses Escape)
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
   const getPlatform = (inputUrl: string): Platform => {
     if (!inputUrl) return 'unknown';
     if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
@@ -97,7 +98,9 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     const p = getPlatform(inputUrl);
     if (p === 'youtube') {
       const id = getYouTubeId(inputUrl);
-      return id ? `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=1&rel=0&autoplay=0` : null;
+      // origin= tells YouTube which page controls it — required for postMessage seek to work
+      const origin = encodeURIComponent(window.location.origin);
+      return id ? `https://www.youtube.com/embed/${id}?enablejsapi=1&controls=1&rel=0&autoplay=0&origin=${origin}` : null;
     }
     if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
@@ -123,12 +126,13 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       if (platform === 'dailymotion') {
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ command: 'seek', parameters: [seekTime] }),
-          '*'
+          'https://geo.dailymotion.com'
         );
       } else {
+        // YouTube: targetOrigin must be 'https://www.youtube.com' for commands to be accepted
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
-          '*'
+          'https://www.youtube.com'
         );
       }
     }
@@ -141,12 +145,21 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const handlePackageGenerate = (highlightPackage: any) => {
     console.log('Generated highlight package:', highlightPackage);
   };
-  
+
   const handleViewHighlightsVideo = (videoUrl: string, _highlightPackage: any) => {
     onVideoUrlChange(videoUrl);
   };
 
-  // Fetch per-fixture match events from DB
+  const handleFullscreen = () => {
+    const el = videoContainerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      el.requestFullscreen().catch(() => {});
+    }
+  };
+
   const { data: fixtureMatchEvents } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null }>({
     queryKey: ["/api/fixtures", fixtureId, "match-events"],
     queryFn: async () => {
@@ -161,7 +174,6 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
   const activeEvents: any[] = fixtureMatchEvents?.events ?? [];
 
-  // Overlay filtered events
   const overlayEvents = useMemo(() => {
     let evts = activeEvents;
     if (overlayChip !== 'all') {
@@ -187,6 +199,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
+      {/* URL input bar */}
       <Card className="mb-6">
         <CardContent className="pt-4 pb-3">
           <div className="flex items-center gap-2">
@@ -254,85 +267,119 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           )}
         </CardContent>
       </Card>
-      
-      {/* Video player with optional side panel */}
+
+      {/* Video player card */}
       <Card className="mb-6 overflow-hidden">
-        {/* Toggle button row — always above the video */}
-        {activeEvents.length > 0 && (
-          <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
-            <span className="text-xs text-muted-foreground">
-              {activeEvents.length.toLocaleString()} events loaded
-            </span>
+        {/* Control bar above the video */}
+        <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
+          <span className="text-xs text-muted-foreground">
+            {activeEvents.length > 0
+              ? `${activeEvents.length.toLocaleString()} events loaded`
+              : 'No events loaded'}
+          </span>
+          <div className="flex items-center gap-1.5">
             <Button
               size="sm"
-              variant={showOverlay ? 'default' : 'outline'}
-              className="gap-1.5 h-7 text-xs"
-              onClick={() => setShowOverlay(v => !v)}
+              variant="ghost"
+              className="h-7 gap-1.5 text-xs px-2"
+              onClick={handleFullscreen}
+              title="Fullscreen — video and events panel together"
             >
-              {showOverlay ? <X className="h-3 w-3" /> : <List className="h-3 w-3" />}
-              {showOverlay ? 'Hide Events' : 'Show Events'}
+              {isFullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
             </Button>
+            {activeEvents.length > 0 && (
+              <Button
+                size="sm"
+                variant={showOverlay ? 'default' : 'outline'}
+                className="gap-1.5 h-7 text-xs"
+                onClick={() => setShowOverlay(v => !v)}
+              >
+                {showOverlay ? <X className="h-3 w-3" /> : <List className="h-3 w-3" />}
+                {showOverlay ? 'Hide Events' : 'Show Events'}
+              </Button>
+            )}
           </div>
-        )}
+        </div>
 
         <CardContent className="p-0">
-          {/* Side-by-side layout: video left, events panel right */}
-          <div className={`flex bg-black ${showOverlay ? 'items-stretch' : ''}`} style={{ minHeight: showOverlay ? 480 : undefined }}>
+          {/*
+            Video container: position relative, aspect-video.
+            The iframe/video fills the container absolutely.
+            The events panel overlays the right 32% on top.
+          */}
+          <div
+            ref={videoContainerRef}
+            className="relative w-full bg-black"
+            style={{ aspectRatio: '16 / 9' }}
+          >
+            {/* Video / iframe — fills container */}
+            {platform === 'direct' ? (
+              <video
+                ref={videoRef}
+                key={url}
+                src={url}
+                controls
+                className="absolute inset-0 w-full h-full"
+                preload="metadata"
+              />
+            ) : embedUrl ? (
+              <iframe
+                ref={iframeRef}
+                key={embedUrl}
+                src={embedUrl}
+                className="absolute inset-0 w-full h-full"
+                style={{ border: 'none', display: 'block' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+                data-testid="match-video-iframe"
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60 text-sm gap-2">
+                <p>Paste a video URL above and click Load Video</p>
+                <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
+              </div>
+            )}
 
-            {/* Video — fills remaining width */}
-            <div className={showOverlay ? 'flex-1 min-w-0' : 'w-full aspect-video'}>
-              {platform === 'direct' ? (
-                <video
-                  ref={videoRef}
-                  key={url}
-                  src={url}
-                  controls
-                  className="w-full h-full"
-                  preload="metadata"
-                  style={showOverlay ? { height: '100%' } : {}}
-                />
-              ) : embedUrl ? (
-                <iframe
-                  ref={iframeRef}
-                  key={embedUrl}
-                  src={embedUrl}
-                  width="100%"
-                  height="100%"
-                  style={!showOverlay ? { aspectRatio: '16/9', display: 'block' } : { height: '100%' }}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  data-testid="match-video-iframe"
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-white/60 text-sm gap-2" style={{ aspectRatio: '16/9' }}>
-                  <p>Paste a video URL above and click Load Video</p>
-                  <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
-                </div>
-              )}
-            </div>
-
-            {/* Events panel — fixed width, same height as video */}
-            {showOverlay && (
+            {/* Events overlay — right 32%, sits on top of the video */}
+            {showOverlay && activeEvents.length > 0 && (
               <div
-                ref={overlayRef}
-                className="flex flex-col bg-gray-950 border-l border-white/10"
-                style={{ width: 280, flexShrink: 0 }}
+                className="absolute top-0 right-0 bottom-0 flex flex-col"
+                style={{
+                  width: '32%',
+                  zIndex: 20,
+                  background: 'rgba(4, 4, 12, 0.88)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                  borderLeft: '1px solid rgba(255,255,255,0.12)',
+                }}
               >
-                {/* Panel header */}
-                <div className="flex-shrink-0 px-2 pt-2 pb-1.5 border-b border-white/10 bg-gray-900/60">
+                {/* Overlay header */}
+                <div
+                  className="flex-shrink-0 px-2 pt-2 pb-1.5 border-b border-white/10"
+                  style={{ background: 'rgba(0,0,0,0.35)' }}
+                >
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-white/60 text-[10px] font-semibold uppercase tracking-wider">
                       {overlayEvents.length.toLocaleString()} / {activeEvents.length.toLocaleString()} events
                     </span>
+                    <button
+                      onClick={() => setShowOverlay(false)}
+                      className="text-white/40 hover:text-white/80 transition-colors"
+                      title="Close overlay"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </div>
-                  {/* Search input */}
+
+                  {/* Text filter */}
                   <input
                     className="w-full text-xs bg-white/10 text-white placeholder:text-white/30 rounded px-2 py-1 outline-none border border-white/10 focus:border-white/30 mb-1.5"
                     placeholder="Filter by type or player…"
                     value={overlayFilter}
                     onChange={e => setOverlayFilter(e.target.value)}
                   />
+
                   {/* Quick-filter chips */}
                   <div className="flex gap-1 flex-wrap">
                     {(['all', 'goal', 'shot', 'card'] as OverlayChip[]).map(chip => (
@@ -351,10 +398,10 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                   </div>
                 </div>
 
-                {/* Scrollable event rows */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Scrollable event rows — fills remaining panel height */}
+                <div className="flex-1 min-h-0 overflow-y-auto">
                   {overlayEvents.length === 0 ? (
-                    <div className="flex items-center justify-center h-20 text-white/30 text-xs">
+                    <div className="flex items-center justify-center h-16 text-white/30 text-xs">
                       No events match
                     </div>
                   ) : (
@@ -370,7 +417,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
                         <button
                           key={event.id ?? event.index}
                           onClick={() => handleEventClick(totalSeconds, period)}
-                          className="w-full flex items-center gap-1.5 px-2 text-left hover:bg-white/8 transition-colors group border-b border-white/5"
+                          className="w-full flex items-center gap-1.5 px-2 text-left hover:bg-white/10 active:bg-white/15 transition-colors group border-b border-white/5 cursor-pointer"
                           style={{ minHeight: 26 }}
                         >
                           <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
@@ -402,20 +449,20 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="events">
           <MatchEventTable onEventClick={handleEventClick} events={activeEvents} />
         </TabsContent>
-        
+
         <TabsContent value="highlights">
-          <HighlightGenerator 
+          <HighlightGenerator
             onHighlightSelect={handleHighlightSelect}
             onPackageGenerate={handlePackageGenerate}
             onViewHighlightsVideo={handleViewHighlightsVideo}
             events={activeEvents}
           />
         </TabsContent>
-        
+
         <TabsContent value="timeline">
           <Card>
             <CardHeader>
@@ -423,14 +470,14 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
               <p className="text-sm text-muted-foreground">Click any event to jump to that moment in the video above.</p>
             </CardHeader>
             <CardContent>
-              <Timeline 
-                events={activeEvents as MatchEvent[]} 
+              <Timeline
+                events={activeEvents as MatchEvent[]}
                 onEventClick={(eventTime: number, period: number) => handleEventClick(eventTime, period)}
               />
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="advanced">
           <AdvancedHighlights onEventClick={handleEventClick} events={activeEvents} />
         </TabsContent>
