@@ -21,6 +21,9 @@ interface VideoWithEventsProps {
 type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
 type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
 
+// Registered Dailymotion Player ID — required for the postMessage API to work
+const DM_PLAYER_ID = '82a7a6de4a92ad3ddb07';
+
 function eventBadgeClass(typeName: string): string {
   const t = typeName.toLowerCase();
   if (t === 'goal') return 'bg-green-600 text-white';
@@ -110,8 +113,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     }
     if (p === 'dailymotion') {
       const id = getDailymotionId(inputUrl);
-      // api=postMessage enables the command API; id= is required for targeting the player
-      return id ? `https://geo.dailymotion.com/player.html?video=${id}&api=postMessage&id=dm-player` : null;
+      // Registered player URL — required for the postMessage command API to work
+      return id ? `https://geo.dailymotion.com/player/${DM_PLAYER_ID}.html?video=${id}&api=postMessage&id=dm-player` : null;
     }
     return null;
   };
@@ -133,15 +136,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       videoRef.current.currentTime = seekTime;
       videoRef.current.play().catch(() => {});
 
-    } else if (platform === 'dailymotion') {
-      // geo.dailymotion.com requires a registered player ID for postMessage.
-      // The most reliable approach: reload the iframe at the requested position.
-      const id = getDailymotionId(url);
-      if (id && iframeRef.current) {
-        const newSrc = `https://geo.dailymotion.com/player.html?video=${id}&start=${Math.floor(seekTime)}&autoplay=1`;
-        console.log('[seek] DM src →', newSrc);
-        iframeRef.current.src = newSrc;
-      }
+    } else if (platform === 'dailymotion' && iframeRef.current?.contentWindow) {
+      // Registered Dailymotion player supports postMessage — send seek as plain object
+      iframeRef.current.contentWindow.postMessage(
+        { command: 'seek', time: seekTime },
+        'https://geo.dailymotion.com'
+      );
 
     } else if (platform === 'youtube' && iframeRef.current?.contentWindow) {
       // YouTube IFrame API — seekTo via postMessage requires enablejsapi=1 in src
