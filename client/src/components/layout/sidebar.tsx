@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, ChevronDown, Landmark, Camera, LayoutDashboard, FileText, AppWindow } from "lucide-react";
+import { ChevronLeft, Home, Calendar, Users as UsersIcon, BarChart3, Video, Settings, Shield, Crosshair, ChevronDown, Landmark, Camera, LayoutDashboard, FileText, AppWindow, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS } from "@/lib/constants";
 import { useTeam } from "@/contexts/team-context";
@@ -220,6 +220,41 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             )}
           </div>
         ))}
+
+        {/* Mobile App link */}
+        <div className="pt-2 border-t border-border mt-2">
+          {!collapsed && (
+            <h3
+              className="text-xs font-semibold uppercase tracking-wider mb-2"
+              style={{ color: clubPrimaryColor }}
+            >
+              Mobile
+            </h3>
+          )}
+          <Link
+            href="/m"
+            className={cn(
+              "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
+              location.startsWith("/m") ? "text-white" : "",
+              collapsed && "justify-center px-2 mx-0"
+            )}
+            style={location.startsWith("/m") ? {
+              backgroundColor: clubPrimaryColor,
+              marginRight: '-2rem',
+              paddingRight: '2rem',
+              width: 'calc(100% + 2rem)'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (!location.startsWith("/m")) e.currentTarget.style.color = clubPrimaryColor;
+            }}
+            onMouseLeave={(e) => {
+              if (!location.startsWith("/m")) e.currentTarget.style.color = '';
+            }}
+          >
+            <Smartphone className="h-4 w-4 flex-shrink-0" />
+            {!collapsed && <span className="font-medium">Mobile App</span>}
+          </Link>
+        </div>
       </nav>
 
     </div>
