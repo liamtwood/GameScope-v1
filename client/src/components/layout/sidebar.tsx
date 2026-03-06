@@ -180,38 +180,66 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 // Build href
                 const href = item.id === "home" ? "/" : `/${item.id}`;
                 
+                const isMobileActive = location.startsWith("/m");
                 return (
-                  <Link
-                    key={item.id}
-                    href={href}
-                    className={cn(
-                      "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
-                      isActive 
-                        ? "text-white" 
-                        : "",
-                      collapsed && "justify-center px-2 mx-0"
+                  <>
+                    <Link
+                      key={item.id}
+                      href={href}
+                      className={cn(
+                        "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
+                        isActive 
+                          ? "text-white" 
+                          : "",
+                        collapsed && "justify-center px-2 mx-0"
+                      )}
+                      style={isActive ? { 
+                        backgroundColor: clubPrimaryColor,
+                        marginRight: '-2rem',
+                        paddingRight: '2rem',
+                        width: 'calc(100% + 2rem)'
+                      } : {}}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.color = clubPrimaryColor;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
+                      data-testid={`link-nav-${item.id}`}
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span className="font-medium">{item.label}</span>}
+                    </Link>
+                    {item.id === "home" && (
+                      <Link
+                        href="/m"
+                        className={cn(
+                          "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
+                          isMobileActive ? "text-white" : "",
+                          collapsed && "justify-center px-2 mx-0"
+                        )}
+                        style={isMobileActive ? {
+                          backgroundColor: clubPrimaryColor,
+                          marginRight: '-2rem',
+                          paddingRight: '2rem',
+                          width: 'calc(100% + 2rem)'
+                        } : {}}
+                        onMouseEnter={(e) => {
+                          if (!isMobileActive) e.currentTarget.style.color = clubPrimaryColor;
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isMobileActive) e.currentTarget.style.color = '';
+                        }}
+                      >
+                        <Smartphone className="h-4 w-4 flex-shrink-0" />
+                        {!collapsed && <span className="font-medium">Mobile App</span>}
+                      </Link>
                     )}
-                    style={isActive ? { 
-                      backgroundColor: clubPrimaryColor,
-                      marginRight: '-2rem',
-                      paddingRight: '2rem',
-                      width: 'calc(100% + 2rem)'
-                    } : {}}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.color = clubPrimaryColor;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.color = '';
-                      }
-                    }}
-                    data-testid={`link-nav-${item.id}`}
-                  >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
-                    {!collapsed && <span className="font-medium">{item.label}</span>}
-                  </Link>
+                  </>
                 );
               })}
             </div>
@@ -221,40 +249,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           </div>
         ))}
 
-        {/* Mobile App link */}
-        <div className="pt-2 border-t border-border mt-2">
-          {!collapsed && (
-            <h3
-              className="text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color: clubPrimaryColor }}
-            >
-              Mobile
-            </h3>
-          )}
-          <Link
-            href="/m"
-            className={cn(
-              "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
-              location.startsWith("/m") ? "text-white" : "",
-              collapsed && "justify-center px-2 mx-0"
-            )}
-            style={location.startsWith("/m") ? {
-              backgroundColor: clubPrimaryColor,
-              marginRight: '-2rem',
-              paddingRight: '2rem',
-              width: 'calc(100% + 2rem)'
-            } : {}}
-            onMouseEnter={(e) => {
-              if (!location.startsWith("/m")) e.currentTarget.style.color = clubPrimaryColor;
-            }}
-            onMouseLeave={(e) => {
-              if (!location.startsWith("/m")) e.currentTarget.style.color = '';
-            }}
-          >
-            <Smartphone className="h-4 w-4 flex-shrink-0" />
-            {!collapsed && <span className="font-medium">Mobile App</span>}
-          </Link>
-        </div>
       </nav>
 
     </div>
