@@ -93,7 +93,7 @@ export default function MobileHome() {
               alt={club?.name ?? "Club"}
               fallbackText={club?.shortName ?? club?.name?.slice(0, 2).toUpperCase()}
               size="sm"
-              className="rounded-full border-2 border-white/30"
+              className="!w-32 !h-32 rounded-full"
               noBorder
             />
             <div>
