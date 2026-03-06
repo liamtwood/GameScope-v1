@@ -109,10 +109,11 @@ export default function MobileMatch() {
   });
 
   // Squad state
-  const [localRoles, setLocalRoles] = useState<Record<string, "starter" | "sub">>({});
+  const [localRoles, setLocalRoles] = useState<Record<string, "starter" | "sub" | "none">>({});
   const toggleRole = (userId: string, currentRole: string | null) => {
     const cur = localRoles[userId] ?? currentRole ?? "starter";
-    setLocalRoles(prev => ({ ...prev, [userId]: cur === "starter" ? "sub" : "starter" }));
+    const next = cur === "starter" ? "sub" : cur === "sub" ? "none" : "starter";
+    setLocalRoles(prev => ({ ...prev, [userId]: next }));
   };
 
   const saveSquadMutation = useMutation({
@@ -218,8 +219,10 @@ export default function MobileMatch() {
   const homeTeamLabel = isHome ? "Us" : fixture?.opponent ?? "Away";
   const awayTeamLabel = isHome ? fixture?.opponent ?? "Away" : "Us";
 
-  const starters = squadPlayers.filter(p => (localRoles[p.id] ?? p.role) === "starter");
-  const subs = squadPlayers.filter(p => (localRoles[p.id] ?? p.role) !== "starter");
+  const effectiveRole = (p: SquadPlayer) => localRoles[p.id] ?? p.role ?? "starter";
+  const starters = squadPlayers.filter(p => effectiveRole(p) === "starter");
+  const subs = squadPlayers.filter(p => effectiveRole(p) === "sub");
+  const notInSquad = squadPlayers.filter(p => effectiveRole(p) === "none");
 
   const TABS: Tab[] = ["Details", "Squad", "Result", "Video"];
 
@@ -401,13 +404,20 @@ export default function MobileMatch() {
         {/* SQUAD TAB */}
         {activeTab === "Squad" && (
           <div className="space-y-4">
-            <p className="text-[10px] text-gray-400 text-center">Tap a role badge to toggle between Starter and Sub.</p>
+            <p className="text-[10px] text-gray-400 text-center">Tap a badge to cycle: Starter → Sub → Not in Squad</p>
 
             {/* Shared render helpers */}
             {(() => {
               const renderPlayer = (player: SquadPlayer, isFirst: boolean) => {
-                const role = localRoles[player.id] ?? player.role ?? "starter";
+                const role = effectiveRole(player);
                 const isInjured = player.fitnessStatus === "Injured";
+                const btnLabel = role === "starter" ? "✓ Starter" : role === "sub" ? "⇄ Sub" : "✗ Out";
+                const btnStyle = role === "starter"
+                  ? { backgroundColor: `${primaryColor}20`, color: primaryColor }
+                  : role === "sub"
+                  ? undefined
+                  : undefined;
+                const btnClass = role === "none" ? "bg-red-50 text-red-400" : role === "sub" ? "bg-gray-100 text-gray-500" : "";
                 return (
                   <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", !isFirst && "border-t border-gray-50")}>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
@@ -417,10 +427,10 @@ export default function MobileMatch() {
                     ) : (
                       <button
                         onClick={() => toggleRole(player.id, player.role)}
-                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", role !== "starter" ? "bg-gray-100 text-gray-500" : "")}
-                        style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
+                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", btnClass)}
+                        style={btnStyle}
                       >
-                        {role === "starter" ? "✓ Starter" : "⇄ Sub"}
+                        {btnLabel}
                       </button>
                     )}
                   </div>
@@ -459,6 +469,7 @@ export default function MobileMatch() {
                 <>
                   {renderGroupedSection("Starters", starters)}
                   {renderGroupedSection("Substitutes", subs)}
+                  {renderGroupedSection("Not in Squad", notInSquad)}
                 </>
               );
             })()}
