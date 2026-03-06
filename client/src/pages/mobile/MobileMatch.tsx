@@ -403,20 +403,11 @@ export default function MobileMatch() {
           <div className="space-y-4">
             <p className="text-[10px] text-gray-400 text-center">Tap a role badge to toggle between Starter and Sub.</p>
 
-            {/* STARTERS — grouped by position */}
+            {/* Shared render helpers */}
             {(() => {
-              const groups = POSITION_ORDER.map(pos => ({
-                pos,
-                label: POSITION_LABEL[pos] ?? pos,
-                color: POSITION_COLORS[pos] ?? "bg-gray-200 text-gray-700",
-                players: starters.filter(p => p.position === pos),
-              })).filter(g => g.players.length > 0);
-              const ungrouped = starters.filter(p => !POSITION_ORDER.includes(p.position));
-
               const renderPlayer = (player: SquadPlayer, isFirst: boolean) => {
                 const role = localRoles[player.id] ?? player.role ?? "starter";
                 const isInjured = player.fitnessStatus === "Injured";
-                const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
                 return (
                   <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", !isFirst && "border-t border-gray-50")}>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
@@ -436,59 +427,41 @@ export default function MobileMatch() {
                 );
               };
 
-              return (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                  <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-700">Starters</span>
-                    <span className="text-[10px] text-gray-400">{starters.length}</span>
-                  </div>
-                  {starters.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
-                  {groups.map((group, gi) => (
-                    <div key={group.pos}>
-                      <div className={cn("px-4 py-1.5 flex items-center gap-2 bg-gray-50", gi > 0 && "border-t border-gray-100")}>
-                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", group.color)}>{group.pos}</span>
-                        <span className="text-[10px] text-gray-500 font-semibold">{group.label}</span>
-                        <span className="text-[10px] text-gray-300 ml-auto">{group.players.length}</span>
-                      </div>
-                      {group.players.map((p, i) => renderPlayer(p, i === 0))}
-                    </div>
-                  ))}
-                  {ungrouped.map((p, i) => renderPlayer(p, i === 0 && groups.length === 0))}
-                </div>
-              );
-            })()}
-
-            {/* SUBSTITUTES — flat list */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-700">Substitutes</span>
-                <span className="text-[10px] text-gray-400">{subs.length}</span>
-              </div>
-              {subs.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
-              {subs.map((player, i) => {
-                const role = localRoles[player.id] ?? player.role ?? "starter";
-                const isInjured = player.fitnessStatus === "Injured";
-                const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
+              const renderGroupedSection = (title: string, players: SquadPlayer[]) => {
+                const groups = POSITION_ORDER.map(pos => ({
+                  pos,
+                  label: POSITION_LABEL[pos] ?? pos,
+                  players: players.filter(p => p.position === pos),
+                })).filter(g => g.players.length > 0);
+                const ungrouped = players.filter(p => !POSITION_ORDER.includes(p.position));
                 return (
-                  <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", i > 0 && "border-t border-gray-50")}>
-                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{player.position}</span>
-                    <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
-                    <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
-                    {isInjured ? (
-                      <span className="text-[10px] text-red-500 font-medium">Injured</span>
-                    ) : (
-                      <button
-                        onClick={() => toggleRole(player.id, player.role)}
-                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", role !== "starter" ? "bg-gray-100 text-gray-500" : "")}
-                        style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
-                      >
-                        {role === "starter" ? "✓ Starter" : "⇄ Sub"}
-                      </button>
-                    )}
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-700">{title}</span>
+                      <span className="text-[10px] text-gray-400">{players.length}</span>
+                    </div>
+                    {players.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
+                    {groups.map((group, gi) => (
+                      <div key={group.pos}>
+                        <div className={cn("px-4 py-1.5 flex items-center gap-2 bg-gray-50", gi > 0 && "border-t border-gray-100")}>
+                          <span className="text-[10px] text-gray-500 font-semibold">{group.label}</span>
+                          <span className="text-[10px] text-gray-300 ml-auto">{group.players.length}</span>
+                        </div>
+                        {group.players.map((p, i) => renderPlayer(p, i === 0))}
+                      </div>
+                    ))}
+                    {ungrouped.map((p, i) => renderPlayer(p, i === 0 && groups.length === 0))}
                   </div>
                 );
-              })}
-            </div>
+              };
+
+              return (
+                <>
+                  {renderGroupedSection("Starters", starters)}
+                  {renderGroupedSection("Substitutes", subs)}
+                </>
+              );
+            })()}
 
             <button
               onClick={() => saveSquadMutation.mutate()}
