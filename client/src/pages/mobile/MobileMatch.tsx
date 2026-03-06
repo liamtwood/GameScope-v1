@@ -110,12 +110,6 @@ export default function MobileMatch() {
 
   // Squad state
   const [localRoles, setLocalRoles] = useState<Record<string, "starter" | "sub" | "none">>({});
-  const toggleRole = (userId: string, currentRole: string | null) => {
-    const cur = localRoles[userId] ?? currentRole ?? "starter";
-    const next = cur === "starter" ? "sub" : cur === "sub" ? "none" : "starter";
-    setLocalRoles(prev => ({ ...prev, [userId]: next }));
-  };
-
   const saveSquadMutation = useMutation({
     mutationFn: async () => {
       const players = squadPlayers.map(p => ({
@@ -404,34 +398,46 @@ export default function MobileMatch() {
         {/* SQUAD TAB */}
         {activeTab === "Squad" && (
           <div className="space-y-4">
-            <p className="text-[10px] text-gray-400 text-center">Tap a badge to cycle: Starter → Sub → Not in Squad</p>
-
             {/* Shared render helpers */}
             {(() => {
+              const setRole = (userId: string, role: "starter" | "sub" | "none") => {
+                setLocalRoles(prev => ({ ...prev, [userId]: role }));
+              };
+
               const renderPlayer = (player: SquadPlayer, isFirst: boolean) => {
                 const role = effectiveRole(player);
-                const isInjured = player.fitnessStatus === "Injured";
-                const btnLabel = role === "starter" ? "✓ Starter" : role === "sub" ? "⇄ Sub" : "✗ Out";
-                const btnStyle = role === "starter"
-                  ? { backgroundColor: `${primaryColor}20`, color: primaryColor }
-                  : role === "sub"
-                  ? undefined
-                  : undefined;
-                const btnClass = role === "none" ? "bg-red-50 text-red-400" : role === "sub" ? "bg-gray-100 text-gray-500" : "";
+                const notFit = player.fitnessStatus && player.fitnessStatus !== "Fit";
                 return (
-                  <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", !isFirst && "border-t border-gray-50")}>
+                  <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-2", !isFirst && "border-t border-gray-50")}>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
                     <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
-                    {isInjured ? (
-                      <span className="text-[10px] text-red-500 font-medium">Injured</span>
+                    {notFit ? (
+                      <span className="text-[10px] text-red-400 font-medium px-2">{player.fitnessStatus}</span>
                     ) : (
-                      <button
-                        onClick={() => toggleRole(player.id, player.role)}
-                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", btnClass)}
-                        style={btnStyle}
-                      >
-                        {btnLabel}
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => setRole(player.id, "starter")}
+                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
+                            role === "starter" ? "text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                          )}
+                          style={role === "starter" ? { backgroundColor: primaryColor } : undefined}
+                          title="Starter"
+                        >✓</button>
+                        <button
+                          onClick={() => setRole(player.id, "sub")}
+                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
+                            role === "sub" ? "bg-amber-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                          )}
+                          title="Substitute"
+                        >S</button>
+                        <button
+                          onClick={() => setRole(player.id, "none")}
+                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
+                            role === "none" ? "bg-red-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                          )}
+                          title="Not in Squad"
+                        >✗</button>
+                      </div>
                     )}
                   </div>
                 );
