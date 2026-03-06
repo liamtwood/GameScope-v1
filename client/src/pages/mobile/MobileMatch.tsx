@@ -125,6 +125,43 @@ export default function MobileMatch() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/fixtures/squad", fixtureId] }),
   });
 
+  // Details edit state — synced from fixture once loaded
+  const [detailCompetitionId, setDetailCompetitionId] = useState("");
+  const [detailDate, setDetailDate] = useState("");
+  const [detailTime, setDetailTime] = useState("");
+  const [detailVenue, setDetailVenue] = useState("");
+  const [detailType, setDetailType] = useState("HOME");
+  const [detailStatus, setDetailStatus] = useState("SCHEDULED");
+  const [detailNotes, setDetailNotes] = useState("");
+  useEffect(() => {
+    if (fixture) {
+      setDetailCompetitionId(fixture.competitionId ?? "");
+      const d = new Date(fixture.date);
+      setDetailDate(format(d, "yyyy-MM-dd"));
+      setDetailTime(format(d, "HH:mm"));
+      setDetailVenue(fixture.venue ?? "");
+      setDetailType(fixture.type ?? "HOME");
+      setDetailStatus(fixture.status ?? "SCHEDULED");
+      setDetailNotes(fixture.notes ?? "");
+    }
+  }, [fixture?.id]);
+
+  const saveDetailsMutation = useMutation({
+    mutationFn: async () => {
+      const combinedDate = new Date(`${detailDate}T${detailTime}`);
+      return apiRequest("PUT", `/api/fixtures/${fixtureId}`, {
+        ...fixture,
+        competitionId: detailCompetitionId || null,
+        date: combinedDate.toISOString(),
+        venue: detailVenue,
+        type: detailType,
+        status: detailStatus,
+        notes: detailNotes,
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/fixture", fixtureId] }),
+  });
+
   // Result state — synced from fixture once loaded
   const [homeScore, setHomeScore] = useState<number>(0);
   const [awayScore, setAwayScore] = useState<number>(0);
@@ -262,26 +299,101 @@ export default function MobileMatch() {
       <div className="px-4 py-4 space-y-3">
         {/* DETAILS TAB */}
         {activeTab === "Details" && (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {[
-              { label: "Competition", value: competition?.name || "—" },
-              { label: "Date", value: format(new Date(fixture.date), "EEEE, d MMMM yyyy") },
-              { label: "Kick-off", value: format(new Date(fixture.date), "h:mm a") },
-              { label: "Venue", value: fixture.venue || "—" },
-              { label: "Format", value: fixture.type },
-              { label: "Status", value: fixture.status },
-            ].map((row, i) => (
-              <div key={row.label} className={cn("flex items-center px-4 py-3", i > 0 && "border-t border-gray-50")}>
-                <span className="text-[11px] text-gray-400 w-24 shrink-0">{row.label}</span>
-                <span className="text-[12px] text-gray-700 font-medium">{row.value}</span>
+          <div className="space-y-3">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden divide-y divide-gray-50">
+              {/* Competition */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Competition</span>
+                <select
+                  value={detailCompetitionId}
+                  onChange={e => setDetailCompetitionId(e.target.value)}
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none"
+                >
+                  <option value="">— none —</option>
+                  {competitions.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
-            ))}
-            {fixture.notes && (
-              <div className="border-t border-gray-50 px-4 py-3">
-                <p className="text-[11px] text-gray-400 mb-1">Notes</p>
-                <p className="text-xs text-gray-600">{fixture.notes}</p>
+              {/* Date */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Date</span>
+                <input
+                  type="date"
+                  value={detailDate}
+                  onChange={e => setDetailDate(e.target.value)}
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none"
+                />
               </div>
-            )}
+              {/* Kick-off */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Kick-off</span>
+                <input
+                  type="time"
+                  value={detailTime}
+                  onChange={e => setDetailTime(e.target.value)}
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none"
+                />
+              </div>
+              {/* Venue */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Venue</span>
+                <input
+                  type="text"
+                  value={detailVenue}
+                  onChange={e => setDetailVenue(e.target.value)}
+                  placeholder="e.g. Home Stadium"
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none placeholder:text-gray-300"
+                />
+              </div>
+              {/* Format */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Format</span>
+                <select
+                  value={detailType}
+                  onChange={e => setDetailType(e.target.value)}
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none"
+                >
+                  <option value="HOME">Home</option>
+                  <option value="AWAY">Away</option>
+                  <option value="NEUTRAL">Neutral</option>
+                </select>
+              </div>
+              {/* Status */}
+              <div className="flex items-center px-4 py-3 gap-3">
+                <span className="text-[11px] text-gray-400 w-24 shrink-0">Status</span>
+                <select
+                  value={detailStatus}
+                  onChange={e => setDetailStatus(e.target.value)}
+                  className="flex-1 text-[12px] text-gray-700 font-medium bg-transparent outline-none"
+                >
+                  <option value="SCHEDULED">Scheduled</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELLED">Cancelled</option>
+                  <option value="NO_CONTEST">No Contest</option>
+                </select>
+              </div>
+              {/* Notes */}
+              <div className="px-4 py-3">
+                <p className="text-[11px] text-gray-400 mb-1.5">Notes</p>
+                <textarea
+                  value={detailNotes}
+                  onChange={e => setDetailNotes(e.target.value)}
+                  placeholder="Optional match notes..."
+                  rows={3}
+                  className="w-full text-[12px] text-gray-700 bg-transparent outline-none resize-none placeholder:text-gray-300"
+                />
+              </div>
+            </div>
+            {/* Save button */}
+            <button
+              onClick={() => saveDetailsMutation.mutate()}
+              disabled={saveDetailsMutation.isPending}
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+              style={{ backgroundColor: primaryColor }}
+            >
+              {saveDetailsMutation.isPending ? "Saving…" : saveDetailsMutation.isSuccess ? "Saved ✓" : "Save Details"}
+            </button>
           </div>
         )}
 
