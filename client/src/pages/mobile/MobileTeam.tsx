@@ -153,34 +153,40 @@ export default function MobileTeam() {
                 >
                   <div className="w-1 shrink-0" style={{ backgroundColor: stripeColor }} />
                   <div className="flex-1 p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          {opponent?.logoPath && (
-                            <LogoDisplay
-                              src={opponent.logoPath}
-                              alt={opponent.name}
-                              size="sm"
-                              className="!w-5 !h-5 shrink-0"
-                              noBorder
-                            />
-                          )}
-                          <span className="font-semibold text-sm text-gray-800 truncate">{fixture.opponent}</span>
-                          {isUpcoming && (
-                            <span
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                              style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
-                            >
-                              UPCOMING
-                            </span>
-                          )}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {/* Opponent logo x2.5 */}
+                        {opponent?.logoPath ? (
+                          <img
+                            src={opponent.logoPath}
+                            alt={opponent.name}
+                            className="w-[50px] h-[50px] object-contain shrink-0"
+                          />
+                        ) : opponent ? (
+                          <div className="w-[50px] h-[50px] rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-[10px] shrink-0">
+                            {opponent.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        ) : null}
+                        {/* Name + date stacked left */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-semibold text-sm text-gray-800 truncate">{fixture.opponent}</span>
+                            {isUpcoming && (
+                              <span
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                                style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                              >
+                                UPCOMING
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            {format(new Date(fixture.date), "EEE d MMM, h:mm a")}
+                            {fixture.venue ? ` · ${fixture.venue}` : ""}
+                          </p>
                         </div>
-                        <p className="text-[11px] text-gray-400">
-                          {format(new Date(fixture.date), "EEE d MMM, h:mm a")}
-                          {fixture.venue ? ` · ${fixture.venue}` : ""}
-                        </p>
                       </div>
-                      <div className="flex items-center gap-2 ml-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         {result && (
                           <span className={cn("text-[11px] font-bold text-white px-2 py-0.5 rounded-lg", result.color)}>
                             {result.label}

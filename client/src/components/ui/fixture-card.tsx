@@ -97,6 +97,14 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
     return 'bg-gray-200 text-gray-700';
   };
 
+  // Function to get opponent logo from database or fallback
+  const getOpponentLogo = () => {
+    if (oppositionTeam?.logoPath) {
+      return oppositionTeam.logoPath;
+    }
+    return "/assets/logos/polk-state-logo.jpg";
+  };
+
   // Function to handle logo clicks to navigate to VIEW FIXTURE
   const handleLogoClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
@@ -113,18 +121,14 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       fixture.opponent.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase();
 
     return (
-      <div onClick={handleLogoClick} className="cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center">
-        {oppositionTeam?.logoPath ? (
-          <img
-            src={oppositionTeam.logoPath}
-            alt={fixture.opponent}
-            className="h-40 w-auto max-w-[160px] object-contain"
-          />
-        ) : (
-          <div className="h-40 w-40 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
-            {fallbackText}
-          </div>
-        )}
+      <div onClick={handleLogoClick} className="cursor-pointer hover:opacity-80 transition-opacity">
+        <LogoDisplay
+          src={oppositionTeam?.logoPath}
+          alt={fixture.opponent}
+          fallbackText={fallbackText}
+          size="lg"
+          noBorder={true}
+        />
       </div>
     );
   };
@@ -152,22 +156,24 @@ export function FixtureCard({ fixture, onViewDetails, onEdit, onDelete, onViewAn
       <CardContent className="p-4">
         <div className="flex items-center justify-between min-h-[80px]">
           {/* Opposition Team Logo */}
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 flex items-center justify-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-24 h-24 flex items-center justify-center">
               {getOpponentDisplay()}
             </div>
             
             {/* Main Content */}
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-foreground leading-tight">{fixture.opponent}</h3>
-              <p className="text-sm text-muted-foreground mt-0.5">
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg text-foreground">{fixture.opponent}</h3>
+              <p className="text-sm text-muted-foreground">
                 {format(new Date(fixture.date), 'd MMM yyyy, h:mm a')}
               </p>
+              {/* Competition display under date/time */}
               {fixture.competition && (
                 <p className="text-xs text-muted-foreground mt-1">
                   {fixture.competition}
                 </p>
               )}
+              {/* Home/Away moved under competition */}
               <div className="mt-1">
                 <Badge variant="outline" className="text-xs">
                   {fixture.type}
