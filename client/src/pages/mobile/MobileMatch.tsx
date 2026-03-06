@@ -402,46 +402,96 @@ export default function MobileMatch() {
           <div className="space-y-4">
             <p className="text-[10px] text-gray-400 text-center">Tap a role badge to toggle between Starter and Sub.</p>
 
-            {[{ title: "Starters", players: starters }, { title: "Substitutes", players: subs }].map(section => (
-              <div key={section.title} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-700">{section.title}</span>
-                  <span className="text-[10px] text-gray-400">{section.players.length}</span>
-                </div>
-                {section.players.length === 0 && (
-                  <p className="text-xs text-gray-300 text-center py-4">None</p>
-                )}
-                {section.players.map((player, i) => {
-                  const role = localRoles[player.id] ?? player.role ?? "starter";
-                  const isInjured = player.fitnessStatus === "Injured";
-                  const posShort = POSITION_SHORT[player.position] ?? player.position?.slice(0, 3).toUpperCase();
-                  const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
-                  return (
-                    <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", i > 0 && "border-t border-gray-50")}>
-                      <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{posShort}</span>
-                      <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
-                      <span className="flex-1 text-xs font-medium text-gray-800 truncate">
-                        {player.firstName} {player.lastName}
-                      </span>
-                      {isInjured ? (
-                        <span className="text-[10px] text-red-500 font-medium">Injured</span>
-                      ) : (
-                        <button
-                          onClick={() => toggleRole(player.id, player.role)}
-                          className={cn(
-                            "text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors",
-                            role !== "starter" ? "bg-gray-100 text-gray-500" : ""
-                          )}
-                          style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
-                        >
-                          {role === "starter" ? "✓ Starter" : "⇄ Sub"}
-                        </button>
-                      )}
+            {/* STARTERS — grouped by position */}
+            {(() => {
+              const POSITION_ORDER = ["Goalkeeper", "Defender", "Midfield", "Forward"];
+              const groups = POSITION_ORDER.map(pos => ({
+                pos,
+                short: POSITION_SHORT[pos] ?? pos.slice(0, 3).toUpperCase(),
+                color: POSITION_COLORS[pos] ?? "bg-gray-200 text-gray-700",
+                players: starters.filter(p => p.position === pos),
+              })).filter(g => g.players.length > 0);
+              const ungrouped = starters.filter(p => !POSITION_ORDER.includes(p.position));
+
+              const renderPlayer = (player: SquadPlayer, i: number, isFirst: boolean) => {
+                const role = localRoles[player.id] ?? player.role ?? "starter";
+                const isInjured = player.fitnessStatus === "Injured";
+                const posShort = POSITION_SHORT[player.position] ?? player.position?.slice(0, 3).toUpperCase();
+                const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
+                return (
+                  <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", !isFirst && "border-t border-gray-50")}>
+                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{posShort}</span>
+                    <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
+                    <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
+                    {isInjured ? (
+                      <span className="text-[10px] text-red-500 font-medium">Injured</span>
+                    ) : (
+                      <button
+                        onClick={() => toggleRole(player.id, player.role)}
+                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", role !== "starter" ? "bg-gray-100 text-gray-500" : "")}
+                        style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
+                      >
+                        {role === "starter" ? "✓ Starter" : "⇄ Sub"}
+                      </button>
+                    )}
+                  </div>
+                );
+              };
+
+              return (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-700">Starters</span>
+                    <span className="text-[10px] text-gray-400">{starters.length}</span>
+                  </div>
+                  {starters.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
+                  {groups.map((group, gi) => (
+                    <div key={group.pos}>
+                      <div className={cn("px-4 py-1.5 flex items-center gap-2", gi > 0 && "border-t border-gray-100")}>
+                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", group.color)}>{group.short}</span>
+                        <span className="text-[10px] text-gray-400 font-medium">{group.pos}</span>
+                        <span className="text-[10px] text-gray-300 ml-auto">{group.players.length}</span>
+                      </div>
+                      {group.players.map((p, i) => renderPlayer(p, i, false))}
                     </div>
-                  );
-                })}
+                  ))}
+                  {ungrouped.map((p, i) => renderPlayer(p, i, i === 0 && groups.length === 0))}
+                </div>
+              );
+            })()}
+
+            {/* SUBSTITUTES — flat list */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-gray-50 flex items-center justify-between">
+                <span className="text-xs font-bold text-gray-700">Substitutes</span>
+                <span className="text-[10px] text-gray-400">{subs.length}</span>
               </div>
-            ))}
+              {subs.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
+              {subs.map((player, i) => {
+                const role = localRoles[player.id] ?? player.role ?? "starter";
+                const isInjured = player.fitnessStatus === "Injured";
+                const posShort = POSITION_SHORT[player.position] ?? player.position?.slice(0, 3).toUpperCase();
+                const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
+                return (
+                  <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", i > 0 && "border-t border-gray-50")}>
+                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{posShort}</span>
+                    <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
+                    <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
+                    {isInjured ? (
+                      <span className="text-[10px] text-red-500 font-medium">Injured</span>
+                    ) : (
+                      <button
+                        onClick={() => toggleRole(player.id, player.role)}
+                        className={cn("text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors", role !== "starter" ? "bg-gray-100 text-gray-500" : "")}
+                        style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
+                      >
+                        {role === "starter" ? "✓ Starter" : "⇄ Sub"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
             <button
               onClick={() => saveSquadMutation.mutate()}
