@@ -370,6 +370,16 @@ export const userParents = pgTable("user_parents", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Fixture squad selections (starter/sub per match)
+export const fixtureSquad = pgTable("fixture_squad", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fixtureId: varchar("fixture_id").references(() => fixtures.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: varchar("role", { length: 20 }).notNull().default("starter"), // starter, sub
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Video link schema with camera angle support
 export const videoLinkSchema = z.object({
   id: z.string(),
@@ -385,6 +395,10 @@ export const videoLinkSchema = z.object({
 export const videoLinksArraySchema = z.array(videoLinkSchema).optional();
 
 export type VideoLink = z.infer<typeof videoLinkSchema>;
+
+export const insertFixtureSquadSchema = createInsertSchema(fixtureSquad)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({ role: z.enum(["starter", "sub"]).default("starter") });
 
 // Insert schemas
 export const insertClubSchema = createInsertSchema(clubs).omit({ id: true, createdAt: true, updatedAt: true });
@@ -473,6 +487,8 @@ export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertPlayerStats = z.infer<typeof insertPlayerStatsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
+export type FixtureSquad = typeof fixtureSquad.$inferSelect;
+export type InsertFixtureSquad = z.infer<typeof insertFixtureSquadSchema>;
 
 // Player transfer schema
 export const playerTransferSchema = z.object({

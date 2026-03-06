@@ -1,8 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures, fixtureSquad, playerStats, userTeams } from "@shared/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import multer from "multer";
@@ -5620,6 +5620,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting match events:", error);
       res.status(500).json({ message: "Failed to delete match events" });
+    }
+  });
+
+  // ─── Mobile API endpoints ────────────────────────────────────────────────
+
+  // GET /api/fixtures/:fixtureId/squad
+  // Returns all players on the fixture's team with their starter/sub role
+  app.get("/api/fixtures/:fixtureId/squad", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const fixture = await storage.getFixture(fixtureId);
+      if (!fixture) return res.status(404).json({ message: "Fixture not found" });
+
+      // Get all players on the team
+      const players = await storage.getUsers(fixture.teamId);
+
+      // Get any saved squad selections for this fixture
+      const squadRows = await db
+        .select()
+        .from(fixtureSquad)
+        .where(eq(fixtureSquad.fixtureId, fixtureId));
+
+      const squadMap = new Map(squadRows.map(r => [r.userId, r.role]));
+
+      // Get userTeam data (jersey number, position, fitnessStatus)
+      const userTeamRows = await db
+        .select()
+        .from(userTeams)
+        .where(eq(userTeams.teamId, fixture.teamId));
+
+      const userTeamMap = new Map(userTeamRows.map(r => [r.userId, r]));
+
+      const result = players.map(p => {
+        const ut = userTeamMap.get(p.id);
+        return {
+          ...p,
+          jerseyNumber: ut?.jerseyNumber ?? null,
+          position: ut?.position ?? "Unknown",
+          fitnessStatus: ut?.fitnessStatus ?? "Fit",
+          role: squadMap.get(p.id) ?? null,
+        };
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching fixture squad:", error);
+      res.status(500).json({ message: "Failed to fetch squad" });
+    }
+  });
+
+  // PATCH /api/fixtures/:fixtureId/squad
+  // Upsert squad selections (starter/sub) for a fixture
+  app.patch("/api/fixtures/:fixtureId/squad", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const { players } = req.body as { players: { userId: string; role: string }[] };
+
+      if (!Array.isArray(players)) {
+        return res.status(400).json({ message: "players array is required" });
+      }
+
+      // Delete existing selections and re-insert
+      await db.delete(fixtureSquad).where(eq(fixtureSquad.fixtureId, fixtureId));
+
+      if (players.length > 0) {
+        await db.insert(fixtureSquad).values(
+          players.map(p => ({ fixtureId, userId: p.userId, role: p.role }))
+        );
+      }
+
+      res.json({ message: "Squad saved successfully" });
+    } catch (error) {
+      console.error("Error saving fixture squad:", error);
+      res.status(500).json({ message: "Failed to save squad" });
+    }
+  });
+
+  // GET /api/fixtures/:fixtureId/videos
+  // Returns the videoLinks array from a fixture
+  app.get("/api/fixtures/:fixtureId/videos", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const fixture = await storage.getFixture(fixtureId);
+      if (!fixture) return res.status(404).json({ message: "Fixture not found" });
+      const videos = Array.isArray(fixture.videoLinks) ? fixture.videoLinks : [];
+      res.json(videos);
+    } catch (error) {
+      console.error("Error fetching fixture videos:", error);
+      res.status(500).json({ message: "Failed to fetch videos" });
+    }
+  });
+
+  // POST /api/fixtures/:fixtureId/videos
+  // Appends a new video to the fixture's videoLinks array
+  app.post("/api/fixtures/:fixtureId/videos", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const fixture = await storage.getFixture(fixtureId);
+      if (!fixture) return res.status(404).json({ message: "Fixture not found" });
+
+      const { url, source, footageType, cameraPosition, label } = req.body;
+      const newVideo = {
+        id: crypto.randomUUID(),
+        url: url || "",
+        label: label || footageType || "Video",
+        cameraAngle: cameraPosition || "",
+        location: source || "storage",
+        footageType: footageType || "Full Game",
+        cameraPosition: cameraPosition || "Sideline",
+      };
+
+      const existing = Array.isArray(fixture.videoLinks) ? fixture.videoLinks : [];
+      const updated = [...existing, newVideo];
+      await storage.updateFixture(fixtureId, { videoLinks: updated as any });
+
+      res.status(201).json(newVideo);
+    } catch (error) {
+      console.error("Error adding video:", error);
+      res.status(500).json({ message: "Failed to add video" });
+    }
+  });
+
+  // DELETE /api/fixtures/:fixtureId/videos/:videoId
+  // Removes a video from the fixture's videoLinks array
+  app.delete("/api/fixtures/:fixtureId/videos/:videoId", async (req, res) => {
+    try {
+      const { fixtureId, videoId } = req.params;
+      const fixture = await storage.getFixture(fixtureId);
+      if (!fixture) return res.status(404).json({ message: "Fixture not found" });
+
+      const existing = Array.isArray(fixture.videoLinks) ? fixture.videoLinks : [];
+      const updated = existing.filter((v: any) => v.id !== videoId);
+      await storage.updateFixture(fixtureId, { videoLinks: updated as any });
+
+      res.json({ message: "Video removed" });
+    } catch (error) {
+      console.error("Error removing video:", error);
+      res.status(500).json({ message: "Failed to remove video" });
+    }
+  });
+
+  // GET /api/users/:userId/stats
+  // Returns aggregate season stats for a player (apps, goals, assists)
+  app.get("/api/users/:userId/stats", async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      const stats = await db
+        .select()
+        .from(playerStats)
+        .where(and(eq(playerStats.playerId, userId), eq(playerStats.period, "FULL_GAME")));
+
+      const apps = stats.length;
+      const goals = stats.reduce((sum, s) => sum + (s.goals ?? 0), 0);
+      const assists = stats.reduce((sum, s) => sum + (s.assists ?? 0), 0);
+      const minutesPlayed = stats.reduce((sum, s) => sum + (s.totalDistance ? 90 : 0), 0);
+
+      res.json({ apps, goals, assists, minutesPlayed });
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
     }
   });
 

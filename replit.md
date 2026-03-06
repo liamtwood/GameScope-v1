@@ -26,6 +26,25 @@ The frontend follows a page-based architecture with dedicated routes for:
 - Statistics (team performance analytics)
 - Videos (match video organization)
 
+## Recent Changes (March 6, 2026)
+
+### Mobile App Added (March 6, 2026)
+- **New mobile web app** accessible at `/m` routes — same backend, same build pipeline, no separate server
+- **Architecture**: React pages with a custom `MobileLayout` component (bottom nav: Home / Alerts / You); max-width 448px centered container; mobile-first card UI with green (`#16a34a`) primary colour
+- **Screen 1 – Club Home** (`/m`): Green header with club badge + stats tiles (Players, This Week, Videos), gender filter (All/Boys/Girls), team cards with W/D/L and next fixture
+- **Screen 2 – Team Home** (`/m/team/:teamId`): Season record (W/D/L/GF/GA/GD), full fixture list with coloured left-stripe cards
+- **Screen 3 – Match Hub** (`/m/match/:fixtureId`): 4-tab layout — Details (match info), Squad (starter/sub toggle with role persistence), Result (+/- score steppers), Video (add/remove video links)
+- **Screen 4 – Player Profile** (`/m/profile`): Season stats tiles, recent matches list
+- **New API endpoints added**:
+  - `GET /api/fixtures/:fixtureId/squad` — players with starter/sub role
+  - `PATCH /api/fixtures/:fixtureId/squad` — save squad selections
+  - `GET /api/fixtures/:fixtureId/videos` — list videos
+  - `POST /api/fixtures/:fixtureId/videos` — add video
+  - `DELETE /api/fixtures/:fixtureId/videos/:videoId` — remove video
+  - `GET /api/users/:userId/stats` — player season stats
+- **New DB table**: `fixture_squad` (fixtureId, userId, role)
+- **Files**: `client/src/pages/mobile/`, `client/src/components/mobile/MobileLayout.tsx`
+
 ## Recent Changes (February 25, 2026)
 
 ### StatsBomb Events Import System (February 25, 2026)

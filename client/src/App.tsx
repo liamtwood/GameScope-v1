@@ -12,6 +12,11 @@ import { ThemeInitializer } from "@/components/ThemeInitializer";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Home from "@/pages/home";
+import MobileHome from "@/pages/mobile/MobileHome";
+import MobileTeam from "@/pages/mobile/MobileTeam";
+import MobileMatch from "@/pages/mobile/MobileMatch";
+import MobileProfile from "@/pages/mobile/MobileProfile";
+import MobileNotifications from "@/pages/mobile/MobileNotifications";
 import Dashboard from "@/pages/dashboard";
 import ClubManagement from "@/pages/club-management";
 import Fixtures from "@/pages/fixtures";
@@ -60,6 +65,11 @@ function Router() {
       <Route path="/clubs" component={Clubs} />
       <Route path="/settings" component={Settings} />
       <Route path="/requirements" component={Requirements} />
+      <Route path="/m" component={MobileHome} />
+      <Route path="/m/team/:teamId" component={MobileTeam} />
+      <Route path="/m/match/:fixtureId" component={MobileMatch} />
+      <Route path="/m/profile" component={MobileProfile} />
+      <Route path="/m/notifications" component={MobileNotifications} />
       <Route component={NotFound} />
     </Switch>
   );
