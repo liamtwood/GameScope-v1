@@ -5659,7 +5659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           jerseyNumber: ut?.jerseyNumber ?? null,
           position: ut?.position ?? "Unknown",
           fitnessStatus: ut?.fitnessStatus ?? "Fit",
-          role: squadMap.get(p.id) ?? null,
+          role: squadMap.get(p.id) ?? (p.starPlayer ? "starter" : "sub"),
         };
       });
 
