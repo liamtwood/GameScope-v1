@@ -161,37 +161,41 @@ export default function MobileHome() {
                 className="bg-white rounded-xl p-4 shadow-sm cursor-pointer active:scale-[0.99] transition-transform"
                 onClick={() => navigate(`/m/team/${team.id}`)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-sm text-gray-800 truncate block">{team.name}</span>
-                    {nextFix ? (
-                      <div className="flex items-center gap-2 mt-1.5">
-                        {opponent?.logoPath ? (
-                          <img
-                            src={opponent.logoPath}
-                            alt={opponent.name}
-                            className="w-10 h-10 object-contain shrink-0"
-                          />
-                        ) : opponent ? (
-                          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-[10px] shrink-0">
-                            {opponent.name.slice(0, 2).toUpperCase()}
-                          </div>
-                        ) : null}
-                        <div>
-                          <p className="text-[11px] font-medium text-gray-600 truncate">
-                            {nextFix.isHome ? "vs" : "at"} {nextFix.opponent}
-                          </p>
-                          <p className="text-[10px] text-gray-400">
-                            {format(new Date(nextFix.date), "EEE d MMM, h:mm a")}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-[11px] text-gray-400 mt-0.5">No upcoming fixtures</p>
-                    )}
-                  </div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm text-gray-800 truncate">{team.name}</span>
                   <ChevronRight className="h-4 w-4 text-gray-300 shrink-0 ml-2" />
                 </div>
+
+                {/* Next fixture card */}
+                {nextFix ? (
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-center gap-3">
+                    {opponent?.logoPath ? (
+                      <img src={opponent.logoPath} alt={opponent.name} className="w-8 h-8 object-contain shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-[9px] shrink-0">
+                        {(opponent?.name ?? nextFix.opponent ?? "?").slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-gray-700 truncate">
+                        {nextFix.isHome ? "vs" : "at"} {nextFix.opponent}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {format(new Date(nextFix.date), "EEE d MMM · h:mm a")}
+                      </p>
+                    </div>
+                    <span
+                      className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                      style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+                    >
+                      {nextFix.isHome ? "H" : "A"}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-gray-200 px-3 py-2.5">
+                    <p className="text-[11px] text-gray-400 text-center">No upcoming fixtures</p>
+                  </div>
+                )}
 
                 {/* W/D/L */}
                 <div className="flex gap-4 mt-3 pt-3 border-t border-gray-50">
