@@ -12,7 +12,7 @@ import { useState } from "react";
 export default function MobileHome() {
   const { selectedClub: club } = useClub();
   const [, navigate] = useLocation();
-  const [filter, setFilter] = useState<"All" | "Boys" | "Girls">("All");
+  const [filter, setFilter] = useState<"All" | "Men" | "Women">("All");
 
   const clubColors = club?.colors as { primary?: string; secondary?: string } | null | undefined;
   const primaryColor = clubColors?.primary ?? "#16a34a";
@@ -32,8 +32,8 @@ export default function MobileHome() {
 
   const clubTeams = allTeams.filter(t => {
     if (t.clubId !== club?.id) return false;
-    if (filter === "Boys") return t.gender === "Male" || t.gender === "Boys";
-    if (filter === "Girls") return t.gender === "Female" || t.gender === "Girls";
+    if (filter === "Men") return t.gender === "Male" || t.gender === "Boys" || t.gender === "Men";
+    if (filter === "Women") return t.gender === "Female" || t.gender === "Girls" || t.gender === "Women";
     return true;
   });
 
@@ -124,7 +124,7 @@ export default function MobileHome() {
       <div className="px-4 py-4">
         {/* Filter row */}
         <div className="flex gap-2 mb-4">
-          {(["All", "Boys", "Girls"] as const).map(f => (
+          {(["All", "Men", "Women"] as const).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
