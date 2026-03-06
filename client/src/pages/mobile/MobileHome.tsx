@@ -2,9 +2,10 @@ import { useQuery, useQueries } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { useClub } from "@/contexts/club-context";
-import { Team, Fixture } from "@shared/schema";
+import { Team, Fixture, OppositionTeam } from "@shared/schema";
 import { TeamStatistics } from "@/lib/types";
-import { Bell, ChevronRight, Plus, Users, Calendar } from "lucide-react";
+import { LogoDisplay } from "@/components/logo-display";
+import { Bell, ChevronRight, Plus } from "lucide-react";
 import { format, isThisWeek } from "date-fns";
 import { useState } from "react";
 
@@ -13,7 +14,21 @@ export default function MobileHome() {
   const [, navigate] = useLocation();
   const [filter, setFilter] = useState<"All" | "Boys" | "Girls">("All");
 
+  const clubColors = club?.colors as { primary?: string; secondary?: string } | null | undefined;
+  const primaryColor = clubColors?.primary ?? "#16a34a";
+
   const { data: allTeams = [] } = useQuery<Team[]>({ queryKey: ["/api/teams"] });
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams", club?.id],
+    queryFn: async (): Promise<OppositionTeam[]> => {
+      const res = await fetch(`/api/opposition-teams?clubId=${club?.id ?? ""}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!club?.id,
+  });
+
+  const oppositionMap = new Map(oppositionTeams.map(t => [t.id, t]));
 
   const clubTeams = allTeams.filter(t => {
     if (t.clubId !== club?.id) return false;
@@ -65,21 +80,25 @@ export default function MobileHome() {
     return teamFixtures[0] ?? null;
   };
 
-  const initials = club?.shortName ?? club?.name?.slice(0, 2).toUpperCase() ?? "GS";
   const seasonYear = new Date().getFullYear();
 
   return (
     <MobileLayout>
-      {/* Green Header */}
-      <div className="bg-green-600 px-4 pt-10 pb-5">
+      {/* Club Header */}
+      <div className="px-4 pt-10 pb-5" style={{ backgroundColor: primaryColor }}>
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
-              {initials}
-            </div>
+            <LogoDisplay
+              src={club?.logoPath}
+              alt={club?.name ?? "Club"}
+              fallbackText={club?.shortName ?? club?.name?.slice(0, 2).toUpperCase()}
+              size="sm"
+              className="rounded-full border-2 border-white/30"
+              noBorder
+            />
             <div>
               <h1 className="text-white font-bold text-base leading-tight">{club?.name ?? "Club"}</h1>
-              <p className="text-green-200 text-[11px]">{seasonYear}/{seasonYear + 1} Season</p>
+              <p className="text-white/60 text-[11px]">{seasonYear}/{seasonYear + 1} Season</p>
             </div>
           </div>
           <button className="relative p-2">
@@ -96,7 +115,7 @@ export default function MobileHome() {
           ].map(tile => (
             <div key={tile.label} className="bg-white/15 rounded-xl p-3 text-center">
               <div className="text-white font-bold text-xl">{tile.value}</div>
-              <div className="text-green-200 text-[10px] mt-0.5">{tile.label}</div>
+              <div className="text-white/60 text-[10px] mt-0.5">{tile.label}</div>
             </div>
           ))}
         </div>
@@ -109,11 +128,11 @@ export default function MobileHome() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filter === f
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-500 border border-gray-200"
-              }`}
+              className="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border"
+              style={filter === f
+                ? { backgroundColor: primaryColor, color: "#fff", borderColor: primaryColor }
+                : { backgroundColor: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }
+              }
             >
               {f}
             </button>
@@ -131,6 +150,7 @@ export default function MobileHome() {
             const wins = stats?.wins ?? 0;
             const draws = stats?.draws ?? 0;
             const losses = stats?.losses ?? 0;
+            const opponent = nextFix?.oppositionTeamId ? oppositionMap.get(nextFix.oppositionTeamId) : null;
 
             return (
               <div
@@ -140,17 +160,30 @@ export default function MobileHome() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-xs shrink-0">
-                      {team.shortName?.slice(0, 2) ?? team.name.slice(0, 2)}
-                    </div>
+                    <LogoDisplay
+                      src={(team as any).logoUrl ?? (team as any).logoPath}
+                      alt={team.name}
+                      fallbackText={team.shortName?.slice(0, 2) ?? team.name.slice(0, 2)}
+                      size="sm"
+                      className="shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-gray-800 truncate">{team.name}</span>
-                      </div>
+                      <span className="font-semibold text-sm text-gray-800 truncate block">{team.name}</span>
                       {nextFix ? (
-                        <p className="text-[11px] text-gray-400 mt-0.5 truncate">
-                          {format(new Date(nextFix.date), "EEE d MMM, h:mm a")} vs {nextFix.opponent}
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {opponent?.logoPath && (
+                            <LogoDisplay
+                              src={opponent.logoPath}
+                              alt={opponent.name}
+                              size="sm"
+                              className="!w-4 !h-4 shrink-0"
+                              noBorder
+                            />
+                          )}
+                          <p className="text-[11px] text-gray-400 truncate">
+                            {format(new Date(nextFix.date), "EEE d MMM")} · {nextFix.isHome ? "vs" : "at"} {nextFix.opponent}
+                          </p>
+                        </div>
                       ) : (
                         <p className="text-[11px] text-gray-400 mt-0.5">No upcoming fixtures</p>
                       )}
@@ -162,7 +195,7 @@ export default function MobileHome() {
                 {/* W/D/L */}
                 <div className="flex gap-4 mt-3 pt-3 border-t border-gray-50">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-green-600">{wins}</span>
+                    <span className="text-xs font-bold" style={{ color: primaryColor }}>{wins}</span>
                     <span className="text-[10px] text-gray-400">W</span>
                   </div>
                   <div className="flex items-center gap-1.5">

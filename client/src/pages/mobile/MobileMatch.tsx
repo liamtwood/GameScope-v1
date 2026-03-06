@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
+import { useClub } from "@/contexts/club-context";
 import { Fixture } from "@shared/schema";
 import { ArrowLeft, AlertTriangle, Plus, X, Link as LinkIcon, Check } from "lucide-react";
 import { format } from "date-fns";
@@ -46,6 +47,9 @@ export default function MobileMatch() {
   const fixtureId = params.fixtureId;
   const [, navigate] = useLocation();
   const qc = useQueryClient();
+  const { selectedClub: club } = useClub();
+  const clubColors = club?.colors as { primary?: string } | null | undefined;
+  const primaryColor = clubColors?.primary ?? "#16a34a";
   const [activeTab, setActiveTab] = useState<Tab>("Details");
 
   const { data: fixture } = useQuery<Fixture>({
@@ -163,7 +167,7 @@ export default function MobileMatch() {
   return (
     <MobileLayout>
       {/* Match header */}
-      <div className="bg-green-600 px-4 pt-10 pb-4">
+      <div className="px-4 pt-10 pb-4" style={{ backgroundColor: primaryColor }}>
         <button onClick={() => window.history.back()} className="mb-3 p-1 -ml-1">
           <ArrowLeft className="h-5 w-5 text-white" />
         </button>
@@ -198,12 +202,13 @@ export default function MobileMatch() {
               onClick={() => setActiveTab(tab)}
               className={cn(
                 "flex-1 py-3 text-xs font-medium transition-colors relative",
-                activeTab === tab ? "text-green-600" : "text-gray-400"
+                activeTab === tab ? "" : "text-gray-400"
               )}
+              style={activeTab === tab ? { color: primaryColor } : undefined}
             >
               {tab}
               {activeTab === tab && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-green-600 rounded-full" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full" style={{ backgroundColor: primaryColor }} />
               )}
             </button>
           ))}
@@ -269,10 +274,9 @@ export default function MobileMatch() {
                           onClick={() => toggleRole(player.id, player.role)}
                           className={cn(
                             "text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors",
-                            role === "starter"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-500"
+                            role !== "starter" ? "bg-gray-100 text-gray-500" : ""
                           )}
+                          style={role === "starter" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : undefined}
                         >
                           {role === "starter" ? "✓ Starter" : "⇄ Sub"}
                         </button>
@@ -286,7 +290,8 @@ export default function MobileMatch() {
             <button
               onClick={() => saveSquadMutation.mutate()}
               disabled={saveSquadMutation.isPending}
-              className="w-full bg-green-600 text-white rounded-xl py-3.5 text-sm font-semibold active:bg-green-700"
+              className="w-full text-white rounded-xl py-3.5 text-sm font-semibold"
+              style={{ backgroundColor: primaryColor }}
             >
               {saveSquadMutation.isPending ? "Saving..." : "Confirm Squad"}
             </button>
@@ -322,7 +327,8 @@ export default function MobileMatch() {
                       <span className="text-3xl font-bold text-gray-800 w-8 text-center">{team.score}</span>
                       <button
                         onClick={() => team.setScore(team.score + 1)}
-                        className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold active:bg-green-200"
+                        className="h-8 w-8 rounded-full flex items-center justify-center font-bold"
+                        style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
                       >
                         +
                       </button>
@@ -335,12 +341,13 @@ export default function MobileMatch() {
             <button
               onClick={() => saveResultMutation.mutate()}
               disabled={saveResultMutation.isPending}
-              className="w-full bg-green-600 text-white rounded-xl py-3.5 text-sm font-semibold active:bg-green-700"
+              className="w-full text-white rounded-xl py-3.5 text-sm font-semibold"
+              style={{ backgroundColor: primaryColor }}
             >
               {saveResultMutation.isPending ? "Saving..." : "Save Result"}
             </button>
             {saveResultMutation.isSuccess && (
-              <p className="text-center text-xs text-green-600 font-medium">Result saved!</p>
+              <p className="text-center text-xs font-medium" style={{ color: primaryColor }}>Result saved!</p>
             )}
           </div>
         )}
@@ -368,7 +375,7 @@ export default function MobileMatch() {
                     {v.cameraPosition && (
                       <span className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{v.cameraPosition}</span>
                     )}
-                    <span className="text-[9px] text-green-600 font-medium flex items-center gap-0.5">
+                    <span className="text-[9px] font-medium flex items-center gap-0.5" style={{ color: primaryColor }}>
                       <Check className="h-2.5 w-2.5" /> Saved
                     </span>
                   </div>
@@ -395,10 +402,10 @@ export default function MobileMatch() {
                     className="mt-1 w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-green-400"
                   />
                   {videoUrl.toLowerCase().includes("youtube") && (
-                    <p className="text-[10px] text-green-600 mt-1">✓ YouTube link detected</p>
+                    <p className="text-[10px] mt-1" style={{ color: primaryColor }}>✓ YouTube link detected</p>
                   )}
                   {videoUrl.toLowerCase().includes("dailymotion") && (
-                    <p className="text-[10px] text-green-600 mt-1">✓ Dailymotion link detected</p>
+                    <p className="text-[10px] mt-1" style={{ color: primaryColor }}>✓ Dailymotion link detected</p>
                   )}
                 </div>
 
@@ -409,12 +416,11 @@ export default function MobileMatch() {
                       <button
                         key={ft}
                         onClick={() => setFootageType(ft)}
-                        className={cn(
-                          "text-[10px] px-2.5 py-1 rounded-full border transition-colors",
-                          footageType === ft
-                            ? "bg-green-600 text-white border-green-600"
-                            : "border-gray-200 text-gray-500"
-                        )}
+                        className="text-[10px] px-2.5 py-1 rounded-full border transition-colors"
+                        style={footageType === ft
+                          ? { backgroundColor: primaryColor, color: "#fff", borderColor: primaryColor }
+                          : { borderColor: "#e5e7eb", color: "#6b7280" }
+                        }
                       >
                         {ft}
                       </button>
@@ -429,12 +435,11 @@ export default function MobileMatch() {
                       <button
                         key={cp}
                         onClick={() => setCameraPos(cp)}
-                        className={cn(
-                          "text-[10px] px-2.5 py-1.5 rounded-lg border text-center transition-colors",
-                          cameraPos === cp
-                            ? "bg-green-600 text-white border-green-600"
-                            : "border-gray-200 text-gray-500"
-                        )}
+                        className="text-[10px] px-2.5 py-1.5 rounded-lg border text-center transition-colors"
+                        style={cameraPos === cp
+                          ? { backgroundColor: primaryColor, color: "#fff", borderColor: primaryColor }
+                          : { borderColor: "#e5e7eb", color: "#6b7280" }
+                        }
                       >
                         {cp}
                       </button>
@@ -446,7 +451,8 @@ export default function MobileMatch() {
                   <button
                     onClick={() => addVideoMutation.mutate()}
                     disabled={!videoUrl || addVideoMutation.isPending}
-                    className="flex-1 bg-green-600 text-white rounded-lg py-2.5 text-xs font-semibold disabled:opacity-50"
+                    className="flex-1 text-white rounded-lg py-2.5 text-xs font-semibold disabled:opacity-50"
+                    style={{ backgroundColor: primaryColor }}
                   >
                     {addVideoMutation.isPending ? "Saving..." : "Save Video"}
                   </button>
@@ -469,7 +475,10 @@ export default function MobileMatch() {
             )}
 
             {videos.length > 0 && (
-              <button className="w-full bg-green-600 text-white rounded-xl py-3.5 text-sm font-semibold">
+              <button
+                className="w-full text-white rounded-xl py-3.5 text-sm font-semibold"
+                style={{ backgroundColor: primaryColor }}
+              >
                 Submit {videos.length} Video{videos.length !== 1 ? "s" : ""} for Processing
               </button>
             )}
