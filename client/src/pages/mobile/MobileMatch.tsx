@@ -30,17 +30,18 @@ interface VideoItem {
 }
 
 const POSITION_COLORS: Record<string, string> = {
-  Goalkeeper: "bg-yellow-400 text-yellow-900",
-  Defender: "bg-blue-500 text-white",
-  Midfield: "bg-green-500 text-white",
-  Forward: "bg-red-500 text-white",
+  GK: "bg-yellow-400 text-yellow-900",
+  DEF: "bg-blue-500 text-white",
+  MID: "bg-green-500 text-white",
+  FWD: "bg-red-500 text-white",
 };
-const POSITION_SHORT: Record<string, string> = {
-  Goalkeeper: "GK",
-  Defender: "DEF",
-  Midfield: "MID",
-  Forward: "FWD",
+const POSITION_LABEL: Record<string, string> = {
+  GK: "Goalkeeper",
+  DEF: "Defender",
+  MID: "Midfield",
+  FWD: "Forward",
 };
+const POSITION_ORDER = ["GK", "DEF", "MID", "FWD"];
 
 export default function MobileMatch() {
   const params = useParams<{ fixtureId: string }>();
@@ -404,23 +405,20 @@ export default function MobileMatch() {
 
             {/* STARTERS — grouped by position */}
             {(() => {
-              const POSITION_ORDER = ["Goalkeeper", "Defender", "Midfield", "Forward"];
               const groups = POSITION_ORDER.map(pos => ({
                 pos,
-                short: POSITION_SHORT[pos] ?? pos.slice(0, 3).toUpperCase(),
+                label: POSITION_LABEL[pos] ?? pos,
                 color: POSITION_COLORS[pos] ?? "bg-gray-200 text-gray-700",
                 players: starters.filter(p => p.position === pos),
               })).filter(g => g.players.length > 0);
               const ungrouped = starters.filter(p => !POSITION_ORDER.includes(p.position));
 
-              const renderPlayer = (player: SquadPlayer, i: number, isFirst: boolean) => {
+              const renderPlayer = (player: SquadPlayer, isFirst: boolean) => {
                 const role = localRoles[player.id] ?? player.role ?? "starter";
                 const isInjured = player.fitnessStatus === "Injured";
-                const posShort = POSITION_SHORT[player.position] ?? player.position?.slice(0, 3).toUpperCase();
                 const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
                 return (
                   <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", !isFirst && "border-t border-gray-50")}>
-                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{posShort}</span>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
                     <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
                     {isInjured ? (
@@ -447,15 +445,15 @@ export default function MobileMatch() {
                   {starters.length === 0 && <p className="text-xs text-gray-300 text-center py-4">None</p>}
                   {groups.map((group, gi) => (
                     <div key={group.pos}>
-                      <div className={cn("px-4 py-1.5 flex items-center gap-2", gi > 0 && "border-t border-gray-100")}>
-                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", group.color)}>{group.short}</span>
-                        <span className="text-[10px] text-gray-400 font-medium">{group.pos}</span>
+                      <div className={cn("px-4 py-1.5 flex items-center gap-2 bg-gray-50", gi > 0 && "border-t border-gray-100")}>
+                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", group.color)}>{group.pos}</span>
+                        <span className="text-[10px] text-gray-500 font-semibold">{group.label}</span>
                         <span className="text-[10px] text-gray-300 ml-auto">{group.players.length}</span>
                       </div>
-                      {group.players.map((p, i) => renderPlayer(p, i, false))}
+                      {group.players.map((p, i) => renderPlayer(p, i === 0))}
                     </div>
                   ))}
-                  {ungrouped.map((p, i) => renderPlayer(p, i, i === 0 && groups.length === 0))}
+                  {ungrouped.map((p, i) => renderPlayer(p, i === 0 && groups.length === 0))}
                 </div>
               );
             })()}
@@ -470,11 +468,10 @@ export default function MobileMatch() {
               {subs.map((player, i) => {
                 const role = localRoles[player.id] ?? player.role ?? "starter";
                 const isInjured = player.fitnessStatus === "Injured";
-                const posShort = POSITION_SHORT[player.position] ?? player.position?.slice(0, 3).toUpperCase();
                 const posColor = POSITION_COLORS[player.position] ?? "bg-gray-200 text-gray-700";
                 return (
                   <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-3", i > 0 && "border-t border-gray-50")}>
-                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{posShort}</span>
+                    <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", posColor)}>{player.position}</span>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
                     <span className="flex-1 text-xs font-medium text-gray-800 truncate">{player.firstName} {player.lastName}</span>
                     {isInjured ? (
