@@ -4,7 +4,6 @@ import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { useClub } from "@/contexts/club-context";
 import { Team, Fixture, OppositionTeam } from "@shared/schema";
 import { TeamStatistics } from "@/lib/types";
-import { LogoDisplay } from "@/components/logo-display";
 import { Bell, ChevronRight, Plus } from "lucide-react";
 import { format, isThisWeek } from "date-fns";
 import { useState } from "react";
@@ -163,35 +162,33 @@ export default function MobileHome() {
                 onClick={() => navigate(`/m/team/${team.id}`)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <LogoDisplay
-                      src={(team as any).logoUrl ?? (team as any).logoPath}
-                      alt={team.name}
-                      fallbackText={team.shortName?.slice(0, 2) ?? team.name.slice(0, 2)}
-                      size="sm"
-                      className="shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="font-semibold text-sm text-gray-800 truncate block">{team.name}</span>
-                      {nextFix ? (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          {opponent?.logoPath && (
-                            <LogoDisplay
-                              src={opponent.logoPath}
-                              alt={opponent.name}
-                              size="sm"
-                              className="!w-4 !h-4 shrink-0"
-                              noBorder
-                            />
-                          )}
-                          <p className="text-[11px] text-gray-400 truncate">
-                            {format(new Date(nextFix.date), "EEE d MMM")} · {nextFix.isHome ? "vs" : "at"} {nextFix.opponent}
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold text-sm text-gray-800 truncate block">{team.name}</span>
+                    {nextFix ? (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        {opponent?.logoPath ? (
+                          <img
+                            src={opponent.logoPath}
+                            alt={opponent.name}
+                            className="w-10 h-10 object-contain shrink-0"
+                          />
+                        ) : opponent ? (
+                          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-[10px] shrink-0">
+                            {opponent.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        ) : null}
+                        <div>
+                          <p className="text-[11px] font-medium text-gray-600 truncate">
+                            {nextFix.isHome ? "vs" : "at"} {nextFix.opponent}
+                          </p>
+                          <p className="text-[10px] text-gray-400">
+                            {format(new Date(nextFix.date), "EEE d MMM, h:mm a")}
                           </p>
                         </div>
-                      ) : (
-                        <p className="text-[11px] text-gray-400 mt-0.5">No upcoming fixtures</p>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-gray-400 mt-0.5">No upcoming fixtures</p>
+                    )}
                   </div>
                   <ChevronRight className="h-4 w-4 text-gray-300 shrink-0 ml-2" />
                 </div>
