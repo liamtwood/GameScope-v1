@@ -5652,16 +5652,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userTeamMap = new Map(userTeamRows.map(r => [r.userId, r]));
 
-      const result = players.map(p => {
-        const ut = userTeamMap.get(p.id);
-        return {
-          ...p,
-          jerseyNumber: ut?.jerseyNumber ?? null,
-          position: ut?.position ?? "Unknown",
-          fitnessStatus: ut?.fitnessStatus ?? "Fit",
-          role: squadMap.get(p.id) ?? (p.starPlayer ? "starter" : "sub"),
-        };
-      });
+      const PLAYER_POSITIONS = ["GK", "DEF", "MID", "FWD"];
+
+      const result = players
+        .map(p => {
+          const ut = userTeamMap.get(p.id);
+          return {
+            ...p,
+            jerseyNumber: ut?.jerseyNumber ?? null,
+            position: ut?.position ?? "Unknown",
+            fitnessStatus: ut?.fitnessStatus ?? "Fit",
+            role: squadMap.get(p.id) ?? (p.starPlayer ? "starter" : "sub"),
+          };
+        })
+        .filter(p => PLAYER_POSITIONS.includes(p.position));
 
       res.json(result);
     } catch (error) {
