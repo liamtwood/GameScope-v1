@@ -90,14 +90,17 @@ export default function MobileTeam() {
             <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div className="flex items-center gap-2">
-            <LogoDisplay
-              src={(team as any)?.logoUrl ?? (team as any)?.logoPath}
-              alt={team?.name ?? "Team"}
-              fallbackText={team?.shortName?.slice(0, 2) ?? "TM"}
-              size="sm"
-              className="rounded-full border-2 border-white/30"
-              noBorder
-            />
+            {club?.logoPath ? (
+              <img
+                src={club.logoPath}
+                alt={club.name}
+                className="h-10 w-auto max-w-[80px] object-contain drop-shadow-sm"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                {club?.shortName ?? club?.name?.slice(0, 2).toUpperCase() ?? "GS"}
+              </div>
+            )}
             <div>
               <h1 className="text-white font-bold text-sm">{team?.name ?? "Team"}</h1>
               <p className="text-white/60 text-[10px]">{new Date().getFullYear()} Season</p>
