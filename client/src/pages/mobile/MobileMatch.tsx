@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { useClub } from "@/contexts/club-context";
-import { Fixture } from "@shared/schema";
+import { Fixture, OppositionTeam } from "@shared/schema";
 import { ArrowLeft, AlertTriangle, Plus, X, Link as LinkIcon, Check } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -62,6 +62,31 @@ export default function MobileMatch() {
     enabled: !!fixtureId,
   });
 
+  const { data: competitions = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ["/api/competitions", club?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/competitions?clubId=${club?.id ?? ""}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!club?.id,
+  });
+
+  const { data: oppositionTeams = [] } = useQuery<OppositionTeam[]>({
+    queryKey: ["/api/opposition-teams", club?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/opposition-teams?clubId=${club?.id ?? ""}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!club?.id,
+  });
+
+  const competition = competitions.find(c => c.id === fixture?.competitionId);
+  const oppositionTeam = fixture?.oppositionTeamId
+    ? oppositionTeams.find(t => t.id === fixture.oppositionTeamId)
+    : oppositionTeams.find(t => t.name === fixture?.opponent);
+
   const { data: squadPlayers = [] } = useQuery<SquadPlayer[]>({
     queryKey: ["/api/fixtures/squad", fixtureId],
     queryFn: async () => {
@@ -100,9 +125,15 @@ export default function MobileMatch() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/fixtures/squad", fixtureId] }),
   });
 
-  // Result state
-  const [homeScore, setHomeScore] = useState<number>(fixture?.homeScore ?? 0);
-  const [awayScore, setAwayScore] = useState<number>(fixture?.awayScore ?? 0);
+  // Result state — synced from fixture once loaded
+  const [homeScore, setHomeScore] = useState<number>(0);
+  const [awayScore, setAwayScore] = useState<number>(0);
+  useEffect(() => {
+    if (fixture) {
+      setHomeScore(fixture.homeScore ?? 0);
+      setAwayScore(fixture.awayScore ?? 0);
+    }
+  }, [fixture?.id, fixture?.homeScore, fixture?.awayScore]);
 
   const saveResultMutation = useMutation({
     mutationFn: async () => {
@@ -172,23 +203,36 @@ export default function MobileMatch() {
           <ArrowLeft className="h-5 w-5 text-white" />
         </button>
         <div className="flex items-center justify-between">
-          <div className="flex-1 text-center">
-            <div className="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs mx-auto mb-1">US</div>
-            <p className="text-white text-[11px] font-medium">{homeTeamLabel}</p>
+          {/* Home side */}
+          <div className="flex-1 flex flex-col items-center gap-1">
+            {club?.logoPath ? (
+              <img src={club.logoPath} alt={club.name} className="h-10 w-auto max-w-[60px] object-contain" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs">
+                {club?.name?.slice(0, 2).toUpperCase() ?? "US"}
+              </div>
+            )}
+            <p className="text-white text-[11px] font-medium text-center leading-tight">{homeTeamLabel}</p>
           </div>
+          {/* Score / vs */}
           <div className="text-center px-2">
             {fixture.status === "COMPLETED" ? (
               <div className="text-white font-bold text-xl">{fixture.homeScore ?? 0} – {fixture.awayScore ?? 0}</div>
             ) : (
-              <div className="text-green-200 font-medium text-xs">vs</div>
+              <div className="text-white/70 font-medium text-xs">vs</div>
             )}
-            <p className="text-green-200 text-[10px] mt-0.5">{format(new Date(fixture.date), "d MMM, h:mm a")}</p>
+            <p className="text-white/60 text-[10px] mt-0.5">{format(new Date(fixture.date), "d MMM, h:mm a")}</p>
           </div>
-          <div className="flex-1 text-center">
-            <div className="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs mx-auto mb-1">
-              {fixture.opponent?.slice(0, 2).toUpperCase()}
-            </div>
-            <p className="text-white text-[11px] font-medium">{awayTeamLabel}</p>
+          {/* Away side */}
+          <div className="flex-1 flex flex-col items-center gap-1">
+            {oppositionTeam?.logoPath ? (
+              <img src={oppositionTeam.logoPath} alt={fixture.opponent ?? ""} className="h-10 w-auto max-w-[60px] object-contain" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs">
+                {fixture.opponent?.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+            <p className="text-white text-[11px] font-medium text-center leading-tight">{awayTeamLabel}</p>
           </div>
         </div>
       </div>
@@ -220,7 +264,7 @@ export default function MobileMatch() {
         {activeTab === "Details" && (
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             {[
-              { label: "Competition", value: (fixture as any).competition || "—" },
+              { label: "Competition", value: competition?.name || "—" },
               { label: "Date", value: format(new Date(fixture.date), "EEEE, d MMMM yyyy") },
               { label: "Kick-off", value: format(new Date(fixture.date), "h:mm a") },
               { label: "Venue", value: fixture.venue || "—" },
