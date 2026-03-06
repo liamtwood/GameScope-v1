@@ -201,27 +201,30 @@ export default function MobileTeam() {
           </div>
         </div>
 
-        {fixtures.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-6">No fixtures yet</p>
-        )}
-
         {/* UPCOMING */}
-        {upcomingFixtures.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Upcoming</span>
+        <div>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Upcoming</span>
+            {upcomingFixtures.length > 0 && (
               <span
                 className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                 style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
               >
                 {upcomingFixtures.length}
               </span>
-            </div>
-            <div className="space-y-2">
-              {upcomingFixtures.map(renderFixtureCard)}
+            )}
+          </div>
+          <div className="space-y-2">
+            {upcomingFixtures.length === 0 && (
+              <p className="text-xs text-gray-400 px-1 mb-1">No upcoming fixtures scheduled</p>
+            )}
+            {upcomingFixtures.map(renderFixtureCard)}
+            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex items-center justify-center gap-2 cursor-not-allowed opacity-50">
+              <Plus className="h-4 w-4 text-gray-400" />
+              <span className="text-sm text-gray-400">Add fixture</span>
             </div>
           </div>
-        )}
+        </div>
 
         {/* RESULTS grouped by month */}
         {resultsByMonth.length > 0 && (
@@ -238,11 +241,6 @@ export default function MobileTeam() {
           </div>
         )}
 
-        {/* Add fixture */}
-        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex items-center justify-center gap-2 cursor-not-allowed opacity-50">
-          <Plus className="h-4 w-4 text-gray-400" />
-          <span className="text-sm text-gray-400">Add fixture</span>
-        </div>
       </div>
     </MobileLayout>
   );
