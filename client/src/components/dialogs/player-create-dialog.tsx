@@ -286,6 +286,7 @@ export function PlayerCreateDialog({ teamId, clubId, onSave, children }: PlayerC
                         <SelectContent>
                           <SelectItem value="Fit">Fit</SelectItem>
                           <SelectItem value="Injured">Injured</SelectItem>
+                          <SelectItem value="Out">Out</SelectItem>
                           <SelectItem value="Retired">Retired</SelectItem>
                         </SelectContent>
                       </Select>

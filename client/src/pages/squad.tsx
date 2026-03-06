@@ -36,7 +36,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCurrentSeason, getEffectiveSeasonStartMonth } from "@/utils/seasonUtils";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD' | 'HC' | 'AC';
-type StatusFilter = 'all' | 'Fit' | 'Injured' | 'Retired';
+type StatusFilter = 'all' | 'Fit' | 'Injured' | 'Retired' | 'Out';
 type StarFilter = 'all' | 'star' | 'regular';
 
 export default function Squad() {
@@ -132,7 +132,7 @@ export default function Squad() {
 
   const updatePlayerMutation = useMutation({
     mutationFn: async ({ playerId, data }: { playerId: string; data: any }) => {
-      return apiRequest("PUT", `/api/players/${playerId}`, data);
+      return apiRequest("PATCH", `/api/player/${playerId}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "players"] });
@@ -147,6 +147,19 @@ export default function Squad() {
         description: "Failed to update player.",
         variant: "destructive",
       });
+    },
+  });
+
+  const updateFitnessMutation = useMutation({
+    mutationFn: async ({ playerId, fitnessStatus }: { playerId: string; fitnessStatus: string }) => {
+      return apiRequest("PATCH", `/api/player/${playerId}/team/${currentTeam?.id}/fitness`, { fitnessStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team", currentTeam?.id, "users"] });
+      toast({ title: "Status Updated", description: "Player fitness status updated successfully." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update fitness status.", variant: "destructive" });
     },
   });
 
@@ -403,11 +416,11 @@ export default function Squad() {
 
   const handleSaveEdit = (playerId: string, field: string) => {
     const value = editValue;
-    
-    updatePlayerMutation.mutate({ 
-      playerId, 
-      data: { [field]: value } 
-    });
+    if (field === 'status') {
+      updateFitnessMutation.mutate({ playerId, fitnessStatus: value });
+    } else {
+      updatePlayerMutation.mutate({ playerId, data: { [field]: value } });
+    }
     setEditingField(null);
     setEditValue("");
   };
@@ -613,6 +626,7 @@ export default function Squad() {
                       <SelectItem value="all">All Status</SelectItem>
                       <SelectItem value="Fit">Fit</SelectItem>
                       <SelectItem value="Injured">Injured</SelectItem>
+                      <SelectItem value="Out">Out</SelectItem>
                       <SelectItem value="Retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>
@@ -754,6 +768,7 @@ export default function Squad() {
                               <SelectContent>
                                 <SelectItem value="Fit">Fit</SelectItem>
                                 <SelectItem value="Injured">Injured</SelectItem>
+                                <SelectItem value="Out">Out</SelectItem>
                                 <SelectItem value="Retired">Retired</SelectItem>
                               </SelectContent>
                             </Select>
@@ -769,6 +784,7 @@ export default function Squad() {
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:bg-opacity-80 ${
                               (player.fitnessStatus || player.status) === 'Fit' ? 'bg-green-100 text-green-800' :
                               (player.fitnessStatus || player.status) === 'Injured' ? 'bg-red-100 text-red-800' :
+                              (player.fitnessStatus || player.status) === 'Out' ? 'bg-amber-100 text-amber-800' :
                               'bg-gray-100 text-gray-800'
                             }`}
                             onClick={() => handleStartEdit(player.id, 'status', player.fitnessStatus || player.status || 'Fit')}
@@ -849,6 +865,7 @@ export default function Squad() {
                       <SelectItem value="all">All Status</SelectItem>
                       <SelectItem value="Fit">Fit</SelectItem>
                       <SelectItem value="Injured">Injured</SelectItem>
+                      <SelectItem value="Out">Out</SelectItem>
                       <SelectItem value="Retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>

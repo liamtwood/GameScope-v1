@@ -835,6 +835,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/player/:playerId/team/:teamId/fitness", async (req, res) => {
+    try {
+      const { playerId, teamId } = req.params;
+      const { fitnessStatus } = req.body;
+      if (!fitnessStatus) return res.status(400).json({ message: "fitnessStatus is required" });
+      await storage.updateUserTeam(playerId, teamId, { fitnessStatus });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating player fitness status:", error);
+      res.status(500).json({ message: "Failed to update player fitness status" });
+    }
+  });
+
   app.get("/api/player/:id", async (req, res) => {
     try {
       const player = await storage.getPlayer(req.params.id);
