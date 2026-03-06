@@ -32,8 +32,9 @@ export default function MobileHome() {
 
   const clubTeams = allTeams.filter(t => {
     if (t.clubId !== club?.id) return false;
-    if (filter === "Men") return t.gender === "Male" || t.gender === "Boys" || t.gender === "Men";
-    if (filter === "Women") return t.gender === "Female" || t.gender === "Girls" || t.gender === "Women";
+    const g = (t.gender ?? "").toLowerCase();
+    if (filter === "Men") return ["male", "men", "boys"].includes(g);
+    if (filter === "Women") return ["female", "women", "girls"].includes(g);
     return true;
   });
 
@@ -88,14 +89,17 @@ export default function MobileHome() {
       <div className="px-4 pt-10 pb-5" style={{ backgroundColor: primaryColor }}>
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <LogoDisplay
-              src={club?.logoPath}
-              alt={club?.name ?? "Club"}
-              fallbackText={club?.shortName ?? club?.name?.slice(0, 2).toUpperCase()}
-              size="sm"
-              className="!w-32 !h-32 rounded-full"
-              noBorder
-            />
+            {club?.logoPath ? (
+              <img
+                src={club.logoPath}
+                alt={club.name}
+                className="h-16 w-auto max-w-[128px] object-contain drop-shadow-sm"
+              />
+            ) : (
+              <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xl">
+                {club?.shortName ?? club?.name?.slice(0, 2).toUpperCase() ?? "GS"}
+              </div>
+            )}
             <div>
               <h1 className="text-white font-bold text-base leading-tight">{club?.name ?? "Club"}</h1>
               <p className="text-white/60 text-[11px]">{seasonYear}/{seasonYear + 1} Season</p>
