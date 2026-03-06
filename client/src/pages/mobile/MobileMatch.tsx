@@ -404,9 +404,9 @@ export default function MobileMatch() {
                 setLocalRoles(prev => ({ ...prev, [userId]: role }));
               };
 
-              const renderPlayer = (player: SquadPlayer, isFirst: boolean) => {
-                const role = effectiveRole(player);
+              const renderPlayer = (player: SquadPlayer, isFirst: boolean, section: "starter" | "sub" | "none") => {
                 const notFit = player.fitnessStatus && player.fitnessStatus !== "Fit";
+                const btnBase = "w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center bg-gray-100 text-gray-400 hover:bg-gray-200";
                 return (
                   <div key={player.id} className={cn("flex items-center px-4 py-2.5 gap-2", !isFirst && "border-t border-gray-50")}>
                     <span className="text-[11px] text-gray-400 w-5 text-center shrink-0">{player.jerseyNumber ?? "—"}</span>
@@ -415,35 +415,28 @@ export default function MobileMatch() {
                       <span className="text-[10px] text-red-400 font-medium px-2">{player.fitnessStatus}</span>
                     ) : (
                       <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => setRole(player.id, "starter")}
-                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
-                            role === "starter" ? "text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                          )}
-                          style={role === "starter" ? { backgroundColor: primaryColor } : undefined}
-                          title="Starter"
-                        >✓</button>
-                        <button
-                          onClick={() => setRole(player.id, "sub")}
-                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
-                            role === "sub" ? "bg-amber-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                          )}
-                          title="Substitute"
-                        >S</button>
-                        <button
-                          onClick={() => setRole(player.id, "none")}
-                          className={cn("w-7 h-7 rounded-full text-xs font-bold transition-colors flex items-center justify-center",
-                            role === "none" ? "bg-red-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                          )}
-                          title="Not in Squad"
-                        >✗</button>
+                        {section !== "starter" && (
+                          <button onClick={() => setRole(player.id, "starter")} className={btnBase} style={{ backgroundColor: undefined }} title="Make Starter">
+                            <span style={{ color: primaryColor }} className="font-bold">✓</span>
+                          </button>
+                        )}
+                        {section !== "sub" && (
+                          <button onClick={() => setRole(player.id, "sub")} className={btnBase} title="Make Substitute">
+                            S
+                          </button>
+                        )}
+                        {section !== "none" && (
+                          <button onClick={() => setRole(player.id, "none")} className={btnBase} title="Remove from Squad">
+                            <span className="text-red-400">✗</span>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
                 );
               };
 
-              const renderGroupedSection = (title: string, players: SquadPlayer[]) => {
+              const renderGroupedSection = (title: string, players: SquadPlayer[], section: "starter" | "sub" | "none") => {
                 const groups = POSITION_ORDER.map(pos => ({
                   pos,
                   label: POSITION_LABEL[pos] ?? pos,
@@ -463,19 +456,19 @@ export default function MobileMatch() {
                           <span className="text-[10px] text-gray-500 font-semibold">{group.label}</span>
                           <span className="text-[10px] text-gray-300 ml-auto">{group.players.length}</span>
                         </div>
-                        {group.players.map((p, i) => renderPlayer(p, i === 0))}
+                        {group.players.map((p, i) => renderPlayer(p, i === 0, section))}
                       </div>
                     ))}
-                    {ungrouped.map((p, i) => renderPlayer(p, i === 0 && groups.length === 0))}
+                    {ungrouped.map((p, i) => renderPlayer(p, i === 0 && groups.length === 0, section))}
                   </div>
                 );
               };
 
               return (
                 <>
-                  {renderGroupedSection("Starters", starters)}
-                  {renderGroupedSection("Substitutes", subs)}
-                  {renderGroupedSection("Not in Squad", notInSquad)}
+                  {renderGroupedSection("Starters", starters, "starter")}
+                  {renderGroupedSection("Substitutes", subs, "sub")}
+                  {renderGroupedSection("Not in Squad", notInSquad, "none")}
                 </>
               );
             })()}
