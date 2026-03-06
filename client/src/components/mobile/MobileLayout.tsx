@@ -32,12 +32,12 @@ export function MobileLayout({ children }: MobileLayoutProps) {
   const activeId = getActiveId();
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 max-w-md mx-auto relative overflow-hidden">
-      <div className="flex-1 overflow-y-auto pb-20">
+    <div className="flex flex-col h-screen bg-gray-100 max-w-md mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         {children}
       </div>
 
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 z-50">
+      <nav className="flex-shrink-0 bg-white border-t border-gray-200 z-50">
         <div className="flex items-center justify-around h-16 px-4">
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
