@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, or, isNull, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   clubs,
@@ -1200,7 +1200,9 @@ export class DatabaseStorage implements IStorage {
   // Opposition team operations
   async getOppositionTeams(clubId?: string): Promise<OppositionTeam[]> {
     if (clubId) {
-      return await db.select().from(oppositionTeams).where(eq(oppositionTeams.clubId, clubId));
+      return await db.select().from(oppositionTeams).where(
+        or(eq(oppositionTeams.clubId, clubId), isNull(oppositionTeams.clubId))
+      );
     }
     return await db.select().from(oppositionTeams);
   }
