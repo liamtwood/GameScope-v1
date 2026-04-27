@@ -118,6 +118,22 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
     },
   });
 
+  const updateOpponentMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: OpponentCreateFormData }) => {
+      const res = await apiRequest("PUT", `/api/opposition-teams/${id}`, {
+        logoPath: data.logoPath || null,
+        colors: {
+          primary: data.primaryColor,
+          secondary: data.secondaryColor || "#FFFFFF",
+        },
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/opposition-teams"] });
+    },
+  });
+
   const form = useForm<FixtureEditFormData>({
     resolver: zodResolver(fixtureEditSchema),
     defaultValues: {
@@ -228,6 +244,10 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
         const newTeam = await createOpponentMutation.mutateAsync({ ...opponentData, name: newOpponentName });
         data.oppositionTeamId = newTeam.id;
         data.opponent = newTeam.name;
+      } else if (data.oppositionTeamId && data.oppositionTeamId !== "__none__") {
+        // Update logo and colors on the existing opposition team
+        const opponentData = opponentForm.getValues();
+        await updateOpponentMutation.mutateAsync({ id: data.oppositionTeamId, data: opponentData });
       }
 
       if (data.oppositionTeamId === "__none__") {
@@ -767,7 +787,7 @@ export function FixtureEditDialog({ fixture, clubId, onSave, children }: Fixture
                   <Button 
                     type="button"
                     data-testid="button-save-fixture"
-                    disabled={createCompetitionMutation.isPending || createOpponentMutation.isPending}
+                    disabled={createCompetitionMutation.isPending || createOpponentMutation.isPending || updateOpponentMutation.isPending}
                     onClick={() => {
                       if (showNewOpponentInput && newOpponentName.trim()) {
                         form.setValue("opponent", newOpponentName.trim());
