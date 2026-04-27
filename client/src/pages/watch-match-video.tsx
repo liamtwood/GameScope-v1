@@ -227,6 +227,18 @@ export default function WatchMatchVideo() {
       };
     }
     
+    // Check for Vimeo
+    const vimeoRegex = /(?:player\.vimeo\.com\/video\/|vimeo\.com\/)(\d+)(?:\/([a-f0-9]+))?/;
+    const vimeoMatch = normalizedUrl.match(vimeoRegex);
+    if (vimeoMatch) {
+      const videoId = vimeoMatch[1];
+      const hash = vimeoMatch[2];
+      const embedUrl = hash
+        ? `https://player.vimeo.com/video/${videoId}?h=${hash}&api=1&player_id=vimeo-player`
+        : `https://player.vimeo.com/video/${videoId}?api=1&player_id=vimeo-player`;
+      return { type: 'vimeo', embedUrl };
+    }
+
     // Check for Google Drive
     const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
     const driveMatch = normalizedUrl.match(driveRegex);
@@ -410,7 +422,7 @@ export default function WatchMatchVideo() {
           {/* Video URL input — paste a URL to save it to this fixture */}
           <div className="flex items-center gap-2">
             <Input
-              placeholder="Paste a YouTube, Dailymotion, or direct video URL to set the match video…"
+              placeholder="Paste a YouTube, Vimeo, Dailymotion, or direct video URL to set the match video…"
               value={videoUrlInput}
               onChange={(e) => setVideoUrlInput(e.target.value)}
               className="flex-1"
@@ -459,6 +471,19 @@ export default function WatchMatchVideo() {
               />
             )}
             
+            {videoInfo.type === 'vimeo' && (
+              <iframe
+                id="vimeo-player"
+                src={videoInfo.embedUrl}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                data-testid="match-video-iframe"
+              />
+            )}
+
             {videoInfo.type === 'googledrive' && (
               <div className="w-full h-full flex flex-col items-center justify-center gap-4 bg-gray-950 text-white px-8 text-center">
                 <svg viewBox="0 0 87.3 78" className="w-16 h-16 opacity-80" xmlns="http://www.w3.org/2000/svg">
@@ -482,7 +507,7 @@ export default function WatchMatchVideo() {
                     Open in Google Drive
                   </a>
                 </div>
-                <p className="text-xs text-white/30 mt-2">Tip: Use YouTube or Dailymotion for in-page seek with events</p>
+                <p className="text-xs text-white/30 mt-2">Tip: Use YouTube, Vimeo, or Dailymotion for in-page seek with events</p>
               </div>
             )}
             

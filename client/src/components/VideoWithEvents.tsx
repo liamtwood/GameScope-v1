@@ -18,7 +18,7 @@ interface VideoWithEventsProps {
   fixtureId?: string;
 }
 
-type Platform = 'youtube' | 'dailymotion' | 'googledrive' | 'direct' | 'unknown';
+type Platform = 'youtube' | 'dailymotion' | 'vimeo' | 'googledrive' | 'direct' | 'unknown';
 type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
 
 // Dailymotion Player ID — use registered ID when available, fall back to generic player.html
@@ -91,6 +91,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     if (!inputUrl) return 'unknown';
     if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
     if (/dailymotion\.com/.test(inputUrl)) return 'dailymotion';
+    if (/vimeo\.com/.test(inputUrl)) return 'vimeo';
     if (/drive\.google\.com/.test(inputUrl)) return 'googledrive';
     if (/\.(mp4|webm|ogv|m3u8|mpd)(\?|$)/i.test(inputUrl) || inputUrl.startsWith('blob:')) return 'direct';
     return 'unknown';
@@ -99,6 +100,17 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const getDriveId = (inputUrl: string): string | null => {
     const m = inputUrl.match(/drive\.google\.com\/file\/d\/([^/?#&]+)/);
     return m ? m[1] : null;
+  };
+
+  // Returns { id, hash } — hash is present for private Vimeo videos (/VIDEO_ID/HASH)
+  const getVimeoId = (inputUrl: string): { id: string; hash: string | null } | null => {
+    // player.vimeo.com/video/ID or player.vimeo.com/video/ID/HASH
+    const playerMatch = inputUrl.match(/player\.vimeo\.com\/video\/(\d+)(?:\/([a-f0-9]+))?/);
+    if (playerMatch) return { id: playerMatch[1], hash: playerMatch[2] ?? null };
+    // vimeo.com/ID or vimeo.com/ID/HASH (private)
+    const stdMatch = inputUrl.match(/vimeo\.com\/(\d+)(?:\/([a-f0-9]+))?/);
+    if (stdMatch) return { id: stdMatch[1], hash: stdMatch[2] ?? null };
+    return null;
   };
 
   const getYouTubeId = (inputUrl: string) => {
@@ -131,6 +143,14 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         ? `https://geo.dailymotion.com/player/${DM_PLAYER_ID}.html`
         : `https://geo.dailymotion.com/player.html`;
       return `${base}?video=${id}&api=postMessage&id=dm-player`;
+    }
+    if (p === 'vimeo') {
+      const v = getVimeoId(inputUrl);
+      if (!v) return null;
+      // api=1 enables postMessage; h= is required for private/unlisted videos
+      return v.hash
+        ? `https://player.vimeo.com/video/${v.id}?h=${v.hash}&api=1&player_id=vimeo-player`
+        : `https://player.vimeo.com/video/${v.id}?api=1&player_id=vimeo-player`;
     }
     if (p === 'googledrive') {
       const id = getDriveId(inputUrl);
@@ -172,6 +192,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
       iframeRef.current.contentWindow.postMessage(
         JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
         'https://www.youtube.com'
+      );
+    } else if (platform === 'vimeo' && iframeRef.current?.contentWindow) {
+      // Vimeo Player API — setCurrentTime via postMessage requires api=1 in src
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ method: 'setCurrentTime', value: seekTime }),
+        'https://player.vimeo.com'
       );
     }
   };
@@ -231,6 +257,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const platformLabel: Record<Platform, string> = {
     youtube: 'YouTube',
     dailymotion: 'Dailymotion',
+    vimeo: 'Vimeo',
     googledrive: 'Google Drive (seek not available)',
     direct: 'direct video',
     unknown: '',
@@ -243,7 +270,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         <CardContent className="pt-4 pb-3">
           <div className="flex items-center gap-2">
             <Input
-              placeholder="Paste a YouTube, Dailymotion, or direct MP4/HLS URL…"
+              placeholder="Paste a YouTube, Vimeo, Dailymotion, or direct MP4/HLS URL…"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               onKeyDown={(e) => {
@@ -414,7 +441,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60 text-sm gap-2">
                 <p>Paste a video URL above and click Load Video</p>
-                <p className="text-xs text-white/40">YouTube · Dailymotion · MP4 · HLS (.m3u8)</p>
+                <p className="text-xs text-white/40">YouTube · Vimeo · Dailymotion · MP4 · HLS (.m3u8)</p>
               </div>
             )}
 
