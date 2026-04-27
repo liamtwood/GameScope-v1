@@ -18,7 +18,7 @@ interface VideoWithEventsProps {
   fixtureId?: string;
 }
 
-type Platform = 'youtube' | 'dailymotion' | 'direct' | 'unknown';
+type Platform = 'youtube' | 'dailymotion' | 'googledrive' | 'direct' | 'unknown';
 type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
 
 // Dailymotion Player ID — use registered ID when available, fall back to generic player.html
@@ -91,8 +91,14 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
     if (!inputUrl) return 'unknown';
     if (/youtube\.com|youtu\.be/.test(inputUrl)) return 'youtube';
     if (/dailymotion\.com/.test(inputUrl)) return 'dailymotion';
+    if (/drive\.google\.com/.test(inputUrl)) return 'googledrive';
     if (/\.(mp4|webm|ogv|m3u8|mpd)(\?|$)/i.test(inputUrl) || inputUrl.startsWith('blob:')) return 'direct';
     return 'unknown';
+  };
+
+  const getDriveId = (inputUrl: string): string | null => {
+    const m = inputUrl.match(/drive\.google\.com\/file\/d\/([^/?#&]+)/);
+    return m ? m[1] : null;
   };
 
   const getYouTubeId = (inputUrl: string) => {
@@ -125,6 +131,10 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
         ? `https://geo.dailymotion.com/player/${DM_PLAYER_ID}.html`
         : `https://geo.dailymotion.com/player.html`;
       return `${base}?video=${id}&api=postMessage&id=dm-player`;
+    }
+    if (p === 'googledrive') {
+      const id = getDriveId(inputUrl);
+      return id ? `https://drive.google.com/file/d/${id}/preview` : null;
     }
     return null;
   };
@@ -221,6 +231,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   const platformLabel: Record<Platform, string> = {
     youtube: 'YouTube',
     dailymotion: 'Dailymotion',
+    googledrive: 'Google Drive (seek not available)',
     direct: 'direct video',
     unknown: '',
   };
