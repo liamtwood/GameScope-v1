@@ -16,6 +16,8 @@ interface VideoWithEventsProps {
   url: string;
   onVideoUrlChange: (url: string) => void;
   fixtureId?: string;
+  initialKickoffOffset?: number;
+  initialSecondHalfOffset?: number;
 }
 
 type Platform = 'youtube' | 'dailymotion' | 'vimeo' | 'googledrive' | 'direct' | 'unknown';
@@ -43,7 +45,7 @@ function eventMatchesChip(typeName: string, chip: OverlayChip): boolean {
   return true;
 }
 
-export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithEventsProps) {
+export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKickoffOffset, initialSecondHalfOffset }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -61,12 +63,21 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId }: VideoWithE
   // For Dailymotion: track the start= offset to rebuild the iframe src on seek
   const [dmStartTime, setDmStartTime] = useState<number>(0);
 
+  // Load offsets: fixture video link values take priority over localStorage fallback
   useEffect(() => {
-    const savedKickoff = localStorage.getItem('match-kickoff-offset');
-    const savedSecondHalf = localStorage.getItem('match-second-half-offset');
-    if (savedKickoff) setKickoffOffset(parseFloat(savedKickoff));
-    if (savedSecondHalf) setSecondHalfOffset(parseFloat(savedSecondHalf));
-  }, []);
+    if (initialKickoffOffset != null) {
+      setKickoffOffset(initialKickoffOffset);
+    } else {
+      const saved = localStorage.getItem('match-kickoff-offset');
+      if (saved) setKickoffOffset(parseFloat(saved));
+    }
+    if (initialSecondHalfOffset != null) {
+      setSecondHalfOffset(initialSecondHalfOffset);
+    } else {
+      const saved = localStorage.getItem('match-second-half-offset');
+      if (saved) setSecondHalfOffset(parseFloat(saved));
+    }
+  }, [initialKickoffOffset, initialSecondHalfOffset]);
 
   // Keep ref in sync so event listeners can read the latest value without re-registering
   useEffect(() => { kickoffOffsetRef.current = kickoffOffset; }, [kickoffOffset]);

@@ -43,6 +43,34 @@ interface VideoData {
   processed?: boolean;
   eventsJsonUrl?: string;
   eventsJsonFilename?: string;
+  kickoffOffset?: number;   // seconds into the video when 1st half kicks off
+  secondHalfOffset?: number; // seconds into the video when 2nd half kicks off
+}
+
+// Helpers for MM:SS ↔ seconds conversion used by kickoff offset inputs
+function secsToMMSS(secs: number): string {
+  if (!secs && secs !== 0) return '';
+  const m = Math.floor(Math.abs(secs) / 60);
+  const s = Math.floor(Math.abs(secs) % 60);
+  const sign = secs < 0 ? '-' : '';
+  return `${sign}${m}:${String(s).padStart(2, '0')}`;
+}
+
+function mmssToSecs(str: string): number {
+  const trimmed = str.trim();
+  if (!trimmed) return 0;
+  const neg = trimmed.startsWith('-');
+  const parts = trimmed.replace('-', '').split(':');
+  if (parts.length === 2) {
+    const val = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    return neg ? -val : val;
+  }
+  if (parts.length === 3) {
+    const val = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    return neg ? -val : val;
+  }
+  const n = parseFloat(trimmed);
+  return isNaN(n) ? 0 : n;
 }
 
 interface NewVideoRow {
@@ -543,10 +571,10 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     setEditingVideo(videoId);
   };
 
-  const handleSaveEdit = async (videoId: string, newDuration: string, newLocation: string) => {
+  const handleSaveEdit = async (videoId: string, newDuration: string, newLocation: string, newKickoffOffset?: number, newSecondHalfOffset?: number) => {
     const updatedVideos = videos.map(v => 
       v.id === videoId 
-        ? { ...v, duration: newDuration, location: newLocation }
+        ? { ...v, duration: newDuration, location: newLocation, kickoffOffset: newKickoffOffset ?? v.kickoffOffset, secondHalfOffset: newSecondHalfOffset ?? v.secondHalfOffset }
         : v
     );
     
@@ -666,81 +694,87 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
     onCancel 
   }: {
     video: VideoData;
-    onSave: (videoId: string, newDuration: string, newLocation: string) => void;
+    onSave: (videoId: string, newDuration: string, newLocation: string, kickoffOffset?: number, secondHalfOffset?: number) => void;
     onCancel: () => void;
   }) => {
     const [editDuration, setEditDuration] = useState(video.duration);
     const [editLocation, setEditLocation] = useState(video.location);
+    const [kickoffInput, setKickoffInput] = useState(video.kickoffOffset != null ? secsToMMSS(video.kickoffOffset) : '');
+    const [secondHalfInput, setSecondHalfInput] = useState(video.secondHalfOffset != null ? secsToMMSS(video.secondHalfOffset) : '');
 
     const handleSave = () => {
-      onSave(video.id, editDuration, editLocation);
+      const kickoffSecs = kickoffInput.trim() ? mmssToSecs(kickoffInput) : undefined;
+      const secondHalfSecs = secondHalfInput.trim() ? mmssToSecs(secondHalfInput) : undefined;
+      onSave(video.id, editDuration, editLocation, kickoffSecs, secondHalfSecs);
     };
 
     return (
-      <div className="flex items-center gap-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg space-y-3">
+        {/* Row 1: Duration, Location, filename + Save/Cancel */}
+        <div className="flex items-center gap-3">
           <Edit className="h-4 w-4 text-blue-500 flex-shrink-0" />
-          <div className="flex items-center gap-3 flex-1">
-            {/* Duration Select */}
-            <div className="min-w-[140px]">
-              <Select value={editDuration} onValueChange={setEditDuration}>
-                <SelectTrigger className="h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Location Select */}
-            <div className="min-w-[140px]">
-              <Select value={editLocation} onValueChange={setEditLocation}>
-                <SelectTrigger className="h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LOCATION_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Video filename display */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground truncate">
-                {video.filename || video.url}
-              </p>
-            </div>
+          <div className="min-w-[140px]">
+            <Select value={editDuration} onValueChange={setEditDuration}>
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DURATION_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button
-            size="sm"
-            onClick={handleSave}
-            className="h-8"
-            data-testid={`button-save-edit-${video.id}`}
-          >
+          <div className="min-w-[140px]">
+            <Select value={editLocation} onValueChange={setEditLocation}>
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LOCATION_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-muted-foreground truncate">{video.filename || video.url}</p>
+          </div>
+          <Button size="sm" onClick={handleSave} className="h-8 flex-shrink-0" data-testid={`button-save-edit-${video.id}`}>
             <Save className="h-3 w-3" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onCancel}
-            className="h-8"
-            data-testid={`button-cancel-edit-${video.id}`}
-          >
+          <Button variant="outline" size="sm" onClick={onCancel} className="h-8 flex-shrink-0" data-testid={`button-cancel-edit-${video.id}`}>
             <X className="h-3 w-3" />
           </Button>
+        </div>
+
+        {/* Row 2: Kickoff offset times */}
+        <div className="flex items-center gap-4 pl-7">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">1st Half Kickoff</label>
+            <Input
+              value={kickoffInput}
+              onChange={e => setKickoffInput(e.target.value)}
+              placeholder="e.g. 2:30"
+              className="h-7 w-24 text-xs"
+              title="Video timestamp (MM:SS) when the 1st half kicks off"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">2nd Half Kickoff</label>
+            <Input
+              value={secondHalfInput}
+              onChange={e => setSecondHalfInput(e.target.value)}
+              placeholder="e.g. 50:00"
+              className="h-7 w-24 text-xs"
+              title="Video timestamp (MM:SS) when the 2nd half kicks off"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">Enter the video time (MM:SS) when each half starts. Used to sync event clicks to the correct video position.</p>
         </div>
       </div>
     );
@@ -939,6 +973,16 @@ export function VideoManager({ fixtureId, videoLinks = [], onUpdate }: VideoMana
                         {video.eventsJsonUrl && (
                           <Badge variant="default" className="text-xs bg-purple-500">
                             Events ✓
+                          </Badge>
+                        )}
+                        {video.kickoffOffset != null && (
+                          <Badge variant="outline" className="text-xs text-green-700 border-green-400">
+                            1st {secsToMMSS(video.kickoffOffset)}
+                          </Badge>
+                        )}
+                        {video.secondHalfOffset != null && (
+                          <Badge variant="outline" className="text-xs text-blue-700 border-blue-400">
+                            2nd {secsToMMSS(video.secondHalfOffset)}
                           </Badge>
                         )}
                       </div>

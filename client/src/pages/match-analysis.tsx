@@ -27,7 +27,11 @@ export default function MatchAnalysis() {
     enabled: !!fixtureId,
   });
 
-  // When the fixture loads, set the video URL from its video links
+  // When the fixture loads, set the video URL and offsets from its video links
+  const firstVideoLink = (fixture?.videoLinks as any[] | null)?.[0] ?? null;
+  const fixtureKickoffOffset: number | undefined = firstVideoLink?.kickoffOffset ?? undefined;
+  const fixtureSecondHalfOffset: number | undefined = firstVideoLink?.secondHalfOffset ?? undefined;
+
   useEffect(() => {
     if (fixture) {
       const links = fixture.videoLinks as any[] | null;
@@ -79,6 +83,8 @@ export default function MatchAnalysis() {
           url={videoUrl}
           onVideoUrlChange={setVideoUrl}
           fixtureId={fixtureId}
+          initialKickoffOffset={fixtureKickoffOffset}
+          initialSecondHalfOffset={fixtureSecondHalfOffset}
         />
       ) : (
         <div className="flex flex-col items-center justify-center h-80 text-muted-foreground gap-3 border rounded-lg bg-muted/20">
