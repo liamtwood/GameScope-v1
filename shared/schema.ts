@@ -113,6 +113,7 @@ export const matchEvents = pgTable("match_events", {
   lineups: jsonb("lineups"),
   source: varchar("source", { length: 50 }).default("statsbomb"),
   importedAt: timestamp("imported_at").defaultNow(),
+  highlightsTimestamps: jsonb("highlights_timestamps").$type<Record<string, number>>(),
 });
 
 export const matchStats = pgTable("match_stats", {

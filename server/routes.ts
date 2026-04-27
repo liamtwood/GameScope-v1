@@ -5636,6 +5636,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/fixtures/:fixtureId/match-events/highlights", async (req, res) => {
+    try {
+      const { fixtureId } = req.params;
+      const { eventId, timestamp } = req.body;
+      if (!eventId) return res.status(400).json({ message: "eventId is required" });
+      const updated = await storage.updateHighlightsTimestamp(fixtureId, eventId, timestamp ?? null);
+      res.json({ highlightsTimestamps: updated.highlightsTimestamps });
+    } catch (error) {
+      console.error("Error updating highlights timestamp:", error);
+      res.status(500).json({ message: "Failed to update highlights timestamp" });
+    }
+  });
+
   // ─── Mobile API endpoints ────────────────────────────────────────────────
 
   // GET /api/fixtures/:fixtureId/squad

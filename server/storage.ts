@@ -155,6 +155,7 @@ export interface IStorage {
   getMatchEvents(fixtureId: string): Promise<MatchEvents | undefined>;
   saveMatchEvents(fixtureId: string, data: { events: any[]; lineups?: any[] | null; source?: string }): Promise<MatchEvents>;
   deleteMatchEvents(fixtureId: string): Promise<void>;
+  updateHighlightsTimestamp(fixtureId: string, eventId: string, timestamp: number | null): Promise<MatchEvents>;
 
   // Match stats operations
   getMatchStats(fixtureId: string): Promise<MatchStats[]>;
@@ -1494,6 +1495,22 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMatchEvents(fixtureId: string): Promise<void> {
     await db.delete(matchEvents).where(eq(matchEvents.fixtureId, fixtureId));
+  }
+
+  async updateHighlightsTimestamp(fixtureId: string, eventId: string, timestamp: number | null): Promise<MatchEvents> {
+    const [existing] = await db.select().from(matchEvents).where(eq(matchEvents.fixtureId, fixtureId));
+    if (!existing) throw new Error("No match events found for this fixture");
+    const current: Record<string, number> = (existing.highlightsTimestamps as Record<string, number>) || {};
+    if (timestamp === null) {
+      delete current[eventId];
+    } else {
+      current[eventId] = timestamp;
+    }
+    const [updated] = await db.update(matchEvents)
+      .set({ highlightsTimestamps: current })
+      .where(eq(matchEvents.fixtureId, fixtureId))
+      .returning();
+    return updated;
   }
 
   async getMatchStats(fixtureId: string): Promise<MatchStats[]> {

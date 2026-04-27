@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MatchEventTable } from '@/components/MatchEventTable';
 import { Timeline } from '@/components/Timeline';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
@@ -10,7 +10,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MatchEvent } from '@/lib/types';
-import { List, X, Maximize2, Minimize2 } from 'lucide-react';
+import { List, X, Maximize2, Minimize2, Pin, PinOff } from 'lucide-react';
+
+function parseMMSS(str: string): number | null {
+  const trimmed = str.trim();
+  const parts = trimmed.split(':');
+  if (parts.length === 2) {
+    const m = parseInt(parts[0], 10);
+    const s = parseInt(parts[1], 10);
+    if (!isNaN(m) && !isNaN(s) && s >= 0 && s < 60) return m * 60 + s;
+  } else if (parts.length === 1) {
+    const n = parseInt(parts[0], 10);
+    if (!isNaN(n)) return n;
+  }
+  return null;
+}
+
+function formatMMSS(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 interface VideoWithEventsProps {
   url: string;
@@ -62,6 +82,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
   const kickoffOffsetRef = useRef<number>(0);
   // For Dailymotion: track the start= offset to rebuild the iframe src on seek
   const [dmStartTime, setDmStartTime] = useState<number>(0);
+  // Highlights mark mode
+  const [markMode, setMarkMode] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editingTimestamp, setEditingTimestamp] = useState('');
+  const [highlightsTimestamps, setHighlightsTimestamps] = useState<Record<string, number>>({});
+  const queryClient = useQueryClient();
 
   // Load offsets: fixture video link values take priority over localStorage fallback
   useEffect(() => {
@@ -180,11 +206,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
     }
   }, [platform, kickoffOffset]);
 
-  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
-    const videoTime = eventPeriod === 2
-      ? eventTimeInSeconds + secondHalfOffset
-      : eventTimeInSeconds + kickoffOffset;
-    const seekTime = Math.max(0, videoTime);
+  const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string, highlightsTs?: number) => {
+    const seekTime = highlightsTs !== undefined
+      ? highlightsTs
+      : Math.max(0, eventPeriod === 2
+          ? eventTimeInSeconds + secondHalfOffset
+          : eventTimeInSeconds + kickoffOffset);
     setCurrentSeekTime(seekTime);
     if (eventId) setLastClickedId(eventId);
 
@@ -235,7 +262,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
     }
   };
 
-  const { data: fixtureMatchEvents } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null }>({
+  const { data: fixtureMatchEvents } = useQuery<{ events: any[]; lineups: any[] | null; source: string | null; highlightsTimestamps: Record<string, number> | null }>({
     queryKey: ["/api/fixtures", fixtureId, "match-events"],
     queryFn: async () => {
       if (!fixtureId) throw new Error("No fixtureId");
@@ -246,6 +273,43 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
     enabled: !!fixtureId,
     retry: false,
   });
+
+  // Sync highlights timestamps from DB into local state
+  useEffect(() => {
+    if (fixtureMatchEvents?.highlightsTimestamps) {
+      setHighlightsTimestamps(fixtureMatchEvents.highlightsTimestamps);
+    }
+  }, [fixtureMatchEvents?.highlightsTimestamps]);
+
+  const saveHighlightsMutation = useMutation({
+    mutationFn: async ({ eventId, timestamp }: { eventId: string; timestamp: number | null }) => {
+      const res = await fetch(`/api/fixtures/${fixtureId}/match-events/highlights`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, timestamp }),
+      });
+      if (!res.ok) throw new Error('Failed to save highlights timestamp');
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setHighlightsTimestamps(data.highlightsTimestamps || {});
+      queryClient.invalidateQueries({ queryKey: ["/api/fixtures", fixtureId, "match-events"] });
+    },
+  });
+
+  const saveHighlightsTimestamp = (eventId: string) => {
+    const secs = parseMMSS(editingTimestamp);
+    if (secs !== null) {
+      saveHighlightsMutation.mutate({ eventId, timestamp: secs });
+    }
+    setEditingEventId(null);
+    setEditingTimestamp('');
+  };
+
+  const removeHighlightsTimestamp = (eventId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    saveHighlightsMutation.mutate({ eventId, timestamp: null });
+  };
 
   const activeEvents: any[] = fixtureMatchEvents?.events ?? [];
 
@@ -365,6 +429,18 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
               {isFullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
               {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
             </Button>
+            {activeEvents.length > 0 && showOverlay && (
+              <Button
+                size="sm"
+                variant={markMode ? 'default' : 'outline'}
+                className={`gap-1.5 h-7 text-xs ${markMode ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-500' : ''}`}
+                onClick={() => { setMarkMode(v => !v); setEditingEventId(null); }}
+                title="Mark Mode: click events to tag their position in the highlights video"
+              >
+                {markMode ? <Pin className="h-3 w-3" /> : <PinOff className="h-3 w-3" />}
+                {markMode ? 'Marking' : 'Mark'}
+              </Button>
+            )}
             {activeEvents.length > 0 && (
               <Button
                 size="sm"
@@ -478,6 +554,11 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                     <span className="text-white/60 text-[10px] font-semibold uppercase tracking-wider">
                       {overlayEvents.length.toLocaleString()} / {activeEvents.length.toLocaleString()} events
                     </span>
+                    {markMode && (
+                      <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded px-1 py-px font-semibold">
+                        📍 Mark Mode
+                      </span>
+                    )}
                     <button
                       onClick={() => setShowOverlay(false)}
                       className="text-white/40 hover:text-white/80 transition-colors"
@@ -527,29 +608,94 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                       const period = event.period ?? 1;
                       const typeName: string = event.type?.name ?? 'Unknown';
                       const playerName: string = event.player?.name ?? '';
-
                       const rowId = String(event.id ?? event.index);
                       const isActive = lastClickedId === rowId;
+                      const hlTs: number | undefined = highlightsTimestamps[rowId];
+                      const isEditing = editingEventId === rowId;
+
+                      const timeLabel = (
+                        <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
+                          {minutes}'{seconds > 0 ? String(seconds).padStart(2, '0') + '"' : ''}
+                        </span>
+                      );
+                      const typeBadge = (
+                        <span className={`text-[9px] px-1 py-px rounded shrink-0 font-medium ${eventBadgeClass(typeName)}`}>
+                          {typeName.length > 11 ? typeName.slice(0, 10) + '…' : typeName}
+                        </span>
+                      );
+
+                      if (isEditing) {
+                        return (
+                          <div
+                            key={rowId}
+                            className="w-full flex items-center gap-1 px-2 border-b border-white/5 bg-amber-500/10"
+                            style={{ minHeight: 30 }}
+                          >
+                            {timeLabel}
+                            {typeBadge}
+                            <input
+                              className="w-14 text-[10px] bg-white/20 text-white rounded px-1 py-px outline-none border border-amber-400/60 tabular-nums ml-auto shrink-0"
+                              placeholder="0:00"
+                              value={editingTimestamp}
+                              onChange={e => setEditingTimestamp(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') saveHighlightsTimestamp(rowId);
+                                if (e.key === 'Escape') { setEditingEventId(null); setEditingTimestamp(''); }
+                                e.stopPropagation();
+                              }}
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => saveHighlightsTimestamp(rowId)}
+                              className="text-green-400 hover:text-green-300 text-[10px] shrink-0"
+                              title="Save"
+                            >✓</button>
+                            <button
+                              onClick={() => { setEditingEventId(null); setEditingTimestamp(''); }}
+                              className="text-white/40 hover:text-white/60 text-[10px] shrink-0"
+                              title="Cancel"
+                            >✗</button>
+                          </div>
+                        );
+                      }
 
                       return (
                         <button
                           key={rowId}
-                          onClick={() => handleEventClick(totalSeconds, period, rowId)}
+                          onClick={() => {
+                            if (markMode) {
+                              setEditingEventId(rowId);
+                              setEditingTimestamp(hlTs !== undefined ? formatMMSS(hlTs) : '');
+                            } else {
+                              handleEventClick(totalSeconds, period, rowId, hlTs);
+                            }
+                          }}
                           className={`w-full flex items-center gap-1.5 px-2 text-left transition-colors group border-b border-white/5 cursor-pointer ${
                             isActive ? 'bg-white/20' : 'hover:bg-white/10 active:bg-white/15'
-                          }`}
+                          } ${markMode ? 'hover:bg-amber-500/10' : ''}`}
                           style={{ minHeight: 26 }}
                         >
-                          <span className="text-white/40 text-[10px] tabular-nums shrink-0 w-9 text-right">
-                            {minutes}'{seconds > 0 ? String(seconds).padStart(2, '0') + '"' : ''}
-                          </span>
-                          <span className={`text-[9px] px-1 py-px rounded shrink-0 font-medium ${eventBadgeClass(typeName)}`}>
-                            {typeName.length > 11 ? typeName.slice(0, 10) + '…' : typeName}
-                          </span>
+                          {timeLabel}
+                          {typeBadge}
                           {playerName && (
                             <span className="text-white/55 text-[10px] truncate group-hover:text-white/80 transition-colors">
                               {playerName}
                             </span>
+                          )}
+                          {hlTs !== undefined && (
+                            <span className="ml-auto shrink-0 flex items-center gap-0.5 text-amber-400 text-[10px] tabular-nums">
+                              📍{formatMMSS(hlTs)}
+                              {markMode && (
+                                <span
+                                  onClick={(e) => removeHighlightsTimestamp(rowId, e)}
+                                  className="text-white/30 hover:text-red-400 ml-0.5 cursor-pointer"
+                                  title="Remove mark"
+                                >×</span>
+                              )}
+                            </span>
+                          )}
+                          {markMode && hlTs === undefined && (
+                            <span className="ml-auto shrink-0 text-white/20 text-[10px]">+ mark</span>
                           )}
                         </button>
                       );
