@@ -76,6 +76,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
   const [secondHalfOffset, setSecondHalfOffset] = useState<number>(0);
 
   const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayWidth, setOverlayWidth] = useState(320);
+  const overlayDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [overlayFilter, setOverlayFilter] = useState('');
   const [overlayChip, setOverlayChip] = useState<OverlayChip>('all');
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
@@ -205,6 +207,25 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
       setDmStartTime(prev => prev === 0 ? kickoffOffset : prev);
     }
   }, [platform, kickoffOffset]);
+
+  // Overlay resize drag handlers
+  const handleOverlayDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    overlayDragRef.current = { startX: e.clientX, startWidth: overlayWidth };
+    const onMove = (ev: MouseEvent) => {
+      if (!overlayDragRef.current) return;
+      const delta = overlayDragRef.current.startX - ev.clientX;
+      const next = Math.min(600, Math.max(180, overlayDragRef.current.startWidth + delta));
+      setOverlayWidth(next);
+    };
+    const onUp = () => {
+      overlayDragRef.current = null;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   const handleEventClick = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string, highlightsTs?: number) => {
     const seekTime = highlightsTs !== undefined
@@ -532,12 +553,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
               </div>
             )}
 
-            {/* Events overlay — right 32%, sits on top of the video */}
+            {/* Events overlay — right panel, resizable by dragging left edge */}
             {showOverlay && activeEvents.length > 0 && (
               <div
                 className="absolute top-0 right-0 bottom-0 flex flex-col"
                 style={{
-                  width: '32%',
+                  width: overlayWidth,
                   zIndex: 20,
                   background: 'rgba(4, 4, 12, 0.88)',
                   backdropFilter: 'blur(6px)',
@@ -545,6 +566,15 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                   borderLeft: '1px solid rgba(255,255,255,0.12)',
                 }}
               >
+                {/* Resize drag handle */}
+                <div
+                  onMouseDown={handleOverlayDragStart}
+                  className="absolute top-0 left-0 bottom-0 w-1.5 cursor-col-resize group z-30 flex items-center justify-center"
+                  title="Drag to resize"
+                  style={{ marginLeft: -3 }}
+                >
+                  <div className="w-0.5 h-12 rounded-full bg-white/10 group-hover:bg-white/40 transition-colors" />
+                </div>
                 {/* Overlay header */}
                 <div
                   className="flex-shrink-0 px-2 pt-2 pb-1.5 border-b border-white/10"
