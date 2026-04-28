@@ -41,7 +41,7 @@ interface VideoWithEventsProps {
 }
 
 type Platform = 'youtube' | 'dailymotion' | 'vimeo' | 'googledrive' | 'direct' | 'unknown';
-type OverlayChip = 'all' | 'goal' | 'shot' | 'card';
+type OverlayChip = 'all' | 'goal' | 'shot' | 'card' | 'corner' | 'freekick';
 
 // Dailymotion Player ID — use registered ID when available, fall back to generic player.html
 const DM_PLAYER_ID = '';
@@ -56,12 +56,15 @@ function eventBadgeClass(typeName: string): string {
   return 'bg-white/15 text-white/80';
 }
 
-function eventMatchesChip(typeName: string, chip: OverlayChip): boolean {
+function eventMatchesChip(event: any, chip: OverlayChip): boolean {
   if (chip === 'all') return true;
-  const t = typeName.toLowerCase();
+  const t = (event.type?.name ?? '').toLowerCase();
+  const passType = (event.pass?.type?.name ?? '').toLowerCase();
   if (chip === 'goal') return t === 'goal';
   if (chip === 'shot') return t.includes('shot');
   if (chip === 'card') return t.includes('card') || t === 'foul committed';
+  if (chip === 'corner') return t === 'pass' && passType === 'corner';
+  if (chip === 'freekick') return t === 'pass' && (passType === 'free kick' || passType === 'kick off');
   return true;
 }
 
@@ -337,14 +340,17 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
   const overlayEvents = useMemo(() => {
     let evts = activeEvents;
     if (overlayChip !== 'all') {
-      evts = evts.filter(e => eventMatchesChip(e.type?.name ?? '', overlayChip));
+      evts = evts.filter(e => eventMatchesChip(e, overlayChip));
     }
     if (overlayFilter.trim()) {
       const q = overlayFilter.toLowerCase();
       evts = evts.filter(e =>
         (e.type?.name ?? '').toLowerCase().includes(q) ||
         (e.player?.name ?? '').toLowerCase().includes(q) ||
-        (e.team?.name ?? '').toLowerCase().includes(q)
+        (e.team?.name ?? '').toLowerCase().includes(q) ||
+        (e.pass?.type?.name ?? '').toLowerCase().includes(q) ||
+        (e.shot?.type?.name ?? '').toLowerCase().includes(q) ||
+        (e.play_pattern?.name ?? '').toLowerCase().includes(q)
       );
     }
     return evts;
@@ -608,7 +614,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
 
                   {/* Quick-filter chips */}
                   <div className="flex gap-1 flex-wrap">
-                    {(['all', 'goal', 'shot', 'card'] as OverlayChip[]).map(chip => (
+                    {(['all', 'goal', 'shot', 'corner', 'freekick', 'card'] as OverlayChip[]).map(chip => (
                       <button
                         key={chip}
                         onClick={() => setOverlayChip(chip)}
@@ -618,7 +624,12 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                             : 'border-white/15 text-white/40 hover:text-white/70 hover:border-white/25'
                         }`}
                       >
-                        {chip === 'all' ? 'All' : chip === 'goal' ? '⚽ Goals' : chip === 'shot' ? '🎯 Shots' : '🟨 Cards'}
+                        {chip === 'all' ? 'All'
+                          : chip === 'goal' ? '⚽ Goals'
+                          : chip === 'shot' ? '🎯 Shots'
+                          : chip === 'corner' ? '🚩 Corners'
+                          : chip === 'freekick' ? '🎽 Free kicks'
+                          : '🟨 Cards'}
                       </button>
                     ))}
                   </div>
