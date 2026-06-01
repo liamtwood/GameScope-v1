@@ -54,6 +54,12 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // One-time production seed: copies WWC 2023 demo fixture to production DB
+  if (app.get('env') !== 'development') {
+    const { seedWWCDemoFixture } = await import('./seed-demo');
+    await seedWWCDemoFixture();
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
