@@ -6,13 +6,28 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Fixture } from '@shared/schema';
 import { format } from 'date-fns';
 import { useTeam } from '@/contexts/team-context';
+import { useClub } from '@/contexts/club-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { SeasonPicker } from '@/components/ui/season-picker';
+import { getEffectiveSeasonStartMonth, getCurrentSeason, filterFixturesBySeason } from '@/utils/seasonUtils';
 
 export default function MatchAnalysis() {
   const [videoUrl, setVideoUrl] = useState<string>('');
   const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
+  const { selectedClub: currentClub } = useClub();
+
+  const [selectedSeason, setSelectedSeason] = useState<string>('');
+
+  useEffect(() => {
+    if (!selectedSeason && currentTeam && currentClub) {
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      setSelectedSeason(getCurrentSeason(seasonStartMonth));
+    }
+  }, [selectedSeason, currentTeam, currentClub]);
+
+  const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam ?? undefined, currentClub ?? undefined);
 
   const urlParams = new URLSearchParams(window.location.search);
   const fixtureId = urlParams.get('fixtureId') ?? undefined;
@@ -47,7 +62,8 @@ export default function MatchAnalysis() {
     setLocation(`/match-analysis?fixtureId=${id}`);
   };
 
-  const sortedFixtures = [...fixtures].sort(
+  const seasonFiltered = filterFixturesBySeason(fixtures, selectedSeason, seasonStartMonth);
+  const sortedFixtures = [...seasonFiltered].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -59,7 +75,14 @@ export default function MatchAnalysis() {
   return (
     <MainLayout title={title} subtitle={subtitle}>
       {/* Fixture selector */}
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <SeasonPicker
+          team={currentTeam ?? undefined}
+          club={currentClub ?? undefined}
+          selectedSeason={selectedSeason}
+          onSeasonChange={setSelectedSeason}
+          className="w-[160px]"
+        />
         <Label className="text-sm font-medium whitespace-nowrap">Fixture</Label>
         <Select value={fixtureId ?? ''} onValueChange={handleFixtureChange}>
           <SelectTrigger className="w-72">
@@ -73,8 +96,8 @@ export default function MatchAnalysis() {
             ))}
           </SelectContent>
         </Select>
-        {fixtures.length === 0 && currentTeam && (
-          <span className="text-sm text-muted-foreground">No fixtures found for this team</span>
+        {sortedFixtures.length === 0 && currentTeam && (
+          <span className="text-sm text-muted-foreground">No fixtures for this season</span>
         )}
       </div>
 

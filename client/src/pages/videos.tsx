@@ -15,6 +15,8 @@ import { useClub } from "@/contexts/club-context";
 import { VideoAnalysisDashboard } from "@/components/video-analysis-dashboard";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SeasonPicker } from "@/components/ui/season-picker";
+import { getEffectiveSeasonStartMonth, getCurrentSeason, filterFixturesBySeason, isDateInSeason } from "@/utils/seasonUtils";
 
 type VideoFilter = 'all' | 'recent' | 'analyzed';
 type ViewMode = 'tile' | 'watch';
@@ -30,6 +32,16 @@ export default function Videos() {
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
   const { selectedClub: currentClub } = useClub();
+  const [selectedSeason, setSelectedSeason] = useState<string>('');
+
+  useEffect(() => {
+    if (!selectedSeason && currentTeam && currentClub) {
+      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+      setSelectedSeason(getCurrentSeason(seasonStartMonth));
+    }
+  }, [selectedSeason, currentTeam, currentClub]);
+
+  const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam ?? undefined, currentClub ?? undefined);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Load view mode preference from localStorage
@@ -81,6 +93,9 @@ export default function Videos() {
       const isBeforeTomorrow = matchDate < tomorrow;
       const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
       
+      // Filter by season
+      const matchesSeason = !selectedSeason || isDateInSeason(new Date(f.date), selectedSeason, seasonStartMonth);
+
       // Filter by competition if one is selected
       const matchesCompetition = selectedCompetitionId === 'all' || f.competitionId === selectedCompetitionId;
       
@@ -89,7 +104,7 @@ export default function Videos() {
       const matchesKeyword = !keyword || f.opponent.toLowerCase().includes(keyword);
       
       // Include only matches that occurred before tomorrow and match all filters
-      return isBeforeTomorrow && hasVideoOrRelevant && matchesCompetition && matchesKeyword;
+      return isBeforeTomorrow && hasVideoOrRelevant && matchesSeason && matchesCompetition && matchesKeyword;
     }) || [];
     
     // Sort by date based on sort order
@@ -98,7 +113,7 @@ export default function Videos() {
       const dateB = new Date(b.date).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-  }, [fixtures, selectedCompetitionId, searchKeyword, sortOrder]);
+  }, [fixtures, selectedSeason, selectedCompetitionId, searchKeyword, sortOrder]);
 
   // Memoized selected fixture
   const selectedFixture = useMemo(() => {
@@ -176,7 +191,15 @@ export default function Videos() {
     >
       {/* View Mode Toggle and Filters */}
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center flex-wrap">
+          {/* Season Filter */}
+          <SeasonPicker
+            team={currentTeam ?? undefined}
+            club={currentClub ?? undefined}
+            selectedSeason={selectedSeason}
+            onSeasonChange={setSelectedSeason}
+            className="w-[160px]"
+          />
           {/* Competition Filter Dropdown */}
           <Select value={selectedCompetitionId} onValueChange={setSelectedCompetitionId}>
             <SelectTrigger className="w-[200px]" data-testid="select-competition-filter">
