@@ -81,8 +81,8 @@ export function getAvailableSeasons(seasonStartMonth: string, yearsBack: number 
     currentSeasonStartYear = currentYear - 1;
   }
   
-  // Generate seasons from current back to yearsBack
-  for (let i = 0; i <= yearsBack; i++) {
+  // Generate seasons: 1 ahead + current + yearsBack previous
+  for (let i = -1; i <= yearsBack; i++) {
     const seasonStartYear = currentSeasonStartYear - i;
     const seasonName = generateSeasonName(seasonStartMonth, seasonStartYear);
     seasons.push(seasonName);
