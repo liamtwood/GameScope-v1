@@ -19,7 +19,7 @@ export function getEffectiveSeasonStartMonth(
     return club.seasonStartMonth;
   }
   
-  return "August"; // fallback
+  return "January"; // fallback when null
 }
 
 // Convert month name to number (0-based)

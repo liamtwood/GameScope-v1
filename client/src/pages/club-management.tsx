@@ -33,6 +33,7 @@ const editClubSchema = insertClubSchema.extend({
     primary: z.string().min(1, "Primary color is required"),
     secondary: z.string().optional(),
   }).optional(),
+  seasonStartMonth: z.string().optional(),
 });
 
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
@@ -180,6 +181,7 @@ export default function ClubManagement() {
       phone: "",
       email: "",
       subscriptionStatus: "",
+      seasonStartMonth: "August",
       colors: {
         primary: "#dc2626", // Default red
         secondary: "#000000", // Default black
@@ -270,6 +272,7 @@ export default function ClubManagement() {
         phone: selectedClub.phone || "",
         email: selectedClub.email || "",
         subscriptionStatus: selectedClub.subscriptionStatus || "active",
+        seasonStartMonth: selectedClub.seasonStartMonth || "August",
         colors: {
           primary: clubColors?.primary || "#dc2626",
           secondary: clubColors?.secondary || "#000000",
@@ -523,6 +526,29 @@ export default function ClubManagement() {
                             <SelectItem value="inactive">Inactive</SelectItem>
                             <SelectItem value="suspended">Suspended</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editClubForm.control}
+                    name="seasonStartMonth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Season Start</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || "August"}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-edit-club-season-start">
+                              <SelectValue placeholder="Select month" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {["January","February","March","April","May","June","July","August","September","October","November","December"].map(month => (
+                              <SelectItem key={month} value={month}>{month}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
