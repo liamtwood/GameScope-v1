@@ -60,7 +60,7 @@ function eventMatchesChip(event: any, chip: OverlayChip): boolean {
   if (chip === 'all') return true;
   const t = (event.type?.name ?? '').toLowerCase();
   const passType = (event.pass?.type?.name ?? '').toLowerCase();
-  if (chip === 'goal') return t === 'goal';
+  if (chip === 'goal') return t === 'shot' && (event.shot?.outcome?.name ?? '').toLowerCase() === 'goal';
   if (chip === 'shot') return t.includes('shot');
   if (chip === 'card') return t.includes('card') || t === 'foul committed';
   if (chip === 'corner') return t === 'pass' && passType === 'corner';
@@ -350,6 +350,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
         (e.team?.name ?? '').toLowerCase().includes(q) ||
         (e.pass?.type?.name ?? '').toLowerCase().includes(q) ||
         (e.shot?.type?.name ?? '').toLowerCase().includes(q) ||
+        (e.shot?.outcome?.name ?? '').toLowerCase().includes(q) ||
         (e.play_pattern?.name ?? '').toLowerCase().includes(q)
       );
     }
