@@ -286,14 +286,13 @@ export default function Fixtures() {
 
 
 
-  // TODO: Season filtering temporarily disabled
-  // let seasonFilteredFixtures = fixtures;
-  // if (selectedSeason && currentTeam && currentClub) {
-  //   const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-  //   seasonFilteredFixtures = filterFixturesBySeason(fixtures || [], selectedSeason, seasonStartMonth);
-  // }
+  let seasonFilteredFixtures = fixtures || [];
+  if (selectedSeason && currentTeam && currentClub) {
+    const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
+    seasonFilteredFixtures = filterFixturesBySeason(seasonFilteredFixtures, selectedSeason, seasonStartMonth);
+  }
 
-  const filteredFixtures = fixtures?.filter(fixture => {
+  const filteredFixtures = seasonFilteredFixtures.filter(fixture => {
     // Apply home/away filter to all tabs
     if (homeAwayFilter !== 'all' && fixture.type !== homeAwayFilter) {
       return false;
