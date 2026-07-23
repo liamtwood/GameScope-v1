@@ -546,6 +546,7 @@ export default function Fixtures() {
             </FixtureCreateDialog>
             <FixtureImportDialog 
               teamId={currentTeam?.id || ""}
+              clubId={currentClub?.id}
             >
               <Button variant="outline" data-testid="button-import-fixtures">
                 <Upload className="mr-2 h-4 w-4" />

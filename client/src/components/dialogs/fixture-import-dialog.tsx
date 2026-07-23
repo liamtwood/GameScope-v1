@@ -12,6 +12,7 @@ import * as XLSX from "xlsx";
 
 interface FixtureImportDialogProps {
   teamId: string;
+  clubId?: string;
   onImportComplete?: () => void;
   children: React.ReactNode;
 }
@@ -29,7 +30,7 @@ interface FixturePreview {
   warnings?: string[];
 }
 
-export function FixtureImportDialog({ teamId, onImportComplete, children }: FixtureImportDialogProps) {
+export function FixtureImportDialog({ teamId, clubId, onImportComplete, children }: FixtureImportDialogProps) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<FixturePreview[]>([]);
@@ -46,52 +47,56 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
     setIsImporting(false);
   };
 
-  const downloadTemplate = () => {
-    const templateRows = [
-      {
-        Opposition: "Manchester United",
-        Date: "01/09/2025",
-        "Kick Off": "15:00",
-        Venue: "Home",
-        Competition: "Premier League",
-        "Goals For": "",
-        "Goals Against": "",
-      },
-      {
-        Opposition: "Arsenal",
-        Date: "15/09/2025",
-        "Kick Off": "19:45",
-        Venue: "Away",
-        Competition: "Premier League",
-        "Goals For": 2,
-        "Goals Against": 1,
-      },
-      {
-        Opposition: "Chelsea",
-        Date: "28/09/2025",
-        "Kick Off": "15:00",
-        Venue: "Home",
-        Competition: "FA Cup",
-        "Goals For": "",
-        "Goals Against": "",
-      },
-    ];
+  const downloadTemplate = async () => {
+    let opponents: { name: string }[] = [];
+    let competitions: { name: string }[] = [];
+
+    try {
+      if (clubId) {
+        const [oppRes, compRes] = await Promise.all([
+          fetch(`/api/opposition-teams?clubId=${clubId}`),
+          fetch(`/api/competitions?clubId=${clubId}`),
+        ]);
+        const oppData = await oppRes.json();
+        const compData = await compRes.json();
+        opponents = (oppData as any[]).filter((o) => o.isVisible !== false);
+        competitions = (compData as any[]).filter((c) => c.isVisible !== false);
+      }
+    } catch {
+      // fall through to defaults
+    }
+
+    const fallbackOpponents = ["Opponent A", "Opponent B", "Opponent C"];
+    const fallbackCompetitions = ["League", "Cup"];
+
+    const oppNames = opponents.length ? opponents.map((o) => o.name) : fallbackOpponents;
+    const compNames = competitions.length ? competitions.map((c) => c.name) : fallbackCompetitions;
+
+    const venues = ["Home", "Away"];
+
+    const templateRows = oppNames.map((opp, i) => ({
+      Opposition: opp,
+      Date: "",
+      "Kick Off": "",
+      Venue: venues[i % 2],
+      Competition: compNames[i % compNames.length],
+      "Goals For": "",
+      "Goals Against": "",
+    }));
 
     const ws = XLSX.utils.json_to_sheet(templateRows);
-
     ws["!cols"] = [
-      { wch: 22 },
+      { wch: 24 },
       { wch: 12 },
       { wch: 10 },
       { wch: 8 },
-      { wch: 20 },
+      { wch: 22 },
       { wch: 12 },
       { wch: 14 },
     ];
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Fixtures");
-
     XLSX.writeFile(wb, "fixtures-template.xlsx");
   };
 
