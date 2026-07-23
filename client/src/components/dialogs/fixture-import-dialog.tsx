@@ -72,12 +72,14 @@ export function FixtureImportDialog({ teamId, clubId, onImportComplete, children
     const oppNames = opponents.length ? opponents.map((o) => o.name) : fallbackOpponents;
     const compNames = competitions.length ? competitions.map((c) => c.name) : fallbackCompetitions;
 
+    const today = new Date();
+    const todayStr = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
     const venues = ["Home", "Away"];
 
     const templateRows = oppNames.map((opp, i) => ({
       Opposition: opp,
-      Date: "",
-      "Kick Off": "",
+      Date: todayStr,
+      "Kick Off": "15:00",
       Venue: venues[i % 2],
       Competition: compNames[i % compNames.length],
       "Goals For": "",
