@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { ArrowRight, Users, Star, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useClubTheme } from "@/hooks/use-club-theme";
@@ -50,7 +52,7 @@ export function PlayerTransferDialog({
   const [selectedTargetTeamId, setSelectedTargetTeamId] = useState<string>("");
   const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [keepOnBothTeams, setKeepOnBothTeams] = useState<boolean | null>(null);
+  const [keepOnBothTeams, setKeepOnBothTeams] = useState<boolean>(true);
   const { toast } = useToast();
   const { clubPrimary } = useClubTheme();
 
@@ -243,8 +245,7 @@ export function PlayerTransferDialog({
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmTransfer = (keepOnBothTeams: boolean) => {
-    setKeepOnBothTeams(keepOnBothTeams);
+  const handleConfirmTransfer = () => {
     setShowConfirmDialog(false);
     
     transferPlayersMutation.mutate({
@@ -501,34 +502,41 @@ export function PlayerTransferDialog({
             <AlertDialogTitle>
               {transferMode === "out" ? "Transfer Players Out" : "Transfer Players In"}
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                {transferMode === "out" ? 
-                  `You are about to transfer ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from your current team to ${selectedTargetTeam?.name}.` :
-                  `You are about to bring ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from ${isNoTeamSource ? 'unassigned players' : selectedSourceTeam?.name} to your current team.`
-                }
-              </p>
-              <p className="font-medium">
-                Are these players going to play for both teams?
-              </p>
+            <AlertDialogDescription>
+              {transferMode === "out" ? 
+                `You are about to transfer ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from your current team to ${selectedTargetTeam?.name}.` :
+                `You are about to bring ${selectedPlayers.size} player${selectedPlayers.size !== 1 ? 's' : ''} from ${isNoTeamSource ? 'unassigned players' : selectedSourceTeam?.name} to your current team.`
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-            <AlertDialogAction
-              onClick={() => handleConfirmTransfer(true)}
-              data-testid="button-transfer-keep"
-              className="w-full"
+
+          <div className="py-2">
+            <p className="text-sm font-medium mb-3">Will these players play for both teams?</p>
+            <RadioGroup
+              value={keepOnBothTeams ? "both" : "remove"}
+              onValueChange={(v) => setKeepOnBothTeams(v === "both")}
+              className="space-y-2"
             >
-              Yes - Keep on both teams
+              <div className="flex items-center space-x-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="both" id="keep-both" />
+                <Label htmlFor="keep-both" className="cursor-pointer font-medium">
+                  Keep on both teams
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="remove" id="remove-source" />
+                <Label htmlFor="remove-source" className="cursor-pointer font-medium">
+                  {transferMode === "out" ? "Remove from current team" : "Remove from source team"}
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmTransfer} data-testid="button-transfer-confirm">
+              Confirm Transfer
             </AlertDialogAction>
-            <AlertDialogAction
-              onClick={() => handleConfirmTransfer(false)}
-              className="w-full bg-red-600 hover:bg-red-700"
-              data-testid="button-transfer-remove"
-            >
-              {transferMode === "out" ? "No - Remove from current team" : "No - Remove from source team"}
-            </AlertDialogAction>
-            <AlertDialogCancel className="w-full">Cancel</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
