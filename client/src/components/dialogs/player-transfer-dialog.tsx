@@ -162,6 +162,10 @@ export function PlayerTransferDialog({
 
       queryClient.invalidateQueries({ queryKey: ["/api/team", actualSourceTeamId, "users"] });
       queryClient.invalidateQueries({ queryKey: ["/api/team", actualTargetTeamId, "users"] });
+      // Invalidate each transferred player's teams list so player details page updates without a refresh
+      data.results?.filter((r: any) => r.success).forEach((r: any) => {
+        queryClient.invalidateQueries({ queryKey: ["/api/player", r.playerId, "teams"] });
+      });
 
       if (successCount === 0) {
         const firstError = data.results?.find((r: any) => !r.success)?.error;
