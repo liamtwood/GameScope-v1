@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { VideoWithEvents } from '@/components/VideoWithEvents';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Fixture } from '@shared/schema';
@@ -22,8 +22,8 @@ export default function MatchAnalysis() {
 
   const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam ?? undefined, currentClub ?? undefined);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const fixtureId = urlParams.get('fixtureId') ?? undefined;
+  const search = useSearch();
+  const fixtureId = new URLSearchParams(search).get('fixtureId') ?? undefined;
 
   const { data: fixtures = [] } = useQuery<Fixture[]>({
     queryKey: ['/api/fixtures', currentTeam?.id],
