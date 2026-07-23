@@ -18,14 +18,7 @@ export default function MatchAnalysis() {
   const { selectedTeam: currentTeam } = useTeam();
   const { selectedClub: currentClub } = useClub();
 
-  const [selectedSeason, setSelectedSeason] = useState<string>('');
-
-  useEffect(() => {
-    if (!selectedSeason && currentTeam && currentClub) {
-      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-      setSelectedSeason(getCurrentSeason(seasonStartMonth));
-    }
-  }, [selectedSeason, currentTeam, currentClub]);
+  const [selectedSeason, setSelectedSeason] = useState<string>('all');
 
   const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam ?? undefined, currentClub ?? undefined);
 
@@ -62,7 +55,7 @@ export default function MatchAnalysis() {
     setLocation(`/match-analysis?fixtureId=${id}`);
   };
 
-  const seasonFiltered = filterFixturesBySeason(fixtures, selectedSeason, seasonStartMonth);
+  const seasonFiltered = selectedSeason === 'all' ? fixtures : filterFixturesBySeason(fixtures, selectedSeason, seasonStartMonth);
   const sortedFixtures = [...seasonFiltered].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );

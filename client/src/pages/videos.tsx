@@ -32,14 +32,7 @@ export default function Videos() {
   const { toast } = useToast();
   const { selectedTeam: currentTeam } = useTeam();
   const { selectedClub: currentClub } = useClub();
-  const [selectedSeason, setSelectedSeason] = useState<string>('');
-
-  useEffect(() => {
-    if (!selectedSeason && currentTeam && currentClub) {
-      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-      setSelectedSeason(getCurrentSeason(seasonStartMonth));
-    }
-  }, [selectedSeason, currentTeam, currentClub]);
+  const [selectedSeason, setSelectedSeason] = useState<string>('all');
 
   const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam ?? undefined, currentClub ?? undefined);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -94,7 +87,7 @@ export default function Videos() {
       const hasVideoOrRelevant = f.hasVideo || f.status === 'SCHEDULED' || f.status === 'COMPLETED' || f.status === 'NO_CONTEST';
       
       // Filter by season
-      const matchesSeason = !selectedSeason || isDateInSeason(new Date(f.date), selectedSeason, seasonStartMonth);
+      const matchesSeason = !selectedSeason || selectedSeason === 'all' || isDateInSeason(new Date(f.date), selectedSeason, seasonStartMonth);
 
       // Filter by competition if one is selected
       const matchesCompetition = selectedCompetitionId === 'all' || f.competitionId === selectedCompetitionId;

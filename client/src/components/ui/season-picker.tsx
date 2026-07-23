@@ -30,6 +30,7 @@ export function SeasonPicker({
           <SelectValue placeholder="Select season" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="all">All</SelectItem>
           {availableSeasons.map((season) => (
             <SelectItem key={season} value={season}>
               {season}

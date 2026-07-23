@@ -80,7 +80,7 @@ export default function Fixtures() {
   const [fixtureToDelete, setFixtureToDelete] = useState<Fixture | null>(null);
   const [homeAwayFilter, setHomeAwayFilter] = useState<'all' | 'HOME' | 'AWAY'>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedSeason, setSelectedSeason] = useState<string>("");
+  const [selectedSeason, setSelectedSeason] = useState<string>("all");
   const [fixturesWithAnalysis, setFixturesWithAnalysis] = useState<Set<string>>(new Set());
   const [editingCompetition, setEditingCompetition] = useState<string | null>(null);
   const [editCompetitionName, setEditCompetitionName] = useState<string>("");
@@ -160,14 +160,6 @@ export default function Fixtures() {
     }
   });
   
-  // Set default season when team/club data loads
-  useEffect(() => {
-    if (!selectedSeason && currentTeam && currentClub) {
-      const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
-      const currentSeason = getCurrentSeason(seasonStartMonth);
-      setSelectedSeason(currentSeason);
-    }
-  }, [selectedSeason, currentTeam, currentClub]);
 
   // Generate PDF report
   const handleGenerateReport = async (fixture: Fixture) => {
@@ -287,7 +279,7 @@ export default function Fixtures() {
 
 
   let seasonFilteredFixtures = fixtures || [];
-  if (selectedSeason && currentTeam && currentClub) {
+  if (selectedSeason && selectedSeason !== "all" && currentTeam && currentClub) {
     const seasonStartMonth = getEffectiveSeasonStartMonth(currentTeam, currentClub);
     seasonFilteredFixtures = filterFixturesBySeason(seasonFilteredFixtures, selectedSeason, seasonStartMonth);
   }
