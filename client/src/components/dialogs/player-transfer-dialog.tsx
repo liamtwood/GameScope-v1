@@ -153,18 +153,37 @@ export function PlayerTransferDialog({
     }) => {
       return apiRequest("POST", "/api/players/transfer", data);
     },
-    onSuccess: () => {
-      // Invalidate relevant queries
+    onSuccess: async (response: any) => {
+      const data = await response.json();
+      const successCount = data.summary?.successful ?? data.results?.filter((r: any) => r.success).length ?? 0;
+      const failCount = data.summary?.failed ?? data.results?.filter((r: any) => !r.success).length ?? 0;
+
       queryClient.invalidateQueries({ queryKey: ["/api/team", actualSourceTeamId, "users"] });
       queryClient.invalidateQueries({ queryKey: ["/api/team", actualTargetTeamId, "users"] });
-      
-      toast({
-        title: "Transfer Complete",
-        description: `Successfully transferred ${selectedPlayers.size} player(s).`,
-      });
-      
-      handleClose();
-      onTransferComplete?.();
+
+      if (successCount === 0) {
+        const firstError = data.results?.find((r: any) => !r.success)?.error;
+        toast({
+          title: "Transfer Failed",
+          description: firstError || "No players were transferred. Please check player data and try again.",
+          variant: "destructive",
+        });
+      } else if (failCount > 0) {
+        toast({
+          title: "Partial Transfer",
+          description: `${successCount} player(s) transferred, ${failCount} failed.`,
+          variant: "destructive",
+        });
+        handleClose();
+        onTransferComplete?.();
+      } else {
+        toast({
+          title: "Transfer Complete",
+          description: `Successfully transferred ${successCount} player(s).`,
+        });
+        handleClose();
+        onTransferComplete?.();
+      }
     },
     onError: (error: any) => {
       toast({

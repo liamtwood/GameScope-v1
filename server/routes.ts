@@ -999,11 +999,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
 
+          // Normalise shorthand position codes to the full names the schema expects
+          const positionMap: Record<string, string> = {
+            GK: "Goalkeeper", G: "Goalkeeper",
+            DEF: "Defender", CB: "Defender", FB: "Defender", LB: "Defender", RB: "Defender", WB: "Defender",
+            MID: "Midfield", CM: "Midfield", DM: "Midfield", AM: "Midfield", RM: "Midfield", LM: "Midfield",
+            FWD: "Forward", ST: "Forward", CF: "Forward", LW: "Forward", RW: "Forward", ATT: "Forward",
+            HC: "Head Coach", AC: "Assistant Coach",
+          };
+          const rawPosition = sourceTeamAssignment.position || "Defender";
+          const normalizedPosition = positionMap[rawPosition.toUpperCase()] ?? rawPosition;
+
           // Create assignment for target team with similar settings
           const targetTeamAssignment = {
             userId: playerId,
             teamId: targetTeamId,
-            position: sourceTeamAssignment.position,
+            position: normalizedPosition,
             jerseyNumber: sourceTeamAssignment.jerseyNumber || 0,
             starPlayer: sourceTeamAssignment.starPlayer || false,
             fitnessStatus: sourceTeamAssignment.fitnessStatus || 'Fit'
