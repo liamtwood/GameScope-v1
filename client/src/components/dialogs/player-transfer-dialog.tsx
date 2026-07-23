@@ -114,14 +114,21 @@ export function PlayerTransferDialog({
     },
   });
 
-  // Convert to player format
+  // Convert to player format and sort by jersey number
+  const sortByJersey = (a: Player, b: Player) => {
+    if (a.jerseyNumber == null && b.jerseyNumber == null) return 0;
+    if (a.jerseyNumber == null) return 1;
+    if (b.jerseyNumber == null) return -1;
+    return a.jerseyNumber - b.jerseyNumber;
+  };
+
   const sourcePlayers: Player[] = sourceTeamPlayers.map(tp => ({
     ...tp.user,
     id: tp.user.id,
     jerseyNumber: tp.jerseyNumber,
     position: tp.position,
     starPlayer: tp.starPlayer,
-  }));
+  })).sort(sortByJersey);
 
   // Fetch target team's players to show existing squad
   const { data: targetTeamPlayers = [] } = useQuery<any[]>({
@@ -135,7 +142,7 @@ export function PlayerTransferDialog({
     jerseyNumber: tp.jerseyNumber,
     position: tp.position,
     starPlayer: tp.starPlayer,
-  }));
+  })).sort(sortByJersey);
 
   const transferPlayersMutation = useMutation({
     mutationFn: async (data: {
