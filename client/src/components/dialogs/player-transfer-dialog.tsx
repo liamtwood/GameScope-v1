@@ -45,7 +45,7 @@ export function PlayerTransferDialog({
   onTransferComplete 
 }: PlayerTransferDialogProps) {
   const [open, setOpen] = useState(false);
-  const [transferMode, setTransferMode] = useState<TransferMode>("out");
+  const [transferMode, setTransferMode] = useState<TransferMode>("in");
   const [selectedSourceTeamId, setSelectedSourceTeamId] = useState<string>("");
   const [selectedTargetTeamId, setSelectedTargetTeamId] = useState<string>("");
   const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
