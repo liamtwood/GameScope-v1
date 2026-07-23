@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileSpreadsheet, Calendar, CheckCircle, AlertTriangle } from "lucide-react";
+import { Upload, FileSpreadsheet, Calendar, CheckCircle, AlertTriangle, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 interface FixtureImportDialogProps {
   teamId: string;
@@ -43,6 +44,55 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
     setStep('upload');
     setIsProcessing(false);
     setIsImporting(false);
+  };
+
+  const downloadTemplate = () => {
+    const templateRows = [
+      {
+        Opposition: "Manchester United",
+        Date: "01/09/2025",
+        "Kick Off": "15:00",
+        Venue: "Home",
+        Competition: "Premier League",
+        "Goals For": "",
+        "Goals Against": "",
+      },
+      {
+        Opposition: "Arsenal",
+        Date: "15/09/2025",
+        "Kick Off": "19:45",
+        Venue: "Away",
+        Competition: "Premier League",
+        "Goals For": 2,
+        "Goals Against": 1,
+      },
+      {
+        Opposition: "Chelsea",
+        Date: "28/09/2025",
+        "Kick Off": "15:00",
+        Venue: "Home",
+        Competition: "FA Cup",
+        "Goals For": "",
+        "Goals Against": "",
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(templateRows);
+
+    ws["!cols"] = [
+      { wch: 22 },
+      { wch: 12 },
+      { wch: 10 },
+      { wch: 8 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 14 },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Fixtures");
+
+    XLSX.writeFile(wb, "fixtures-template.xlsx");
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,14 +318,26 @@ export function FixtureImportDialog({ teamId, onImportComplete, children }: Fixt
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Expected Excel Format</CardTitle>
+                  <CardTitle className="text-sm flex items-center justify-between">
+                    Expected Excel Format
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadTemplate}
+                      className="flex items-center gap-1.5 text-xs"
+                      data-testid="button-download-template"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download Template
+                    </Button>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm space-y-2">
-                  <p><strong>Required columns:</strong> Opposition/Opponent, Date, Venue/H/A</p>
-                  <p><strong>Optional columns:</strong> Time/Kick Off, Competition/League, Goals For/GF, Goals Against/GA</p>
-                  <p><strong>Venue formats:</strong> Home, Away, H, A</p>
+                  <p><strong>Required columns:</strong> Opposition, Date, Venue</p>
+                  <p><strong>Optional columns:</strong> Kick Off, Competition, Goals For, Goals Against</p>
+                  <p><strong>Venue values:</strong> Home or Away</p>
                   <p className="text-xs text-muted-foreground">
-                    Include Goals For and Goals Against to import results. Leave blank for scheduled fixtures.
+                    Fill in Goals For &amp; Goals Against to import a result. Leave blank for a scheduled fixture.
                   </p>
                 </CardContent>
               </Card>
