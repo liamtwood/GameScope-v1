@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MatchEvent } from '@/lib/types';
-import { List, X, Maximize2, Minimize2, Pin, PinOff } from 'lucide-react';
+import { List, X, Maximize2, Minimize2, Pin, PinOff, Settings } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 function parseMMSS(str: string): number | null {
   const trimmed = str.trim();
@@ -406,15 +407,24 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                 ↗ Watch video
               </a>
             )}
-            <VideoAnalysisSettings
-              videoUrl={url}
-              onVideoUrlChange={onVideoUrlChange}
-              kickoffOffset={kickoffOffset}
-              onKickoffOffsetChange={setKickoffOffset}
-              secondHalfOffset={secondHalfOffset}
-              onSecondHalfOffsetChange={setSecondHalfOffset}
-              onEventClick={handleEventClick}
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Video settings">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <VideoAnalysisSettings
+                  videoUrl={url}
+                  onVideoUrlChange={onVideoUrlChange}
+                  kickoffOffset={kickoffOffset}
+                  onKickoffOffsetChange={setKickoffOffset}
+                  secondHalfOffset={secondHalfOffset}
+                  onSecondHalfOffsetChange={setSecondHalfOffset}
+                  onEventClick={handleEventClick}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           {!url && (
             <p className="text-xs text-muted-foreground mt-2">
@@ -437,10 +447,19 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
         </CardContent>
       </Card>
 
-      {/* Video player card */}
-      <Card className="mb-6 overflow-hidden">
-        {/* Control bar above the video */}
-        <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
+      <Tabs defaultValue="watch" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="watch">Watch Video</TabsTrigger>
+          <TabsTrigger value="events">Match Events</TabsTrigger>
+          <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="watch">
+          <Card className="overflow-hidden">
+            {/* Control bar above the video */}
+            <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/30">
           <span className="text-xs text-muted-foreground">
             {activeEvents.length > 0
               ? `${activeEvents.length.toLocaleString()} events loaded`
@@ -748,15 +767,8 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
             )}
           </div>
         </CardContent>
-      </Card>
-
-      <Tabs defaultValue="events" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="events">Match Events</TabsTrigger>
-          <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
-        </TabsList>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="events">
           <MatchEventTable onEventClick={handleEventClick} events={activeEvents} />
