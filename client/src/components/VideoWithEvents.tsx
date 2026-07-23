@@ -768,6 +768,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
             onPackageGenerate={handlePackageGenerate}
             onViewHighlightsVideo={handleViewHighlightsVideo}
             events={activeEvents}
+            markOverrides={highlightsTimestamps}
           />
         </TabsContent>
 

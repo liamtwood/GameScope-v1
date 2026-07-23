@@ -274,7 +274,7 @@ export default function Squad() {
     // Handle player positions
     if (['GK', 'Goalkeeper', 'goalkeeper'].includes(position)) return 'GK';
     if (['CB', 'LB', 'RB', 'LWB', 'RWB', 'DEF', 'Defender', 'defender'].includes(position)) return 'DEF';
-    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'DM', 'AM', 'MID', 'Midfielder', 'midfield'].includes(position)) return 'MID';
+    if (['CM', 'CDM', 'CAM', 'LM', 'RM', 'DM', 'AM', 'MID', 'Midfielder', 'Midfield', 'midfield'].includes(position)) return 'MID';
     if (['ST', 'LW', 'RW', 'CF', 'FWD', 'Forward', 'forward'].includes(position)) return 'FWD';
     return 'MID'; // Default to midfield instead of defender
   };

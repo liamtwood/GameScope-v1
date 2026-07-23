@@ -97,9 +97,10 @@ interface HighlightGeneratorProps {
   onPackageGenerate?: (highlightPackage: HighlightPackage) => void;
   onViewHighlightsVideo?: (videoUrl: string, highlightPackage: HighlightPackage) => void;
   events?: any[];
+  markOverrides?: Record<string, number>;
 }
 
-export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onViewHighlightsVideo, events: eventsOverride }: HighlightGeneratorProps) {
+export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onViewHighlightsVideo, events: eventsOverride, markOverrides = {} }: HighlightGeneratorProps) {
   const matchEvents = (eventsOverride ?? []) as any[];
   const [selectedPackageType, setSelectedPackageType] = useState<string>("standard");
   const [generating, setGenerating] = useState(false);
@@ -209,15 +210,18 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onVie
       .filter(event => event.type.name !== "Starting XI" && event.type.name !== "Half Start" && event.type.name !== "Half End")
       .map(event => {
         const { score, tier, category } = calculateEventScore(event as MatchEvent);
-        const startTimeSeconds = timestampToSeconds(event.timestamp);
+        // Use manual mark override if set, otherwise calculate from StatsBomb timestamp
+        const baseTimeSeconds = markOverrides[event.id] != null
+          ? markOverrides[event.id]
+          : timestampToSeconds(event.timestamp);
         
         // Context windows based on event type
-        let contextBefore = 5; // Default 5 seconds before
-        let contextAfter = 3;  // Default 3 seconds after
+        let contextBefore = 5;
+        let contextAfter = 3;
         
         if (category === "Goal") {
-          contextBefore = 15; // Show build-up
-          contextAfter = 10;  // Show celebration
+          contextBefore = 15;
+          contextAfter = 10;
         } else if (category === "Penalty" || category === "Red Card") {
           contextBefore = 10;
           contextAfter = 5;
@@ -226,8 +230,8 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onVie
           contextAfter = 5;
         }
 
-        const startTime = Math.max(0, startTimeSeconds - contextBefore);
-        const endTime = startTimeSeconds + contextAfter;
+        const startTime = Math.max(0, baseTimeSeconds - contextBefore);
+        const endTime = baseTimeSeconds + contextAfter;
         const duration = endTime - startTime;
 
         return {
@@ -244,9 +248,9 @@ export function HighlightGenerator({ onHighlightSelect, onPackageGenerate, onVie
           description: `${category}: ${event.player?.name || 'Team'} - ${event.minute}:${event.second.toString().padStart(2, '0')}`
         };
       })
-      .filter(highlight => highlight.score >= 25) // Minimum threshold
-      .sort((a, b) => b.score - a.score); // Sort by score descending
-  }, []);
+      .filter(highlight => highlight.score >= 25)
+      .sort((a, b) => b.score - a.score);
+  }, [matchEvents, markOverrides]);
 
   // Package generation based on framework
   const packageTypes = {
