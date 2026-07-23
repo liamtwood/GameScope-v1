@@ -513,21 +513,22 @@ export function PlayerTransferDialog({
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => handleConfirmTransfer(true)}
+              data-testid="button-transfer-keep"
+              className="w-full"
+            >
+              Yes - Keep on both teams
+            </AlertDialogAction>
             <AlertDialogAction
               onClick={() => handleConfirmTransfer(false)}
-              className="bg-red-600 hover:bg-red-700"
+              className="w-full bg-red-600 hover:bg-red-700"
               data-testid="button-transfer-remove"
             >
               {transferMode === "out" ? "No - Remove from current team" : "No - Remove from source team"}
             </AlertDialogAction>
-            <AlertDialogAction
-              onClick={() => handleConfirmTransfer(true)}
-              data-testid="button-transfer-keep"
-            >
-              Yes - Keep on both teams
-            </AlertDialogAction>
+            <AlertDialogCancel className="w-full">Cancel</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
