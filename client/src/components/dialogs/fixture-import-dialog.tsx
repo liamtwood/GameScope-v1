@@ -73,7 +73,8 @@ export function FixtureImportDialog({ teamId, clubId, onImportComplete, children
     const compNames = competitions.length ? competitions.map((c) => c.name) : fallbackCompetitions;
 
     const today = new Date();
-    const todayStr = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const todayStr = `${String(today.getDate()).padStart(2, "0")}-${months[today.getMonth()]}-${today.getFullYear()}`;
     const venues = ["Home", "Away"];
 
     const templateRows = oppNames.map((opp, i) => ({
