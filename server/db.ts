@@ -6,7 +6,13 @@ import * as schema from "@shared/schema";
 // Configure Neon WebSocket constructor
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
+// In production use PROD_DATABASE_URL so dev and prod have separate databases
+const connectionString =
+  process.env.NODE_ENV === 'production'
+    ? process.env.PROD_DATABASE_URL ?? process.env.DATABASE_URL
+    : process.env.DATABASE_URL;
+
+if (!connectionString) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
@@ -14,7 +20,7 @@ if (!process.env.DATABASE_URL) {
 
 // Configure connection pool with proper settings for serverless environments
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   max: 3, // Maximum number of connections in the pool (safe for Neon limits)
   idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
   connectionTimeoutMillis: 5000, // Timeout when acquiring a connection
