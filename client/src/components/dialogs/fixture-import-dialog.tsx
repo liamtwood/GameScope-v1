@@ -52,15 +52,16 @@ export function FixtureImportDialog({ teamId, clubId, onImportComplete, children
     let competitions: { name: string }[] = [];
 
     try {
-      if (clubId) {
-        const [oppRes, compRes] = await Promise.all([
-          fetch(`/api/opposition-teams?clubId=${clubId}`),
-          fetch(`/api/competitions?clubId=${clubId}`),
-        ]);
+      const [oppRes, compRes] = await Promise.all([
+        clubId ? fetch(`/api/opposition-teams?clubId=${clubId}`) : Promise.resolve(null),
+        teamId ? fetch(`/api/teams/${teamId}/competitions/enabled`) : Promise.resolve(null),
+      ]);
+      if (oppRes?.ok) {
         const oppData = await oppRes.json();
-        const compData = await compRes.json();
         opponents = (oppData as any[]).filter((o) => o.isVisible !== false);
-        competitions = (compData as any[]).filter((c) => c.isVisible !== false);
+      }
+      if (compRes?.ok) {
+        competitions = await compRes.json();
       }
     } catch {
       // fall through to defaults
