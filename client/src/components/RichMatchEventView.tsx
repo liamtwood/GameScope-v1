@@ -129,9 +129,8 @@ const formatTimestamp = (timestamp: string): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-const eventMatchesCategory = (event: any, category: string): boolean => {
-  const cats = eventCategories[category] ?? [];
-  return cats.some(sel => {
+const matchesCategoryTypes = (event: any, types: string[]): boolean =>
+  types.some(sel => {
     if (event.type.name === sel) return true;
     if (event.type.name === 'Pass' && event.pass?.type?.name === sel) return true;
     if (event.type.name === 'Shot') {
@@ -141,16 +140,19 @@ const eventMatchesCategory = (event: any, category: string): boolean => {
     if (sel === 'High xG Chances') return (event.shot?.statsbomb_xg ?? 0) > 0.3;
     if (sel === 'Medium xG Chances') return (event.shot?.statsbomb_xg ?? 0) >= 0.1 && (event.shot?.statsbomb_xg ?? 0) <= 0.3;
     if (sel === 'Low xG Chances') return (event.shot?.statsbomb_xg ?? 0) < 0.1 && (event.shot?.statsbomb_xg ?? 0) > 0;
-    if (sel === 'Volleys') return event.shot?.technique?.name === 'Volley';
-    if (sel === 'Left Foot') return event.shot?.body_part?.name === 'Left Foot';
-    if (sel === 'Right Foot') return event.shot?.body_part?.name === 'Right Foot';
-    if (sel === 'Headers') return event.shot?.body_part?.name === 'Head' || event.clearance?.body_part?.name === 'Head';
     if (sel === 'Won Tackles') return event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name !== 'Lost In Play';
     if (sel === 'Lost Tackles') return event.duel?.type?.name === 'Tackle' && event.duel?.outcome?.name === 'Lost In Play';
-    if (sel === 'Tactical Substitutions') return event.substitution?.outcome?.name === 'Tactical';
     return false;
   });
-};
+
+const chips: { label: string; match: (event: any) => boolean }[] = [
+  { label: 'SHOTS',      match: e => matchesCategoryTypes(e, eventCategories.SHOTS) },
+  { label: 'PASSES',     match: e => e.type.name === 'Pass' },
+  { label: 'DEFENSE',    match: e => matchesCategoryTypes(e, eventCategories.DEFENSE) },
+  { label: 'SET PIECES', match: e => matchesCategoryTypes(e, eventCategories['SET PIECES']) },
+  { label: 'POSSESSION', match: e => matchesCategoryTypes(e, eventCategories.POSSESSION) },
+  { label: 'TRANSITIONS',match: e => matchesCategoryTypes(e, eventCategories.TRANSITIONS) },
+];
 
 export function RichMatchEventView({ onEventClick, events: eventsOverride }: RichMatchEventViewProps) {
   const matchEvents = (eventsOverride ?? []) as any[];
@@ -170,8 +172,9 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
 
   const filteredEvents = useMemo(() => {
     const q = searchText.trim().toLowerCase();
+    const chipMatcher = activeCategory ? chips.find(c => c.label === activeCategory)?.match : null;
     return matchEvents.filter((event: any) => {
-      const matchesCat = !activeCategory || eventMatchesCategory(event, activeCategory);
+      const matchesCat = !chipMatcher || chipMatcher(event);
       const matchesPlayer = selectedPlayerId === 'all' || event.player?.id === Number(selectedPlayerId);
       const matchesSearch = !q || [
         event.player?.name,
@@ -214,15 +217,15 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
             >
               ALL
             </Button>
-            {Object.keys(eventCategories).map(cat => (
+            {chips.map(chip => (
               <Button
-                key={cat}
+                key={chip.label}
                 size="sm"
-                variant={activeCategory === cat ? 'default' : 'outline'}
+                variant={activeCategory === chip.label ? 'default' : 'outline'}
                 className="h-7 px-3 text-xs"
-                onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                onClick={() => setActiveCategory(activeCategory === chip.label ? null : chip.label)}
               >
-                {cat}
+                {chip.label}
               </Button>
             ))}
           </div>
