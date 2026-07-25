@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
-import { Play, ChevronDown, Target, Filter, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Play, ChevronDown, Target, Filter, AlertCircle, Search } from 'lucide-react';
 
 interface RichMatchEventViewProps {
   onEventClick?: (eventTime: number, period: number) => void;
@@ -244,6 +245,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<number[]>([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   const { availableEventTypes, teams, teamData } = useMemo(() => {
     const typeSet = new Set(matchEvents.map((e: any) => e.type.name));
@@ -295,7 +297,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
     });
 
     return { availableEventTypes: Array.from(typeSet).sort(), teams: teamNames.sort(), teamData: teamFormationData };
-  }, [matchEvents.length]);
+  }, [matchEvents]);
 
   const getEventTypeCount = (eventType: string): number =>
     matchEvents.filter((e: any) => {
@@ -319,6 +321,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
   const getCategoryCount = (cats: string[]) => cats.reduce((t, et) => t + getEventTypeCount(et), 0);
 
   const filteredEvents = useMemo(() => {
+    const q = searchText.trim().toLowerCase();
     return matchEvents.filter((event: any) => {
       const matchesType = selectedEventTypes.length === 0 || selectedEventTypes.some(sel => {
         if (event.type.name === sel) return true;
@@ -339,9 +342,19 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
       });
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(event.team.name);
       const matchesPlayer = selectedPlayers.length === 0 || (event.player && selectedPlayers.includes(event.player.id));
-      return matchesType && matchesTeam && matchesPlayer;
+      const matchesSearch = !q || [
+        event.player?.name,
+        event.team?.name,
+        event.type?.name,
+        getEnhancedEventDisplay(event),
+        event.pass?.recipient?.name,
+        event.shot?.outcome?.name,
+        event.shot?.technique?.name,
+        event.shot?.body_part?.name,
+      ].some(v => v?.toLowerCase().includes(q));
+      return matchesType && matchesTeam && matchesPlayer && matchesSearch;
     });
-  }, [selectedEventTypes, selectedTeams, selectedPlayers, matchEvents.length]);
+  }, [selectedEventTypes, selectedTeams, selectedPlayers, matchEvents, searchText]);
 
   const toggleType = (t: string) => setSelectedEventTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
   const toggleTeam = (t: string) => setSelectedTeams(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
@@ -426,10 +439,19 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
         <main className="flex-1 min-w-0">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <span>Match Events</span>
-                <Badge variant="secondary">{filteredEvents.length} events</Badge>
-              </CardTitle>
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-base shrink-0">Match Events</CardTitle>
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search player, team, event…"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                    className="pl-8 h-8 text-sm"
+                  />
+                </div>
+                <Badge variant="secondary" className="shrink-0">{filteredEvents.length} events</Badge>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <div className="h-[620px] overflow-auto">
@@ -446,7 +468,8 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                     {filteredEvents.map((event: any) => (
                       <TableRow
                         key={event.id}
-                        className="hover:bg-muted/50 transition-colors"
+                        className="hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
                       >
                         <TableCell className="text-center py-1.5">
                           <div className="flex flex-col items-center gap-0.5">
@@ -509,7 +532,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                           </div>
                         </TableCell>
 
-                        <TableCell className="text-center py-1.5">
+                        <TableCell className="text-center py-1.5" onClick={e => e.stopPropagation()}>
                           <Button
                             size="sm"
                             variant="ghost"
