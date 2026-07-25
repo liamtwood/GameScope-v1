@@ -27,6 +27,44 @@ const eventCategories = {
   SUBS: ['Tactical Substitutions'],
 };
 
+const TEAM_SHORT_NAMES: Record<string, string> = {
+  'Afghanistan': 'AFG', 'Albania': 'ALB', 'Algeria': 'ALG', 'Argentina': 'ARG',
+  'Armenia': 'ARM', 'Australia': 'AUS', 'Austria': 'AUT', 'Azerbaijan': 'AZE',
+  'Bahrain': 'BHR', 'Bangladesh': 'BAN', 'Belgium': 'BEL', 'Bolivia': 'BOL',
+  'Bosnia and Herzegovina': 'BIH', 'Brazil': 'BRA', 'Bulgaria': 'BUL',
+  'Cameroon': 'CMR', 'Canada': 'CAN', 'Chile': 'CHI', 'China': 'CHN',
+  "China PR": 'CHN', 'Colombia': 'COL', 'Costa Rica': 'CRC', 'Croatia': 'CRO',
+  'Czech Republic': 'CZE', 'Czechia': 'CZE', 'Denmark': 'DEN', 'Ecuador': 'ECU',
+  'Egypt': 'EGY', 'England': 'ENG', 'Estonia': 'EST', 'Ethiopia': 'ETH',
+  'Finland': 'FIN', 'France': 'FRA', 'Georgia': 'GEO', 'Germany': 'GER',
+  'Ghana': 'GHA', 'Greece': 'GRE', 'Guatemala': 'GUA', 'Honduras': 'HON',
+  'Hungary': 'HUN', 'Iceland': 'ISL', 'India': 'IND', 'Indonesia': 'IDN',
+  'Iran': 'IRN', 'Iraq': 'IRQ', 'Ireland': 'IRL', 'Israel': 'ISR',
+  'Italy': 'ITA', 'Ivory Coast': 'CIV', 'Jamaica': 'JAM', 'Japan': 'JPN',
+  'Jordan': 'JOR', 'Kazakhstan': 'KAZ', 'Kenya': 'KEN', 'Kosovo': 'KOS',
+  'Kuwait': 'KUW', 'Latvia': 'LVA', 'Lithuania': 'LTU', 'Luxembourg': 'LUX',
+  'Malaysia': 'MAS', 'Mali': 'MLI', 'Malta': 'MLT', 'Mexico': 'MEX',
+  'Moldova': 'MDA', 'Montenegro': 'MNE', 'Morocco': 'MAR', 'Netherlands': 'NED',
+  'New Zealand': 'NZL', 'Nigeria': 'NGA', 'Northern Ireland': 'NIR',
+  'Norway': 'NOR', 'Oman': 'OMA', 'Pakistan': 'PAK', 'Panama': 'PAN',
+  'Paraguay': 'PAR', 'Peru': 'PER', 'Philippines': 'PHI', 'Poland': 'POL',
+  'Portugal': 'POR', 'Qatar': 'QAT', 'Romania': 'ROU', 'Russia': 'RUS',
+  'Saudi Arabia': 'KSA', 'Scotland': 'SCO', 'Senegal': 'SEN', 'Serbia': 'SRB',
+  'Slovakia': 'SVK', 'Slovenia': 'SVN', 'South Africa': 'RSA', 'South Korea': 'KOR',
+  'Korea Republic': 'KOR', 'Spain': 'ESP', 'Sweden': 'SWE', 'Switzerland': 'SUI',
+  'Syria': 'SYR', 'Thailand': 'THA', 'Tunisia': 'TUN', 'Turkey': 'TUR',
+  'Türkiye': 'TUR', 'Ukraine': 'UKR', 'United Arab Emirates': 'UAE',
+  'United States': 'USA', 'USA': 'USA', 'Uruguay': 'URU', 'Uzbekistan': 'UZB',
+  'Venezuela': 'VEN', 'Vietnam': 'VIE', 'Wales': 'WAL', 'Zambia': 'ZAM',
+};
+
+const getTeamShortName = (teamName: string): string => {
+  if (TEAM_SHORT_NAMES[teamName]) return TEAM_SHORT_NAMES[teamName];
+  const base = teamName.replace(/\s+(Women|Men|Women's|Men's|U\d+|Youth|Olympic|FC|CF|SC|AC|AFC|RFC|United|City|Town|Wanderers|Rovers|Athletic|Albion)\s*$/i, '').trim();
+  if (TEAM_SHORT_NAMES[base]) return TEAM_SHORT_NAMES[base];
+  return teamName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 4);
+};
+
 const getPositionAcronym = (position: string): string => {
   const positionMap: Record<string, string> = {
     'Goalkeeper': 'GK', 'Right Back': 'RB', 'Right Center Back': 'RCB',
@@ -530,7 +568,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                               <TooltipTrigger asChild>
                                 <span className="cursor-default">
                                   <Badge variant="outline" className="text-[10px] h-4 px-1.5 w-fit">
-                                    {event.team.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 4)}
+                                    {getTeamShortName(event.team.name)}
                                   </Badge>
                                 </span>
                               </TooltipTrigger>
