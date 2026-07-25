@@ -11,7 +11,7 @@ import { MatchEvent, timestampToSeconds } from '@/lib/types';
 import { Play, Target, AlertCircle, Search } from 'lucide-react';
 
 interface RichMatchEventViewProps {
-  onEventClick?: (eventTime: number, period: number) => void;
+  onEventClick?: (eventTime: number, period: number, eventId?: string) => void;
   events?: any[];
 }
 
@@ -274,7 +274,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                 <TableRow
                   key={event.id}
                   className="hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
+                  onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period, String(event.id))}
                 >
                   <TableCell className="text-center py-1.5">
                     <div className="flex flex-col items-center gap-0.5">
@@ -352,7 +352,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-xs"
-                      onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period)}
+                      onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period, String(event.id))}
                     >
                       <Play className="h-3 w-3 mr-1" />
                       Play

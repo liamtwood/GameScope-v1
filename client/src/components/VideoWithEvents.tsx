@@ -277,10 +277,13 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
     onVideoUrlChange(videoUrl);
   };
 
-  const handleEventsTabSeek = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
-    const seekTime = Math.max(0, eventPeriod === 2
-      ? eventTimeInSeconds + secondHalfOffset
-      : eventTimeInSeconds + kickoffOffset);
+  const handleEventsTabSeek = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
+    const hlTs = eventId !== undefined ? highlightsTimestamps[eventId] : undefined;
+    const seekTime = hlTs !== undefined
+      ? hlTs
+      : Math.max(0, eventPeriod === 2
+          ? eventTimeInSeconds + secondHalfOffset
+          : eventTimeInSeconds + kickoffOffset);
     const eventsIframe = document.getElementById('events-tab-iframe') as HTMLIFrameElement | null;
     if (platform === 'youtube' && eventsIframe?.contentWindow) {
       eventsIframe.contentWindow.postMessage(
