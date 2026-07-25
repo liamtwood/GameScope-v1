@@ -265,7 +265,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
               <TableRow>
                 <TableHead className="w-20 text-center">Time</TableHead>
                 <TableHead>Event</TableHead>
-                <TableHead className="w-44 hidden md:table-cell">Player</TableHead>
+                <TableHead className="w-56 hidden md:table-cell">Player</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -340,7 +340,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                         </TooltipTrigger>
                         <TooltipContent><p>{event.team.name}</p></TooltipContent>
                       </Tooltip>
-                      <span className="text-sm leading-tight truncate max-w-[130px]" title={event.player?.name}>
+                      <span className="text-sm leading-tight" title={event.player?.name}>
                         {event.player?.name || '—'}
                       </span>
                     </div>

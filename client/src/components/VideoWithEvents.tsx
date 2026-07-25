@@ -387,7 +387,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
+    <div className="w-full">
       <Tabs defaultValue="watch" className="space-y-6">
         <div className="flex items-center gap-2">
           <TabsList className="grid flex-1 grid-cols-5">
