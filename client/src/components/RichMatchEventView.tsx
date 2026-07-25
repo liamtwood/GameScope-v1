@@ -528,12 +528,19 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                             >
                               {getEnhancedEventDisplay(event)}
                             </Badge>
+                            {event.shot?.statsbomb_xg ? (
+                              <span className="text-xs text-muted-foreground">
+                                xG: {event.shot.statsbomb_xg.toFixed(2)}
+                              </span>
+                            ) : null}
                             {event.under_pressure && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-1.5 py-0.5">
-                                    <AlertCircle className="h-3 w-3" />
-                                  </Badge>
+                                  <span>
+                                    <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-1.5 py-0.5">
+                                      <AlertCircle className="h-3 w-3" />
+                                    </Badge>
+                                  </span>
                                 </TooltipTrigger>
                                 <TooltipContent><p>Under pressure</p></TooltipContent>
                               </Tooltip>
@@ -541,23 +548,16 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                           </div>
                           {event.pass && (
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {event.pass.type?.name && `${event.pass.type.name} · `}
-                              {event.pass.length != null && `${Number(event.pass.length).toFixed(0)}m`}
+                              {event.pass.type?.name && `${event.pass.type.name} • `}
+                              {`Length: ${Number(event.pass.length).toFixed(0)}m`}
                               {event.pass.recipient && ` → ${event.pass.recipient.name}`}
                             </div>
                           )}
                           {event.shot && (
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {[
-                                event.shot.technique?.name,
-                                event.shot.body_part?.name,
-                                event.shot.end_location
-                                  ? `End: [${event.shot.end_location[0]?.toFixed(0)}, ${event.shot.end_location[1]?.toFixed(0)}]`
-                                  : null,
-                                event.shot.statsbomb_xg != null
-                                  ? `xG: ${event.shot.statsbomb_xg.toFixed(2)}`
-                                  : null,
-                              ].filter(Boolean).join(' · ')}
+                              {event.shot.technique?.name && `${event.shot.technique.name} • `}
+                              {event.shot.body_part?.name && `${event.shot.body_part.name} • `}
+                              {`End: [${event.shot.end_location?.[0]?.toFixed(0)}, ${event.shot.end_location?.[1]?.toFixed(0)}]`}
                             </div>
                           )}
                         </TableCell>
