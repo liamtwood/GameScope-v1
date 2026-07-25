@@ -71,6 +71,9 @@ function eventMatchesChip(event: any, chip: OverlayChip): boolean {
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKickoffOffset, initialSecondHalfOffset }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoWidth, setVideoWidth] = useState(420);
+  const dragStartX = useRef<number | null>(null);
+  const dragStartWidth = useRef<number>(420);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -273,6 +276,23 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
 
   const handleViewHighlightsVideo = (videoUrl: string, _highlightPackage: any) => {
     onVideoUrlChange(videoUrl);
+  };
+
+  const handleVideoPanelDragStart = (e: React.MouseEvent) => {
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = videoWidth;
+    const onMouseMove = (ev: MouseEvent) => {
+      if (dragStartX.current === null) return;
+      const delta = dragStartX.current - ev.clientX;
+      setVideoWidth(Math.min(800, Math.max(280, dragStartWidth.current + delta)));
+    };
+    const onMouseUp = () => {
+      dragStartX.current = null;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
   };
 
   const handleEventsTabSeek = (eventTimeInSeconds: number, eventPeriod: number = 1, eventId?: string) => {
@@ -732,9 +752,24 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
         </TabsContent>
 
         <TabsContent value="events">
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-4">
-            <RichMatchEventView onEventClick={handleEventsTabSeek} events={activeEvents} />
-            <div className="flex flex-col gap-2">
+          <div className="flex items-start gap-0 select-none">
+            <div className="flex-1 min-w-0">
+              <RichMatchEventView
+                onEventClick={handleEventsTabSeek}
+                events={activeEvents}
+                lineups={fixtureMatchEvents?.lineups}
+              />
+            </div>
+            {/* Drag handle */}
+            <div
+              className="w-2 self-stretch cursor-col-resize flex items-center justify-center hover:bg-border/60 active:bg-border transition-colors mx-1 rounded flex-shrink-0 group"
+              onMouseDown={handleVideoPanelDragStart}
+              title="Drag to resize"
+            >
+              <div className="w-0.5 h-10 rounded-full bg-border group-hover:bg-muted-foreground/50 transition-colors" />
+            </div>
+            {/* Video panel */}
+            <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: videoWidth }}>
               {embedUrl ? (
                 <div className="space-y-2">
                   <div className="aspect-video bg-black rounded-lg overflow-hidden">
@@ -748,7 +783,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
                       allowFullScreen
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground px-1">Click any event's Play button to jump to that moment</p>
+                  <p className="text-xs text-muted-foreground px-1">Click any row to jump to that moment</p>
                 </div>
               ) : (
                 <div className="aspect-video flex items-center justify-center bg-muted rounded-lg">

@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { Target, AlertCircle, Search } from 'lucide-react';
 interface RichMatchEventViewProps {
   onEventClick?: (eventTime: number, period: number, eventId?: string) => void;
   events?: any[];
+  lineups?: any[] | null;
 }
 
 const eventCategories: Record<string, string[]> = {
@@ -154,21 +155,35 @@ const chips: { label: string; match: (event: any) => boolean }[] = [
   { label: 'TRANSITIONS',match: e => matchesCategoryTypes(e, eventCategories.TRANSITIONS) },
 ];
 
-export function RichMatchEventView({ onEventClick, events: eventsOverride }: RichMatchEventViewProps) {
+export function RichMatchEventView({ onEventClick, events: eventsOverride, lineups }: RichMatchEventViewProps) {
   const matchEvents = (eventsOverride ?? []) as any[];
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('all');
   const [searchText, setSearchText] = useState('');
 
-  const players = useMemo(() => {
-    const seen = new Map<number, string>();
+  const groupedPlayers = useMemo(() => {
+    if (lineups && lineups.length > 0) {
+      return lineups.map((team: any) => ({
+        teamName: team.team_name as string,
+        players: [...(team.lineup ?? [])]
+          .sort((a: any, b: any) => (a.jersey_number ?? 99) - (b.jersey_number ?? 99))
+          .map((p: any) => ({ id: p.player_id as number, name: p.player_name as string, jersey: p.jersey_number as number })),
+      }));
+    }
+    // Fallback: build from events, alphabetical
+    const seen = new Map<number, { name: string; team: string }>();
     matchEvents.forEach((e: any) => {
-      if (e.player?.id && e.player?.name) seen.set(e.player.id, e.player.name);
+      if (e.player?.id && e.player?.name) seen.set(e.player.id, { name: e.player.name, team: e.team?.name ?? '' });
     });
-    return Array.from(seen.entries())
-      .map(([id, name]) => ({ id, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [matchEvents]);
+    const byTeam = new Map<string, { id: number; name: string; jersey: number }[]>();
+    seen.forEach(({ name, team }, id) => {
+      if (!byTeam.has(team)) byTeam.set(team, []);
+      byTeam.get(team)!.push({ id, name, jersey: 99 });
+    });
+    return Array.from(byTeam.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([teamName, players]) => ({ teamName, players: players.sort((a, b) => a.name.localeCompare(b.name)) }));
+  }, [lineups, matchEvents]);
 
   const filteredEvents = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -242,13 +257,23 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
               />
             </div>
             <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
-              <SelectTrigger className="h-8 text-sm w-48">
+              <SelectTrigger className="h-8 text-sm w-52">
                 <SelectValue placeholder="All Players" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Players</SelectItem>
-                {players.map(p => (
-                  <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+                {groupedPlayers.map(group => (
+                  <SelectGroup key={group.teamName}>
+                    <SelectLabel className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-2 py-1">
+                      {group.teamName}
+                    </SelectLabel>
+                    {group.players.map(p => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        <span className="tabular-nums text-muted-foreground w-6 inline-block">#{p.jersey}</span>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
