@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { MatchEvent, timestampToSeconds } from '@/lib/types';
-import { Play, Target, AlertCircle, Search } from 'lucide-react';
+import { Target, AlertCircle, Search } from 'lucide-react';
 
 interface RichMatchEventViewProps {
   onEventClick?: (eventTime: number, period: number, eventId?: string) => void;
@@ -265,8 +265,7 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
               <TableRow>
                 <TableHead className="w-20 text-center">Time</TableHead>
                 <TableHead>Event</TableHead>
-                <TableHead className="w-36 hidden md:table-cell">Player</TableHead>
-                <TableHead className="w-20 text-center">Play</TableHead>
+                <TableHead className="w-44 hidden md:table-cell">Player</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -347,17 +346,6 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-center py-1.5" onClick={e => e.stopPropagation()}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => onEventClick?.(timestampToSeconds(event.timestamp), event.period, String(event.id))}
-                    >
-                      <Play className="h-3 w-3 mr-1" />
-                      Play
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
