@@ -490,11 +490,6 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                             >
                               {getEnhancedEventDisplay(event)}
                             </Badge>
-                            {event.shot?.statsbomb_xg != null && (
-                              <span className="text-xs text-muted-foreground">
-                                xG: {event.shot.statsbomb_xg.toFixed(2)}
-                              </span>
-                            )}
                             {event.under_pressure && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -515,17 +510,32 @@ export function RichMatchEventView({ onEventClick, events: eventsOverride }: Ric
                           )}
                           {event.shot && (
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {event.shot.technique?.name && `${event.shot.technique.name} · `}
-                              {event.shot.body_part?.name}
+                              {[
+                                event.shot.technique?.name,
+                                event.shot.body_part?.name,
+                                event.shot.end_location
+                                  ? `End: [${event.shot.end_location[0]?.toFixed(0)}, ${event.shot.end_location[1]?.toFixed(0)}]`
+                                  : null,
+                                event.shot.statsbomb_xg != null
+                                  ? `xG: ${event.shot.statsbomb_xg.toFixed(2)}`
+                                  : null,
+                              ].filter(Boolean).join(' · ')}
                             </div>
                           )}
                         </TableCell>
 
                         <TableCell className="hidden md:table-cell py-1.5">
                           <div className="flex flex-col gap-0.5">
-                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 w-fit">
-                              {event.team.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 3)}
-                            </Badge>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-default">
+                                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 w-fit">
+                                    {event.team.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 4)}
+                                  </Badge>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent><p>{event.team.name}</p></TooltipContent>
+                            </Tooltip>
                             <span className="text-sm leading-tight truncate max-w-[130px]" title={event.player?.name}>
                               {event.player?.name || '—'}
                             </span>
