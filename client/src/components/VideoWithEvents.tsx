@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MatchEventTable } from '@/components/MatchEventTable';
+import { RichMatchEventView } from '@/components/RichMatchEventView';
 import { Timeline } from '@/components/Timeline';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
 import { HighlightGenerator } from '@/components/HighlightGenerator';
@@ -771,7 +772,7 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
         </TabsContent>
 
         <TabsContent value="events">
-          <MatchEventTable onEventClick={handleEventClick} events={activeEvents} />
+          <RichMatchEventView onEventClick={handleEventClick} events={activeEvents} />
         </TabsContent>
 
         <TabsContent value="highlights">
