@@ -7,7 +7,6 @@ import { HighlightGenerator } from '@/components/HighlightGenerator';
 import { AdvancedHighlights } from '@/components/AdvancedHighlights';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MatchEvent } from '@/lib/types';
 import { List, X, Maximize2, Minimize2, Pin, PinOff, Settings } from 'lucide-react';
@@ -71,7 +70,6 @@ function eventMatchesChip(event: any, chip: OverlayChip): boolean {
 
 export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKickoffOffset, initialSecondHalfOffset }: VideoWithEventsProps) {
   const [currentSeekTime, setCurrentSeekTime] = useState<number | null>(null);
-  const [urlInput, setUrlInput] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -390,92 +388,34 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
-      {/* URL input bar */}
-      <Card className="mb-6">
-        <CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Paste a YouTube, Vimeo, Dailymotion, or direct MP4/HLS URL…"
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && urlInput.trim()) {
-                  onVideoUrlChange(urlInput.trim());
-                  setUrlInput('');
-                }
-              }}
-              className="flex-1"
-            />
-            <Button
-              variant="default"
-              onClick={() => {
-                if (urlInput.trim()) {
-                  onVideoUrlChange(urlInput.trim());
-                  setUrlInput('');
-                }
-              }}
-              disabled={!urlInput.trim()}
-            >
-              Load Video
-            </Button>
-            {url && (
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-md hover:bg-accent transition-colors whitespace-nowrap"
-              >
-                ↗ Watch video
-              </a>
-            )}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Video settings">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <VideoAnalysisSettings
-                  videoUrl={url}
-                  onVideoUrlChange={onVideoUrlChange}
-                  kickoffOffset={kickoffOffset}
-                  onKickoffOffsetChange={setKickoffOffset}
-                  secondHalfOffset={secondHalfOffset}
-                  onSecondHalfOffsetChange={setSecondHalfOffset}
-                  onEventClick={handleEventClick}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          {!url && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Supports YouTube, Dailymotion, and direct video URLs (.mp4, .m3u8, etc). Paste one above and click Load Video.
-            </p>
-          )}
-          {url && platform !== 'unknown' && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {platformLabel[platform]} loaded
-              {currentSeekTime !== null && (
-                <> · Last seek: {Math.floor(currentSeekTime / 60)}:{String(Math.round(currentSeekTime % 60)).padStart(2, '0')}</>
-              )}
-            </p>
-          )}
-          {url && platform === 'unknown' && (
-            <p className="text-xs text-amber-500 mt-1">
-              Unrecognised URL format. Try YouTube, Dailymotion, or a direct .mp4/.m3u8 link.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
       <Tabs defaultValue="watch" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="watch">Watch Video</TabsTrigger>
-          <TabsTrigger value="events">Match Events</TabsTrigger>
-          <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center gap-2">
+          <TabsList className="grid flex-1 grid-cols-5">
+            <TabsTrigger value="watch">Watch Video</TabsTrigger>
+            <TabsTrigger value="events">Match Events</TabsTrigger>
+            <TabsTrigger value="highlights">Generate Highlights</TabsTrigger>
+            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced Highlights</TabsTrigger>
+          </TabsList>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Video settings">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <VideoAnalysisSettings
+                videoUrl={url}
+                onVideoUrlChange={onVideoUrlChange}
+                kickoffOffset={kickoffOffset}
+                onKickoffOffsetChange={setKickoffOffset}
+                secondHalfOffset={secondHalfOffset}
+                onSecondHalfOffsetChange={setSecondHalfOffset}
+                onEventClick={handleEventClick}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
 
         <TabsContent value="watch">
           <Card className="overflow-hidden">
