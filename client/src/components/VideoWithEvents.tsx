@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MatchEventTable } from '@/components/MatchEventTable';
 import { RichMatchEventView } from '@/components/RichMatchEventView';
 import { Timeline } from '@/components/Timeline';
 import { VideoAnalysisSettings } from '@/components/VideoAnalysisSettings';
@@ -276,6 +275,24 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
 
   const handleViewHighlightsVideo = (videoUrl: string, _highlightPackage: any) => {
     onVideoUrlChange(videoUrl);
+  };
+
+  const handleEventsTabSeek = (eventTimeInSeconds: number, eventPeriod: number = 1) => {
+    const seekTime = Math.max(0, eventPeriod === 2
+      ? eventTimeInSeconds + secondHalfOffset
+      : eventTimeInSeconds + kickoffOffset);
+    const eventsIframe = document.getElementById('events-tab-iframe') as HTMLIFrameElement | null;
+    if (platform === 'youtube' && eventsIframe?.contentWindow) {
+      eventsIframe.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTime, true] }),
+        'https://www.youtube.com'
+      );
+    } else if (platform === 'vimeo' && eventsIframe?.contentWindow) {
+      eventsIframe.contentWindow.postMessage(
+        JSON.stringify({ method: 'setCurrentTime', value: seekTime }),
+        'https://player.vimeo.com'
+      );
+    }
   };
 
   const handleFullscreen = () => {
@@ -772,7 +789,35 @@ export function VideoWithEvents({ url, onVideoUrlChange, fixtureId, initialKicko
         </TabsContent>
 
         <TabsContent value="events">
-          <RichMatchEventView onEventClick={handleEventClick} events={activeEvents} />
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-4">
+            <RichMatchEventView onEventClick={handleEventsTabSeek} events={activeEvents} />
+            <div className="flex flex-col gap-2">
+              {embedUrl ? (
+                <div className="space-y-2">
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    <iframe
+                      id="events-tab-iframe"
+                      src={embedUrl}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground px-1">Click any event's Play button to jump to that moment</p>
+                </div>
+              ) : (
+                <div className="aspect-video flex items-center justify-center bg-muted rounded-lg">
+                  <div className="text-center text-muted-foreground">
+                    <List className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm font-medium">No video loaded</p>
+                    <p className="text-xs mt-1">Add a video URL in the Watch Video tab</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="highlights">
