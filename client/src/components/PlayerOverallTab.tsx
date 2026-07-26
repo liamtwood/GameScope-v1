@@ -283,9 +283,9 @@ export function PlayerOverallTab({ player }: { player: any }) {
       <div style={{ display: "flex", gap: 22, alignItems: "center", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 16, padding: "22px 24px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
 
         {/* Round player photo */}
-        {player?.headshotPath ? (
+        {player?.avatarPath ? (
           <img
-            src={player.headshotPath}
+            src={player.avatarPath}
             alt=""
             style={{ width: 88, height: 88, borderRadius: "50%", objectFit: "cover", border: `3px solid ${C.line}`, flexShrink: 0 }}
           />
