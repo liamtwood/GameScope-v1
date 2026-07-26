@@ -1,23 +1,23 @@
 import { useState } from "react";
 
-// ── colour tokens ────────────────────────────────────────────────────────────
+// ── colour tokens (light theme) ───────────────────────────────────────────────
 const C = {
-  bg:    "#080808",
-  panel: "#151515",
-  line:  "#2a2a2a",
-  txt:   "#f4f4f4",
-  dim:   "#8f8f8f",
-  dim2:  "#6a6a6a",
-  cyan:  "#29c5f6",
-  tgt:   "#ff5a7a",
-  gold:  "#ffd23f",
-  good:  "#3ddc84",
+  bg:    "#f4f6f8",
+  panel: "#ffffff",
+  line:  "#e2e6ea",
+  txt:   "#111111",
+  dim:   "#5a6473",
+  dim2:  "#9aa3ae",
+  cyan:  "#0891b2",
+  tgt:   "#e11d48",
+  gold:  "#b45309",
+  good:  "#16a34a",
 };
 
 const GRP_COLOR: Record<string, string> = {
-  defend:      "#ff5a7a",
-  progression: "#29c5f6",
-  attack:      "#ffd23f",
+  defend:      "#e11d48",
+  progression: "#0891b2",
+  attack:      "#b45309",
 };
 
 // ── demo data (Lauren Hemp, illustrative — replace with live API) ────────────
@@ -35,25 +35,25 @@ const DEMO = {
     { key: "ball_progression", label: "Ball Progression", group: "progression", playerScore: 88, targetScore: 95 },
     { key: "crossing",         label: "Crossing",         group: "attack",      playerScore: 72, targetScore: 92 },
     { key: "chance_creation",  label: "Chance Creation",  group: "attack",      playerScore: 78, targetScore: 94 },
-    { key: "finishing",        label: "Finishing",        group: "attack",      playerScore: 74, targetScore: 88 },
-    { key: "distribution",     label: "Retention",        group: "progression", playerScore: 82, targetScore: 91 },
-    { key: "transition",       label: "Pressing",         group: "defend",      playerScore: 79, targetScore: 87 },
-    { key: "ground_defence",   label: "Def. Work",        group: "defend",      playerScore: 70, targetScore: 82 },
+    { key: "finishing",        label: "Finishing",         group: "attack",      playerScore: 74, targetScore: 88 },
+    { key: "distribution",     label: "Retention",         group: "progression", playerScore: 82, targetScore: 91 },
+    { key: "transition",       label: "Pressing",          group: "defend",      playerScore: 79, targetScore: 87 },
+    { key: "ground_defence",   label: "Def. Work",         group: "defend",      playerScore: 70, targetScore: 82 },
   ],
   metrics: [
-    { dimension: "take_on",         label: "Take-ons",             subLabel: "success rate",    volume: { value: "7.1", unit: "/90", percentile: 94, target: "7.5" }, efficiency: { value: "62", unit: "%", percentile: 80 }, trend: [74,78,80,82,86,88,91] },
-    { dimension: "take_on",         label: "Progressive carries",  subLabel: "into final third", volume: { value: "6.5", unit: "/90", percentile: 88, target: "7.0" }, efficiency: { value: "48", unit: "%", percentile: 74 }, trend: [68,71,74,76,79,82,88] },
-    { dimension: "take_on",         label: "Fouls won",            subLabel: "",                volume: { value: "2.3", unit: "/90", percentile: 85, target: "2.6" }, efficiency: null, trend: [72,75,76,79,81,83,85] },
-    { dimension: "chance_creation", label: "Key passes",           subLabel: "",                volume: { value: "2.2", unit: "/90", percentile: 78, target: "2.8" }, efficiency: null, trend: [60,64,66,70,72,75,78] },
-    { dimension: "chance_creation", label: "Expected assists (xA)",subLabel: "",                volume: { value: "0.24",unit: "/90", percentile: 71, target: "0.32" }, efficiency: null, trend: [52,56,58,62,65,68,71] },
-    { dimension: "crossing",        label: "Crosses completed",    subLabel: "accuracy",        volume: { value: "1.8", unit: "/90", percentile: 68, target: "2.4" }, efficiency: { value: "28", unit: "%", percentile: 62 }, trend: [48,52,55,58,62,65,68] },
-    { dimension: "chance_creation", label: "Passes into box",      subLabel: "",                volume: { value: "2.6", unit: "/90", percentile: 74, target: "3.1" }, efficiency: null, trend: [58,62,65,68,70,72,74] },
-    { dimension: "finishing",       label: "Shots",                subLabel: "on-target %",     volume: { value: "2.8", unit: "/90", percentile: 80, target: "3.2" }, efficiency: { value: "51", unit: "%", percentile: 76 }, trend: [64,68,70,73,75,78,80] },
-    { dimension: "finishing",       label: "xG (non-pen)",         subLabel: "per shot",        volume: { value: "0.30",unit: "/90", percentile: 77, target: "0.36" }, efficiency: { value: "0.11", unit: "", percentile: 72 }, trend: [58,62,65,68,71,74,77] },
-    { dimension: "finishing",       label: "Non-penalty goals",    subLabel: "",                volume: { value: "0.35",unit: "/90", percentile: 82, target: "0.42" }, efficiency: null, trend: [64,68,70,74,76,79,82] },
-    { dimension: "transition",      label: "Pressures",            subLabel: "press success",   volume: { value: "18.0",unit: "/90", percentile: 79, target: "21.0" }, efficiency: { value: "34", unit: "%", percentile: 72 }, trend: [62,66,68,70,74,76,79] },
-    { dimension: "transition",      label: "Ball recoveries",      subLabel: "",                volume: { value: "4.0", unit: "/90", percentile: 74, target: "4.8" }, efficiency: null, trend: [60,64,66,68,70,72,74] },
-    { dimension: "ground_defence",  label: "Counterpress regains", subLabel: "",                volume: { value: "1.7", unit: "/90", percentile: 68, target: "2.1" }, efficiency: null, trend: [54,58,60,62,64,66,68] },
+    { dimension: "take_on",         label: "Take-ons",             subLabel: "success rate",     volume: { value: "7.1",  unit: "/90", percentile: 94, target: "7.5"  }, efficiency: { value: "62",   unit: "%", percentile: 80 }, trend: [74,78,80,82,86,88,91] },
+    { dimension: "take_on",         label: "Progressive carries",  subLabel: "into final third", volume: { value: "6.5",  unit: "/90", percentile: 88, target: "7.0"  }, efficiency: { value: "48",   unit: "%", percentile: 74 }, trend: [68,71,74,76,79,82,88] },
+    { dimension: "take_on",         label: "Fouls won",            subLabel: "",                 volume: { value: "2.3",  unit: "/90", percentile: 85, target: "2.6"  }, efficiency: null, trend: [72,75,76,79,81,83,85] },
+    { dimension: "chance_creation", label: "Key passes",           subLabel: "",                 volume: { value: "2.2",  unit: "/90", percentile: 78, target: "2.8"  }, efficiency: null, trend: [60,64,66,70,72,75,78] },
+    { dimension: "chance_creation", label: "Expected assists (xA)",subLabel: "",                 volume: { value: "0.24", unit: "/90", percentile: 71, target: "0.32" }, efficiency: null, trend: [52,56,58,62,65,68,71] },
+    { dimension: "crossing",        label: "Crosses completed",    subLabel: "accuracy",         volume: { value: "1.8",  unit: "/90", percentile: 68, target: "2.4"  }, efficiency: { value: "28",   unit: "%", percentile: 62 }, trend: [48,52,55,58,62,65,68] },
+    { dimension: "chance_creation", label: "Passes into box",      subLabel: "",                 volume: { value: "2.6",  unit: "/90", percentile: 74, target: "3.1"  }, efficiency: null, trend: [58,62,65,68,70,72,74] },
+    { dimension: "finishing",       label: "Shots",                subLabel: "on-target %",      volume: { value: "2.8",  unit: "/90", percentile: 80, target: "3.2"  }, efficiency: { value: "51",   unit: "%", percentile: 76 }, trend: [64,68,70,73,75,78,80] },
+    { dimension: "finishing",       label: "xG (non-pen)",         subLabel: "per shot",         volume: { value: "0.30", unit: "/90", percentile: 77, target: "0.36" }, efficiency: { value: "0.11", unit: "",  percentile: 72 }, trend: [58,62,65,68,71,74,77] },
+    { dimension: "finishing",       label: "Non-penalty goals",    subLabel: "",                 volume: { value: "0.35", unit: "/90", percentile: 82, target: "0.42" }, efficiency: null, trend: [64,68,70,74,76,79,82] },
+    { dimension: "transition",      label: "Pressures",            subLabel: "press success",    volume: { value: "18.0", unit: "/90", percentile: 79, target: "21.0" }, efficiency: { value: "34",   unit: "%", percentile: 72 }, trend: [62,66,68,70,74,76,79] },
+    { dimension: "transition",      label: "Ball recoveries",      subLabel: "",                 volume: { value: "4.0",  unit: "/90", percentile: 74, target: "4.8"  }, efficiency: null, trend: [60,64,66,68,70,72,74] },
+    { dimension: "ground_defence",  label: "Counterpress regains", subLabel: "",                 volume: { value: "1.7",  unit: "/90", percentile: 68, target: "2.1"  }, efficiency: null, trend: [54,58,60,62,64,66,68] },
   ],
   trajectory: {
     labels: ["GW1-5","GW6-10","GW11-15","GW16-20","GW21-25","Now"],
@@ -98,12 +98,12 @@ const DEMO = {
 };
 
 const METRIC_GROUPS = [
-  { key: "take_on",         label: "1v1 & Carrying",         grp: "progression" },
-  { key: "chance_creation", label: "Chance Creation",         grp: "attack" },
-  { key: "crossing",        label: "Crossing",                grp: "attack" },
-  { key: "finishing",       label: "Finishing",               grp: "attack" },
-  { key: "transition",      label: "Transition & Defending",  grp: "defend" },
-  { key: "ground_defence",  label: "Defensive Work",          grp: "defend" },
+  { key: "take_on",         label: "1v1 & Carrying",        grp: "progression" },
+  { key: "chance_creation", label: "Chance Creation",        grp: "attack" },
+  { key: "crossing",        label: "Crossing",               grp: "attack" },
+  { key: "finishing",       label: "Finishing",              grp: "attack" },
+  { key: "transition",      label: "Transition & Defending", grp: "defend" },
+  { key: "ground_defence",  label: "Defensive Work",         grp: "defend" },
 ];
 
 // ── sub-components ────────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ function CircularGauge({ pct }: { pct: number }) {
   const r = 48, cx = 60, cy = 60, circ = 2 * Math.PI * r;
   return (
     <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#242424" strokeWidth={10} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.line} strokeWidth={10} />
       <circle
         cx={cx} cy={cy} r={r} fill="none" stroke={C.cyan} strokeWidth={10}
         strokeLinecap="round"
@@ -152,7 +152,6 @@ function RadarChart({ dims }: { dims: typeof DEMO.dimensions }) {
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: "block" }}>
-      {/* Grid rings */}
       {[0.25, 0.5, 0.75, 1].map(f => (
         <polygon
           key={f}
@@ -160,27 +159,22 @@ function RadarChart({ dims }: { dims: typeof DEMO.dimensions }) {
           fill="none" stroke={C.line} strokeWidth={1}
         />
       ))}
-      {/* Spokes */}
       {Array.from({ length: N }, (_, i) => {
         const [x, y] = pt(i, R);
         return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke={C.line} strokeWidth={1} />;
       })}
-      {/* Target outline (dashed magenta) */}
       <polygon
         points={polyPts(dims.map(d => d.targetScore))}
         fill="none" stroke={C.tgt} strokeWidth={1.8} strokeDasharray="5 3" strokeLinejoin="round"
       />
-      {/* Player fill */}
       <polygon
         points={polyPts(dims.map(d => d.playerScore))}
-        fill={C.cyan} fillOpacity={0.22} stroke={C.cyan} strokeWidth={2} strokeLinejoin="round"
+        fill={C.cyan} fillOpacity={0.18} stroke={C.cyan} strokeWidth={2} strokeLinejoin="round"
       />
-      {/* Player dots */}
       {dims.map((d, i) => {
         const [x, y] = pt(i, (R * d.playerScore) / 100);
         return <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r={3} fill={C.cyan} />;
       })}
-      {/* Labels + phase dots */}
       {dims.map((d, i) => {
         const [lx, ly] = pt(i, R + 22);
         const [dx, dy] = pt(i, R + 8);
@@ -188,7 +182,7 @@ function RadarChart({ dims }: { dims: typeof DEMO.dimensions }) {
         return (
           <g key={i}>
             <circle cx={dx.toFixed(1)} cy={dy.toFixed(1)} r={3.5} fill={GRP_COLOR[d.group] ?? C.dim} />
-            <text x={lx.toFixed(1)} y={ly.toFixed(1)} fill="#a6a6a6" fontSize={9.5}
+            <text x={lx.toFixed(1)} y={ly.toFixed(1)} fill={C.dim} fontSize={9.5}
               textAnchor={anchor} dominantBaseline="middle" fontFamily="inherit">
               {d.label}
             </text>
@@ -256,8 +250,8 @@ function PitchMap({ events }: { events: typeof DEMO.pitch.events }) {
           const x2 = px(ev.x2 as number), y2 = py(ev.y2 as number);
           return (
             <g key={i}>
-              <line x1={x} y1={y} x2={x2} y2={y2} stroke={C.gold} strokeWidth={1.6} strokeDasharray="3 3" />
-              <circle cx={x} cy={y} r={3} fill={C.gold} />
+              <line x1={x} y1={y} x2={x2} y2={y2} stroke="#d97706" strokeWidth={1.6} strokeDasharray="3 3" />
+              <circle cx={x} cy={y} r={3} fill="#d97706" />
             </g>
           );
         }
@@ -275,29 +269,35 @@ export function PlayerOverallTab({ player }: { player: any }) {
   const data = DEMO;
 
   const s: Record<string, React.CSSProperties> = {
-    card:    { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 },
+    card:         { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
     sectionLabel: { fontSize: 11, letterSpacing: 1.5, color: C.dim2, textTransform: "uppercase", margin: "28px 0 6px", fontWeight: 700 },
     cardLabel:    { fontSize: 11, letterSpacing: 1, color: C.dim, fontWeight: 700, textTransform: "uppercase" },
-    tag:     { fontSize: 11, border: `1px solid ${C.line}`, borderRadius: 6, padding: "4px 9px", color: C.dim, background: "#111" },
-    tagTgt:  { fontSize: 11, border: `1px solid ${C.tgt}`, borderRadius: 6, padding: "4px 9px", color: "#ffd0da", background: "#111" },
+    tag:          { fontSize: 11, border: `1px solid ${C.line}`, borderRadius: 6, padding: "4px 9px", color: C.dim, background: C.bg },
+    tagTgt:       { fontSize: 11, border: `1px solid ${C.tgt}`, borderRadius: 6, padding: "4px 9px", color: C.tgt, background: "#fff0f3" },
   };
 
   return (
     <div style={{ background: C.bg, color: C.txt, fontFamily: "'Segoe UI', Helvetica, Arial, sans-serif", minHeight: 600, padding: "24px 28px 56px" }}>
 
       {/* ── Hero ── */}
-      <div style={{ display: "flex", gap: 22, alignItems: "center", background: "linear-gradient(100deg,#161616 0%,#0e0e0e 60%)", border: `1px solid ${C.line}`, borderRadius: 16, padding: "22px 24px" }}>
-        {player?.photoURL ? (
-          <img src={player.photoURL} alt="" style={{ width: 88, height: 88, borderRadius: 14, objectFit: "cover", border: `1px solid #2f2f2f`, flexShrink: 0 }} />
+      <div style={{ display: "flex", gap: 22, alignItems: "center", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 16, padding: "22px 24px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+
+        {/* Round player photo */}
+        {player?.headshotPath ? (
+          <img
+            src={player.headshotPath}
+            alt=""
+            style={{ width: 88, height: 88, borderRadius: "50%", objectFit: "cover", border: `3px solid ${C.line}`, flexShrink: 0 }}
+          />
         ) : (
-          <div style={{ width: 88, height: 88, borderRadius: 14, background: "#232323", border: `1px solid #2f2f2f`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 800, color: "#555" }}>
+          <div style={{ width: 88, height: 88, borderRadius: "50%", background: C.line, border: `3px solid ${C.line}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 800, color: C.dim }}>
             {player?.firstName?.[0]}{player?.lastName?.[0]}
           </div>
         )}
 
         <div style={{ flex: "1 1 auto", minWidth: 0 }}>
-          <div style={{ fontSize: 10, color: C.dim, fontWeight: 600, letterSpacing: 2, marginBottom: 4 }}>OVERALL · DEVELOPMENT PROFILE</div>
-          <div style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.1 }}>
+          <div style={{ fontSize: 10, color: C.dim2, fontWeight: 600, letterSpacing: 2, marginBottom: 4 }}>OVERALL · DEVELOPMENT PROFILE</div>
+          <div style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.1, color: C.txt }}>
             {player?.firstName} {player?.lastName}{" "}
             <span style={{ fontSize: 15, color: C.dim, fontWeight: 600 }}>#{data.player.jersey}</span>
           </div>
@@ -310,9 +310,9 @@ export function PlayerOverallTab({ player }: { player: any }) {
             ].map(([k, v]) => (
               <span key={k} style={s.tag}>{k} <b style={{ color: C.txt }}>{v}</b></span>
             ))}
-            <span style={s.tagTgt}>Benchmark <b style={{ color: C.tgt }}>{data.pathwayTarget.name}</b></span>
+            <span style={s.tagTgt}>Benchmark <b>{data.pathwayTarget.name}</b></span>
           </div>
-          <div style={{ marginTop: 12, fontSize: 13.5, color: "#d7d7d7", lineHeight: 1.55 }}>
+          <div style={{ marginTop: 12, fontSize: 13.5, color: C.dim, lineHeight: 1.55 }}>
             <span style={{ color: C.cyan, fontWeight: 700 }}>{data.index.roleLabel}. </span>
             {data.index.verdict}
           </div>
@@ -320,16 +320,16 @@ export function PlayerOverallTab({ player }: { player: any }) {
 
         <div style={{ flexShrink: 0, textAlign: "center" }}>
           <CircularGauge pct={data.index.overallPctOfTarget} />
-          <div style={{ fontSize: 10, color: C.dim, letterSpacing: 1, marginTop: 5, maxWidth: 110 }}>OVERALL VS BENCHMARK</div>
+          <div style={{ fontSize: 10, color: C.dim2, letterSpacing: 1, marginTop: 5, maxWidth: 110 }}>OVERALL VS BENCHMARK</div>
         </div>
       </div>
 
       {/* ── Compare toggle ── */}
-      <div style={{ display: "flex", margin: "18px 0 4px", border: `1px solid ${C.line}`, borderRadius: 10, overflow: "hidden", width: "fit-content" }}>
+      <div style={{ display: "flex", margin: "18px 0 4px", border: `1px solid ${C.line}`, borderRadius: 10, overflow: "hidden", width: "fit-content", background: C.panel, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
         {([ ["target", `vs ${data.pathwayTarget.name}`], ["peers", "vs Age Peers"], ["trajectory", "vs Own Trajectory"] ] as const).map(([k, label]) => (
           <button key={k} onClick={() => setCompareMode(k)} style={{
             background: compareMode === k ? C.cyan : "transparent",
-            color: compareMode === k ? "#062430" : C.dim,
+            color: compareMode === k ? "#ffffff" : C.dim,
             border: "none", padding: "9px 16px", fontSize: 12,
             cursor: "pointer", fontWeight: compareMode === k ? 700 : 400,
             fontFamily: "inherit", letterSpacing: 0.3,
@@ -345,8 +345,8 @@ export function PlayerOverallTab({ player }: { player: any }) {
           <div style={{ ...s.cardLabel, marginBottom: 6 }}>Performance Profile</div>
           <RadarChart dims={data.dimensions} />
           <div style={{ display: "flex", gap: 18, justifyContent: "center", fontSize: 11, color: C.dim, marginTop: 4 }}>
-            <span><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: 2, background: C.cyan, marginRight: 6, verticalAlign: "middle" }} />{player?.firstName ?? "Player"}</span>
-            <span><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: 2, background: C.tgt, marginRight: 6, verticalAlign: "middle" }} />{data.pathwayTarget.name}</span>
+            <span><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: 2, background: C.cyan, marginRight: 6, verticalAlign: "middle", opacity: 0.5 }} />{player?.firstName ?? "Player"}</span>
+            <span><span style={{ display: "inline-block", width: 11, height: 3, borderRadius: 0, background: C.tgt, marginRight: 6, verticalAlign: "middle" }} />{data.pathwayTarget.name}</span>
           </div>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", fontSize: 10, color: C.dim2, marginTop: 6 }}>
             {(["defend", "progression", "attack"] as const).map(g => (
@@ -362,19 +362,19 @@ export function PlayerOverallTab({ player }: { player: any }) {
           </div>
 
           {/* Superpower */}
-          <div style={{ border: `1px solid ${C.cyan}`, borderRadius: 12, padding: 14, background: "linear-gradient(180deg,rgba(41,197,246,.10),rgba(41,197,246,0))", marginTop: 10 }}>
+          <div style={{ border: `1px solid ${C.cyan}`, borderRadius: 12, padding: 14, background: `rgba(8,145,178,0.06)`, marginTop: 10 }}>
             <div style={{ fontSize: 11, color: C.cyan, letterSpacing: 1, fontWeight: 700 }}>★ SUPERPOWER — PROTECT &amp; SHARPEN</div>
-            <div style={{ fontSize: 17, fontWeight: 800, margin: "4px 0 7px" }}>{data.focus.superpower.title}</div>
-            <div style={{ fontSize: 12.5, color: "#cfcfcf", lineHeight: 1.5 }}>{data.focus.superpower.note}</div>
+            <div style={{ fontSize: 17, fontWeight: 800, margin: "4px 0 7px", color: C.txt }}>{data.focus.superpower.title}</div>
+            <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5 }}>{data.focus.superpower.note}</div>
           </div>
 
           {/* Blockers */}
-          <div style={{ fontSize: 11, letterSpacing: 1, color: C.dim, fontWeight: 700, textTransform: "uppercase", margin: "16px 0 2px" }}>Must-fix blockers</div>
+          <div style={{ fontSize: 11, letterSpacing: 1, color: C.dim2, fontWeight: 700, textTransform: "uppercase", margin: "16px 0 2px" }}>Must-fix blockers</div>
           {data.focus.blockers.map((b, i) => (
             <div key={i} style={{ display: "flex", gap: 10, padding: "11px 0", borderBottom: i < data.focus.blockers.length - 1 ? `1px solid ${C.line}` : "none" }}>
               <div style={{ flexShrink: 0, width: 8, height: 8, borderRadius: "50%", background: C.tgt, marginTop: 5 }} />
               <div>
-                <div style={{ fontSize: 13.5, fontWeight: 700 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: C.txt }}>
                   {b.title} <span style={{ fontSize: 11, color: C.tgt, fontWeight: 700 }}>· {b.pctOfTarget}% of target</span>
                 </div>
                 <div style={{ fontSize: 12, color: C.dim, lineHeight: 1.45, marginTop: 2 }}>{b.reason}</div>
@@ -387,7 +387,6 @@ export function PlayerOverallTab({ player }: { player: any }) {
       {/* ── Metrics table ── */}
       <div style={s.sectionLabel as React.CSSProperties}>Position-tailored metrics · per 90 · volume + efficiency</div>
       <div style={{ ...s.card }}>
-        {/* Header row */}
         <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1.1fr 1fr 58px", gap: 12, fontSize: 10, letterSpacing: 1, color: C.dim2, textTransform: "uppercase", paddingBottom: 6, borderBottom: `1px solid ${C.line}`, marginBottom: 2 }}>
           <span>Metric</span><span>Volume /90</span><span>Efficiency</span><span>Trend</span>
         </div>
@@ -397,37 +396,34 @@ export function PlayerOverallTab({ player }: { player: any }) {
           if (!rows.length) return null;
           return (
             <div key={grp.key}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: "#dcdcdc", margin: "14px 0 8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: C.txt, margin: "14px 0 8px" }}>
                 <span style={{ width: 9, height: 9, borderRadius: 2, background: GRP_COLOR[grp.grp], display: "inline-block", flexShrink: 0 }} />
                 {grp.label}
               </div>
               {rows.map((row, ri) => (
-                <div key={ri} style={{ display: "grid", gridTemplateColumns: "1.5fr 1.1fr 1fr 58px", gap: 12, alignItems: "center", padding: "8px 0", borderBottom: "1px solid #202020" }}>
-                  {/* Name */}
-                  <div style={{ fontSize: 13 }}>
+                <div key={ri} style={{ display: "grid", gridTemplateColumns: "1.5fr 1.1fr 1fr 58px", gap: 12, alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.line}` }}>
+                  <div style={{ fontSize: 13, color: C.txt }}>
                     {row.label}
                     {row.subLabel && <div style={{ color: C.dim2, fontSize: 10.5, marginTop: 2 }}>{row.subLabel}</div>}
                   </div>
 
-                  {/* Volume */}
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>
                       {row.volume.value}
                       <span style={{ fontSize: 10, color: C.dim, fontWeight: 400 }}> {row.volume.unit} · {row.volume.percentile}th · tgt {row.volume.target}</span>
                     </div>
-                    <div style={{ height: 6, background: "#242424", borderRadius: 4, marginTop: 4, position: "relative", overflow: "hidden" }}>
+                    <div style={{ height: 6, background: C.line, borderRadius: 4, marginTop: 4, position: "relative", overflow: "hidden" }}>
                       <div style={{ position: "absolute", inset: 0, width: `${row.volume.percentile}%`, borderRadius: 4, background: C.cyan }} />
                     </div>
                   </div>
 
-                  {/* Efficiency */}
                   {row.efficiency ? (
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>
                         {row.efficiency.value}{row.efficiency.unit}
                         <span style={{ fontSize: 10, color: C.dim, fontWeight: 400 }}> {row.efficiency.percentile}th</span>
                       </div>
-                      <div style={{ height: 6, background: "#242424", borderRadius: 4, marginTop: 4, overflow: "hidden" }}>
+                      <div style={{ height: 6, background: C.line, borderRadius: 4, marginTop: 4, overflow: "hidden" }}>
                         <div style={{ height: "100%", width: `${row.efficiency.percentile}%`, borderRadius: 4, background: GRP_COLOR[grp.grp] }} />
                       </div>
                     </div>
@@ -435,7 +431,6 @@ export function PlayerOverallTab({ player }: { player: any }) {
                     <div style={{ color: C.dim2, fontSize: 14 }}>—</div>
                   )}
 
-                  {/* Sparkline */}
                   <SparkLine data={row.trend} />
                 </div>
               ))}
@@ -447,7 +442,6 @@ export function PlayerOverallTab({ player }: { player: any }) {
       {/* ── Trajectory + Pitch ── */}
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 20 }}>
 
-        {/* Trajectory */}
         <div style={{ ...s.card, flex: "1 1 340px", minWidth: 300 }}>
           <div style={{ ...s.cardLabel, marginBottom: 8 }}>Trajectory · gap to benchmark closing</div>
           <TrajectoryChart traj={data.trajectory} />
@@ -457,12 +451,11 @@ export function PlayerOverallTab({ player }: { player: any }) {
           </div>
         </div>
 
-        {/* Pitch map */}
         <div style={{ ...s.card, flex: "1 1 280px", minWidth: 260 }}>
           <div style={{ ...s.cardLabel, marginBottom: 8 }}>Left-wing activity map · from event x/y</div>
           <PitchMap events={data.pitch.events} />
           <div style={{ display: "flex", gap: 14, fontSize: 11, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
-            {[["#29c5f6","Take-on won"],["#555","Take-on lost"],["#ffd23f","Cross"]].map(([bg, label]) => (
+            {[["#0891b2","Take-on won"],["#888","Take-on lost"],["#d97706","Cross"]].map(([bg, label]) => (
               <span key={label}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: bg, marginRight: 5, verticalAlign: "middle" }} />{label}</span>
             ))}
           </div>
@@ -483,7 +476,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 12, background: "rgba(255,210,63,.08)", border: "1px solid rgba(255,210,63,.28)", color: "#ffe08a", fontSize: 11.5, borderRadius: 10, padding: "9px 14px", lineHeight: 1.5 }}>
+        <div style={{ marginTop: 12, background: "rgba(180,83,9,0.06)", border: `1px solid rgba(180,83,9,0.2)`, color: C.gold, fontSize: 11.5, borderRadius: 10, padding: "9px 14px", lineHeight: 1.5 }}>
           ⚠ Illustrative data — percentiles and dimension scores are demonstration values. Connect real season event data to compute live percentiles vs position cohort.
         </div>
       </div>
