@@ -12,8 +12,32 @@ import { Label } from '@/components/ui/label';
 import { SeasonPicker } from '@/components/ui/season-picker';
 import { getEffectiveSeasonStartMonth, getCurrentSeason, filterFixturesBySeason } from '@/utils/seasonUtils';
 
+const DURATION_LABELS: Record<string, string> = {
+  "1st_half": "1st Half",
+  "2nd_half": "2nd Half",
+  "full_game": "Full Game",
+  "training_session": "Training Session",
+};
+
+const LOCATION_LABELS: Record<string, string> = {
+  "halfway_line": "Half Way Line",
+  "behind_goal": "Behind Goal",
+  "corner_flag": "Corner Flag",
+  "sideline": "Sideline",
+  "elevated_view": "Elevated View",
+};
+
+function getCameraLabel(video: any): string {
+  if (video.label) return video.label;
+  const d = DURATION_LABELS[video.duration] || video.duration || '';
+  const l = LOCATION_LABELS[video.location] || video.location || '';
+  if (d && l) return `${d} · ${l}`;
+  return d || l || 'Camera';
+}
+
 export default function MatchAnalysis() {
   const [videoUrl, setVideoUrl] = useState<string>('');
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('');
   const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
   const { selectedClub: currentClub } = useClub();
@@ -35,21 +59,31 @@ export default function MatchAnalysis() {
     enabled: !!fixtureId,
   });
 
-  // When the fixture loads, set the video URL and offsets from its video links
-  const firstVideoLink = (fixture?.videoLinks as any[] | null)?.[0] ?? null;
-  const fixtureKickoffOffset: number | undefined = firstVideoLink?.kickoffOffset ?? undefined;
-  const fixtureSecondHalfOffset: number | undefined = firstVideoLink?.secondHalfOffset ?? undefined;
+  const videoLinks: any[] = (fixture?.videoLinks as any[] | null) ?? [];
 
+  // When the fixture changes, reset to the first video link
   useEffect(() => {
     if (fixture) {
       const links = fixture.videoLinks as any[] | null;
-      if (links && links.length > 0 && links[0].url) {
-        setVideoUrl(links[0].url);
+      if (links && links.length > 0) {
+        setSelectedVideoId(links[0].id);
+        setVideoUrl(links[0].url || '');
       } else {
+        setSelectedVideoId('');
         setVideoUrl('');
       }
     }
   }, [fixture?.id]);
+
+  const handleCameraChange = (id: string) => {
+    setSelectedVideoId(id);
+    const link = videoLinks.find((v: any) => v.id === id);
+    if (link) setVideoUrl(link.url || '');
+  };
+
+  const selectedVideoLink = videoLinks.find((v: any) => v.id === selectedVideoId) ?? videoLinks[0] ?? null;
+  const fixtureKickoffOffset: number | undefined = selectedVideoLink?.kickoffOffset ?? undefined;
+  const fixtureSecondHalfOffset: number | undefined = selectedVideoLink?.secondHalfOffset ?? undefined;
 
   const handleFixtureChange = (id: string) => {
     setLocation(`/match-analysis?fixtureId=${id}`);
@@ -91,6 +125,23 @@ export default function MatchAnalysis() {
         </Select>
         {sortedFixtures.length === 0 && currentTeam && (
           <span className="text-sm text-muted-foreground">No fixtures for this season</span>
+        )}
+        {videoLinks.length > 1 && (
+          <>
+            <Label className="text-sm font-medium whitespace-nowrap">Choose Camera</Label>
+            <Select value={selectedVideoId} onValueChange={handleCameraChange}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Select camera…" />
+              </SelectTrigger>
+              <SelectContent>
+                {videoLinks.map((v: any) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    {getCameraLabel(v)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
         )}
       </div>
 
