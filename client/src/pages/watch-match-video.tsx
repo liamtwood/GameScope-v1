@@ -384,9 +384,8 @@ export default function WatchMatchVideo() {
 
       {/* Tabs for Video Player, Match Events, Match Stats, Spider Charts, and Match Report */}
       <Tabs defaultValue="video" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="video">Video Player</TabsTrigger>
-          <TabsTrigger value="events">Match Events</TabsTrigger>
           <TabsTrigger value="stats">Team Statistics</TabsTrigger>
           <TabsTrigger value="spider">Spider Charts</TabsTrigger>
           <TabsTrigger value="report">Match Report</TabsTrigger>
@@ -418,42 +417,6 @@ export default function WatchMatchVideo() {
                 </Select>
               </div>
             )}
-          </div>
-          {/* Video URL input — paste a URL to save it to this fixture */}
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Paste a YouTube, Vimeo, Dailymotion, or direct video URL to set the match video…"
-              value={videoUrlInput}
-              onChange={(e) => setVideoUrlInput(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              variant="default"
-              size="sm"
-              disabled={!videoUrlInput.trim() || !fixtureId}
-              onClick={async () => {
-                const newUrl = videoUrlInput.trim();
-                const newVideo = {
-                  id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-                  url: newUrl,
-                  duration: 'full_game',
-                  location: 'halfway_line',
-                  uploadedAt: new Date().toISOString(),
-                };
-                // Prepend new URL, keep existing ones
-                const updated = [newVideo, ...videos.filter(v => v.url !== newUrl)];
-                await fetch(`/api/fixtures/${fixtureId}/videos`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ videos: updated }),
-                });
-                queryClient.invalidateQueries({ queryKey: ['/api/fixture', fixtureId] });
-                setVideoUrlInput('');
-                toast({ title: 'Video URL saved', description: 'The video will now load for this fixture.' });
-              }}
-            >
-              Set Video
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -565,100 +528,6 @@ export default function WatchMatchVideo() {
             )}
           </div>
         </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Match Events Tab */}
-        <TabsContent value="events">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Match Events</CardTitle>
-                  {fixtureMatchEvents && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      <CheckCircle className="inline h-3 w-3 text-green-500 mr-1" />
-                      {Array.isArray(fixtureMatchEvents.events) ? fixtureMatchEvents.events.length : 0} events from {fixtureMatchEvents.source || 'statsbomb'}
-                      {fixtureMatchEvents.importedAt && ` · imported ${new Date(fixtureMatchEvents.importedAt).toLocaleDateString()}`}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  {fixtureMatchEvents && !showImportForm && (
-                    <Button variant="outline" size="sm" onClick={() => setShowImportForm(true)}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Re-import
-                    </Button>
-                  )}
-                  {fixtureMatchEvents && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteEventsMutation.mutate()}
-                      disabled={deleteEventsMutation.isPending}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {(!fixtureMatchEvents || showImportForm) && !eventsLoading ? (
-                <div className="space-y-6">
-                  {!fixtureMatchEvents && (
-                    <div className="text-center py-6 border-2 border-dashed rounded-lg">
-                      <Download className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                      <h3 className="font-semibold text-lg mb-1">No events imported yet</h3>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        Import StatsBomb event data to enable event timeline, highlights, and video sync.
-                      </p>
-                    </div>
-                  )}
-                  <div className="max-w-lg mx-auto space-y-4 p-4 border rounded-lg bg-muted/30">
-                    <h3 className="font-semibold">Import StatsBomb Events</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="eventsUrl">Events JSON URL <span className="text-destructive">*</span></Label>
-                      <Input
-                        id="eventsUrl"
-                        placeholder="https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/7580.json"
-                        value={eventsUrl}
-                        onChange={(e) => setEventsUrl(e.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">StatsBomb open-data events URL or any publicly accessible JSON URL</p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lineupsUrl">Lineups JSON URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
-                      <Input
-                        id="lineupsUrl"
-                        placeholder="https://raw.githubusercontent.com/statsbomb/open-data/master/data/lineups/7580.json"
-                        value={lineupsUrl}
-                        onChange={(e) => setLineupsUrl(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => importEventsMutation.mutate({ eventsUrl, lineupsUrl: lineupsUrl || undefined })}
-                        disabled={!eventsUrl.trim() || importEventsMutation.isPending}
-                        className="flex-1"
-                      >
-                        {importEventsMutation.isPending ? 'Importing...' : 'Import Events'}
-                      </Button>
-                      {showImportForm && (
-                        <Button variant="outline" onClick={() => setShowImportForm(false)}>
-                          Cancel
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : eventsLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading events...</div>
-              ) : (
-                <MatchEventTable onEventClick={() => {}} events={fixtureMatchEvents?.events} />
-              )}
-            </CardContent>
           </Card>
         </TabsContent>
 
