@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
-import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield, Video } from "lucide-react";
+import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield, Video, LayoutDashboard } from "lucide-react";
+import { PlayerOverallTab } from "@/components/PlayerOverallTab";
 import { format, differenceInYears } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
@@ -808,6 +809,18 @@ export default function PlayerDetails() {
                             onClick={() => setActiveTab('video')}
                           >
                             Videos
+                          </span>
+
+                          {/* Overall Tab */}
+                          <span
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1 ${
+                              activeTab === 'overall' ? 'font-bold' : 'text-foreground/70'
+                            }`}
+                            style={activeTab === 'overall' ? { color: clubPrimaryColor } : {}}
+                            onClick={() => setActiveTab('overall')}
+                          >
+                            <LayoutDashboard className="h-3.5 w-3.5" />
+                            Overall
                           </span>
                         </div>
                         
@@ -2101,6 +2114,13 @@ export default function PlayerDetails() {
                       </div>
                     </div>
                   </div>
+                </TabsContent>
+              )}
+
+              {/* Overall Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="overall" className="m-0">
+                  <PlayerOverallTab player={player} />
                 </TabsContent>
               )}
 

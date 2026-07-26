@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameScope · Player Profile 2.0 — Mockup</title>
+<style>
+  :root{
+    --cyan:#29c5f6; --target:#ff5a7a; --gold:#ffd23f;
+    --bg:#080808; --panel:#151515; --panel2:#1c1c1c; --line:#2a2a2a;
+    --txt:#f4f4f4; --dim:#8f8f8f; --dim2:#6a6a6a; --good:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',Helvetica,Arial,sans-serif;padding:0 0 60px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .topbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);color:var(--dim);font-size:12px;letter-spacing:1px}
+  .topbar b{color:var(--cyan);font-weight:800;letter-spacing:.5px}
+  .demo{margin-left:auto;font-size:10px;border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--dim2)}
+
+  /* header */
+  .hero{display:flex;gap:22px;align-items:center;background:linear-gradient(100deg,#161616 0%,#0e0e0e 60%);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-top:22px}
+  .avatar{width:88px;height:88px;border-radius:14px;background:#232323 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88"><text x="50%" y="56%" font-size="30" fill="%23555" text-anchor="middle" font-family="Arial" font-weight="bold">AW</text></svg>') center/cover;flex:0 0 auto;border:1px solid #2f2f2f}
+  .hmeta{flex:1 1 auto;min-width:0}
+  .hname{font-size:26px;font-weight:800;letter-spacing:.3px;line-height:1}
+  .hname small{display:block;font-size:12px;color:var(--dim);font-weight:600;letter-spacing:2px;margin-bottom:5px}
+  .htags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .tag{font-size:11px;border:1px solid var(--line);border-radius:6px;padding:4px 9px;color:var(--dim);background:#111}
+  .tag b{color:var(--txt);font-weight:700}
+  .tag.tgt{border-color:var(--target);color:#ffd0da}
+  .tag.tgt b{color:var(--target)}
+  .verdict{margin-top:14px;font-size:13.5px;color:#d7d7d7;line-height:1.5;max-width:640px}
+  .verdict .role{color:var(--cyan);font-weight:700}
+
+  .ring{flex:0 0 auto;text-align:center}
+  .ring .num{font-size:34px;font-weight:800;color:var(--cyan);line-height:1}
+  .ring .lbl{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:6px;max-width:120px}
+
+  /* toggle */
+  .toggle{display:flex;gap:0;margin:20px 0 4px;border:1px solid var(--line);border-radius:10px;overflow:hidden;width:fit-content}
+  .toggle button{background:transparent;color:var(--dim);border:none;padding:9px 16px;font-size:12px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+  .toggle button.on{background:var(--cyan);color:#062430;font-weight:700}
+  .toggle button:not(.on):hover{color:var(--txt)}
+
+  .row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h3{font-size:12px;letter-spacing:1px;color:var(--dim);font-weight:700;margin-bottom:4px;text-transform:uppercase}
+  .col-radar{flex:1 1 380px;min-width:340px}
+  .col-focus{flex:1 1 380px;min-width:340px}
+
+  svg{display:block;margin:0 auto}
+  .rlegend{display:flex;gap:18px;justify-content:center;font-size:11px;color:var(--dim);margin-top:6px}
+  .rlegend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+  /* focus */
+  .super{border:1px solid var(--cyan);border-radius:12px;padding:14px;background:linear-gradient(180deg,rgba(41,197,246,.10),rgba(41,197,246,0));margin-top:10px}
+  .super .k{font-size:11px;color:var(--cyan);letter-spacing:1px;font-weight:700}
+  .super .t{font-size:17px;font-weight:800;margin:3px 0 6px}
+  .super .d{font-size:12.5px;color:#cfcfcf;line-height:1.5}
+  .blocker{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .blocker:last-child{border-bottom:none}
+  .bdot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--target);margin-top:5px}
+  .blocker .bt{font-size:13.5px;font-weight:700}
+  .blocker .bd{font-size:12px;color:var(--dim);line-height:1.45;margin-top:2px}
+  .blocker .bpct{font-size:11px;color:var(--target);font-weight:700}
+  .focustitle{font-size:12px;letter-spacing:1px;color:var(--dim);font-weight:700;text-transform:uppercase;margin:16px 0 2px}
+
+  /* metrics */
+  .mgroup{margin-top:10px}
+  .mghead{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#dcdcdc;margin:14px 0 8px}
+  .mghead .gd{width:9px;height:9px;border-radius:2px}
+  .mrow{display:grid;grid-template-columns:1.4fr 1fr 1fr 58px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #202020}
+  .mrow:last-child{border-bottom:none}
+  .mname{font-size:13px}
+  .mname small{display:block;color:var(--dim2);font-size:10.5px;margin-top:2px}
+  .metric{display:flex;flex-direction:column;gap:4px}
+  .mval{font-size:13px;font-weight:700}
+  .mval span{font-size:10px;color:var(--dim);font-weight:400}
+  .bar{height:6px;background:#242424;border-radius:4px;position:relative;overflow:hidden}
+  .bar>i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+  .bar .tick{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--target)}
+  .mhdr{display:grid;grid-template-columns:1.4fr 1fr 1fr 58px;gap:12px;font-size:10px;letter-spacing:1px;color:var(--dim2);text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .spark{width:56px;height:22px}
+
+  /* trajectory */
+  .trajwrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .trajnums{font-size:12px;color:var(--dim);line-height:1.7}
+  .trajnums b{color:var(--good);font-size:15px}
+
+  /* pitch */
+  .pitchnote{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:8px}
+  .plegend{display:flex;gap:16px;font-size:11px;color:var(--dim);margin-top:8px;flex-wrap:wrap}
+  .plegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  .matchstrip{display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:12px;color:var(--dim)}
+  .matchstrip b{color:var(--txt);font-size:15px;font-weight:800}
+  .ms{display:flex;flex-direction:column}
+  .sectlabel{font-size:12px;letter-spacing:1.5px;color:var(--dim2);text-transform:uppercase;margin:30px 0 2px;font-weight:700}
+  .demo-banner{background:rgba(255,210,63,.08);border:1px solid rgba(255,210,63,.3);color:#ffe08a;font-size:11.5px;border-radius:10px;padding:9px 13px;margin-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="topbar"><b>◎ GAMESCOPE</b> <span>PLAYER PROFILE 2.0</span> <span class="demo">MOCKUP · PLACEHOLDER DATA</span></div>
+  <div class="wrap">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="avatar"></div>
+      <div class="hmeta">
+        <div class="hname"><small>ACADEMY · U18</small>Amara Wells <span style="font-size:15px;color:var(--dim);font-weight:600">#11</span></div>
+        <div class="htags">
+          <span class="tag">Position <b>Left Winger</b></span>
+          <span class="tag">Foot <b>Right</b></span>
+          <span class="tag">Age <b>16.8</b></span>
+          <span class="tag">Minutes <b>1,240</b></span>
+          <span class="tag tgt">Pathway target <b>Lauren Hemp</b></span>
+        </div>
+        <div class="verdict">
+          <span class="role">Direct wide take-on threat.</span>
+          Already near first-team level at beating her marker and carrying — her superpower. The gap to Hemp is <b>end product</b> (crossing, chance creation, finishing) and defensive contribution.
+        </div>
+      </div>
+      <div class="ring">
+        <svg id="ringSvg" width="120" height="120" viewBox="0 0 120 120"></svg>
+        <div class="lbl">OVERALL vs FIRST-TEAM TARGET</div>
+      </div>
+    </div>
+
+    <!-- TOGGLE -->
+    <div class="toggle">
+      <button class="on">vs First-Team Target (Hemp)</button>
+      <button>vs Age Peers</button>
+      <button>vs Own Trajectory</button>
+    </div>
+
+    <!-- RADAR + FOCUS -->
+    <div class="row">
+      <div class="card col-radar">
+        <h3>Performance Profile</h3>
+        <svg id="radar" width="380" height="360" viewBox="0 0 380 360"></svg>
+        <div class="rlegend">
+          <span><i style="background:var(--cyan)"></i>Amara (now)</span>
+          <span><i style="background:var(--target)"></i>Lauren Hemp — first-team target</span>
+        </div>
+      </div>
+
+      <div class="card col-focus">
+        <h3>Development Focus · <span style="color:var(--cyan)">Strengths-led</span></h3>
+        <div class="super">
+          <div class="k">★ SUPERPOWER — PROTECT & SHARPEN</div>
+          <div class="t">1v1 &amp; Ball Carrying</div>
+          <div class="d">Take-on volume (6.2/90, 88th pctile) and success (58%) are already close to Hemp's first-team level and elite for her age. <b>Program:</b> keep feeding her isolation situations; add decision-making <i>after</i> the beat — the end product is where the value converts.</div>
+        </div>
+        <div class="focustitle">Must-fix blockers</div>
+        <div class="blocker">
+          <div class="bdot"></div>
+          <div>
+            <div class="bt">Final-third end product <span class="bpct">· 47% of target</span></div>
+            <div class="bd">She beats the fullback but the cross / cutback doesn't punish it. Crossing accuracy 15% and xA 0.09/90 are well below Hemp. Highest-leverage development area.</div>
+          </div>
+        </div>
+        <div class="blocker">
+          <div class="bdot"></div>
+          <div>
+            <div class="bt">Defensive &amp; pressing work-rate <span class="bpct">· 73% of target</span></div>
+            <div class="bd">Modern wide players defend. Recoveries and counterpress regains lag the first-team standard — a pathway requirement, not optional.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="sectlabel">Position-tailored metrics · per 90 · volume + efficiency</div>
+    <div class="card" style="margin-top:8px">
+      <div class="mhdr"><span>Metric</span><span>Volume /90</span><span>Efficiency</span><span>Trend</span></div>
+      <div id="metrics"></div>
+    </div>
+
+    <!-- TRAJECTORY + PITCH -->
+    <div class="row" style="margin-top:20px">
+      <div class="card" style="flex:1 1 380px;min-width:340px">
+        <h3>Trajectory · gap to target closing</h3>
+        <svg id="traj" width="360" height="170" viewBox="0 0 360 170"></svg>
+        <div class="trajwrap">
+          <div class="trajnums">Last 3 match-windows: 57% → 63% → <b>67%</b> of first-team target.<br>Superpower steady; <span style="color:var(--cyan)">crossing +9 pts</span> since the focus block began.</div>
+        </div>
+      </div>
+      <div class="card" style="flex:1 1 380px;min-width:340px">
+        <h3>Left-wing activity map · from event x/y</h3>
+        <svg id="pitch" width="260" height="300" viewBox="0 0 260 300" style="margin-top:4px"></svg>
+        <div class="plegend">
+          <span><i style="background:var(--cyan)"></i>Take-on won</span>
+          <span><i style="background:#555"></i>Take-on lost</span>
+          <span><i style="background:var(--gold)"></i>Cross</span>
+        </div>
+        <div class="pitchnote">Where she wins her 1v1s and progresses — concentrated in the left channel and half-space. No table conveys this; it comes straight from your event coordinates.</div>
+      </div>
+    </div>
+
+    <!-- MATCH CONTEXT -->
+    <div class="sectlabel">Reference · single-match sample (real data)</div>
+    <div class="card" style="margin-top:8px">
+      <h3>Lauren Hemp — 2023 World Cup Final vs Spain (90 mins)</h3>
+      <div class="matchstrip">
+        <div class="ms"><b>4</b><span>Shots</span></div>
+        <div class="ms"><b>2</b><span>On target</span></div>
+        <div class="ms"><b>2</b><span>Crosses</span></div>
+        <div class="ms"><b>0</b><span>Goals</span></div>
+        <div class="ms"><b>0</b><span>Assists</span></div>
+        <div class="ms"><b>1</b><span>Fouls won</span></div>
+        <div class="ms"><b>1</b><span>Yellow</span></div>
+      </div>
+      <div class="demo-banner">⚠ Mockup with placeholder season data for both players. Real figures shown are Hemp's single-match line from the WC final; the radar/percentiles use illustrative values. Swap in real season stats + the exported event data (see notes) to make it live.</div>
+    </div>
+
+  </div>
+
+<script>
+/* ---------- DATA (illustrative) ---------- */
+const dims=[
+  {label:'1v1 /\nTake-on',   player:78, target:92, grp:1},
+  {label:'Ball\nProgression',player:68, target:88, grp:1},
+  {label:'Crossing',         player:40, target:85, grp:2},
+  {label:'Chance\nCreation', player:44, target:90, grp:2},
+  {label:'Finishing',        player:42, target:86, grp:2},
+  {label:'Retention',        player:60, target:84, grp:1},
+  {label:'Pressing',         player:66, target:80, grp:0},
+  {label:'Def.\nWork',       player:58, target:74, grp:0}
+];
+const grpColor=['#ff5a7a','#29c5f6','#ffd23f']; // 0 def, 1 progression, 2 attack
+const metricGroups=[
+  {name:'1v1 & Carrying', grp:1, rows:[
+    {n:'Take-ons',s:'success rate',vol:'6.2',volP:88,eff:'58%',effP:72,tgt:'7.1',trend:[50,54,55,57,58]},
+    {n:'Progressive carries',s:'into final third',vol:'5.1',volP:74,eff:'41%',effP:66,tgt:'6.5',trend:[60,61,63,66,68]},
+    {n:'Fouls won',s:'',vol:'1.9',volP:70,eff:'—',effP:null,tgt:'2.3',trend:[64,66,68,69,70]}
+  ]},
+  {name:'Chance Creation', grp:2, rows:[
+    {n:'Key passes',s:'',vol:'1.1',volP:46,eff:'—',effP:null,tgt:'2.2',trend:[38,40,42,44,46]},
+    {n:'Expected assists (xA)',s:'',vol:'0.09',volP:40,eff:'—',effP:null,tgt:'0.24',trend:[30,33,36,38,40]},
+    {n:'Crosses completed',s:'accuracy',vol:'0.8',volP:44,eff:'15%',effP:38,tgt:'1.8',trend:[26,29,31,35,38]},
+    {n:'Passes into box',s:'',vol:'1.4',volP:52,eff:'—',effP:null,tgt:'2.6',trend:[44,47,49,51,52]}
+  ]},
+  {name:'Finishing', grp:2, rows:[
+    {n:'Shots',s:'on-target %',vol:'1.6',volP:55,eff:'44%',effP:60,tgt:'2.8',trend:[48,50,52,54,55]},
+    {n:'xG (non-pen)',s:'per shot',vol:'0.12',volP:42,eff:'0.09',effP:48,tgt:'0.30',trend:[36,38,40,41,42]},
+    {n:'Non-penalty goals',s:'',vol:'0.10',volP:33,eff:'—',effP:null,tgt:'0.35',trend:[28,29,31,32,33]}
+  ]},
+  {name:'Transition & Defending', grp:0, rows:[
+    {n:'Pressures',s:'press success',vol:'13.0',volP:66,eff:'31%',effP:58,tgt:'18.0',trend:[58,60,62,64,66]},
+    {n:'Ball recoveries',s:'',vol:'3.2',volP:71,eff:'—',effP:null,tgt:'4.0',trend:[64,66,68,70,71]},
+    {n:'Counterpress regains',s:'',vol:'1.1',volP:60,eff:'—',effP:null,tgt:'1.7',trend:[52,54,56,58,60]}
+  ]}
+];
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+/* ring */
+(()=>{const s=document.getElementById('ringSvg'),cx=60,cy=60,r=48,pct=67;
+  s.appendChild(el('circle',{cx,cy,r,fill:'none',stroke:'#242424','stroke-width':10}));
+  const c=2*Math.PI*r;
+  s.appendChild(el('circle',{cx,cy,r,fill:'none',stroke:'#29c5f6','stroke-width':10,'stroke-linecap':'round','stroke-dasharray':`${c*pct/100} ${c}`,transform:`rotate(-90 ${cx} ${cy})`}));
+  const t=el('text',{x:cx,y:cy+2,fill:'#29c5f6','font-size':26,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI'});t.textContent=pct+'%';s.appendChild(t);
+})();
+
+/* radar */
+(()=>{const s=document.getElementById('radar'),CX=190,CY=180,R=118,N=dims.length;
+  const ang=i=>(-Math.PI/2)+(i*2*Math.PI/N);
+  const pt=(i,rr)=>[CX+rr*Math.cos(ang(i)),CY+rr*Math.sin(ang(i))];
+  [0.25,0.5,0.75,1].forEach(f=>{let d='';for(let i=0;i<N;i++){const[x,y]=pt(i,R*f);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';}d+='Z';s.appendChild(el('path',{d,fill:'none',stroke:'#242424','stroke-width':1}));});
+  for(let i=0;i<N;i++){const[x,y]=pt(i,R);s.appendChild(el('line',{x1:CX,y1:CY,x2:x,y2:y,stroke:'#242424','stroke-width':1}));}
+  const poly=(vals,fill,stroke,op)=>{let d='';for(let i=0;i<N;i++){const[x,y]=pt(i,R*vals[i]/100);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';}d+='Z';s.appendChild(el('path',{d,fill,'fill-opacity':op,stroke,'stroke-width':2,'stroke-linejoin':'round','stroke-dasharray':stroke===getComputedStyle(document.documentElement).getPropertyValue('--target')?'':''}));for(let i=0;i<N;i++){const[x,y]=pt(i,R*vals[i]/100);s.appendChild(el('circle',{cx:x.toFixed(1),cy:y.toFixed(1),r:2.6,fill:stroke}));}};
+  poly(dims.map(d=>d.target),'none','#ff5a7a',0);
+  poly(dims.map(d=>d.player),'#29c5f6','#29c5f6',0.30);
+  for(let i=0;i<N;i++){const[x,y]=pt(i,R+24);dims[i].label.split('\n').forEach((ln,j)=>{const t=el('text',{x:x.toFixed(1),y:(y-3+j*10).toFixed(1),fill:'#a6a6a6','font-size':9,'text-anchor':'middle'});t.textContent=ln;s.appendChild(t);});
+    const[dx,dy]=pt(i,R+8);s.appendChild(el('circle',{cx:dx.toFixed(1),cy:dy.toFixed(1),r:3,fill:grpColor[dims[i].grp]}));}
+})();
+
+/* metrics */
+(()=>{const host=document.getElementById('metrics');
+  const spark=(pts)=>{const w=56,h=22,mn=Math.min(...pts),mx=Math.max(...pts),rng=(mx-mn)||1;let d='';pts.forEach((p,i)=>{const x=i*(w/(pts.length-1));const y=h-2-((p-mn)/rng)*(h-4);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';});const s=el('svg',{width:w,height:h,class:'spark',viewBox:`0 0 ${w} ${h}`});s.appendChild(el('path',{d,fill:'none',stroke:'#3ddc84','stroke-width':1.6}));return s;};
+  metricGroups.forEach(g=>{
+    const gh=document.createElement('div');gh.className='mghead';
+    gh.innerHTML=`<span class="gd" style="background:${grpColor[g.grp]}"></span>${g.name}`;
+    host.appendChild(gh);
+    g.rows.forEach(r=>{
+      const row=document.createElement('div');row.className='mrow';
+      const eff = r.eff==='—' ? `<div class="mval" style="color:var(--dim2)">—</div>`
+        : `<div class="metric"><div class="mval">${r.eff} <span>${r.effP}th</span></div><div class="bar"><i style="width:${r.effP}%;background:${grpColor[g.grp]}"></i></div></div>`;
+      row.innerHTML=`
+        <div class="mname">${r.n}${r.s?`<small>${r.s}</small>`:''}</div>
+        <div class="metric"><div class="mval">${r.vol} <span>${r.volP}th · tgt ${r.tgt}</span></div>
+          <div class="bar"><i style="width:${r.volP}%;background:var(--cyan)"></i></div></div>
+        ${eff}
+        <div></div>`;
+      row.lastElementChild.appendChild(spark(r.trend));
+      host.appendChild(row);
+    });
+  });
+})();
+
+/* trajectory */
+(()=>{const s=document.getElementById('traj'),W=360,H=170,pad=30;
+  const pts=[45,50,52,57,63,67];const labels=['W1','W2','W3','W4','W5','Now'];
+  const mn=40,mx=90;
+  s.appendChild(el('line',{x1:pad,y1:H-pad,x2:W-10,y2:H-pad,stroke:'#2a2a2a'}));
+  // target line at 100? scale: map 40..90 -> y
+  const y=v=>(H-pad)-((v-mn)/(mx-mn))*(H-pad-15);
+  const x=i=>pad+i*((W-pad-15)/(pts.length-1));
+  // 100% target reference (top)
+  s.appendChild(el('line',{x1:pad,y1:y(90),x2:W-10,y2:y(90),stroke:'#ff5a7a','stroke-dasharray':'4 4','stroke-width':1}));
+  const tl=el('text',{x:W-12,y:y(90)-4,fill:'#ff5a7a','font-size':9,'text-anchor':'end'});tl.textContent='first-team target';s.appendChild(tl);
+  let d='';pts.forEach((p,i)=>{d+=(i?'L':'M')+x(i).toFixed(1)+' '+y(p).toFixed(1)+' ';});
+  s.appendChild(el('path',{d,fill:'none',stroke:'#29c5f6','stroke-width':2.4}));
+  pts.forEach((p,i)=>{s.appendChild(el('circle',{cx:x(i),cy:y(p),r:3.2,fill:'#29c5f6'}));
+    const t=el('text',{x:x(i),y:H-pad+14,fill:'#7a7a7a','font-size':9,'text-anchor':'middle'});t.textContent=labels[i];s.appendChild(t);});
+  const last=el('text',{x:x(5),y:y(67)-9,fill:'#3ddc84','font-size':11,'font-weight':700,'text-anchor':'middle'});last.textContent='67%';s.appendChild(last);
+})();
+
+/* pitch (vertical half, attacking up) */
+(()=>{const s=document.getElementById('pitch'),W=260,H=300;
+  const g=el('rect',{x:8,y:8,width:W-16,height:H-16,fill:'#0d160d',stroke:'#2f4a2f','stroke-width':1.5,rx:4});s.appendChild(g);
+  s.appendChild(el('rect',{x:8,y:8,width:W-16,height:(H-16)/2,fill:'none',stroke:'#1e321e'}));
+  // penalty box top
+  s.appendChild(el('rect',{x:(W-120)/2,y:8,width:120,height:52,fill:'none',stroke:'#2f4a2f'}));
+  s.appendChild(el('rect',{x:(W-54)/2,y:8,width:54,height:20,fill:'none',stroke:'#2f4a2f'}));
+  s.appendChild(el('circle',{cx:W/2,cy:H-8,r:2,fill:'#2f4a2f'}));
+  // events: left channel (x low), attacking up (y low = forward)
+  const takeWon=[[45,180],[60,140],[52,110],[70,95],[40,150],[85,120]];
+  const takeLost=[[55,205],[48,165]];
+  const crosses=[[72,88,150,55],[64,105,140,60]];
+  takeWon.forEach(p=>s.appendChild(el('circle',{cx:p[0],cy:p[1],r:5,fill:'#29c5f6','fill-opacity':.9})));
+  takeLost.forEach(p=>s.appendChild(el('circle',{cx:p[0],cy:p[1],r:5,fill:'#555'})));
+  crosses.forEach(c=>{s.appendChild(el('line',{x1:c[0],y1:c[1],x2:c[2],y2:c[3],stroke:'#ffd23f','stroke-width':1.6,'stroke-dasharray':'3 3'}));s.appendChild(el('circle',{cx:c[0],cy:c[1],r:3,fill:'#ffd23f'}));});
+  const t=el('text',{x:14,y:H-14,fill:'#3a5a3a','font-size':9});t.textContent='ATTACKING ↑ · left channel';s.appendChild(t);
+})();
+</script>
+</body>
+</html>

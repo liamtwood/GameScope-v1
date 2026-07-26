@@ -1,0 +1,108 @@
+{
+  "_readme": "Example payload for GameScope Player Profile 2.0 (Performance tab). Subject = placeholder academy winger 'Amara Wells'; pathwayTarget = Lauren Hemp. Values marked _PLACEHOLDER are illustrative — replace with real computed stats. The matchSample.stats for Hemp are REAL from the 2023 WC Final vs Spain (FBref match log). Percentiles/dimension scores must be computed server-side from your event data vs the position cohort.",
+
+  "player": {
+    "id": "acad-winger-demo",
+    "name": "Amara Wells",
+    "jersey": 11,
+    "position": "Left Winger",
+    "foot": "Right",
+    "age": 16.8,
+    "minutes": 1240,
+    "photoUrl": null,
+    "_note": "Replace with a real academy player and their season aggregate."
+  },
+
+  "pathwayTarget": {
+    "name": "Lauren Hemp",
+    "team": "England / Man City",
+    "position": "Left Winger",
+    "_note": "The first-team player the academy player is benchmarked toward. Use real Hemp season per-90s here."
+  },
+
+  "index": {
+    "overallPctOfTarget": 67,
+    "roleLabel": "Direct wide take-on threat",
+    "verdict": "Already near first-team level at beating her marker and carrying. The gap to Hemp is end product (crossing, chance creation, finishing) and defensive contribution.",
+    "_PLACEHOLDER": true
+  },
+
+  "dimensions": [
+    { "key": "take_on",          "label": "1v1 / Take-on",   "group": "progression", "playerScore": 78, "targetScore": 92 },
+    { "key": "ball_progression", "label": "Ball Progression","group": "progression", "playerScore": 68, "targetScore": 88 },
+    { "key": "crossing",         "label": "Crossing",        "group": "attack",      "playerScore": 40, "targetScore": 85 },
+    { "key": "chance_creation",  "label": "Chance Creation", "group": "attack",      "playerScore": 44, "targetScore": 90 },
+    { "key": "finishing",        "label": "Finishing",       "group": "attack",      "playerScore": 42, "targetScore": 86 },
+    { "key": "distribution",     "label": "Retention",       "group": "progression", "playerScore": 60, "targetScore": 84 },
+    { "key": "transition",       "label": "Pressing",        "group": "defend",      "playerScore": 66, "targetScore": 80 },
+    { "key": "ground_defence",   "label": "Def. Work",       "group": "defend",      "playerScore": 58, "targetScore": 74 }
+  ],
+  "_dimensions_note": "playerScore/targetScore are 0-100 percentile-vs-position. Which dimensions appear is driven by position (winger set shown).",
+
+  "metrics": [
+    { "dimension": "take_on",         "label": "Take-ons",             "subLabel": "success rate",   "volume": {"value": 6.2, "unit": "/90", "percentile": 88, "target": 7.1}, "efficiency": {"value": 58, "unit": "%", "percentile": 72}, "trend": [50,54,55,57,58] },
+    { "dimension": "take_on",         "label": "Progressive carries",  "subLabel": "into final third","volume": {"value": 5.1, "unit": "/90", "percentile": 74, "target": 6.5}, "efficiency": {"value": 41, "unit": "%", "percentile": 66}, "trend": [60,61,63,66,68] },
+    { "dimension": "take_on",         "label": "Fouls won",            "subLabel": "",               "volume": {"value": 1.9, "unit": "/90", "percentile": 70, "target": 2.3}, "efficiency": null, "trend": [64,66,68,69,70] },
+
+    { "dimension": "chance_creation", "label": "Key passes",           "subLabel": "",               "volume": {"value": 1.1, "unit": "/90", "percentile": 46, "target": 2.2}, "efficiency": null, "trend": [38,40,42,44,46] },
+    { "dimension": "chance_creation", "label": "Expected assists (xA)","subLabel": "",               "volume": {"value": 0.09,"unit": "/90", "percentile": 40, "target": 0.24}, "efficiency": null, "trend": [30,33,36,38,40] },
+    { "dimension": "crossing",        "label": "Crosses completed",    "subLabel": "accuracy",       "volume": {"value": 0.8, "unit": "/90", "percentile": 44, "target": 1.8}, "efficiency": {"value": 15, "unit": "%", "percentile": 38}, "trend": [26,29,31,35,38] },
+    { "dimension": "chance_creation", "label": "Passes into box",      "subLabel": "",               "volume": {"value": 1.4, "unit": "/90", "percentile": 52, "target": 2.6}, "efficiency": null, "trend": [44,47,49,51,52] },
+
+    { "dimension": "finishing",       "label": "Shots",                "subLabel": "on-target %",    "volume": {"value": 1.6, "unit": "/90", "percentile": 55, "target": 2.8}, "efficiency": {"value": 44, "unit": "%", "percentile": 60}, "trend": [48,50,52,54,55] },
+    { "dimension": "finishing",       "label": "xG (non-pen)",         "subLabel": "per shot",       "volume": {"value": 0.12,"unit": "/90", "percentile": 42, "target": 0.30}, "efficiency": {"value": 0.09, "unit": "", "percentile": 48}, "trend": [36,38,40,41,42] },
+    { "dimension": "finishing",       "label": "Non-penalty goals",    "subLabel": "",               "volume": {"value": 0.10,"unit": "/90", "percentile": 33, "target": 0.35}, "efficiency": null, "trend": [28,29,31,32,33] },
+
+    { "dimension": "transition",      "label": "Pressures",            "subLabel": "press success",  "volume": {"value": 13.0,"unit": "/90", "percentile": 66, "target": 18.0}, "efficiency": {"value": 31, "unit": "%", "percentile": 58}, "trend": [58,60,62,64,66] },
+    { "dimension": "transition",      "label": "Ball recoveries",      "subLabel": "",               "volume": {"value": 3.2, "unit": "/90", "percentile": 71, "target": 4.0}, "efficiency": null, "trend": [64,66,68,70,71] },
+    { "dimension": "ground_defence",  "label": "Counterpress regains", "subLabel": "",               "volume": {"value": 1.1, "unit": "/90", "percentile": 60, "target": 1.7}, "efficiency": null, "trend": [52,54,56,58,60] }
+  ],
+  "_metrics_note": "All _PLACEHOLDER except structure. percentile = vs position cohort; target = the pathway target's per-90 value.",
+
+  "trajectory": {
+    "labels": ["W1","W2","W3","W4","W5","Now"],
+    "pctOfTarget": [45,50,52,57,63,67],
+    "targetLine": 100,
+    "_PLACEHOLDER": true
+  },
+
+  "focus": {
+    "mode": "strengths-led",
+    "superpower": {
+      "dimension": "take_on",
+      "title": "1v1 & Ball Carrying",
+      "note": "Take-on volume (6.2/90, 88th pctile) and success (58%) are already close to Hemp's first-team level and elite for her age. Program: keep feeding isolation situations; add decision-making after the beat — the end product is where the value converts."
+    },
+    "blockers": [
+      { "title": "Final-third end product", "pctOfTarget": 47, "reason": "She beats the fullback but the cross/cutback doesn't punish it. Crossing accuracy 15% and xA 0.09/90 are well below Hemp. Highest-leverage development area." },
+      { "title": "Defensive & pressing work-rate", "pctOfTarget": 73, "reason": "Modern wide players defend. Recoveries and counterpress regains lag the first-team standard — a pathway requirement." }
+    ]
+  },
+
+  "pitch": {
+    "_note": "x/y in 0-100 pitch coords (x=width left→right, y=length own-goal→opp-goal). Populate from your event export. Sample below is illustrative.",
+    "events": [
+      { "type": "take_on_won",  "x": 17, "y": 60 },
+      { "type": "take_on_won",  "x": 23, "y": 72 },
+      { "type": "take_on_won",  "x": 20, "y": 78 },
+      { "type": "take_on_won",  "x": 27, "y": 82 },
+      { "type": "take_on_lost", "x": 21, "y": 55 },
+      { "type": "cross",        "x": 28, "y": 84, "x2": 55, "y2": 92 }
+    ]
+  },
+
+  "matchSample": {
+    "label": "Lauren Hemp — 2023 World Cup Final vs Spain (90 mins)",
+    "_source": "FBref match log, real data",
+    "stats": [
+      { "label": "Shots", "value": 4 },
+      { "label": "On target", "value": 2 },
+      { "label": "Crosses", "value": 2 },
+      { "label": "Goals", "value": 0 },
+      { "label": "Assists", "value": 0 },
+      { "label": "Fouls won", "value": 1 },
+      { "label": "Fouls committed", "value": 2 },
+      { "label": "Yellow", "value": 1 }
+    ]
+  }
+}
