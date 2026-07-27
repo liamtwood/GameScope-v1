@@ -646,8 +646,8 @@ export function PlayerOverallTab({ player }: { player: any }) {
 
             {/* Attacking */}
             <div style={{ paddingRight: 16, borderRight: `1px solid ${C.line}` }}>
-              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: C.gold, textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.gold, display: "inline-block" }} />
+              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: "#3663ae", textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3663ae", display: "inline-block" }} />
                 Attacking
               </div>
 
@@ -793,7 +793,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
               <div
                 key={moment.eventKey}
                 style={{
-                  borderLeft: `3px solid ${C.gold}`,
+                  borderLeft: `3px solid #3663ae`,
                   borderRadius: "0 10px 10px 0",
                   background: `rgba(180,83,9,0.06)`,
                   padding: "10px 14px",
@@ -805,7 +805,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
                   <span style={{ fontSize: 10, background: "#3663ae", color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
                     MIN {moment.minute}
                   </span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#3663ae", letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
                     ★ Standout action
                   </span>
                   {/* Watch button — only shown when fixture has a video */}
