@@ -203,8 +203,8 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
                   <Avatar
                     className="border-2 shadow-lg transition-all group-hover:scale-110"
                     style={{
-                      width: 48,
-                      height: 48,
+                      width: 64,
+                      height: 64,
                       borderColor: isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
                     }}
                   >
