@@ -77,7 +77,8 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
     [...formationGK, ...formationDEF, ...formationMID, ...formationFWD].map(p => p.id)
   );
 
-  const benchPlayers = fitPlayers.filter(p => !starterIds.has(p.id));
+  // All non-starters go to bench regardless of fitness
+  const benchPlayers = players.filter(p => !starterIds.has(p.id));
   const subsGrouped = {
     GK:  benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "GK" ).sort(byJersey),
     DEF: benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "DEF").sort(byJersey),
