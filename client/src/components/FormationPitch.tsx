@@ -63,8 +63,50 @@ const getInitials = (p: Player) =>
 const byJersey = (a: Player, b: Player) =>
   (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
 
-const rowPositions = (count: number, y: number) => {
+// ── Formation-specific x/y position hints ─────────────────────────────────────
+// xs: left-to-right x% for each slot in that row
+// ys: optional per-slot y% offset from the row's base y (positive = deeper/lower)
+type RowPositionHint = { xs: number[]; ys?: number[] };
+
+const FORMATION_POSITIONS: Partial<Record<string, Partial<Record<RowKey, RowPositionHint>>>> = {
+  "4-3-3": {
+    FWD: { xs: [20, 50, 80] },
+  },
+  "4-4-2": {
+    FWD: { xs: [33, 67] },
+  },
+  "4-2-3-1": {
+    MID: { xs: [17, 38, 50, 62, 83], ys: [4, 4, 0, 4, 4] }, // 2 DMs deeper, 3 AMs higher
+  },
+  "4-1-4-1": {
+    MID: { xs: [17, 33, 50, 67, 83], ys: [5, 0, 0, 0, 5] }, // single DM deeper
+  },
+  "4-3-2-1": {
+    MID: { xs: [20, 38, 50, 62, 80], ys: [3, 3, 0, 3, 3] },
+  },
+  "3-5-2": {
+    FWD: { xs: [35, 65] },                                    // two strikers close together
+    MID: { xs: [8, 28, 50, 72, 92], ys: [0, 0, 6, 0, 0] },   // wingers + CMs + DM deeper
+    DEF: { xs: [27, 50, 73] },                                 // 3 CBs compressed, not edge-to-edge
+  },
+  "3-4-3": {
+    DEF: { xs: [27, 50, 73] },
+    MID: { xs: [20, 40, 60, 80] },
+  },
+  "5-3-2": {
+    DEF: { xs: [10, 27, 50, 73, 90] },                        // back five spread wide
+    FWD: { xs: [35, 65] },
+  },
+  "5-4-1": {
+    DEF: { xs: [10, 27, 50, 73, 90] },
+  },
+};
+
+const rowPositions = (count: number, y: number, hint?: RowPositionHint) => {
   if (count === 0) return [];
+  if (hint?.xs && hint.xs.length === count) {
+    return hint.xs.map((x, i) => ({ x, y: y + (hint.ys?.[i] ?? 0) }));
+  }
   if (count === 1) return [{ x: 50, y }];
   const margin = 12;
   const span = 76;
@@ -523,7 +565,8 @@ export function FormationPitch({
 
         {/* Pitch rows */}
         {pitchRows.map(row => {
-          const positions = rowPositions(row.slotIds.length, row.y);
+          const hint = FORMATION_POSITIONS[selectedFormation]?.[row.label as RowKey];
+          const positions = rowPositions(row.slotIds.length, row.y, hint);
           return row.slotIds.map((slotId, i) => {
             const pos = positions[i];
             if (!pos) return null;
