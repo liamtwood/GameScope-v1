@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, ChevronDown } from "lucide-react";
@@ -85,6 +85,7 @@ export function FormationPitch({
 }: FormationPitchProps) {
   const [, setLocation] = useLocation();
   const [selectedFormation, setSelectedFormation] = useState<typeof FORMATIONS[number]["label"]>("4-3-3");
+  const [initialized, setInitialized] = useState(false);
 
   const handleClick = (id: string) => {
     if (onPlayerClick) {
@@ -102,6 +103,23 @@ export function FormationPitch({
     FWD: players.filter(p => getPositionCategory(p.position ?? "MID") === "FWD"),
   };
 
+  // ── Star players (always stay on pitch, never moved to subs) ─────────────
+  const starGKs  = byPos.GK.filter(p => p.starPlayer).sort(byJersey);
+  const starDEFs = byPos.DEF.filter(p => p.starPlayer).sort(byJersey);
+  const starMIDs = byPos.MID.filter(p => p.starPlayer).sort(byJersey);
+  const starFWDs = byPos.FWD.filter(p => p.starPlayer).sort(byJersey);
+
+  // ── Detect formation from star counts and initialise the dropdown once ───
+  useEffect(() => {
+    if (!initialized && players.length > 0) {
+      const detected = FORMATIONS.find(
+        f => f.def === starDEFs.length && f.mid === starMIDs.length && f.fwd === starFWDs.length
+      );
+      if (detected) setSelectedFormation(detected.label);
+      setInitialized(true);
+    }
+  }, [players.length, initialized, starDEFs.length, starMIDs.length, starFWDs.length]);
+
   // ── Pick starters ────────────────────────────────────────────────────────
   let formationGK: Player[];
   let formationDEF: Player[];
@@ -109,24 +127,22 @@ export function FormationPitch({
   let formationFWD: Player[];
 
   if (showFormationPicker) {
-    // Formation-driven: pick top N per group (starred first, then fit, then jersey)
+    // Stars always start. Formation change only adds/removes non-star fill players.
     const fmt = FORMATIONS.find(f => f.label === selectedFormation) ?? FORMATIONS[0];
-    formationGK  = pickTop(byPos.GK,  1);
-    formationDEF = pickTop(byPos.DEF, fmt.def);
-    formationMID = pickTop(byPos.MID, fmt.mid);
-    formationFWD = pickTop(byPos.FWD, fmt.fwd);
+    const nonStarGKs  = byPos.GK.filter(p => !p.starPlayer).sort(byJersey);
+    const nonStarDEFs = byPos.DEF.filter(p => !p.starPlayer).sort(byJersey);
+    const nonStarMIDs = byPos.MID.filter(p => !p.starPlayer).sort(byJersey);
+    const nonStarFWDs = byPos.FWD.filter(p => !p.starPlayer).sort(byJersey);
+    formationGK  = [...starGKs,  ...nonStarGKs.slice(0,  Math.max(0, 1       - starGKs.length))];
+    formationDEF = [...starDEFs, ...nonStarDEFs.slice(0, Math.max(0, fmt.def - starDEFs.length))];
+    formationMID = [...starMIDs, ...nonStarMIDs.slice(0, Math.max(0, fmt.mid - starMIDs.length))];
+    formationFWD = [...starFWDs, ...nonStarFWDs.slice(0, Math.max(0, fmt.fwd - starFWDs.length))];
   } else {
-    // Auto (star-player) mode: only fit star players start
-    const fitByPos = {
-      GK:  byPos.GK.filter(p => p.fitnessStatus === "Fit"),
-      DEF: byPos.DEF.filter(p => p.fitnessStatus === "Fit"),
-      MID: byPos.MID.filter(p => p.fitnessStatus === "Fit"),
-      FWD: byPos.FWD.filter(p => p.fitnessStatus === "Fit"),
-    };
-    formationGK  = fitByPos.GK.filter(p => p.starPlayer).sort(byJersey);
-    formationDEF = fitByPos.DEF.filter(p => p.starPlayer).sort(byJersey);
-    formationMID = fitByPos.MID.filter(p => p.starPlayer).sort(byJersey);
-    formationFWD = fitByPos.FWD.filter(p => p.starPlayer).sort(byJersey);
+    // Auto (Player Profiles) mode: only fit star players start
+    formationGK  = byPos.GK.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
+    formationDEF = byPos.DEF.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
+    formationMID = byPos.MID.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
+    formationFWD = byPos.FWD.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
   }
 
   const starterIds = new Set(
