@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { MatchScoreBanner } from "@/components/match-score-banner";
+import { useClub } from "@/contexts/club-context";
 
 // ── colour tokens (light theme) ───────────────────────────────────────────────
 const C = {
@@ -365,6 +367,13 @@ export function PlayerOverallTab({ player }: { player: any }) {
   const [highlightsTimestamps, setHighlightsTimestamps] = useState<Record<string, number>>({});
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [watchModal, setWatchModal] = useState<{ url: string; seekTo: number } | null>(null);
+  const [refFixture, setRefFixture] = useState<any>(null);
+  const [refOppositionLogoPath, setRefOppositionLogoPath] = useState<string | null>(null);
+  const [refOppositionColor, setRefOppositionColor] = useState<string>("#6b7280");
+  const { selectedClub } = useClub();
+  const clubColor = (selectedClub?.primaryColor as any)?.primary ?? "#dc2626";
+  const clubLogoPath = selectedClub?.logoPath ?? null;
+  const clubName = selectedClub?.name ?? "Team";
   const data = DEMO;
 
   // Fetch live highlight timestamps + video URL for the reference fixture
@@ -386,6 +395,24 @@ export function PlayerOverallTab({ player }: { player: any }) {
           const yt = videos.find((v: any) => /youtube|youtu\.be/i.test(v.url ?? ""));
           setVideoUrl((yt ?? videos[0]).url ?? null);
         }
+      })
+      .catch(() => {});
+
+    // Reference fixture object (for MatchScoreBanner)
+    fetch(`/api/fixture/${REFERENCE_FIXTURE_ID}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(f => { if (f) setRefFixture(f); })
+      .catch(() => {});
+
+    // Spain opposition team logo
+    fetch("/api/opposition-teams")
+      .then(r => r.ok ? r.json() : null)
+      .then((teams: any[]) => {
+        if (!Array.isArray(teams)) return;
+        const spain = teams.find((t: any) => t.id === "78511573-6425-47b0-90ad-015c186f4c69");
+        if (spain?.logoPath) setRefOppositionLogoPath(spain.logoPath);
+        const spainColor = (spain?.colors as any)?.primary;
+        if (spainColor) setRefOppositionColor(spainColor);
       })
       .catch(() => {});
   }, []);
@@ -578,63 +605,37 @@ export function PlayerOverallTab({ player }: { player: any }) {
         </div>
       </div>
 
-      {/* ── Reference: Pitch map + Match card (side-by-side) ── */}
+      {/* ── Reference match ── */}
       <div style={s.sectionLabel as React.CSSProperties}>Reference match · 2023 World Cup Final vs Spain</div>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
+      <div style={{ ...s.card, padding: 0, overflow: "hidden" }}>
 
-        {/* Pitch map */}
-        <div style={{ ...s.card, flex: "0 1 250px", minWidth: 210 }}>
-          <div style={{ ...s.cardLabel, marginBottom: 8 }}>Activity map · real x/y</div>
-          <PitchMap events={data.pitch.events} />
-          <div style={{ display: "flex", gap: 8, fontSize: 10, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
-            {([
-              ["#0891b2", "Dribble ✓"],
-              ["#555",    "Dribble ✗"],
-              ["#16a34a", "Shot on"],
-              ["#e11d48", "Shot off"],
-              ["#d97706", "Cross"],
-            ] as [string, string][]).map(([bg, label]) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: bg, display: "inline-block", flexShrink: 0 }} />
-                {label}
-              </span>
-            ))}
+        {/* ── Standard fixture banner ── */}
+        {refFixture && (
+          <div style={{ padding: "16px 16px 0" }}>
+            <MatchScoreBanner
+              fixture={refFixture}
+              teamLogoPath={clubLogoPath ?? undefined}
+              opponentLogoPath={refOppositionLogoPath ?? undefined}
+              polkStateColor={clubColor}
+              oppositionColor={refOppositionColor}
+              primaryColor={clubColor}
+              clubName={clubName}
+            />
           </div>
-          <div style={{ fontSize: 10.5, color: C.dim2, lineHeight: 1.5, marginTop: 6 }}>
-            Dribbles in own half reflect England's defensive shape. All 3 crosses aimed at the far post.
-          </div>
+        )}
+
+        {/* ── Meta row: competition + StatsBomb badge ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 20px 14px", flexWrap: "wrap" }}>
+          <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
+          <span style={{ fontSize: 10, color: C.dim2 }}>20 Aug 2023 · Stadium Australia · 90 mins</span>
+          <span style={{ fontSize: 10, background: "rgba(22,163,74,0.15)", color: "#16a34a", borderRadius: 5, padding: "3px 9px", fontWeight: 700 }}>✓ StatsBomb</span>
         </div>
 
-        {/* Rich match card */}
-        <div style={{ ...s.card, flex: "1 1 380px", minWidth: 320, padding: 0, overflow: "hidden" }}>
+        {/* ── Stats + Pitch map side-by-side ── */}
+        <div style={{ display: "flex", alignItems: "flex-start", borderTop: `1px solid ${C.line}` }}>
 
-          {/* ── Header strip ── */}
-          <div style={{ padding: "14px 20px", background: "#0f172a", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 auto" }}>
-              {/* Teams + score */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 18 }}>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>England</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 0, background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "3px 10px", margin: "0 4px" }}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: "#f1f5f9", lineHeight: 1, minWidth: 18, textAlign: "center" }}>0</span>
-                  <span style={{ fontSize: 13, color: "#64748b", margin: "0 5px" }}>–</span>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: "#f87171", lineHeight: 1, minWidth: 18, textAlign: "center" }}>1</span>
-                </div>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>Spain</span>
-                <span style={{ fontSize: 18 }}>🇪🇸</span>
-              </div>
-              {/* Competition + date */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 7, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
-                <span style={{ fontSize: 10, color: "#64748b" }}>20 Aug 2023 · Stadium Australia · 90 mins</span>
-              </div>
-            </div>
-            {/* StatsBomb badge */}
-            <span style={{ fontSize: 10, background: "rgba(22,163,74,0.2)", color: "#4ade80", borderRadius: 5, padding: "4px 9px", fontWeight: 700, flexShrink: 0 }}>✓ StatsBomb</span>
-          </div>
-
-          {/* ── Three stat columns ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "18px 20px 4px" }}>
+          {/* Three stat columns */}
+          <div style={{ flex: "1 1 auto", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "18px 20px 4px" }}>
 
             {/* Attacking */}
             <div style={{ paddingRight: 16, borderRight: `1px solid ${C.line}` }}>
@@ -747,73 +748,97 @@ export function PlayerOverallTab({ player }: { player: any }) {
                 </div>
               </div>
             </div>
+          </div>{/* end three stat columns */}
+
+          {/* ── Pitch map ── */}
+          <div style={{ flexShrink: 0, borderLeft: `1px solid ${C.line}`, padding: "18px 20px" }}>
+            <div style={{ ...s.cardLabel, marginBottom: 8 }}>Activity map · real x/y</div>
+            <PitchMap events={data.pitch.events} />
+            <div style={{ display: "flex", gap: 8, fontSize: 10, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
+              {([
+                ["#0891b2", "Dribble ✓"],
+                ["#555",    "Dribble ✗"],
+                ["#16a34a", "Shot on"],
+                ["#e11d48", "Shot off"],
+                ["#d97706", "Cross"],
+              ] as [string, string][]).map(([bg, label]) => (
+                <span key={label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: bg, display: "inline-block", flexShrink: 0 }} />
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontSize: 10.5, color: C.dim2, lineHeight: 1.5, marginTop: 6 }}>
+              Dribbles in own half reflect England's defensive shape. All 3 crosses aimed at the far post.
+            </div>
           </div>
 
-          {/* ── Standout moments ── */}
-          <div style={{ margin: "14px 20px 18px" }}>
-            {STANDOUT_MOMENTS.map((moment, idx) => {
-              const ts = highlightsTimestamps[moment.eventKey];
-              const hasTimestamp = ts != null;
-              const canWatch = hasTimestamp && videoUrl != null;
+        </div>{/* end stats + pitch map flex row */}
 
-              return (
-                <div
-                  key={moment.eventKey}
-                  style={{
-                    borderLeft: `3px solid ${C.gold}`,
-                    borderRadius: "0 10px 10px 0",
-                    background: `rgba(180,83,9,0.06)`,
-                    padding: "10px 14px",
-                    marginBottom: idx < STANDOUT_MOMENTS.length - 1 ? 10 : 0,
-                  }}
-                >
-                  {/* Row: badges + Watch button */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
-                      MIN {moment.minute}
-                    </span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
-                      ★ Standout action
-                    </span>
-                    {/* Watch button — only shown when fixture has a video */}
-                    {videoUrl && (
-                      <button
-                        onClick={() => canWatch && handleWatch(moment.eventKey)}
-                        title={canWatch ? `Jump to ${Math.floor(ts / 60)}:${String(Math.floor(ts % 60)).padStart(2, "0")}` : "Timestamp not yet tagged in Match Events tab"}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 5,
-                          background: canWatch ? "rgba(8,145,178,0.12)" : "rgba(0,0,0,0.06)",
-                          border: `1px solid ${canWatch ? C.cyan : C.line}`,
-                          borderRadius: 20, padding: "3px 11px",
-                          fontSize: 10.5, fontWeight: 700,
-                          color: canWatch ? C.cyan : C.dim2,
-                          cursor: canWatch ? "pointer" : "not-allowed",
-                          flexShrink: 0, letterSpacing: 0.3,
-                          transition: "background 0.15s, border-color 0.15s",
-                        }}
-                        onMouseEnter={e => {
-                          if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.22)";
-                        }}
-                        onMouseLeave={e => {
-                          if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.12)";
-                        }}
-                      >
-                        ▶ Watch
-                        {!canWatch && (
-                          <span style={{ fontSize: 9, color: C.dim2, fontWeight: 400 }}> · untagged</span>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>{moment.label}</div>
-                  <div style={{ fontSize: 11.5, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>{moment.description}</div>
+        {/* ── Standout moments ── */}
+        <div style={{ margin: "14px 20px 18px" }}>
+          {STANDOUT_MOMENTS.map((moment, idx) => {
+            const ts = highlightsTimestamps[moment.eventKey];
+            const hasTimestamp = ts != null;
+            const canWatch = hasTimestamp && videoUrl != null;
+
+            return (
+              <div
+                key={moment.eventKey}
+                style={{
+                  borderLeft: `3px solid ${C.gold}`,
+                  borderRadius: "0 10px 10px 0",
+                  background: `rgba(180,83,9,0.06)`,
+                  padding: "10px 14px",
+                  marginBottom: idx < STANDOUT_MOMENTS.length - 1 ? 10 : 0,
+                }}
+              >
+                {/* Row: badges + Watch button */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
+                    MIN {moment.minute}
+                  </span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
+                    ★ Standout action
+                  </span>
+                  {/* Watch button — only shown when fixture has a video */}
+                  {videoUrl && (
+                    <button
+                      onClick={() => canWatch && handleWatch(moment.eventKey)}
+                      title={canWatch ? `Jump to ${Math.floor(ts / 60)}:${String(Math.floor(ts % 60)).padStart(2, "0")}` : "Timestamp not yet tagged in Match Events tab"}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 5,
+                        background: canWatch ? "rgba(8,145,178,0.12)" : "rgba(0,0,0,0.06)",
+                        border: `1px solid ${canWatch ? C.cyan : C.line}`,
+                        borderRadius: 20, padding: "3px 11px",
+                        fontSize: 10.5, fontWeight: 700,
+                        color: canWatch ? C.cyan : C.dim2,
+                        cursor: canWatch ? "pointer" : "not-allowed",
+                        flexShrink: 0, letterSpacing: 0.3,
+                        transition: "background 0.15s, border-color 0.15s",
+                      }}
+                      onMouseEnter={e => {
+                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.22)";
+                      }}
+                      onMouseLeave={e => {
+                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.12)";
+                      }}
+                    >
+                      ▶ Watch
+                      {!canWatch && (
+                        <span style={{ fontSize: 9, color: C.dim2, fontWeight: 400 }}> · untagged</span>
+                      )}
+                    </button>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>{moment.label}</div>
+                <div style={{ fontSize: 11.5, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>{moment.description}</div>
+              </div>
+            );
+          })}
         </div>
-      </div>
+
+      </div>{/* end unified reference card */}
 
     </div>
 
