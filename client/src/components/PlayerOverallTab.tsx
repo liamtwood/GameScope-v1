@@ -449,45 +449,199 @@ export function PlayerOverallTab({ player }: { player: any }) {
         })}
       </div>
 
-      {/* ── Trajectory + Pitch ── */}
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 20 }}>
-
-        <div style={{ ...s.card, flex: "1 1 340px", minWidth: 300 }}>
-          <div style={{ ...s.cardLabel, marginBottom: 8 }}>Trajectory · gap to benchmark closing</div>
-          <TrajectoryChart traj={data.trajectory} />
-          <div style={{ fontSize: 12, color: C.dim, marginTop: 10, lineHeight: 1.7 }}>
-            Last 3 windows: {data.trajectory.pctOfTarget.slice(-3).join("% → ")}% of benchmark.{" "}
-            <b style={{ color: C.good }}>+{data.trajectory.pctOfTarget[data.trajectory.pctOfTarget.length - 1] - data.trajectory.pctOfTarget[0]} pts</b> since season start.
-          </div>
-        </div>
-
-        <div style={{ ...s.card, flex: "1 1 280px", minWidth: 260 }}>
-          <div style={{ ...s.cardLabel, marginBottom: 8 }}>Left-wing activity map · from event x/y</div>
-          <PitchMap events={data.pitch.events} />
-          <div style={{ display: "flex", gap: 14, fontSize: 11, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
-            {[["#0891b2","Dribble won"],["#888","Dribble lost"],["#16a34a","Shot on target"],["#e11d48","Shot off target"],["#d97706","Cross"]].map(([bg, label]) => (
-              <span key={label}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: bg, marginRight: 5, verticalAlign: "middle" }} />{label}</span>
-            ))}
-          </div>
-          <div style={{ fontSize: 11.5, color: C.dim, lineHeight: 1.5, marginTop: 8 }}>
-            Real x/y coordinates from StatsBomb event data. Dribbles in own half reflect England's defensive shape; all 3 crosses entered the box area.
-          </div>
+      {/* ── Trajectory (full width) ── */}
+      <div style={{ ...s.card, marginTop: 20 }}>
+        <div style={{ ...s.cardLabel, marginBottom: 8 }}>Trajectory · gap to benchmark closing</div>
+        <TrajectoryChart traj={data.trajectory} />
+        <div style={{ fontSize: 12, color: C.dim, marginTop: 10, lineHeight: 1.7 }}>
+          Last 3 windows: {data.trajectory.pctOfTarget.slice(-3).join("% → ")}% of benchmark.{" "}
+          <b style={{ color: C.good }}>+{data.trajectory.pctOfTarget[data.trajectory.pctOfTarget.length - 1] - data.trajectory.pctOfTarget[0]} pts</b> since season start.
         </div>
       </div>
 
-      {/* ── Match context ── */}
-      <div style={{ ...s.card, marginTop: 20 }}>
-        <div style={{ ...s.cardLabel, marginBottom: 10 }}>Reference · {data.matchSample.label}</div>
-        <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "center" }}>
-          {data.matchSample.stats.map(stat => (
-            <div key={stat.label} style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.1, color: C.txt }}>{stat.value}</span>
-              <span style={{ fontSize: 12, color: C.dim, marginTop: 2 }}>{stat.label}</span>
-            </div>
-          ))}
+      {/* ── Reference: Pitch map + Match card (side-by-side) ── */}
+      <div style={s.sectionLabel as React.CSSProperties}>Reference match · 2023 World Cup Final vs Spain</div>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
+
+        {/* Pitch map */}
+        <div style={{ ...s.card, flex: "0 1 250px", minWidth: 210 }}>
+          <div style={{ ...s.cardLabel, marginBottom: 8 }}>Activity map · real x/y</div>
+          <PitchMap events={data.pitch.events} />
+          <div style={{ display: "flex", gap: 8, fontSize: 10, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
+            {([
+              ["#0891b2", "Dribble ✓"],
+              ["#555",    "Dribble ✗"],
+              ["#16a34a", "Shot on"],
+              ["#e11d48", "Shot off"],
+              ["#d97706", "Cross"],
+            ] as [string, string][]).map(([bg, label]) => (
+              <span key={label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: bg, display: "inline-block", flexShrink: 0 }} />
+                {label}
+              </span>
+            ))}
+          </div>
+          <div style={{ fontSize: 10.5, color: C.dim2, lineHeight: 1.5, marginTop: 6 }}>
+            Dribbles in own half reflect England's defensive shape. All 3 crosses aimed at the far post.
+          </div>
         </div>
-        <div style={{ marginTop: 12, background: "rgba(22,163,74,0.06)", border: `1px solid rgba(22,163,74,0.25)`, color: C.good, fontSize: 11.5, borderRadius: 10, padding: "9px 14px", lineHeight: 1.5 }}>
-          ✓ Stats computed from StatsBomb event data (Spain vs England · 2023 WWC Final). Percentiles and dimension scores above are illustrative benchmarks pending season cohort data.
+
+        {/* Rich match card */}
+        <div style={{ ...s.card, flex: "1 1 380px", minWidth: 320, padding: 0, overflow: "hidden" }}>
+
+          {/* ── Header strip ── */}
+          <div style={{ padding: "14px 20px", background: "#0f172a", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 auto" }}>
+              {/* Teams + score */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 18 }}>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>England</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 0, background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "3px 10px", margin: "0 4px" }}>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: "#f1f5f9", lineHeight: 1, minWidth: 18, textAlign: "center" }}>0</span>
+                  <span style={{ fontSize: 13, color: "#64748b", margin: "0 5px" }}>–</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: "#f87171", lineHeight: 1, minWidth: 18, textAlign: "center" }}>1</span>
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>Spain</span>
+                <span style={{ fontSize: 18 }}>🇪🇸</span>
+              </div>
+              {/* Competition + date */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 7, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
+                <span style={{ fontSize: 10, color: "#64748b" }}>20 Aug 2023 · Stadium Australia · 90 mins</span>
+              </div>
+            </div>
+            {/* StatsBomb badge */}
+            <span style={{ fontSize: 10, background: "rgba(22,163,74,0.2)", color: "#4ade80", borderRadius: 5, padding: "4px 9px", fontWeight: 700, flexShrink: 0 }}>✓ StatsBomb</span>
+          </div>
+
+          {/* ── Three stat columns ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "18px 20px 4px" }}>
+
+            {/* Attacking */}
+            <div style={{ paddingRight: 16, borderRight: `1px solid ${C.line}` }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: C.gold, textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.gold, display: "inline-block" }} />
+                Attacking
+              </div>
+
+              {/* Shots + dot cluster */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>3</span>
+                  <svg width={40} height={14} viewBox="0 0 40 14" style={{ display: "block" }}>
+                    <circle cx={7}  cy={7} r={6} fill={C.good} />
+                    <circle cx={20} cy={7} r={6} fill={C.good} />
+                    <circle cx={33} cy={7} r={6} fill="none" stroke={C.tgt} strokeWidth={1.8} />
+                  </svg>
+                </div>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Shots · 2 on target</div>
+              </div>
+
+              {/* xG */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>0.28</span>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>xG total</div>
+              </div>
+
+              {/* Dribbles with ratio bar */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>2</span>
+                  <span style={{ fontSize: 12, color: C.dim, fontWeight: 500 }}>/ 3</span>
+                </div>
+                <div style={{ height: 5, background: C.line, borderRadius: 3, marginTop: 5, overflow: "hidden", maxWidth: 48 }}>
+                  <div style={{ height: "100%", width: "66%", background: C.cyan, borderRadius: 3 }} />
+                </div>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Dribbles won</div>
+              </div>
+
+              {/* Key pass */}
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>1</span>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Key pass</div>
+              </div>
+            </div>
+
+            {/* Passing & Crossing */}
+            <div style={{ padding: "0 16px", borderRight: `1px solid ${C.line}` }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: C.cyan, textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.cyan, display: "inline-block" }} />
+                Passing
+              </div>
+
+              {/* Pass accuracy bar */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>58</span>
+                  <span style={{ fontSize: 13, color: C.dim, fontWeight: 600 }}>%</span>
+                </div>
+                <div style={{ height: 5, background: C.line, borderRadius: 3, marginTop: 5, overflow: "hidden", maxWidth: 56 }}>
+                  <div style={{ height: "100%", width: "58%", background: C.cyan, borderRadius: 3 }} />
+                </div>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Pass acc. · 11/19</div>
+              </div>
+
+              {/* Crosses */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>3</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                  <span style={{ fontSize: 10.5, color: C.dim }}>Crosses ·</span>
+                  <span style={{ fontSize: 10.5, color: C.tgt, fontWeight: 600 }}>0 complete</span>
+                </div>
+              </div>
+
+              {/* Fouls won */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>3</span>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Fouls won</div>
+              </div>
+            </div>
+
+            {/* Defensive */}
+            <div style={{ paddingLeft: 16 }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: C.tgt, textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.tgt, display: "inline-block" }} />
+                Defensive
+              </div>
+
+              {/* Pressures */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>31</span>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Pressures</div>
+              </div>
+
+              {/* Ball recoveries */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: C.txt, lineHeight: 1 }}>5</span>
+                <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Ball rec.</div>
+              </div>
+
+              {/* Goals + Assists */}
+              <div style={{ display: "flex", gap: 14, marginBottom: 4 }}>
+                <div>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: C.dim2, lineHeight: 1 }}>0</span>
+                  <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Goals</div>
+                </div>
+                <div>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: C.dim2, lineHeight: 1 }}>0</span>
+                  <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Assists</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Standout moment ── */}
+          <div style={{ margin: "14px 20px 18px", borderLeft: `3px solid ${C.gold}`, borderRadius: "0 10px 10px 0", background: `rgba(180,83,9,0.06)`, padding: "10px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+              <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>MIN 75</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase" }}>★ Standout action</span>
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>Shot assist — through-ball to Lauren James</div>
+            <div style={{ fontSize: 11.5, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>
+              Incisive through-ball from the left channel releasing James in behind the Spanish defence; the resulting shot was narrowly off target.
+            </div>
+          </div>
+
         </div>
       </div>
 
