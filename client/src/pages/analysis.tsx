@@ -660,7 +660,7 @@ export default function Analysis() {
 
         {/* Line-Ups Tab */}
         <TabsContent value="positions">
-          <FormationPitch players={allPlayers} clubPrimary={primaryColor} showFormationPicker />
+          <FormationPitch players={allPlayers} clubPrimary={primaryColor} showFormationPicker fixtureId={fixtureId} />
         </TabsContent>
 
         {/* Videos Tab */}

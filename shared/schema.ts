@@ -102,6 +102,7 @@ export const fixtures = pgTable("fixtures", {
   attendance: integer("attendance"),
   hasVideo: boolean("has_video").default(false),
   videoLinks: jsonb("video_links"),
+  lineupFormation: varchar("lineup_formation"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

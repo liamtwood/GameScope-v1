@@ -93,7 +93,9 @@ export default function MobileMatch() {
     queryFn: async () => {
       const res = await fetch(`/api/fixtures/${fixtureId}/squad`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const data = await res.json();
+      // Handle both old (array) and new ({ players, formation }) response shapes
+      return Array.isArray(data) ? data : (data.players ?? []);
     },
     enabled: !!fixtureId && activeTab === "Squad",
   });
