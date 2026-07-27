@@ -121,10 +121,10 @@ const REFERENCE_FIXTURE_ID = "c6a7fa2f-d625-4422-9bb6-090cf44410dc";
 // Tag these events in the Match Events tab (Watch Video → mark the timestamp) to enable Watch buttons
 const STANDOUT_MOMENTS = [
   {
-    eventKey:    "ebfd65eb-42f0-4ed7-8d1f-9ee3de9dc1ae", // Hemp shot min 53:10 — Off Target / crossbar
-    minute:      53,
-    label:       "Crossbar — half-volley strikes the woodwork",
-    description: "Hemp's first-time half-volley from the right of the box cannoned back off the crossbar; England's highest-xG chance of the match (0.151).",
+    eventKey:    "4d11233b-219f-4526-977f-2247792f6ff7", // Hemp shot min 15:11 — Post (crossbar), tagged at video 3:43
+    minute:      15,
+    label:       "Crossbar — driven shot strikes the post",
+    description: "Hemp's driven effort strikes the crossbar; England's clearest chance of the opening period (xG 0.12). Originally misattributed to Daly in source data — corrected.",
   },
   {
     eventKey:    "9b5907d2-95c9-4e6c-823a-c5e3039aa9aa", // Hemp through-ball min 75:04 — shot assist to James
