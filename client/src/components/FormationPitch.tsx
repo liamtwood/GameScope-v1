@@ -250,8 +250,11 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
           })
         )}
 
-        {/* Formation label */}
-        <div className="absolute bottom-3 right-4 text-white/40 text-xs font-mono">
+        {/* Formation label — bottom-right quadrant at penalty-spot depth */}
+        <div
+          className="absolute text-white/50 text-sm font-mono font-bold -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ left: "84%", top: "87%" }}
+        >
           {formationLabel}
         </div>
       </div>
