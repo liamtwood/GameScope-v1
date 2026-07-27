@@ -124,18 +124,9 @@ export default function PlayerProfiles() {
   };
 
   // ── Formation selection logic ──────────────────────────────────────────────
-  // Formation slots: 1-3-5-2 (GK / DEF / MID / FWD)
-  const FORMATION_SLOTS = { GK: 1, DEF: 3, MID: 5, FWD: 2 };
+  // All star players start — slots are driven by the actual star count per group.
+  // Fit-only: unfit players are excluded from pitch and bench entirely.
 
-  // Only star players fill formation slots — sorted by jersey number
-  const pickFormation = (group: any[], slots: number) => {
-    const stars = [...group]
-      .filter(p => p.starPlayer)
-      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999));
-    return { starters: stars.slice(0, slots), bench: stars.slice(slots) };
-  };
-
-  // Only fit players are eligible for formation or bench
   const fitPlayers = allPlayers.filter(p => p.fitnessStatus === 'Fit');
 
   const fitByPos = {
@@ -145,49 +136,48 @@ export default function PlayerProfiles() {
     FWD: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD'),
   };
 
-  const formationGK  = pickFormation(fitByPos.GK,  FORMATION_SLOTS.GK);
-  const formationDEF = pickFormation(fitByPos.DEF, FORMATION_SLOTS.DEF);
-  const formationMID = pickFormation(fitByPos.MID, FORMATION_SLOTS.MID);
-  const formationFWD = pickFormation(fitByPos.FWD, FORMATION_SLOTS.FWD);
+  // All star players in each group go into the formation (no cap)
+  const byJersey = (a: any, b: any) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999);
+  const formationGK  = fitByPos.GK.filter(p => p.starPlayer).sort(byJersey);
+  const formationDEF = fitByPos.DEF.filter(p => p.starPlayer).sort(byJersey);
+  const formationMID = fitByPos.MID.filter(p => p.starPlayer).sort(byJersey);
+  const formationFWD = fitByPos.FWD.filter(p => p.starPlayer).sort(byJersey);
 
-  const starters = [
-    ...formationFWD.starters,
-    ...formationMID.starters,
-    ...formationDEF.starters,
-    ...formationGK.starters,
-  ];
-  const starterIds = new Set(starters.map(p => p.id));
+  const starterIds = new Set([
+    ...formationGK, ...formationDEF, ...formationMID, ...formationFWD,
+  ].map(p => p.id));
 
   // Bench: fit non-starters, grouped by position
   const benchPlayers = fitPlayers.filter(p => !starterIds.has(p.id));
   const subsGrouped = {
-    GK:  benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK' ).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
-    DEF: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
-    MID: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
-    FWD: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    GK:  benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK' ).sort(byJersey),
+    DEF: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF').sort(byJersey),
+    MID: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID').sort(byJersey),
+    FWD: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD').sort(byJersey),
   };
-  const subPositionLabels = { GK: 'GK', DEF: 'DEF', MID: 'MID', FWD: 'FWD' } as const;
 
-  // Absolute positions on the pitch (x%, y% from top-left)
-  // Formation rows top→bottom: FWD / MID / DEF / GK
-  const formationPositions: { x: number; y: number }[][] = [
-    // FWD (2): spread across top third
-    [{ x: 33, y: 16 }, { x: 67, y: 16 }],
-    // MID (5): spread across middle
-    [{ x: 10, y: 38 }, { x: 27, y: 38 }, { x: 50, y: 38 }, { x: 73, y: 38 }, { x: 90, y: 38 }],
-    // DEF (3)
-    [{ x: 25, y: 61 }, { x: 50, y: 61 }, { x: 75, y: 61 }],
-    // GK (1)
-    [{ x: 50, y: 82 }],
-  ];
+  // Compute evenly-spaced x positions for a row of `count` players
+  const rowPositions = (count: number, y: number): { x: number; y: number }[] => {
+    if (count === 0) return [];
+    if (count === 1) return [{ x: 50, y }];
+    const margin = 12;
+    const span = 76;
+    return Array.from({ length: count }, (_, i) => ({
+      x: margin + (span / (count - 1)) * i,
+      y,
+    }));
+  };
 
-  // Flatten starters in same order (FWD, MID, DEF, GK) with their positions
+  // Rows top→bottom: FWD / MID / DEF / GK
   const starterRows = [
-    { label: 'FWD', players: formationFWD.starters,  positions: formationPositions[0] },
-    { label: 'MID', players: formationMID.starters,  positions: formationPositions[1] },
-    { label: 'DEF', players: formationDEF.starters,  positions: formationPositions[2] },
-    { label: 'GK',  players: formationGK.starters,   positions: formationPositions[3] },
+    { label: 'FWD', players: formationFWD, positions: rowPositions(formationFWD.length, 16) },
+    { label: 'MID', players: formationMID, positions: rowPositions(formationMID.length, 38) },
+    { label: 'DEF', players: formationDEF, positions: rowPositions(formationDEF.length, 61) },
+    { label: 'GK',  players: formationGK,  positions: rowPositions(formationGK.length,  83) },
   ];
+
+  // Formation label e.g. "1–4–3–3"
+  const formationLabel = [formationGK.length, formationDEF.length, formationMID.length, formationFWD.length].join('–');
 
   if (isLoading) {
     return (
@@ -498,7 +488,7 @@ export default function PlayerProfiles() {
 
               {/* Formation label */}
               <div className="absolute bottom-3 right-4 text-white/40 text-xs font-mono">
-                1–3–5–2
+                {formationLabel}
               </div>
             </div>
           </div>
