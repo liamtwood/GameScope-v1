@@ -70,15 +70,18 @@ export default function Analysis() {
     enabled: !!fixture?.teamId,
   });
 
-  // Convert team players to the format expected and filter for star players
-  const players = teamPlayersData?.map(tp => ({
+  // Convert team players to the format expected
+  const allPlayers = teamPlayersData?.map(tp => ({
     ...tp.user,
     id: tp.user.id,
     jerseyNumber: tp.jerseyNumber,
     position: tp.position,
     starPlayer: tp.starPlayer,
     fitnessStatus: tp.fitnessStatus
-  })).filter(p => p.starPlayer).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)) || [];
+  })).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)) || [];
+
+  // Star players only (used by spider charts etc.)
+  const players = allPlayers.filter(p => p.starPlayer);
 
   // Mutation for updating match report
   const updateReportMutation = useMutation({
@@ -657,7 +660,7 @@ export default function Analysis() {
 
         {/* Line-Ups Tab */}
         <TabsContent value="positions">
-          <FormationPitch players={players ?? []} clubPrimary={primaryColor} />
+          <FormationPitch players={allPlayers} clubPrimary={primaryColor} />
         </TabsContent>
 
         {/* Videos Tab */}
