@@ -33,14 +33,15 @@ interface FormationPitchProps {
 const FORMATIONS = [
   { label: "4-3-3",   gk: 1, def: 4, mid: 3, fwd: 3 },
   { label: "4-4-2",   gk: 1, def: 4, mid: 4, fwd: 2 },
+  { label: "4-2-3-1", gk: 1, def: 4, mid: 5, fwd: 1 },
   { label: "4-5-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-1-4-1", gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-3-2-1", gk: 1, def: 4, mid: 5, fwd: 1 },
   { label: "4-2-4",   gk: 1, def: 4, mid: 2, fwd: 4 },
   { label: "3-5-2",   gk: 1, def: 3, mid: 5, fwd: 2 },
   { label: "3-4-3",   gk: 1, def: 3, mid: 4, fwd: 3 },
   { label: "5-3-2",   gk: 1, def: 5, mid: 3, fwd: 2 },
   { label: "5-4-1",   gk: 1, def: 5, mid: 4, fwd: 1 },
-  { label: "4-1-4-1", gk: 1, def: 4, mid: 5, fwd: 1 },
-  { label: "4-3-2-1", gk: 1, def: 4, mid: 5, fwd: 1 },
 ] as const;
 
 const getFormationConfig = (label: string) =>
