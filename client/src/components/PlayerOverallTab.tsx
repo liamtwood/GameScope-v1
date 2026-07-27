@@ -484,7 +484,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
       <div style={{ display: "flex", margin: "18px 0 4px", border: `1px solid ${C.line}`, borderRadius: 10, overflow: "hidden", width: "fit-content", background: C.panel, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
         {([ ["target", `vs ${data.pathwayTarget.name}`], ["peers", "vs Age Peers"], ["trajectory", "vs Own Trajectory"] ] as const).map(([k, label]) => (
           <button key={k} onClick={() => setCompareMode(k)} style={{
-            background: compareMode === k ? clubColor : "transparent",
+            background: compareMode === k ? "#3663ae" : "transparent",
             color: compareMode === k ? "#ffffff" : C.dim,
             border: "none", padding: "9px 16px", fontSize: 12,
             cursor: "pointer", fontWeight: compareMode === k ? 700 : 400,
@@ -626,7 +626,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
 
         {/* ── Meta row: competition + StatsBomb badge ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 20px 14px", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
+          <span style={{ fontSize: 10, background: "#3663ae", color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
           <span style={{ fontSize: 10, color: C.dim2 }}>20 Aug 2023 · Stadium Australia · 90 mins</span>
           <span style={{ fontSize: 10, background: "rgba(22,163,74,0.15)", color: "#16a34a", borderRadius: 5, padding: "3px 9px", fontWeight: 700 }}>✓ StatsBomb</span>
         </div>
@@ -795,7 +795,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
               >
                 {/* Row: badges + Watch button */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
+                  <span style={{ fontSize: 10, background: "#3663ae", color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
                     MIN {moment.minute}
                   </span>
                   <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
