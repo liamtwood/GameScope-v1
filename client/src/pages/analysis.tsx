@@ -16,6 +16,7 @@ import { ExcelUpload } from "@/components/excel-upload";
 import { MatchScoreBanner } from "@/components/match-score-banner";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Trophy, MapPin, Edit, Star, Check, X } from "lucide-react";
+import { FormationPitch } from "@/components/FormationPitch";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { Fixture, MatchStats, PlayerWithTeamData, Team, Club } from "@shared/schema";
@@ -654,57 +655,9 @@ export default function Analysis() {
           </Card>
         </TabsContent>
 
-        {/* Position Maps Tab - Placeholder */}
+        {/* Line-Ups Tab */}
         <TabsContent value="positions">
-          <Card>
-            <CardContent className="p-6">
-              {/* Polk State College Lineups */}
-              <div>
-                <h3 className="text-lg font-semibold mb-6">{selectedClub?.name || 'Home Team'} Lineup</h3>
-                {players && players.length > 0 ? (
-                  <div className="space-y-2">
-                    {players.slice(0, 11).map((player, index) => (
-                      <div key={player.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/30">
-                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.jerseyNumber}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
-                          <div className="flex items-center space-x-2">
-                            <p className="text-xs text-muted-foreground">{player.position}</p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (fixture?.teamId) {
-                                  toggleStarPlayerMutation.mutate({
-                                    playerId: player.id,
-                                    teamId: fixture.teamId,
-                                    starPlayer: !player.starPlayer
-                                  });
-                                }
-                              }}
-                              className="p-1 hover:bg-muted/50 rounded transition-colors"
-                              disabled={toggleStarPlayerMutation.isPending}
-                            >
-                              <Star 
-                                className={`h-3 w-3 transition-colors ${
-                                  player.starPlayer 
-                                    ? 'text-yellow-500 fill-yellow-500' 
-                                    : 'text-gray-300 hover:text-yellow-300'
-                                }`} 
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">Lineup not available</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <FormationPitch players={players ?? []} clubPrimary={primaryColor} />
         </TabsContent>
 
         {/* Videos Tab */}
