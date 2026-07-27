@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // ── colour tokens (light theme) ───────────────────────────────────────────────
 const C = {
@@ -113,6 +113,92 @@ const METRIC_GROUPS = [
   { key: "transition",      label: "Transition & Defending", grp: "defend" },
   { key: "ground_defence",  label: "Defensive Work",         grp: "defend" },
 ];
+
+// ── Reference fixture ────────────────────────────────────────────────────────
+const REFERENCE_FIXTURE_ID = "c6a7fa2f-d625-4422-9bb6-090cf44410dc";
+
+// Standout moments — eventKey is the real StatsBomb event UUID stored in highlightsTimestamps
+// Tag these events in the Match Events tab (Watch Video → mark the timestamp) to enable Watch buttons
+const STANDOUT_MOMENTS = [
+  {
+    eventKey:    "ebfd65eb-42f0-4ed7-8d1f-9ee3de9dc1ae", // Hemp shot min 53:10 — Off Target / crossbar
+    minute:      53,
+    label:       "Crossbar — half-volley strikes the woodwork",
+    description: "Hemp's first-time half-volley from the right of the box cannoned back off the crossbar; England's highest-xG chance of the match (0.151).",
+  },
+  {
+    eventKey:    "9b5907d2-95c9-4e6c-823a-c5e3039aa9aa", // Hemp through-ball min 75:04 — shot assist to James
+    minute:      75,
+    label:       "Shot assist — through-ball releasing Lauren James",
+    description: "Incisive through-ball from the left channel releasing James in behind the Spanish defence; the resulting shot was narrowly off target.",
+  },
+];
+
+// ── VideoModal ────────────────────────────────────────────────────────────────
+function extractYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  return m ? m[1] : null;
+}
+
+function VideoModal({ url, seekTo, onClose }: { url: string; seekTo: number; onClose: () => void }) {
+  const ytId = extractYouTubeId(url);
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const embedSrc = ytId
+    ? `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&start=${Math.floor(seekTo)}`
+    : url;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.82)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#0f172a", borderRadius: 14, overflow: "hidden",
+          width: "min(860px, 92vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
+        }}
+      >
+        {/* Modal header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, letterSpacing: 0.5 }}>
+            ▶ MATCH CLIP · {Math.floor(seekTo / 60)}:{String(Math.floor(seekTo % 60)).padStart(2, "0")}
+          </span>
+          <button
+            onClick={onClose}
+            style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, color: "#94a3b8", cursor: "pointer", fontSize: 16, padding: "2px 9px", lineHeight: 1.4 }}
+          >
+            ✕
+          </button>
+        </div>
+        {/* Video */}
+        <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+          <iframe
+            src={embedSrc}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            title="Match clip"
+          />
+        </div>
+        <div style={{ padding: "8px 16px 12px", fontSize: 11, color: "#475569" }}>
+          Click outside or press Esc to close
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
@@ -276,7 +362,39 @@ function PitchMap({ events }: { events: typeof DEMO.pitch.events }) {
 
 export function PlayerOverallTab({ player }: { player: any }) {
   const [compareMode, setCompareMode] = useState<"target" | "peers" | "trajectory">("target");
+  const [highlightsTimestamps, setHighlightsTimestamps] = useState<Record<string, number>>({});
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [watchModal, setWatchModal] = useState<{ url: string; seekTo: number } | null>(null);
   const data = DEMO;
+
+  // Fetch live highlight timestamps + video URL for the reference fixture
+  useEffect(() => {
+    // Timestamps
+    fetch(`/api/fixtures/${REFERENCE_FIXTURE_ID}/match-events`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.highlightsTimestamps) setHighlightsTimestamps(d.highlightsTimestamps);
+      })
+      .catch(() => {});
+
+    // Video links
+    fetch(`/api/fixtures/${REFERENCE_FIXTURE_ID}/videos`)
+      .then(r => r.ok ? r.json() : null)
+      .then((videos: any[]) => {
+        if (Array.isArray(videos) && videos.length > 0) {
+          // Prefer a YouTube video; fall back to first entry
+          const yt = videos.find((v: any) => /youtube|youtu\.be/i.test(v.url ?? ""));
+          setVideoUrl((yt ?? videos[0]).url ?? null);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleWatch = useCallback((eventKey: string) => {
+    const ts = highlightsTimestamps[eventKey];
+    if (ts == null || !videoUrl) return;
+    setWatchModal({ url: videoUrl, seekTo: ts });
+  }, [highlightsTimestamps, videoUrl]);
 
   const s: Record<string, React.CSSProperties> = {
     card:         { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
@@ -287,6 +405,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
   };
 
   return (
+    <>
     <div style={{ background: C.bg, color: C.txt, fontFamily: "'Segoe UI', Helvetica, Arial, sans-serif", minHeight: 600, padding: "24px 28px 56px" }}>
 
       {/* ── Hero ── */}
@@ -630,21 +749,82 @@ export function PlayerOverallTab({ player }: { player: any }) {
             </div>
           </div>
 
-          {/* ── Standout moment ── */}
-          <div style={{ margin: "14px 20px 18px", borderLeft: `3px solid ${C.gold}`, borderRadius: "0 10px 10px 0", background: `rgba(180,83,9,0.06)`, padding: "10px 14px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>MIN 75</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase" }}>★ Standout action</span>
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>Shot assist — through-ball to Lauren James</div>
-            <div style={{ fontSize: 11.5, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>
-              Incisive through-ball from the left channel releasing James in behind the Spanish defence; the resulting shot was narrowly off target.
-            </div>
+          {/* ── Standout moments ── */}
+          <div style={{ margin: "14px 20px 18px" }}>
+            {STANDOUT_MOMENTS.map((moment, idx) => {
+              const ts = highlightsTimestamps[moment.eventKey];
+              const hasTimestamp = ts != null;
+              const canWatch = hasTimestamp && videoUrl != null;
+
+              return (
+                <div
+                  key={moment.eventKey}
+                  style={{
+                    borderLeft: `3px solid ${C.gold}`,
+                    borderRadius: "0 10px 10px 0",
+                    background: `rgba(180,83,9,0.06)`,
+                    padding: "10px 14px",
+                    marginBottom: idx < STANDOUT_MOMENTS.length - 1 ? 10 : 0,
+                  }}
+                >
+                  {/* Row: badges + Watch button */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 10, background: C.gold, color: "#fff", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: 0.3 }}>
+                      MIN {moment.minute}
+                    </span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: 0.8, textTransform: "uppercase", flex: "1 1 auto" }}>
+                      ★ Standout action
+                    </span>
+                    {/* Watch button — only shown when fixture has a video */}
+                    {videoUrl && (
+                      <button
+                        onClick={() => canWatch && handleWatch(moment.eventKey)}
+                        title={canWatch ? `Jump to ${Math.floor(ts / 60)}:${String(Math.floor(ts % 60)).padStart(2, "0")}` : "Timestamp not yet tagged in Match Events tab"}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 5,
+                          background: canWatch ? "rgba(8,145,178,0.12)" : "rgba(0,0,0,0.06)",
+                          border: `1px solid ${canWatch ? C.cyan : C.line}`,
+                          borderRadius: 20, padding: "3px 11px",
+                          fontSize: 10.5, fontWeight: 700,
+                          color: canWatch ? C.cyan : C.dim2,
+                          cursor: canWatch ? "pointer" : "not-allowed",
+                          flexShrink: 0, letterSpacing: 0.3,
+                          transition: "background 0.15s, border-color 0.15s",
+                        }}
+                        onMouseEnter={e => {
+                          if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.22)";
+                        }}
+                        onMouseLeave={e => {
+                          if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,145,178,0.12)";
+                        }}
+                      >
+                        ▶ Watch
+                        {!canWatch && (
+                          <span style={{ fontSize: 9, color: C.dim2, fontWeight: 400 }}> · untagged</span>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.txt }}>{moment.label}</div>
+                  <div style={{ fontSize: 11.5, color: C.dim, marginTop: 4, lineHeight: 1.5 }}>{moment.description}</div>
+                </div>
+              );
+            })}
           </div>
 
         </div>
       </div>
 
     </div>
+
+    {/* Video modal */}
+    {watchModal && (
+      <VideoModal
+        url={watchModal.url}
+        seekTo={watchModal.seekTo}
+        onClose={() => setWatchModal(null)}
+      />
+    )}
+    </>
   );
 }

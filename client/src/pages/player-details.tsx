@@ -44,7 +44,8 @@ export default function PlayerDetails() {
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [squadNumber, setSquadNumber] = useState<number | undefined>(undefined);
   const [position, setPosition] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>(source === "profiles" ? "bio" : "details");
+  const initialTab = urlSearchParams.get('tab') ?? (source === "profiles" ? "bio" : "details");
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [selectedFixture, setSelectedFixture] = useState<string>("all-season");
   const { toast } = useToast();
   const queryClient = useQueryClient();
