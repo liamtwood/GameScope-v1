@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -182,9 +182,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 
                 const isMobileActive = location.startsWith("/m");
                 return (
-                  <>
+                  <div key={item.id} style={{ display: "contents" }}>
                     <Link
-                      key={item.id}
                       href={href}
                       className={cn(
                         "flex items-center space-x-3 py-2 transition-colors w-full -ml-4 pl-7",
@@ -239,7 +238,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                         {!collapsed && <span className="font-medium">Mobile App</span>}
                       </Link>
                     )}
-                  </>
+                  </div>
                 );
               })}
             </div>
