@@ -84,6 +84,8 @@ export function FormationPitch({
   const [manualStarterIds, setManualStarterIds] = useState<Set<string> | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  // Sub selected for a swap — null means no pending substitution
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
   // ── Load saved squad when fixtureId is present ───────────────────────────
   const { data: squadData, isLoading: squadLoading } = useQuery<{
@@ -206,19 +208,43 @@ export function FormationPitch({
   const noStarters =
     formationGK.length + formationDEF.length + formationMID.length + formationFWD.length === 0;
 
-  // ── Click handler ─────────────────────────────────────────────────────────
-  const handleToggle = (id: string) => {
-    if (showFormationPicker) {
+  // ── Click: substitute in the subs panel ──────────────────────────────────
+  const handleSubClick = (id: string) => {
+    if (!showFormationPicker) {
+      // Auto mode — navigate to profile
+      if (onPlayerClick) onPlayerClick(id);
+      else setLocation(`/players/${id}?source=profiles`);
+      return;
+    }
+    // Toggle selection: clicking the same sub again deselects
+    setSelectedSubId(prev => (prev === id ? null : id));
+  };
+
+  // ── Click: starter on the pitch ───────────────────────────────────────────
+  const handleStarterClick = (id: string) => {
+    if (!showFormationPicker) {
+      if (onPlayerClick) onPlayerClick(id);
+      else setLocation(`/players/${id}?source=profiles`);
+      return;
+    }
+    if (selectedSubId) {
+      // Swap: selected sub goes to pitch, clicked starter goes to bench
       setManualStarterIds(prev => {
         const next = new Set(prev ?? []);
-        if (next.has(id)) next.delete(id); else next.add(id);
+        next.add(selectedSubId);   // sub → pitch
+        next.delete(id);           // starter → bench
+        return next;
+      });
+      setSelectedSubId(null);
+      setIsDirty(true);
+    } else {
+      // No sub selected — move this starter to bench
+      setManualStarterIds(prev => {
+        const next = new Set(prev ?? []);
+        next.delete(id);
         return next;
       });
       setIsDirty(true);
-    } else if (onPlayerClick) {
-      onPlayerClick(id);
-    } else {
-      setLocation(`/players/${id}?source=profiles`);
     }
   };
 
@@ -260,27 +286,31 @@ export function FormationPitch({
                   {pos}
                 </p>
                 <div className="space-y-1">
-                  {group.map(player => (
-                    <button
-                      key={player.id}
-                      onClick={() => handleToggle(player.id)}
-                      className="w-full flex items-center gap-2 text-left group hover:bg-white/10 rounded px-1 py-0.5 transition-colors"
-                    >
-                      <span className="text-white/40 text-xs w-5 text-right shrink-0">
-                        {player.jerseyNumber ?? "–"}
-                      </span>
-                      <span className="text-white/80 text-xs leading-tight group-hover:text-white transition-colors">
-                        {player.firstName}{" "}
-                        <span className="font-bold uppercase">{player.lastName}</span>
-                      </span>
-                      {player.starPlayer && (
-                        <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
-                      )}
-                      {showFormationPicker && (
-                        <span className="text-white/20 text-[10px] ml-auto">+</span>
-                      )}
-                    </button>
-                  ))}
+                  {group.map(player => {
+                    const isSelected = selectedSubId === player.id;
+                    return (
+                      <button
+                        key={player.id}
+                        onClick={() => handleSubClick(player.id)}
+                        className={`w-full flex items-center gap-2 text-left rounded px-1 py-0.5 transition-all ${
+                          isSelected
+                            ? "bg-emerald-500/30 ring-1 ring-emerald-400/60"
+                            : "hover:bg-white/10"
+                        }`}
+                      >
+                        <span className="text-white/40 text-xs w-5 text-right shrink-0">
+                          {player.jerseyNumber ?? "–"}
+                        </span>
+                        <span className={`text-xs leading-tight transition-colors ${isSelected ? "text-white font-semibold" : "text-white/80"}`}>
+                          {player.firstName}{" "}
+                          <span className="font-bold uppercase">{player.lastName}</span>
+                        </span>
+                        {player.starPlayer && (
+                          <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -344,7 +374,9 @@ export function FormationPitch({
         {showFormationPicker && initialized && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
             <span className="text-white/40 text-[11px] bg-black/20 px-2 py-0.5 rounded-full">
-              Tap a player to move them on or off the pitch
+              {selectedSubId
+                ? "Now tap a player on the pitch to swap them"
+                : "Select a sub, then tap a player to swap"}
             </span>
           </div>
         )}
@@ -369,7 +401,7 @@ export function FormationPitch({
             return (
               <button
                 key={player.id}
-                onClick={() => handleToggle(player.id)}
+                onClick={() => handleStarterClick(player.id)}
                 className="absolute flex flex-col items-center gap-1 group cursor-pointer -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
               >
@@ -379,7 +411,9 @@ export function FormationPitch({
                     style={{
                       width: 64,
                       height: 64,
-                      borderColor: isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
+                      borderColor: selectedSubId
+                        ? "rgba(52,211,153,0.9)"   // green target ring when a sub is selected
+                        : isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
                     }}
                   >
                     {player.avatarPath && (
@@ -405,11 +439,9 @@ export function FormationPitch({
                       <Star className="h-3.5 w-3.5 text-orange-400 fill-orange-400 drop-shadow" />
                     </div>
                   )}
-                  {/* Remove hint on hover */}
-                  {showFormationPicker && (
-                    <div className="absolute inset-0 rounded-full bg-red-500/0 group-hover:bg-red-500/20 transition-colors flex items-center justify-center">
-                      <span className="text-white/0 group-hover:text-white/90 text-[10px] font-bold transition-colors">–</span>
-                    </div>
+                  {/* Swap target pulse when a sub is selected */}
+                  {showFormationPicker && selectedSubId && (
+                    <div className="absolute inset-0 rounded-full bg-emerald-400/20 group-hover:bg-emerald-400/40 transition-colors" />
                   )}
                 </div>
                 <span
