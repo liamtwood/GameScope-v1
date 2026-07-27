@@ -15,6 +15,7 @@ import { ObjectUploader } from "@/components/ui/ObjectUploader";
 import { User, Team, UserTeam } from "@shared/schema";
 import { ArrowLeft, Star, Edit, Save, X, Pencil, Users, Plus, Camera, User as UserIcon, BarChart3, Fingerprint, Crosshair, ChartColumn, Target, Navigation, Shield, Video, LayoutDashboard } from "lucide-react";
 import { PlayerOverallTab } from "@/components/PlayerOverallTab";
+import { PlayerCareerTab } from "@/components/PlayerCareerTab";
 import { format, differenceInYears } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { useClub } from "@/contexts/club-context";
@@ -823,6 +824,17 @@ export default function PlayerDetails() {
                             <LayoutDashboard className="h-3.5 w-3.5" />
                             Overall
                           </span>
+
+                          {/* Career Tab */}
+                          <span
+                            className={`text-sm font-medium uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              activeTab === 'career' ? 'font-bold' : 'text-foreground/70'
+                            }`}
+                            style={activeTab === 'career' ? { color: clubPrimaryColor } : {}}
+                            onClick={() => setActiveTab('career')}
+                          >
+                            Career
+                          </span>
                         </div>
                         
                         {/* Fixture Dropdown - Right aligned */}
@@ -1062,6 +1074,19 @@ export default function PlayerDetails() {
                           <Video className="mr-2 h-4 w-4" style={{ color: '#486D8D' }} />
                           Video
                         </TabsTrigger>
+                        {/* Career Tab Trigger - only for Player Profiles */}
+                        {source === "profiles" && (
+                          <TabsTrigger
+                            value="career"
+                            data-testid="tab-career"
+                            className="relative pl-0 pr-4 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg border-0 data-[state=active]:font-semibold"
+                            style={{
+                              '--club-primary': clubPrimaryColor,
+                            } as React.CSSProperties & { '--club-primary': string }}
+                          >
+                            Career
+                          </TabsTrigger>
+                        )}
                       </>
                     )}
                     {/* Hide Photo tab when coming from Player Profiles */}
@@ -2122,6 +2147,20 @@ export default function PlayerDetails() {
               {source === "profiles" && (
                 <TabsContent value="overall" className="m-0">
                   <PlayerOverallTab player={player} />
+                </TabsContent>
+              )}
+
+              {/* Career Tab Content - only when coming from Player Profiles */}
+              {source === "profiles" && (
+                <TabsContent value="career" className="m-0">
+                  <div className="bg-background border border-border border-t-0 rounded-b-lg shadow-sm min-h-[500px]">
+                    <PlayerCareerTab
+                      playerId={player.id}
+                      setSelectedFixture={setSelectedFixture}
+                      setActiveTab={setActiveTab}
+                      clubPrimaryColor={clubPrimaryColor}
+                    />
+                  </div>
                 </TabsContent>
               )}
 

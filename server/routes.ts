@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures, fixtureSquad, playerStats, userTeams } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures, fixtureSquad, playerStats, userTeams, teams, clubs } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -5799,6 +5799,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing video:", error);
       res.status(500).json({ message: "Failed to remove video" });
+    }
+  });
+
+  // Helper: derive season string from a date (Aug-Jul)
+  function getSeasonFromDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 1-based
+    if (month >= 8) {
+      return `${year}-${String(year + 1).slice(-2)}`;
+    } else {
+      return `${year - 1}-${String(year).slice(-2)}`;
+    }
+  }
+
+  // GET /api/players/:id/season-stats
+  // Returns per-club, per-season aggregates derived from player_stats + fixtures
+  app.get("/api/players/:id/season-stats", async (req, res) => {
+    try {
+      const { id: playerId } = req.params;
+
+      // Fetch all FULL_GAME player stats rows with their fixtures and teams/clubs
+      const rows = await db
+        .select({
+          fixtureId: playerStats.fixtureId,
+          goals: playerStats.goals,
+          assists: playerStats.assists,
+          shotsAttempted: playerStats.shotsAttempted,
+          shotsOnTarget: playerStats.shotsOnTarget,
+          // fixture fields
+          fixtureDate: fixtures.date,
+          opponent: fixtures.opponent,
+          fixtureType: fixtures.type,
+          homeScore: fixtures.homeScore,
+          awayScore: fixtures.awayScore,
+          status: fixtures.status,
+          // team fields
+          teamId: teams.id,
+          teamName: teams.name,
+          // club fields
+          clubId: clubs.id,
+          clubName: clubs.name,
+          clubLogoPath: clubs.logoPath,
+        })
+        .from(playerStats)
+        .innerJoin(fixtures, eq(playerStats.fixtureId, fixtures.id))
+        .innerJoin(teams, eq(fixtures.teamId, teams.id))
+        .innerJoin(clubs, eq(teams.clubId, clubs.id))
+        .where(
+          and(
+            eq(playerStats.playerId, playerId),
+            eq(playerStats.period, "FULL_GAME")
+          )
+        );
+
+      // Group by club + season
+      type SeasonKey = string; // `${clubId}__${teamId}__${season}`
+      const seasonMap = new Map<SeasonKey, {
+        clubId: string;
+        clubName: string;
+        clubLogoPath: string | null;
+        teamId: string;
+        teamName: string;
+        season: string;
+        apps: number;
+        goals: number;
+        assists: number;
+        shots: number;
+        shotsOnTarget: number;
+      }>();
+
+      for (const row of rows) {
+        const season = getSeasonFromDate(new Date(row.fixtureDate));
+        const key = `${row.clubId}__${row.teamId}__${season}`;
+        if (!seasonMap.has(key)) {
+          seasonMap.set(key, {
+            clubId: row.clubId,
+            clubName: row.clubName,
+            clubLogoPath: row.clubLogoPath,
+            teamId: row.teamId,
+            teamName: row.teamName,
+            season,
+            apps: 0,
+            goals: 0,
+            assists: 0,
+            shots: 0,
+            shotsOnTarget: 0,
+          });
+        }
+        const entry = seasonMap.get(key)!;
+        entry.apps += 1;
+        entry.goals += row.goals ?? 0;
+        entry.assists += row.assists ?? 0;
+        entry.shots += row.shotsAttempted ?? 0;
+        entry.shotsOnTarget += row.shotsOnTarget ?? 0;
+      }
+
+      res.json(Array.from(seasonMap.values()));
+    } catch (error) {
+      console.error("Error fetching player season stats:", error);
+      res.status(500).json({ message: "Failed to fetch player season stats" });
+    }
+  });
+
+  // GET /api/players/:id/match-logs
+  // Returns individual match appearances; optional ?teamId=&season= filters
+  app.get("/api/players/:id/match-logs", async (req, res) => {
+    try {
+      const { id: playerId } = req.params;
+      const { teamId, season } = req.query as { teamId?: string; season?: string };
+
+      const rows = await db
+        .select({
+          fixtureId: playerStats.fixtureId,
+          goals: playerStats.goals,
+          assists: playerStats.assists,
+          shotsAttempted: playerStats.shotsAttempted,
+          shotsOnTarget: playerStats.shotsOnTarget,
+          totalDistance: playerStats.totalDistance,
+          // fixture fields
+          fixtureDate: fixtures.date,
+          opponent: fixtures.opponent,
+          fixtureType: fixtures.type,
+          homeScore: fixtures.homeScore,
+          awayScore: fixtures.awayScore,
+          status: fixtures.status,
+          // team fields
+          teamId: teams.id,
+          teamName: teams.name,
+        })
+        .from(playerStats)
+        .innerJoin(fixtures, eq(playerStats.fixtureId, fixtures.id))
+        .innerJoin(teams, eq(fixtures.teamId, teams.id))
+        .where(
+          and(
+            eq(playerStats.playerId, playerId),
+            eq(playerStats.period, "FULL_GAME"),
+            ...(teamId ? [eq(teams.id, teamId)] : [])
+          )
+        )
+        .orderBy(desc(fixtures.date));
+
+      // Filter by season if provided
+      const result = rows
+        .filter(row => {
+          if (!season) return true;
+          return getSeasonFromDate(new Date(row.fixtureDate)) === season;
+        })
+        .map(row => ({
+          fixtureId: row.fixtureId,
+          hasNativeFixture: true,
+          date: row.fixtureDate,
+          opponent: row.opponent,
+          fixtureType: row.fixtureType,
+          homeScore: row.homeScore,
+          awayScore: row.awayScore,
+          status: row.status,
+          goals: row.goals ?? 0,
+          assists: row.assists ?? 0,
+          shotsAttempted: row.shotsAttempted ?? 0,
+          shotsOnTarget: row.shotsOnTarget ?? 0,
+          minutesPlayed: row.totalDistance != null ? 90 : null,
+          source: "native" as const,
+        }));
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching player match logs:", error);
+      res.status(500).json({ message: "Failed to fetch player match logs" });
     }
   });
 
