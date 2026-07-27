@@ -476,13 +476,13 @@ export function PlayerOverallTab({ player }: { player: any }) {
             <span style={s.tagTgt}>Benchmark <b>{data.pathwayTarget.name}</b></span>
           </div>
           <div style={{ marginTop: 12, fontSize: 13.5, color: C.dim, lineHeight: 1.55 }}>
-            <span style={{ color: clubColor, fontWeight: 700 }}>{data.index.roleLabel}. </span>
+            <span style={{ color: "#3663ae", fontWeight: 700 }}>{data.index.roleLabel}. </span>
             {data.index.verdict}
           </div>
         </div>
 
         <div style={{ flexShrink: 0, textAlign: "center" }}>
-          <CircularGauge pct={data.index.overallPctOfTarget} color={clubColor} />
+          <CircularGauge pct={data.index.overallPctOfTarget} color={"#3663ae"} />
           <div style={{ fontSize: 10, color: C.dim2, letterSpacing: 1, marginTop: 5, maxWidth: 110 }}>OVERALL VS BENCHMARK</div>
         </div>
       </div>
@@ -506,9 +506,9 @@ export function PlayerOverallTab({ player }: { player: any }) {
         {/* Radar card */}
         <div style={{ ...s.card, flex: "1 1 340px", minWidth: 300 }}>
           <div style={{ ...s.cardLabel, marginBottom: 6 }}>Performance Profile</div>
-          <RadarChart dims={data.dimensions} color={clubColor} />
+          <RadarChart dims={data.dimensions} color={"#3663ae"} />
           <div style={{ display: "flex", gap: 18, justifyContent: "center", fontSize: 11, color: C.dim, marginTop: 4 }}>
-            <span><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: 2, background: clubColor, marginRight: 6, verticalAlign: "middle", opacity: 0.5 }} />{player?.firstName ?? "Player"}</span>
+            <span><span style={{ display: "inline-block", width: 11, height: 11, borderRadius: 2, background: "#3663ae", marginRight: 6, verticalAlign: "middle", opacity: 0.5 }} />{player?.firstName ?? "Player"}</span>
             <span><span style={{ display: "inline-block", width: 11, height: 3, borderRadius: 0, background: C.tgt, marginRight: 6, verticalAlign: "middle" }} />{data.pathwayTarget.name}</span>
           </div>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", fontSize: 10, color: C.dim2, marginTop: 6 }}>
@@ -521,12 +521,12 @@ export function PlayerOverallTab({ player }: { player: any }) {
         {/* Focus card */}
         <div style={{ ...s.card, flex: "1 1 340px", minWidth: 300 }}>
           <div style={{ ...s.cardLabel, marginBottom: 0 }}>
-            Development Focus · <span style={{ color: clubColor }}>Strengths-led</span>
+            Development Focus · <span style={{ color: "#3663ae" }}>Strengths-led</span>
           </div>
 
           {/* Superpower */}
-          <div style={{ border: `1px solid ${clubColor}`, borderRadius: 12, padding: 14, background: hexToRgba(clubColor, 0.06), marginTop: 10 }}>
-            <div style={{ fontSize: 11, color: clubColor, letterSpacing: 1, fontWeight: 700 }}>★ SUPERPOWER — PROTECT &amp; SHARPEN</div>
+          <div style={{ border: `1px solid #3663ae`, borderRadius: 12, padding: 14, background: hexToRgba("#3663ae", 0.06), marginTop: 10 }}>
+            <div style={{ fontSize: 11, color: "#3663ae", letterSpacing: 1, fontWeight: 700 }}>★ SUPERPOWER — PROTECT &amp; SHARPEN</div>
             <div style={{ fontSize: 17, fontWeight: 800, margin: "4px 0 7px", color: C.txt }}>{data.focus.superpower.title}</div>
             <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5 }}>{data.focus.superpower.note}</div>
           </div>
@@ -576,7 +576,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
                       <span style={{ fontSize: 10, color: C.dim, fontWeight: 400 }}> {row.volume.unit} · {row.volume.percentile}th · tgt {row.volume.target}</span>
                     </div>
                     <div style={{ height: 6, background: C.line, borderRadius: 4, marginTop: 4, position: "relative", overflow: "hidden" }}>
-                      <div style={{ position: "absolute", inset: 0, width: `${row.volume.percentile}%`, borderRadius: 4, background: clubColor }} />
+                      <div style={{ position: "absolute", inset: 0, width: `${row.volume.percentile}%`, borderRadius: 4, background: "#3663ae" }} />
                     </div>
                   </div>
 
@@ -605,7 +605,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
       {/* ── Trajectory (full width) ── */}
       <div style={{ ...s.card, marginTop: 20 }}>
         <div style={{ ...s.cardLabel, marginBottom: 8 }}>Trajectory · gap to benchmark closing</div>
-        <TrajectoryChart traj={data.trajectory} color={clubColor} />
+        <TrajectoryChart traj={data.trajectory} color={"#3663ae"} />
         <div style={{ fontSize: 12, color: C.dim, marginTop: 10, lineHeight: 1.7 }}>
           Last 3 windows: {data.trajectory.pctOfTarget.slice(-3).join("% → ")}% of benchmark.{" "}
           <b style={{ color: C.good }}>+{data.trajectory.pctOfTarget[data.trajectory.pctOfTarget.length - 1] - data.trajectory.pctOfTarget[0]} pts</b> since season start.
@@ -677,7 +677,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
                   <span style={{ fontSize: 12, color: C.dim, fontWeight: 500 }}>/ 3</span>
                 </div>
                 <div style={{ height: 5, background: C.line, borderRadius: 3, marginTop: 5, overflow: "hidden", maxWidth: 48 }}>
-                  <div style={{ height: "100%", width: "66%", background: clubColor, borderRadius: 3 }} />
+                  <div style={{ height: "100%", width: "66%", background: "#3663ae", borderRadius: 3 }} />
                 </div>
                 <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Dribbles won</div>
               </div>
@@ -691,8 +691,8 @@ export function PlayerOverallTab({ player }: { player: any }) {
 
             {/* Passing & Crossing */}
             <div style={{ padding: "0 16px", borderRight: `1px solid ${C.line}` }}>
-              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: clubColor, textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: clubColor, display: "inline-block" }} />
+              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: "#3663ae", textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3663ae", display: "inline-block" }} />
                 Passing
               </div>
 
@@ -703,7 +703,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
                   <span style={{ fontSize: 13, color: C.dim, fontWeight: 600 }}>%</span>
                 </div>
                 <div style={{ height: 5, background: C.line, borderRadius: 3, marginTop: 5, overflow: "hidden", maxWidth: 56 }}>
-                  <div style={{ height: "100%", width: "58%", background: clubColor, borderRadius: 3 }} />
+                  <div style={{ height: "100%", width: "58%", background: "#3663ae", borderRadius: 3 }} />
                 </div>
                 <div style={{ fontSize: 10.5, color: C.dim, marginTop: 3 }}>Pass acc. · 11/19</div>
               </div>
@@ -760,10 +760,10 @@ export function PlayerOverallTab({ player }: { player: any }) {
           {/* ── Pitch map ── */}
           <div style={{ flexShrink: 0, borderLeft: `1px solid ${C.line}`, padding: "18px 20px" }}>
             <div style={{ ...s.cardLabel, marginBottom: 8 }}>Activity map · real x/y</div>
-            <PitchMap events={data.pitch.events} color={clubColor} />
+            <PitchMap events={data.pitch.events} color={"#3663ae"} />
             <div style={{ display: "flex", gap: 8, fontSize: 10, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
               {([
-                [clubColor, "Dribble ✓"],
+                ["#3663ae", "Dribble ✓"],
                 ["#555",    "Dribble ✗"],
                 ["#16a34a", "Shot on"],
                 ["#e11d48", "Shot off"],
@@ -815,20 +815,20 @@ export function PlayerOverallTab({ player }: { player: any }) {
                       title={canWatch ? `Jump to ${Math.floor(ts / 60)}:${String(Math.floor(ts % 60)).padStart(2, "0")}` : "Timestamp not yet tagged in Match Events tab"}
                       style={{
                         display: "flex", alignItems: "center", gap: 5,
-                        background: canWatch ? hexToRgba(clubColor, 0.12) : "rgba(0,0,0,0.06)",
-                        border: `1px solid ${canWatch ? clubColor : C.line}`,
+                        background: canWatch ? hexToRgba("#3663ae", 0.12) : "rgba(0,0,0,0.06)",
+                        border: `1px solid ${canWatch ? "#3663ae" : C.line}`,
                         borderRadius: 20, padding: "3px 11px",
                         fontSize: 10.5, fontWeight: 700,
-                        color: canWatch ? clubColor : C.dim2,
+                        color: canWatch ? "#3663ae" : C.dim2,
                         cursor: canWatch ? "pointer" : "not-allowed",
                         flexShrink: 0, letterSpacing: 0.3,
                         transition: "background 0.15s, border-color 0.15s",
                       }}
                       onMouseEnter={e => {
-                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = hexToRgba(clubColor, 0.22);
+                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = hexToRgba("#3663ae", 0.22);
                       }}
                       onMouseLeave={e => {
-                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = hexToRgba(clubColor, 0.12);
+                        if (canWatch) (e.currentTarget as HTMLButtonElement).style.background = hexToRgba("#3663ae", 0.12);
                       }}
                     >
                       ▶ Watch
