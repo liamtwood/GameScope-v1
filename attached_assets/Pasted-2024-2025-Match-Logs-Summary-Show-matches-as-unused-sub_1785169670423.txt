@@ -1,0 +1,29 @@
+2024-2025 Match Logs (Summary) 
+Show matches as unused substitute Share & Export
+Modify, Export & Share Table
+Get as Excel Workbook
+Get table as CSV (for Excel)
+Get Link to Table
+About Sharing Tools
+Video: SR Sharing Tools & How-to
+Video: Stats Table Tips & Tricks
+Data Usage Terms
+GlossaryScroll Right For More Stats · Switch to Widescreen View
+Performance	
+Date	Day	Comp	Round	Venue	Result	Squad	Opponent	Start	Pos	Min	Gls	Ast	PK	PKatt	Sh	SoT	CrdY	CrdR	Fls	Fld	Off	Crs	TklW	Int	OG	PKwon	PKcon	Match Report
+2024-07-12	Fri	UEFA Euro qual.	League A	Home	W 2–1	eng England	ie Rep. of Ireland	Y	FW	87	0	0	0	0			0	0							0			Match Report
+2024-07-16	Tue	UEFA Euro qual.	League A	Away	D 0–0	eng England	se Sweden	Y	FW	89	0	0	0	0			0	0							0			Match Report
+2024-09-18	Wed	Champions Lg	Second qualifying round	Away	W 5–0	eng Manchester City	fr Paris FC	Y	FW	78	0	1	0	0			0	0							0			Match Report
+2024-09-22	Sun	WSL	Matchweek 1	Away	D 2–2	Manchester City	Arsenal	Y	FW	90	0	0	0	0	1	1	1	0	2	1	2	4	0	2	0			Match Report
+2024-09-29	Sun	WSL	Matchweek 2	Home	W 1–0	Manchester City	Brighton	Y	FW	90	0	0	0	0	4	2	0	0	0	1	2	10	1	0	0			Match Report
+2024-10-06	Sun	WSL	Matchweek 3	Home	W 2–0	Manchester City	West Ham	Y	FW	69	1	0	0	0	6	3	0	0	0	1	0	2	0	2	0			Match Report
+2024-10-09	Wed	Champions Lg	Group stage	Home	W 2–0	eng Manchester City	es Barcelona	Y	FW	90	0	0	0	0	2	0	0	0	2	0	2	8	6	2	0			Match Report
+2024-10-13	Sun	WSL	Matchweek 4	Away	W 2–1	Manchester City	Liverpool	Y	FW	90	0	1	0	0	3	0	0	0	2	0	0	12	0	0	0			Match Report
+2024-10-16	Wed	Champions Lg	Group stage	Away	W 3–2	eng Manchester City	at St. Pölten	N		28	0	1	0	0	2	0	0	0	0	1	0	2	0	1	0			Match Report
+2024-10-20	Sun	WSL	Matchweek 5	Home	W 2–1	Manchester City	Aston Villa	Y	FW	90	1	1	0	0	5	5	0	0	1	5	1	8	1	1	0			Match Report
+2024-11-03	Sun	WSL	Matchweek 6	Away	W 3–0	Manchester City	Crystal Palace	Y	FW	58	0	0	0	0	3	0	0	0	0	2	0	11	0	0	0			Match Report
+2024-11-08	Fri	WSL	Matchweek 7	Home	W 4–0	Manchester City	Tottenham	Y	FW	77	0	3	0	0	3	1	0	0	0	0	0	7	0	1	0			Match Report
+2025-04-27	Sun	WSL	Matchweek 20	Away	W 1–0	Manchester City	Leicester City	N		31	0	1	0	0	2	1	0	0	1	1	0	3	0	0	0			Match Report
+2025-05-04	Sun	WSL	Matchweek 21	Away	D 2–2	Manchester City	Manchester Utd	Y	AM	64	0	1	0	0	2	2	0	0	1	2	0	6	0	0	0			Match Report
+2025-05-10	Sat	WSL	Matchweek 22	Home	W 5–2	Manchester City	Crystal Palace	Y	AM	67	0	1	0	0	1	0	0	0	0	1	2	12	0	1	0			Match Report
+12-3-0			13/15		1,098	2	10	0	0	34	15	1	0	9	15	9	85	8	10	0			

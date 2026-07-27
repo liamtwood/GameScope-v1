@@ -1,0 +1,27 @@
+Standard Stats: Domestic Leagues 
+Goal Logs Share & Export
+Modify, Export & Share Table
+Get as Excel Workbook
+Get table as CSV (for Excel)
+Get Link to Table
+About Sharing Tools
+Video: SR Sharing Tools & How-to
+Video: Stats Table Tips & Tricks
+Data Usage Terms
+GlossaryToggle Per90 Stats
+Playing Time	Performance	Per 90 Minutes	
+Season	Age	Squad	Country	Comp	LgRank	MP	Starts	Min	90s	Gls	Ast	G+A	G-PK	PK	PKatt	CrdY	CrdR	Gls	Ast	G+A	G-PK	G+A-PK	Matches
+2017	16	Bristol City	eng ENG	1. WSL 1	8th	4	3	278	3.1	1	0	1	1	0	0	0	0	0.32	0.00	0.32	0.32	0.32	Matches
+2017-2018	16	Bristol City	eng ENG	1. WSL 1	8th	18	18	1,619	18.0	7	0	7	6	1	2	3	0	0.39	0.00	0.39	0.33	0.33	Matches
+2018-2019	17	Manchester City	eng ENG	1. WSL	2nd	10	7	603	6.7	2	1	3	2	0	0	1	0	0.30	0.15	0.45	0.30	0.45	Matches
+2019-2020	18	Manchester City	eng ENG	1. WSL	2nd	14	13	1,134	12.6	5	5	10	5	0	0	2	0	0.40	0.40	0.79	0.40	0.79	Matches
+2020-2021	19	Manchester City	eng ENG	1. WSL	2nd	15	13	1,057	11.7	6	8	14	6	0	0	0	0	0.51	0.68	1.19	0.51	1.19	Matches
+2021-2022	20	Manchester City	eng ENG	1. WSL	3rd	22	20	1,733	19.3	10	6	16	10	0	0	1	0	0.52	0.31	0.83	0.52	0.83	Matches
+2022-2023	21	Manchester City	eng ENG	1. WSL	4th	20	20	1,674	18.6	7	6	13	7	0	0	2	0	0.38	0.32	0.70	0.38	0.70	Matches
+2023-2024	22	Manchester City	eng ENG	1. WSL	2nd	21	19	1,746	19.4	11	8	19	11	0	0	4	1	0.57	0.41	0.98	0.57	0.98	Matches
+2024-2025	23	Manchester City	eng ENG	1. WSL	4th	10	9	726	8.1	2	8	10	2	0	0	1	0	0.25	0.99	1.24	0.25	1.24	Matches
+2025-2026	24	Manchester City	eng ENG	1. WSL	1st	18	17	1,379	15.3	1	6	7	1	0	0	0	0	0.07	0.39	0.46	0.07	0.46	Matches
+9 Seasons	2 Clubs		1 League		152	139	11,949	132.8	52	48	100	51	1	2	14	1	0.39	0.36	0.75	0.38	0.75	
+Country	Comp	LgRank	MP	Starts	Min	90s	Gls	Ast	G+A	G-PK	PK	PKatt	CrdY	CrdR	Gls	Ast	G+A	G-PK	G+A-PK	Matches
+Manchester City (8 Seasons)		1 League		130	118	10,052	111.7	44	48	92	44	0	0	11	1	0.39	0.43	0.82	0.39	0.82	
+Bristol City (1 Season)		1 League		22	21	1,897	21.1	8	0	8	7	1	2	3	0	0.38	0.00	0.38	0.33	0.33	
