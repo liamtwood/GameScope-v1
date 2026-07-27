@@ -132,10 +132,12 @@ export function FormationPitch({
     if (fixtureId) {
       if (squadLoading) return; // Wait
       if (squadData) {
-        // Use saved data from DB
+        // Load saved starters, but always include star players
         const savedStarters = new Set(
           squadData.players.filter(p => p.role === "starter").map(p => p.id)
         );
+        // Star players are always on the pitch regardless of what was saved
+        players.filter(p => p.starPlayer).forEach(p => savedStarters.add(p.id));
         setManualStarterIds(savedStarters);
         if (squadData.formation) setSelectedFormation(squadData.formation);
         setInitialized(true);
