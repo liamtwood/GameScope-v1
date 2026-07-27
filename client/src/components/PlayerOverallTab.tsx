@@ -70,29 +70,37 @@ const DEMO = {
     ],
   },
   pitch: {
+    // StatsBomb coords (x: 0-120 own→opp goal, y: 0-80 top→bottom)
+    // → component coords: comp_x = y_sb/80*100, comp_y = x_sb/120*100
     events: [
-      { type: "take_on_won",  x: 17, y: 58 },
-      { type: "take_on_won",  x: 22, y: 70 },
-      { type: "take_on_won",  x: 19, y: 80 },
-      { type: "take_on_won",  x: 25, y: 86 },
-      { type: "take_on_won",  x: 14, y: 62 },
-      { type: "take_on_won",  x: 28, y: 74 },
-      { type: "take_on_lost", x: 20, y: 52, x2: undefined, y2: undefined },
-      { type: "take_on_lost", x: 16, y: 67, x2: undefined, y2: undefined },
-      { type: "cross",        x: 26, y: 90, x2: 55, y2: 92 },
-      { type: "cross",        x: 22, y: 84, x2: 50, y2: 91 },
+      // Dribbles (real locations from WWC Final event data)
+      { type: "take_on_won",  x:  9, y: 21 },   // min 9  [25.3, 7.2]
+      { type: "take_on_won",  x:  3, y: 27 },   // min 9  [32.4, 2.4]
+      { type: "take_on_lost", x:  5, y: 28 },   // min 39 [34.1, 4.3]
+      // Crosses (all incomplete — no cross found the target)
+      { type: "cross", x: 72, y: 94, x2: 52, y2: 95 },  // min 44 [113,57.7]→[114.3,41.7]
+      { type: "cross", x: 19, y: 93, x2: 55, y2: 92 },  // min 74 [111.7,14.8]→[110.7,44.2]
+      { type: "cross", x: 85, y: 94, x2: 45, y2: 95 },  // min 102 [112.3,68.3]→[114.1,36.3]
+      // Shots
+      { type: "shot_on",  x: 70, y: 90 },  // min 4  [107.9, 56.3] Saved xG 0.038
+      { type: "shot_on",  x: 67, y: 89 },  // min 19 [107.3, 53.5] Saved xG 0.090
+      { type: "shot_off", x: 42, y: 93 },  // min 53 [111.3, 33.6] Off T  xG 0.151
     ],
   },
   matchSample: {
     label: "2023 World Cup Final vs Spain (90 mins)",
     stats: [
-      { label: "Shots",      value: 4 },
-      { label: "On target",  value: 2 },
-      { label: "Crosses",    value: 2 },
-      { label: "Goals",      value: 0 },
-      { label: "Assists",    value: 0 },
-      { label: "Fouls won",  value: 1 },
-      { label: "Yellow",     value: 1 },
+      { label: "Shots",        value: 3 },
+      { label: "On target",    value: 2 },
+      { label: "xG",           value: "0.28" },
+      { label: "Dribbles",     value: "2/3" },
+      { label: "Crosses",      value: 3 },
+      { label: "Key pass",     value: 1 },
+      { label: "Fouls won",    value: 3 },
+      { label: "Pressures",    value: 31 },
+      { label: "Ball rec.",    value: 5 },
+      { label: "Goals",        value: 0 },
+      { label: "Assists",      value: 0 },
     ],
   },
 };
@@ -246,6 +254,8 @@ function PitchMap({ events }: { events: typeof DEMO.pitch.events }) {
         const x = px(ev.x), y = py(ev.y);
         if (ev.type === "take_on_won") return <circle key={i} cx={x} cy={y} r={5} fill={C.cyan} fillOpacity={0.9} />;
         if (ev.type === "take_on_lost") return <circle key={i} cx={x} cy={y} r={5} fill="#555" />;
+        if (ev.type === "shot_on")  return <circle key={i} cx={x} cy={y} r={5.5} fill={C.good} fillOpacity={0.9} />;
+        if (ev.type === "shot_off") return <circle key={i} cx={x} cy={y} r={5.5} fill={C.tgt} fillOpacity={0.7} />;
         if (ev.type === "cross" && ev.x2 != null && ev.y2 != null) {
           const x2 = px(ev.x2 as number), y2 = py(ev.y2 as number);
           return (
@@ -455,12 +465,12 @@ export function PlayerOverallTab({ player }: { player: any }) {
           <div style={{ ...s.cardLabel, marginBottom: 8 }}>Left-wing activity map · from event x/y</div>
           <PitchMap events={data.pitch.events} />
           <div style={{ display: "flex", gap: 14, fontSize: 11, color: C.dim, marginTop: 8, flexWrap: "wrap" }}>
-            {[["#0891b2","Take-on won"],["#888","Take-on lost"],["#d97706","Cross"]].map(([bg, label]) => (
+            {[["#0891b2","Dribble won"],["#888","Dribble lost"],["#16a34a","Shot on target"],["#e11d48","Shot off target"],["#d97706","Cross"]].map(([bg, label]) => (
               <span key={label}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: bg, marginRight: 5, verticalAlign: "middle" }} />{label}</span>
             ))}
           </div>
           <div style={{ fontSize: 11.5, color: C.dim, lineHeight: 1.5, marginTop: 8 }}>
-            Where she wins her 1v1s and progresses — concentrated in the left channel. Coordinates sourced from match event data.
+            Real x/y coordinates from StatsBomb event data. Dribbles in own half reflect England's defensive shape; all 3 crosses entered the box area.
           </div>
         </div>
       </div>
@@ -476,8 +486,8 @@ export function PlayerOverallTab({ player }: { player: any }) {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 12, background: "rgba(180,83,9,0.06)", border: `1px solid rgba(180,83,9,0.2)`, color: C.gold, fontSize: 11.5, borderRadius: 10, padding: "9px 14px", lineHeight: 1.5 }}>
-          ⚠ Illustrative data — percentiles and dimension scores are demonstration values. Connect real season event data to compute live percentiles vs position cohort.
+        <div style={{ marginTop: 12, background: "rgba(22,163,74,0.06)", border: `1px solid rgba(22,163,74,0.25)`, color: C.good, fontSize: 11.5, borderRadius: 10, padding: "9px 14px", lineHeight: 1.5 }}>
+          ✓ Stats computed from StatsBomb event data (Spain vs England · 2023 WWC Final). Percentiles and dimension scores above are illustrative benchmarks pending season cohort data.
         </div>
       </div>
 
