@@ -616,9 +616,9 @@ export function PlayerOverallTab({ player }: { player: any }) {
               fixture={refFixture}
               teamLogoPath={clubLogoPath ?? undefined}
               opponentLogoPath={refOppositionLogoPath ?? undefined}
-              polkStateColor={clubColor}
+              polkStateColor="#3663ae"
               oppositionColor={refOppositionColor}
-              primaryColor={clubColor}
+              primaryColor="#3663ae"
               clubName={clubName}
             />
           </div>
