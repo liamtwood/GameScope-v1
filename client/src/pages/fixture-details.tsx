@@ -423,7 +423,7 @@ export default function FixtureDetails() {
           </TabsContent>
 
           <TabsContent value="lineup" className="mt-6">
-            <FormationPitch players={players} clubPrimary={primaryColor} />
+            <FormationPitch players={players} clubPrimary={primaryColor} showFormationPicker />
           </TabsContent>
 
           <TabsContent value="analysis" className="mt-6">

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star } from "lucide-react";
+import { Star, ChevronDown } from "lucide-react";
 
 interface Player {
   id: string;
@@ -18,8 +19,25 @@ interface FormationPitchProps {
   clubPrimary?: string;
   /** Override click handler — defaults to navigating to /players/:id?source=profiles */
   onPlayerClick?: (id: string) => void;
+  /** Show the formation dropdown picker (lineup pages only) */
+  showFormationPicker?: boolean;
 }
 
+// ── Formations ──────────────────────────────────────────────────────────────
+const FORMATIONS = [
+  { label: "4-3-3",   def: 4, mid: 3, fwd: 3 },
+  { label: "4-4-2",   def: 4, mid: 4, fwd: 2 },
+  { label: "4-5-1",   def: 4, mid: 5, fwd: 1 },
+  { label: "4-2-4",   def: 4, mid: 2, fwd: 4 },
+  { label: "4-1-4-1", def: 4, mid: 5, fwd: 1 },
+  { label: "3-5-2",   def: 3, mid: 5, fwd: 2 },
+  { label: "3-4-3",   def: 3, mid: 4, fwd: 3 },
+  { label: "5-3-2",   def: 5, mid: 3, fwd: 2 },
+  { label: "5-4-1",   def: 5, mid: 4, fwd: 1 },
+  { label: "4-3-2-1", def: 4, mid: 5, fwd: 1 },
+] as const;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
 const getPositionCategory = (position: string): "GK" | "DEF" | "MID" | "FWD" => {
   const p = (position || "").toLowerCase();
   if (p === "gk" || p === "goalkeeper") return "GK";
@@ -43,11 +61,30 @@ const rowPositions = (count: number, y: number) => {
   }));
 };
 
+// Sort: starred first, then fit, then by jersey number
+const byPriority = (a: Player, b: Player) => {
+  if (a.starPlayer !== b.starPlayer) return a.starPlayer ? -1 : 1;
+  const aFit = a.fitnessStatus === "Fit" ? 0 : 1;
+  const bFit = b.fitnessStatus === "Fit" ? 0 : 1;
+  if (aFit !== bFit) return aFit - bFit;
+  return (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
+};
+
 const byJersey = (a: Player, b: Player) =>
   (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
 
-export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick }: FormationPitchProps) {
+// Pick the top `count` players from a group
+const pickTop = (group: Player[], count: number) =>
+  [...group].sort(byPriority).slice(0, count);
+
+export function FormationPitch({
+  players,
+  clubPrimary = "#CC4125",
+  onPlayerClick,
+  showFormationPicker = false,
+}: FormationPitchProps) {
   const [, setLocation] = useLocation();
+  const [selectedFormation, setSelectedFormation] = useState<typeof FORMATIONS[number]["label"]>("4-3-3");
 
   const handleClick = (id: string) => {
     if (onPlayerClick) {
@@ -57,27 +94,46 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
     }
   };
 
-  // Only fit players
-  const fitPlayers = players.filter(p => p.fitnessStatus === "Fit");
-
-  const fitByPos = {
-    GK:  fitPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "GK"),
-    DEF: fitPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "DEF"),
-    MID: fitPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "MID"),
-    FWD: fitPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "FWD"),
+  // ── Group all players by position ────────────────────────────────────────
+  const byPos = {
+    GK:  players.filter(p => getPositionCategory(p.position ?? "MID") === "GK"),
+    DEF: players.filter(p => getPositionCategory(p.position ?? "MID") === "DEF"),
+    MID: players.filter(p => getPositionCategory(p.position ?? "MID") === "MID"),
+    FWD: players.filter(p => getPositionCategory(p.position ?? "MID") === "FWD"),
   };
 
-  // All star players start — no fixed cap
-  const formationGK  = fitByPos.GK.filter(p => p.starPlayer).sort(byJersey);
-  const formationDEF = fitByPos.DEF.filter(p => p.starPlayer).sort(byJersey);
-  const formationMID = fitByPos.MID.filter(p => p.starPlayer).sort(byJersey);
-  const formationFWD = fitByPos.FWD.filter(p => p.starPlayer).sort(byJersey);
+  // ── Pick starters ────────────────────────────────────────────────────────
+  let formationGK: Player[];
+  let formationDEF: Player[];
+  let formationMID: Player[];
+  let formationFWD: Player[];
+
+  if (showFormationPicker) {
+    // Formation-driven: pick top N per group (starred first, then fit, then jersey)
+    const fmt = FORMATIONS.find(f => f.label === selectedFormation) ?? FORMATIONS[0];
+    formationGK  = pickTop(byPos.GK,  1);
+    formationDEF = pickTop(byPos.DEF, fmt.def);
+    formationMID = pickTop(byPos.MID, fmt.mid);
+    formationFWD = pickTop(byPos.FWD, fmt.fwd);
+  } else {
+    // Auto (star-player) mode: only fit star players start
+    const fitByPos = {
+      GK:  byPos.GK.filter(p => p.fitnessStatus === "Fit"),
+      DEF: byPos.DEF.filter(p => p.fitnessStatus === "Fit"),
+      MID: byPos.MID.filter(p => p.fitnessStatus === "Fit"),
+      FWD: byPos.FWD.filter(p => p.fitnessStatus === "Fit"),
+    };
+    formationGK  = fitByPos.GK.filter(p => p.starPlayer).sort(byJersey);
+    formationDEF = fitByPos.DEF.filter(p => p.starPlayer).sort(byJersey);
+    formationMID = fitByPos.MID.filter(p => p.starPlayer).sort(byJersey);
+    formationFWD = fitByPos.FWD.filter(p => p.starPlayer).sort(byJersey);
+  }
 
   const starterIds = new Set(
     [...formationGK, ...formationDEF, ...formationMID, ...formationFWD].map(p => p.id)
   );
 
-  // All non-starters go to bench regardless of fitness
+  // All non-starters go to bench
   const benchPlayers = players.filter(p => !starterIds.has(p.id));
   const subsGrouped = {
     GK:  benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "GK" ).sort(byJersey),
@@ -100,7 +156,8 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
     formationFWD.length,
   ].join("–");
 
-  const noStarters = formationGK.length + formationDEF.length + formationMID.length + formationFWD.length === 0;
+  const noStarters =
+    formationGK.length + formationDEF.length + formationMID.length + formationFWD.length === 0;
 
   return (
     <div className="flex gap-0 rounded-xl overflow-hidden" style={{ minHeight: 600 }}>
@@ -180,8 +237,10 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
         {/* Empty state */}
         {noStarters && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-white/40 text-sm">
-              No star players — mark players as ⭐ to populate the lineup
+            <p className="text-white/40 text-sm text-center px-8">
+              {showFormationPicker
+                ? "No players found — add players to the squad first"
+                : "No star players — mark players as ⭐ to populate the lineup"}
             </p>
           </div>
         )}
@@ -250,12 +309,32 @@ export function FormationPitch({ players, clubPrimary = "#CC4125", onPlayerClick
           })
         )}
 
-        {/* Formation label — bottom-right quadrant at penalty-spot depth */}
+        {/* Formation label / picker — bottom-right at penalty-spot depth */}
         <div
-          className="absolute text-white/50 text-sm font-mono font-bold -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          className="absolute -translate-x-1/2 -translate-y-1/2"
           style={{ left: "84%", top: "87%" }}
         >
-          {formationLabel}
+          {showFormationPicker ? (
+            <div className="relative">
+              <select
+                value={selectedFormation}
+                onChange={e => setSelectedFormation(e.target.value as typeof selectedFormation)}
+                className="appearance-none bg-black/50 text-white/90 text-sm font-bold font-mono rounded-md pl-3 pr-7 py-1.5 border border-white/20 cursor-pointer hover:bg-black/70 focus:outline-none focus:border-white/40 transition-colors"
+                style={{ backdropFilter: "blur(4px)" }}
+              >
+                {FORMATIONS.map(f => (
+                  <option key={f.label} value={f.label} className="bg-gray-900">
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/60 pointer-events-none" />
+            </div>
+          ) : (
+            <span className="text-white/50 text-sm font-mono font-bold pointer-events-none">
+              {formationLabel}
+            </span>
+          )}
         </div>
       </div>
     </div>
