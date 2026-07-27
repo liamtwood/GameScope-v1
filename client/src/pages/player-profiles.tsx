@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -8,21 +8,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, Search } from "lucide-react";
+import { Star, Search, Blocks, LayoutTemplate } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import { useClubTheme } from "@/hooks/use-club-theme";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 type StarPlayerFilter = 'all' | 'yes' | 'no';
+type ViewMode = 'tile' | 'formation';
 
 export default function PlayerProfiles() {
   const [positionFilter, setPositionFilter] = useState<PositionFilter>('all');
   const [starPlayerFilter, setStarPlayerFilter] = useState<StarPlayerFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('tile');
   const [, setLocation] = useLocation();
   const { selectedTeam: currentTeam } = useTeam();
   
   const { clubPrimary } = useClubTheme();
+
+  // Persist view mode preference
+  useEffect(() => {
+    const saved = localStorage.getItem('playerProfilesViewMode');
+    if (saved === 'tile' || saved === 'formation') setViewMode(saved);
+  }, []);
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('playerProfilesViewMode', mode);
+  };
 
 
   const { data: teamPlayersData, isLoading } = useQuery<any[]>({
@@ -110,6 +123,65 @@ export default function PlayerProfiles() {
     setLocation(`/players/${playerId}?source=profiles`);
   };
 
+  // ── Formation selection logic ──────────────────────────────────────────────
+  // Formation slots: 1-3-5-2 (GK / DEF / MID / FWD)
+  const FORMATION_SLOTS = { GK: 1, DEF: 3, MID: 5, FWD: 2 };
+
+  // For each group: star players first (sorted by jersey), then non-stars
+  const pickFormation = (group: any[], slots: number) => {
+    const sorted = [...group].sort((a, b) => {
+      if (a.starPlayer && !b.starPlayer) return -1;
+      if (!a.starPlayer && b.starPlayer) return 1;
+      return (a.jerseyNumber || 999) - (b.jerseyNumber || 999);
+    });
+    return { starters: sorted.slice(0, slots), bench: sorted.slice(slots) };
+  };
+
+  // Use ALL players (not filteredPlayers) for formation so filters don't break it
+  const allByPos = {
+    GK: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK'),
+    DEF: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF'),
+    MID: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID'),
+    FWD: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD'),
+  };
+
+  const formationGK  = pickFormation(allByPos.GK,  FORMATION_SLOTS.GK);
+  const formationDEF = pickFormation(allByPos.DEF, FORMATION_SLOTS.DEF);
+  const formationMID = pickFormation(allByPos.MID, FORMATION_SLOTS.MID);
+  const formationFWD = pickFormation(allByPos.FWD, FORMATION_SLOTS.FWD);
+
+  const starters = [
+    ...formationFWD.starters,  // top of pitch
+    ...formationMID.starters,
+    ...formationDEF.starters,
+    ...formationGK.starters,   // bottom of pitch
+  ];
+  const starterIds = new Set(starters.map(p => p.id));
+  const substitutes = allPlayers
+    .filter(p => !starterIds.has(p.id))
+    .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999));
+
+  // Absolute positions on the pitch (x%, y% from top-left)
+  // Formation rows top→bottom: FWD / MID / DEF / GK
+  const formationPositions: { x: number; y: number }[][] = [
+    // FWD (2): spread across top third
+    [{ x: 33, y: 16 }, { x: 67, y: 16 }],
+    // MID (5): spread across middle
+    [{ x: 10, y: 38 }, { x: 27, y: 38 }, { x: 50, y: 38 }, { x: 73, y: 38 }, { x: 90, y: 38 }],
+    // DEF (3)
+    [{ x: 25, y: 61 }, { x: 50, y: 61 }, { x: 75, y: 61 }],
+    // GK (1)
+    [{ x: 50, y: 82 }],
+  ];
+
+  // Flatten starters in same order (FWD, MID, DEF, GK) with their positions
+  const starterRows = [
+    { label: 'FWD', players: formationFWD.starters,  positions: formationPositions[0] },
+    { label: 'MID', players: formationMID.starters,  positions: formationPositions[1] },
+    { label: 'DEF', players: formationDEF.starters,  positions: formationPositions[2] },
+    { label: 'GK',  players: formationGK.starters,   positions: formationPositions[3] },
+  ];
+
   if (isLoading) {
     return (
       <MainLayout title="Player Profiles" subtitle="Loading player profiles...">
@@ -165,81 +237,252 @@ export default function PlayerProfiles() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{filteredPlayers.length} players</span>
-            <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-            <span>{filteredPlayers.filter(p => p.starPlayer).length} star players</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{filteredPlayers.length} players</span>
+              <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+              <span>{filteredPlayers.filter(p => p.starPlayer).length} star players</span>
+            </div>
+            {/* View Mode Toggle */}
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'tile' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleViewModeChange('tile')}
+                className={viewMode === 'tile' ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid="button-view-tile"
+              >
+                <Blocks className="h-4 w-4 mr-2" />
+                Tile Mode
+              </Button>
+              <Button
+                variant={viewMode === 'formation' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleViewModeChange('formation')}
+                className={viewMode === 'formation' ? "bg-background text-foreground shadow-sm" : ""}
+                data-testid="button-view-formation"
+              >
+                <LayoutTemplate className="h-4 w-4 mr-2" />
+                Formation Mode
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Players Grouped by Position */}
-        <div className="space-y-8">
-          {(['GK', 'DEF', 'MID', 'FWD'] as const).map(position => {
-            const players = groupedPlayers[position];
-            if (players.length === 0) return null;
-            
-            return (
-              <div key={position} className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-xl font-semibold">{positionLabels[position]}</h3>
-                  <Badge variant="outline" className="px-3">
-                    {players.length}
-                  </Badge>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {players.map((player) => (
-                    <Card 
-                      key={player.id} 
-                      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
-                      onClick={() => handlePlayerClick(player.id)}
-                      data-testid={`card-player-${player.id}`}
-                    >
-                      <CardHeader className="py-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <Avatar className="h-16 w-16 border border-gray-300">
-                                {player.avatarPath && (
-                                  <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
-                                )}
-                                <AvatarFallback className="text-lg font-bold">
-                                  {getPlayerInitials(player)}
-                                </AvatarFallback>
-                              </Avatar>
-                              {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
-                                <div 
-                                  className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-gray-300"
-                                  style={{ backgroundColor: clubPrimary }}
-                                >
-                                  {player.jerseyNumber}
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold leading-tight">
-                                <div className="text-sm">{player.firstName}</div>
-                                <div className="text-lg flex items-center gap-2">
-                                  <span>{player.lastName}</span>
-                                  {player.starPlayer && (
-                                    <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+        {/* Tile Mode */}
+        {viewMode === 'tile' && (
+          <div className="space-y-8">
+            {(['GK', 'DEF', 'MID', 'FWD'] as const).map(position => {
+              const players = groupedPlayers[position];
+              if (players.length === 0) return null;
+              
+              return (
+                <div key={position} className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-semibold">{positionLabels[position]}</h3>
+                    <Badge variant="outline" className="px-3">
+                      {players.length}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {players.map((player) => (
+                      <Card 
+                        key={player.id} 
+                        className="hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
+                        onClick={() => handlePlayerClick(player.id)}
+                        data-testid={`card-player-${player.id}`}
+                      >
+                        <CardHeader className="py-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <Avatar className="h-16 w-16 border border-gray-300">
+                                  {player.avatarPath && (
+                                    <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
                                   )}
+                                  <AvatarFallback className="text-lg font-bold">
+                                    {getPlayerInitials(player)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {(player.jerseyNumber !== null && player.jerseyNumber !== undefined) && (
+                                  <div 
+                                    className="absolute -bottom-2 -right-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-gray-300"
+                                    style={{ backgroundColor: clubPrimary }}
+                                  >
+                                    {player.jerseyNumber}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-semibold leading-tight">
+                                  <div className="text-sm">{player.firstName}</div>
+                                  <div className="text-lg flex items-center gap-2">
+                                    <span>{player.lastName}</span>
+                                    {player.starPlayer && (
+                                      <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
+                            <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
+                              {player.position || 'MID'}
+                            </Badge>
                           </div>
-                          <Badge className={`${getPositionColor(player.position || 'MID')} text-xs`}>
-                            {player.position || 'MID'}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                    </Card>
-                  ))}
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Formation Mode */}
+        {viewMode === 'formation' && (
+          <div className="flex gap-0 rounded-xl overflow-hidden" style={{ minHeight: '600px' }}>
+
+            {/* ── Left: Substitutes panel ───────────────────────────── */}
+            <div
+              className="w-52 shrink-0 flex flex-col p-4"
+              style={{ background: 'rgba(15,30,20,0.92)' }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-3">
+                Substitutes
+              </p>
+              {substitutes.length === 0 && (
+                <p className="text-white/40 text-xs italic">None</p>
+              )}
+              <div className="space-y-2 overflow-y-auto">
+                {substitutes.map(player => (
+                  <button
+                    key={player.id}
+                    onClick={() => handlePlayerClick(player.id)}
+                    className="w-full flex items-center gap-2 text-left group hover:bg-white/5 rounded px-1 py-0.5 transition-colors"
+                    data-testid={`sub-player-${player.id}`}
+                  >
+                    <span className="text-white/40 text-xs w-5 text-right shrink-0">
+                      {player.jerseyNumber ?? '–'}
+                    </span>
+                    <span className="text-white/80 text-xs leading-tight group-hover:text-white transition-colors">
+                      {player.firstName}{' '}
+                      <span className="font-bold uppercase">{player.lastName}</span>
+                    </span>
+                    {player.starPlayer && (
+                      <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
+                    )}
+                  </button>
+                ))}
               </div>
-            );
-          })}
-        </div>
+            </div>
+
+            {/* ── Right: Pitch ──────────────────────────────────────── */}
+            <div
+              className="relative flex-1"
+              style={{
+                background: 'linear-gradient(180deg, #1e7a30 0%, #22923a 30%, #1e7a30 50%, #22923a 70%, #1e7a30 100%)',
+                minHeight: '600px',
+              }}
+            >
+              {/* Pitch stripe pattern */}
+              <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Pitch border */}
+                <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" rx="2" />
+                {/* Centre line */}
+                <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                {/* Centre circle */}
+                <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
+                {/* Centre spot */}
+                <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
+                {/* Top penalty area */}
+                <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
+                {/* Top 6-yard box */}
+                <rect x="38%" y="2%" width="24%" height="7%" stroke="rgba(255,255,255,0.25)" strokeWidth="1" fill="none" />
+                {/* Bottom penalty area */}
+                <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
+                {/* Bottom 6-yard box */}
+                <rect x="38%" y="91%" width="24%" height="7%" stroke="rgba(255,255,255,0.25)" strokeWidth="1" fill="none" />
+                {/* Penalty spots */}
+                <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.45)" />
+                <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.45)" />
+              </svg>
+
+              {/* ── Players (absolutely positioned) ── */}
+              {starterRows.map(row =>
+                row.players.map((player, i) => {
+                  const pos = row.positions[i];
+                  if (!pos) return null;
+                  const isGK = row.label === 'GK';
+                  return (
+                    <button
+                      key={player.id}
+                      onClick={() => handlePlayerClick(player.id)}
+                      className="absolute flex flex-col items-center gap-1 group cursor-pointer -translate-x-1/2 -translate-y-1/2"
+                      style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                      data-testid={`formation-player-${player.id}`}
+                    >
+                      <div className="relative">
+                        <Avatar
+                          className="border-2 shadow-lg transition-all group-hover:scale-110"
+                          style={{
+                            width: 48, height: 48,
+                            borderColor: isGK ? '#f59e0b' : 'rgba(255,255,255,0.7)',
+                          }}
+                        >
+                          {player.avatarPath && (
+                            <AvatarImage
+                              src={player.avatarPath}
+                              alt={`${player.firstName} ${player.lastName}`}
+                            />
+                          )}
+                          <AvatarFallback
+                            className="text-sm font-bold text-white"
+                            style={{ backgroundColor: isGK ? '#92400e' : clubPrimary }}
+                          >
+                            {player.jerseyNumber ?? getPlayerInitials(player)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {/* Jersey number badge */}
+                        {player.jerseyNumber !== null && player.jerseyNumber !== undefined && (
+                          <div
+                            className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/60 shadow"
+                            style={{ backgroundColor: isGK ? '#92400e' : clubPrimary }}
+                          >
+                            {player.jerseyNumber}
+                          </div>
+                        )}
+                        {/* Star badge */}
+                        {player.starPlayer && (
+                          <div className="absolute -top-1 -left-1">
+                            <Star className="h-3.5 w-3.5 text-orange-400 fill-orange-400 drop-shadow" />
+                          </div>
+                        )}
+                      </div>
+                      {/* Name label */}
+                      <span
+                        className="text-white text-[11px] font-semibold drop-shadow-md text-center leading-tight px-1 rounded"
+                        style={{
+                          maxWidth: 72,
+                          textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                          background: 'rgba(0,0,0,0.25)',
+                        }}
+                      >
+                        {player.lastName?.toUpperCase()}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+
+              {/* Formation label */}
+              <div className="absolute bottom-3 right-4 text-white/40 text-xs font-mono">
+                1–3–5–2
+              </div>
+            </div>
+          </div>
+        )}
 
         {filteredPlayers.length === 0 && (
           <div className="text-center py-12">
