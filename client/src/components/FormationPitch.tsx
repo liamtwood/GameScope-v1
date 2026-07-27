@@ -16,33 +16,38 @@ interface Player {
   fitnessStatus?: string | null;
 }
 
+type RowKey = "GK" | "DEF" | "MID" | "FWD";
+
+// Each row holds ordered slot IDs — null means an empty slot
+type Slots = Record<RowKey, Array<string | null>>;
+
 interface FormationPitchProps {
   players: Player[];
   clubPrimary?: string;
-  /** Override click handler — used in auto mode to navigate to player profile */
   onPlayerClick?: (id: string) => void;
-  /** Show formation picker + edit mode (lineup pages) */
   showFormationPicker?: boolean;
-  /** When set: load saved lineup from DB and enable Save */
   fixtureId?: string;
 }
 
 // ── Formations ────────────────────────────────────────────────────────────────
 const FORMATIONS = [
-  { label: "4-3-3",   def: 4, mid: 3, fwd: 3 },
-  { label: "4-4-2",   def: 4, mid: 4, fwd: 2 },
-  { label: "4-5-1",   def: 4, mid: 5, fwd: 1 },
-  { label: "4-2-4",   def: 4, mid: 2, fwd: 4 },
-  { label: "4-1-4-1", def: 4, mid: 5, fwd: 1 },
-  { label: "3-5-2",   def: 3, mid: 5, fwd: 2 },
-  { label: "3-4-3",   def: 3, mid: 4, fwd: 3 },
-  { label: "5-3-2",   def: 5, mid: 3, fwd: 2 },
-  { label: "5-4-1",   def: 5, mid: 4, fwd: 1 },
-  { label: "4-3-2-1", def: 4, mid: 5, fwd: 1 },
+  { label: "4-3-3",   gk: 1, def: 4, mid: 3, fwd: 3 },
+  { label: "4-4-2",   gk: 1, def: 4, mid: 4, fwd: 2 },
+  { label: "4-5-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-2-4",   gk: 1, def: 4, mid: 2, fwd: 4 },
+  { label: "3-5-2",   gk: 1, def: 3, mid: 5, fwd: 2 },
+  { label: "3-4-3",   gk: 1, def: 3, mid: 4, fwd: 3 },
+  { label: "5-3-2",   gk: 1, def: 5, mid: 3, fwd: 2 },
+  { label: "5-4-1",   gk: 1, def: 5, mid: 4, fwd: 1 },
+  { label: "4-1-4-1", gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-3-2-1", gk: 1, def: 4, mid: 5, fwd: 1 },
 ] as const;
 
+const getFormationConfig = (label: string) =>
+  FORMATIONS.find(f => f.label === label) ?? FORMATIONS[0];
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const getPositionCategory = (position: string): "GK" | "DEF" | "MID" | "FWD" => {
+const getPositionCategory = (position: string): RowKey => {
   const p = (position || "").toLowerCase();
   if (p === "gk" || p === "goalkeeper") return "GK";
   if (p === "def" || p === "defender") return "DEF";
@@ -53,6 +58,9 @@ const getPositionCategory = (position: string): "GK" | "DEF" | "MID" | "FWD" => 
 
 const getInitials = (p: Player) =>
   `${p.firstName?.[0] || ""}${p.lastName?.[0] || ""}`;
+
+const byJersey = (a: Player, b: Player) =>
+  (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
 
 const rowPositions = (count: number, y: number) => {
   if (count === 0) return [];
@@ -65,8 +73,113 @@ const rowPositions = (count: number, y: number) => {
   }));
 };
 
-const byJersey = (a: Player, b: Player) =>
-  (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
+// ── Slot helpers ──────────────────────────────────────────────────────────────
+/**
+ * Build initial slots from a list of players and a formation.
+ * Star players fill the slots first; remaining non-stars fill up to the slot count.
+ * If starterIdSet is provided, those players are treated as "starters" instead of star flag.
+ */
+function buildSlots(
+  players: Player[],
+  formationLabel: string,
+  starterIdSet?: Set<string>
+): Slots {
+  const f = getFormationConfig(formationLabel);
+  const isStarter = (p: Player) =>
+    starterIdSet ? starterIdSet.has(p.id) : p.starPlayer === true;
+
+  const rows: Record<RowKey, Player[]> = { GK: [], DEF: [], MID: [], FWD: [] };
+  for (const p of players) {
+    rows[getPositionCategory(p.position ?? "MID")].push(p);
+  }
+
+  const fillRow = (key: RowKey, count: number): Array<string | null> => {
+    // Stars (or saved starters) first, then non-stars to fill remaining
+    const starters = rows[key].filter(isStarter).sort(byJersey);
+    const fillers = rows[key].filter(p => !isStarter(p)).sort(byJersey);
+    const combined = [...starters, ...fillers];
+    return Array.from({ length: count }, (_, i) => combined[i]?.id ?? null);
+  };
+
+  return {
+    GK: fillRow("GK", f.gk),
+    DEF: fillRow("DEF", f.def),
+    MID: fillRow("MID", f.mid),
+    FWD: fillRow("FWD", f.fwd),
+  };
+}
+
+/**
+ * Resize slots when the formation changes.
+ * Tries to keep existing player assignments; trims or pads with nulls as needed.
+ */
+function resizeSlots(current: Slots, newLabel: string): Slots {
+  const f = getFormationConfig(newLabel);
+
+  const resize = (row: Array<string | null>, needed: number): Array<string | null> => {
+    // Compact: filled entries first so trimming removes nulls
+    const filled = row.filter(Boolean) as string[];
+    const combined = [
+      ...filled,
+      ...Array<null>(Math.max(0, row.length - filled.length)).fill(null),
+    ];
+    if (combined.length >= needed) return combined.slice(0, needed);
+    return [...combined, ...Array<null>(needed - combined.length).fill(null)];
+  };
+
+  return {
+    GK: resize(current.GK, f.gk),
+    DEF: resize(current.DEF, f.def),
+    MID: resize(current.MID, f.mid),
+    FWD: resize(current.FWD, f.fwd),
+  };
+}
+
+/**
+ * Move pendingId into the target slot.
+ * - If pending is already on pitch → swap with the target slot's occupant.
+ * - If pending is on the bench → place into target slot; target's previous occupant goes to bench.
+ */
+function moveIntoSlot(
+  slots: Slots,
+  pendingId: string,
+  targetRow: RowKey,
+  targetIndex: number
+): Slots {
+  const next: Slots = {
+    GK: [...slots.GK],
+    DEF: [...slots.DEF],
+    MID: [...slots.MID],
+    FWD: [...slots.FWD],
+  };
+
+  const displaced = next[targetRow][targetIndex]; // the player (or null) being replaced
+
+  // Find pending player's current slot (if on pitch)
+  let pendingRow: RowKey | null = null;
+  let pendingIdx = -1;
+  for (const row of ["GK", "DEF", "MID", "FWD"] as RowKey[]) {
+    const idx = next[row].indexOf(pendingId);
+    if (idx !== -1) { pendingRow = row; pendingIdx = idx; break; }
+  }
+
+  if (pendingRow !== null) {
+    // On pitch → swap
+    next[pendingRow][pendingIdx] = displaced; // put displaced into pending's old slot
+  }
+  // else: pending is on bench → displaced simply leaves the slots (goes to bench)
+
+  next[targetRow][targetIndex] = pendingId;
+  return next;
+}
+
+/** Collect all player IDs currently on the pitch */
+const allOnPitch = (slots: Slots): Set<string> =>
+  new Set(
+    (["GK", "DEF", "MID", "FWD"] as RowKey[])
+      .flatMap(r => slots[r])
+      .filter(Boolean) as string[]
+  );
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function FormationPitch({
@@ -80,14 +193,12 @@ export function FormationPitch({
   const queryClient = useQueryClient();
 
   const [selectedFormation, setSelectedFormation] = useState("4-3-3");
-  const [initialized, setInitialized] = useState(false);
-  const [manualStarterIds, setManualStarterIds] = useState<Set<string> | null>(null);
+  const [slots, setSlots] = useState<Slots | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
-  // Sub selected for a swap — null means no pending substitution
-  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
-  // ── Load saved squad when fixtureId is present ───────────────────────────
+  // ── Load saved lineup from DB ───────────────────────────────────────────
   const { data: squadData, isLoading: squadLoading } = useQuery<{
     players: Array<{ id: string; role: string }>;
     formation: string | null;
@@ -97,9 +208,12 @@ export function FormationPitch({
     enabled: !!fixtureId && showFormationPicker,
   });
 
-  // ── Save mutation ────────────────────────────────────────────────────────
+  // ── Save mutation ───────────────────────────────────────────────────────
   const saveMutation = useMutation({
-    mutationFn: async (payload: { players: { userId: string; role: string }[]; formation: string }) => {
+    mutationFn: async (payload: {
+      players: { userId: string; role: string }[];
+      formation: string;
+    }) => {
       const res = await fetch(`/api/fixtures/${fixtureId}/squad`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -116,155 +230,168 @@ export function FormationPitch({
     },
   });
 
-  // ── Initialise from DB data or star players ──────────────────────────────
-  const initFromStars = useCallback(() => {
-    const starIds = new Set(players.filter(p => p.starPlayer).map(p => p.id));
-    setManualStarterIds(starIds);
+  // ── Initialise slots ────────────────────────────────────────────────────
+  const initialiseFromStars = useCallback(() => {
+    // Auto-detect formation from star player counts
     const dCount = players.filter(p => p.starPlayer && getPositionCategory(p.position ?? "MID") === "DEF").length;
     const mCount = players.filter(p => p.starPlayer && getPositionCategory(p.position ?? "MID") === "MID").length;
     const fCount = players.filter(p => p.starPlayer && getPositionCategory(p.position ?? "MID") === "FWD").length;
     const detected = FORMATIONS.find(f => f.def === dCount && f.mid === mCount && f.fwd === fCount);
-    if (detected) setSelectedFormation(detected.label);
-    setInitialized(true);
+    const formation = detected?.label ?? "4-3-3";
+    setSelectedFormation(formation);
+    setSlots(buildSlots(players, formation));
   }, [players]);
 
   useEffect(() => {
-    if (!showFormationPicker || initialized) return;
+    if (!showFormationPicker || slots !== null) return;
+    if (players.length === 0) return;
 
     if (fixtureId) {
-      if (squadLoading) return; // Wait
+      if (squadLoading) return;
+      const formation = squadData?.formation ?? "4-3-3";
       if (squadData) {
-        // Load saved starters, but always include star players
         const savedStarters = new Set(
           squadData.players.filter(p => p.role === "starter").map(p => p.id)
         );
-        // Star players are always on the pitch regardless of what was saved
+        // Always ensure star players are included
         players.filter(p => p.starPlayer).forEach(p => savedStarters.add(p.id));
-        setManualStarterIds(savedStarters);
-        if (squadData.formation) setSelectedFormation(squadData.formation);
-        setInitialized(true);
-      } else if (players.length > 0) {
-        initFromStars();
+        setSelectedFormation(formation);
+        setSlots(buildSlots(players, formation, savedStarters));
+      } else {
+        initialiseFromStars();
       }
-    } else if (players.length > 0) {
-      initFromStars();
+    } else {
+      initialiseFromStars();
     }
-  }, [showFormationPicker, initialized, fixtureId, squadData, squadLoading, players, initFromStars]);
+  }, [showFormationPicker, slots, players, fixtureId, squadData, squadLoading, initialiseFromStars]);
 
-  // ── Group players by position ────────────────────────────────────────────
-  const byPos = {
-    GK:  players.filter(p => getPositionCategory(p.position ?? "MID") === "GK"),
-    DEF: players.filter(p => getPositionCategory(p.position ?? "MID") === "DEF"),
-    MID: players.filter(p => getPositionCategory(p.position ?? "MID") === "MID"),
-    FWD: players.filter(p => getPositionCategory(p.position ?? "MID") === "FWD"),
-  };
+  // ── Derived: bench players ──────────────────────────────────────────────
+  const pitchIds = slots ? allOnPitch(slots) : new Set<string>();
 
-  // ── Compute starters ─────────────────────────────────────────────────────
-  let formationGK: Player[];
-  let formationDEF: Player[];
-  let formationMID: Player[];
-  let formationFWD: Player[];
+  // Auto mode (no picker): derive starters from star+fit players
+  const autoStarters = !showFormationPicker
+    ? players.filter(p => p.fitnessStatus === "Fit" && p.starPlayer)
+    : [];
+  const autoStarterIds = new Set(autoStarters.map(p => p.id));
 
-  if (showFormationPicker && manualStarterIds !== null) {
-    // Edit mode: manualStarterIds drives the pitch entirely
-    formationGK  = byPos.GK.filter(p => manualStarterIds.has(p.id)).sort(byJersey);
-    formationDEF = byPos.DEF.filter(p => manualStarterIds.has(p.id)).sort(byJersey);
-    formationMID = byPos.MID.filter(p => manualStarterIds.has(p.id)).sort(byJersey);
-    formationFWD = byPos.FWD.filter(p => manualStarterIds.has(p.id)).sort(byJersey);
-  } else if (showFormationPicker) {
-    // Still initialising — show nothing until ready
-    formationGK = []; formationDEF = []; formationMID = []; formationFWD = [];
-  } else {
-    // Auto mode (Player Profiles): fit star players only
-    formationGK  = byPos.GK.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
-    formationDEF = byPos.DEF.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
-    formationMID = byPos.MID.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
-    formationFWD = byPos.FWD.filter(p => p.fitnessStatus === "Fit" && p.starPlayer).sort(byJersey);
-  }
+  const activePitchIds = showFormationPicker ? pitchIds : autoStarterIds;
 
-  const starterIds = new Set(
-    [...formationGK, ...formationDEF, ...formationMID, ...formationFWD].map(p => p.id)
-  );
-
-  const benchPlayers = players.filter(p => !starterIds.has(p.id));
-  const subsGrouped = {
+  const benchPlayers = players.filter(p => !activePitchIds.has(p.id));
+  const subsGrouped: Record<RowKey, Player[]> = {
     GK:  benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "GK" ).sort(byJersey),
     DEF: benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "DEF").sort(byJersey),
     MID: benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "MID").sort(byJersey),
     FWD: benchPlayers.filter(p => getPositionCategory(p.position ?? "MID") === "FWD").sort(byJersey),
   };
 
-  const starterRows = [
-    { label: "FWD", players: formationFWD, positions: rowPositions(formationFWD.length, 16) },
-    { label: "MID", players: formationMID, positions: rowPositions(formationMID.length, 38) },
-    { label: "DEF", players: formationDEF, positions: rowPositions(formationDEF.length, 61) },
-    { label: "GK",  players: formationGK,  positions: rowPositions(formationGK.length,  83) },
-  ];
+  // ── Formation change ────────────────────────────────────────────────────
+  const handleFormationChange = (newLabel: string) => {
+    setSelectedFormation(newLabel);
+    if (slots) setSlots(resizeSlots(slots, newLabel));
+    if (fixtureId) setIsDirty(true);
+    setPendingId(null);
+  };
 
-  const formationLabel = [
-    formationGK.length, formationDEF.length, formationMID.length, formationFWD.length,
-  ].join("–");
+  // ── Click: slot on the pitch ─────────────────────────────────────────────
+  const handleSlotClick = (row: RowKey, index: number) => {
+    if (!showFormationPicker || !slots) return;
 
-  const noStarters =
-    formationGK.length + formationDEF.length + formationMID.length + formationFWD.length === 0;
+    const occupant = slots[row][index]; // could be null (empty slot)
 
-  // ── Click: substitute in the subs panel ──────────────────────────────────
+    if (pendingId === null) {
+      // Nothing selected yet — only select if slot is occupied
+      if (occupant) setPendingId(occupant);
+    } else if (pendingId === occupant) {
+      // Clicked the same player — deselect
+      setPendingId(null);
+    } else {
+      // Perform swap/move
+      setSlots(moveIntoSlot(slots, pendingId, row, index));
+      setPendingId(null);
+      setIsDirty(true);
+    }
+  };
+
+  // ── Click: bench player ──────────────────────────────────────────────────
   const handleSubClick = (id: string) => {
     if (!showFormationPicker) {
-      // Auto mode — navigate to profile
       if (onPlayerClick) onPlayerClick(id);
       else setLocation(`/players/${id}?source=profiles`);
       return;
     }
-    // Toggle selection: clicking the same sub again deselects
-    setSelectedSubId(prev => (prev === id ? null : id));
-  };
-
-  // ── Click: starter on the pitch ───────────────────────────────────────────
-  const handleStarterClick = (id: string) => {
-    if (!showFormationPicker) {
-      if (onPlayerClick) onPlayerClick(id);
-      else setLocation(`/players/${id}?source=profiles`);
-      return;
-    }
-    if (selectedSubId) {
-      // Swap: selected sub goes to pitch, clicked starter goes to bench
-      setManualStarterIds(prev => {
-        const next = new Set(prev ?? []);
-        next.add(selectedSubId);   // sub → pitch
-        next.delete(id);           // starter → bench
-        return next;
-      });
-      setSelectedSubId(null);
-      setIsDirty(true);
+    if (pendingId === id) {
+      setPendingId(null); // deselect
     } else {
-      // No sub selected — move this starter to bench
-      setManualStarterIds(prev => {
-        const next = new Set(prev ?? []);
-        next.delete(id);
-        return next;
-      });
-      setIsDirty(true);
+      setPendingId(id); // select this sub
     }
   };
 
-  // ── Save handler ──────────────────────────────────────────────────────────
+  // ── Auto-mode pitch player click ─────────────────────────────────────────
+  const handleAutoPlayerClick = (id: string) => {
+    if (onPlayerClick) onPlayerClick(id);
+    else setLocation(`/players/${id}?source=profiles`);
+  };
+
+  // ── Save ─────────────────────────────────────────────────────────────────
   const handleSave = () => {
-    if (!fixtureId || !manualStarterIds) return;
+    if (!fixtureId || !slots) return;
+    const onPitch = allOnPitch(slots);
     const payload = {
       players: players.map(p => ({
         userId: p.id,
-        role: manualStarterIds.has(p.id) ? "starter" : "sub",
+        role: onPitch.has(p.id) ? "starter" : "sub",
       })),
       formation: selectedFormation,
     };
     saveMutation.mutate(payload);
   };
 
+  // ── Build pitch rows ─────────────────────────────────────────────────────
+  const playerById = new Map(players.map(p => [p.id, p]));
+
+  type PitchRow = { label: RowKey; slotIds: Array<string | null>; y: number };
+  let pitchRows: PitchRow[];
+
+  if (showFormationPicker && slots) {
+    pitchRows = [
+      { label: "FWD", slotIds: slots.FWD, y: 16 },
+      { label: "MID", slotIds: slots.MID, y: 38 },
+      { label: "DEF", slotIds: slots.DEF, y: 61 },
+      { label: "GK",  slotIds: slots.GK,  y: 83 },
+    ];
+  } else if (!showFormationPicker) {
+    // Auto mode
+    const byPos = {
+      GK:  autoStarters.filter(p => getPositionCategory(p.position ?? "MID") === "GK" ).sort(byJersey),
+      DEF: autoStarters.filter(p => getPositionCategory(p.position ?? "MID") === "DEF").sort(byJersey),
+      MID: autoStarters.filter(p => getPositionCategory(p.position ?? "MID") === "MID").sort(byJersey),
+      FWD: autoStarters.filter(p => getPositionCategory(p.position ?? "MID") === "FWD").sort(byJersey),
+    };
+    pitchRows = [
+      { label: "FWD", slotIds: byPos.FWD.map(p => p.id), y: 16 },
+      { label: "MID", slotIds: byPos.MID.map(p => p.id), y: 38 },
+      { label: "DEF", slotIds: byPos.DEF.map(p => p.id), y: 61 },
+      { label: "GK",  slotIds: byPos.GK.map(p => p.id),  y: 83 },
+    ];
+  } else {
+    pitchRows = [];
+  }
+
+  const totalOnPitch = pitchRows.reduce((s, r) => s + r.slotIds.filter(Boolean).length, 0);
+  const pendingIsOnBench = pendingId !== null && !pitchIds.has(pendingId);
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex gap-0 rounded-xl overflow-hidden" style={{ minHeight: 600 }}>
-
+    <div
+      className="flex gap-0 rounded-xl overflow-hidden"
+      style={{ minHeight: 600 }}
+      onClick={e => {
+        // Clicking the backdrop (not a slot/button) deselects
+        if ((e.target as HTMLElement).closest("[data-slot], [data-sub]") === null) {
+          setPendingId(null);
+        }
+      }}
+    >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4"
@@ -277,7 +404,7 @@ export function FormationPitch({
           <p className="text-white/40 text-xs italic">None</p>
         )}
         <div className="space-y-4 overflow-y-auto flex-1">
-          {(["GK", "DEF", "MID", "FWD"] as const).map(pos => {
+          {(["GK", "DEF", "MID", "FWD"] as RowKey[]).map(pos => {
             const group = subsGrouped[pos];
             if (group.length === 0) return null;
             return (
@@ -287,13 +414,14 @@ export function FormationPitch({
                 </p>
                 <div className="space-y-1">
                   {group.map(player => {
-                    const isSelected = selectedSubId === player.id;
+                    const isSel = pendingId === player.id;
                     return (
                       <button
                         key={player.id}
-                        onClick={() => handleSubClick(player.id)}
+                        data-sub
+                        onClick={e => { e.stopPropagation(); handleSubClick(player.id); }}
                         className={`w-full flex items-center gap-2 text-left rounded px-1 py-0.5 transition-all ${
-                          isSelected
+                          isSel
                             ? "bg-emerald-500/30 ring-1 ring-emerald-400/60"
                             : "hover:bg-white/10"
                         }`}
@@ -301,7 +429,7 @@ export function FormationPitch({
                         <span className="text-white/40 text-xs w-5 text-right shrink-0">
                           {player.jerseyNumber ?? "–"}
                         </span>
-                        <span className={`text-xs leading-tight transition-colors ${isSelected ? "text-white font-semibold" : "text-white/80"}`}>
+                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-white font-semibold" : "text-white/80"}`}>
                           {player.firstName}{" "}
                           <span className="font-bold uppercase">{player.lastName}</span>
                         </span>
@@ -354,7 +482,7 @@ export function FormationPitch({
       >
         {/* Pitch markings */}
         <svg
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 w-full h-full pointer-events-none"
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -370,96 +498,139 @@ export function FormationPitch({
           <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.45)" />
         </svg>
 
-        {/* Edit hint */}
-        {showFormationPicker && initialized && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
-            <span className="text-white/40 text-[11px] bg-black/20 px-2 py-0.5 rounded-full">
-              {selectedSubId
-                ? "Now tap a player on the pitch to swap them"
-                : "Select a sub, then tap a player to swap"}
+        {/* Hint bar */}
+        {showFormationPicker && slots && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+            <span className="text-white/40 text-[11px] bg-black/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+              {pendingId
+                ? pendingIsOnBench
+                  ? "Tap a player on the pitch to bring them on"
+                  : "Tap another player or empty slot to swap"
+                : "Tap a player to move them, or pick a sub first"}
             </span>
           </div>
         )}
 
         {/* Empty state */}
-        {noStarters && initialized && (
-          <div className="absolute inset-0 flex items-center justify-center">
+        {totalOnPitch === 0 && slots && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <p className="text-white/40 text-sm text-center px-8">
-              {showFormationPicker
-                ? "No players — tap a substitute to add them to the pitch"
-                : "No star players — mark players as ⭐ to populate the lineup"}
+              No players — assign positions to populate the lineup
             </p>
           </div>
         )}
 
-        {/* Players on pitch */}
-        {starterRows.map(row =>
-          row.players.map((player, i) => {
-            const pos = row.positions[i];
+        {/* Pitch rows */}
+        {pitchRows.map(row => {
+          const positions = rowPositions(row.slotIds.length, row.y);
+          return row.slotIds.map((slotId, i) => {
+            const pos = positions[i];
             if (!pos) return null;
+            const player = slotId ? playerById.get(slotId) : null;
             const isGK = row.label === "GK";
-            return (
-              <button
-                key={player.id}
-                onClick={() => handleStarterClick(player.id)}
-                className="absolute flex flex-col items-center gap-1 group cursor-pointer -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-              >
-                <div className="relative">
-                  <Avatar
-                    className="border-2 shadow-lg transition-all group-hover:scale-110"
+            const isPending = slotId !== null && pendingId === slotId;
+            const isTarget = pendingId !== null && !isPending;
+
+            if (slotId && player) {
+              // ── Occupied slot ──────────────────────────
+              return (
+                <button
+                  key={`${row.label}-${i}`}
+                  data-slot
+                  onClick={e => { e.stopPropagation(); showFormationPicker ? handleSlotClick(row.label, i) : handleAutoPlayerClick(slotId); }}
+                  className="absolute flex flex-col items-center gap-1 cursor-pointer -translate-x-1/2 -translate-y-1/2 group"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                >
+                  <div className="relative">
+                    <Avatar
+                      className="border-2 shadow-lg transition-all group-hover:scale-105"
+                      style={{
+                        width: 64,
+                        height: 64,
+                        borderColor: isPending
+                          ? "#34d399"   // bright green = selected
+                          : isTarget
+                          ? "rgba(52,211,153,0.7)"  // softer green = swap target
+                          : isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
+                        boxShadow: isPending ? "0 0 0 3px rgba(52,211,153,0.5)" : undefined,
+                      }}
+                    >
+                      {player.avatarPath && (
+                        <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
+                      )}
+                      <AvatarFallback
+                        className="text-sm font-bold text-white"
+                        style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
+                      >
+                        {player.jerseyNumber ?? getInitials(player)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {player.jerseyNumber != null && (
+                      <div
+                        className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/60 shadow"
+                        style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
+                      >
+                        {player.jerseyNumber}
+                      </div>
+                    )}
+                    {player.starPlayer && (
+                      <div className="absolute -top-1 -left-1">
+                        <Star className="h-3.5 w-3.5 text-orange-400 fill-orange-400 drop-shadow" />
+                      </div>
+                    )}
+                    {/* Swap-target overlay */}
+                    {isTarget && showFormationPicker && (
+                      <div className="absolute inset-0 rounded-full bg-emerald-400/20 group-hover:bg-emerald-400/35 transition-colors" />
+                    )}
+                  </div>
+                  <span
+                    className="text-white text-[11px] font-semibold text-center leading-tight px-1 rounded"
+                    style={{
+                      maxWidth: 72,
+                      textShadow: "0 1px 3px rgba(0,0,0,0.8)",
+                      background: "rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    {player.lastName?.toUpperCase()}
+                  </span>
+                </button>
+              );
+            } else {
+              // ── Empty slot ─────────────────────────────
+              if (!showFormationPicker) return null;
+              const isDropTarget = pendingId !== null;
+              return (
+                <button
+                  key={`${row.label}-${i}-empty`}
+                  data-slot
+                  onClick={e => { e.stopPropagation(); handleSlotClick(row.label, i); }}
+                  className="absolute flex flex-col items-center gap-1 cursor-pointer -translate-x-1/2 -translate-y-1/2 group"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                >
+                  <div
+                    className="rounded-full border-2 transition-all"
                     style={{
                       width: 64,
                       height: 64,
-                      borderColor: selectedSubId
-                        ? "rgba(52,211,153,0.9)"   // green target ring when a sub is selected
-                        : isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
+                      borderStyle: "dashed",
+                      borderColor: isDropTarget
+                        ? "rgba(52,211,153,0.7)"
+                        : "rgba(255,255,255,0.25)",
+                      background: isDropTarget
+                        ? "rgba(52,211,153,0.1)"
+                        : "rgba(0,0,0,0.15)",
                     }}
-                  >
-                    {player.avatarPath && (
-                      <AvatarImage src={player.avatarPath} alt={`${player.firstName} ${player.lastName}`} />
-                    )}
-                    <AvatarFallback
-                      className="text-sm font-bold text-white"
-                      style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
-                    >
-                      {player.jerseyNumber ?? getInitials(player)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {player.jerseyNumber != null && (
-                    <div
-                      className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/60 shadow"
-                      style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
-                    >
-                      {player.jerseyNumber}
-                    </div>
-                  )}
-                  {player.starPlayer && (
-                    <div className="absolute -top-1 -left-1">
-                      <Star className="h-3.5 w-3.5 text-orange-400 fill-orange-400 drop-shadow" />
-                    </div>
-                  )}
-                  {/* Swap target pulse when a sub is selected */}
-                  {showFormationPicker && selectedSubId && (
-                    <div className="absolute inset-0 rounded-full bg-emerald-400/20 group-hover:bg-emerald-400/40 transition-colors" />
-                  )}
-                </div>
-                <span
-                  className="text-white text-[11px] font-semibold drop-shadow-md text-center leading-tight px-1 rounded"
-                  style={{
-                    maxWidth: 72,
-                    textShadow: "0 1px 3px rgba(0,0,0,0.8)",
-                    background: "rgba(0,0,0,0.25)",
-                  }}
-                >
-                  {player.lastName?.toUpperCase()}
-                </span>
-              </button>
-            );
-          })
-        )}
+                  />
+                  <span className="text-white/20 text-[11px]">
+                    {row.label}
+                  </span>
+                </button>
+              );
+            }
+          });
+        })}
 
-        {/* Formation label / picker */}
+        {/* Formation picker */}
         <div
           className="absolute -translate-x-1/2 -translate-y-1/2"
           style={{ left: "84%", top: "87%" }}
@@ -468,10 +639,7 @@ export function FormationPitch({
             <div className="relative">
               <select
                 value={selectedFormation}
-                onChange={e => {
-                  setSelectedFormation(e.target.value);
-                  if (fixtureId) setIsDirty(true);
-                }}
+                onChange={e => handleFormationChange(e.target.value)}
                 className="appearance-none bg-black/50 text-white/90 text-sm font-bold font-mono rounded-md pl-3 pr-7 py-1.5 border border-white/20 cursor-pointer hover:bg-black/70 focus:outline-none focus:border-white/40 transition-colors"
                 style={{ backdropFilter: "blur(4px)" }}
               >
@@ -485,7 +653,7 @@ export function FormationPitch({
             </div>
           ) : (
             <span className="text-white/50 text-sm font-mono font-bold pointer-events-none">
-              {formationLabel}
+              {pitchRows.map(r => r.slotIds.filter(Boolean).length).join("–")}
             </span>
           )}
         </div>
