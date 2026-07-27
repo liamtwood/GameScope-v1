@@ -165,6 +165,35 @@ export const matchStats = pgTable("match_stats", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// External historical season aggregates (e.g. FBref WSL seasons)
+export const playerSeasonStats = pgTable("player_season_stats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  playerId: varchar("player_id").references(() => users.id).notNull(),
+  season: text("season").notNull(),           // e.g. "2024-2025"
+  clubName: text("club_name").notNull(),
+  competition: text("competition"),           // e.g. "WSL"
+  leagueRank: text("league_rank"),            // e.g. "4th"
+  source: varchar("source", { length: 50 }).default("fbref"),
+  stats: jsonb("stats").notNull().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// External per-match appearances (e.g. FBref match logs)
+export const playerMatchLogs = pgTable("player_match_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  playerId: varchar("player_id").references(() => users.id).notNull(),
+  fixtureId: varchar("fixture_id").references(() => fixtures.id), // nullable – populated when linked to a native fixture
+  matchDate: timestamp("match_date").notNull(),
+  competition: text("competition"),
+  clubName: text("club_name").notNull(),
+  opponent: text("opponent").notNull(),
+  venue: varchar("venue", { length: 20 }),    // Home | Away | Neutral
+  result: text("result"),                     // e.g. "W 2–1"
+  source: varchar("source", { length: 50 }).default("fbref"),
+  stats: jsonb("stats").notNull().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const playerStats = pgTable("player_stats", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   playerId: varchar("player_id").references(() => users.id).notNull(),
@@ -457,6 +486,15 @@ export const insertPlayerStatsSchema = createInsertSchema(playerStats).omit({ id
   .extend({
     period: z.enum(["FIRST_HALF", "SECOND_HALF", "FULL_GAME"]).default("FULL_GAME"),
   });
+export const insertPlayerSeasonStatsSchema = createInsertSchema(playerSeasonStats).omit({ id: true, createdAt: true })
+  .extend({
+    stats: z.record(z.string(), z.number()).default({}),
+  });
+export const insertPlayerMatchLogSchema = createInsertSchema(playerMatchLogs).omit({ id: true, createdAt: true })
+  .extend({
+    matchDate: z.string().or(z.date()).transform((val) => new Date(val)),
+    stats: z.record(z.string(), z.number()).default({}),
+  });
 
 // Types
 export type Club = typeof clubs.$inferSelect;
@@ -473,6 +511,8 @@ export type MatchEvents = typeof matchEvents.$inferSelect;
 export type InsertMatchEvents = z.infer<typeof insertMatchEventsSchema>;
 export type MatchStats = typeof matchStats.$inferSelect;
 export type PlayerStats = typeof playerStats.$inferSelect;
+export type PlayerSeasonStats = typeof playerSeasonStats.$inferSelect;
+export type PlayerMatchLog = typeof playerMatchLogs.$inferSelect;
 export type User = typeof users.$inferSelect;
 
 export type InsertClub = z.infer<typeof insertClubSchema>;
@@ -486,6 +526,8 @@ export type InsertTeamCompetition = z.infer<typeof insertTeamCompetitionSchema>;
 export type InsertFixture = z.infer<typeof insertFixtureSchema>;
 export type InsertMatchStats = z.infer<typeof insertMatchStatsSchema>;
 export type InsertPlayerStats = z.infer<typeof insertPlayerStatsSchema>;
+export type InsertPlayerSeasonStats = z.infer<typeof insertPlayerSeasonStatsSchema>;
+export type InsertPlayerMatchLog = z.infer<typeof insertPlayerMatchLogSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserClub = z.infer<typeof insertUserClubSchema>;
 export type FixtureSquad = typeof fixtureSquad.$inferSelect;

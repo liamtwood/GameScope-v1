@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures, fixtureSquad, playerStats, userTeams, teams, clubs } from "@shared/schema";
+import { insertClubSchema, insertTeamSchema, insertUserSchema, insertUserTeamSchema, insertOppositionTeamSchema, insertSystemTeamSchema, insertCompetitionSchema, insertFixtureSchema, insertMatchStatsSchema, insertPlayerStatsSchema, playerTransferSchema, insertPageRequirementsSchema, insertDataModelSchema, insertChangeLogSchema, fixtures, fixtureSquad, playerStats, userTeams, teams, clubs, playerSeasonStats, playerMatchLogs, insertPlayerSeasonStatsSchema, insertPlayerMatchLogSchema } from "@shared/schema";
+import { asc } from "drizzle-orm";
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -5806,38 +5807,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   function getSeasonFromDate(date: Date): string {
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 1-based
+    // Use full 4-digit year format to match FBref season strings (e.g. "2024-2025")
     if (month >= 8) {
-      return `${year}-${String(year + 1).slice(-2)}`;
+      return `${year}-${year + 1}`;
     } else {
-      return `${year - 1}-${String(year).slice(-2)}`;
+      return `${year - 1}-${year}`;
     }
   }
 
   // GET /api/players/:id/season-stats
-  // Returns per-club, per-season aggregates derived from player_stats + fixtures
+  // Returns a unified list of season rows ordered by season ascending.
+  // Merges two sources:
+  //   1. player_season_stats  — externally imported rows (FBref etc.), source = "fbref"
+  //   2. native player_stats  — aggregated from GameScope fixtures,    source = "native"
+  // Both are returned in the same envelope shape so consumers can treat them identically.
   app.get("/api/players/:id/season-stats", async (req, res) => {
     try {
       const { id: playerId } = req.params;
 
-      // Fetch all FULL_GAME player stats rows with their fixtures and teams/clubs
-      const rows = await db
+      // ── 1. External / imported rows ──────────────────────────────────────
+      const externalRows = await db
+        .select()
+        .from(playerSeasonStats)
+        .where(eq(playerSeasonStats.playerId, playerId))
+        .orderBy(asc(playerSeasonStats.season));
+
+      const externalResult = externalRows.map(row => ({
+        id: row.id,
+        season: row.season,
+        clubName: row.clubName,
+        clubId: null as string | null,
+        clubLogoPath: null as string | null,
+        teamId: null as string | null,
+        teamName: null as string | null,
+        competition: row.competition ?? null,
+        leagueRank: row.leagueRank ?? null,
+        source: "fbref" as const,
+        stats: (row.stats ?? {}) as Record<string, number>,
+      }));
+
+      // ── 2. Native rows ────────────────────────────────────────────────────
+      const nativeRows = await db
         .select({
           fixtureId: playerStats.fixtureId,
           goals: playerStats.goals,
           assists: playerStats.assists,
           shotsAttempted: playerStats.shotsAttempted,
           shotsOnTarget: playerStats.shotsOnTarget,
-          // fixture fields
           fixtureDate: fixtures.date,
-          opponent: fixtures.opponent,
-          fixtureType: fixtures.type,
-          homeScore: fixtures.homeScore,
-          awayScore: fixtures.awayScore,
-          status: fixtures.status,
-          // team fields
           teamId: teams.id,
           teamName: teams.name,
-          // club fields
           clubId: clubs.id,
           clubName: clubs.name,
           clubLogoPath: clubs.logoPath,
@@ -5846,70 +5865,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .innerJoin(fixtures, eq(playerStats.fixtureId, fixtures.id))
         .innerJoin(teams, eq(fixtures.teamId, teams.id))
         .innerJoin(clubs, eq(teams.clubId, clubs.id))
-        .where(
-          and(
-            eq(playerStats.playerId, playerId),
-            eq(playerStats.period, "FULL_GAME")
-          )
-        );
+        .where(and(eq(playerStats.playerId, playerId), eq(playerStats.period, "FULL_GAME")));
 
-      // Group by club + season
-      type SeasonKey = string; // `${clubId}__${teamId}__${season}`
-      const seasonMap = new Map<SeasonKey, {
-        clubId: string;
-        clubName: string;
-        clubLogoPath: string | null;
-        teamId: string;
-        teamName: string;
-        season: string;
-        apps: number;
-        goals: number;
-        assists: number;
-        shots: number;
-        shotsOnTarget: number;
+      // Aggregate native rows by club + season
+      type NativeKey = string;
+      const nativeMap = new Map<NativeKey, {
+        clubId: string; clubName: string; clubLogoPath: string | null;
+        teamId: string; teamName: string; season: string;
+        mp: number; goals: number; assists: number; shots: number; shotsOnTarget: number;
       }>();
-
-      for (const row of rows) {
+      for (const row of nativeRows) {
         const season = getSeasonFromDate(new Date(row.fixtureDate));
-        const key = `${row.clubId}__${row.teamId}__${season}`;
-        if (!seasonMap.has(key)) {
-          seasonMap.set(key, {
-            clubId: row.clubId,
-            clubName: row.clubName,
-            clubLogoPath: row.clubLogoPath,
-            teamId: row.teamId,
-            teamName: row.teamName,
-            season,
-            apps: 0,
-            goals: 0,
-            assists: 0,
-            shots: 0,
-            shotsOnTarget: 0,
-          });
+        const key: NativeKey = `${row.clubId}__${row.teamId}__${season}`;
+        if (!nativeMap.has(key)) {
+          nativeMap.set(key, { clubId: row.clubId, clubName: row.clubName, clubLogoPath: row.clubLogoPath, teamId: row.teamId, teamName: row.teamName, season, mp: 0, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0 });
         }
-        const entry = seasonMap.get(key)!;
-        entry.apps += 1;
-        entry.goals += row.goals ?? 0;
-        entry.assists += row.assists ?? 0;
-        entry.shots += row.shotsAttempted ?? 0;
-        entry.shotsOnTarget += row.shotsOnTarget ?? 0;
+        const e = nativeMap.get(key)!;
+        e.mp += 1;
+        e.goals += row.goals ?? 0;
+        e.assists += row.assists ?? 0;
+        e.shots += row.shotsAttempted ?? 0;
+        e.shotsOnTarget += row.shotsOnTarget ?? 0;
       }
 
-      res.json(Array.from(seasonMap.values()));
+      const nativeResult = Array.from(nativeMap.values()).map(e => ({
+        id: `native__${e.clubId}__${e.teamId}__${e.season}`,
+        season: e.season,
+        clubName: e.clubName,
+        clubId: e.clubId,
+        clubLogoPath: e.clubLogoPath,
+        teamId: e.teamId,
+        teamName: e.teamName,
+        competition: null as string | null,
+        leagueRank: null as string | null,
+        source: "native" as const,
+        stats: { mp: e.mp, goals: e.goals, assists: e.assists, shots: e.shots, shots_on_target: e.shotsOnTarget } as Record<string, number>,
+      }));
+
+      // ── 3. Merge + sort ──────────────────────────────────────────────────
+      const merged = [...externalResult, ...nativeResult]
+        .sort((a, b) => a.season.localeCompare(b.season));
+
+      res.json(merged);
     } catch (error) {
       console.error("Error fetching player season stats:", error);
       res.status(500).json({ message: "Failed to fetch player season stats" });
     }
   });
 
+  // POST /api/players/:id/season-stats
+  // Insert a single season-stats row (programmatic import).
+  app.post("/api/players/:id/season-stats", async (req, res) => {
+    try {
+      const { id: playerId } = req.params;
+      const parsed = insertPlayerSeasonStatsSchema.parse({ ...req.body, playerId });
+      const [created] = await db.insert(playerSeasonStats).values(parsed).returning();
+      res.status(201).json(created);
+    } catch (error) {
+      console.error("Error creating player season stats:", error);
+      res.status(400).json({ message: "Failed to create player season stats", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // GET /api/players/:id/match-logs
-  // Returns individual match appearances; optional ?teamId=&season= filters
+  // Returns a unified list of match appearances ordered by date ascending.
+  // Merges two sources:
+  //   1. player_match_logs  — externally imported rows (FBref etc.), source = "fbref"
+  //   2. native player_stats — from GameScope fixtures,              source = "native"
+  // Optional query params:
+  //   ?season=2024-2025        – filter by season (applies to both sources)
+  //   ?clubName=Manchester+City – filter fbref rows by club name (case-insensitive)
+  //   ?competition=WSL         – filter fbref rows by competition (case-insensitive)
+  //   ?teamId=<id>             – filter native rows by team ID
+  //   hasNativeFixture boolean is included in every row
   app.get("/api/players/:id/match-logs", async (req, res) => {
     try {
       const { id: playerId } = req.params;
-      const { teamId, season } = req.query as { teamId?: string; season?: string };
+      const { season, competition, teamId, clubName } = req.query as {
+        season?: string; competition?: string; teamId?: string; clubName?: string;
+      };
 
-      const rows = await db
+      // ── 1. External rows ─────────────────────────────────────────────────
+      const externalRows = await db
+        .select()
+        .from(playerMatchLogs)
+        .where(eq(playerMatchLogs.playerId, playerId))
+        .orderBy(asc(playerMatchLogs.matchDate));
+
+      const externalResult = externalRows
+        .filter(row => {
+          if (season) {
+            const rowSeason = getSeasonFromDate(new Date(row.matchDate));
+            if (rowSeason !== season) return false;
+          }
+          if (clubName) {
+            if (row.clubName.toLowerCase() !== clubName.toLowerCase()) return false;
+          }
+          if (competition) {
+            if (row.competition?.toLowerCase() !== competition.toLowerCase()) return false;
+          }
+          return true;
+        })
+        .map(row => {
+          const statsBlob = (row.stats ?? {}) as Record<string, number>;
+          return {
+            id: row.id,
+            hasNativeFixture: row.fixtureId != null,
+            fixtureId: row.fixtureId ?? null,
+            date: row.matchDate,
+            opponent: row.opponent,
+            venue: row.venue ?? null,
+            result: row.result ?? null,
+            competition: row.competition ?? null,
+            clubName: row.clubName,
+            fixtureType: row.venue === "Home" ? "HOME" : row.venue === "Away" ? "AWAY" : "NEUTRAL",
+            homeScore: null as number | null,
+            awayScore: null as number | null,
+            status: null as string | null,
+            goals: statsBlob.goals ?? 0,
+            assists: statsBlob.assists ?? 0,
+            shotsAttempted: statsBlob.shots ?? 0,
+            shotsOnTarget: statsBlob.shots_on_target ?? 0,
+            minutesPlayed: statsBlob.min_played ?? null,
+            source: "fbref" as const,
+            stats: statsBlob,
+          };
+        });
+
+      // ── 2. Native rows ────────────────────────────────────────────────────
+      // Join clubs so we can filter by club name when teamId is absent.
+      const nativeRows = await db
         .select({
           fixtureId: playerStats.fixtureId,
           goals: playerStats.goals,
@@ -5917,40 +6002,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           shotsAttempted: playerStats.shotsAttempted,
           shotsOnTarget: playerStats.shotsOnTarget,
           totalDistance: playerStats.totalDistance,
-          // fixture fields
           fixtureDate: fixtures.date,
           opponent: fixtures.opponent,
           fixtureType: fixtures.type,
           homeScore: fixtures.homeScore,
           awayScore: fixtures.awayScore,
           status: fixtures.status,
-          // team fields
           teamId: teams.id,
           teamName: teams.name,
+          clubId: clubs.id,
+          clubName: clubs.name,
         })
         .from(playerStats)
         .innerJoin(fixtures, eq(playerStats.fixtureId, fixtures.id))
         .innerJoin(teams, eq(fixtures.teamId, teams.id))
-        .where(
-          and(
-            eq(playerStats.playerId, playerId),
-            eq(playerStats.period, "FULL_GAME"),
-            ...(teamId ? [eq(teams.id, teamId)] : [])
-          )
-        )
-        .orderBy(desc(fixtures.date));
+        .innerJoin(clubs, eq(teams.clubId, clubs.id))
+        .where(and(
+          eq(playerStats.playerId, playerId),
+          eq(playerStats.period, "FULL_GAME"),
+          ...(teamId ? [eq(teams.id, teamId)] : [])
+        ))
+        .orderBy(asc(fixtures.date));
 
-      // Filter by season if provided
-      const result = rows
+      const nativeResult = nativeRows
         .filter(row => {
-          if (!season) return true;
-          return getSeasonFromDate(new Date(row.fixtureDate)) === season;
+          if (season && getSeasonFromDate(new Date(row.fixtureDate)) !== season) return false;
+          // When clubName is provided (and teamId was not), scope native rows to the same club
+          if (clubName && row.clubName.toLowerCase() !== clubName.toLowerCase()) return false;
+          return true;
         })
         .map(row => ({
-          fixtureId: row.fixtureId,
+          id: `native__${row.fixtureId}`,
           hasNativeFixture: true,
+          fixtureId: row.fixtureId,
           date: row.fixtureDate,
           opponent: row.opponent,
+          venue: row.fixtureType === "HOME" ? "Home" : row.fixtureType === "AWAY" ? "Away" : "Neutral",
+          result: null as string | null,
+          competition: null as string | null,
+          clubName: row.clubName,
           fixtureType: row.fixtureType,
           homeScore: row.homeScore,
           awayScore: row.awayScore,
@@ -5961,12 +6051,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           shotsOnTarget: row.shotsOnTarget ?? 0,
           minutesPlayed: row.totalDistance != null ? 90 : null,
           source: "native" as const,
+          stats: { goals: row.goals ?? 0, assists: row.assists ?? 0, shots: row.shotsAttempted ?? 0, shots_on_target: row.shotsOnTarget ?? 0 } as Record<string, number>,
         }));
 
-      res.json(result);
+      // ── 3. Merge + sort by date ascending ────────────────────────────────
+      const merged = [...externalResult, ...nativeResult]
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      res.json(merged);
     } catch (error) {
       console.error("Error fetching player match logs:", error);
       res.status(500).json({ message: "Failed to fetch player match logs" });
+    }
+  });
+
+  // POST /api/players/:id/match-logs
+  // Insert a single match-log row (programmatic import).
+  app.post("/api/players/:id/match-logs", async (req, res) => {
+    try {
+      const { id: playerId } = req.params;
+      const parsed = insertPlayerMatchLogSchema.parse({ ...req.body, playerId });
+      const [created] = await db.insert(playerMatchLogs).values(parsed).returning();
+      res.status(201).json({ ...created, hasNativeFixture: created.fixtureId != null });
+    } catch (error) {
+      console.error("Error creating player match log:", error);
+      res.status(400).json({ message: "Failed to create player match log", error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

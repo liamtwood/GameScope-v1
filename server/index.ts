@@ -60,6 +60,14 @@ app.use((req, res, next) => {
     await seedWWCDemoFixture();
   }
 
+  // Seed Lauren Hemp FBref career data (runs in all environments, idempotent)
+  try {
+    const { seedHempData } = await import('./seed-hemp');
+    await seedHempData();
+  } catch (err) {
+    console.error('[seed-hemp] Failed to seed Hemp data:', err);
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
