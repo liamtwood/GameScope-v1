@@ -127,14 +127,12 @@ export default function PlayerProfiles() {
   // Formation slots: 1-3-5-2 (GK / DEF / MID / FWD)
   const FORMATION_SLOTS = { GK: 1, DEF: 3, MID: 5, FWD: 2 };
 
-  // For each group: star players first (sorted by jersey), then non-stars
+  // Only star players fill formation slots — sorted by jersey number
   const pickFormation = (group: any[], slots: number) => {
-    const sorted = [...group].sort((a, b) => {
-      if (a.starPlayer && !b.starPlayer) return -1;
-      if (!a.starPlayer && b.starPlayer) return 1;
-      return (a.jerseyNumber || 999) - (b.jerseyNumber || 999);
-    });
-    return { starters: sorted.slice(0, slots), bench: sorted.slice(slots) };
+    const stars = [...group]
+      .filter(p => p.starPlayer)
+      .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999));
+    return { starters: stars.slice(0, slots), bench: stars.slice(slots) };
   };
 
   // Use ALL players (not filteredPlayers) for formation so filters don't break it
