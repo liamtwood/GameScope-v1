@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Edit, Trash2, Star } from "lucide-react";
+import { FormationPitch } from "@/components/FormationPitch";
 import { Fixture, OppositionTeam, MatchStats } from "@shared/schema";
 import { format } from "date-fns";
 import { FixtureEditDialog } from "@/components/dialogs/fixture-edit-dialog";
@@ -297,12 +298,11 @@ export default function FixtureDetails() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details" data-testid="tab-fixture-details">Details</TabsTrigger>
             <TabsTrigger value="report" data-testid="tab-report">Report</TabsTrigger>
             <TabsTrigger value="videos" data-testid="tab-videos">Videos</TabsTrigger>
-            <TabsTrigger value="home-lineup" data-testid="tab-home-lineup">Home Lineup</TabsTrigger>
-            <TabsTrigger value="away-lineup" data-testid="tab-away-lineup">Away Lineup</TabsTrigger>
+            <TabsTrigger value="lineup" data-testid="tab-lineup">Lineup</TabsTrigger>
             <TabsTrigger value="analysis" data-testid="tab-analysis">Analysis</TabsTrigger>
           </TabsList>
 
@@ -422,76 +422,8 @@ export default function FixtureDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="home-lineup" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Home Team - {selectedClub?.name || 'Home Team'}</span>
-                </h3>
-                {isHomeMatch && players && players.length > 0 ? (
-                  <div className="space-y-2">
-                    {getSortedLineup(players).map((player, index) => (
-                      <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
-                        <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.jerseyNumber}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
-                            {player.starPlayer && (
-                              <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">{player.position}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Home team lineup not available</p>
-                    <p className="text-sm text-muted-foreground mt-2">Players will appear here when lineup is set</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="away-lineup" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-6 flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span>Away Team - {awayTeam}</span>
-                </h3>
-                {!isHomeMatch && players && players.length > 0 ? (
-                  <div className="space-y-2">
-                    {getSortedLineup(players).map((player, index) => (
-                      <div key={player.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/30 border border-transparent hover:border-muted">
-                        <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.jerseyNumber}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-medium text-foreground">{player.firstName} {player.lastName}</p>
-                            {player.starPlayer && (
-                              <Star className="h-4 w-4 text-orange-500 fill-orange-500" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">{player.position}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Away team lineup not available</p>
-                    <p className="text-sm text-muted-foreground mt-2">Players will appear here when lineup is set</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          <TabsContent value="lineup" className="mt-6">
+            <FormationPitch players={players} clubPrimary={primaryColor} />
           </TabsContent>
 
           <TabsContent value="analysis" className="mt-6">

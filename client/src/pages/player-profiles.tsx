@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Search, Blocks, LayoutTemplate } from "lucide-react";
 import { useTeam } from "@/contexts/team-context";
 import { useClubTheme } from "@/hooks/use-club-theme";
+import { FormationPitch } from "@/components/FormationPitch";
 
 type PositionFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'FWD';
 type StarPlayerFilter = 'all' | 'yes' | 'no';
@@ -123,61 +124,6 @@ export default function PlayerProfiles() {
     setLocation(`/players/${playerId}?source=profiles`);
   };
 
-  // ── Formation selection logic ──────────────────────────────────────────────
-  // All star players start — slots are driven by the actual star count per group.
-  // Fit-only: unfit players are excluded from pitch and bench entirely.
-
-  const fitPlayers = allPlayers.filter(p => p.fitnessStatus === 'Fit');
-
-  const fitByPos = {
-    GK:  fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK'),
-    DEF: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF'),
-    MID: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID'),
-    FWD: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD'),
-  };
-
-  // All star players in each group go into the formation (no cap)
-  const byJersey = (a: any, b: any) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999);
-  const formationGK  = fitByPos.GK.filter(p => p.starPlayer).sort(byJersey);
-  const formationDEF = fitByPos.DEF.filter(p => p.starPlayer).sort(byJersey);
-  const formationMID = fitByPos.MID.filter(p => p.starPlayer).sort(byJersey);
-  const formationFWD = fitByPos.FWD.filter(p => p.starPlayer).sort(byJersey);
-
-  const starterIds = new Set([
-    ...formationGK, ...formationDEF, ...formationMID, ...formationFWD,
-  ].map(p => p.id));
-
-  // Bench: fit non-starters, grouped by position
-  const benchPlayers = fitPlayers.filter(p => !starterIds.has(p.id));
-  const subsGrouped = {
-    GK:  benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK' ).sort(byJersey),
-    DEF: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF').sort(byJersey),
-    MID: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID').sort(byJersey),
-    FWD: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD').sort(byJersey),
-  };
-
-  // Compute evenly-spaced x positions for a row of `count` players
-  const rowPositions = (count: number, y: number): { x: number; y: number }[] => {
-    if (count === 0) return [];
-    if (count === 1) return [{ x: 50, y }];
-    const margin = 12;
-    const span = 76;
-    return Array.from({ length: count }, (_, i) => ({
-      x: margin + (span / (count - 1)) * i,
-      y,
-    }));
-  };
-
-  // Rows top→bottom: FWD / MID / DEF / GK
-  const starterRows = [
-    { label: 'FWD', players: formationFWD, positions: rowPositions(formationFWD.length, 16) },
-    { label: 'MID', players: formationMID, positions: rowPositions(formationMID.length, 38) },
-    { label: 'DEF', players: formationDEF, positions: rowPositions(formationDEF.length, 61) },
-    { label: 'GK',  players: formationGK,  positions: rowPositions(formationGK.length,  83) },
-  ];
-
-  // Formation label e.g. "1–4–3–3"
-  const formationLabel = [formationGK.length, formationDEF.length, formationMID.length, formationFWD.length].join('–');
 
   if (isLoading) {
     return (
