@@ -41,11 +41,11 @@ export default function PlayerProfiles() {
   })) || [];
 
   const getPositionCategory = (position: string): string => {
-    // Now that we have clean data, positions are already in the correct format
-    if (position === 'GK') return 'GK';
-    if (position === 'DEF') return 'DEF';
-    if (position === 'MID') return 'MID';
-    if (position === 'FWD') return 'FWD';
+    const p = (position || '').toLowerCase();
+    if (p === 'gk' || p === 'goalkeeper') return 'GK';
+    if (p === 'def' || p === 'defender') return 'DEF';
+    if (p === 'mid' || p === 'midfield' || p === 'midfielder') return 'MID';
+    if (p === 'fwd' || p === 'forward' || p === 'attacker' || p === 'striker') return 'FWD';
     return 'MID'; // Default fallback
   };
 
