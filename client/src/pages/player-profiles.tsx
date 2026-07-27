@@ -135,29 +135,38 @@ export default function PlayerProfiles() {
     return { starters: stars.slice(0, slots), bench: stars.slice(slots) };
   };
 
-  // Use ALL players (not filteredPlayers) for formation so filters don't break it
-  const allByPos = {
-    GK: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK'),
-    DEF: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF'),
-    MID: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID'),
-    FWD: allPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD'),
+  // Only fit players are eligible for formation or bench
+  const fitPlayers = allPlayers.filter(p => p.fitnessStatus === 'Fit');
+
+  const fitByPos = {
+    GK:  fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK'),
+    DEF: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF'),
+    MID: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID'),
+    FWD: fitPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD'),
   };
 
-  const formationGK  = pickFormation(allByPos.GK,  FORMATION_SLOTS.GK);
-  const formationDEF = pickFormation(allByPos.DEF, FORMATION_SLOTS.DEF);
-  const formationMID = pickFormation(allByPos.MID, FORMATION_SLOTS.MID);
-  const formationFWD = pickFormation(allByPos.FWD, FORMATION_SLOTS.FWD);
+  const formationGK  = pickFormation(fitByPos.GK,  FORMATION_SLOTS.GK);
+  const formationDEF = pickFormation(fitByPos.DEF, FORMATION_SLOTS.DEF);
+  const formationMID = pickFormation(fitByPos.MID, FORMATION_SLOTS.MID);
+  const formationFWD = pickFormation(fitByPos.FWD, FORMATION_SLOTS.FWD);
 
   const starters = [
-    ...formationFWD.starters,  // top of pitch
+    ...formationFWD.starters,
     ...formationMID.starters,
     ...formationDEF.starters,
-    ...formationGK.starters,   // bottom of pitch
+    ...formationGK.starters,
   ];
   const starterIds = new Set(starters.map(p => p.id));
-  const substitutes = allPlayers
-    .filter(p => !starterIds.has(p.id))
-    .sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999));
+
+  // Bench: fit non-starters, grouped by position
+  const benchPlayers = fitPlayers.filter(p => !starterIds.has(p.id));
+  const subsGrouped = {
+    GK:  benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'GK' ).sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    DEF: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'DEF').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    MID: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'MID').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+    FWD: benchPlayers.filter(p => getPositionCategory(p.position || 'MID') === 'FWD').sort((a, b) => (a.jerseyNumber || 999) - (b.jerseyNumber || 999)),
+  };
+  const subPositionLabels = { GK: 'GK', DEF: 'DEF', MID: 'MID', FWD: 'FWD' } as const;
 
   // Absolute positions on the pitch (x%, y% from top-left)
   // Formation rows top→bottom: FWD / MID / DEF / GK
@@ -350,29 +359,42 @@ export default function PlayerProfiles() {
               <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-3">
                 Substitutes
               </p>
-              {substitutes.length === 0 && (
+              {benchPlayers.length === 0 && (
                 <p className="text-white/40 text-xs italic">None</p>
               )}
-              <div className="space-y-2 overflow-y-auto">
-                {substitutes.map(player => (
-                  <button
-                    key={player.id}
-                    onClick={() => handlePlayerClick(player.id)}
-                    className="w-full flex items-center gap-2 text-left group hover:bg-white/5 rounded px-1 py-0.5 transition-colors"
-                    data-testid={`sub-player-${player.id}`}
-                  >
-                    <span className="text-white/40 text-xs w-5 text-right shrink-0">
-                      {player.jerseyNumber ?? '–'}
-                    </span>
-                    <span className="text-white/80 text-xs leading-tight group-hover:text-white transition-colors">
-                      {player.firstName}{' '}
-                      <span className="font-bold uppercase">{player.lastName}</span>
-                    </span>
-                    {player.starPlayer && (
-                      <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
-                    )}
-                  </button>
-                ))}
+              <div className="space-y-4 overflow-y-auto">
+                {(['GK', 'DEF', 'MID', 'FWD'] as const).map(pos => {
+                  const group = subsGrouped[pos];
+                  if (group.length === 0) return null;
+                  return (
+                    <div key={pos}>
+                      <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-1 px-1">
+                        {pos}
+                      </p>
+                      <div className="space-y-1">
+                        {group.map(player => (
+                          <button
+                            key={player.id}
+                            onClick={() => handlePlayerClick(player.id)}
+                            className="w-full flex items-center gap-2 text-left group hover:bg-white/5 rounded px-1 py-0.5 transition-colors"
+                            data-testid={`sub-player-${player.id}`}
+                          >
+                            <span className="text-white/40 text-xs w-5 text-right shrink-0">
+                              {player.jerseyNumber ?? '–'}
+                            </span>
+                            <span className="text-white/80 text-xs leading-tight group-hover:text-white transition-colors">
+                              {player.firstName}{' '}
+                              <span className="font-bold uppercase">{player.lastName}</span>
+                            </span>
+                            {player.starPlayer && (
+                              <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
