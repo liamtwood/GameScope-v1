@@ -79,7 +79,7 @@ const DEMO = {
     ],
   },
   pitch: {
-    // StatsBomb coords (x: 0-120 own→opp goal, y: 0-80 top→bottom)
+    // pitch coords (x: 0-120 own→opp goal, y: 0-80 top→bottom)
     // → component coords: comp_x = y_sb/80*100, comp_y = x_sb/120*100
     events: [
       // Dribbles (real locations from WWC Final event data)
@@ -126,7 +126,7 @@ const METRIC_GROUPS = [
 // ── Reference fixture ────────────────────────────────────────────────────────
 const REFERENCE_FIXTURE_ID = "c6a7fa2f-d625-4422-9bb6-090cf44410dc";
 
-// Standout moments — eventKey is the real StatsBomb event UUID stored in highlightsTimestamps
+// Standout moments — eventKey is the event UUID stored in highlightsTimestamps
 // Tag these events in the Match Events tab (Watch Video → mark the timestamp) to enable Watch buttons
 const STANDOUT_MOMENTS = [
   {
@@ -362,7 +362,7 @@ function PitchMap({ events, color = C.cyan }: { events: typeof DEMO.pitch.events
         }
         return null;
       })}
-      <text x={14} y={H - 12} fill="#3a5a3a" fontSize={9} fontFamily="inherit">ATTACKING ↑ · left channel</text>
+      <text x={14} y={H - 12} fill="#3a5a3a" fontSize={9} fontFamily="inherit">ATTACK ↑ · left channel</text>
     </svg>
   );
 }
@@ -631,11 +631,10 @@ export function PlayerOverallTab({ player }: { player: any }) {
           </div>
         )}
 
-        {/* ── Meta row: competition + StatsBomb badge ── */}
+        {/* ── Meta row: competition ── */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 20px 14px", flexWrap: "wrap" }}>
           <span style={{ fontSize: 10, background: "#3663ae", color: "#fff", borderRadius: 4, padding: "2px 8px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>2023 WWC Final</span>
           <span style={{ fontSize: 10, color: C.dim2 }}>20 Aug 2023 · Stadium Australia · 90 mins</span>
-          <span style={{ fontSize: 10, background: "rgba(22,163,74,0.15)", color: "#16a34a", borderRadius: 5, padding: "3px 9px", fontWeight: 700 }}>✓ StatsBomb</span>
         </div>
 
         {/* ── Stats + Pitch map side-by-side ── */}
@@ -648,7 +647,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
             <div style={{ paddingRight: 16, borderRight: `1px solid ${C.line}` }}>
               <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, color: "#3663ae", textTransform: "uppercase", marginBottom: 14, display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3663ae", display: "inline-block" }} />
-                Attacking
+                Attack
               </div>
 
               {/* Shots + dot cluster */}
