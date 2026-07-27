@@ -484,7 +484,7 @@ export function PlayerOverallTab({ player }: { player: any }) {
       <div style={{ display: "flex", margin: "18px 0 4px", border: `1px solid ${C.line}`, borderRadius: 10, overflow: "hidden", width: "fit-content", background: C.panel, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
         {([ ["target", `vs ${data.pathwayTarget.name}`], ["peers", "vs Age Peers"], ["trajectory", "vs Own Trajectory"] ] as const).map(([k, label]) => (
           <button key={k} onClick={() => setCompareMode(k)} style={{
-            background: compareMode === k ? C.cyan : "transparent",
+            background: compareMode === k ? clubColor : "transparent",
             color: compareMode === k ? "#ffffff" : C.dim,
             border: "none", padding: "9px 16px", fontSize: 12,
             cursor: "pointer", fontWeight: compareMode === k ? 700 : 400,
