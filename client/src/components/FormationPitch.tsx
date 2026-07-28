@@ -676,22 +676,21 @@ export function FormationPitch({
 
         {/* Hint pill — bottom left */}
         {showFormationPicker && slots && (
-          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-36">
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-36 flex flex-col gap-1">
+            <span className="text-white/25 text-[9px] uppercase tracking-widest text-center">Help</span>
             <div
-              className="px-3 py-1.5 rounded-2xl text-white/40 text-[10px] tracking-wide leading-snug"
+              className="px-3 py-2 rounded-2xl text-white/40 text-[10px] tracking-wide leading-snug text-center h-14 flex items-center justify-center"
               style={{
                 background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
                 border: "1px solid transparent",
                 backdropFilter: "blur(8px)",
               }}
             >
-              <span>
-                {pendingId
-                  ? pendingIsOnBench
-                    ? "Tap a pitch player to bring them on"
-                    : "Tap another player or slot to swap"
-                  : "Tap a player to move, or pick a sub first"}
-              </span>
+              {pendingId
+                ? pendingIsOnBench
+                  ? "Tap a pitch player to bring them on"
+                  : "Tap another player or slot to swap"
+                : "Tap a player to move, or pick a sub first"}
             </div>
           </div>
         )}
@@ -820,13 +819,14 @@ export function FormationPitch({
         })}
 
         {/* Formation picker — bottom right, matches help pill */}
-        <div className="absolute bottom-3 right-3 z-10 w-36">
+        <div className="absolute bottom-3 right-3 z-10 w-36 flex flex-col gap-1">
+          <span className="text-white/25 text-[9px] uppercase tracking-widest text-center">Formation</span>
           {showFormationPicker ? (
-            <div className="relative w-full">
+            <div className="relative w-full h-14">
               <select
                 value={selectedFormation}
                 onChange={e => handleFormationChange(e.target.value)}
-                className="appearance-none w-full text-white/40 text-[10px] tracking-wide cursor-pointer focus:outline-none pl-3 pr-6 py-1.5 rounded-2xl"
+                className="appearance-none w-full h-full text-white/40 text-[10px] tracking-wide text-center cursor-pointer focus:outline-none pl-3 pr-6 rounded-2xl"
                 style={{
                   background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
                   border: "1px solid transparent",
@@ -842,9 +842,16 @@ export function FormationPitch({
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30 pointer-events-none" />
             </div>
           ) : (
-            <span className="text-white/40 text-[10px] font-mono pointer-events-none">
+            <div
+              className="w-full h-14 flex items-center justify-center rounded-2xl text-white/40 text-[10px] tracking-wide"
+              style={{
+                background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
+                border: "1px solid transparent",
+                backdropFilter: "blur(8px)",
+              }}
+            >
               {pitchRows.map(r => r.slotIds.filter(Boolean).length).join("–")}
-            </span>
+            </div>
           )}
         </div>
       </div>
