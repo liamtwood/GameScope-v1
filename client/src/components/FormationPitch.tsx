@@ -772,13 +772,13 @@ export function FormationPitch({
                     )}
                   </div>
                   <span
-                    className="text-white/90 text-[11px] font-medium text-center leading-tight"
+                    className="text-white text-[13px] font-semibold text-center leading-tight uppercase tracking-wide"
                     style={{
-                      maxWidth: 72,
+                      maxWidth: 80,
                       textShadow: "0 1px 6px rgba(0,0,0,1), 0 2px 12px rgba(0,0,0,0.9)",
                     }}
                   >
-                    {toTitleCase(player.lastName ?? "")}
+                    {(player.lastName ?? "").toUpperCase()}
                   </span>
                 </button>
               );
