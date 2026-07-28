@@ -541,14 +541,13 @@ export function FormationPitch({
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4"
-        style={{ background: `color-mix(in srgb, ${clubPrimary} 28%, #0a0a0a)` }}
+        style={{ backgroundColor: clubPrimary }}
       >
-        <p className="text-xs font-bold uppercase tracking-widest mb-3"
-           style={{ color: clubPrimary }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/90">
           Substitutes
         </p>
         {benchPlayers.length === 0 && (
-          <p className="text-white/40 text-xs italic">None</p>
+          <p className="text-white/60 text-xs italic">None</p>
         )}
         <div className="space-y-4 overflow-y-auto flex-1">
           {(["GK", "DEF", "MID", "FWD"] as RowKey[]).map(pos => {
@@ -556,7 +555,7 @@ export function FormationPitch({
             if (group.length === 0) return null;
             return (
               <div key={pos}>
-                <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-1 px-1">
+                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 px-1">
                   {pos}
                 </p>
                 <div className="space-y-1">
@@ -569,19 +568,19 @@ export function FormationPitch({
                         onClick={e => { e.stopPropagation(); handleSubClick(player.id); }}
                         className={`w-full flex items-center gap-2 text-left rounded px-1 py-0.5 transition-all ${
                           isSel
-                            ? "bg-emerald-500/30 ring-1 ring-emerald-400/60"
-                            : "hover:bg-white/10"
+                            ? "bg-black/20 ring-1 ring-white/40"
+                            : "hover:bg-black/15"
                         }`}
                       >
-                        <span className="text-white/40 text-xs w-5 text-right shrink-0">
+                        <span className="text-white/70 text-xs w-5 text-right shrink-0">
                           {player.jerseyNumber ?? "–"}
                         </span>
-                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-white font-semibold" : "text-white/80"}`}>
+                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-white font-semibold" : "text-white/90"}`}>
                           {player.firstName}{" "}
                           <span className="font-bold uppercase">{player.lastName}</span>
                         </span>
                         {player.starPlayer && (
-                          <Star className="h-2.5 w-2.5 text-orange-400 fill-orange-400 shrink-0 ml-auto" />
+                          <Star className="h-2.5 w-2.5 text-white/80 fill-white/80 shrink-0 ml-auto" />
                         )}
                       </button>
                     );
@@ -594,16 +593,16 @@ export function FormationPitch({
 
         {/* Save button */}
         {fixtureId && showFormationPicker && (
-          <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="mt-4 pt-4 border-t border-white/20">
             <button
               onClick={handleSave}
               disabled={saveMutation.isPending || savedFlash}
               className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all ${
                 savedFlash
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-black/25 text-white"
                   : isDirty
-                  ? "bg-white text-gray-900 hover:bg-gray-100"
-                  : "bg-white/10 text-white/40 cursor-default"
+                  ? "bg-white/95 text-gray-900 hover:bg-white"
+                  : "bg-black/15 text-white/50 cursor-default"
               }`}
             >
               {savedFlash ? (
