@@ -549,7 +549,7 @@ export function FormationPitch({
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
-        style={{ backgroundColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(20px)" }}
+        style={{ backgroundColor: "rgba(255,255,255,0.07)" }}
       >
         <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/50">
           Substitutes
