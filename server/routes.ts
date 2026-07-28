@@ -5705,7 +5705,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .filter(p => PLAYER_POSITIONS.includes(p.position));
 
-      res.json({ players: result, formation: fixture.lineupFormation ?? null });
+      res.json({
+        players: result,
+        formation: fixture.lineupFormation ?? null,
+        slots: fixture.lineupSlots ?? null,
+      });
     } catch (error) {
       console.error("Error fetching fixture squad:", error);
       res.status(500).json({ message: "Failed to fetch squad" });
@@ -5717,15 +5721,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/fixtures/:fixtureId/squad", async (req, res) => {
     try {
       const { fixtureId } = req.params;
-      const { players, formation } = req.body as { players: { userId: string; role: string }[]; formation?: string };
+      const { players, formation, slots } = req.body as {
+        players: { userId: string; role: string }[];
+        formation?: string;
+        slots?: { GK: string[]; DEF: string[]; MID: string[]; FWD: string[] };
+      };
 
       if (!Array.isArray(players)) {
         return res.status(400).json({ message: "players array is required" });
       }
 
-      // Save formation on the fixture if provided
-      if (formation) {
-        await db.update(fixtures).set({ lineupFormation: formation, updatedAt: new Date() }).where(eq(fixtures.id, fixtureId));
+      // Save formation + slot layout on the fixture if provided
+      if (formation || slots) {
+        await db.update(fixtures)
+          .set({ lineupFormation: formation ?? undefined, lineupSlots: slots ?? undefined, updatedAt: new Date() })
+          .where(eq(fixtures.id, fixtureId));
       }
 
       // Delete existing selections and re-insert

@@ -103,6 +103,7 @@ export const fixtures = pgTable("fixtures", {
   hasVideo: boolean("has_video").default(false),
   videoLinks: jsonb("video_links"),
   lineupFormation: varchar("lineup_formation"),
+  lineupSlots: jsonb("lineup_slots"), // { GK: string[], DEF: string[], MID: string[], FWD: string[] }
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

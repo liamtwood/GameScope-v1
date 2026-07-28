@@ -287,6 +287,7 @@ export function FormationPitch({
   const { data: squadData, isLoading: squadLoading } = useQuery<{
     players: Array<{ id: string; role: string }>;
     formation: string | null;
+    slots: { GK: string[]; DEF: string[]; MID: string[]; FWD: string[] } | null;
   }>({
     queryKey: ["/api/fixtures", fixtureId, "squad"],
     queryFn: () => fetch(`/api/fixtures/${fixtureId}/squad`).then(r => r.json()),
@@ -336,12 +337,23 @@ export function FormationPitch({
       const formation = squadData?.formation ?? "4-3-3";
       if (squadData) {
         setSelectedFormation(formation);
-        // Try to reconstruct exact slot positions from row-index-encoded roles
-        const reconstructed = reconstructSlotsFromRoles(squadData.players, formation);
-        if (reconstructed) {
-          setSlots(reconstructed);
+        if (squadData.slots) {
+          // New format: full slot layout saved as JSON — reconstruct directly.
+          // Pad each row to the formation's slot count so empty positions render.
+          const f = getFormationConfig(formation);
+          const pad = (ids: string[], count: number): Array<string | null> => {
+            const result: Array<string | null> = ids.slice(0, count);
+            while (result.length < count) result.push(null);
+            return result;
+          };
+          setSlots({
+            GK:  pad(squadData.slots.GK,  f.gk),
+            DEF: pad(squadData.slots.DEF, f.def),
+            MID: pad(squadData.slots.MID, f.mid),
+            FWD: pad(squadData.slots.FWD, f.fwd),
+          });
         } else {
-          // Fallback: old saves used plain "starter" — bucket by position attribute
+          // Fallback: old saves — bucket starters by position attribute
           const savedStarters = new Set(
             squadData.players.filter(p => p.role === "starter").map(p => p.id)
           );
@@ -426,18 +438,18 @@ export function FormationPitch({
   // ── Save ─────────────────────────────────────────────────────────────────
   const handleSave = () => {
     if (!fixtureId || !slots) return;
-    // Encode each starter's row and slot index so we can reconstruct exact
-    // positions on reload without relying on position attributes.
-    const rowIndexOf = (id: string): string => {
-      for (const row of ["GK", "DEF", "MID", "FWD"] as RowKey[]) {
-        const idx = slots[row].indexOf(id);
-        if (idx !== -1) return `starter-${row}-${idx}`;
-      }
-      return "sub";
-    };
+    const onPitch = allOnPitch(slots);
+    // Send the full slot layout as JSON so reload can reconstruct exact positions.
     const payload = {
-      players: players.map(p => ({ userId: p.id, role: rowIndexOf(p.id) })),
+      players: players.map(p => ({ userId: p.id, role: onPitch.has(p.id) ? "starter" : "sub" })),
       formation: selectedFormation,
+      // Filter nulls so stored arrays contain only player IDs
+      slots: {
+        GK:  slots.GK.filter(Boolean)  as string[],
+        DEF: slots.DEF.filter(Boolean) as string[],
+        MID: slots.MID.filter(Boolean) as string[],
+        FWD: slots.FWD.filter(Boolean) as string[],
+      },
     };
     saveMutation.mutate(payload);
   };
