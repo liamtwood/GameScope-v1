@@ -4,6 +4,10 @@ import { useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, ChevronDown, Save, Check } from "lucide-react";
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const toTitleCase = (s: string) =>
+  s.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Player {
   id: string;
@@ -540,14 +544,14 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4"
-        style={{ backgroundColor: clubPrimary }}
+        className="w-52 shrink-0 flex flex-col p-4 border-r"
+        style={{ backgroundColor: "#F8FAFC" }}
       >
-        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/90">
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-slate-400">
           Substitutes
         </p>
         {benchPlayers.length === 0 && (
-          <p className="text-white/60 text-xs italic">None</p>
+          <p className="text-slate-400 text-xs italic">None</p>
         )}
         <div className="space-y-4 overflow-y-auto flex-1">
           {(["GK", "DEF", "MID", "FWD"] as RowKey[]).map(pos => {
@@ -555,10 +559,10 @@ export function FormationPitch({
             if (group.length === 0) return null;
             return (
               <div key={pos}>
-                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 px-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1 px-1 text-slate-400">
                   {pos}
                 </p>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {group.map(player => {
                     const isSel = pendingId === player.id;
                     return (
@@ -566,21 +570,21 @@ export function FormationPitch({
                         key={player.id}
                         data-sub
                         onClick={e => { e.stopPropagation(); handleSubClick(player.id); }}
-                        className={`w-full flex items-center gap-2 text-left rounded px-1 py-0.5 transition-all ${
+                        className={`w-full flex items-center gap-2 text-left rounded-md px-2 py-1 transition-all ${
                           isSel
-                            ? "bg-black/20 ring-1 ring-white/40"
-                            : "hover:bg-black/15"
+                            ? "bg-slate-200 ring-1 ring-slate-300"
+                            : "hover:bg-slate-100"
                         }`}
                       >
-                        <span className="text-white/70 text-xs w-5 text-right shrink-0">
+                        <span className="text-slate-400 text-xs w-5 text-right shrink-0 tabular-nums">
                           {player.jerseyNumber ?? "–"}
                         </span>
-                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-white font-semibold" : "text-white/90"}`}>
+                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-slate-900 font-semibold" : "text-slate-700"}`}>
                           {player.firstName}{" "}
-                          <span className="font-bold uppercase">{player.lastName}</span>
+                          <span className="font-semibold">{player.lastName}</span>
                         </span>
                         {player.starPlayer && (
-                          <Star className="h-2.5 w-2.5 text-white/80 fill-white/80 shrink-0 ml-auto" />
+                          <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400 shrink-0 ml-auto" />
                         )}
                       </button>
                     );
@@ -593,16 +597,16 @@ export function FormationPitch({
 
         {/* Save button */}
         {fixtureId && showFormationPicker && (
-          <div className="mt-4 pt-4 border-t border-white/20">
+          <div className="mt-4 pt-4 border-t border-slate-200">
             <button
               onClick={handleSave}
               disabled={saveMutation.isPending || savedFlash}
               className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all ${
                 savedFlash
-                  ? "bg-black/25 text-white"
+                  ? "bg-emerald-600 text-white"
                   : isDirty
-                  ? "bg-white/95 text-gray-900 hover:bg-white"
-                  : "bg-black/15 text-white/50 cursor-default"
+                  ? "bg-slate-900 text-white hover:bg-slate-700"
+                  : "bg-slate-100 text-slate-400 cursor-default"
               }`}
             >
               {savedFlash ? (
@@ -631,27 +635,18 @@ export function FormationPitch({
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Playing surface — green, inside the touchlines */}
-          <defs>
-            <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#1e7a30" />
-              <stop offset="30%"  stopColor="#22923a" />
-              <stop offset="50%"  stopColor="#1e7a30" />
-              <stop offset="70%"  stopColor="#22923a" />
-              <stop offset="100%" stopColor="#1e7a30" />
-            </linearGradient>
-          </defs>
-          <rect x="4%" y="2%" width="92%" height="96%" fill="url(#grassGrad)" rx="2" />
-          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" rx="2" />
-          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
-          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
-          <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
-          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.25)" strokeWidth="1"   fill="none" />
-          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.25)" strokeWidth="1"   fill="none" />
-          <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.45)" />
-          <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.45)" />
+          {/* Playing surface — desaturated sage, inside the touchlines */}
+          <rect x="4%" y="2%" width="92%" height="96%" fill="#7A8C6E" rx="2" />
+          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" rx="2" />
+          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" />
+          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
+          <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.60)" />
+          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
+          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.35)" strokeWidth="1"   fill="none" />
+          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
+          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.35)" strokeWidth="1"   fill="none" />
+          <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.55)" />
+          <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.55)" />
         </svg>
 
         {/* Hint bar */}
@@ -748,7 +743,7 @@ export function FormationPitch({
                       background: "rgba(0,0,0,0.25)",
                     }}
                   >
-                    {player.lastName?.toUpperCase()}
+                    {toTitleCase(player.lastName ?? "")}
                   </span>
                 </button>
               );
