@@ -536,8 +536,8 @@ export function FormationPitch({
       className="flex gap-3 p-3 rounded-2xl"
       style={{
         minHeight: 600,
-        background: `linear-gradient(160deg, color-mix(in srgb, ${clubPrimary} 22%, #06090f) 0%, color-mix(in srgb, ${clubPrimary} 10%, #04060c) 100%)`,
-        border: `1px solid color-mix(in srgb, ${clubPrimary} 35%, transparent)`,
+        background: `linear-gradient(135deg, ${clubPrimary} 0%, #000000 100%)`,
+        border: `1px solid ${clubPrimary}40`,
       }}
       onClick={e => {
         // Clicking the backdrop (not a slot/button) deselects
