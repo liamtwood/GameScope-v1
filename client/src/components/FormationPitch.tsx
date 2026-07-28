@@ -518,10 +518,10 @@ export function FormationPitch({
       FWD: autoStarters.filter(p => getPositionCategory(p.position ?? "MID") === "FWD").sort(byJersey),
     };
     pitchRows = [
-      { label: "FWD", slotIds: byPos.FWD.map(p => p.id), y: 16 },
-      { label: "MID", slotIds: byPos.MID.map(p => p.id), y: 38 },
-      { label: "DEF", slotIds: byPos.DEF.map(p => p.id), y: 61 },
-      { label: "GK",  slotIds: byPos.GK.map(p => p.id),  y: 83 },
+      { label: "FWD", slotIds: byPos.FWD.map(p => p.id), y: 22 },
+      { label: "MID", slotIds: byPos.MID.map(p => p.id), y: 43 },
+      { label: "DEF", slotIds: byPos.DEF.map(p => p.id), y: 65 },
+      { label: "GK",  slotIds: byPos.GK.map(p => p.id),  y: 85 },
     ];
   } else {
     pitchRows = [];
@@ -544,10 +544,10 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4 border-r"
+        className="w-52 shrink-0 flex flex-col p-4"
         style={{ backgroundColor: "#F8FAFC" }}
       >
-        <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-slate-400">
+        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-slate-400">
           Substitutes
         </p>
         {benchPlayers.length === 0 && (
@@ -786,7 +786,7 @@ export function FormationPitch({
         {/* Formation picker */}
         <div
           className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: "84%", top: "87%" }}
+          style={{ left: "50%", top: "13%" }}
         >
           {showFormationPicker ? (
             <div className="relative">
