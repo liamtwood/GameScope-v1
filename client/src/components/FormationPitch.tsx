@@ -225,40 +225,37 @@ function buildSlots(
 
 /**
  * Resize slots when the formation changes.
- * Tries to keep existing player assignments; trims or pads with nulls as needed.
+ *
+ * Flatten the current 11 starters into a single left-to-right array
+ * (GK → DEF → MID → FWD), then slice that array into the new formation's
+ * buckets. This preserves positional order across formation changes — e.g.
+ * the rightmost defender naturally becomes the first (left wingback) midfielder
+ * when switching from a 4-back to a 3-5-2 — without any displaced-pool logic.
  */
 function resizeSlots(current: Slots, newLabel: string): Slots {
   const f = getFormationConfig(newLabel);
-  const rowKeys: RowKey[] = ["GK", "DEF", "MID", "FWD"];
-  const needed: Record<RowKey, number> = { GK: f.gk, DEF: f.def, MID: f.mid, FWD: f.fwd };
 
-  // Pass 1 — keep as many current occupants as the new row size allows;
-  //           overflow players (from shrinking rows) go into a displaced pool.
-  const next: Slots = { GK: [], DEF: [], MID: [], FWD: [] };
-  const displaced: string[] = [];
+  // 1. Flatten: ordered list of all current pitch occupants, nulls removed
+  const flat = [
+    ...current.GK,
+    ...current.DEF,
+    ...current.MID,
+    ...current.FWD,
+  ].filter(Boolean) as string[];
 
-  for (const row of rowKeys) {
-    const filled = current[row].filter(Boolean) as string[];
-    const keep = filled.slice(0, needed[row]);
-    next[row] = [
-      ...keep,
-      ...Array<null>(Math.max(0, needed[row] - keep.length)).fill(null),
-    ];
-    // Any player that no longer fits in their row is displaced, not benched
-    displaced.push(...filled.slice(needed[row]));
-  }
+  // 2. Slice into new buckets; pad short rows with null
+  const take = (start: number, count: number): Array<string | null> => {
+    const chunk = flat.slice(start, start + count);
+    while (chunk.length < count) chunk.push(null);
+    return chunk as Array<string | null>;
+  };
 
-  // Pass 2 — fill empty slots created by growing rows with displaced players.
-  //           GK row first so a displaced GK is most likely to land back in goal.
-  for (const row of rowKeys) {
-    for (let i = 0; i < next[row].length && displaced.length > 0; i++) {
-      if (next[row][i] === null) {
-        next[row][i] = displaced.shift()!;
-      }
-    }
-  }
-
-  return next;
+  return {
+    GK:  take(0,                    f.gk),
+    DEF: take(f.gk,                 f.def),
+    MID: take(f.gk + f.def,         f.mid),
+    FWD: take(f.gk + f.def + f.mid, f.fwd),
+  };
 }
 
 /**
