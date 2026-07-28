@@ -628,9 +628,8 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1 rounded-xl overflow-hidden"
+        className="relative flex-1"
         style={{
-          backgroundColor: "rgba(255,255,255,0.07)",
           minHeight: 600,
         }}
       >
@@ -647,31 +646,28 @@ export function FormationPitch({
             </radialGradient>
           </defs>
 
-          {/* Playing surface — inset to match subs panel padding */}
-          <rect x="2%" y="1.5%" width="96%" height="97%" fill="url(#pitchFill)" rx="8" />
-          {/* Club-primary blush */}
-          <rect x="2%" y="1.5%" width="96%" height="97%" fill={clubPrimary} fillOpacity="0.04" rx="8" />
+          {/* Playing surface — fills entire field div, corners clipped by holding container */}
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#pitchFill)" />
+          <rect x="0" y="0" width="100%" height="100%" fill={clubPrimary} fillOpacity="0.04" />
 
-          {/* ── Lines — all very delicate ── */}
-          {/* Outer border */}
-          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" fill="none" rx="12" />
+          {/* ── Lines — no outer border box; internal markings define the pitch ── */}
           {/* Halfway line */}
-          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.16)" strokeWidth="0.7" />
+          <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(255,255,255,0.16)" strokeWidth="0.7" />
           {/* Centre circle */}
           <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.14)" strokeWidth="0.7" fill="none" />
           {/* Centre spot */}
           <circle cx="50%" cy="50%" r="1.5" fill="rgba(255,255,255,0.28)" />
           {/* Top penalty area */}
-          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
+          <rect x="28%" y="0" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
           {/* Top goal area */}
-          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
+          <rect x="38%" y="0" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
           {/* Bottom penalty area */}
-          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
+          <rect x="28%" y="83%" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
           {/* Bottom goal area */}
-          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
+          <rect x="38%" y="93%" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
           {/* Penalty spots */}
-          <circle cx="50%" cy="13%" r="1.5" fill="rgba(255,255,255,0.22)" />
-          <circle cx="50%" cy="87%" r="1.5" fill="rgba(255,255,255,0.22)" />
+          <circle cx="50%" cy="11%" r="1.5" fill="rgba(255,255,255,0.22)" />
+          <circle cx="50%" cy="89%" r="1.5" fill="rgba(255,255,255,0.22)" />
         </svg>
 
         {/* Hint bar */}
