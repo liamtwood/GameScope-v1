@@ -636,24 +636,44 @@ export function FormationPitch({
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Playing surface — dark slate canvas */}
-          <rect x="4%" y="2%" width="92%" height="96%" fill="#1E293B" rx="2" />
-          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" rx="2" />
-          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" />
-          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
-          <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.70)" />
-          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.45)" strokeWidth="1"   fill="none" />
-          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.45)" strokeWidth="1"   fill="none" />
-          <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.70)" />
-          <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.70)" />
+          <defs>
+            <radialGradient id="pitchFill" cx="50%" cy="40%" r="75%">
+              <stop offset="0%" stopColor="#1e2d3e" />
+              <stop offset="100%" stopColor="#0c1520" />
+            </radialGradient>
+          </defs>
+
+          {/* Playing surface — dark gradient */}
+          <rect x="4%" y="2%" width="92%" height="96%" fill="url(#pitchFill)" rx="12" />
+          {/* Club-primary blush */}
+          <rect x="4%" y="2%" width="92%" height="96%" fill={clubPrimary} fillOpacity="0.04" rx="12" />
+
+          {/* ── Lines — all very delicate ── */}
+          {/* Outer border */}
+          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" fill="none" rx="12" />
+          {/* Halfway line */}
+          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.16)" strokeWidth="0.7" />
+          {/* Centre circle */}
+          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.14)" strokeWidth="0.7" fill="none" />
+          {/* Centre spot */}
+          <circle cx="50%" cy="50%" r="1.5" fill="rgba(255,255,255,0.28)" />
+          {/* Top penalty area */}
+          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
+          {/* Top goal area */}
+          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
+          {/* Bottom penalty area */}
+          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.13)" strokeWidth="0.65" fill="none" />
+          {/* Bottom goal area */}
+          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.09)" strokeWidth="0.55" fill="none" />
+          {/* Penalty spots */}
+          <circle cx="50%" cy="13%" r="1.5" fill="rgba(255,255,255,0.22)" />
+          <circle cx="50%" cy="87%" r="1.5" fill="rgba(255,255,255,0.22)" />
         </svg>
 
         {/* Hint bar */}
         {showFormationPicker && slots && (
           <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
-            <span className="text-white/40 text-[11px] bg-black/30 px-2.5 py-1.5 rounded-md whitespace-nowrap border border-white/10">
+            <span className="text-white/35 text-[11px] bg-black/25 px-2.5 py-1.5 rounded-xl whitespace-nowrap border border-white/10 backdrop-blur-sm">
               {pendingId
                 ? pendingIsOnBench
                   ? "Tap a player on the pitch to bring them on"
@@ -696,16 +716,18 @@ export function FormationPitch({
                 >
                   <div className="relative">
                     <Avatar
-                      className="border-2 shadow-lg transition-all group-hover:scale-105"
+                      className="border transition-all group-hover:scale-105"
                       style={{
                         width: 64,
                         height: 64,
                         borderColor: isPending
-                          ? "#34d399"   // bright green = selected
+                          ? "#34d399"
                           : isTarget
-                          ? "rgba(52,211,153,0.7)"  // softer green = swap target
-                          : isGK ? "#f59e0b" : "rgba(255,255,255,0.7)",
-                        boxShadow: isPending ? "0 0 0 3px rgba(52,211,153,0.5)" : undefined,
+                          ? "rgba(52,211,153,0.45)"
+                          : isGK ? "rgba(245,158,11,0.45)" : "rgba(255,255,255,0.25)",
+                        boxShadow: isPending
+                          ? "0 0 0 2px rgba(52,211,153,0.35), 0 2px 12px rgba(0,0,0,0.5)"
+                          : "0 2px 10px rgba(0,0,0,0.45)",
                       }}
                     >
                       {player.avatarPath && (
@@ -720,7 +742,7 @@ export function FormationPitch({
                     </Avatar>
                     {player.jerseyNumber != null && (
                       <div
-                        className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/60 shadow"
+                        className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/20 shadow-sm"
                         style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
                       >
                         {player.jerseyNumber}
@@ -737,11 +759,12 @@ export function FormationPitch({
                     )}
                   </div>
                   <span
-                    className="text-white text-[11px] font-semibold text-center leading-tight px-1 rounded"
+                    className="text-white/80 text-[11px] font-medium text-center leading-tight px-1.5 rounded-lg"
                     style={{
                       maxWidth: 72,
-                      textShadow: "0 1px 3px rgba(0,0,0,0.8)",
-                      background: "rgba(0,0,0,0.25)",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.9)",
+                      background: "rgba(0,0,0,0.20)",
+                      backdropFilter: "blur(4px)",
                     }}
                   >
                     {toTitleCase(player.lastName ?? "")}
