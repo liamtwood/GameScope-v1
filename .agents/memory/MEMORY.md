@@ -1,0 +1,1 @@
+- [rembg server-side background removal](rembg-server-setup.md) — must install `rembg[cpu,cli]`; binary at `.pythonlibs/bin/rembg`; first request is slow (~40s model download).

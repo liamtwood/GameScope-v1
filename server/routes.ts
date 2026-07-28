@@ -10,7 +10,11 @@ import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
 import { stat } from "fs/promises";
+import { execFile } from "child_process";
+import { promisify } from "util";
 import XLSX from "xlsx";
+
+const execFileAsync = promisify(execFile);
 
 // Helper function to parse statistics from Excel data
 function parseStatsFromExcelData(data: any[], teamColumn: string) {
@@ -171,6 +175,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.log("Directories already exist");
   }
+
+  // ── Background removal endpoint ──────────────────────────────────────────
+  // Uses rembg (ML-based) instead of the old client-side canvas flood-fill.
+  // Accepts a multipart image upload, returns a transparent PNG.
+  app.post("/api/remove-background", upload.single("image"), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file provided" });
+    }
+
+    const inputPath = req.file.path;
+    const outputPath = `${inputPath}_no_bg.png`;
+
+    try {
+      const rembgBin = "/home/runner/workspace/.pythonlibs/bin/rembg";
+      await execFileAsync(rembgBin, ["i", inputPath, outputPath]);
+
+      const pngBuffer = await fs.readFile(outputPath);
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Length": String(pngBuffer.length),
+        "Cache-Control": "no-store",
+      });
+      res.send(pngBuffer);
+    } catch (error) {
+      console.error("Background removal failed:", error);
+      res.status(500).json({ error: "Background removal failed" });
+    } finally {
+      // Clean up temp files
+      await fs.unlink(inputPath).catch(() => {});
+      await fs.unlink(outputPath).catch(() => {});
+    }
+  });
 
   // Security: Validate and resolve temp upload paths
   const TEMP_UPLOAD_DIR = path.resolve("temp-uploads");
