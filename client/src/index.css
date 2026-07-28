@@ -13,7 +13,7 @@
 }
 
 .glass-border-animated {
-  animation: glass-border-spin 6s linear infinite;
+  animation: glass-border-spin 20s linear infinite;
 }
 
 /* Force consistent scrollbar gutter to prevent layout shift */
