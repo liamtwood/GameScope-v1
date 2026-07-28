@@ -541,9 +541,10 @@ export function FormationPitch({
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4"
-        style={{ background: "rgba(15,30,20,0.92)" }}
+        style={{ background: `color-mix(in srgb, ${clubPrimary} 28%, #0a0a0a)` }}
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-3">
+        <p className="text-xs font-bold uppercase tracking-widest mb-3"
+           style={{ color: clubPrimary }}>
           Substitutes
         </p>
         {benchPlayers.length === 0 && (
