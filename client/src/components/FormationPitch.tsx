@@ -557,10 +557,11 @@ export function FormationPitch({
           {(["GK", "DEF", "MID", "FWD"] as RowKey[]).map(pos => {
             const group = subsGrouped[pos];
             if (group.length === 0) return null;
+            const posLabel: Record<RowKey, string> = { GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" };
             return (
               <div key={pos}>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1 px-1 text-slate-400">
-                  {pos}
+                  {posLabel[pos]}
                 </p>
                 <div className="space-y-0.5">
                   {group.map(player => {
