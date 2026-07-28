@@ -550,7 +550,7 @@ export function FormationPitch({
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
         style={{
-          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(135deg, ${clubPrimary}90 0%, ${clubPrimary}30 100%) border-box`,
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(180deg, ${clubPrimary}cc 0%, ${clubPrimary}55 25%, ${clubPrimary}00 100%) border-box`,
           border: "1px solid transparent",
           backdropFilter: "blur(12px)",
         }}
@@ -635,7 +635,7 @@ export function FormationPitch({
         className="relative flex-1 rounded-xl overflow-hidden"
         style={{
           minHeight: 600,
-          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(135deg, ${clubPrimary}90 0%, ${clubPrimary}30 100%) border-box`,
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(180deg, ${clubPrimary}cc 0%, ${clubPrimary}55 25%, ${clubPrimary}00 100%) border-box`,
           border: "1px solid transparent",
           backdropFilter: "blur(12px)",
         }}
