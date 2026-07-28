@@ -819,14 +819,14 @@ export function FormationPitch({
           });
         })}
 
-        {/* Formation picker — bottom right, pill-styled */}
-        <div className="absolute bottom-3 right-3 z-10">
+        {/* Formation picker — bottom right, matches help pill */}
+        <div className="absolute bottom-3 right-3 z-10 w-36">
           {showFormationPicker ? (
-            <div className="relative">
+            <div className="relative w-full">
               <select
                 value={selectedFormation}
                 onChange={e => handleFormationChange(e.target.value)}
-                className="appearance-none text-white/40 text-[10px] tracking-wide cursor-pointer focus:outline-none pr-5 pl-3 py-1.5 rounded-2xl"
+                className="appearance-none w-full text-white/40 text-[10px] tracking-wide cursor-pointer focus:outline-none pl-3 pr-6 py-1.5 rounded-2xl"
                 style={{
                   background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
                   border: "1px solid transparent",
@@ -839,7 +839,7 @@ export function FormationPitch({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30 pointer-events-none" />
             </div>
           ) : (
             <span className="text-white/40 text-[10px] font-mono pointer-events-none">
@@ -849,16 +849,6 @@ export function FormationPitch({
         </div>
       </div>
 
-      {/* ── Foreground glow overlay — backdrop-filter shaped by mask ── */}
-      <div
-        className="absolute inset-3 rounded-xl pointer-events-none"
-        style={{
-          backdropFilter: "brightness(1.25) saturate(1.6)",
-          WebkitBackdropFilter: "brightness(1.25) saturate(1.6)",
-          maskImage: `radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 100%)`,
-          WebkitMaskImage: `radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 100%)`,
-        }}
-      />
     </div>
   );
 }
