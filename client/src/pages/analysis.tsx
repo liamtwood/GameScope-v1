@@ -225,8 +225,8 @@ export default function Analysis() {
 
   return (
     <MainLayout 
-      title="View Fixture" 
-      subtitle={`${fixture.opponent} • ${format(new Date(fixture.date), 'd MMM yyyy')}`}
+      title="" 
+      subtitle=""
     >
       {/* Main Analysis Tabs */}
       <Tabs defaultValue={defaultTab} className="w-full">
