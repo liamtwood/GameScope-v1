@@ -31,18 +31,39 @@ interface FormationPitchProps {
 
 // ── Formations ────────────────────────────────────────────────────────────────
 const FORMATIONS = [
-  { label: "4-3-3",   gk: 1, def: 4, mid: 3, fwd: 3 },
-  { label: "4-4-2",   gk: 1, def: 4, mid: 4, fwd: 2 },
-  { label: "4-2-3-1", gk: 1, def: 4, mid: 5, fwd: 1 },
-  { label: "4-5-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
-  { label: "4-1-4-1", gk: 1, def: 4, mid: 5, fwd: 1 },
-  { label: "4-3-2-1", gk: 1, def: 4, mid: 5, fwd: 1 },
-  { label: "4-2-4",   gk: 1, def: 4, mid: 2, fwd: 4 },
-  { label: "3-5-2",   gk: 1, def: 3, mid: 5, fwd: 2 },
-  { label: "3-4-3",   gk: 1, def: 3, mid: 4, fwd: 3 },
-  { label: "5-3-2",   gk: 1, def: 5, mid: 3, fwd: 2 },
-  { label: "5-4-1",   gk: 1, def: 5, mid: 4, fwd: 1 },
+  { label: "4-3-3",     gk: 1, def: 4, mid: 3, fwd: 3 },
+  { label: "4-4-2",     gk: 1, def: 4, mid: 4, fwd: 2 },
+  { label: "4-2-3-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-5-1",     gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-1-4-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-3-2-1",   gk: 1, def: 4, mid: 5, fwd: 1 },
+  { label: "4-2-4",     gk: 1, def: 4, mid: 2, fwd: 4 },
+  { label: "4-1-2-1-2", gk: 1, def: 4, mid: 4, fwd: 2 },
+  { label: "4-2-2-2",   gk: 1, def: 4, mid: 4, fwd: 2 },
+  { label: "3-5-2",     gk: 1, def: 3, mid: 5, fwd: 2 },
+  { label: "3-4-3",     gk: 1, def: 3, mid: 4, fwd: 3 },
+  { label: "5-3-2",     gk: 1, def: 5, mid: 3, fwd: 2 },
+  { label: "5-4-1",     gk: 1, def: 5, mid: 4, fwd: 1 },
 ] as const;
+
+// ── Standard jersey numbering per slot, left → right ─────────────────────────
+// Used by buildSlots to order the initial placement in the conventional way.
+// Players whose jersey isn't listed fall through to ascending-number ordering.
+const FORMATION_SLOT_ORDER: Partial<Record<string, Partial<Record<RowKey, number[]>>>> = {
+  "4-3-3":     { GK:[1], DEF:[3,4,5,2], MID:[6,8,10],       FWD:[11,9,7] },
+  "4-4-2":     { GK:[1], DEF:[3,4,5,2], MID:[11,6,8,7],     FWD:[10,9] },
+  "4-2-3-1":   { GK:[1], DEF:[3,4,5,2], MID:[11,6,8,7,10],  FWD:[9] },
+  "4-5-1":     { GK:[1], DEF:[3,4,5,2], MID:[11,6,8,10,7],  FWD:[9] },
+  "4-1-4-1":   { GK:[1], DEF:[3,4,5,2], MID:[11,6,8,7,10],  FWD:[9] },
+  "4-3-2-1":   { GK:[1], DEF:[3,4,5,2], MID:[11,6,8,7,10],  FWD:[9] },
+  "4-2-4":     { GK:[1], DEF:[3,4,5,2], MID:[6,8],           FWD:[11,10,9,7] },
+  "4-1-2-1-2": { GK:[1], DEF:[3,4,5,2], MID:[6,11,7,10],    FWD:[9,8] },
+  "4-2-2-2":   { GK:[1], DEF:[3,4,5,2], MID:[6,8,11,7],     FWD:[10,9] },
+  "3-5-2":     { GK:[1], DEF:[3,4,2],   MID:[11,6,5,8,7],   FWD:[10,9] },
+  "3-4-3":     { GK:[1], DEF:[3,4,2],   MID:[11,6,8,7],     FWD:[10,9,5] },
+  "5-3-2":     { GK:[1], DEF:[3,4,5,6,2], MID:[11,8,7],     FWD:[10,9] },
+  "5-4-1":     { GK:[1], DEF:[3,4,5,6,2], MID:[11,8,10,7],  FWD:[9] },
+};
 
 const getFormationConfig = (label: string) =>
   FORMATIONS.find(f => f.label === label) ?? FORMATIONS[0];
@@ -99,6 +120,16 @@ const FORMATION_POSITIONS: Partial<Record<string, Partial<Record<RowKey, RowPosi
   },
   "5-4-1": {
     DEF: { xs: [10, 27, 50, 73, 90] },
+  },
+  // Diamond: DM sits deep-centre, two wide mids level, AM pushes high-centre
+  "4-1-2-1-2": {
+    FWD: { xs: [35, 65] },
+    MID: { xs: [50, 22, 78, 50], ys: [6, 0, 0, -6] },
+  },
+  // Box: two DMs lower, two AMs higher
+  "4-2-2-2": {
+    FWD: { xs: [35, 65] },
+    MID: { xs: [33, 67, 33, 67], ys: [5, 5, -5, -5] },
   },
 };
 
@@ -167,9 +198,19 @@ function buildSlots(
   }
 
   const fillRow = (key: RowKey, count: number): Array<string | null> => {
-    // Stars (or saved starters) first, then non-stars to fill remaining
-    const starters = rows[key].filter(isStarter).sort(byJersey);
-    const fillers = rows[key].filter(p => !isStarter(p)).sort(byJersey);
+    const order = FORMATION_SLOT_ORDER[formationLabel]?.[key] ?? [];
+    const bySlotOrder = (a: Player, b: Player) => {
+      const ai = order.indexOf(a.jerseyNumber ?? -1);
+      const bi = order.indexOf(b.jerseyNumber ?? -1);
+      if (ai === -1 && bi === -1) return (a.jerseyNumber ?? 999) - (b.jerseyNumber ?? 999);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    };
+    // Stars (or saved starters) first, then non-stars to fill remaining slots —
+    // both groups sorted left-to-right by the formation's conventional numbering.
+    const starters = rows[key].filter(isStarter).sort(bySlotOrder);
+    const fillers  = rows[key].filter(p => !isStarter(p)).sort(bySlotOrder);
     const combined = [...starters, ...fillers];
     return Array.from({ length: count }, (_, i) => combined[i]?.id ?? null);
   };
