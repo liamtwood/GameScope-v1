@@ -625,7 +625,7 @@ export function FormationPitch({
       <div
         className="relative flex-1"
         style={{
-          backgroundColor: clubPrimary,
+          backgroundColor: "#F8FAFC",
           minHeight: 600,
         }}
       >
