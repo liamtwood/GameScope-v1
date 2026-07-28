@@ -5671,7 +5671,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fixture = await storage.getFixture(fixtureId);
       if (!fixture) return res.status(404).json({ message: "Fixture not found" });
 
-      // Get all players on the team
+      // Get all players on the team — getUsers(teamId) already joins userTeams,
+      // so p already carries jerseyNumber, position, starPlayer, fitnessStatus.
       const players = await storage.getUsers(fixture.teamId);
 
       // Get any saved squad selections for this fixture
@@ -5682,28 +5683,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const squadMap = new Map(squadRows.map(r => [r.userId, r.role]));
 
-      // Get userTeam data (jersey number, position, fitnessStatus)
-      const userTeamRows = await db
-        .select()
-        .from(userTeams)
-        .where(eq(userTeams.teamId, fixture.teamId));
-
-      const userTeamMap = new Map(userTeamRows.map(r => [r.userId, r]));
-
-      const PLAYER_POSITIONS = ["GK", "DEF", "MID", "FWD"];
+      // Normalise stored position strings (full names or abbreviations) → "GK"|"DEF"|"MID"|"FWD"
+      const normalisePos = (pos: string | null | undefined): string => {
+        const s = (pos ?? "").toLowerCase();
+        if (s === "gk" || s === "goalkeeper") return "GK";
+        if (s === "def" || s === "defender") return "DEF";
+        if (s === "mid" || s === "midfield" || s === "midfielder") return "MID";
+        if (s === "fwd" || s === "forward" || s === "attacker" || s === "striker") return "FWD";
+        return "";
+      };
 
       const result = players
         .map(p => {
-          const ut = userTeamMap.get(p.id);
+          const pos = normalisePos((p as any).position);
+          const fit = (p as any).fitnessStatus ?? "Fit";
+          const star = (p as any).starPlayer ?? false;
           return {
             ...p,
-            jerseyNumber: ut?.jerseyNumber ?? null,
-            position: ut?.position ?? "Unknown",
-            fitnessStatus: ut?.fitnessStatus ?? "Fit",
-            role: squadMap.get(p.id) ?? (p.fitnessStatus !== "Fit" ? "none" : p.starPlayer ? "starter" : "sub"),
+            position: pos,
+            fitnessStatus: fit,
+            starPlayer: star,
+            role: squadMap.get(p.id) ?? (fit !== "Fit" ? "none" : star ? "starter" : "sub"),
           };
         })
-        .filter(p => PLAYER_POSITIONS.includes(p.position));
+        .filter(p => p.position !== "");
 
       res.json({
         players: result,
