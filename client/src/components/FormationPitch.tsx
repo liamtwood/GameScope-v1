@@ -533,8 +533,12 @@ export function FormationPitch({
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div
-      className="flex gap-0 rounded-xl overflow-hidden"
-      style={{ minHeight: 600, background: 'linear-gradient(135deg, #0a0a1e 0%, #1a0a3e 30%, #0d1b4e 60%, #0a1628 100%)' }}
+      className="flex gap-3 p-3 rounded-2xl"
+      style={{
+        minHeight: 600,
+        background: `linear-gradient(135deg, ${clubPrimary}2a 0%, ${clubPrimary}10 55%, #080e1a 100%)`,
+        border: `1px solid ${clubPrimary}22`,
+      }}
       onClick={e => {
         // Clicking the backdrop (not a slot/button) deselects
         if ((e.target as HTMLElement).closest("[data-slot], [data-sub]") === null) {
@@ -544,8 +548,8 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4 border-r border-white/10"
-        style={{ backgroundColor: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)" }}
+        className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
+        style={{ backgroundColor: "rgba(255,255,255,0.09)", backdropFilter: "blur(20px)" }}
       >
         <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/50">
           Substitutes
@@ -624,9 +628,9 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1"
+        className="relative flex-1 rounded-xl overflow-hidden"
         style={{
-          backgroundColor: "transparent",
+          backgroundColor: "rgba(255,255,255,0.07)",
           minHeight: 600,
         }}
       >
@@ -672,14 +676,14 @@ export function FormationPitch({
 
         {/* Hint bar */}
         {showFormationPicker && slots && (
-          <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
-            <span className="text-white/35 text-[11px] bg-black/25 px-2.5 py-1.5 rounded-xl whitespace-nowrap border border-white/10 backdrop-blur-sm">
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-20">
+            <div className="text-white/30 text-[10px] leading-snug bg-black/20 p-2 rounded-xl border border-white/8 backdrop-blur-sm text-center">
               {pendingId
                 ? pendingIsOnBench
                   ? "Tap a player on the pitch to bring them on"
                   : "Tap another player or empty slot to swap"
-                : "Tap a player to move them, or pick a sub first"}
-            </span>
+                : "Tap a player to move them or pick a sub first"}
+            </div>
           </div>
         )}
 
