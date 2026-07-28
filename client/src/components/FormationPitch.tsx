@@ -630,7 +630,7 @@ export function FormationPitch({
       <div
         className="relative flex-1 rounded-xl overflow-hidden"
         style={{
-          backgroundColor: "transparent",
+          backgroundColor: "rgba(255,255,255,0.07)",
           minHeight: 600,
         }}
       >
@@ -647,10 +647,10 @@ export function FormationPitch({
             </radialGradient>
           </defs>
 
-          {/* Playing surface — fills entire panel, corners clipped by parent */}
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#pitchFill)" />
+          {/* Playing surface — inset to match subs panel padding */}
+          <rect x="2%" y="1.5%" width="96%" height="97%" fill="url(#pitchFill)" rx="8" />
           {/* Club-primary blush */}
-          <rect x="0" y="0" width="100%" height="100%" fill={clubPrimary} fillOpacity="0.04" />
+          <rect x="2%" y="1.5%" width="96%" height="97%" fill={clubPrimary} fillOpacity="0.04" rx="8" />
 
           {/* ── Lines — all very delicate ── */}
           {/* Outer border */}
