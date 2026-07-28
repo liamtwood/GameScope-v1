@@ -230,7 +230,9 @@ export default function Analysis() {
     >
       {/* Main Analysis Tabs */}
       <Tabs defaultValue={defaultTab} className="w-full">
-        {/* Shared Team Header - Always Visible across all tabs */}
+        {/* ── Sticky header: banner + nav ─────────────────── */}
+        <div className="sticky top-0 z-20 -mx-6 px-6 pb-3 bg-background">
+        {/* Shared Team Header */}
         <MatchScoreBanner 
           fixture={fixture}
           teamLogoPath={teamLogoPath || undefined}
@@ -243,7 +245,7 @@ export default function Analysis() {
 
         {/* Glass nav bar — dark gradient, Back button tucked on left */}
         <div
-          className="my-3 rounded-2xl p-1.5 flex items-center gap-1"
+          className="mt-3 rounded-2xl p-1.5 flex items-center gap-1"
           style={{
             background: `linear-gradient(135deg, ${primaryColor} 0%, #000000 100%)`,
             border: "1px solid rgba(255,255,255,0.12)",
@@ -289,6 +291,7 @@ export default function Analysis() {
             ))}
           </TabsList>
         </div>
+        </div>{/* end sticky header */}
 
         {/* Statistics Tab */}
         <TabsContent value="statistics">
