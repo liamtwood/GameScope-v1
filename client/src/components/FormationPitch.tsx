@@ -118,6 +118,36 @@ const rowPositions = (count: number, y: number, hint?: RowPositionHint) => {
 
 // ── Slot helpers ──────────────────────────────────────────────────────────────
 /**
+ * Reconstruct exact Slots from row-index-encoded roles ("starter-DEF-2").
+ * Returns null when the data uses the old "starter" format (pre-encoding).
+ */
+function reconstructSlotsFromRoles(
+  squadPlayers: Array<{ id: string; role: string }>,
+  formationLabel: string
+): Slots | null {
+  const hasEncoding = squadPlayers.some(p => /^starter-(GK|DEF|MID|FWD)-\d+$/.test(p.role));
+  if (!hasEncoding) return null;
+
+  const f = getFormationConfig(formationLabel);
+  const slots: Slots = {
+    GK:  Array<string | null>(f.gk).fill(null),
+    DEF: Array<string | null>(f.def).fill(null),
+    MID: Array<string | null>(f.mid).fill(null),
+    FWD: Array<string | null>(f.fwd).fill(null),
+  };
+
+  for (const p of squadPlayers) {
+    const m = p.role.match(/^starter-(GK|DEF|MID|FWD)-(\d+)$/);
+    if (!m) continue;
+    const row = m[1] as RowKey;
+    const idx = parseInt(m[2], 10);
+    if (idx < slots[row].length) slots[row][idx] = p.id;
+  }
+
+  return slots;
+}
+
+/**
  * Build initial slots from a list of players and a formation.
  * Star players fill the slots first; remaining non-stars fill up to the slot count.
  * If starterIdSet is provided, those players are treated as "starters" instead of star flag.
@@ -305,13 +335,19 @@ export function FormationPitch({
       if (squadLoading) return;
       const formation = squadData?.formation ?? "4-3-3";
       if (squadData) {
-        const savedStarters = new Set(
-          squadData.players.filter(p => p.role === "starter").map(p => p.id)
-        );
-        // Always ensure star players are included
-        players.filter(p => p.starPlayer).forEach(p => savedStarters.add(p.id));
         setSelectedFormation(formation);
-        setSlots(buildSlots(players, formation, savedStarters));
+        // Try to reconstruct exact slot positions from row-index-encoded roles
+        const reconstructed = reconstructSlotsFromRoles(squadData.players, formation);
+        if (reconstructed) {
+          setSlots(reconstructed);
+        } else {
+          // Fallback: old saves used plain "starter" — bucket by position attribute
+          const savedStarters = new Set(
+            squadData.players.filter(p => p.role === "starter").map(p => p.id)
+          );
+          players.filter(p => p.starPlayer).forEach(p => savedStarters.add(p.id));
+          setSlots(buildSlots(players, formation, savedStarters));
+        }
       } else {
         initialiseFromStars();
       }
@@ -390,12 +426,17 @@ export function FormationPitch({
   // ── Save ─────────────────────────────────────────────────────────────────
   const handleSave = () => {
     if (!fixtureId || !slots) return;
-    const onPitch = allOnPitch(slots);
+    // Encode each starter's row and slot index so we can reconstruct exact
+    // positions on reload without relying on position attributes.
+    const rowIndexOf = (id: string): string => {
+      for (const row of ["GK", "DEF", "MID", "FWD"] as RowKey[]) {
+        const idx = slots[row].indexOf(id);
+        if (idx !== -1) return `starter-${row}-${idx}`;
+      }
+      return "sub";
+    };
     const payload = {
-      players: players.map(p => ({
-        userId: p.id,
-        role: onPitch.has(p.id) ? "starter" : "sub",
-      })),
+      players: players.map(p => ({ userId: p.id, role: rowIndexOf(p.id) })),
       formation: selectedFormation,
     };
     saveMutation.mutate(payload);
