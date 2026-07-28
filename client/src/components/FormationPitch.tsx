@@ -674,15 +674,25 @@ export function FormationPitch({
           <circle cx="50%" cy="89%" r="1.5" fill="rgba(255,255,255,0.22)" />
         </svg>
 
-        {/* Hint bar */}
+        {/* Hint pill */}
         {showFormationPicker && slots && (
-          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-20">
-            <div className="text-white/30 text-[10px] leading-snug bg-black/20 p-2 rounded-xl border border-white/8 backdrop-blur-sm text-center">
-              {pendingId
-                ? pendingIsOnBench
-                  ? "Tap a player on the pitch to bring them on"
-                  : "Tap another player or empty slot to swap"
-                : "Tap a player to move them or pick a sub first"}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
+            <div
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white/40 text-[10px] tracking-wide"
+              style={{
+                background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
+                border: "1px solid transparent",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <span className="text-[8px] opacity-60">✦</span>
+              <span>
+                {pendingId
+                  ? pendingIsOnBench
+                    ? "Tap a pitch player to bring them on"
+                    : "Tap another player or slot to swap"
+                  : "Tap a player to move · or pick a sub first"}
+              </span>
             </div>
           </div>
         )}
