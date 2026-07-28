@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 180deg;
+  inherits: false;
+}
+
+@keyframes glass-border-spin {
+  to { --border-angle: 540deg; }
+}
+
+.glass-border-animated {
+  animation: glass-border-spin 6s linear infinite;
+}
+
 /* Force consistent scrollbar gutter to prevent layout shift */
 html {
   scrollbar-gutter: stable;

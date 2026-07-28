@@ -632,11 +632,11 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1 rounded-xl overflow-hidden"
+        className="relative flex-1 rounded-xl overflow-hidden glass-border-animated"
         style={{
           minHeight: 600,
-          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(180deg, ${clubPrimary}cc 0%, ${clubPrimary}55 25%, ${clubPrimary}00 100%) border-box`,
-          border: "1px solid transparent",
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, conic-gradient(from var(--border-angle), transparent 0%, ${clubPrimary}ee 8%, ${clubPrimary}66 14%, transparent 22%, transparent 78%, ${clubPrimary}44 86%, ${clubPrimary}22 90%, transparent 100%) border-box`,
+          border: "1.5px solid transparent",
           backdropFilter: "blur(12px)",
         }}
       >
