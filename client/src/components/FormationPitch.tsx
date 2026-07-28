@@ -755,14 +755,14 @@ export function FormationPitch({
                     </Avatar>
                     {player.jerseyNumber != null && (
                       <div
-                        className="absolute -bottom-1 -right-1 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border border-white/20 shadow-sm"
+                        className="absolute -top-1.5 -left-1.5 text-white rounded-full w-6 h-6 flex items-center justify-center text-[11px] font-bold border border-white/20 shadow-sm"
                         style={{ backgroundColor: isGK ? "#92400e" : clubPrimary }}
                       >
                         {player.jerseyNumber}
                       </div>
                     )}
                     {player.starPlayer && (
-                      <div className="absolute -top-1 -left-1">
+                      <div className="absolute -top-1 -right-1">
                         <Star className="h-3.5 w-3.5 text-orange-400 fill-orange-400 drop-shadow" />
                       </div>
                     )}
