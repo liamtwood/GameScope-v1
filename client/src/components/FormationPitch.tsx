@@ -733,7 +733,7 @@ export function FormationPitch({
                       style={{
                         width: 64,
                         height: 64,
-                        backgroundColor: player.avatarPath ? "rgba(225,225,230,0.92)" : undefined,
+                        backgroundColor: player.avatarPath ? "rgba(170,170,178,0.92)" : undefined,
                         borderColor: isPending
                           ? "#34d399"
                           : isTarget
