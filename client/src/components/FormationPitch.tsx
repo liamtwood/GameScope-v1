@@ -674,24 +674,24 @@ export function FormationPitch({
           <circle cx="50%" cy="89%" r="1.5" fill="rgba(255,255,255,0.22)" />
         </svg>
 
-        {/* Hint pill */}
+        {/* Hint pill — bottom left */}
         {showFormationPicker && slots && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-24">
             <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white/40 text-[10px] tracking-wide"
+              className="flex items-start gap-1.5 px-3 py-1.5 rounded-2xl text-white/40 text-[10px] tracking-wide leading-snug"
               style={{
                 background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
                 border: "1px solid transparent",
                 backdropFilter: "blur(8px)",
               }}
             >
-              <span className="text-[8px] opacity-60">✦</span>
+              <span className="text-[8px] opacity-60 mt-px shrink-0">✦</span>
               <span>
                 {pendingId
                   ? pendingIsOnBench
                     ? "Tap a pitch player to bring them on"
                     : "Tap another player or slot to swap"
-                  : "Tap a player to move · or pick a sub first"}
+                  : "Tap a player to move, or pick a sub first"}
               </span>
             </div>
           </div>
@@ -820,29 +820,30 @@ export function FormationPitch({
           });
         })}
 
-        {/* Formation picker */}
-        <div
-          className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: "50%", top: "13%" }}
-        >
+        {/* Formation picker — bottom right, pill-styled */}
+        <div className="absolute bottom-3 right-3 z-10">
           {showFormationPicker ? (
             <div className="relative">
               <select
                 value={selectedFormation}
                 onChange={e => handleFormationChange(e.target.value)}
-                className="appearance-none bg-black/50 text-white/90 text-sm font-bold font-mono rounded-md pl-3 pr-7 py-1.5 border border-white/20 cursor-pointer hover:bg-black/70 focus:outline-none focus:border-white/40 transition-colors"
-                style={{ backdropFilter: "blur(4px)" }}
+                className="appearance-none text-white/40 text-[10px] tracking-wide cursor-pointer focus:outline-none pr-5 pl-3 py-1.5 rounded-2xl"
+                style={{
+                  background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
+                  border: "1px solid transparent",
+                  backdropFilter: "blur(8px)",
+                }}
               >
                 {FORMATIONS.map(f => (
-                  <option key={f.label} value={f.label} className="bg-gray-900">
+                  <option key={f.label} value={f.label} className="bg-gray-900 text-white">
                     {f.label}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/60 pointer-events-none" />
+              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30 pointer-events-none" />
             </div>
           ) : (
-            <span className="text-white/50 text-sm font-mono font-bold pointer-events-none">
+            <span className="text-white/40 text-[10px] font-mono pointer-events-none">
               {pitchRows.map(r => r.slotIds.filter(Boolean).length).join("–")}
             </span>
           )}
