@@ -70,6 +70,12 @@ export default function Analysis() {
     enabled: !!fixture?.teamId,
   });
 
+  // Fetch all teams + clubs so we can resolve the fixture team's club colour
+  const { data: allTeams } = useQuery<any[]>({ queryKey: ["/api/teams"] });
+  const { data: allClubs } = useQuery<any[]>({ queryKey: ["/api/clubs"] });
+  const fixtureTeam = allTeams?.find((t: any) => t.id === fixture?.teamId);
+  const fixtureClub = allClubs?.find((c: any) => c.id === fixtureTeam?.clubId);
+
   // Convert team players to the format expected
   const allPlayers = teamPlayersData?.map(tp => ({
     ...tp.user,
@@ -209,10 +215,11 @@ export default function Analysis() {
   const teamLogoPath = selectedClub?.logoPath;
   const opponentLogoPath = opponentTeam?.logoPath;
 
-  // Get primary color from team/club colors with fallback (still used in some places)
+  // Get primary color — prefer the fixture team's club, fall back to sidebar club
   const teamColors = (selectedTeam?.colors as any) || {};
   const clubColors = (selectedClub?.colors as any) || {};
-  const primaryColor = teamColors.primary || clubColors.primary || '#CC4125';
+  const fixtureClubColors = (fixtureClub?.colors as any) || {};
+  const primaryColor = fixtureClubColors.primary || teamColors.primary || clubColors.primary || '#CC4125';
 
   // Allow viewing fixture even without full game stats
 

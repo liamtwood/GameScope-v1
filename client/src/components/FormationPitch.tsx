@@ -536,8 +536,8 @@ export function FormationPitch({
       className="flex gap-3 p-3 rounded-2xl"
       style={{
         minHeight: 600,
-        background: `linear-gradient(135deg, ${clubPrimary}2a 0%, ${clubPrimary}10 55%, #080e1a 100%)`,
-        border: `1px solid ${clubPrimary}22`,
+        background: `linear-gradient(160deg, ${clubPrimary}40 0%, ${clubPrimary}28 45%, #060b14 100%)`,
+        border: `1px solid ${clubPrimary}30`,
       }}
       onClick={e => {
         // Clicking the backdrop (not a slot/button) deselects
@@ -549,7 +549,7 @@ export function FormationPitch({
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
-        style={{ backgroundColor: "rgba(255,255,255,0.09)", backdropFilter: "blur(20px)" }}
+        style={{ backgroundColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(20px)" }}
       >
         <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/50">
           Substitutes
@@ -632,6 +632,7 @@ export function FormationPitch({
         style={{
           backgroundColor: "rgba(255,255,255,0.07)",
           minHeight: 600,
+          backdropFilter: "blur(20px)",
         }}
       >
         {/* Pitch markings */}
