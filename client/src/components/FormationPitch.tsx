@@ -533,7 +533,7 @@ export function FormationPitch({
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div
-      className="flex gap-3 p-3 rounded-2xl"
+      className="relative flex gap-3 p-3 rounded-2xl"
       style={{
         minHeight: 600,
         background: `linear-gradient(135deg, ${clubPrimary} 0%, #000000 100%)`,
@@ -546,6 +546,15 @@ export function FormationPitch({
         }
       }}
     >
+      {/* ── Foreground glow overlay — affects all panels via mix-blend-mode ── */}
+      <div
+        className="absolute inset-3 rounded-xl pointer-events-none z-20"
+        style={{
+          background: `radial-gradient(ellipse 80% 40% at 50% 0%, ${clubPrimary}30 0%, transparent 100%)`,
+          mixBlendMode: "screen",
+        }}
+      />
+
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden glass-border-animated"
