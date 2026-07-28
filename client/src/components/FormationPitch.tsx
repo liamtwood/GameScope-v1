@@ -548,7 +548,7 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden glass-border-animated"
+        className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
         style={{
           background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, conic-gradient(from var(--border-angle), transparent 0%, ${clubPrimary}ee 8%, ${clubPrimary}66 14%, transparent 22%, transparent 78%, ${clubPrimary}44 86%, ${clubPrimary}22 90%, transparent 100%) border-box`,
           border: "1px solid transparent",
@@ -632,7 +632,7 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1 rounded-xl overflow-hidden glass-border-animated"
+        className="relative flex-1 rounded-xl overflow-hidden"
         style={{
           minHeight: 600,
           background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, conic-gradient(from var(--border-angle), transparent 0%, ${clubPrimary}ee 8%, ${clubPrimary}66 14%, transparent 22%, transparent 78%, ${clubPrimary}44 86%, ${clubPrimary}22 90%, transparent 100%) border-box`,
@@ -676,16 +676,15 @@ export function FormationPitch({
 
         {/* Hint pill — bottom left */}
         {showFormationPicker && slots && (
-          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-24">
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none w-36">
             <div
-              className="flex items-start gap-1.5 px-3 py-1.5 rounded-2xl text-white/40 text-[10px] tracking-wide leading-snug"
+              className="px-3 py-1.5 rounded-2xl text-white/40 text-[10px] tracking-wide leading-snug"
               style={{
                 background: `linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(180deg, ${clubPrimary}55 0%, transparent 100%) border-box`,
                 border: "1px solid transparent",
                 backdropFilter: "blur(8px)",
               }}
             >
-              <span className="text-[8px] opacity-60 mt-px shrink-0">✦</span>
               <span>
                 {pendingId
                   ? pendingIsOnBench
