@@ -548,9 +548,9 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden glass-border-animated"
+        className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
         style={{
-          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, conic-gradient(from var(--border-angle), transparent 0%, ${clubPrimary}ee 8%, ${clubPrimary}66 14%, transparent 22%, transparent 78%, ${clubPrimary}44 86%, ${clubPrimary}22 90%, transparent 100%) border-box`,
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(180deg, ${clubPrimary}60 0%, ${clubPrimary}15 40%, transparent 100%) border-box`,
           border: "1px solid transparent",
           backdropFilter: "blur(12px)",
         }}
@@ -632,11 +632,11 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1 rounded-xl overflow-hidden glass-border-animated"
+        className="relative flex-1 rounded-xl overflow-hidden"
         style={{
           minHeight: 600,
-          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, conic-gradient(from var(--border-angle), transparent 0%, ${clubPrimary}ee 8%, ${clubPrimary}66 14%, transparent 22%, transparent 78%, ${clubPrimary}44 86%, ${clubPrimary}22 90%, transparent 100%) border-box`,
-          border: "1.5px solid transparent",
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(180deg, ${clubPrimary}60 0%, ${clubPrimary}15 40%, transparent 100%) border-box`,
+          border: "1px solid transparent",
           backdropFilter: "blur(12px)",
         }}
       >
