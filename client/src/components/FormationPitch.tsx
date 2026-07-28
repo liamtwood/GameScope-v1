@@ -739,8 +739,8 @@ export function FormationPitch({
                           ? "rgba(52,211,153,0.45)"
                           : isGK ? "rgba(245,158,11,0.45)" : "rgba(255,255,255,0.25)",
                         boxShadow: isPending
-                          ? "0 0 0 2px rgba(52,211,153,0.35), 0 2px 12px rgba(0,0,0,0.5)"
-                          : "0 2px 10px rgba(0,0,0,0.45)",
+                          ? "0 0 0 2px rgba(52,211,153,0.35), 0 4px 20px rgba(0,0,0,0.7)"
+                          : "0 4px 20px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5)",
                       }}
                     >
                       {player.avatarPath && (
@@ -772,12 +772,10 @@ export function FormationPitch({
                     )}
                   </div>
                   <span
-                    className="text-white/80 text-[11px] font-medium text-center leading-tight px-1.5 rounded-lg"
+                    className="text-white/90 text-[11px] font-medium text-center leading-tight"
                     style={{
                       maxWidth: 72,
-                      textShadow: "0 1px 4px rgba(0,0,0,0.9)",
-                      background: "rgba(0,0,0,0.20)",
-                      backdropFilter: "blur(4px)",
+                      textShadow: "0 1px 6px rgba(0,0,0,1), 0 2px 12px rgba(0,0,0,0.9)",
                     }}
                   >
                     {toTitleCase(player.lastName ?? "")}
