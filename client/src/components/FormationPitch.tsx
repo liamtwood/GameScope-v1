@@ -628,7 +628,7 @@ export function FormationPitch({
 
       {/* ── Pitch ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1"
+        className="relative flex-1 rounded-xl overflow-hidden"
         style={{
           minHeight: 600,
         }}
