@@ -534,7 +534,7 @@ export function FormationPitch({
   return (
     <div
       className="flex gap-0 rounded-xl overflow-hidden"
-      style={{ minHeight: 600 }}
+      style={{ minHeight: 600, background: 'linear-gradient(135deg, #0a0a1e 0%, #1a0a3e 30%, #0d1b4e 60%, #0a1628 100%)' }}
       onClick={e => {
         // Clicking the backdrop (not a slot/button) deselects
         if ((e.target as HTMLElement).closest("[data-slot], [data-sub]") === null) {
@@ -544,14 +544,14 @@ export function FormationPitch({
     >
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
-        className="w-52 shrink-0 flex flex-col p-4"
-        style={{ backgroundColor: "#F8FAFC" }}
+        className="w-52 shrink-0 flex flex-col p-4 border-r border-white/10"
+        style={{ backgroundColor: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)" }}
       >
-        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-slate-400">
+        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/50">
           Substitutes
         </p>
         {benchPlayers.length === 0 && (
-          <p className="text-slate-400 text-xs italic">None</p>
+          <p className="text-white/40 text-xs italic">None</p>
         )}
         <div className="space-y-4 overflow-y-auto flex-1">
           {(["GK", "DEF", "MID", "FWD"] as RowKey[]).map(pos => {
@@ -560,7 +560,7 @@ export function FormationPitch({
             const posLabel: Record<RowKey, string> = { GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" };
             return (
               <div key={pos}>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1 px-1 text-slate-400">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1 px-1 text-white/30">
                   {posLabel[pos]}
                 </p>
                 <div className="space-y-0.5">
@@ -573,14 +573,14 @@ export function FormationPitch({
                         onClick={e => { e.stopPropagation(); handleSubClick(player.id); }}
                         className={`w-full flex items-center gap-2 text-left rounded-md px-2 py-1 transition-all ${
                           isSel
-                            ? "bg-slate-200 ring-1 ring-slate-300"
-                            : "hover:bg-slate-100"
+                            ? "bg-white/15 ring-1 ring-white/25"
+                            : "hover:bg-white/8"
                         }`}
                       >
-                        <span className="text-slate-400 text-xs w-5 text-right shrink-0 tabular-nums">
+                        <span className="text-white/40 text-xs w-5 text-right shrink-0 tabular-nums">
                           {player.jerseyNumber ?? "–"}
                         </span>
-                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-slate-900 font-semibold" : "text-slate-700"}`}>
+                        <span className={`text-xs leading-tight transition-colors ${isSel ? "text-white font-semibold" : "text-white/80"}`}>
                           {player.firstName}{" "}
                           <span className="font-semibold">{player.lastName}</span>
                         </span>
@@ -598,7 +598,7 @@ export function FormationPitch({
 
         {/* Save button */}
         {fixtureId && showFormationPicker && (
-          <div className="mt-4 pt-4 border-t border-slate-200">
+          <div className="mt-4 pt-4 border-t border-white/10">
             <button
               onClick={handleSave}
               disabled={saveMutation.isPending || savedFlash}
@@ -606,8 +606,8 @@ export function FormationPitch({
                 savedFlash
                   ? "bg-emerald-600 text-white"
                   : isDirty
-                  ? "bg-slate-900 text-white hover:bg-slate-700"
-                  : "bg-slate-100 text-slate-400 cursor-default"
+                  ? "bg-white/15 text-white hover:bg-white/20 border border-white/20"
+                  : "bg-white/5 text-white/30 cursor-default"
               }`}
             >
               {savedFlash ? (
@@ -626,7 +626,7 @@ export function FormationPitch({
       <div
         className="relative flex-1"
         style={{
-          backgroundColor: "#F8FAFC",
+          backgroundColor: "transparent",
           minHeight: 600,
         }}
       >

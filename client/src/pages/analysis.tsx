@@ -36,7 +36,7 @@ export default function Analysis() {
   // Get the tab query parameter from URL
   const urlParams = new URLSearchParams(window.location.search);
   const tabParam = urlParams.get('tab');
-  const defaultTab = tabParam === 'videos' ? 'videos' : 'heatmaps';
+  const defaultTab = tabParam === 'videos' ? 'videos' : tabParam === 'positions' ? 'positions' : 'heatmaps';
 
   const { selectedTeam } = useTeam();
   const { selectedClub } = useClub();
@@ -660,11 +660,9 @@ export default function Analysis() {
 
         {/* Line-Ups Tab */}
         <TabsContent value="positions">
-          <Card>
-            <CardContent className="p-0 overflow-hidden">
-              <FormationPitch players={allPlayers} clubPrimary={primaryColor} showFormationPicker fixtureId={fixtureId} />
-            </CardContent>
-          </Card>
+          <div className="rounded-xl overflow-hidden">
+            <FormationPitch players={allPlayers} clubPrimary={primaryColor} showFormationPicker fixtureId={fixtureId} />
+          </div>
         </TabsContent>
 
         {/* Videos Tab */}
