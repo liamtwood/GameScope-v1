@@ -635,18 +635,18 @@ export function FormationPitch({
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Playing surface — desaturated sage, inside the touchlines */}
-          <rect x="4%" y="2%" width="92%" height="96%" fill="#7A8C6E" rx="2" />
-          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" rx="2" />
-          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" />
-          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
-          <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.60)" />
-          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.35)" strokeWidth="1"   fill="none" />
-          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.50)" strokeWidth="1.5" fill="none" />
-          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.35)" strokeWidth="1"   fill="none" />
-          <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.55)" />
-          <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.55)" />
+          {/* Playing surface — dark slate canvas */}
+          <rect x="4%" y="2%" width="92%" height="96%" fill="#1E293B" rx="2" />
+          <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" rx="2" />
+          <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" />
+          <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
+          <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.70)" />
+          <rect x="28%" y="2%" width="44%" height="17%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
+          <rect x="38%" y="2%" width="24%" height="7%"  stroke="rgba(255,255,255,0.45)" strokeWidth="1"   fill="none" />
+          <rect x="28%" y="81%" width="44%" height="17%" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none" />
+          <rect x="38%" y="91%" width="24%" height="7%"  stroke="rgba(255,255,255,0.45)" strokeWidth="1"   fill="none" />
+          <circle cx="50%" cy="13%" r="2.5" fill="rgba(255,255,255,0.70)" />
+          <circle cx="50%" cy="87%" r="2.5" fill="rgba(255,255,255,0.70)" />
         </svg>
 
         {/* Hint bar */}
