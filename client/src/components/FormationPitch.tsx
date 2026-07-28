@@ -158,24 +158,36 @@ function buildSlots(
  */
 function resizeSlots(current: Slots, newLabel: string): Slots {
   const f = getFormationConfig(newLabel);
+  const rowKeys: RowKey[] = ["GK", "DEF", "MID", "FWD"];
+  const needed: Record<RowKey, number> = { GK: f.gk, DEF: f.def, MID: f.mid, FWD: f.fwd };
 
-  const resize = (row: Array<string | null>, needed: number): Array<string | null> => {
-    // Compact: filled entries first so trimming removes nulls
-    const filled = row.filter(Boolean) as string[];
-    const combined = [
-      ...filled,
-      ...Array<null>(Math.max(0, row.length - filled.length)).fill(null),
+  // Pass 1 — keep as many current occupants as the new row size allows;
+  //           overflow players (from shrinking rows) go into a displaced pool.
+  const next: Slots = { GK: [], DEF: [], MID: [], FWD: [] };
+  const displaced: string[] = [];
+
+  for (const row of rowKeys) {
+    const filled = current[row].filter(Boolean) as string[];
+    const keep = filled.slice(0, needed[row]);
+    next[row] = [
+      ...keep,
+      ...Array<null>(Math.max(0, needed[row] - keep.length)).fill(null),
     ];
-    if (combined.length >= needed) return combined.slice(0, needed);
-    return [...combined, ...Array<null>(needed - combined.length).fill(null)];
-  };
+    // Any player that no longer fits in their row is displaced, not benched
+    displaced.push(...filled.slice(needed[row]));
+  }
 
-  return {
-    GK: resize(current.GK, f.gk),
-    DEF: resize(current.DEF, f.def),
-    MID: resize(current.MID, f.mid),
-    FWD: resize(current.FWD, f.fwd),
-  };
+  // Pass 2 — fill empty slots created by growing rows with displaced players.
+  //           GK row first so a displaced GK is most likely to land back in goal.
+  for (const row of rowKeys) {
+    for (let i = 0; i < next[row].length && displaced.length > 0; i++) {
+      if (next[row][i] === null) {
+        next[row][i] = displaced.shift()!;
+      }
+    }
+  }
+
+  return next;
 }
 
 /**
