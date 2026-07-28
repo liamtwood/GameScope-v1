@@ -652,8 +652,8 @@ export function FormationPitch({
 
         {/* Hint bar */}
         {showFormationPicker && slots && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <span className="text-white/40 text-[11px] bg-black/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
+            <span className="text-white/40 text-[11px] bg-black/30 px-2.5 py-1.5 rounded-md whitespace-nowrap border border-white/10">
               {pendingId
                 ? pendingIsOnBench
                   ? "Tap a player on the pitch to bring them on"
