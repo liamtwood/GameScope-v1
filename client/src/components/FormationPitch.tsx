@@ -546,15 +546,6 @@ export function FormationPitch({
         }
       }}
     >
-      {/* ── Foreground glow overlay — affects all panels via mix-blend-mode ── */}
-      <div
-        className="absolute inset-3 rounded-xl pointer-events-none z-20"
-        style={{
-          background: `radial-gradient(ellipse 80% 40% at 50% 0%, ${clubPrimary}30 0%, transparent 100%)`,
-          mixBlendMode: "screen",
-        }}
-      />
-
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden glass-border-animated"
@@ -858,6 +849,17 @@ export function FormationPitch({
           )}
         </div>
       </div>
+
+      {/* ── Foreground glow overlay — backdrop-filter shaped by mask ── */}
+      <div
+        className="absolute inset-3 rounded-xl pointer-events-none"
+        style={{
+          backdropFilter: "brightness(1.25) saturate(1.6)",
+          WebkitBackdropFilter: "brightness(1.25) saturate(1.6)",
+          maskImage: `radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 100%)`,
+          WebkitMaskImage: `radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 100%)`,
+        }}
+      />
     </div>
   );
 }
