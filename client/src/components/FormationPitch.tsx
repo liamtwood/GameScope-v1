@@ -621,8 +621,7 @@ export function FormationPitch({
       <div
         className="relative flex-1"
         style={{
-          background:
-            "linear-gradient(180deg, #1e7a30 0%, #22923a 30%, #1e7a30 50%, #22923a 70%, #1e7a30 100%)",
+          backgroundColor: clubPrimary,
           minHeight: 600,
         }}
       >
@@ -632,6 +631,17 @@ export function FormationPitch({
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {/* Playing surface — green, inside the touchlines */}
+          <defs>
+            <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#1e7a30" />
+              <stop offset="30%"  stopColor="#22923a" />
+              <stop offset="50%"  stopColor="#1e7a30" />
+              <stop offset="70%"  stopColor="#22923a" />
+              <stop offset="100%" stopColor="#1e7a30" />
+            </linearGradient>
+          </defs>
+          <rect x="4%" y="2%" width="92%" height="96%" fill="url(#grassGrad)" rx="2" />
           <rect x="4%" y="2%" width="92%" height="96%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" rx="2" />
           <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
           <ellipse cx="50%" cy="50%" rx="9%" ry="11%" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
