@@ -230,14 +230,6 @@ export default function Analysis() {
     >
       {/* Main Analysis Tabs */}
       <Tabs defaultValue={defaultTab} className="w-full">
-        {/* Back button */}
-        <div className="mb-4">
-          <Button variant="outline" size="sm" onClick={() => window.history.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
-
         {/* Shared Team Header - Always Visible across all tabs */}
         <MatchScoreBanner 
           fixture={fixture}
@@ -249,17 +241,28 @@ export default function Analysis() {
           clubName={selectedClub?.name}
         />
 
-        {/* Glass nav bar */}
+        {/* Glass nav bar — dark gradient, Back button tucked on left */}
         <div
-          className="my-3 rounded-2xl p-1.5"
+          className="my-3 rounded-2xl p-1.5 flex items-center gap-1"
           style={{
-            background: "rgba(0,0,0,0.04)",
-            border: "1px solid rgba(0,0,0,0.08)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)",
-            backdropFilter: "blur(8px)",
+            background: `linear-gradient(135deg, ${primaryColor} 0%, #000000 100%)`,
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
           }}
         >
-          <TabsList className="!flex w-full !bg-transparent !h-auto !p-0 gap-1">
+          {/* Back button */}
+          <button
+            onClick={() => window.history.back()}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-white/50 hover:text-white text-xs font-medium transition-colors hover:bg-white/10"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </button>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-white/15 shrink-0" />
+
+          <TabsList className="!flex flex-1 !bg-transparent !h-auto !p-0 gap-1">
             {[
               { value: "heatmaps",   label: "Fixture Details" },
               { value: "report",     label: "Match Report" },
@@ -275,10 +278,10 @@ export default function Analysis() {
                 value={tab.value}
                 data-testid={tab.value === "upload" ? "tab-upload" : undefined}
                 className="flex-1 rounded-xl text-xs font-medium py-2
-                  !text-gray-500 hover:!text-gray-800
+                  !text-white/40 hover:!text-white/80
                   !bg-transparent !shadow-none
-                  data-[state=active]:!bg-white data-[state=active]:!text-gray-900
-                  data-[state=active]:!shadow-sm
+                  data-[state=active]:!bg-white/15 data-[state=active]:!text-white
+                  data-[state=active]:!shadow-none
                   transition-all duration-150"
               >
                 {tab.label}
