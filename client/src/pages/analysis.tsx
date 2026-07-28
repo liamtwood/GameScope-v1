@@ -230,27 +230,12 @@ export default function Analysis() {
     >
       {/* Main Analysis Tabs */}
       <Tabs defaultValue={defaultTab} className="w-full">
-        {/* Header with Tabs */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Back button */}
+        <div className="mb-4">
           <Button variant="outline" size="sm" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          
-          <div className="flex-1 flex justify-center">
-            <TabsList className="grid max-w-[960px] grid-cols-8">
-              <TabsTrigger value="heatmaps">Fixture Details</TabsTrigger>
-              <TabsTrigger value="report">Match Report</TabsTrigger>
-              <TabsTrigger value="positions">Line-Ups</TabsTrigger>
-              <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="upload" data-testid="tab-upload">Upload Data</TabsTrigger>
-              <TabsTrigger value="statistics">Statistics</TabsTrigger>
-              <TabsTrigger value="spider">Spider Charts</TabsTrigger>
-              <TabsTrigger value="ai">AI Analysis</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <div className="w-[120px]"></div> {/* Spacer to balance the back button */}
         </div>
 
         {/* Shared Team Header - Always Visible across all tabs */}
@@ -263,6 +248,44 @@ export default function Analysis() {
           primaryColor={primaryColor}
           clubName={selectedClub?.name}
         />
+
+        {/* Glass nav bar */}
+        <div
+          className="my-3 rounded-2xl p-1.5"
+          style={{
+            background: "rgba(0,0,0,0.04)",
+            border: "1px solid rgba(0,0,0,0.08)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <TabsList className="!flex w-full !bg-transparent !h-auto !p-0 gap-1">
+            {[
+              { value: "heatmaps",   label: "Fixture Details" },
+              { value: "report",     label: "Match Report" },
+              { value: "positions",  label: "Line-Ups" },
+              { value: "videos",     label: "Videos" },
+              { value: "upload",     label: "Upload Data" },
+              { value: "statistics", label: "Statistics" },
+              { value: "spider",     label: "Spider Charts" },
+              { value: "ai",         label: "AI Analysis" },
+            ].map(tab => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                data-testid={tab.value === "upload" ? "tab-upload" : undefined}
+                className="flex-1 rounded-xl text-xs font-medium py-2
+                  !text-gray-500 hover:!text-gray-800
+                  !bg-transparent !shadow-none
+                  data-[state=active]:!bg-white data-[state=active]:!text-gray-900
+                  data-[state=active]:!shadow-sm
+                  transition-all duration-150"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {/* Statistics Tab */}
         <TabsContent value="statistics">
