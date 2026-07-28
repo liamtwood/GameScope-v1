@@ -549,7 +549,11 @@ export function FormationPitch({
       {/* ── Substitutes panel ──────────────────────────────── */}
       <div
         className="w-52 shrink-0 flex flex-col p-4 rounded-xl overflow-hidden"
-        style={{ backgroundColor: "rgba(255,255,255,0.07)", border: `1px solid ${clubPrimary}60` }}
+        style={{
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(135deg, ${clubPrimary}90 0%, ${clubPrimary}30 100%) border-box`,
+          border: "1px solid transparent",
+          backdropFilter: "blur(12px)",
+        }}
       >
         <p className="text-xs font-bold uppercase tracking-widest mb-3 text-white/50">
           Substitutes
@@ -631,7 +635,9 @@ export function FormationPitch({
         className="relative flex-1 rounded-xl overflow-hidden"
         style={{
           minHeight: 600,
-          border: `1px solid ${clubPrimary}60`,
+          background: `linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) padding-box, linear-gradient(135deg, ${clubPrimary}90 0%, ${clubPrimary}30 100%) border-box`,
+          border: "1px solid transparent",
+          backdropFilter: "blur(12px)",
         }}
       >
         {/* Pitch markings */}
