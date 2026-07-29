@@ -1,10 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Configure Neon WebSocket constructor
-neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -12,31 +8,32 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Configure connection pool with proper settings for serverless environments
-export const pool = new Pool({ 
+// Supabase (and most managed Postgres) require SSL. Disable strict cert
+// verification for the provider-managed certificate. Local dev over
+// localhost connects without SSL.
+const useSSL = !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL);
+
+// Standard node-postgres pool, suitable for a long-running server (Railway).
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 3, // Maximum number of connections in the pool (safe for Neon limits)
-  idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-  connectionTimeoutMillis: 5000, // Timeout when acquiring a connection
-  allowExitOnIdle: true, // Allow pool to close when idle (good for serverless)
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
-// Add connection error handling
+// Log unexpected pool errors instead of crashing the process.
 pool.on('error', (err) => {
   console.error('Database pool error:', err);
 });
 
-// Graceful shutdown for the pool
-process.on('SIGINT', async () => {
+// Graceful shutdown.
+async function closePool() {
   console.log('Closing database pool...');
   await pool.end();
   process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Closing database pool...');
-  await pool.end();
-  process.exit(0);
-});
+}
+process.on('SIGINT', closePool);
+process.on('SIGTERM', closePool);
