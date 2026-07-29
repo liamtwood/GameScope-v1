@@ -1,0 +1,1 @@
+var a=class{static id="d47c2ac4-e571-488f-a895-c1940726900f";static name="Football";static code="1002";static imageUrl="https://firebasestorage.googleapis.com/v0/b/activityprouk-b5815/o/ActivityPro%2FActivityIcons%2Fsoccer-ball.svg?alt=media&token=12fc6f60-defa-4dfd-aabd-0e5ef2617889"};export{a};

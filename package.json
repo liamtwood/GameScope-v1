@@ -1,0 +1,17 @@
+{
+  "name": "gamescope-frontend-host",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serves the prebuilt GameScope Angular app and proxies API/GraphQL/video to the backend over HTTPS.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^2.0.7"
+  }
+}
