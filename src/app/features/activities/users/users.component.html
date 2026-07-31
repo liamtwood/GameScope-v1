@@ -1,0 +1,143 @@
+<!-- users.component.html -->
+<div class="users-container">
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <app-stats-card 
+      *ngFor="let stat of getStatsCards()" 
+      [stat]="stat">
+    </app-stats-card>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <div class="filter-section">
+      <app-button 
+        [config]="{
+          label: showFilter ? 'Disable Filter' : 'Enable Filter',
+          icon: 'filter_list',
+          iconColor: 'var(--club-primary-color)',
+          type: showFilter ? 'primary' : 'secondary'
+        }"
+        (buttonClick)="toggleFilter()">
+      </app-button>
+    </div>
+
+    <div class="action-buttons">
+      <app-button 
+        *hasRole="[RbacRole.ADMIN, RbacRole.SUPER_ADMIN]"
+        [config]="{
+          label: 'Add User',
+          icon: 'person_add',
+          type: 'secondary'
+        }"
+        (buttonClick)="handleAddUser()">
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filters-section" [class.show]="showFilter">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Role</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="activeFilter" (selectionChange)="onRoleFilterChange($event.value)" placeholder="All Roles">
+            <mat-option *ngFor="let role of roleOptions" [value]="role.value">
+              {{ role.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Status</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="statusFilter" (selectionChange)="onStatusFilterChange($event.value)" placeholder="All Status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group keyword-group">
+        <label>Keyword</label>
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" placeholder="Search users..." [(ngModel)]="searchTerm"
+            (input)="onSearchChange($event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users List Area with Loading Spinner -->
+  <div class="users-container-content">
+    
+    <!-- Show spinner when loading -->
+    <div *ngIf="isLoading" class="users-loading-area">
+      <app-progress-spinner 
+        [config]="{
+          diameter: 50,
+          strokeWidth: 4,
+          color: 'primary',
+          mode: 'indeterminate'
+        }"
+        [message]="'Loading users...'"
+        [showMessage]="true">
+      </app-progress-spinner>
+    </div>
+
+    <!-- Show users when not loading and users exist -->
+    <div *ngIf="!isLoading && filteredUsers.length > 0">
+      <div *ngFor="let roleName of roleDisplayOrder" class="role-section">
+        <div *ngIf="usersByRole[roleName] && usersByRole[roleName].length > 0">
+          <h3 class="role-title">{{ roleName }} ({{ usersByRole[roleName].length }})</h3>
+          <div class="users-grid">
+             <app-user-card 
+          *ngFor="let user of usersByRole[roleName]" 
+          [user]="user"
+          [config]="{
+            showActions: isAdmin(),
+            clickable: true,
+            editable: false
+          }"
+          (cardClick)="onViewPlayer(user)"
+          (statusChange)="onUserStatusChange($event.user, $event.newStatus)"
+          (deleteUser)="handleDeleteUser($event)"
+          (editUser)="handleEditUser($event)">
+        </app-user-card>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update the empty state logic -->
+    <app-empty-state
+      *ngIf="!isLoading && filteredUsers.length === 0 && hasActiveFilters()"
+      icon="people_outline"
+      title="No users match your filters"
+      description="Try adjusting your filter criteria."
+      actionLabel="Clear Filters"
+      actionIcon="filter_alt_off"
+      actionType="secondary"
+      (actionClick)="clearAllFilters()">
+    </app-empty-state>
+
+    <app-empty-state
+      *ngIf="!isLoading && filteredUsers.length === 0 && !hasActiveFilters()"
+      icon="people_outline"
+      title="No users found"
+      description="Get started by adding your first user.">
+      <app-button 
+        *hasRole="[RbacRole.ADMIN, RbacRole.SUPER_ADMIN]"
+        [config]="{
+          label: 'Add First User',
+          icon: 'person_add',
+          type: 'primary'
+        }"
+        (buttonClick)="handleAddUser()">
+      </app-button>
+    </app-empty-state>
+  </div>
+</div>

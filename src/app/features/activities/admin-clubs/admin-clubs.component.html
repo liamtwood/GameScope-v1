@@ -1,0 +1,163 @@
+<div class="clubs-container">
+
+  <!-- Main Content Card -->
+  <mat-card class="clubs-card">
+    <!-- Card Header with Filters and Create Button -->
+    <mat-card-header class="card-header">
+  <div class="header-left">
+    <!-- Search Input -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" 
+               class="search-input"
+               placeholder="Search clubs..." 
+               [(ngModel)]="searchTerm"
+               (input)="onSearchChange()">
+      </div>
+    </div>
+    
+    <!-- Enable Filters Button -->
+    <app-button [config]="{
+        label: showFilters ? 'Hide Filters' : 'Enable Filters',
+        icon: 'filter_list',
+        iconColor: 'var(--club-primary-color)',
+        type: showFilters ? 'primary' : 'secondary'
+      }" (buttonClick)="toggleFilters()" data-testid="button-toggle-filters">
+    </app-button>
+  </div>
+
+      <div class="header-right">
+        <app-button [config]="{
+            label: 'Add Club',
+            icon: 'account_balance',
+            type: 'secondary'
+          }" (buttonClick)="openCreateDialog()" data-testid="button-create-club">
+        </app-button>
+      </div>
+    </mat-card-header>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" *ngIf="showFilters">
+      <div class="filter-content">
+        <div class="filter-item">
+          <label class="filter-label">Country:</label>
+          <div class="mat-select-wrapper">
+            <mat-form-field appearance="outline" class="filter-form-field">
+              <mat-select [(ngModel)]="selectedCountry" (selectionChange)="onCountryFilterChange()"
+                data-testid="select-country-filter">
+                <mat-option value="all">All Countries</mat-option>
+                <mat-option *ngFor="let country of uniqueCountries" [value]="country">{{ country }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clubs Content -->
+    <mat-card-content class="clubs-content">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <app-progress-spinner [config]="{
+            diameter: 50,
+            strokeWidth: 4,
+            color: 'primary',
+            mode: 'indeterminate'
+          }" [message]="'Loading clubs...'" [showMessage]="true">
+        </app-progress-spinner>
+      </div>
+
+      <!-- Clubs by Country -->
+      <div *ngIf="!isLoading" class="clubs-by-country">
+        <div *ngFor="let group of groupedClubs" class="country-group">
+          <!-- Country Header -->
+          <div class="country-header">
+            <app-icon name="map-pin" size="18"></app-icon>
+            <h3>{{ group.country }}</h3>
+            <span class="club-count">({{ group.clubs.length }})</span>
+          </div>
+
+          <!-- Clubs Grid -->
+          <div class="clubs-grid">
+            <mat-card *ngFor="let club of group.clubs" class="club-card" [class.selected]="selectedClub?.id === club.id"
+              (click)="selectClub(club)" [attr.data-testid]="'card-club-' + club.id">
+
+              <mat-card-content class="club-card-content">
+                <!-- Club Header -->
+                <div class="club-header">
+                  <!-- Club Logo and Info -->
+                  <div class="club-info">
+                    <div class="club-logo">
+  <img *ngIf="club.logoPath && !isPlaceholderLogo(club.logoPath) && !club.logoLoadError" 
+       [src]="club.logoPath" 
+       [alt]="club.name + ' logo'"
+       [attr.data-testid]="'img-club-logo-' + club.id" 
+       class="logo-image"
+       (error)="onLogoError(club)">
+  <div *ngIf="!club.logoPath || isPlaceholderLogo(club.logoPath) || club.logoLoadError" 
+       class="logo-placeholder">
+    {{ getClubInitials(club) }}
+  </div>
+</div>
+
+                    <div class="club-details">
+                      <h4 class="club-name" [attr.data-testid]="'text-club-name-' + club.id">
+                        {{ club.name | titlecase}}
+                      </h4>
+                      <p class="club-owner">Owner: {{ club.owner | titlecase}}</p>
+                      <div class="status-badge" [class]="getStatusClass(club.subscriptionStatus)"
+  [attr.data-testid]="'text-club-status-' + club.id">
+  {{ getStatusText(club.subscriptionStatus) }}
+</div>
+                    </div>
+                  </div>
+
+                  <!-- Edit Button -->
+                  <button mat-icon-button class="edit-button" (click)="editClub(club, $event)"
+                    [attr.data-testid]="'button-edit-club-' + club.id">
+                    <app-icon name="edit" size="16"></app-icon>
+                  </button>
+                </div>
+
+                <!-- Club Statistics -->
+                <div class="club-stats">
+                  <div class="stat-item">
+                    <span class="stat-number" [attr.data-testid]="'text-club-players-' + club.id">
+                      {{ club.stats?.players || 0 }}
+                    </span>
+                    <span class="stat-label">Players</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number" [attr.data-testid]="'text-club-teams-' + club.id">
+                      {{ club.stats?.teams || 0 }}
+                    </span>
+                    <span class="stat-label">Teams</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number" [attr.data-testid]="'text-club-fixtures-' + club.id">
+                      {{ club.stats?.fixtures || 0 }}
+                    </span>
+                    <span class="stat-label">Fixtures</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <app-empty-state
+        *ngIf="!isLoading && clubs.length === 0"
+        icon="account_balance"
+        title="No clubs found"
+        description="Get started by creating your first club."
+        actionLabel="Create Your First Club"
+        actionIcon="account_balance"
+        (actionClick)="openCreateDialog()">
+      </app-empty-state>
+    </mat-card-content>
+  </mat-card>
+
+</div>

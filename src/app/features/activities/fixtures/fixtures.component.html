@@ -1,0 +1,226 @@
+<div class="fixture-container">
+  <!-- Stats Cards Section -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <app-stats-card *ngFor="let stat of getStatsCards()" [stat]="stat">
+      </app-stats-card>
+    </div>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls-section">
+    <app-button [config]="{
+        label: showFilters ? 'Disable Filter' : 'Enable Filter',
+        icon: 'filter_list',
+        iconColor: 'var(--club-primary-color)',
+        type: showFilters ? 'primary' : 'secondary'
+      }" (buttonClick)="toggleFilters()">
+    </app-button>
+
+    <div class="controls-right">
+      <app-button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" [config]="{
+          label: 'Add Fixture',
+          icon: 'calendar_today',
+          type: 'secondary'
+        }" (buttonClick)="addFixture()">
+      </app-button>
+      <app-button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" [config]="{
+    label: 'Import Excel',
+    icon: 'upload',
+    type: 'secondary'
+  }" (buttonClick)="importExcel()">
+</app-button>
+      <!-- <button mat-icon-button class="settings-btn" (click)="openSettings()">
+        <mat-icon>settings</mat-icon>
+      </button> -->
+    </div>
+  </div>
+
+  <!-- Filters Section (Collapsible) -->
+  <div class="filters-section" [class.show]="showFilters">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Season</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedSeason" placeholder="Select Season">
+            <mat-option *ngFor="let season of seasons" [value]="season.value">
+              {{ season.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Competition</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedCompetition" placeholder="Select Competition">
+            <mat-option *ngFor="let comp of competitions" [value]="comp.value">
+              {{ comp.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Status Dropdown -->
+      <div class="filter-group">
+        <label>Status</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedStatus" placeholder="Select Status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Location Dropdown -->
+      <div class="filter-group">
+        <label>Location</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedLocation" placeholder="Select Location">
+            <mat-option *ngFor="let location of locationOptions" [value]="location.value">
+              {{ location.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group keyword-group">
+        <label>Keyword</label>
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" placeholder="Search fixtures..." [(ngModel)]="searchKeyword">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <app-progress-spinner [config]="{
+        diameter: 50,
+        strokeWidth: 4,
+        color: 'primary',
+        mode: 'indeterminate'
+      }" [message]="'Loading fixtures...'" [showMessage]="true">
+    </app-progress-spinner>
+  </div>
+
+  <!-- Content when not loading -->
+  <div *ngIf="!isLoading">
+    <!-- Fixtures List Section -->
+    <div class="fixtures-list">
+      <div *ngFor="let competition of getFilteredFixturesArray()" class="competition-section">
+        <h3 class="competition-title">
+          {{ getCompetitionName(competition.key) }}
+          <span class="count">({{ competition.value.length }})</span>
+        </h3>
+
+        <div class="fixtures-group">
+          <div *ngFor="let fixture of competition.value" class="fixture-item"
+            (click)="navigateToFixtureDetails(fixture)">
+            <!-- Clickable Area -->
+            <div class="clickable-area">
+              <div class="fixture-content">
+                <div class="team-info">
+                  <div class="team-logo-container">
+                     <img *ngIf="fixture.logo" 
+       class="team-logo" 
+       [src]="fixture.logo" 
+       [alt]="fixture.opponent + ' logo'"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+  
+  <!-- Show avatar with initials if logo is null or fails to load -->
+  <div *ngIf="!fixture.logo" class="team-avatar">
+    {{ getTeamInitials(fixture.opponent) }}
+  </div>
+                  </div>
+                  <div class="team-details">
+                    <h4 class="team-name">{{ fixture.opponent | titlecase}}</h4>
+                    <div class="fixture-meta">
+                      <h4 class="fixture-date">{{ fixture.datetime }}</h4>
+                    </div>
+                    <div class="fixture-location">
+                      <span class="location-badge" [class]="fixture.location.toLowerCase()"
+                        [matTooltip]="getLocationTooltip(fixture.location)">
+                        <mat-icon class="location-icon">
+                          {{ getLocationIcon(fixture.location) }}
+                        </mat-icon>
+                        {{ fixture.location }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Icons and Status Badge Container -->
+                <div class="status-section">
+                  <!-- Video Icon (show if videoCount > 0) -->
+                  <div *ngIf="fixture.videoCount && fixture.videoCount > 0" class="icon-indicator video-indicator"
+                    title="Video Available">
+                    <lucide-icon name="video"></lucide-icon>
+                  </div>
+
+                  <!-- Data/Report Icon (show if videoResultCount > 0) -->
+                  <div *ngIf="fixture.videoResultCount && fixture.videoResultCount > 0"
+                    class="icon-indicator report-indicator" title="Analysis Available">
+                    <lucide-icon name="chart-spline"></lucide-icon>
+                  </div>
+
+                  <!-- Status/Result Badge -->
+                  <div class="status-badge" [ngClass]="getStatusClass(fixture)">
+                    {{ getStatusLabel(fixture) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons Area (with stopPropagation) -->
+            <div *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" class="action-buttons-area">
+
+              <!-- Upload Video Button -->
+              <button *ngIf="fixture.status === 'Completed'" mat-icon-button class="video-upload-btn" (click)="navigateToUpload(fixture); $event.stopPropagation()"
+                title="Upload Video">
+                <lucide-icon name="video" [size]="17"></lucide-icon>
+              </button>
+
+              <!-- Delete Button -->
+              <button mat-icon-button class="delete-btn" (click)="deleteMatch(fixture); $event.stopPropagation()"
+                title="Delete Fixture">
+                <app-icon name="trash-2" [size]="17"></app-icon>
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State - CONTEXT AWARE -->
+    <app-empty-state
+      *ngIf="hasNoFixtures() && !hasActiveFilters()"
+      icon="calendar_today"
+      title="No Fixtures Yet"
+      description="Get started by adding your first fixture">
+      <app-button 
+        *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]"
+        [config]="{
+          label: 'Add First Fixture',
+          icon: 'calendar_today',
+          type: 'primary'
+        }"
+        (buttonClick)="addFixture()">
+      </app-button>
+    </app-empty-state>
+
+    <app-empty-state
+      *ngIf="hasNoFixtures() && hasActiveFilters()"
+      icon="calendar_today"
+      title="No Fixtures Match Filters"
+      description="Try adjusting your competition, status, location, or search criteria"
+      actionLabel="Clear All Filters"
+      actionIcon="filter_alt_off"
+      actionType="secondary"
+      (actionClick)="clearAllFilters()">
+    </app-empty-state>
+    <!-- addFixture() -->
+  </div>
+</div>

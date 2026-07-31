@@ -1,0 +1,24 @@
+<button 
+  class="button-wrapper"
+  [class.clickable]="clickable && !config.disabled && !config.loading"
+  (click)="onClick()"
+  [disabled]="config.disabled || config.loading">
+  
+  <div class="button-content" [class]="getButtonClass()">
+    <!-- Loading Spinner -->
+    <div *ngIf="config.loading" class="button-loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Button Content -->
+    <div class="content" [class.hidden]="config.loading">
+      <ng-container *ngIf="config.icon && !config.customIcon">
+  <mat-icon class="icon material-icons-outlined" [style.color]="config.iconColor">{{ config.icon }}</mat-icon>
+</ng-container>
+<ng-container *ngIf="config.customIcon">
+  <app-icon [name]="config.customIcon" [size]="18" customClass="icon"></app-icon>
+</ng-container>
+      <span class="label">{{ config.label }}</span>
+    </div>
+  </div>
+</button>

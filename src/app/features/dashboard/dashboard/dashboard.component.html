@@ -1,0 +1,155 @@
+<div class="dashboard-container">
+  <!-- Loading Spinner -->
+  <app-progress-spinner *ngIf="isLoading"
+    [config]="{ diameter: 50 }"
+    [message]="'Loading dashboard data...'">
+  </app-progress-spinner>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <app-stats-card 
+        *ngFor="let stat of stats" 
+        [stat]="stat"
+        class="stat-card-item">
+      </app-stats-card>
+    </div>
+    
+    <!-- [GS-EDIT 2026-07-31] Enable/Disable Filter toggle (same as other pages); filters hidden by default. -->
+    <div class="controls-section">
+      <app-button [config]="{
+          label: showFilters ? 'Disable Filter' : 'Enable Filter',
+          icon: 'filter_list',
+          iconColor: 'var(--club-primary-color)',
+          type: showFilters ? 'primary' : 'secondary'
+        }" (buttonClick)="toggleFilters()">
+      </app-button>
+    </div>
+
+    <!-- [GS-EDIT 2026-07-31] Page-level filters (Competition + Date), shown only when enabled. -->
+    <div class="dashboard-filters" *ngIf="showFilters">
+      <div class="dash-filter" [class.open]="openFilter === 'competition'">
+        <span class="dash-filter-label">Competition</span>
+        <button class="dash-filter-trigger" (click)="toggleFilter('competition')">
+          <span class="dash-filter-value">{{ competitionLabel }}</span>
+          <span class="material-symbols-outlined dash-chev" [class.rotated]="openFilter === 'competition'">expand_more</span>
+        </button>
+        <div class="dash-filter-menu" *ngIf="openFilter === 'competition'">
+          <div class="dash-filter-option" *ngFor="let c of competitions"
+               [class.selected]="c.value === selectedCompetition" (click)="selectCompetition(c.value)">{{ c.label }}</div>
+        </div>
+      </div>
+
+      <div class="dash-filter" [class.open]="openFilter === 'date'">
+        <span class="dash-filter-label">Date</span>
+        <button class="dash-filter-trigger" (click)="toggleFilter('date')">
+          <span class="dash-filter-value">{{ dateRangeLabel }}</span>
+          <span class="material-symbols-outlined dash-chev" [class.rotated]="openFilter === 'date'">expand_more</span>
+        </button>
+        <div class="dash-filter-menu" *ngIf="openFilter === 'date'">
+          <div class="dash-filter-option" *ngFor="let d of dateRanges"
+               [class.selected]="d.value === selectedDateRange" (click)="selectDateRange(d.value)">{{ d.label }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results and Upcoming Matches -->
+    <div class="matches-container">
+      <!-- Recent Results -->
+      <mat-card class="matches-section">
+        <h2 class="section-title">Recent Results</h2>
+       
+        <div *ngIf="recentResults.length === 0" class="no-data-message">
+          <span class="material-symbols-outlined no-data-icon">sports_soccer</span>
+          <p>No recent matches found</p>
+        </div>
+
+        <div class="match-list" *ngIf="recentResults.length > 0">
+          <div class="match-card clickable" 
+               *ngFor="let match of recentResults"
+               (click)="navigateToFixtureDetails(match)">
+            <div class="match-content">
+              <div class="team-logo">
+  <img *ngIf="match.logo && match.logo !== 'assets/selected-team-logo.png'"
+       [src]="match.logo" 
+       [alt]="match.opponent" 
+       class="logo-image"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+  <div class="logo-fallback" 
+       [style.display]="(match.logo && match.logo !== 'assets/selected-team-logo.png') ? 'none' : 'flex'">
+    <span>{{ getTeamInitials(match.opponent) }}</span>
+  </div>
+</div>
+             
+              <div class="match-details">
+                <h3 class="opponent-name">{{ match.opponent | titlecase}}</h3>
+                <h4 class="match-date">{{ match.date }}</h4>
+                <!-- <h4 class="match-league">{{ match.league }}</h4> -->
+                <!-- Venue badge -->
+                <div class="venue-badge">
+                  <span class="material-symbols-outlined venue-icon">{{ match.venue === 'HOME' ? 'home' : 'flight' }}</span>
+                  <span class="venue-text">{{ match.venue }}</span>
+                </div>
+              </div>
+             
+              <div class="match-status">
+                 <div class="status-badge" [ngClass]="getStatusClass(match)">
+    {{ getStatusLabel(match) }}
+  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+      
+      <!-- Upcoming Matches -->
+      <mat-card class="matches-section">
+        <h2 class="section-title">Upcoming Fixtures</h2>
+
+        <div *ngIf="upcomingMatches.length === 0" class="no-data-message">
+          <span class="material-symbols-outlined no-data-icon">calendar_today</span>
+          <p>No upcoming fixtures scheduled</p>
+        </div>
+
+        <div class="match-list" *ngIf="upcomingMatches.length > 0">
+          <div class="match-card clickable" 
+               *ngFor="let match of upcomingMatches"
+               >  
+               <!-- (click)="navigateToFixtureDetails(match)" -->
+            <div class="match-content">
+              <div class="team-logo">
+  <img *ngIf="match.logo && match.logo !== 'assets/selected-team-logo.png'"
+       [src]="match.logo" 
+       [alt]="match.opponent" 
+       class="logo-image"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+  <div class="logo-fallback" 
+       [style.display]="(match.logo && match.logo !== 'assets/selected-team-logo.png') ? 'none' : 'flex'">
+    <span>{{ getTeamInitials(match.opponent) }}</span>
+  </div>
+</div>
+             
+              <div class="match-details">
+                <h3 class="opponent-name">{{ match.opponent | titlecase}}</h3>
+                <h4 class="match-date">{{ match.date }}</h4>
+                <!-- <h4 class="match-league">{{ match.league }}</h4> -->
+                <!-- Venue badge -->
+                <div class="venue-badge">
+                  <span class="material-symbols-outlined venue-icon">{{ match.venue === 'HOME' ? 'home' : 'flight' }}</span>
+                  <span class="venue-text">{{ match.venue }}</span>
+                </div>
+              </div>
+             
+              <div class="match-status">
+                 <div class="status-badge" [ngClass]="getStatusClass(match)">
+    {{ getStatusLabel(match) }}
+  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

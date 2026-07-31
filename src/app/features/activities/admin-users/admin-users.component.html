@@ -1,0 +1,245 @@
+<!-- admin-users.component.html -->
+<div class="admin-users-container">
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <app-stats-card 
+      *ngFor="let stat of getStatsCards()" 
+      [stat]="stat">
+    </app-stats-card>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <div class="filter-section">
+      <app-button 
+        [config]="{
+          label: showFilter ? 'Disable Filter' : 'Enable Filter',
+          icon: 'filter_list',
+          iconColor: 'var(--club-primary-color)',
+          type: showFilter ? 'primary' : 'secondary'
+        }"
+        (buttonClick)="toggleFilter()">
+      </app-button>
+    </div>
+    
+    <div class="action-buttons">
+      <app-button 
+        [config]="{
+          label: 'Add User',
+          icon: 'person_add',
+          type: 'secondary'
+        }"
+        (buttonClick)="handleAddUser()">
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filters-section" [class.show]="showFilter">
+    <div class="filter-row">
+      <!-- Role Filter -->
+      <div class="filter-group">
+        <label>Role</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="activeFilter" (selectionChange)="onRoleFilterChange($event.value)" placeholder="All Roles">
+            <mat-option *ngFor="let role of roleOptions" [value]="role.value">
+              {{ role.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label>Status</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="statusFilter" (selectionChange)="onStatusFilterChange($event.value)" placeholder="All Status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Club Filter -->
+      <!-- Club Filter -->
+<div class="filter-group">
+  <label>Parent Club</label>
+  <mat-form-field appearance="outline" class="fixture-form-field">
+    <mat-select 
+      [(value)]="clubFilter" 
+      (selectionChange)="onClubFilterChange($event.value)" 
+      placeholder="All Clubs"
+      #clubSelect>
+      
+      <mat-select-trigger>
+        {{ getSelectedClubLabel() }}
+      </mat-select-trigger>
+      
+      <!-- Search input - NOT disabled -->
+      <div class="club-search-container" (click)="$event.stopPropagation()">
+        <input 
+          type="text" 
+          class="club-search-input"
+          placeholder="Search clubs..."
+          [formControl]="clubSearchControl"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()">
+      </div>
+      
+      <!-- Options -->
+      <mat-option 
+        *ngFor="let club of filteredClubOptions | async" 
+        [value]="club.value">
+        {{ club.label }}
+      </mat-option>
+      
+      <!-- Loading indicator -->
+      <mat-option *ngIf="isLoadingClubs" disabled class="loading-option">
+        <div class="loading-content">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Loading clubs...</span>
+        </div>
+      </mat-option>
+      
+      <!-- No results -->
+      <mat-option 
+        *ngIf="(filteredClubOptions | async)?.length === 0 && !isLoadingClubs" 
+        disabled 
+        class="no-results-option">
+        <span class="no-results">No clubs found</span>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+      <!-- Keyword Filter -->
+      <div class="filter-group keyword-group">
+        <label>Keyword</label>
+        <div class="search-input-wrapper">
+          <input type="text" 
+                 class="search-input"
+                 placeholder="Search users..." 
+                 [(ngModel)]="searchTerm"
+                 (input)="onSearchChange($event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="users-loading-area">
+    <app-progress-spinner 
+      [config]="{
+        diameter: 50,
+        strokeWidth: 4,
+        color: 'primary',
+        mode: 'indeterminate'
+      }"
+      [message]="'Loading users...'"
+      [showMessage]="true">
+    </app-progress-spinner>
+  </div>
+
+  <!-- Club Header -->
+  <div class="club-header" *ngIf="!isLoading && filteredUsers.length > 0">
+    <h2 class="club-title">{{ getDisplayClubName() }}</h2>
+  </div>
+
+  <!-- Users List - Card Layout by Role -->
+  <div class="users-container-content" *ngIf="!isLoading && filteredUsers.length > 0; else emptyState">
+    <div *ngFor="let roleName of roleDisplayOrder" class="role-section">
+      <div *ngIf="usersByRole[roleName] && usersByRole[roleName].length > 0">
+        <h3 class="role-title">{{ roleName }} ({{ usersByRole[roleName].length }})</h3>
+        <div class="users-grid">
+          <app-user-card 
+            *ngFor="let user of usersByRole[roleName]" 
+            [user]="transformUserForCard(user)"
+            [config]="{
+              showActions: true,
+              clickable: true,
+              editable: false
+            }"
+            (cardClick)="onViewUser(user)"
+            (statusChange)="onUserStatusChange($event)"
+            (toggleKeyUser)="handleToggleKeyUser(transformToAdminUser($event))"
+            (deleteUser)="handleDeleteUserConfirmation(transformToAdminUser($event))"
+            (editUser)="handleEditUser($event)">
+          </app-user-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      </div>
+      
+      <div class="pagination-controls">
+        <!-- First Page Button -->
+        <button 
+          mat-icon-button 
+          class="pagination-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(1)">
+          <mat-icon>first_page</mat-icon>
+        </button>
+
+        <!-- Previous Page Button -->
+        <button 
+          mat-icon-button 
+          class="pagination-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="pagination-numbers">
+          <button 
+            *ngFor="let page of paginationPages"
+            mat-button
+            class="page-number-btn"
+            [class.active]="page === currentPage"
+            [class.ellipsis]="page === -1"
+            [disabled]="page === -1"
+            (click)="page !== -1 && onPageChange(page)">
+            {{ page === -1 ? '...' : page }}
+          </button>
+        </div>
+
+        <!-- Next Page Button -->
+        <button 
+          mat-icon-button 
+          class="pagination-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(currentPage + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <!-- Last Page Button -->
+        <button 
+          mat-icon-button 
+          class="pagination-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(totalPages)">
+          <mat-icon>last_page</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <ng-template #emptyState>
+    <app-empty-state
+      *ngIf="!isLoading"
+      icon="people_outline"
+      title="No users found"
+      description="No users found matching your criteria."
+      actionLabel="Add First User"
+      actionIcon="person_add"
+      (actionClick)="handleAddUser()">
+    </app-empty-state>
+  </ng-template>
+</div>

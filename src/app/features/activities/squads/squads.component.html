@@ -1,0 +1,301 @@
+<!-- squads.component.html -->
+<div class="squad-container">
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <ng-container *ngFor="let stat of getStatsCards()">
+      <app-stats-card *ngIf="stat.title !== 'Position Breakdown'" [stat]="stat">
+      </app-stats-card>
+      
+      <!-- Custom Position Breakdown Card -->
+      <mat-card class="stat-card position-breakdown-card" *ngIf="stat.title === 'Position Breakdown'">
+        <mat-card-content class="stat-content custom-content">
+          <div class="stat-info w-100">
+            <h3 class="stat-title">{{ stat.title }}</h3>
+            <div class="position-badges-container">
+              <div class="pos-badge gk" matTooltip="Goalkeepers"><span class="pos-label">GK</span><span class="pos-val">{{squadStats.positions.gk}}</span></div>
+              <div class="pos-badge def" matTooltip="Defenders"><span class="pos-label">DEF</span><span class="pos-val">{{squadStats.positions.def}}</span></div>
+              <div class="pos-badge mid" matTooltip="Midfielders"><span class="pos-label">MID</span><span class="pos-val">{{squadStats.positions.mid}}</span></div>
+              <div class="pos-badge fwd" matTooltip="Forwards"><span class="pos-label">FWD</span><span class="pos-val">{{squadStats.positions.fwd}}</span></div>
+              <div class="pos-badge staff" matTooltip="Staff"><span class="pos-label">STAFF</span><span class="pos-val">{{squadStats.positions.staff}}</span></div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <div class="filter-section">
+      <app-button [config]="{
+          label: showFilter ? 'Disable Filter' : 'Enable Filter',
+          icon: 'filter_list',
+          iconColor: 'var(--club-primary-color)',
+          type: showFilter ? 'primary' : 'secondary'
+        }" (buttonClick)="toggleFilter()">
+      </app-button>
+    </div>
+
+    <div class="action-buttons">
+      <app-button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" [config]="{
+          label: 'Add Player',
+          icon: 'person_add',
+          type: 'secondary'
+        }" (buttonClick)="handleAddPlayer()">
+      </app-button>
+
+      <app-button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" [config]="{
+          label: 'Import Excel',
+          icon: 'download',
+          type: 'secondary'
+        }" (buttonClick)="handleImport()">
+      </app-button>
+
+      <app-button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" [config]="{
+          label: 'Transfer Players',
+          customIcon: 'arrow-left-right',
+          type: 'secondary'
+        }" (buttonClick)="openTransferDialog()">
+      </app-button>
+
+      <!-- <button mat-icon-button class="settings-btn" (click)="handlesetting()">
+        <mat-icon>settings</mat-icon>
+      </button> -->
+
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filters-section" [class.show]="showFilter">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Position</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedPosition" (selectionChange)="applyFilters()" placeholder="All Positions">
+            <mat-option *ngFor="let position of positionOptions" [value]="position.value">
+              {{ position.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Status</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedStatus" (selectionChange)="applyFilters()" placeholder="All Status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Star Players</label>
+        <mat-form-field appearance="outline" class="fixture-form-field">
+          <mat-select [(value)]="selectedStarPlayers" (selectionChange)="applyFilters()" placeholder="All Players">
+            <mat-option *ngFor="let starOption of starPlayerOptions" [value]="starOption.value">
+              {{ starOption.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group keyword-group">
+        <label>Keyword</label>
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" placeholder="Search players..." [(ngModel)]="searchKeyword"
+            (input)="applyFilters()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show spinner when loading -->
+  <div *ngIf="isLoading" class="users-loading-area">
+    <app-progress-spinner [config]="{
+          diameter: 50,
+          strokeWidth: 4,
+          color: 'primary',
+          mode: 'indeterminate'
+        }" [message]="'Loading users...'" [showMessage]="true">
+    </app-progress-spinner>
+  </div>
+
+  <!-- Empty State - CONTEXT AWARE -->
+  <app-empty-state
+    *ngIf="!isLoading && allPlayers.length === 0"
+    icon="groups"
+    title="No Players in Squad"
+    description="Get started by adding players to your squad">
+    <app-button 
+      *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" 
+      [config]="{
+        label: 'Add First Player',
+        icon: 'person_add',
+        type: 'primary'
+      }" 
+      (buttonClick)="handleAddPlayer()">
+    </app-button>
+  </app-empty-state>
+
+  <!-- No Results from Filters -->
+  <app-empty-state
+    *ngIf="!isLoading && allPlayers.length > 0 && filteredPlayers.length === 0"
+    icon="search_off"
+    title="No Players Match Filters"
+    description="Try adjusting your position, status, or search filters"
+    actionLabel="Clear All Filters"
+    actionIcon="filter_alt_off"
+    actionType="secondary"
+    (actionClick)="clearAllFilters()">
+  </app-empty-state>
+
+  <!-- Players List - Grid Layout -->
+  <div class="players-container" *ngIf="!isLoading && allPlayers.length > 0">
+
+    <!-- Dynamic Position Sections -->
+    <div class="position-section" *ngFor="let group of positionGroups; trackBy: trackByGroupTitle">
+      <h3 class="position-title">{{group.title}}</h3>
+      <div class="players-grid">
+        <!-- Complete player card with position dropdown -->
+        <div class="player-card" *ngFor="let player of group.players; trackBy: trackByPlayerId"
+          [class.clickable]="!isAnalystOrScout()"
+          (click)="!isAnalystOrScout() ? onViewPlayer(player) : null">
+          <!-- Updated Jersey Number with dynamic club color -->
+          <div class="player-jersey-wrapper" (click)="$event.stopPropagation()">
+
+            <div *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" class="player-jersey" [style.background-color]="clubPrimaryColor" (click)="startEditJersey(player)"
+              matTooltip="Edit Jersey Number" matTooltipPosition="above">
+              <span class="jersey-number">{{player.jerseyNumber}}</span>
+            </div>
+
+            <div *hasRole="[RbacRole.ANALYST, RbacRole.SCOUT]" class="player-jersey" [style.background-color]="clubPrimaryColor" style="cursor: default;">
+              <span class="jersey-number">{{player.jerseyNumber}}</span>
+            </div>
+
+            <ng-container *ngIf="editingPlayerId === player.id">
+              <div class="jersey-inline-edit" (click)="$event.stopPropagation()">
+                <input #jerseyInput class="jersey-input" type="number" [value]="player.jerseyNumber" min="0" max="99"
+                  (wheel)="$event.preventDefault()" (keydown.enter)="confirmJerseyEdit(player, jerseyInput.value)"
+                  (keydown.escape)="cancelJerseyEdit()" />
+                <button class="jersey-action-btn confirm-btn" (click)="confirmJerseyEdit(player, jerseyInput.value)"
+                  matTooltip="Save" matTooltipPosition="above">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="white" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1,6 5,10 12,2"></polyline>
+                  </svg>
+                </button>
+                <button class="jersey-action-btn cancel-btn" (click)="cancelJerseyEdit()" matTooltip="Cancel"
+                  matTooltipPosition="above">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round">
+                    <line x1="1" y1="1" x2="12" y2="12"></line>
+                    <line x1="12" y1="1" x2="1" y2="12"></line>
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
+
+          </div>
+          <div class="player-info">
+            <div class="player-name">{{player.name | titlecase}}</div>
+
+            <!-- Position Dropdown - Updated with dynamic club color -->
+            <div class="player-position-dropdown">
+              <span *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" class="position-badge clickable" [matMenuTriggerFor]="positionMenu"
+                [matMenuTriggerData]="{player: player}" (click)="$event.stopPropagation()"
+                [style.background-color]="clubPrimaryColor" matTooltip="Edit Position" matTooltipPosition="above">
+                {{player.position}}
+              </span>
+
+              <span *hasRole="[RbacRole.ANALYST, RbacRole.SCOUT]" class="position-badge"
+                (click)="$event.stopPropagation()"
+                [style.background-color]="clubPrimaryColor" style="cursor: default;">
+                {{player.position}}
+              </span>
+
+              <!-- Position Dropdown Menu -->
+              <mat-menu #positionMenu="matMenu" class="position-dropdown-menu">
+                <ng-template matMenuContent let-player="player">
+                  <button mat-menu-item *ngFor="let role of allRoles" (click)="onPositionChange(player, role)"
+                    [class.selected]="player.position === role.role_name">
+                    <div class="position-menu-item">
+                      <span>{{ role.role_name }}</span>
+                      <mat-icon *ngIf="player.position === role.role_name" class="check-icon" [style.color]="clubPrimaryColor">check</mat-icon>
+                    </div>
+                  </button>
+                </ng-template>
+              </mat-menu>
+            </div>
+          </div>
+
+          <div class="player-status-section" *ngIf="!isAnalystOrScout()">
+            <!-- Clickable Status Badge with Dropdown -->
+            <div class="status-dropdown-wrapper">
+              <span *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" class="status-badge clickable" [ngClass]="player.status" [matMenuTriggerFor]="statusMenu"
+                [matMenuTriggerData]="{player: player}" (click)="$event.stopPropagation()"
+                matTooltip="Edit Player Status" matTooltipPosition="above">
+                {{player.status | titlecase}}
+              </span>
+
+              <!-- Status Dropdown Menu -->
+              <mat-menu #statusMenu="matMenu" class="status-dropdown-menu">
+                <ng-template matMenuContent let-player="player">
+                  <button mat-menu-item (click)="onStatusChange(player, 'fit')"
+                    [class.selected]="player.status === 'fit'">
+                    <div class="status-menu-item">
+                      <span>Fit</span>
+                      <mat-icon *ngIf="player.status === 'fit'" class="check-icon">check</mat-icon>
+                    </div>
+                  </button>
+                  <button mat-menu-item (click)="onStatusChange(player, 'injured')"
+                    [class.selected]="player.status === 'injured'">
+                    <div class="status-menu-item">
+                      <span>Injured</span>
+                      <mat-icon *ngIf="player.status === 'injured'" class="check-icon">check</mat-icon>
+                    </div>
+                  </button>
+                  <button mat-menu-item (click)="onStatusChange(player, 'retired')"
+                    [class.selected]="player.status === 'retired'">
+                    <div class="status-menu-item">
+                      <span>Retired</span>
+                      <mat-icon *ngIf="player.status === 'retired'" class="check-icon">check</mat-icon>
+                    </div>
+                  </button>
+                </ng-template>
+              </mat-menu>
+            </div>
+
+            <mat-icon *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" class="star-icon" [ngClass]="getStarIconClass(player.isStarPlayer)"
+              (click)="onToggleStarPlayer(player); $event.stopPropagation()" matTooltip="Make Star Player"
+              matTooltipPosition="above">
+              {{getStarIcon(player.isStarPlayer)}}
+            </mat-icon>
+
+            <button *hasRole="[RbacRole.ADMIN, RbacRole.COACH, RbacRole.SUPER_ADMIN]" mat-icon-button class="delete-btn" (click)="onDeletePlayer(player); $event.stopPropagation()"
+              matTooltip="Delete Player" matTooltipPosition="above">
+              <app-icon name="trash-2" [size]="17"></app-icon>
+            </button>
+          </div>
+
+          <div class="player-status-section" *ngIf="isAnalystOrScout()">
+            <mat-icon *hasRole="[RbacRole.ANALYST, RbacRole.SCOUT]" class="star-icon analyst-star" [ngClass]="getStarIconClass(player.isStarPlayer)"
+              (click)="$event.stopPropagation()" style="cursor: default;">
+              {{getStarIcon(player.isStarPlayer)}}
+            </mat-icon>
+
+            <div class="status-dropdown-wrapper">
+              <span *hasRole="[RbacRole.ANALYST, RbacRole.SCOUT]" class="status-badge" [ngClass]="player.status"
+                (click)="$event.stopPropagation()" style="cursor: default;">
+                {{player.status | titlecase}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
